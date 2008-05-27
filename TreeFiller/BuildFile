@@ -1,0 +1,17 @@
+# -*- Makefile -*-
+# $Id:$
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
+<use name=root>
+<use name=MitProd/TreeService>
+<use name=MitAna/DataTree>
+<use name=MitAna/DataUtil>
+<flags CXXFLAGS="-g">
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=MitProdTreeFiller>
+</export>
