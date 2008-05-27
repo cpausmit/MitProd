@@ -1,0 +1,14 @@
+# -*- Makefile -*-
+# $Id:$
+
+<use name=DataFormats/Provenance>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=MitAna/DataUtil>
+<use name=root>
+<flags CXXFLAGS="-g">
+<export>
+   <lib name=MitProdTreeService>
+</export>

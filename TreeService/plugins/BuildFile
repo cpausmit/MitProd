@@ -1,0 +1,9 @@
+# -*- Makefile -*-
+# $Id:$
+
+<library name=MitProdTreeService_plugins file=*.cc>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>
+   <use name=MitProd/TreeService>
+</library>
