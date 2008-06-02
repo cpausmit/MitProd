@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: FillGenParts.cc,v 1.1 2008/05/27 20:30:15 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,9 +51,8 @@ void FillGenParts::analyze(const edm::Event &theEvent,
     HepMC::GenParticle* mcPart = (*pgen);
     if(!mcPart) continue;
 
-    mithep::Particle genParticle;
-    genParticle.SetPxPyPzE(mcPart->momentum().x(),mcPart->momentum().y(),
-                           mcPart->momentum().z(),mcPart->momentum().e());
+    mithep::Particle genParticle(mcPart->momentum().x(),mcPart->momentum().y(),
+                                 mcPart->momentum().z(),mcPart->momentum().e());
 
     //printf("ngen %d\n",nGen);
 #if 0
