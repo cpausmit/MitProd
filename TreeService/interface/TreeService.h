@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: TreeService.h,v 1.1 2008/05/27 20:09:09 loizides Exp $
 
 #ifndef MITPROD_TREESERVICE_H
 #define MITPROD_TREESERVICE_H
@@ -25,13 +25,13 @@ namespace edm
 // for example:
 //
 //   service = TreeService { 
-//        untracked vstring treeNames   = { "MitTree" }
-//        untracked vstring fileNames   = { "mittreefile" }
-//        untracked vstring pathNames   = { "." }
-//        untracked vuint32 maxSizes    = { 1024 }
-//        untracked vuint32 compLevels  = { 9 }
-//        untracked vuint32 splitLevels = { 99 }
-//        untracked vuint32 brSizes     = { 32000 }
+//     untracked vstring treeNames   = { "MitTree" }
+//     untracked vstring fileNames   = { "mittreefile" }
+//     untracked vstring pathNames   = { "." }
+//     untracked vuint32 maxSizes    = { 1024 }
+//     untracked vuint32 compLevels  = { 9 }
+//     untracked vuint32 splitLevels = { 99 }
+//     untracked vuint32 brSizes     = { 32000 }
 //   }
 //
 // Authors: C.Loizides
@@ -66,7 +66,5 @@ namespace mithep
       std::vector<unsigned>    splitLevels_; //default split levels
       std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
   };
-
-} /*namespace mithep*/
-
+}
 #endif /*MITPROD_TREESERVICE_H*/

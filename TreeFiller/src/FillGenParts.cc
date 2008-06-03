@@ -1,4 +1,4 @@
-// $Id: FillGenParts.cc,v 1.1 2008/05/27 20:30:15 loizides Exp $
+// $Id: FillGenParts.cc,v 1.2 2008/06/02 04:52:56 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,6 +55,7 @@ void FillGenParts::analyze(const edm::Event &theEvent,
                                  mcPart->momentum().z(),mcPart->momentum().e());
 
     //printf("ngen %d\n",nGen);
+
 #if 0
     genParticle.setPdgID(MCPart->pdg_id());
     genParticle.setBarCode(MCPart->barcode()-1);
@@ -62,8 +63,8 @@ void FillGenParts::analyze(const edm::Event &theEvent,
    
     HepMC::GenVertex * momVert = MCPart->production_vertex();
     //genParticle.setMother(-1);
-    if(momVert) {
-      if(momVert->particles_in_size() == 1) {
+    if (momVert) {
+      if (momVert->particles_in_size() == 1) {
 	HepMC::GenVertex::particles_in_const_iterator mom = momVert->particles_in_const_begin();
 	genParticle.setMother((*mom)->barcode() - 1);
       } else {genParticle.setMother(-1);}
@@ -72,6 +73,7 @@ void FillGenParts::analyze(const edm::Event &theEvent,
     //else                 genParticle.setMother(-1);
     genParticle.setPtr(nGen);
 #endif
+
     genParticles_->Add(genParticle);
     nGen++;
   }
