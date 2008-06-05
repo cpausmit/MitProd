@@ -1,10 +1,14 @@
 # -*- Makefile -*-
-# $Id:$
+# $Id: BuildFile,v 1.1 2008/05/27 20:30:15 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/GsfTrackReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=clhep>
 <use name=root>
 <use name=MitProd/TreeService>
