@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: FillGenParts.h,v 1.1 2008/05/27 20:30:15 loizides Exp $
 
 #ifndef TREEFILLER_FILLGENPARTS_H
 #define TREEFILLER_FILLGENPARTS_H
@@ -11,15 +11,14 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 
-#include "MitAna/DataTree/interface/Particle.h"
+#include "MitAna/DataTree/interface/GenParticle.h"
 #include "MitAna/DataTree/interface/Vector.h"
-#include <TClonesArray.h>
 
 //--------------------------------------------------------------------------------------------------
 //
 // FillGenParts
 //
-// Module copying HepMC particles into Particles.
+// Module copying HepMC particles into GenParticles.
 //
 // Authors: C.Loizides
 //
@@ -38,8 +37,9 @@ namespace mithep
       void endJob ();
   
     private:
-      mithep::Vector<mithep::Particle> *genParticles_;  
-      std::string anaMCSource_;
+      mithep::Vector<mithep::GenParticle> *genParticles_;  
+      std::string mcSource_;
+      std::string genPartBrn_;
   };
 
 } /*namespace mithep*/
