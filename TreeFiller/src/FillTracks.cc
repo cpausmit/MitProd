@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FillTracks.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,8 +19,8 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillTracks::FillTracks(const edm::ParameterSet &iConfig)
-   : trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
-     trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
+  : trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
+    trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
 {
    tracks_ = new mithep::Vector<mithep::Track>();
 }
@@ -33,7 +33,7 @@ FillTracks::~FillTracks()
 
 //-------------------------------------------------------------------------------------------------
 void FillTracks::analyze(const edm::Event &theEvent, 
-                           const edm::EventSetup &iSetup)
+			 const edm::EventSetup &iSetup)
 {
   tracks_->Reset();
 
@@ -51,12 +51,13 @@ void FillTracks::analyze(const edm::Event &theEvent,
 
   int nTracks = 0;
   for (reco::TrackCollection::const_iterator inTrack = 
-         Tracks.begin();
-       inTrack != Tracks.end(); ++inTrack) {
+         Tracks.begin(); inTrack != Tracks.end(); ++inTrack) {
     
-    mithep::Track* outTrack = new mithep::Track(inTrack->phi(),inTrack->d0(),inTrack->pt(),inTrack->dz(),inTrack->theta());
+    mithep::Track* outTrack = new mithep::Track(inTrack->phi(),inTrack->d0(),inTrack->pt(),
+						inTrack->dz(),inTrack->theta());
     
-    outTrack->SetErrors(inTrack->phiError(),inTrack->d0Error(),inTrack->ptError(),inTrack->dzError(),inTrack->thetaError());
+    outTrack->SetErrors(inTrack->phiError(),inTrack->d0Error(),inTrack->ptError(),
+			inTrack->dzError(),inTrack->thetaError());
     outTrack->SetCharge(inTrack->charge());
     
     
@@ -71,7 +72,7 @@ void FillTracks::beginJob(edm::EventSetup const &iEvent)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();
-  if(!tws) {
+  if (!tws) {
     throw edm::Exception(edm::errors::Configuration, "FillTracks::beginJob()\n")
       << "Could not get pointer to Tree with name " << tws->GetName() << "\n";
     return;
