@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.2 2008/06/05 16:07:11 bendavid Exp $
+# $Id: BuildFile,v 1.3 2008/06/09 11:47:16 paus Exp $
 
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
@@ -9,8 +9,10 @@
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaCandidates>
+
 <use name=clhep>
 <use name=root>
+
 <use name=MitProd/TreeService>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
