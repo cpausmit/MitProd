@@ -1,4 +1,4 @@
-// $Id: FillElectrons.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
+// $Id: FillElectrons.cc,v 1.2 2008/06/11 12:50:17 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,15 +17,14 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
-FillElectrons::FillElectrons(const edm::ParameterSet &iConfig) : 
+FillElectrons::FillElectrons(const edm::ParameterSet &iConfig) :
   electrons_(new mithep::Vector<mithep::Electron>()),
-  electronSource_(iConfig.getUntrackedParameter<string>("electronSource" , "pixelMatchGsfElectrons")),
+  electronSource_(iConfig.getUntrackedParameter<string>("electronSource","pixelMatchGsfElectrons")),
   electronBranch_(iConfig.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
 {
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillElectrons::~FillElectrons()
 {
 }
@@ -54,11 +53,12 @@ void FillElectrons::analyze(const edm::Event &theEvent,
     
     mithep::Electron* outElectron = 
       new mithep::Electron(inElectron->px(),inElectron->py(),inElectron->pz(),inElectron->energy());
-    
-    //Fill electron track info using global (tracker+electron ) track fit if available, 
-    //or standalone tracker or electron tracks otherwise
-    const reco::GsfTrack* inElectronTrack = &*inElectron->gsfTrack().get();
 
+    // Fill electron track info using global (tracker+electron chambers) track fit if available, or
+    // standalone tracker or electron tracks otherwise
+
+    const reco::GsfTrack* inElectronTrack = &*inElectron->gsfTrack().get();
+    
     if (inElectronTrack) {
 	outElectron->GetTrack()->SetHelix(inElectronTrack->phi(),
                                           inElectronTrack->d0(),
