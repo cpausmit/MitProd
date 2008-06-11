@@ -1,13 +1,11 @@
-// $Id: TreeService.cc,v 1.1 2008/05/27 20:09:09 loizides Exp $
+// $Id: TreeService.cc,v 1.2 2008/06/03 07:21:45 paus Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
-
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 
 using namespace edm;
@@ -15,18 +13,21 @@ using namespace std;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) 
-  : tws_(0),
-    treeNames_  (cfg.getUntrackedParameter<vector<string>   >("treeNames")),
-    fileNames_  (cfg.getUntrackedParameter<vector<string>   >("fileNames")),
-    pathNames_  (cfg.getUntrackedParameter<vector<string>   >("pathNames")),
-    maxSizes_   (cfg.getUntrackedParameter<vector<unsigned> >("maxSizes")),
-    compLevels_ (cfg.getUntrackedParameter<vector<unsigned> >("compLevels")),
-    splitLevels_(cfg.getUntrackedParameter<vector<unsigned> >("splitLevels")),
-    brSizes_    (cfg.getUntrackedParameter<vector<unsigned> >("brSizes"))
+TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) : 
+  tws_(0),
+  treeNames_  (cfg.getUntrackedParameter<vector<string>   >("treeNames")),
+  fileNames_  (cfg.getUntrackedParameter<vector<string>   >("fileNames")),
+  pathNames_  (cfg.getUntrackedParameter<vector<string>   >("pathNames")),
+  maxSizes_   (cfg.getUntrackedParameter<vector<unsigned> >("maxSizes")),
+  compLevels_ (cfg.getUntrackedParameter<vector<unsigned> >("compLevels")),
+  splitLevels_(cfg.getUntrackedParameter<vector<unsigned> >("splitLevels")),
+  brSizes_    (cfg.getUntrackedParameter<vector<unsigned> >("brSizes"))
 {
-  if (treeNames_.size()!=treeNames_.size()) {
-    //todo throw !!!
+  if (treeNames_.size()!=fileNames_.size()) {
+    throw edm::Exception(edm::errors::Configuration, "TreeService::TreeService()\n")
+      << "Number of main trees should match number of files " << treeNames_.size() 
+      << " " << fileNames_.size() << "\n";
+    return;
   }
 
   // setup tw array

@@ -1,4 +1,4 @@
-// $Id: TreeService.h,v 1.1 2008/05/27 20:09:09 loizides Exp $
+// $Id: TreeService.h,v 1.2 2008/06/03 07:21:45 paus Exp $
 
 #ifndef MITPROD_TREESERVICE_H
 #define MITPROD_TREESERVICE_H
@@ -67,4 +67,4 @@ namespace mithep
       std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
   };
 }
-#endif /*MITPROD_TREESERVICE_H*/
+#endif
