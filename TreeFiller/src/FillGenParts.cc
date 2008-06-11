@@ -1,11 +1,10 @@
-// $Id: FillGenParts.cc,v 1.3 2008/06/03 07:21:45 paus Exp $
+// $Id: FillGenParts.cc,v 1.4 2008/06/05 07:57:49 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/GenParticle.h"
@@ -15,10 +14,10 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillGenParts::FillGenParts(const edm::ParameterSet &iConfig)
-  : genParticles_(new mithep::Vector<mithep::GenParticle>()),
-    mcSource_(iConfig.getUntrackedParameter<string>("source", "source")),
-    genPartBrn_(iConfig.getUntrackedParameter<string>("brname", Names::gkGenPartBrn))
+FillGenParts::FillGenParts(const edm::ParameterSet &iConfig) : 
+  genParticles_(new mithep::Vector<mithep::GenParticle>()),
+  mcSource_(iConfig.getUntrackedParameter<string>("source", "source")),
+  genPartBrn_(iConfig.getUntrackedParameter<string>("brname", Names::gkGenPartBrn))
 {
 }
 
@@ -30,8 +29,6 @@ FillGenParts::~FillGenParts()
 //-------------------------------------------------------------------------------------------------
 void FillGenParts::analyze(const edm::Event &theEvent, const edm::EventSetup &iSetup)
 {
-  // Analyzer called on every entry.
-
   genParticles_->Reset();
 
   Handle<HepMCProduct> theMCProduct;
@@ -86,7 +83,6 @@ void FillGenParts::beginJob(edm::EventSetup const &iEvent)
     return;
   }
 
-  //tws->AddBranch(genPartBrn_.c_str(), genParticles_->ClassName(), &genParticles_, 32*1024, 2);
   tws->AddBranch(genPartBrn_.c_str(), &genParticles_, 32*1024, 99);
 }
 

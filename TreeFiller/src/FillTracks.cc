@@ -1,34 +1,29 @@
-// $Id: FillTracks.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
+// $Id: FillTracks.cc,v 1.2 2008/06/09 11:47:16 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
-
-#include "TLorentzVector.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillTracks::FillTracks(const edm::ParameterSet &iConfig)
-  : trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
-    trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
+FillTracks::FillTracks(const edm::ParameterSet &iConfig) : 
+  tracks_(new mithep::Vector<mithep::Track>()),
+  trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
+  trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
 {
-   tracks_ = new mithep::Vector<mithep::Track>();
 }
 
 //-------------------------------------------------------------------------------------------------
 FillTracks::~FillTracks()
 {
-  cout << " Filltracks done " <<endl;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -50,21 +45,23 @@ void FillTracks::analyze(const edm::Event &theEvent,
   const reco::TrackCollection Tracks = *(theTrackProduct.product());  
 
   int nTracks = 0;
-  for (reco::TrackCollection::const_iterator inTrack = 
-         Tracks.begin(); inTrack != Tracks.end(); ++inTrack) {
+  for (reco::TrackCollection::const_iterator inTrack = Tracks.begin(); 
+       inTrack != Tracks.end(); ++inTrack) {
     
     mithep::Track* outTrack = new mithep::Track(inTrack->phi(),inTrack->d0(),inTrack->pt(),
 						inTrack->dz(),inTrack->theta());
     
-    outTrack->SetErrors(inTrack->phiError(),inTrack->d0Error(),inTrack->ptError(),
-			inTrack->dzError(),inTrack->thetaError());
+    outTrack->SetErrors(inTrack->phiError(),
+                        inTrack->d0Error(),
+                        inTrack->ptError(),
+			inTrack->dzError(),
+                        inTrack->thetaError());
     outTrack->SetCharge(inTrack->charge());
-    
     
     tracks_->Add(outTrack);
     nTracks++;
   }
-
+  tracks_->Trim();
 }
 
 //-------------------------------------------------------------------------------------------------

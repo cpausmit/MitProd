@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FillMuons.h,v 1.1 2008/06/05 16:07:11 bendavid Exp $
 
 #ifndef TREEFILLER_FILLMUONS_H
 #define TREEFILLER_FILLMUONS_H
@@ -7,20 +7,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Vector.h"
-#include <TClonesArray.h>
 
 //--------------------------------------------------------------------------------------------------
 //
 // FillMuons
 //
-// Module copying HepMC particles into Muons.
+// Module copying reconstructed EDM muons into mithep::Muons.
 //
 // Authors: C.Loizides, J. Bendavid
 //
@@ -43,7 +40,5 @@ namespace mithep
       std::string muonSource_;
       std::string muonBranch_;
   };
-
-} /*namespace mithep*/
-
+}
 #endif

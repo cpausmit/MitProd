@@ -1,12 +1,10 @@
-// $Id$
+// $Id: FillElectrons.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -15,29 +13,26 @@
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Names.h"
 
-#include "TLorentzVector.h"
-
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillElectrons::FillElectrons(const edm::ParameterSet &iConfig)
-   : electronSource_(iConfig.getUntrackedParameter<string>("electronSource" , "pixelMatchGsfElectrons")),
-     electronBranch_(iConfig.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
+FillElectrons::FillElectrons(const edm::ParameterSet &iConfig) : 
+  electrons_(new mithep::Vector<mithep::Electron>()),
+  electronSource_(iConfig.getUntrackedParameter<string>("electronSource" , "pixelMatchGsfElectrons")),
+  electronBranch_(iConfig.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
 {
-   electrons_ = new mithep::Vector<mithep::Electron>();
 }
 
 //-------------------------------------------------------------------------------------------------
 FillElectrons::~FillElectrons()
 {
-  cout << " Fillelectrons done " <<endl;
 }
 
 //-------------------------------------------------------------------------------------------------
 void FillElectrons::analyze(const edm::Event &theEvent, 
-                           const edm::EventSetup &iSetup)
+                            const edm::EventSetup &iSetup)
 {
   electrons_->Reset();
 
@@ -46,7 +41,7 @@ void FillElectrons::analyze(const edm::Event &theEvent,
     theEvent.getByLabel(electronSource_, theElectronProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillElectrons") << "Error! Can not get collection with label " 
-                                  << electronSource_ << endl;
+                                   << electronSource_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillElectrons:analyze()\n")
       << "Error! Can not get collection with label " << electronSource_ << endl;
   }
@@ -54,19 +49,28 @@ void FillElectrons::analyze(const edm::Event &theEvent,
   const reco::PixelMatchGsfElectronCollection Electrons = *(theElectronProduct.product());  
 
   int nElectrons = 0;
-  for (reco::PixelMatchGsfElectronCollection::const_iterator inElectron = 
-         Electrons.begin();
+  for (reco::PixelMatchGsfElectronCollection::const_iterator inElectron = Electrons.begin(); 
        inElectron != Electrons.end(); ++inElectron) {
     
-    mithep::Electron* outElectron = new mithep::Electron(inElectron->px(),inElectron->py(),inElectron->pz(),inElectron->energy());
+    mithep::Electron* outElectron = 
+      new mithep::Electron(inElectron->px(),inElectron->py(),inElectron->pz(),inElectron->energy());
     
-    //Fill electron track info using global (tracker+electron chambers) track fit if available, or standalone tracker or electron tracks otherwise
+    //Fill electron track info using global (tracker+electron ) track fit if available, 
+    //or standalone tracker or electron tracks otherwise
     const reco::GsfTrack* inElectronTrack = &*inElectron->gsfTrack().get();
-    //if (!inElectronTrack)
-    //	inElectronTrack = &*inElectron->track().get();
+
     if (inElectronTrack) {
-	outElectron->GetTrack()->SetHelix(inElectronTrack->phi(),inElectronTrack->d0(),inElectronTrack->pt(),inElectronTrack->dz(),inElectronTrack->theta());
-	outElectron->GetTrack()->SetErrors(inElectronTrack->phiError(),inElectronTrack->d0Error(),inElectronTrack->ptError(),inElectronTrack->dzError(),inElectronTrack->thetaError());
+	outElectron->GetTrack()->SetHelix(inElectronTrack->phi(),
+                                          inElectronTrack->d0(),
+                                          inElectronTrack->pt(),
+                                          inElectronTrack->dz(),
+                                          inElectronTrack->theta());
+
+	outElectron->GetTrack()->SetErrors(inElectronTrack->phiError(),
+                                           inElectronTrack->d0Error(),
+                                           inElectronTrack->ptError(),
+                                           inElectronTrack->dzError(),
+                                           inElectronTrack->thetaError());
 	outElectron->GetTrack()->SetCharge(inElectronTrack->charge());
     }
     
@@ -74,6 +78,7 @@ void FillElectrons::analyze(const edm::Event &theEvent,
     nElectrons++;
   }
 
+  electrons_->Trim();
 }
 
 //-------------------------------------------------------------------------------------------------

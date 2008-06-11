@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FillMuons.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,24 +13,21 @@
 #include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Names.h"
 
-#include "TLorentzVector.h"
-
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillMuons::FillMuons(const edm::ParameterSet &iConfig)
-   : muonSource_(iConfig.getUntrackedParameter<string>("muonSource" , "muons")),
-     muonBranch_(iConfig.getUntrackedParameter<string>("muonBrname", Names::gkMuonBrn))
+FillMuons::FillMuons(const edm::ParameterSet &iConfig) : 
+  muons_(new mithep::Vector<mithep::Muon>()),
+  muonSource_(iConfig.getUntrackedParameter<string>("muonSource" , "muons")),
+  muonBranch_(iConfig.getUntrackedParameter<string>("muonBrname", Names::gkMuonBrn))
 {
-   muons_ = new mithep::Vector<mithep::Muon>();
 }
 
 //-------------------------------------------------------------------------------------------------
 FillMuons::~FillMuons()
 {
-  cout << " Fillmuons done " <<endl;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -52,21 +49,29 @@ void FillMuons::analyze(const edm::Event &theEvent,
   const reco::MuonCollection Muons = *(theMuonProduct.product());  
 
   int nMuons = 0;
-  for (reco::MuonCollection::const_iterator inMuon = 
-         Muons.begin();
+  for (reco::MuonCollection::const_iterator inMuon = Muons.begin();
        inMuon != Muons.end(); ++inMuon) {
     
     mithep::Muon* outMuon = new mithep::Muon(inMuon->px(),inMuon->py(),inMuon->pz(),inMuon->energy());
     
-    //Fill muon track info using global (tracker+muon chambers) track fit if available, or standalone tracker or muon tracks otherwise
+    //Fill muon track info using global (tracker+muon chambers) track fit if available, 
+    //or standalone tracker or muon tracks otherwise
     const reco::Track* inMuonTrack = &*inMuon->combinedMuon().get();
     if (!inMuonTrack)
     	inMuonTrack = &*inMuon->standAloneMuon().get();
     if (!inMuonTrack)
     	inMuonTrack = &*inMuon->track().get();
     if (inMuonTrack) {
-	outMuon->GetTrack()->SetHelix(inMuonTrack->phi(),inMuonTrack->d0(),inMuonTrack->pt(),inMuonTrack->dz(),inMuonTrack->theta());
-	outMuon->GetTrack()->SetErrors(inMuonTrack->phiError(),inMuonTrack->d0Error(),inMuonTrack->ptError(),inMuonTrack->dzError(),inMuonTrack->thetaError());
+	outMuon->GetTrack()->SetHelix(inMuonTrack->phi(),
+                                      inMuonTrack->d0(),
+                                      inMuonTrack->pt(),
+                                      inMuonTrack->dz(),
+                                      inMuonTrack->theta());
+	outMuon->GetTrack()->SetErrors(inMuonTrack->phiError(),
+                                       inMuonTrack->d0Error(),
+                                       inMuonTrack->ptError(),
+                                       inMuonTrack->dzError(),
+                                       inMuonTrack->thetaError());
 	outMuon->GetTrack()->SetCharge(inMuonTrack->charge());
     }
     
@@ -74,6 +79,7 @@ void FillMuons::analyze(const edm::Event &theEvent,
     nMuons++;
   }
 
+  muons_->Trim();
 }
 
 //-------------------------------------------------------------------------------------------------

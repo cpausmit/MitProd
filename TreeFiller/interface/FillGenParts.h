@@ -1,4 +1,4 @@
-// $Id: FillGenParts.h,v 1.1 2008/05/27 20:30:15 loizides Exp $
+// $Id: FillGenParts.h,v 1.2 2008/06/05 07:57:49 loizides Exp $
 
 #ifndef TREEFILLER_FILLGENPARTS_H
 #define TREEFILLER_FILLGENPARTS_H
@@ -7,10 +7,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-
 #include "MitAna/DataTree/interface/GenParticle.h"
 #include "MitAna/DataTree/interface/Vector.h"
 
@@ -18,7 +16,7 @@
 //
 // FillGenParts
 //
-// Module copying HepMC particles into GenParticles.
+// Module copying HepMC particles into mithep::GenParticles.
 //
 // Authors: C.Loizides
 //
@@ -41,7 +39,5 @@ namespace mithep
       std::string mcSource_;
       std::string genPartBrn_;
   };
-
-} /*namespace mithep*/
-
-#endif /*TREEFILLER_FILLGENPARTS_H*/
+}
+#endif

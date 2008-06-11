@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FillTracks.h,v 1.1 2008/06/05 16:07:11 bendavid Exp $
 
 #ifndef TREEFILLER_FILLTRACKS_H
 #define TREEFILLER_FILLTRACKS_H
@@ -7,19 +7,16 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Vector.h"
-#include <TClonesArray.h>
 
 //--------------------------------------------------------------------------------------------------
 //
 // FillTracks
 //
-// Module copying general EDM tracks into mithep::Tracks
+// Module copying general EDM tracks into mithep::Tracks.
 //
 // Authors: C.Loizides, J.Bendavid
 //
@@ -42,7 +39,5 @@ namespace mithep
       std::string trackSource_;
       std::string trackBranch_;
   };
-
-} /*namespace mithep*/
-
+}
 #endif

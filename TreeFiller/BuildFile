@@ -1,18 +1,17 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.3 2008/06/09 11:47:16 paus Exp $
+# $Id: BuildFile,v 1.4 2008/06/09 11:59:00 paus Exp $
 
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=SimDataFormats/HepMCProduct>
+<use name=Foundation/PluginManager>
+<use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaCandidates>
-
+<use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 <use name=root>
-
 <use name=MitProd/TreeService>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
