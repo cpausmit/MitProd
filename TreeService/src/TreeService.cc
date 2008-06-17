@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.2 2008/06/03 07:21:45 paus Exp $
+// $Id: TreeService.cc,v 1.3 2008/06/11 13:10:27 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -47,9 +47,9 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) :
       t->SetBaseURL(pathNames_.at(0).c_str());
 
     if      (i<maxSizes_.size())
-      t->SetMaxSize(maxSizes_.at(i)*1024*1024);
+      t->SetMaxSize((Long64_t)maxSizes_.at(i)*1024*1024);
     else if (maxSizes_.size()>0)
-      t->SetMaxSize(maxSizes_.at(0)*1024*1024);
+      t->SetMaxSize((Long64_t)maxSizes_.at(0)*1024*1024);
 
     if      (i<compLevels_.size())
       t->SetCompressLevel(compLevels_.at(i));
