@@ -1,4 +1,4 @@
-// $Id: FillTracks.cc,v 1.2 2008/06/09 11:47:16 paus Exp $
+// $Id: FillTracks.cc,v 1.3 2008/06/11 12:50:17 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +15,7 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillTracks::FillTracks(const edm::ParameterSet &iConfig) : 
-  tracks_(new mithep::Vector<mithep::Track>()),
+  tracks_(new mithep::Array<mithep::Track>()),
   trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
   trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
 {
@@ -58,7 +58,7 @@ void FillTracks::analyze(const edm::Event &theEvent,
                         inTrack->thetaError());
     outTrack->SetCharge(inTrack->charge());
     
-    tracks_->Add(outTrack);
+    tracks_->AddCopy(outTrack);
     nTracks++;
   }
   tracks_->Trim();

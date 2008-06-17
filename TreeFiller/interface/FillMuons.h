@@ -1,4 +1,4 @@
-// $Id: FillMuons.h,v 1.1 2008/06/05 16:07:11 bendavid Exp $
+// $Id: FillMuons.h,v 1.2 2008/06/11 12:50:17 loizides Exp $
 
 #ifndef TREEFILLER_FILLMUONS_H
 #define TREEFILLER_FILLMUONS_H
@@ -11,7 +11,7 @@
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/Vector.h"
+#include "MitAna/DataTree/interface/Array.h"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -19,7 +19,7 @@
 //
 // Module copying reconstructed EDM muons into mithep::Muons.
 //
-// Authors: C.Loizides, J. Bendavid
+// Authors: C.Loizides, J.Bendavid
 //
 //--------------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ namespace mithep
       void endJob ();
   
     private:
-      mithep::Vector<mithep::Muon> *muons_;  
+      mithep::Array<mithep::Muon> *muons_;  
       std::string muonSource_;
       std::string muonBranch_;
   };

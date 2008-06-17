@@ -1,4 +1,4 @@
-// $Id: FillElectrons.cc,v 1.2 2008/06/11 12:50:17 loizides Exp $
+// $Id: FillElectrons.cc,v 1.3 2008/06/11 23:37:20 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +18,7 @@ using namespace edm;
 using namespace mithep;
 
 FillElectrons::FillElectrons(const edm::ParameterSet &iConfig) :
-  electrons_(new mithep::Vector<mithep::Electron>()),
+  electrons_(new mithep::Array<mithep::Electron>()),
   electronSource_(iConfig.getUntrackedParameter<string>("electronSource","pixelMatchGsfElectrons")),
   electronBranch_(iConfig.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
 {
@@ -74,7 +74,7 @@ void FillElectrons::analyze(const edm::Event &theEvent,
 	outElectron->GetTrack()->SetCharge(inElectronTrack->charge());
     }
     
-    electrons_->Add(outElectron);
+    electrons_->AddCopy(outElectron);
     nElectrons++;
   }
 

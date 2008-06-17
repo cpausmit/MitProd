@@ -1,4 +1,4 @@
-// $Id: FillMuons.cc,v 1.1 2008/06/05 16:07:11 bendavid Exp $
+// $Id: FillMuons.cc,v 1.2 2008/06/11 12:50:17 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,7 +19,7 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillMuons::FillMuons(const edm::ParameterSet &iConfig) : 
-  muons_(new mithep::Vector<mithep::Muon>()),
+  muons_(new mithep::Array<mithep::Muon>()),
   muonSource_(iConfig.getUntrackedParameter<string>("muonSource" , "muons")),
   muonBranch_(iConfig.getUntrackedParameter<string>("muonBrname", Names::gkMuonBrn))
 {
@@ -75,7 +75,7 @@ void FillMuons::analyze(const edm::Event &theEvent,
 	outMuon->GetTrack()->SetCharge(inMuonTrack->charge());
     }
     
-    muons_->Add(outMuon);
+    muons_->AddCopy(outMuon);
     nMuons++;
   }
 

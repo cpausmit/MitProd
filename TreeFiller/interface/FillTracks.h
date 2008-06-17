@@ -1,4 +1,4 @@
-// $Id: FillTracks.h,v 1.1 2008/06/05 16:07:11 bendavid Exp $
+// $Id: FillTracks.h,v 1.2 2008/06/11 12:50:17 loizides Exp $
 
 #ifndef TREEFILLER_FILLTRACKS_H
 #define TREEFILLER_FILLTRACKS_H
@@ -10,7 +10,7 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/Vector.h"
+#include "MitAna/DataTree/interface/Array.h"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -35,7 +35,7 @@ namespace mithep
       void endJob ();
   
     private:
-      mithep::Vector<mithep::Track> *tracks_;  
+      mithep::Array<mithep::Track> *tracks_;  
       std::string trackSource_;
       std::string trackBranch_;
   };

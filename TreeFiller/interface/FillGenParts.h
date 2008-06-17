@@ -1,4 +1,4 @@
-// $Id: FillGenParts.h,v 1.2 2008/06/05 07:57:49 loizides Exp $
+// $Id: FillGenParts.h,v 1.3 2008/06/11 12:50:17 loizides Exp $
 
 #ifndef TREEFILLER_FILLGENPARTS_H
 #define TREEFILLER_FILLGENPARTS_H
@@ -10,7 +10,7 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/GenParticle.h"
-#include "MitAna/DataTree/interface/Vector.h"
+#include "MitAna/DataTree/interface/Array.h"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -35,7 +35,7 @@ namespace mithep
       void endJob ();
   
     private:
-      mithep::Vector<mithep::GenParticle> *genParticles_;  
+      mithep::Array<mithep::GenParticle> *genParticles_;  
       std::string mcSource_;
       std::string genPartBrn_;
   };

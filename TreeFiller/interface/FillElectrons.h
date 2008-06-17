@@ -1,16 +1,7 @@
-//--------------------------------------------------------------------------------------------------
-// $Id: FillElectrons.h,v 1.1 2008/06/05 16:07:11 bendavid Exp $
-//
-// FillElectrons
-//
-// Module copying HepMC particles into Electrons.
-//
-// Authors: C.Loizides, J. Bendavid
-//--------------------------------------------------------------------------------------------------
+// $Id: FillElectrons.h,v 1.3 2008/06/11 23:37:20 paus Exp $
+
 #ifndef TREEFILLER_FILLELECTRONS_H
 #define TREEFILLER_FILLELECTRONS_H
-
-#include <TClonesArray.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,7 +11,16 @@
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/Vector.h"
+#include "MitAna/DataTree/interface/Array.h"
+
+//--------------------------------------------------------------------------------------------------
+//
+// FillElectrons
+//
+// Module copying HepMC particles into Electrons.
+//
+// Authors: C.Loizides, J.Bendavid
+//--------------------------------------------------------------------------------------------------
 
 namespace mithep 
 {
@@ -35,7 +35,7 @@ namespace mithep
       void endJob ();
   
     private:
-      mithep::Vector<mithep::Electron> *electrons_;  
+      mithep::Array<mithep::Electron> *electrons_;  
       std::string electronSource_;
       std::string electronBranch_;
   };

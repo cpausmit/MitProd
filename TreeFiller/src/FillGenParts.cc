@@ -1,4 +1,4 @@
-// $Id: FillGenParts.cc,v 1.4 2008/06/05 07:57:49 loizides Exp $
+// $Id: FillGenParts.cc,v 1.5 2008/06/11 12:50:17 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +15,7 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillGenParts::FillGenParts(const edm::ParameterSet &iConfig) : 
-  genParticles_(new mithep::Vector<mithep::GenParticle>()),
+  genParticles_(new mithep::Array<mithep::GenParticle>()),
   mcSource_(iConfig.getUntrackedParameter<string>("source", "source")),
   genPartBrn_(iConfig.getUntrackedParameter<string>("brname", Names::gkGenPartBrn))
 {
@@ -65,7 +65,7 @@ void FillGenParts::analyze(const edm::Event &theEvent, const edm::EventSetup &iS
                                     mcPart->pdg_id(),
                                     mcPart->status(), 
                                     moind);          
-    genParticles_->Add(genParticle);
+    genParticles_->AddCopy(genParticle);
     nGen++;
   }
 
