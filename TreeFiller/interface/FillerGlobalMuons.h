@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillerGlobalMuons.h,v 1.1 2008/06/18 13:23:22 paus Exp $
 //
 // FillerGlobalMuons
 //
@@ -7,6 +7,7 @@
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
+
 #ifndef TREEFILLER_FILLERGLOBALMUONS_H
 #define TREEFILLER_FILLERGLOBALMUONS_H
 
@@ -15,7 +16,7 @@
 #include "MitAna/DataTree/interface/GlobalMuon.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/Vector.h"
+#include "MitAna/DataTree/interface/Array.h"
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
@@ -33,7 +34,7 @@ namespace mithep
       void ResolveLinks (const edm::Event&, const edm::EventSetup&);
   
     private:
-      mithep::Vector<mithep::GlobalMuon> *muons_;  
+      mithep::Array<mithep::GlobalMuon>  *muons_;  
       const std::string                   edmName_;
       const std::string                   mitName_;
       const bool                          active_;

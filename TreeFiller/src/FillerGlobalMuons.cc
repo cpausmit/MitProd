@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: FillerGlobalMuons.cc,v 1.1 2008/06/18 13:23:23 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,7 +27,7 @@ FillerGlobalMuons::FillerGlobalMuons(const ParameterSet &cfg) :
   active_   (cfg.getUntrackedParameter<ParameterSet>("GlobalMuons")
 	     .getUntrackedParameter<bool>  ("active",true))
 {
-  muons_  = new mithep::Vector<mithep::GlobalMuon>;
+  muons_  = new mithep::Array<mithep::GlobalMuon>;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void FillerGlobalMuons::FillDataBlock(const edm::Event      &event,
 				     muonTrk->dzError(), muonTrk->thetaError());
       outMuon->GetTrack()->SetCharge(muonTrk->charge());
       // Add the muon to the collection
-      muons_->Add(outMuon);      
+      muons_->AddCopy(outMuon);      
     }
   }
   muons_->Trim();

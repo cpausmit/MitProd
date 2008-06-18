@@ -1,4 +1,4 @@
-// $Id: FillGlobalMuons.cc,v 1.2 2008/06/11 12:50:17 loizides Exp $
+// $Id: FillGlobalMuons.cc,v 1.1 2008/06/18 13:23:22 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,7 +19,7 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillGlobalMuons::FillGlobalMuons(const edm::ParameterSet &iConfig) : 
-  muons_(new mithep::Vector<mithep::GlobalMuon>()),
+  muons_(new mithep::Array<mithep::GlobalMuon>()),
   muonSource_(iConfig.getUntrackedParameter<string>("muonSource", "muons")),
   muonBranch_(iConfig.getUntrackedParameter<string>("globalMuonBrname", Names::gkGlobalMuonBrn))
 {
@@ -66,7 +66,7 @@ void FillGlobalMuons::analyze(const edm::Event      &event,
 				     muonTrk->dzError(), muonTrk->thetaError());
       outMuon->GetTrack()->SetCharge(muonTrk->charge());
       // Add the muon to the collection
-      muons_->Add(outMuon);      
+      muons_->AddCopy(outMuon);      
     }
   }
   muons_->Trim();

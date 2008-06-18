@@ -1,4 +1,4 @@
-// $Id: FillMuons.cc,v 1.3 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillMuons.cc,v 1.4 2008/06/18 13:23:22 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,7 +66,7 @@ void FillMuons::analyze(const edm::Event      &event,
 				     muonTrk->dzError(), muonTrk->thetaError());
       outMuon->GetTrack()->SetCharge(muonTrk->charge());
       // Add the muon to the collection
-      muons_->Add(outMuon);      
+      muons_->AddCopy(outMuon);      
     }
   }
   muons_->Trim();
