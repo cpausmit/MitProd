@@ -1,4 +1,13 @@
-// $Id: FillGenParts.h,v 1.3 2008/06/11 12:50:17 loizides Exp $
+//--------------------------------------------------------------------------------------------------
+// $Id: FillGenParts.h,v 1.4 2008/06/17 13:31:38 loizides Exp $
+//
+// FillGenParts
+//
+// Module copying HepMC particles into mithep::GenParticles.
+//
+// Authors: C.Loizides
+//
+//--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLGENPARTS_H
 #define TREEFILLER_FILLGENPARTS_H
@@ -11,16 +20,6 @@
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/GenParticle.h"
 #include "MitAna/DataTree/interface/Array.h"
-
-//--------------------------------------------------------------------------------------------------
-//
-// FillGenParts
-//
-// Module copying HepMC particles into mithep::GenParticles.
-//
-// Authors: C.Loizides
-//
-//--------------------------------------------------------------------------------------------------
 
 namespace mithep 
 {

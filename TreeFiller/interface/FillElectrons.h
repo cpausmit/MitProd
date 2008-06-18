@@ -1,4 +1,12 @@
-// $Id: FillElectrons.h,v 1.3 2008/06/11 23:37:20 paus Exp $
+//--------------------------------------------------------------------------------------------------
+// $Id: FillElectrons.h,v 1.4 2008/06/17 13:31:38 loizides Exp $
+//
+// FillElectrons
+//
+// Module copying HepMC particles into Electrons.
+//
+// Authors: C.Loizides, J.Bendavid
+//--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLELECTRONS_H
 #define TREEFILLER_FILLELECTRONS_H
@@ -13,14 +21,6 @@
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Array.h"
 
-//--------------------------------------------------------------------------------------------------
-//
-// FillElectrons
-//
-// Module copying HepMC particles into Electrons.
-//
-// Authors: C.Loizides, J.Bendavid
-//--------------------------------------------------------------------------------------------------
 
 namespace mithep 
 {

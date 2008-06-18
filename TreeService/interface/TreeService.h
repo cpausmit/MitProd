@@ -1,23 +1,5 @@
-// $Id: TreeService.h,v 1.3 2008/06/11 13:10:27 loizides Exp $
-
-#ifndef MITPROD_TREESERVICE_H
-#define MITPROD_TREESERVICE_H
-
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include <TObjArray.h>
-
-namespace edm 
-{
-  class ActivityRegistry;
-  class ParameterSet;
-  class ModuleDescription;
-}
-
 //--------------------------------------------------------------------------------------------------
+// $Id: TreeService.h,v 1.4 2008/06/18 13:23:23 paus Exp $
 //
 // TreeService 
 //
@@ -37,6 +19,23 @@ namespace edm
 // Authors: C.Loizides
 //
 //--------------------------------------------------------------------------------------------------
+
+#ifndef MITPROD_TREESERVICE_H
+#define MITPROD_TREESERVICE_H
+
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include <TObjArray.h>
+
+namespace edm 
+{
+  class ActivityRegistry;
+  class ParameterSet;
+  class ModuleDescription;
+}
 
 namespace mithep 
 {

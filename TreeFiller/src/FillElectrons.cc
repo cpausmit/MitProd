@@ -1,4 +1,4 @@
-// $Id: FillElectrons.cc,v 1.3 2008/06/11 23:37:20 paus Exp $
+// $Id: FillElectrons.cc,v 1.4 2008/06/17 13:31:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,7 +9,6 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Names.h"
 

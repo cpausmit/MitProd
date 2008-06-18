@@ -1,4 +1,13 @@
-// $Id: FillTracks.h,v 1.2 2008/06/11 12:50:17 loizides Exp $
+//--------------------------------------------------------------------------------------------------
+// $Id: FillTracks.h,v 1.3 2008/06/17 13:31:38 loizides Exp $
+//
+// FillTracks
+//
+// Module copying general EDM tracks into mithep::Tracks.
+//
+// Authors: C.Loizides, J.Bendavid
+//
+//--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLTRACKS_H
 #define TREEFILLER_FILLTRACKS_H
@@ -11,16 +20,6 @@
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Array.h"
-
-//--------------------------------------------------------------------------------------------------
-//
-// FillTracks
-//
-// Module copying general EDM tracks into mithep::Tracks.
-//
-// Authors: C.Loizides, J.Bendavid
-//
-//--------------------------------------------------------------------------------------------------
 
 namespace mithep 
 {
