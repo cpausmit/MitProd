@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.3 2008/06/11 13:10:27 loizides Exp $
+// $Id: TreeService.cc,v 1.4 2008/06/17 08:24:09 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -14,7 +14,7 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) : 
-  tws_(0),
+  tws_        (0),
   treeNames_  (cfg.getUntrackedParameter<vector<string>   >("treeNames")),
   fileNames_  (cfg.getUntrackedParameter<vector<string>   >("fileNames")),
   pathNames_  (cfg.getUntrackedParameter<vector<string>   >("pathNames")),

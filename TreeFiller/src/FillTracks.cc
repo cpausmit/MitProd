@@ -1,4 +1,4 @@
-// $Id: FillTracks.cc,v 1.3 2008/06/11 12:50:17 loizides Exp $
+// $Id: FillTracks.cc,v 1.4 2008/06/17 13:31:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,8 +15,9 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillTracks::FillTracks(const edm::ParameterSet &iConfig) : 
-  tracks_(new mithep::Array<mithep::Track>()),
-  trackSource_(iConfig.getUntrackedParameter<string>("trackSource" , "generalTracks")),
+<<<<<<< FillTracks.cc
+  tracks_(new mithep::Vector<mithep::Track>()),
+  trackSource_(iConfig.getUntrackedParameter<string>("trackSource", "generalTracks")),
   trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
 {
 }
@@ -69,7 +70,7 @@ void FillTracks::beginJob(edm::EventSetup const &iEvent)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();
-  if (!tws) {
+  if (! tws) {
     throw edm::Exception(edm::errors::Configuration, "FillTracks::beginJob()\n")
       << "Could not get pointer to Tree with name " << tws->GetName() << "\n";
     return;

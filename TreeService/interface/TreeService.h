@@ -1,4 +1,4 @@
-// $Id: TreeService.h,v 1.2 2008/06/03 07:21:45 paus Exp $
+// $Id: TreeService.h,v 1.3 2008/06/11 13:10:27 loizides Exp $
 
 #ifndef MITPROD_TREESERVICE_H
 #define MITPROD_TREESERVICE_H
@@ -58,13 +58,13 @@ namespace mithep
       TObjArray tws_; //array holding the tree writers
 
       // parameters for service
-      std::vector<std::string> treeNames_;   //tree names
-      std::vector<std::string> fileNames_;   //file names 
-      std::vector<std::string> pathNames_;   //path names
-      std::vector<unsigned>    maxSizes_;    //max file sizes [MB]
-      std::vector<unsigned>    compLevels_;  //compression levels
-      std::vector<unsigned>    splitLevels_; //default split levels
-      std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
+      std::vector<std::string> treeNames_;   // tree names
+      std::vector<std::string> fileNames_;   // file names 
+      std::vector<std::string> pathNames_;   // path names
+      std::vector<unsigned>    maxSizes_;    // max file sizes [MB]
+      std::vector<unsigned>    compLevels_;  // compression levels
+      std::vector<unsigned>    splitLevels_; // default split levels
+      std::vector<unsigned>    brSizes_;     // default branch sizes [Byte]
   };
 }
 #endif
