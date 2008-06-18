@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.1 2008/06/18 13:23:23 paus Exp $
+// $Id: FillerGlobalMuons.cc,v 1.2 2008/06/18 14:10:45 loizides Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,15 +19,10 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillerGlobalMuons::FillerGlobalMuons(const ParameterSet &cfg) : 
-  BaseFiller(cfg.getUntrackedParameter<ParameterSet>("GlobalMuons")),
-  edmName_  (cfg.getUntrackedParameter<ParameterSet>("GlobalMuons")
-	     .getUntrackedParameter<string>("edmName","muons")),
-  mitName_  (cfg.getUntrackedParameter<ParameterSet>("GlobalMuons")
-	     .getUntrackedParameter<string>("mitName",Names::gkGlobalMuonBrn)),
-  active_   (cfg.getUntrackedParameter<ParameterSet>("GlobalMuons")
-	     .getUntrackedParameter<bool>  ("active",true))
+  BaseFiller(cfg.getUntrackedParameter<ParameterSet>("GlobalMuons"),
+             "muons",Names::gkGlobalMuonBrn),
+  muons_(new mithep::Array<mithep::GlobalMuon>)
 {
-  muons_  = new mithep::Array<mithep::GlobalMuon>;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -51,7 +46,8 @@ void FillerGlobalMuons::FillDataBlock(const edm::Event      &event,
 				      const edm::EventSetup &setup)
 {
   // Fill global muon information. Links to the various standalone components are created in the
-  // link resolution
+  // link resolution.
+
   muons_->Reset();
   
   Handle<reco::MuonCollection> muonProduct;
@@ -93,6 +89,6 @@ void FillerGlobalMuons::FillDataBlock(const edm::Event      &event,
 void FillerGlobalMuons::ResolveLinks(const edm::Event      &event, 
 				     const edm::EventSetup &setup)
 {
-  // Complete global muon information: links to the various standalone components are created here
+  // Complete global muon information: links to the various standalone components are created here.
 
 }

@@ -1,42 +1,45 @@
-// $Id: FillMitTree.cc,v 1.2 2008/06/11 12:50:17 loizides Exp $
+// $Id: FillMitTree.cc,v 1.1 2008/06/18 13:23:22 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
+#include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
-  fillerGlobalMuons_(0)
+FillMitTree::FillMitTree(const edm::ParameterSet &cfg)
 {
-  // initialize fillers
-  fillerGlobalMuons_ = new FillerGlobalMuons(cfg);
-  if (fillerGlobalMuons_->Active())
-    fillers_.push_back(fillerGlobalMuons_);
+  // Constructor: initialize fillers
+
+  FillerGlobalMuons *fillerGlobalMuons = new FillerGlobalMuons(cfg);
+  if (fillerGlobalMuons->Active())
+    fillers_.push_back(fillerGlobalMuons);
+  else 
+    delete fillerGlobalMuons;
 }
 
 //-------------------------------------------------------------------------------------------------
 FillMitTree::~FillMitTree()
 {
-  // We own the fillers so we have to delete them
-  delete fillerGlobalMuons_;
+  // Destructor: nothing to be done here.
 }
 
 //-------------------------------------------------------------------------------------------------
 void FillMitTree::beginJob(edm::EventSetup const &event)
 {
+  // Access the tree and book branches.
+
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();
   if (! tws) {
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
-      << "Could not get pointer to Tree with name " << tws->GetName() << "\n";
+      << "Could not get pointer to tree." << "\n";
     return;
   }
 
@@ -51,6 +54,8 @@ void FillMitTree::beginJob(edm::EventSetup const &event)
 void FillMitTree::analyze(const edm::Event      &event, 
 			  const edm::EventSetup &setup)
 {
+  // Access and copy event content.
+
   // First step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->FillDataBlock(event,setup);
@@ -65,5 +70,11 @@ void FillMitTree::analyze(const edm::Event      &event,
 //-------------------------------------------------------------------------------------------------
 void FillMitTree::endJob()
 {
+  // Delete fillers.
+
+  for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    delete *iF;
+  }
+
   edm::LogInfo("FillMitTree::endJob") << "Ending Job" << endl;
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.1 2008/06/18 13:23:22 paus Exp $
+// $Id: FillerGlobalMuons.h,v 1.2 2008/06/18 14:10:45 loizides Exp $
 //
 // FillerGlobalMuons
 //
@@ -28,16 +28,12 @@ namespace mithep
       FillerGlobalMuons(const edm::ParameterSet&);
       ~FillerGlobalMuons();
 
-      bool Active       () { return active_; }
       void BookDataBlock(TreeWriter *tws);
       void FillDataBlock(const edm::Event&, const edm::EventSetup&);
       void ResolveLinks (const edm::Event&, const edm::EventSetup&);
   
     private:
       mithep::Array<mithep::GlobalMuon>  *muons_;  
-      const std::string                   edmName_;
-      const std::string                   mitName_;
-      const bool                          active_;
   };
 }
 #endif

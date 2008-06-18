@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillMitTree.h,v 1.1 2008/06/18 13:23:22 paus Exp $
 //
 // FillMitTree
 //
@@ -10,6 +10,7 @@
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
+
 #ifndef TREEFILLER_FILLMITTREE_H
 #define TREEFILLER_FILLMITTREE_H
 
@@ -17,14 +18,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {
-  class FillerGlobalMuons;
-
   class FillMitTree : public edm::EDAnalyzer
   {
     public:
@@ -36,12 +33,7 @@ namespace mithep
       void endJob  ();
   
     private:
-      // list of our fillers and potential fillers
-      std::vector<BaseFiller*>  fillers_;
-      FillerGlobalMuons        *fillerGlobalMuons_;
-      
-      // parameters for service
-      std::vector<std::string>  branchNames_;   // names of the fillers to be activated
+      std::vector<BaseFiller*>  fillers_;       // list of our fillers and potential fillers
   };
 }
 #endif

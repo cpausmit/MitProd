@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: BaseFiller.h,v 1.1 2008/06/18 13:23:22 paus Exp $
 //
 // BaseFiller
 //
@@ -7,6 +7,7 @@
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
+
 #ifndef TREEFILLER_BASEFILLER_H
 #define TREEFILLER_BASEFILLER_H
 
@@ -20,17 +21,19 @@ namespace mithep
   class BaseFiller
   {
     public:
-      BaseFiller(const edm::ParameterSet&);
+      BaseFiller(const edm::ParameterSet&, const char *en, const char *mn);
       virtual ~BaseFiller() {}
 
-      virtual void  BookDataBlock(TreeWriter *tws)                           = 0;
-      virtual void  FillDataBlock(const edm::Event&, const edm::EventSetup&) = 0;
-      virtual void  ResolveLinks (const edm::Event&, const edm::EventSetup&) {}
+      virtual bool Active()                                                 { return active_; }
+      virtual void BookDataBlock(TreeWriter *tws)                           = 0;
+      virtual void FillDataBlock(const edm::Event&, const edm::EventSetup&) = 0;
+      virtual void ResolveLinks (const edm::Event&, const edm::EventSetup&) {}
 
     protected:
-      const edm::ParameterSet *config_;
-      std::string              edmName_;
-      std::string              mitName_;
+      const edm::ParameterSet            &config_;
+      std::string                         edmName_;
+      std::string                         mitName_;
+      const bool                          active_;
   };
 }
 #endif
