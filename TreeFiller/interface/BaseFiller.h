@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.1 2008/06/18 13:23:22 paus Exp $
+// $Id: BaseFiller.h,v 1.2 2008/06/18 19:17:21 loizides Exp $
 //
 // BaseFiller
 //
@@ -21,19 +21,21 @@ namespace mithep
   class BaseFiller
   {
     public:
-      BaseFiller(const edm::ParameterSet&, const char *en, const char *mn);
+      BaseFiller(const edm::ParameterSet&, const char *name);
       virtual ~BaseFiller() {}
 
-      virtual bool Active()                                                 { return active_; }
-      virtual void BookDataBlock(TreeWriter *tws)                           = 0;
-      virtual void FillDataBlock(const edm::Event&, const edm::EventSetup&) = 0;
-      virtual void ResolveLinks (const edm::Event&, const edm::EventSetup&) {}
+      bool                     Active() const { return active_; }
+      virtual void             BookDataBlock(TreeWriter *tws)                           = 0;
+      virtual void             FillDataBlock(const edm::Event&, const edm::EventSetup&) = 0;
+      const std::string       &Name()   const { return name_; }
+      virtual void             ResolveLinks(const edm::Event&, const edm::EventSetup&)  {}
 
     protected:
-      const edm::ParameterSet            &config_;
-      std::string                         edmName_;
-      std::string                         mitName_;
-      const bool                          active_;
+      const std::string        name_;
+      const edm::ParameterSet  config_;
+      const bool               active_;
+
+      const edm::ParameterSet &Conf()   const { return config_; }
   };
 }
 #endif

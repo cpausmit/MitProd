@@ -1,4 +1,4 @@
-// $Id: FillGenParts.cc,v 1.5 2008/06/11 12:50:17 loizides Exp $
+// $Id: FillGenParts.cc,v 1.6 2008/06/17 13:31:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,10 +14,10 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillGenParts::FillGenParts(const edm::ParameterSet &iConfig) : 
+FillGenParts::FillGenParts(const edm::ParameterSet &cfg) : 
   genParticles_(new mithep::Array<mithep::GenParticle>()),
-  mcSource_(iConfig.getUntrackedParameter<string>("source", "source")),
-  genPartBrn_(iConfig.getUntrackedParameter<string>("brname", Names::gkGenPartBrn))
+  mcSource_(cfg.getUntrackedParameter<string>("source", "source")),
+  genPartBrn_(cfg.getUntrackedParameter<string>("brname", Names::gkGenPartBrn))
 {
 }
 
@@ -27,13 +27,13 @@ FillGenParts::~FillGenParts()
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillGenParts::analyze(const edm::Event &theEvent, const edm::EventSetup &iSetup)
+void FillGenParts::analyze(const edm::Event &event, const edm::EventSetup &setup)
 {
   genParticles_->Reset();
 
   Handle<HepMCProduct> theMCProduct;
   try {
-    theEvent.getByLabel(mcSource_, theMCProduct);
+    event.getByLabel(mcSource_, theMCProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillGenParts") << "Error! Can not get collection with label " 
                                   << mcSource_ << endl;
@@ -73,7 +73,7 @@ void FillGenParts::analyze(const edm::Event &theEvent, const edm::EventSetup &iS
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillGenParts::beginJob(edm::EventSetup const &iEvent)
+void FillGenParts::beginJob(const edm::EventSetup &event)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();
@@ -83,7 +83,7 @@ void FillGenParts::beginJob(edm::EventSetup const &iEvent)
     return;
   }
 
-  tws->AddBranch(genPartBrn_.c_str(), &genParticles_, 32*1024, 99);
+  tws->AddBranch(genPartBrn_.c_str(), &genParticles_);
 }
 
 //-------------------------------------------------------------------------------------------------

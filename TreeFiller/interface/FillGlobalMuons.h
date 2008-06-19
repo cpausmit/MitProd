@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillGlobalMuons.h,v 1.2 2008/06/18 14:10:45 loizides Exp $
+// $Id: FillGlobalMuons.h,v 1.3 2008/06/18 19:18:06 loizides Exp $
 //
 // FillGlobalMuons
 //
@@ -30,7 +30,7 @@ namespace mithep
       ~FillGlobalMuons();
 
       void analyze(const edm::Event&, const edm::EventSetup&);
-      void beginJob(edm::EventSetup const&);
+      void beginJob(const edm::EventSetup&);
       void endJob ();
   
     private:

@@ -1,4 +1,4 @@
-// $Id: FillElectrons.cc,v 1.4 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillElectrons.cc,v 1.5 2008/06/18 19:18:06 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,10 +16,10 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-FillElectrons::FillElectrons(const edm::ParameterSet &iConfig) :
+FillElectrons::FillElectrons(const edm::ParameterSet &cfg) :
   electrons_(new mithep::Array<mithep::Electron>()),
-  electronSource_(iConfig.getUntrackedParameter<string>("electronSource","pixelMatchGsfElectrons")),
-  electronBranch_(iConfig.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
+  electronSource_(cfg.getUntrackedParameter<string>("electronSource","pixelMatchGsfElectrons")),
+  electronBranch_(cfg.getUntrackedParameter<string>("electronBrname", Names::gkElectronBrn))
 {
 }
 
@@ -29,14 +29,14 @@ FillElectrons::~FillElectrons()
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillElectrons::analyze(const edm::Event &theEvent, 
-                            const edm::EventSetup &iSetup)
+void FillElectrons::analyze(const edm::Event &event, 
+                            const edm::EventSetup &setup)
 {
   electrons_->Reset();
 
   Handle<reco::PixelMatchGsfElectronCollection> theElectronProduct;
   try {
-    theEvent.getByLabel(electronSource_, theElectronProduct);
+    event.getByLabel(electronSource_, theElectronProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillElectrons") << "Error! Can not get collection with label " 
                                    << electronSource_ << endl;
@@ -81,7 +81,7 @@ void FillElectrons::analyze(const edm::Event &theEvent,
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillElectrons::beginJob(edm::EventSetup const &iEvent)
+void FillElectrons::beginJob(const edm::EventSetup &setup)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();

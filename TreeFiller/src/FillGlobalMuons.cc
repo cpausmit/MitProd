@@ -1,4 +1,4 @@
-// $Id: FillGlobalMuons.cc,v 1.1 2008/06/18 13:23:22 paus Exp $
+// $Id: FillGlobalMuons.cc,v 1.2 2008/06/18 14:10:45 loizides Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,10 +18,10 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillGlobalMuons::FillGlobalMuons(const edm::ParameterSet &iConfig) : 
+FillGlobalMuons::FillGlobalMuons(const edm::ParameterSet &cfg) : 
   muons_(new mithep::Array<mithep::GlobalMuon>()),
-  muonSource_(iConfig.getUntrackedParameter<string>("muonSource", "muons")),
-  muonBranch_(iConfig.getUntrackedParameter<string>("globalMuonBrname", Names::gkGlobalMuonBrn))
+  muonSource_(cfg.getUntrackedParameter<string>("muonSource", "muons")),
+  muonBranch_(cfg.getUntrackedParameter<string>("globalMuonBrname", Names::gkGlobalMuonBrn))
 {
 }
 
@@ -32,7 +32,7 @@ FillGlobalMuons::~FillGlobalMuons()
 
 //-------------------------------------------------------------------------------------------------
 void FillGlobalMuons::analyze(const edm::Event      &event, 
-			      const edm::EventSetup &iSetup)
+			      const edm::EventSetup &setup)
 {
   // Fill muon track info using global (tracker+muon chambers) track fit if available, or standalone
   // muon or tracker tracks otherwise
@@ -73,7 +73,7 @@ void FillGlobalMuons::analyze(const edm::Event      &event,
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillGlobalMuons::beginJob(edm::EventSetup const &iEvent)
+void FillGlobalMuons::beginJob(const edm::EventSetup &setup)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();

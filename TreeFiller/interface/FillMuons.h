@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMuons.h,v 1.3 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillMuons.h,v 1.4 2008/06/18 13:23:22 paus Exp $
 //
 // FillMuons
 //
@@ -30,8 +30,8 @@ namespace mithep
       ~FillMuons();
 
       void analyze(const edm::Event&, const edm::EventSetup&);
-      void beginJob(edm::EventSetup const&);
-      void endJob ();
+      void beginJob(const edm::EventSetup&);
+      void endJob();
   
     private:
       mithep::Array<mithep::Muon> *muons_;  

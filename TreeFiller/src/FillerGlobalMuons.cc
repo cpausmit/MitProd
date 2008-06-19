@@ -1,17 +1,12 @@
-// $Id: FillerGlobalMuons.cc,v 1.2 2008/06/18 14:10:45 loizides Exp $
+// $Id: FillerGlobalMuons.cc,v 1.3 2008/06/18 19:17:21 loizides Exp $
 
+#include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
-#include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
 
 using namespace std;
 using namespace edm;
@@ -19,8 +14,9 @@ using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
 FillerGlobalMuons::FillerGlobalMuons(const ParameterSet &cfg) : 
-  BaseFiller(cfg.getUntrackedParameter<ParameterSet>("GlobalMuons"),
-             "muons",Names::gkGlobalMuonBrn),
+  BaseFiller(cfg,"GlobalMuons"),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","muons")),
+  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkGlobalMuonBrn)),
   muons_(new mithep::Array<mithep::GlobalMuon>)
 {
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillGenParts.h,v 1.4 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillGenParts.h,v 1.5 2008/06/18 19:18:06 loizides Exp $
 //
 // FillGenParts
 //
@@ -30,7 +30,7 @@ namespace mithep
       ~FillGenParts();
 
       void analyze(const edm::Event&, const edm::EventSetup&);
-      void beginJob(edm::EventSetup const&);
+      void beginJob(const edm::EventSetup&);
       void endJob ();
   
     private:

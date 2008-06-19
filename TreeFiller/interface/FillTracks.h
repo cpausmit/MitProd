@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillTracks.h,v 1.3 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillTracks.h,v 1.4 2008/06/18 19:18:06 loizides Exp $
 //
 // FillTracks
 //
@@ -31,7 +31,7 @@ namespace mithep
 
       void analyze(const edm::Event&, const edm::EventSetup&);
       void beginJob(edm::EventSetup const&);
-      void endJob ();
+      void endJob();
   
     private:
       mithep::Array<mithep::Track> *tracks_;  

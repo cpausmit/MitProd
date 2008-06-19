@@ -1,4 +1,4 @@
-// $Id: FillMuons.cc,v 1.4 2008/06/18 13:23:22 paus Exp $
+// $Id: FillMuons.cc,v 1.5 2008/06/18 14:10:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,10 +18,10 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillMuons::FillMuons(const edm::ParameterSet &iConfig) : 
+FillMuons::FillMuons(const edm::ParameterSet &cfg) : 
   muons_(new mithep::Array<mithep::Muon>()),
-  muonSource_(iConfig.getUntrackedParameter<string>("muonSource" , "muons")),
-  muonBranch_(iConfig.getUntrackedParameter<string>("muonBrname", Names::gkMuonBrn))
+  muonSource_(cfg.getUntrackedParameter<string>("muonSource", "muons")),
+  muonBranch_(cfg.getUntrackedParameter<string>("muonBrname", Names::gkMuonBrn))
 {
 }
 
@@ -32,7 +32,7 @@ FillMuons::~FillMuons()
 
 //-------------------------------------------------------------------------------------------------
 void FillMuons::analyze(const edm::Event      &event, 
-			const edm::EventSetup &iSetup)
+			const edm::EventSetup &setup)
 {
   // Fill muon track info using global (tracker+muon chambers) track fit if available, or standalone
   // muon or tracker tracks otherwise
@@ -73,7 +73,7 @@ void FillMuons::analyze(const edm::Event      &event,
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillMuons::beginJob(edm::EventSetup const &iEvent)
+void FillMuons::beginJob(const edm::EventSetup &setup)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();

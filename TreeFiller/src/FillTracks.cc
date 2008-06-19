@@ -1,4 +1,4 @@
-// $Id: FillTracks.cc,v 1.5 2008/06/18 13:23:22 paus Exp $
+// $Id: FillTracks.cc,v 1.6 2008/06/18 14:10:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,10 +14,10 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillTracks::FillTracks(const edm::ParameterSet &iConfig) : 
+FillTracks::FillTracks(const edm::ParameterSet &cfg) : 
   tracks_(new mithep::Array<mithep::Track>()),
-  trackSource_(iConfig.getUntrackedParameter<string>("trackSource", "generalTracks")),
-  trackBranch_(iConfig.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
+  trackSource_(cfg.getUntrackedParameter<string>("trackSource", "generalTracks")),
+  trackBranch_(cfg.getUntrackedParameter<string>("trackBrname", Names::gkTrackBrn))
 {
 }
 
@@ -27,14 +27,14 @@ FillTracks::~FillTracks()
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillTracks::analyze(const edm::Event &theEvent, 
-			 const edm::EventSetup &iSetup)
+void FillTracks::analyze(const edm::Event &event, 
+			 const edm::EventSetup &setup)
 {
   tracks_->Reset();
 
   Handle<reco::TrackCollection> theTrackProduct;
   try {
-    theEvent.getByLabel(trackSource_, theTrackProduct);
+    event.getByLabel(trackSource_, theTrackProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillTracks") << "Error! Can not get collection with label " 
                                   << trackSource_ << endl;
@@ -65,7 +65,7 @@ void FillTracks::analyze(const edm::Event &theEvent,
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillTracks::beginJob(edm::EventSetup const &iEvent)
+void FillTracks::beginJob(const edm::EventSetup &setup)
 {
   Service<TreeService> ts;
   TreeWriter *tws = ts->get();
