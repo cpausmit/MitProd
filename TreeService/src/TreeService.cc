@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.4 2008/06/17 08:24:09 loizides Exp $
+// $Id: TreeService.cc,v 1.5 2008/06/18 13:23:23 paus Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -7,6 +7,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
+#include "MitAna/DataTree/interface/Names.h"
 
 using namespace edm;
 using namespace std;
@@ -14,15 +15,43 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) : 
-  tws_        (0),
-  treeNames_  (cfg.getUntrackedParameter<vector<string>   >("treeNames")),
-  fileNames_  (cfg.getUntrackedParameter<vector<string>   >("fileNames")),
-  pathNames_  (cfg.getUntrackedParameter<vector<string>   >("pathNames")),
-  maxSizes_   (cfg.getUntrackedParameter<vector<unsigned> >("maxSizes")),
-  compLevels_ (cfg.getUntrackedParameter<vector<unsigned> >("compLevels")),
-  splitLevels_(cfg.getUntrackedParameter<vector<unsigned> >("splitLevels")),
-  brSizes_    (cfg.getUntrackedParameter<vector<unsigned> >("brSizes"))
+  tws_        (0)
 {
+  if (cfg.exists("treeNames"))
+    treeNames_=cfg.getUntrackedParameter<vector<string>   >("treeNames");
+  else 
+    treeNames_.push_back(Names::gkEvtTreeName);
+
+  if (cfg.exists("fileNames"))
+    fileNames_=cfg.getUntrackedParameter<vector<string>   >("fileNames");
+  else
+    fileNames_.push_back("mit-test");
+    
+  if (cfg.exists("pathNames"))
+    pathNames_=cfg.getUntrackedParameter<vector<string>   >("pathNames");
+  else
+    pathNames_.push_back(".");
+
+  if (cfg.exists("maxSizes"))
+    maxSizes_=cfg.getUntrackedParameter<vector<unsigned> >("maxSizes");
+  else 
+    maxSizes_.push_back(1024);
+
+  if (cfg.exists("compLevels"))
+    compLevels_=cfg.getUntrackedParameter<vector<unsigned> >("compLevels");
+  else 
+    compLevels_.push_back(9);
+
+  if (cfg.exists("splitLevels"))
+    splitLevels_=cfg.getUntrackedParameter<vector<unsigned> >("splitLevels");
+  else 
+    splitLevels_.push_back(99);
+
+  if (cfg.exists("brSizes"))
+    brSizes_=cfg.getUntrackedParameter<vector<unsigned> >("brSizes");
+  else 
+    brSizes_.push_back(32*1024);
+
   if (treeNames_.size()!=fileNames_.size()) {
     throw edm::Exception(edm::errors::Configuration, "TreeService::TreeService()\n")
       << "Number of main trees should match number of files " << treeNames_.size() 
