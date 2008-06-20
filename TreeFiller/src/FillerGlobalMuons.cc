@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerGlobalMuons.cc,v 1.4 2008/06/19 16:53:43 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,14 +27,9 @@ FillerGlobalMuons::~FillerGlobalMuons()
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillerGlobalMuons::BookDataBlock(TreeWriter *tws)
+void FillerGlobalMuons::BookDataBlock(TreeWriter &tws)
 {
-  if (! tws) {
-    throw edm::Exception(edm::errors::Configuration, "FillerGlobalMuons::BookDataBlock()\n")
-      << "Invalid pointer.\n";
-    return;
-  }
-  tws->AddBranch(mitName_.c_str(),&muons_);
+  tws.AddBranch(mitName_.c_str(),&muons_);
 }
 
 //-------------------------------------------------------------------------------------------------

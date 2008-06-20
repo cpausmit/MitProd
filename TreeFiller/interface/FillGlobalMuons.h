@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillGlobalMuons.h,v 1.3 2008/06/18 19:18:06 loizides Exp $
+// $Id: FillGlobalMuons.h,v 1.4 2008/06/19 16:53:43 loizides Exp $
 //
 // FillGlobalMuons
 //
@@ -15,8 +15,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "MitProd/TreeService/interface/TreeService.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/GlobalMuon.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Array.h"

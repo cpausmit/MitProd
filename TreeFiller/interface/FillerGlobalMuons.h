@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerGlobalMuons.h,v 1.4 2008/06/19 16:53:43 loizides Exp $
 //
 // FillerGlobalMuons
 //
@@ -25,7 +25,7 @@ namespace mithep
       FillerGlobalMuons(const edm::ParameterSet&);
       ~FillerGlobalMuons();
 
-      void BookDataBlock(TreeWriter *tws);
+      void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event&, const edm::EventSetup&);
       void ResolveLinks (const edm::Event&, const edm::EventSetup&);
   

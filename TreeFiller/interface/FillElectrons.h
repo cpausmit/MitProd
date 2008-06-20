@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillElectrons.h,v 1.5 2008/06/18 19:18:06 loizides Exp $
+// $Id: FillElectrons.h,v 1.6 2008/06/19 16:53:43 loizides Exp $
 //
 // FillElectrons
 //
@@ -15,12 +15,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "MitProd/TreeService/interface/TreeService.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Array.h"
-
 
 namespace mithep 
 {

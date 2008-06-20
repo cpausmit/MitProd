@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.2 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillMitTree.cc,v 1.3 2008/06/19 16:53:43 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,9 +60,8 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
 
   // Loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    (*iF)->BookDataBlock(tws);
+    (*iF)->BookDataBlock(*tws);
   }
-  return;
 }
 
 //-------------------------------------------------------------------------------------------------

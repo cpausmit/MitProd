@@ -1,4 +1,4 @@
-// $Id: FillGenParts.cc,v 1.6 2008/06/17 13:31:38 loizides Exp $
+// $Id: FillGenParts.cc,v 1.7 2008/06/19 16:53:43 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,6 +8,8 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/GenParticle.h"
+#include "MitProd/TreeService/interface/TreeService.h"
+#include "MitAna/DataUtil/interface/TreeWriter.h"
 
 using namespace std;
 using namespace edm;

@@ -1,4 +1,4 @@
-// $Id: FillGlobalMuons.cc,v 1.2 2008/06/18 14:10:45 loizides Exp $
+// $Id: FillGlobalMuons.cc,v 1.3 2008/06/19 16:53:43 loizides Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -8,10 +8,10 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
-#include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/TreeFiller/interface/FillGlobalMuons.h"
+#include "MitProd/TreeService/interface/TreeService.h"
+#include "MitAna/DataUtil/interface/TreeWriter.h"
 
 using namespace std;
 using namespace edm;

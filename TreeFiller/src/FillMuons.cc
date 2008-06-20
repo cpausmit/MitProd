@@ -1,17 +1,16 @@
-// $Id: FillMuons.cc,v 1.5 2008/06/18 14:10:45 loizides Exp $
+// $Id: FillMuons.cc,v 1.6 2008/06/19 16:53:43 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/TreeService/interface/TreeService.h"
+#include "MitAna/DataUtil/interface/TreeWriter.h"
 
 using namespace std;
 using namespace edm;
