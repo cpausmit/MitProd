@@ -1,12 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillGenParts.h,v 1.6 2008/06/19 16:53:43 loizides Exp $
+// $Id: FillGenParts.h,v 1.7 2008/06/20 17:52:57 loizides Exp $
 //
 // FillGenParts
 //
 // Module copying HepMC particles into mithep::GenParticles.
 //
 // Authors: C.Loizides
-//
 //--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLGENPARTS_H

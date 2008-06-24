@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.3 2008/06/19 16:53:43 loizides Exp $
+// $Id: FillMitTree.cc,v 1.4 2008/06/20 17:52:57 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,6 +6,7 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerGlobalMuons.h"
+#include "MitProd/TreeFiller/interface/FillerGenParts.h"
 
 using namespace std;
 using namespace edm;
@@ -81,6 +82,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillers_.push_back(fillerGlobalMuons);
   else 
     delete fillerGlobalMuons;
+
+  FillerGenParts *fillerGenParts = new FillerGenParts(cfg);
+  if (fillerGenParts->Active())
+    fillers_.push_back(fillerGenParts);
+  else 
+    delete fillerGenParts;
 
   return 1;
 }

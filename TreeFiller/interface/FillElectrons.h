@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillElectrons.h,v 1.6 2008/06/19 16:53:43 loizides Exp $
+// $Id: FillElectrons.h,v 1.7 2008/06/20 17:52:57 loizides Exp $
 //
 // FillElectrons
 //
-// Module copying HepMC particles into Electrons.
+// Module copying reconstructed EDM electrons into mithep::Electrons.
 //
 // Authors: C.Loizides, J.Bendavid
 //--------------------------------------------------------------------------------------------------

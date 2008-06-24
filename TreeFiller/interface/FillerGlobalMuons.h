@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.4 2008/06/19 16:53:43 loizides Exp $
+// $Id: FillerGlobalMuons.h,v 1.5 2008/06/20 17:52:57 loizides Exp $
 //
 // FillerGlobalMuons
 //
-// Imlementation of a filler to fill global muons into our data structure.
+// Imlementation of a filler to fill EDM global muons into mithep::GlobalMuons.
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------

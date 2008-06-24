@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.2 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillMitTree.h,v 1.3 2008/06/19 16:53:43 loizides Exp $
 //
 // FillMitTree
 //
@@ -34,7 +34,7 @@ namespace mithep
   
     private:
       bool configure(const edm::ParameterSet&);
-      std::vector<BaseFiller*>  fillers_;       // list of our fillers and potential fillers
+      std::vector<BaseFiller*>  fillers_;       // list of active fillers
   };
 }
 #endif
