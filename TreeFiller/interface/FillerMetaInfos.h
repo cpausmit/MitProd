@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.2 2008/06/20 17:52:57 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.3 2008/06/24 14:24:55 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -31,6 +31,7 @@ namespace mithep
       TreeWriter              *tws_;          //tree writer (not owned)
       std::string              evtName_;      //event branch name
       std::string              runName_;      //run info branch name
+      std::string              lahName_;      //look-ahead header branch name
       EventHeader             *eventHeader_;  //event header
       LAHeader                *evtLAHeader_;  //look-ahead event header
       RunInfo                 *runInfo_;      //run info block
