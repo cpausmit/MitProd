@@ -1,11 +1,12 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMuons.h,v 1.6 2008/06/20 17:52:57 loizides Exp $
+// $Id: AssociationMap.h,v 1.1 2008/07/01 14:39:28 loizides Exp $
 //
 // Association Map
 //
-// wrapper for std::map, used to resolve links during tree filling
+// Wrapper for std::map, used to resolve links during tree filling.
+// This class needs work! CL.
 //
-// Authors: J.Bendavid
+// Authors: J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_ASSOCIATIONMAP_H
@@ -25,46 +26,47 @@ namespace mithep
       AssociationMap() : edmProductId_(0) {}
       ~AssociationMap() {}
       
-      void Add(EdmClass edmObj, MitClass mitObj) {
-        fwdMap[edmObj]=mitObj;
-	//revMap[mitObj]=edmObj;
-	revMap.insert(std::pair<MitClass, EdmClass>(mitObj,edmObj));
-      }
-      
-      MitClass GetMit(EdmClass edmObj) const {
-	//MitClass iter = fwdMap.find(edmObj);
-	//fwdMapType::iterator iter;
-	//fwdIter = fwdMap.find(edmObj);
-	//if ( iter != fwdMap.end() )
-	//	return iter->second;
-	//else return 0;
-	return fwdMap.find(edmObj)->second;
-      }
-      
-       EdmClass GetEdmRef(MitClass mitObj) const {
-//         //EdmClass iter = revMap.find(mitObj);
-// // 	revMapType::iterator iter = revMap.find(mitObj);
-// // 	if ( iter != revMap.end() )
-// // 		return iter->second;
-// // 	else return 0;
- 	return revMap.find(mitObj)->second;
-       }
-      
-      Int_t GetEntries() { return fwdMap.size(); }
-      
-      void Reset() {
-      	fwdMap.clear();
-	revMap.clear();
-      }
-      
-	Int_t GetEdmProductId() const { return edmProductId_; }
-	void  SetEdmProductId(Int_t id) { edmProductId_ = id; }
+      void       Add(EdmClass edmObj, MitClass mitObj);
+      EdmClass   GetEdmRef(MitClass mitObj) const;
+      Int_t      GetEdmProductId()          const { return edmProductId_; }
+      Int_t      GetEntries()               const { return fwdMap_.size(); }
+      MitClass   GetMit(EdmClass edmObj)    const;
+      void       Reset()                          { fwdMap_.clear(); revMap_.clear(); }
+      void       SetEdmProductId(Int_t id)        { edmProductId_ = id; }
 
     protected:
-	fwdMapType fwdMap;
-	revMapType revMap;
-	Int_t edmProductId_;
-      
+      fwdMapType fwdMap_;       //map between edm ref and mit ptr 
+      revMapType revMap_;       //map between mit ptr and edm ref
+      Int_t      edmProductId_; //product id for consistency check
   };
+}
+
+//--------------------------------------------------------------------------------------------------
+template <class EdmClass, class MitClass>
+inline void mithep::AssociationMap<EdmClass,MitClass>::Add(EdmClass edmObj, MitClass mitObj) 
+{
+  fwdMap_[edmObj]=mitObj;
+  revMap_.insert(std::pair<MitClass, EdmClass>(mitObj,edmObj));
+}
+
+//--------------------------------------------------------------------------------------------------
+template <class EdmClass, class MitClass>
+inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmObj) const
+{
+  typename fwdMapType::const_iterator iter = fwdMap_.find(edmObj);
+
+  if (iter != fwdMap_.end())
+    return iter->second;
+  else return 0;
+}
+      
+//--------------------------------------------------------------------------------------------------
+template <class EdmClass, class MitClass>
+inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdmRef(MitClass mitObj) const
+{
+  typename revMapType::const_iterator iter = revMap_.find(mitObj);
+  if (iter != revMap_.end())
+    return iter->second;
+  else return 0;
 }
 #endif
