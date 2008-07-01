@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.4 2008/06/24 14:25:46 loizides Exp $
+// $Id: FillMitTree.h,v 1.5 2008/07/01 14:38:33 loizides Exp $
 //
 // FillMitTree
 //
@@ -35,7 +35,8 @@ namespace mithep
     protected:
       bool configure(const edm::ParameterSet &cfg);
 
-      std::vector<BaseFiller*> fillers_;       // list of active fillers
+      std::vector<BaseFiller*> fillers_;       //list of active fillers
+      bool                     defactive_;     //default activity flag for fillers
   };
 }
 #endif

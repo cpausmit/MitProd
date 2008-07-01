@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,8 +17,8 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillerSimParticles::FillerSimParticles(const ParameterSet &cfg) : 
-  BaseFiller(cfg, "SimParticles"),
+FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active) : 
+  BaseFiller(cfg, "SimParticles", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","mergedTruth")),
   edmDataName_(Conf().getUntrackedParameter<string>("edmDataName","MergedTrackTruth")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkSimPartBrn)),

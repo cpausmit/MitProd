@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerTracks.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,9 +17,9 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, 
-                           const char *name="Tracks", const SimParticleMap *sm) : 
-  BaseFiller(cfg, name),
+FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, 
+                           bool active, const SimParticleMap *sm) : 
+  BaseFiller(cfg, name, active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   edmDataName_(Conf().getUntrackedParameter<string>("edmDataName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),

@@ -1,0 +1,74 @@
+# $Id:$
+
+module MitTreeFiller = FillMitTree {
+    untracked PSet MetaInfos = {
+        untracked bool active = true
+    }
+    untracked PSet GenParts = {
+        untracked bool active = true
+        untracked string mitName = "GenParticles"
+        untracked string edmName = "source"
+    }
+    untracked PSet SimParticles = {
+        untracked bool active = true
+        untracked string mitName = "SimParticles"
+        untracked string edmName = "mergedtruth"
+        untracked string edmDataName = "MergedTrackTruth"
+    }
+    untracked PSet GeneralTracks = {
+        untracked bool active = true
+        untracked string mitName = "Tracks"
+        untracked string edmName = "generalTracks"
+        untracked string edmDataName= ""
+        untracked string edmSimAssociationName = ""
+    }
+    untracked PSet StandaloneMuonTracks = {
+        untracked bool active = true
+        untracked string mitName = "StandaloneMuonTracks"
+        untracked string edmName = "standAloneMuons"
+        untracked string edmDataName= ""
+    }
+    untracked PSet StandaloneMuonTracksWVtxConstraint = {
+        untracked bool active = true
+        untracked string mitName = "StandaloneMuonTracksWVtxConstraint"
+        untracked string edmName = "standAloneMuons"
+        untracked string edmDataName= "UpdatedAtVtx"
+    }
+    untracked PSet GlobalMuonTracks = {
+        untracked bool active = true
+        untracked string mitName = "GlobalMuonTracks"
+        untracked string edmName = "globalMuons"
+        untracked string edmDataName= ""
+    }
+    untracked PSet ConversionInOutTracks = {
+        untracked bool active = true
+        untracked string mitName = "ConversionInOutTracks"
+        untracked string edmName = "ckfInOutTracksFromConversions"
+        untracked string edmDataName= ""
+        untracked string edmSimAssociationName = ""
+    }
+    untracked PSet ConversionOutInTracks = {
+        untracked bool active = true
+        untracked string mitName = "ConversionOutInTracks"
+        untracked string edmName = "ckfOutInTracksFromConversions"
+        untracked string edmDataName= ""
+        untracked string edmSimAssociationName = ""
+    }
+    untracked PSet GsfTracks = {
+        untracked bool active = true
+        untracked string mitName = "GsfTracks"
+        untracked string edmName = "pixelMatchGsfFit"
+        untracked string edmDataName= ""
+        untracked string edmSimAssociationName = ""
+    }
+    untracked PSet Muons = {
+        untracked bool active = true
+        untracked string mitName = "Muons"
+        untracked string edmName = "muons"
+    }
+    untracked PSet Electrons = {
+        untracked bool active = true
+        untracked string mitName = "Electrons"
+        untracked string edmName = "pixelMatchGsfElectrons"
+    }
+}

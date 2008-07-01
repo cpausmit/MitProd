@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.5 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.6 2008/07/01 15:02:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,8 +15,8 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg) : 
-  BaseFiller(cfg,"MetaInfos"),
+FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) : 
+  BaseFiller(cfg, "MetaInfos", active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerMuons.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
 //
 // FillerMuons
 //
@@ -23,8 +23,9 @@ namespace mithep
   class FillerMuons : public BaseFiller
   {  
     public:
-      FillerMuons(const edm::ParameterSet &cfg, const TrackMap *globalMap, 
-                  const TrackMap *stdMap, const TrackMap *stdVtxMap, const TrackMap * trackerMap);
+      FillerMuons(const edm::ParameterSet &cfg, bool active=1,
+                  const TrackMap *globalMap=0, const TrackMap *stdMap=0, 
+                  const TrackMap *stdVtxMap=0, const TrackMap *trackerMap=0);
       ~FillerMuons();
 
       void BookDataBlock(TreeWriter &tws);

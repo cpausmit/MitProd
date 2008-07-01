@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerSimParticles.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
 //
 // FillerSimParticles
 //
@@ -23,7 +23,7 @@ namespace mithep
   class FillerSimParticles : public BaseFiller
   {  
     public:
-      FillerSimParticles(const edm::ParameterSet &cfg);
+      FillerSimParticles(const edm::ParameterSet &cfg, bool active=1);
       ~FillerSimParticles();
 
       void                  BookDataBlock(TreeWriter &tws);

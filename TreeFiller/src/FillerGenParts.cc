@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.2 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.3 2008/07/01 16:32:35 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillerGenParts::FillerGenParts(const ParameterSet &cfg) : 
-  BaseFiller(cfg,"GenParts"),
+FillerGenParts::FillerGenParts(const ParameterSet &cfg, bool active) : 
+  BaseFiller(cfg, "GenParts", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","source")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkGenPartBrn)),
   genParticles_(new mithep::Array<mithep::GenParticle>)

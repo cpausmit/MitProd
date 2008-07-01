@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenParts.h,v 1.1 2008/06/24 14:58:08 loizides Exp $
+// $Id: FillerGenParts.h,v 1.2 2008/07/01 14:38:33 loizides Exp $
 //
 // FillerGenParts
 //
@@ -22,7 +22,7 @@ namespace mithep
   class FillerGenParts : public BaseFiller
   {
     public:
-      FillerGenParts(const edm::ParameterSet &cfg);
+      FillerGenParts(const edm::ParameterSet &cfg, bool active=1);
       ~FillerGenParts();
 
       void BookDataBlock(TreeWriter &tws);

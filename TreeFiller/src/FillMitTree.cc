@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.5 2008/06/24 14:25:46 loizides Exp $
+// $Id: FillMitTree.cc,v 1.6 2008/07/01 14:38:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,7 +20,8 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillMitTree::FillMitTree(const edm::ParameterSet &cfg)
+FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
+  defactive_(cfg.getUntrackedParameter<bool>("defactive",1))
 {
   // Constructor.
     
@@ -83,13 +84,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerMetaInfos;
 
-  FillerGenParts *fillerGenParts = new FillerGenParts(cfg);
+  FillerGenParts *fillerGenParts = new FillerGenParts(cfg,defactive_);
   if (fillerGenParts->Active())
     fillers_.push_back(fillerGenParts);
   else 
     delete fillerGenParts;  
     
-  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg);
+  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_);
   const SimParticleMap* simParticleMap=0;
   if (fillerSimParticles->Active()) {
     fillers_.push_back(fillerSimParticles);
@@ -98,7 +99,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerSimParticles;  
   
-  FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks", simParticleMap);
+  FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_,simParticleMap);
   const TrackMap* generalTrackMap=0;
   if (fillerGeneralTracks->Active()) {
     fillers_.push_back(fillerGeneralTracks);
@@ -107,7 +108,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerGeneralTracks;
     
-  FillerTracks *fillerStandaloneMuonTracks = new FillerTracks(cfg,"StandaloneMuonTracks");
+  FillerTracks *fillerStandaloneMuonTracks = new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
   const TrackMap* standaloneMuonTrackMap=0;
   if (fillerStandaloneMuonTracks->Active()) {
     fillers_.push_back(fillerStandaloneMuonTracks);
@@ -117,7 +118,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     delete fillerStandaloneMuonTracks;
 
   FillerTracks *fillerStandaloneMuonTracksVtx = 
-    new FillerTracks(cfg,"StandaloneMuonTracksWVtxConstraint");
+    new FillerTracks(cfg,"StandaloneMuonTracksWVtxConstraint",defactive_);
   const TrackMap* standaloneMuonTrackVtxMap=0;
   if (fillerStandaloneMuonTracksVtx->Active()) {
     fillers_.push_back(fillerStandaloneMuonTracksVtx);
@@ -126,7 +127,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerStandaloneMuonTracksVtx;
     
-  FillerTracks *fillerGlobalMuonTracks = new FillerTracks(cfg,"GlobalMuonTracks");
+  FillerTracks *fillerGlobalMuonTracks = new FillerTracks(cfg,"GlobalMuonTracks",defactive_);
   const TrackMap* globalMuonTrackMap=0;
   if (fillerGlobalMuonTracks->Active()) {
     fillers_.push_back(fillerGlobalMuonTracks);
@@ -136,7 +137,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     delete fillerGlobalMuonTracks;  
     
   FillerTracks *fillerConversionInOutTracks = 
-    new FillerTracks(cfg,"ConversionInOutTracks", simParticleMap);
+    new FillerTracks(cfg,"ConversionInOutTracks",defactive_,simParticleMap);
   const TrackMap* conversionInOutTrackMap=0;
   const TrackCol* conversionInOutTracks=0;
   if (fillerConversionInOutTracks->Active()) {
@@ -148,7 +149,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     delete fillerConversionInOutTracks;
     
   FillerTracks *fillerConversionOutInTracks = 
-    new FillerTracks(cfg,"ConversionOutInTracks", simParticleMap);
+    new FillerTracks(cfg,"ConversionOutInTracks",defactive_,simParticleMap);
   const TrackMap* conversionOutInTrackMap=0;
   const TrackCol* conversionOutInTracks=0;
   if (fillerConversionOutInTracks->Active()) {
@@ -159,7 +160,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerConversionOutInTracks;
     
-  FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks", simParticleMap);
+  FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks",defactive_,simParticleMap);
   const GsfTrackMap* gsfTrackMap=0;
   if (fillerGsfTracks->Active()) {
     fillers_.push_back(fillerGsfTracks);
@@ -169,14 +170,14 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     delete fillerGsfTracks;
     
   FillerMuons *fillerMuons = 
-    new FillerMuons(cfg, globalMuonTrackMap, standaloneMuonTrackMap, 
-                    standaloneMuonTrackVtxMap, generalTrackMap);
+    new FillerMuons(cfg,defactive_,globalMuonTrackMap,standaloneMuonTrackMap, 
+                    standaloneMuonTrackVtxMap,generalTrackMap);
   if (fillerMuons->Active())
     fillers_.push_back(fillerMuons);
   else 
     delete fillerMuons;
     
-  FillerElectrons *fillerElectrons = new FillerElectrons(cfg, gsfTrackMap, generalTrackMap);
+  FillerElectrons *fillerElectrons = new FillerElectrons(cfg,defactive_,gsfTrackMap,generalTrackMap);
   if (fillerElectrons->Active())
     fillers_.push_back(fillerElectrons);
   else 
@@ -184,8 +185,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   
 #if 0
   FillerConversionElectrons *fillerConversionElectrons = 
-    new FillerConversionElectrons(cfg, conversionInOutTracks, conversionOutInTracks, 
-                                  conversionInOutTrackMap, conversionOutInTrackMap);
+    new FillerConversionElectrons(cfg,defactive_,conversionInOutTracks,conversionOutInTracks, 
+                                  conversionInOutTrackMap,conversionOutInTrackMap);
 
   const ConversionElectronMap* convElectronMap=0;
   if (fillerConversionElectrons->Active()) {
@@ -195,7 +196,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerConversionElectrons;
     
-  FillerPhotons *fillerPhotons = new FillerPhotons(cfg, convElectronMap);
+  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_,convElectronMap);
   if (fillerPhotons->Active())
     fillers_.push_back(fillerPhotons);
   else 

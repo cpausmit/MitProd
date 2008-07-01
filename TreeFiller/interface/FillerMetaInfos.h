@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.4 2008/06/25 07:39:57 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.5 2008/07/01 14:38:33 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -21,7 +21,7 @@ namespace mithep
   class FillerMetaInfos : public BaseFiller
   {
     public:
-      FillerMetaInfos(const edm::ParameterSet &cfg);
+      FillerMetaInfos(const edm::ParameterSet &cfg, bool active=1);
       ~FillerMetaInfos();
 
       void BookDataBlock(TreeWriter &tws);
@@ -33,8 +33,8 @@ namespace mithep
       std::string              evtName_;      //event branch name
       std::string              runName_;      //run info branch name
       std::string              lahName_;      //look-ahead header branch name
-      std::string              hltName_;      //
-      std::string              l1tName_;      //
+      std::string              hltName_;      //todo
+      std::string              l1tName_;      //todo
       TreeWriter              *tws_;          //tree writer (not owned)
       EventHeader             *eventHeader_;  //event header
       LAHeader                *evtLAHeader_;  //look-ahead event header

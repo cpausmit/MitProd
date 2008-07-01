@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,9 +18,9 @@ using namespace edm;
 using namespace mithep;
 
 //-------------------------------------------------------------------------------------------------
-FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, 
+FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
                                  const GsfTrackMap* gsfTrackMap, const TrackMap* trackerTrackMap) : 
-  BaseFiller(cfg, "Electrons"),
+  BaseFiller(cfg, "Electrons", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   electrons_(new mithep::ElectronArr),

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGlobalMuons.h,v 1.3 2008/06/18 19:17:21 loizides Exp $
+// $Id: FillerGsfTracks.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
 //
 // FillerGsfTracks
 //
@@ -25,8 +25,8 @@ namespace mithep
   class FillerGsfTracks : public BaseFiller
   {  
     public:
-      FillerGsfTracks(const edm::ParameterSet &cfg, 
-                      const char *name, const SimParticleMap *sm=0);
+      FillerGsfTracks(const edm::ParameterSet &cfg, const char *name, 
+                      bool active=1, const SimParticleMap *sm=0);
       ~FillerGsfTracks();
 
       void 		 BookDataBlock(TreeWriter &tws);
