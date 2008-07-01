@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.4 2008/06/18 13:23:23 paus Exp $
+// $Id: TreeService.h,v 1.5 2008/06/18 19:19:20 loizides Exp $
 //
 // TreeService 
 //
@@ -57,13 +57,13 @@ namespace mithep
       TObjArray tws_; //array holding the tree writers
 
       // parameters for service
-      std::vector<std::string> treeNames_;   // tree names
-      std::vector<std::string> fileNames_;   // file names 
-      std::vector<std::string> pathNames_;   // path names
-      std::vector<unsigned>    maxSizes_;    // max file sizes [MB]
-      std::vector<unsigned>    compLevels_;  // compression levels
-      std::vector<unsigned>    splitLevels_; // default split levels
-      std::vector<unsigned>    brSizes_;     // default branch sizes [Byte]
+      std::vector<std::string> treeNames_;   //tree names
+      std::vector<std::string> fileNames_;   //file names 
+      std::vector<std::string> pathNames_;   //path names
+      std::vector<unsigned>    maxSizes_;    //max file sizes [MB]
+      std::vector<unsigned>    compLevels_;  //compression levels
+      std::vector<unsigned>    splitLevels_; //default split levels
+      std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
   };
 }
 #endif
