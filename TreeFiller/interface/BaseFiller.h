@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.4 2008/06/20 17:52:57 loizides Exp $
+// $Id: BaseFiller.h,v 1.5 2008/06/24 14:25:46 loizides Exp $
 //
 // BaseFiller
 //
@@ -21,7 +21,7 @@ namespace mithep
   class BaseFiller
   {
     public:
-      BaseFiller(const edm::ParameterSet&, const char *name, bool active=true);
+      BaseFiller(const edm::ParameterSet &cfg, const char *name, bool active=true);
       virtual ~BaseFiller() {}
 
       bool                     Active() const { return active_; }
@@ -31,11 +31,11 @@ namespace mithep
       virtual void             ResolveLinks(const edm::Event&, const edm::EventSetup&)  {}
 
     protected:
+      const edm::ParameterSet &Conf()   const { return config_; }
+
       const std::string        name_;    //name of this filler
       const edm::ParameterSet  config_;  //parameter set for this filler
       const bool               active_;  //=1 if active
-
-      const edm::ParameterSet &Conf()   const { return config_; }
   };
 }
 #endif

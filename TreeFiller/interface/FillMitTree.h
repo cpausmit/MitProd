@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.3 2008/06/19 16:53:43 loizides Exp $
+// $Id: FillMitTree.h,v 1.4 2008/06/24 14:25:46 loizides Exp $
 //
 // FillMitTree
 //
@@ -25,16 +25,17 @@ namespace mithep
   class FillMitTree : public edm::EDAnalyzer
   {
     public:
-      FillMitTree(const edm::ParameterSet&);
+      FillMitTree(const edm::ParameterSet &cfg);
       ~FillMitTree();
 
-      void analyze (const edm::Event&, const edm::EventSetup&);
-      void beginJob(const edm::EventSetup&);
+      void analyze (const edm::Event &e, const edm::EventSetup &es);
+      void beginJob(const edm::EventSetup &es);
       void endJob();
   
-    private:
-      bool configure(const edm::ParameterSet&);
-      std::vector<BaseFiller*>  fillers_;       // list of active fillers
+    protected:
+      bool configure(const edm::ParameterSet &cfg);
+
+      std::vector<BaseFiller*> fillers_;       // list of active fillers
   };
 }
 #endif

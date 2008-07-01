@@ -1,4 +1,4 @@
-// $Id: FillerGlobalMuons.cc,v 1.5 2008/06/20 17:52:57 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.1 2008/06/24 14:58:08 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,12 +66,14 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
       } 
     }
 
+#if 0
     mithep::GenParticle genParticle(mcPart->momentum().x(),mcPart->momentum().y(),
                                     mcPart->momentum().z(),mcPart->momentum().e(),
                                     mcPart->pdg_id(),
                                     mcPart->status(), 
                                     moind);          
     genParticles_->AddCopy(genParticle);
+#endif
     nGen++;
   }
 

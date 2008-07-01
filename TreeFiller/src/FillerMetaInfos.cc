@@ -1,9 +1,14 @@
-// $Id: FillerMetaInfos.cc,v 1.3 2008/06/24 14:24:55 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.4 2008/06/25 07:39:57 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/EventHeader.h"
+#include "MitAna/DataTree/interface/LAHeader.h"
+#include "MitAna/DataTree/interface/RunInfo.h"
 
 using namespace std;
 using namespace edm;
@@ -12,10 +17,12 @@ using namespace mithep;
 //-------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg) : 
   BaseFiller(cfg,"MetaInfos"),
-  tws_(0),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),
+  hltName_(Conf().getUntrackedParameter<string>("hltName","TriggerResults")),
+  l1tName_(Conf().getUntrackedParameter<string>("l1tName","todo")),
+  tws_(0),
   eventHeader_(new EventHeader()),
   evtLAHeader_(new LAHeader()),
   runInfo_(new RunInfo()),
@@ -63,7 +70,7 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 }
 
 //-------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillDataBlock(const edm::Event      &event, 
+void FillerMetaInfos::FillDataBlock(const edm::Event &event, 
                                     const edm::EventSetup &setup)
 {
   // Fill our data structures.
@@ -88,6 +95,9 @@ void FillerMetaInfos::FillDataBlock(const edm::Event      &event,
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
 
+  FillHltInfo(event,setup);
+
+
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
   if (riter != runmap_.end()) {
@@ -106,3 +116,26 @@ void FillerMetaInfos::FillDataBlock(const edm::Event      &event,
 
   ++runEntries_;
 }
+
+//-------------------------------------------------------------------------------------------------
+void FillerMetaInfos::FillHltInfo(const edm::Event &event, 
+                                  const edm::EventSetup &setup)
+{
+  //
+
+  Handle<TriggerResults> triggerResultsHLT;
+  try {
+    event.getByLabel(hltName_, triggerResultsHLT);
+  } catch (cms::Exception& ex) {
+    edm::LogError("FillerMetaInfos") << "Error! Cannot get trigger results with label " 
+                                     << hltName_ << endl;
+    throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo\n")
+      << "Error! Cannot get trigger results with label " << hltName_ << endl;
+  }
+
+  TriggerNames triggerNames(*(triggerResultsHLT.product())); 
+  for(UInt_t i=0;i<triggerNames.size();++i) {
+    cout << i << " " << triggerNames.triggerName(i) << endl;
+  }
+}
+
