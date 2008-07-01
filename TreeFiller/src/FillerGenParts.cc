@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.1 2008/06/24 14:58:08 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.2 2008/07/01 14:38:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,7 +49,6 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
 
   const HepMC::GenEvent GenEvent = theMCProduct->getHepMCData();  
 
-  int nGen = 0;
   for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
        pgen != GenEvent.particles_end(); ++pgen) {
 
@@ -66,15 +65,11 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
       } 
     }
 
-#if 0
-    mithep::GenParticle genParticle(mcPart->momentum().x(),mcPart->momentum().y(),
-                                    mcPart->momentum().z(),mcPart->momentum().e(),
-                                    mcPart->pdg_id(),
-                                    mcPart->status(), 
-                                    moind);          
-    genParticles_->AddCopy(genParticle);
-#endif
-    nGen++;
+    mithep::GenParticle *genParticle = genParticles_->Allocate();
+    new (genParticle) mithep::GenParticle(mcPart->momentum().x(),mcPart->momentum().y(),
+                                          mcPart->momentum().z(),mcPart->momentum().e(),
+                                          mcPart->pdg_id(),
+                                          mcPart->status()); 
   }
 
   genParticles_->Trim();
