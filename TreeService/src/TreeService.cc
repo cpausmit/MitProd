@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.5 2008/06/18 13:23:23 paus Exp $
+// $Id: TreeService.cc,v 1.6 2008/06/20 17:52:24 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -15,7 +15,7 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) : 
-  tws_        (0)
+  tws_(0)
 {
   if (cfg.exists("treeNames"))
     treeNames_=cfg.getUntrackedParameter<vector<string>   >("treeNames");
@@ -67,30 +67,29 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) :
   for (unsigned int i=0; i<treeNames_.size(); ++i) {
 
     TreeWriter *t = new TreeWriter(treeNames_.at(i).c_str(),1);
-
     t->SetPrefix(fileNames_.at(i).c_str());
 
-    if      (i<pathNames_.size())
+    if (i<pathNames_.size())
       t->SetBaseURL(pathNames_.at(i).c_str());
     else if (pathNames_.size()>0)
       t->SetBaseURL(pathNames_.at(0).c_str());
 
-    if      (i<maxSizes_.size())
+    if (i<maxSizes_.size())
       t->SetMaxSize((Long64_t)maxSizes_.at(i)*1024*1024);
     else if (maxSizes_.size()>0)
       t->SetMaxSize((Long64_t)maxSizes_.at(0)*1024*1024);
 
-    if      (i<compLevels_.size())
+    if (i<compLevels_.size())
       t->SetCompressLevel(compLevels_.at(i));
     else if (compLevels_.size()>0)
       t->SetCompressLevel(compLevels_.at(0));
 
-    if      (i<splitLevels_.size())
+    if (i<splitLevels_.size())
       t->SetDefaultSL(splitLevels_.at(i));
     else if (splitLevels_.size()>0)
       t->SetDefaultSL(splitLevels_.at(0));
 
-    if      (i<brSizes_.size())
+    if (i<brSizes_.size())
       t->SetDefaultBrSize(brSizes_.at(i));
     else if (brSizes_.size()>0)
       t->SetDefaultBrSize(brSizes_.at(0));
