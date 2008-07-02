@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +10,6 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 #include "MitAna/DataTree/interface/Track.h"
-//#include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
@@ -53,7 +52,6 @@ void FillerElectrons::FillDataBlock(const edm::Event      &event,
   electrons_->Reset();
   
   try {
-    //event.getByLabel(edmName_,electronProduct_);
     event.getByLabel(edm::InputTag(edmName_),electronProduct_);
   } catch (cms::Exception& ex) {
     edm::LogError("FillerElectrons") << "Error! Cannot get collection with label " 
