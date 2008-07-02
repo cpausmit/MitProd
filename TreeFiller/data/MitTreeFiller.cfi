@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.1 2008/07/01 21:11:47 loizides Exp $
+# $Id: MitTreeFiller.cfi,v 1.2 2008/07/02 13:30:08 bendavid Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked PSet MetaInfos = {
@@ -18,7 +18,7 @@ module MitTreeFiller = FillMitTree {
         untracked bool active = true
         untracked string mitName = "Tracks"
         untracked string edmName = "generalTracks"
-        untracked string edmSimAssociationName = ""
+        untracked string edmSimAssociationName = "trackingParticleRecoTrackAsssociation"
     }
     untracked PSet StandaloneMuonTracks = {
         untracked bool active = true
@@ -39,19 +39,19 @@ module MitTreeFiller = FillMitTree {
         untracked bool active = true
         untracked string mitName = "ConversionInOutTracks"
         untracked string edmName = "ckfInOutTracksFromConversions"
-        untracked string edmSimAssociationName = ""
+        untracked string edmSimAssociationName = "assocInOutConversionTracks"
     }
     untracked PSet ConversionOutInTracks = {
         untracked bool active = true
         untracked string mitName = "ConversionOutInTracks"
         untracked string edmName = "ckfOutInTracksFromConversions"
-        untracked string edmSimAssociationName = ""
+        untracked string edmSimAssociationName = "assocOutInConversionTracks"
     }
     untracked PSet GsfTracks = {
         untracked bool active = true
         untracked string mitName = "GsfTracks"
         untracked string edmName = "pixelMatchGsfFit"
-        untracked string edmSimAssociationName = ""
+        untracked string edmSimAssociationName = "assoc2GsfTracks"
     }
     untracked PSet Muons = {
         untracked bool active = true
