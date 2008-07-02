@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.3 2008/07/01 16:32:35 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.4 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,7 +39,7 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
 
   Handle<HepMCProduct> theMCProduct;
   try {
-    event.getByLabel(edmName_, theMCProduct);
+    event.getByLabel(edm::InputTag(edmName_), theMCProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillGenParts") << "Error! Can not get collection with label " 
                                   << edmName_ << endl;

@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerMuons.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +53,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   
   // get the muons collection
   try {
-    event.getByLabel(edmName_,muonProduct_);
+    event.getByLabel(edm::InputTag(edmName_),muonProduct_);
   } catch (cms::Exception& ex) {
     edm::LogError("FillerMuons") << "Error! Cannot get collection with label " 
 				       << edmName_ << endl;

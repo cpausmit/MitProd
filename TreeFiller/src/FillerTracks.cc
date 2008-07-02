@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerTracks.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,7 +21,6 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name,
                            bool active, const SimParticleMap *sm) : 
   BaseFiller(cfg, name, active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
-  edmDataName_(Conf().getUntrackedParameter<string>("edmDataName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   simMap_(sm),
@@ -58,10 +57,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   
   // get the tracks collection
   try {
-    if (edmDataName_ == "")
-    	event.getByLabel(edmName_,trackProduct_);
-    else
-        event.getByLabel(edmName_,edmDataName_,trackProduct_);
+    event.getByLabel(edm::InputTag(edmName_),trackProduct_);
   } catch (cms::Exception& ex) {
     edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 
                                   << edmName_ << endl;
@@ -77,7 +73,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   if (simMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
     try {
-      event.getByLabel(edmSimAssociationName_, simAssociationProduct);
+      event.getByLabel(edm::InputTag(edmSimAssociationName_), simAssociationProduct);
     }
     catch (cms::Exception& ex) {
       edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 

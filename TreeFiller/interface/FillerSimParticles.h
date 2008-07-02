@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSimParticles.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerSimParticles.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
 //
 // FillerSimParticles
 //
@@ -33,7 +33,6 @@ namespace mithep
   
     private:
       std::string				edmName_;
-      std::string				edmDataName_;
       std::string				mitName_;
       mithep::Array<mithep::SimParticle>	*simParticles_;
       mithep::SimParticleMap*			simMap_;

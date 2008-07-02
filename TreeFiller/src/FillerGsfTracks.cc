@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,7 +21,6 @@ FillerGsfTracks::FillerGsfTracks(const ParameterSet &cfg, const char *name,
                                  bool active, const SimParticleMap *sm) : 
   BaseFiller(cfg, name, active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfFit")),
-  edmDataName_(Conf().getUntrackedParameter<string>("edmDataName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","GsfTracks")),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","assoc2GsfTracks")),
   simMap_(sm),
@@ -56,10 +55,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
   trackMap_->Reset();
   
   try {
-    if (edmDataName_ == "")
-    	event.getByLabel(edmName_,trackProduct_);
-    else
-        event.getByLabel(edmName_,edmDataName_,trackProduct_);
+    event.getByLabel(edm::InputTag(edmName_),trackProduct_);
   } catch (cms::Exception& ex) {
     edm::LogError("FillerGsfTracks") << "Error! Cannot get collection with label " 
                                      << edmName_ << endl;

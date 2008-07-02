@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,8 +19,7 @@ using namespace mithep;
 //-------------------------------------------------------------------------------------------------
 FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg, "SimParticles", active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","mergedTruth")),
-  edmDataName_(Conf().getUntrackedParameter<string>("edmDataName","MergedTrackTruth")),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","mergedtruth:MergedTrackTruth")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkSimPartBrn)),
   simParticles_(new mithep::SimParticleArr), 
   simMap_(new mithep::SimParticleMap)
@@ -54,7 +53,7 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
   simMap_->Reset();
   
   try {
-    event.getByLabel(edmName_,edmDataName_,trackingParticleProduct);
+    event.getByLabel(edm::InputTag(edmName_),trackingParticleProduct);
   } catch (cms::Exception& ex) {
     edm::LogError("FillerSimParticles") << "Error! Cannot get collection with label " 
                                         << edmName_ << endl;
