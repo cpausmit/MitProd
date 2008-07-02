@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: Collections.h,v 1.8 2008/06/18 13:23:13 paus Exp $
+// $Id: AssociationMaps.h,v 1.1 2008/07/01 14:39:28 loizides Exp $
 //
 // AssociationMaps
 //
@@ -19,8 +19,11 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "MitAna/DataTree/interface/SimParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
+#include "MitAna/DataTree/interface/Conversion.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 namespace mithep 
 {
@@ -28,5 +31,6 @@ namespace mithep
   typedef AssociationMap<const reco::GsfTrackRef,   mithep::Track*>        GsfTrackMap;
   typedef AssociationMap<const TrackingParticleRef, mithep::SimParticle*>  SimParticleMap;
   typedef AssociationMap<const reco::TrackRef,      mithep::Electron*>     ConversionElectronMap;
+  typedef AssociationMap<const reco::ConversionRef, mithep::Conversion*>   ConversionMap;
 }   
 #endif

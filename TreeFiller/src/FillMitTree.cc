@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.6 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillMitTree.cc,v 1.7 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,8 +11,9 @@
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
-//#include "MitProd/TreeFiller/interface/FillerConvElectrons.h"
-//#include "MitProd/TreeFiller/interface/FillerPhotons.h"
+#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerConversions.h"
+#include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 
 using namespace std;
@@ -183,11 +184,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerElectrons;
   
-#if 0
-  FillerConversionElectrons *fillerConversionElectrons = 
-    new FillerConversionElectrons(cfg,defactive_,conversionInOutTracks,conversionOutInTracks, 
-                                  conversionInOutTrackMap,conversionOutInTrackMap);
-
+  FillerConversionElectrons *fillerConversionElectrons = new FillerConversionElectrons(cfg, defactive_, conversionInOutTracks, conversionOutInTracks, conversionInOutTrackMap, conversionOutInTrackMap);
   const ConversionElectronMap* convElectronMap=0;
   if (fillerConversionElectrons->Active()) {
     fillers_.push_back(fillerConversionElectrons);
@@ -196,12 +193,21 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerConversionElectrons;
     
-  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_,convElectronMap);
+  FillerConversions *fillerConversions = new FillerConversions(cfg, defactive_, convElectronMap);
+  const ConversionMap* conversionMap=0;
+  if (fillerConversions->Active()) {
+    fillers_.push_back(fillerConversions);
+    conversionMap = fillerConversions->GetConversionMap();
+  }
+  else 
+    delete fillerConversions;
+    
+  FillerPhotons *fillerPhotons = new FillerPhotons(cfg, defactive_, conversionMap);
   if (fillerPhotons->Active())
     fillers_.push_back(fillerPhotons);
-  else 
+  else
     delete fillerPhotons;
-#endif
+
 
   return 1;
 }

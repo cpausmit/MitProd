@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.2 2008/07/02 13:30:08 bendavid Exp $
+# $Id: MitTreeFiller.cfi,v 1.3 2008/07/02 14:35:15 bendavid Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked PSet MetaInfos = {
@@ -62,5 +62,19 @@ module MitTreeFiller = FillMitTree {
         untracked bool active = true
         untracked string mitName = "Electrons"
         untracked string edmName = "pixelMatchGsfElectrons"
+    }
+    untracked PSet ConversionElectrons = {
+        untracked bool active = true
+        untracked string mitName = "ConversionElectrons"
+    }
+    untracked PSet Conversions = {
+        untracked bool active = true
+        untracked string mitName = "Conversions"
+        untracked string edmName = "conversions"
+    }
+    untracked PSet Photons = {
+        untracked bool active = true
+        untracked string mitName = "Photons"
+        untracked string edmName = "photons"
     }
 }
