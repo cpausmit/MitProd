@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.1 2008/07/01 14:39:28 loizides Exp $
+// $Id: AssociationMap.h,v 1.2 2008/07/01 21:11:12 loizides Exp $
 //
 // Association Map
 //
@@ -14,6 +14,7 @@
 
 #include <map>
 #include <TObject.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace mithep
 {
@@ -57,7 +58,8 @@ inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmOb
 
   if (iter != fwdMap_.end())
     return iter->second;
-  else return 0;
+  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetMit()\n")
+        << "Error! Edm Object not found in AssociationMap." << std::endl;
 }
       
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +69,7 @@ inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdmRef(MitClass mi
   typename revMapType::const_iterator iter = revMap_.find(mitObj);
   if (iter != revMap_.end())
     return iter->second;
-  else return 0;
+  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetEdmRef()\n")
+        << "Error! mithep Object not found in AssociationMap." << std::endl;
 }
 #endif
