@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,7 +16,7 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg, "SimParticles", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","mergedtruth:MergedTrackTruth")),
@@ -27,7 +27,7 @@ FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active) :
   // Constructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerSimParticles::~FillerSimParticles()
 {
   // Destructor.
@@ -35,7 +35,7 @@ FillerSimParticles::~FillerSimParticles()
   delete simMap_;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerSimParticles::BookDataBlock(TreeWriter &tws)
 {
   // Add simparticles branch to tree.
@@ -43,7 +43,7 @@ void FillerSimParticles::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&simParticles_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerSimParticles::FillDataBlock(const edm::Event      &event, 
                                        const edm::EventSetup &setup)
 {
@@ -77,7 +77,7 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
   simParticles_->Trim();
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerSimParticles::ResolveLinks(const edm::Event      &event, 
                                       const edm::EventSetup &setup)
 {

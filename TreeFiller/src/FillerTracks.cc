@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerTracks.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,15 +8,13 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-
-#include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, 
                            bool active, const SimParticleMap *sm) : 
   BaseFiller(cfg, name, active),
@@ -30,7 +28,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name,
   // Constructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerTracks::~FillerTracks()
 {
   // Destructor.
@@ -38,7 +36,7 @@ FillerTracks::~FillerTracks()
   delete trackMap_;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerTracks::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree.
@@ -46,7 +44,7 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&tracks_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerTracks::FillDataBlock(const edm::Event      &event, 
                                  const edm::EventSetup &setup)
 {
@@ -89,8 +87,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
        inTrack != inTracks.end(); ++inTrack) {
     
     mithep::Track* outTrack = tracks_->Allocate();
-    new (outTrack) mithep::Track(inTrack->phi(),inTrack->d0(),inTrack->pt(),inTrack->dz(),inTrack->theta());
-	
+    new (outTrack) mithep::Track(inTrack->phi(),
+                                 inTrack->d0(),
+                                 inTrack->pt(),
+                                 inTrack->dz(),
+                                 inTrack->theta());
 	
     outTrack->SetErrors(inTrack->phiError(),
                         inTrack->d0Error(),

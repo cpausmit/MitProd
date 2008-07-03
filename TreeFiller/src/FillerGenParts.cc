@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.4 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.5 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,7 +11,7 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerGenParts::FillerGenParts(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg, "GenParts", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","source")),
@@ -20,18 +20,18 @@ FillerGenParts::FillerGenParts(const ParameterSet &cfg, bool active) :
 {
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerGenParts::~FillerGenParts()
 {
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerGenParts::BookDataBlock(TreeWriter &tws)
 {
   tws.AddBranch(mitName_.c_str(),&genParticles_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerGenParts::FillDataBlock(const edm::Event      &event, 
                                    const edm::EventSetup &setup)
 {
@@ -75,7 +75,7 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
   genParticles_->Trim();
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerGenParts::ResolveLinks(const edm::Event      &event, 
                                   const edm::EventSetup &setup)
 {

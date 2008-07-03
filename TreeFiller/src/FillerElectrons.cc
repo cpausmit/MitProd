@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.4 2008/07/02 16:34:37 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,7 +16,7 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
                                  const GsfTrackMap* gsfTrackMap, const TrackMap* trackerTrackMap) : 
   BaseFiller(cfg, "Electrons", active),
@@ -29,13 +29,13 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
   // Constructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerElectrons::~FillerElectrons()
 {
   // Destructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree.
@@ -43,7 +43,7 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&electrons_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerElectrons::FillDataBlock(const edm::Event      &event, 
 				    const edm::EventSetup &setup)
 {

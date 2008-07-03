@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,28 +8,28 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-
-#include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerGsfTracks::FillerGsfTracks(const ParameterSet &cfg, const char *name, 
                                  bool active, const SimParticleMap *sm) : 
   BaseFiller(cfg, name, active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfFit")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","GsfTracks")),
-  edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","assoc2GsfTracks")),
+  edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName",
+                                                              "assoc2GsfTracks")),
   simMap_(sm),
-  tracks_(new mithep::Array<mithep::Track>), trackMap_(new mithep::GsfTrackMap)
+  tracks_(new mithep::Array<mithep::Track>), 
+  trackMap_(new mithep::GsfTrackMap)
 {
   // Constructor
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerGsfTracks::~FillerGsfTracks()
 {
   // Destructor.
@@ -37,7 +37,7 @@ FillerGsfTracks::~FillerGsfTracks()
   delete trackMap_;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerGsfTracks::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree.
@@ -45,7 +45,7 @@ void FillerGsfTracks::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&tracks_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerGsfTracks::FillDataBlock(const edm::Event      &event, 
                                     const edm::EventSetup &setup)
 {
@@ -121,5 +121,3 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
 
   tracks_->Trim();
 }
-
-

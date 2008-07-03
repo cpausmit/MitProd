@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSimParticles.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerSimParticles.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
 //
 // FillerSimParticles
 //
@@ -29,14 +29,14 @@ namespace mithep
       void                  BookDataBlock(TreeWriter &tws);
       void                  FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                  ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
-      const SimParticleMap *GetSimParticleMap() { return simMap_; }
+      const SimParticleMap *GetSimParticleMap() const { return simMap_; }
   
     private:
-      std::string				edmName_;
-      std::string				mitName_;
-      mithep::Array<mithep::SimParticle>	*simParticles_;
-      mithep::SimParticleMap*			simMap_;
-      edm::Handle<TrackingParticleCollection>	trackingParticleProduct;
+      std::string                               edmName_;
+      std::string                               mitName_;
+      mithep::Array<mithep::SimParticle>       *simParticles_;
+      mithep::SimParticleMap                   *simMap_;
+      edm::Handle<TrackingParticleCollection>   trackingParticleProduct;
   };
 }
 #endif

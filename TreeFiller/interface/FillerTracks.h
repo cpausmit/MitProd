@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerTracks.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
 //
 // FillerTracks
 //
@@ -27,19 +27,18 @@ namespace mithep
                    bool active=1, const SimParticleMap* sm=0);
       ~FillerTracks();
 
-      void 				  BookDataBlock(TreeWriter &tws);
-      void 				  FillDataBlock(const edm::Event &e, 
-                                                        const edm::EventSetup &es);
-      const TrackMap			 *GetTrackMap() { return trackMap_; }
-      const TrackCol	  		 *GetTrackCol() { return tracks_; }
+      void            BookDataBlock(TreeWriter &tws);
+      void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      const TrackMap *GetTrackMap() const { return trackMap_; }
+      const TrackCol *GetTrackCol() const { return tracks_; }
   
     private:
       std::string                         edmName_;
       std::string                         mitName_;
-      std::string			  edmSimAssociationName_;
+      std::string                         edmSimAssociationName_;
       const mithep::SimParticleMap       *simMap_;
       mithep::TrackArr                   *tracks_;
-      mithep::TrackMap* 		  trackMap_;
+      mithep::TrackMap                   *trackMap_;
       edm::Handle<reco::TrackCollection>  trackProduct_;
   };
 }

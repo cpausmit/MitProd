@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.6 2008/07/01 15:02:45 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.7 2008/07/01 21:11:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,12 +9,13 @@
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
-
+#include <TObjectTable.h>
+ 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg, "MetaInfos", active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
@@ -34,20 +35,22 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) :
   // Constructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerMetaInfos::~FillerMetaInfos()
 {
   // Destructor.
 
   delete eventHeader_;
+  delete evtLAHeader_;
   delete runInfo_;
   eventHeader_ = 0;
+  evtLAHeader_ = 0;
   runInfo_     = 0;
   runTree_     = 0;
   laTree_      = 0;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 {
   // Create run info tre and book our branches.
@@ -69,11 +72,12 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   tws_ = &tws;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::FillDataBlock(const edm::Event &event, 
                                     const edm::EventSetup &setup)
 {
   // Fill our data structures.
+  gObjectTable->Print();
 
   // clear map if a new file was opened
   if (tws_->GetFileNumber()!=fileNum_) {
@@ -116,7 +120,7 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   ++runEntries_;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::FillHltInfo(const edm::Event &event, 
                                   const edm::EventSetup &setup)
 {
@@ -137,4 +141,3 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
     cout << i << " " << triggerNames.triggerName(i) << endl;
   }
 }
-

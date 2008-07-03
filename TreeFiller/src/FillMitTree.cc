@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.7 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillMitTree.cc,v 1.8 2008/07/02 19:41:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,7 +20,7 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   defactive_(cfg.getUntrackedParameter<bool>("defactive",1))
 {
@@ -32,13 +32,13 @@ FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   }
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillMitTree::~FillMitTree()
 {
   // Destructor: nothing to be done here.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillMitTree::analyze(const edm::Event      &event, 
 			  const edm::EventSetup &setup)
 {
@@ -55,7 +55,7 @@ void FillMitTree::analyze(const edm::Event      &event,
   }
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillMitTree::beginJob(const edm::EventSetup &event)
 {
   // Access the tree and book branches.
@@ -74,7 +74,7 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   }
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
   // Configure our fillers.
@@ -100,7 +100,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerSimParticles;  
   
-  FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_,simParticleMap);
+  FillerTracks *fillerGeneralTracks = 
+    new FillerTracks(cfg,"GeneralTracks",defactive_,simParticleMap);
   const TrackMap* generalTrackMap=0;
   if (fillerGeneralTracks->Active()) {
     fillers_.push_back(fillerGeneralTracks);
@@ -109,7 +110,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerGeneralTracks;
     
-  FillerTracks *fillerStandaloneMuonTracks = new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
+  FillerTracks *fillerStandaloneMuonTracks = 
+    new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
   const TrackMap* standaloneMuonTrackMap=0;
   if (fillerStandaloneMuonTracks->Active()) {
     fillers_.push_back(fillerStandaloneMuonTracks);
@@ -161,7 +163,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerConversionOutInTracks;
     
-  FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks",defactive_,simParticleMap);
+  FillerGsfTracks *fillerGsfTracks = 
+    new FillerGsfTracks(cfg,"GsfTracks",defactive_,simParticleMap);
   const GsfTrackMap* gsfTrackMap=0;
   if (fillerGsfTracks->Active()) {
     fillers_.push_back(fillerGsfTracks);
@@ -178,13 +181,16 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else 
     delete fillerMuons;
     
-  FillerElectrons *fillerElectrons = new FillerElectrons(cfg,defactive_,gsfTrackMap,generalTrackMap);
+  FillerElectrons *fillerElectrons = 
+    new FillerElectrons(cfg,defactive_,gsfTrackMap,generalTrackMap);
   if (fillerElectrons->Active())
     fillers_.push_back(fillerElectrons);
   else 
     delete fillerElectrons;
   
-  FillerConversionElectrons *fillerConversionElectrons = new FillerConversionElectrons(cfg, defactive_, conversionInOutTracks, conversionOutInTracks, conversionInOutTrackMap, conversionOutInTrackMap);
+  FillerConversionElectrons *fillerConversionElectrons = 
+    new FillerConversionElectrons(cfg, defactive_, conversionInOutTracks, conversionOutInTracks, 
+                                  conversionInOutTrackMap, conversionOutInTrackMap);
   const ConversionElectronMap* convElectronMap=0;
   if (fillerConversionElectrons->Active()) {
     fillers_.push_back(fillerConversionElectrons);
@@ -212,7 +218,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   return 1;
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillMitTree::endJob()
 {
   // Delete fillers.

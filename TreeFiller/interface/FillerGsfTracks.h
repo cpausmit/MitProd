@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGsfTracks.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerGsfTracks.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
 //
 // FillerGsfTracks
 //
@@ -31,8 +31,8 @@ namespace mithep
 
       void 		 BookDataBlock(TreeWriter &tws);
       void 		 FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      const GsfTrackMap *GetTrackMap() { return trackMap_; }
-      const TrackCol    *GetTrackCol() { return tracks_; }
+      const GsfTrackMap *GetTrackMap() const { return trackMap_; }
+      const TrackCol    *GetTrackCol() const { return tracks_; }
   
     private:
       std::string                            edmName_;

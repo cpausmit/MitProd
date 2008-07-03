@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.2 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerMuons.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,7 +13,7 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active,
                          const TrackMap *globalMap, const TrackMap *stdMap, 
                          const TrackMap *stdVtxMap, const TrackMap* trackerMap) : 
@@ -29,13 +29,13 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active,
   // Constructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 FillerMuons::~FillerMuons()
 {
   // Destructor.
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerMuons::BookDataBlock(TreeWriter &tws)
 {
   // Add muons branch to tree.
@@ -43,9 +43,9 @@ void FillerMuons::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&muons_);
 }
 
-//-------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void FillerMuons::FillDataBlock(const edm::Event      &event, 
-				      const edm::EventSetup &setup)
+                                const edm::EventSetup &setup)
 {
   // Fill muon information. 
 
