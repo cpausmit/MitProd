@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.6 2008/06/20 17:52:24 loizides Exp $
+// $Id: TreeService.cc,v 1.7 2008/07/01 16:33:55 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -14,9 +14,11 @@ using namespace std;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) : 
+TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) : 
   tws_(0)
 {
+  // Constructor.
+
   if (cfg.exists("treeNames"))
     treeNames_=cfg.getUntrackedParameter<vector<string>   >("treeNames");
   else 
@@ -99,20 +101,23 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &r) :
   }
 
   // set watchers
-  r.watchPreProcessEvent (this,&TreeService::preEventProcessing);
-  r.watchPostProcessEvent(this,&TreeService::postEventProcessing);
-  r.watchPostBeginJob    (this,&TreeService::postBeginJob);
-  r.watchPostEndJob      (this,&TreeService::postEndJob);
+  ar.watchPreProcessEvent (this,&TreeService::preEventProcessing);
+  ar.watchPostProcessEvent(this,&TreeService::postEventProcessing);
+  ar.watchPostBeginJob    (this,&TreeService::postBeginJob);
+  ar.watchPostEndJob      (this,&TreeService::postEndJob);
 }
 
 //--------------------------------------------------------------------------------------------------
 TreeService::~TreeService() 
 {
+  // Destructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 TreeWriter* TreeService::get(const char *name) 
 {
+  // Get TreeWriter by name. If no name given, first one will be returned.
+
   if (tws_.GetEntries()<=0)
     return 0;
 
@@ -127,18 +132,22 @@ TreeWriter* TreeService::get(const char *name)
 //--------------------------------------------------------------------------------------------------
 void TreeService::postBeginJob()
 {
-  // nothing to be done for now
+  // Nothing to be done for now
 }
 
 //--------------------------------------------------------------------------------------------------
 void TreeService::postEndJob()
 {
+  // Clear all TreeWriter objects.
+
   tws_.Clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 void TreeService::postEventProcessing(const Event&, const EventSetup&)
 {
+  // Loop over all TreeWriter objects before processing of an event.
+
   for (int i=0; i<tws_.GetEntries(); ++i) {
     TreeWriter *tw=dynamic_cast<TreeWriter*>(tws_.At(i));
     if (tw)
@@ -149,6 +158,8 @@ void TreeService::postEventProcessing(const Event&, const EventSetup&)
 //--------------------------------------------------------------------------------------------------
 void TreeService::preEventProcessing(const EventID&, const Timestamp&)
 {
+  // Loop over all TreeWriter objects after processing of a events.
+
   for (int i=0; i<tws_.GetEntries(); ++i) {
     TreeWriter *tw=dynamic_cast<TreeWriter*>(tws_.At(i));
     if (tw)

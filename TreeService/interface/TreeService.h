@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.5 2008/06/18 19:19:20 loizides Exp $
+// $Id: TreeService.h,v 1.6 2008/07/01 20:32:35 loizides Exp $
 //
 // TreeService 
 //
@@ -43,7 +43,7 @@ namespace mithep
 
   class TreeService  {
     public:
-      TreeService(const edm::ParameterSet &, edm::ActivityRegistry &);
+      TreeService(const edm::ParameterSet &cfg, edm::ActivityRegistry &ar);
       ~TreeService();
 
       TreeWriter *get(const char *name=0);
