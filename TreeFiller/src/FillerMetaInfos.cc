@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.7 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.8 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -77,7 +77,7 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
                                     const edm::EventSetup &setup)
 {
   // Fill our data structures.
-  gObjectTable->Print();
+  //gObjectTable->Print();
 
   // clear map if a new file was opened
   if (tws_->GetFileNumber()!=fileNum_) {
