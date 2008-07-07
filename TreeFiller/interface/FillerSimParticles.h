@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSimParticles.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
+// $Id: FillerSimParticles.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
 //
 // FillerSimParticles
 //
@@ -23,7 +23,7 @@ namespace mithep
   class FillerSimParticles : public BaseFiller
   {  
     public:
-      FillerSimParticles(const edm::ParameterSet &cfg, bool active=1);
+      FillerSimParticles(const edm::ParameterSet &cfg, bool active=1, const GenParticleMap *genMap=0);
       ~FillerSimParticles();
 
       void                  BookDataBlock(TreeWriter &tws);
@@ -34,6 +34,7 @@ namespace mithep
     private:
       std::string                               edmName_;
       std::string                               mitName_;
+      const mithep::GenParticleMap                   *genMap_;
       mithep::Array<mithep::SimParticle>       *simParticles_;
       mithep::SimParticleMap                   *simMap_;
       edm::Handle<TrackingParticleCollection>   trackingParticleProduct;

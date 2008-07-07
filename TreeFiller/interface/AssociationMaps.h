@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.1 2008/07/01 14:39:28 loizides Exp $
+// $Id: AssociationMaps.h,v 1.2 2008/07/02 19:41:02 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -17,6 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "MitAna/DataTree/interface/GenParticle.h"
 #include "MitAna/DataTree/interface/SimParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
@@ -27,10 +28,11 @@
 
 namespace mithep 
 {
-  typedef AssociationMap<const reco::TrackRef,      mithep::Track*>        TrackMap;
-  typedef AssociationMap<const reco::GsfTrackRef,   mithep::Track*>        GsfTrackMap;
-  typedef AssociationMap<const TrackingParticleRef, mithep::SimParticle*>  SimParticleMap;
-  typedef AssociationMap<const reco::TrackRef,      mithep::Electron*>     ConversionElectronMap;
-  typedef AssociationMap<const reco::ConversionRef, mithep::Conversion*>   ConversionMap;
+  typedef AssociationMap<const reco::TrackRef,       mithep::Track*>        TrackMap;
+  typedef AssociationMap<const reco::GsfTrackRef,    mithep::Track*>        GsfTrackMap;
+  typedef AssociationMap<const Int_t, mithep::GenParticle*>                 GenParticleMap;
+  typedef AssociationMap<const TrackingParticleRef,  mithep::SimParticle*>  SimParticleMap;
+  typedef AssociationMap<const reco::TrackRef,       mithep::Electron*>     ConversionElectronMap;
+  typedef AssociationMap<const reco::ConversionRef,  mithep::Conversion*>   ConversionMap;
 }   
 #endif

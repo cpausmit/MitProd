@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
+// $Id: FillerSimParticles.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,6 +7,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/SimParticle.h"
@@ -17,10 +18,11 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active) : 
+FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active, const GenParticleMap *genMap) : 
   BaseFiller(cfg, "SimParticles", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","mergedtruth:MergedTrackTruth")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkSimPartBrn)),
+  genMap_(genMap),
   simParticles_(new mithep::SimParticleArr), 
   simMap_(new mithep::SimParticleMap)
 {
@@ -71,7 +73,11 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
 
       mithep::SimParticle* outSimParticle = simParticles_->Allocate();
       new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
-      simMap_->Add(theRef, outSimParticle);      
+      simMap_->Add(theRef, outSimParticle);
+      if (genMap_ && iM->genParticle().size()) {
+        const HepMC::GenParticle* mcPart = iM->genParticle_begin()->get();
+        outSimParticle->SetGenParticle(genMap_->GetMit(mcPart->barcode()));
+      }
   }
   
   simParticles_->Trim();
@@ -100,6 +106,7 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
            pd != v->get()->daughterTracks().end(); ++pd) {
         mithep::SimParticle* simDaughter = simMap_->GetMit(*pd);
         simParent->AddDaughter(simDaughter);
+        simDaughter->SetMother(simParent);
       }
       if (v == iM->decayVertices().end()-1) {
         simParent->SetVertex(v->get()->position().x(),

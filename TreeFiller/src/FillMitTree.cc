@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.8 2008/07/02 19:41:02 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.9 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -86,12 +86,15 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     delete fillerMetaInfos;
 
   FillerGenParts *fillerGenParts = new FillerGenParts(cfg,defactive_);
-  if (fillerGenParts->Active())
+  const GenParticleMap* genParticleMap=0;
+  if (fillerGenParts->Active()) {
     fillers_.push_back(fillerGenParts);
+    genParticleMap = fillerGenParts->GetGenParticleMap();
+  }
   else 
     delete fillerGenParts;  
     
-  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_);
+  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_, genParticleMap);
   const SimParticleMap* simParticleMap=0;
   if (fillerSimParticles->Active()) {
     fillers_.push_back(fillerSimParticles);
