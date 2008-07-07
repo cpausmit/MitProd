@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.1 2008/07/02 19:41:02 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.2 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -71,7 +71,14 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                                                inConversion->conversionVertex().zError());
         
         outConversion->GetVertex().SetChi2(inConversion->conversionVertex().chi2());
-        outConversion->GetVertex().SetNDof(inConversion->conversionVertex().ndof());
+        outConversion->GetVertex().SetNDof((Int_t)inConversion->conversionVertex().ndof());
+        
+        outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
+        outConversion->SetEOverP(inConversion->EoverP());
+        outConversion->SetPairMass(inConversion->pairInvariantMass());
+        outConversion->SetPairMomentum(inConversion->pairMomentum().x(),
+                                       inConversion->pairMomentum().y(),
+                                       inConversion->pairMomentum().z());
         
         if (conversionElectronMap_) {
           std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
