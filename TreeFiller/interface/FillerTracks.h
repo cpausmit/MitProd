@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
+// $Id: FillerTracks.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
 //
 // FillerTracks
 //
@@ -24,7 +24,7 @@ namespace mithep
   {  
     public:
       FillerTracks(const edm::ParameterSet &cfg, const char *name, 
-                   bool active=1, const SimParticleMap* sm=0);
+                   bool active=1, const SimParticleMap *sm=0);
       ~FillerTracks();
 
       void            BookDataBlock(TreeWriter &tws);

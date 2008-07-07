@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerConversions.cc,v 1.3 2008/07/07 15:33:51 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,6 +27,7 @@ FillerConversions::~FillerConversions()
 {
   // Destructor.
 
+  delete conversions_;
   delete conversionMap_;
 }
 
@@ -48,7 +49,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   
   try {
     event.getByLabel(edm::InputTag(edmName_),conversionProduct_);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerConversions") << "Error! Cannot get collection with label " 
                                        << edmName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerConversions:FillDataBlock()\n")

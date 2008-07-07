@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,6 +33,8 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active,
 FillerMuons::~FillerMuons()
 {
   // Destructor.
+
+  delete muons_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   // get the muons collection
   try {
     event.getByLabel(edm::InputTag(edmName_),muonProduct_);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerMuons") << "Error! Cannot get collection with label " 
 				       << edmName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")

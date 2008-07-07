@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSimParticles.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerSimParticles.h,v 1.5 2008/07/07 13:29:05 bendavid Exp $
 //
 // FillerSimParticles
 //
 // Imlementation of a filler to fill simulation level particles into our data structure.
 //
-// Authors: J. Bendavid
+// Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLERSIMPARTICLES_H
@@ -23,7 +23,8 @@ namespace mithep
   class FillerSimParticles : public BaseFiller
   {  
     public:
-      FillerSimParticles(const edm::ParameterSet &cfg, bool active=1, const GenParticleMap *genMap=0);
+      FillerSimParticles(const edm::ParameterSet &cfg, bool active=1, 
+                         const GenParticleMap *genMap=0);
       ~FillerSimParticles();
 
       void                  BookDataBlock(TreeWriter &tws);
@@ -34,7 +35,7 @@ namespace mithep
     private:
       std::string                               edmName_;
       std::string                               mitName_;
-      const mithep::GenParticleMap                   *genMap_;
+      const mithep::GenParticleMap             *genMap_;
       mithep::Array<mithep::SimParticle>       *simParticles_;
       mithep::SimParticleMap                   *simMap_;
       edm::Handle<TrackingParticleCollection>   trackingParticleProduct;

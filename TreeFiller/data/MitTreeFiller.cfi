@@ -1,6 +1,8 @@
-# $Id: MitTreeFiller.cfi,v 1.3 2008/07/02 14:35:15 bendavid Exp $
+# $Id: MitTreeFiller.cfi,v 1.4 2008/07/02 19:41:01 bendavid Exp $
 
 module MitTreeFiller = FillMitTree {
+    untracked bool defactive = true
+    
     untracked PSet MetaInfos = {
         untracked bool active = true
     }

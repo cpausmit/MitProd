@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.1 2008/07/02 19:41:02 bendavid Exp $
+// $Id: FillerConversions.h,v 1.2 2008/07/03 07:56:14 loizides Exp $
 //
 // FillerConversions
 //
@@ -32,12 +32,12 @@ namespace mithep
       const ConversionMap *GetConversionMap() const { return conversionMap_; }
   
     private:
-      std::string                             edmName_;
-      std::string                             mitName_;
-      const mithep::ConversionElectronMap*    conversionElectronMap_;
-      mithep::ConversionArr                  *conversions_;
-      mithep::ConversionMap*                  conversionMap_;
-      edm::Handle<reco::ConversionCollection> conversionProduct_;
+      std::string                              edmName_;
+      std::string                              mitName_;
+      const mithep::ConversionElectronMap*     conversionElectronMap_;
+      mithep::ConversionArr                   *conversions_;
+      mithep::ConversionMap                   *conversionMap_;
+      edm::Handle<reco::ConversionCollection>  conversionProduct_;
   };
 }
 #endif

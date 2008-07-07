@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.4 2008/07/02 16:34:37 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.5 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,6 +33,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
 FillerElectrons::~FillerElectrons()
 {
   // Destructor.
+
+  delete electrons_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void FillerElectrons::FillDataBlock(const edm::Event      &event,
   
   try {
     event.getByLabel(edm::InputTag(edmName_),electronProduct_);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerElectrons") << "Error! Cannot get collection with label " 
 				       << edmName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")

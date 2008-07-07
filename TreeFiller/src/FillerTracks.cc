@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.3 2008/07/02 13:30:09 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,6 +33,7 @@ FillerTracks::~FillerTracks()
 {
   // Destructor.
 
+  delete tracks_;
   delete trackMap_;
 }
 
@@ -56,7 +57,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   // get the tracks collection
   try {
     event.getByLabel(edm::InputTag(edmName_),trackProduct_);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 
                                   << edmName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerTracks:FillDataBlock()\n")
@@ -73,7 +74,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     try {
       event.getByLabel(edm::InputTag(edmSimAssociationName_), simAssociationProduct);
     }
-    catch (cms::Exception& ex) {
+    catch (cms::Exception &ex) {
       edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 
                                     << edmSimAssociationName_ << endl;
       throw edm::Exception(edm::errors::Configuration, "FillerTracks:FillDataBlock()\n")
@@ -86,7 +87,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   for (reco::TrackCollection::const_iterator inTrack = inTracks.begin(); 
        inTrack != inTracks.end(); ++inTrack) {
     
-    mithep::Track* outTrack = tracks_->Allocate();
+    mithep::Track *outTrack = tracks_->Allocate();
     new (outTrack) mithep::Track(inTrack->phi(),
                                  inTrack->d0(),
                                  inTrack->pt(),
@@ -112,7 +113,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       try {
         simRefs = simAssociation[theBaseRef]; //try to get the sim references if existing
       }
-      catch (edm::Exception& ex) {
+      catch (edm::Exception &ex) {
         noSimParticle=1;
       }
       if (!noSimParticle) { //loop through sim match candidates

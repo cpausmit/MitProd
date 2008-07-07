@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.9 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillMitTree.cc,v 1.10 2008/07/07 13:29:05 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,15 +6,18 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
-#include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
-#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerCaloJets.h"
+#include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
+#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
+#include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 
 using namespace std;
 using namespace edm;
@@ -82,141 +85,188 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg);
   if (fillerMetaInfos->Active())
     fillers_.push_back(fillerMetaInfos);
-  else 
+  else {
     delete fillerMetaInfos;
+    fillerMetaInfos = 0;
+  }
 
   FillerGenParts *fillerGenParts = new FillerGenParts(cfg,defactive_);
-  const GenParticleMap* genParticleMap=0;
+  const GenParticleMap* genParticleMap = 0;
   if (fillerGenParts->Active()) {
     fillers_.push_back(fillerGenParts);
     genParticleMap = fillerGenParts->GetGenParticleMap();
   }
-  else 
+  else {
     delete fillerGenParts;  
-    
-  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_, genParticleMap);
-  const SimParticleMap* simParticleMap=0;
+    fillerGenParts = 0;
+  }
+
+  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_,genParticleMap);
+  const SimParticleMap *simParticleMap = 0;
   if (fillerSimParticles->Active()) {
     fillers_.push_back(fillerSimParticles);
     simParticleMap = fillerSimParticles->GetSimParticleMap();
   }
-  else 
+  else {
     delete fillerSimParticles;  
-  
+    fillerSimParticles = 0;
+  }
+
+  FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg,"CaloJets",defactive_);
+  if (fillerCaloJets->Active()) {
+    fillers_.push_back(fillerCaloJets);
+  }
+  else {
+    delete fillerCaloJets;
+    fillerCaloJets = 0;
+  }
+
+  FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg,"CaloMet",defactive_);
+  if (fillerCaloMet->Active()) {
+    fillers_.push_back(fillerCaloMet);
+  }
+  else {
+    delete fillerCaloMet;
+    fillerCaloMet = 0;
+  }
+
   FillerTracks *fillerGeneralTracks = 
     new FillerTracks(cfg,"GeneralTracks",defactive_,simParticleMap);
-  const TrackMap* generalTrackMap=0;
+  const TrackMap *generalTrackMap=0;
   if (fillerGeneralTracks->Active()) {
     fillers_.push_back(fillerGeneralTracks);
     generalTrackMap = fillerGeneralTracks->GetTrackMap();
   }
-  else 
+  else {
     delete fillerGeneralTracks;
-    
+    fillerGeneralTracks = 0;
+  }
+
   FillerTracks *fillerStandaloneMuonTracks = 
     new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
-  const TrackMap* standaloneMuonTrackMap=0;
+  const TrackMap *standaloneMuonTrackMap=0;
   if (fillerStandaloneMuonTracks->Active()) {
     fillers_.push_back(fillerStandaloneMuonTracks);
     standaloneMuonTrackMap = fillerStandaloneMuonTracks->GetTrackMap();
   }
-  else 
+  else {
     delete fillerStandaloneMuonTracks;
+    fillerStandaloneMuonTracks = 0;
+  }
 
   FillerTracks *fillerStandaloneMuonTracksVtx = 
     new FillerTracks(cfg,"StandaloneMuonTracksWVtxConstraint",defactive_);
-  const TrackMap* standaloneMuonTrackVtxMap=0;
+  const TrackMap *standaloneMuonTrackVtxMap=0;
   if (fillerStandaloneMuonTracksVtx->Active()) {
     fillers_.push_back(fillerStandaloneMuonTracksVtx);
     standaloneMuonTrackVtxMap = fillerStandaloneMuonTracksVtx->GetTrackMap();
   }
-  else 
+  else {
     delete fillerStandaloneMuonTracksVtx;
-    
+    fillerStandaloneMuonTracksVtx = 0;
+  }
+
   FillerTracks *fillerGlobalMuonTracks = new FillerTracks(cfg,"GlobalMuonTracks",defactive_);
-  const TrackMap* globalMuonTrackMap=0;
+  const TrackMap *globalMuonTrackMap=0;
   if (fillerGlobalMuonTracks->Active()) {
     fillers_.push_back(fillerGlobalMuonTracks);
     globalMuonTrackMap = fillerGlobalMuonTracks->GetTrackMap();
   }
-  else 
+  else {
     delete fillerGlobalMuonTracks;  
+    fillerGlobalMuonTracks = 0;
+  }
     
   FillerTracks *fillerConversionInOutTracks = 
     new FillerTracks(cfg,"ConversionInOutTracks",defactive_,simParticleMap);
-  const TrackMap* conversionInOutTrackMap=0;
-  const TrackCol* conversionInOutTracks=0;
+  const TrackMap *conversionInOutTrackMap=0;
+  const TrackCol *conversionInOutTracks=0;
   if (fillerConversionInOutTracks->Active()) {
     fillers_.push_back(fillerConversionInOutTracks);
     conversionInOutTrackMap = fillerConversionInOutTracks->GetTrackMap();
     conversionInOutTracks = fillerConversionInOutTracks->GetTrackCol();
   }
-  else 
+  else {
     delete fillerConversionInOutTracks;
-    
+    fillerConversionInOutTracks = 0;
+  }
+
   FillerTracks *fillerConversionOutInTracks = 
     new FillerTracks(cfg,"ConversionOutInTracks",defactive_,simParticleMap);
-  const TrackMap* conversionOutInTrackMap=0;
-  const TrackCol* conversionOutInTracks=0;
+  const TrackMap *conversionOutInTrackMap=0;
+  const TrackCol *conversionOutInTracks=0;
   if (fillerConversionOutInTracks->Active()) {
     fillers_.push_back(fillerConversionOutInTracks);
     conversionOutInTrackMap = fillerConversionOutInTracks->GetTrackMap();
     conversionOutInTracks = fillerConversionOutInTracks->GetTrackCol();
   }
-  else 
+  else {
     delete fillerConversionOutInTracks;
-    
+    fillerConversionOutInTracks = 0;
+  }
+
   FillerGsfTracks *fillerGsfTracks = 
     new FillerGsfTracks(cfg,"GsfTracks",defactive_,simParticleMap);
-  const GsfTrackMap* gsfTrackMap=0;
+  const GsfTrackMap *gsfTrackMap=0;
   if (fillerGsfTracks->Active()) {
     fillers_.push_back(fillerGsfTracks);
     gsfTrackMap = (GsfTrackMap*)fillerGsfTracks->GetTrackMap();
   }
-  else 
+  else {
     delete fillerGsfTracks;
-    
+    fillerGsfTracks = 0;
+  }
+
   FillerMuons *fillerMuons = 
     new FillerMuons(cfg,defactive_,globalMuonTrackMap,standaloneMuonTrackMap, 
                     standaloneMuonTrackVtxMap,generalTrackMap);
   if (fillerMuons->Active())
     fillers_.push_back(fillerMuons);
-  else 
+  else {
     delete fillerMuons;
-    
+    fillerMuons = 0;
+  }
+
   FillerElectrons *fillerElectrons = 
     new FillerElectrons(cfg,defactive_,gsfTrackMap,generalTrackMap);
   if (fillerElectrons->Active())
     fillers_.push_back(fillerElectrons);
-  else 
+  else {
     delete fillerElectrons;
-  
+      fillerElectrons = 0;
+  }
+
   FillerConversionElectrons *fillerConversionElectrons = 
     new FillerConversionElectrons(cfg, defactive_, conversionInOutTracks, conversionOutInTracks, 
                                   conversionInOutTrackMap, conversionOutInTrackMap);
-  const ConversionElectronMap* convElectronMap=0;
+  const ConversionElectronMap *convElectronMap=0;
   if (fillerConversionElectrons->Active()) {
     fillers_.push_back(fillerConversionElectrons);
     convElectronMap = fillerConversionElectrons->GetConversionElectronMap();
   }
-  else 
+  else {
     delete fillerConversionElectrons;
-    
+    fillerConversionElectrons = 0;
+  }
+
   FillerConversions *fillerConversions = new FillerConversions(cfg, defactive_, convElectronMap);
-  const ConversionMap* conversionMap=0;
+  const ConversionMap *conversionMap=0;
   if (fillerConversions->Active()) {
     fillers_.push_back(fillerConversions);
     conversionMap = fillerConversions->GetConversionMap();
   }
-  else 
+  else {
     delete fillerConversions;
-    
+    fillerConversions = 0;
+  }
+
   FillerPhotons *fillerPhotons = new FillerPhotons(cfg, defactive_, conversionMap);
   if (fillerPhotons->Active())
     fillers_.push_back(fillerPhotons);
-  else
+  else {
     delete fillerPhotons;
-
+    fillerPhotons = 0;
+  }
 
   return 1;
 }

@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.8 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.9 2008/07/03 11:22:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -129,7 +129,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   Handle<TriggerResults> triggerResultsHLT;
   try {
     event.getByLabel(hltName_, triggerResultsHLT);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerMetaInfos") << "Error! Cannot get trigger results with label " 
                                      << hltName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo\n")

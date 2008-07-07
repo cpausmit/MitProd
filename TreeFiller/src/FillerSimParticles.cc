@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.5 2008/07/07 13:29:05 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,6 +34,7 @@ FillerSimParticles::~FillerSimParticles()
 {
   // Destructor.
 
+  delete simParticles_;
   delete simMap_;
 }
 
@@ -56,7 +57,7 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
   
   try {
     event.getByLabel(edm::InputTag(edmName_),trackingParticleProduct);
-  } catch (cms::Exception& ex) {
+  } catch (cms::Exception &ex) {
     edm::LogError("FillerSimParticles") << "Error! Cannot get collection with label " 
                                         << edmName_ << endl;
     throw edm::Exception(edm::errors::Configuration, "FillerSimParticles:FillDataBlock()\n")
@@ -71,7 +72,7 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
 
       TrackingParticleRef theRef(trackingParticleProduct, iM-trackingParticles.begin());
 
-      mithep::SimParticle* outSimParticle = simParticles_->Allocate();
+      mithep::SimParticle *outSimParticle = simParticles_->Allocate();
       new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
       simMap_->Add(theRef, outSimParticle);
       if (genMap_ && iM->genParticle().size()) {

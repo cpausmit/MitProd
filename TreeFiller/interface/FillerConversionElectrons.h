@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.1 2008/07/02 19:41:02 bendavid Exp $
+// $Id: FillerConversionElectrons.h,v 1.2 2008/07/03 07:56:14 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -43,11 +43,10 @@ namespace mithep
       std::string                               mitName_;
       mithep::ElectronArr                      *conversionElectrons_;
       mithep::ConversionElectronMap*            convElectronMap_;
-      const mithep::TrackCol*                   conversionInOutTracks_;
-      const mithep::TrackCol*                   conversionOutInTracks_;
-      const mithep::TrackMap*                   conversionInOutTrackMap_;
-      const mithep::TrackMap*                   conversionOutInTrackMap_;
-
+      const mithep::TrackCol                   *conversionInOutTracks_;
+      const mithep::TrackCol                   *conversionOutInTracks_;
+      const mithep::TrackMap                   *conversionInOutTrackMap_;
+      const mithep::TrackMap                   *conversionOutInTrackMap_;
   };
 }
 #endif

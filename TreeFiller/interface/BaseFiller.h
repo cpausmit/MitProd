@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.5 2008/06/24 14:25:46 loizides Exp $
+// $Id: BaseFiller.h,v 1.6 2008/07/01 14:38:33 loizides Exp $
 //
 // BaseFiller
 //
@@ -25,10 +25,10 @@ namespace mithep
       virtual ~BaseFiller() {}
 
       bool                     Active() const { return active_; }
-      virtual void             BookDataBlock(TreeWriter &tws)                           = 0;
-      virtual void             FillDataBlock(const edm::Event&, const edm::EventSetup&) = 0;
+      virtual void             BookDataBlock(TreeWriter &tws)                                = 0;
+      virtual void             FillDataBlock(const edm::Event &e, const edm::EventSetup &es) = 0;
       const std::string       &Name()   const { return name_; }
-      virtual void             ResolveLinks(const edm::Event&, const edm::EventSetup&)  {}
+      virtual void             ResolveLinks(const edm::Event &e, const edm::EventSetup &es)    {}
 
     protected:
       const edm::ParameterSet &Conf()   const { return config_; }

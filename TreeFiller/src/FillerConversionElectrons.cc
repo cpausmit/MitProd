@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.1 2008/07/02 19:41:02 bendavid Exp $
+// $Id: FillerConversionElectrons.cc,v 1.2 2008/07/03 07:56:14 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,6 +34,7 @@ FillerConversionElectrons::~FillerConversionElectrons()
 {
   // Destructor.
 
+  delete conversionElectrons_;
   delete convElectronMap_;
 }
 
