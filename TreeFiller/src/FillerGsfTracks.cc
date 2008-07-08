@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.5 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,32 +55,18 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
   tracks_->Reset();
   trackMap_->Reset();
   
-  try {
-    event.getByLabel(edm::InputTag(edmName_),trackProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerGsfTracks") << "Error! Cannot get collection with label " 
-                                     << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerGsfTracks:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+  Handle<reco::GsfTrackCollection> hTrackProduct;
+  GetProduct(edmName_, hTrackProduct, event);
+
+  const reco::GsfTrackCollection inTracks = *(hTrackProduct.product());  
   
   // if we have a Sim Particle association (for monte carlo), initialize the reco->sim mappings
   reco::RecoToSimCollection simAssociation;
-  if (simMap_ && edmSimAssociationName_!="") {
-    Handle<reco::RecoToSimCollection> simAssociationProduct;
-    try {
-      event.getByLabel(edmSimAssociationName_, simAssociationProduct);
-    }
-    catch (cms::Exception &ex) {
-      edm::LogError("FillerGsfTracks") << "Error! Cannot get collection with label " 
-                                       << edmSimAssociationName_ << endl;
-      throw edm::Exception(edm::errors::Configuration, "FillerGsfTracks:FillDataBlock()\n")
-        << "Error! Cannot get collection with label " << edmSimAssociationName_ << endl;
-    }
-    simAssociation = *(simAssociationProduct.product());
+  if (simMap_ && !edmSimAssociationName_.empty()) {
+    Handle<reco::RecoToSimCollection> hSimAssociationProduct;
+    GetProduct(edmSimAssociationName_, hSimAssociationProduct, event);
+    simAssociation = *(hSimAssociationProduct.product());
   }
-  
-  const reco::GsfTrackCollection inTracks = *(trackProduct_.product());  
   
   // loop through all tracks
   for (reco::GsfTrackCollection::const_iterator inTrack = inTracks.begin(); 
@@ -98,10 +84,10 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
     outTrack->SetCharge(inTrack->charge());
 	
 	
-    reco::GsfTrackRef theRef(trackProduct_, inTrack-inTracks.begin());
+    reco::GsfTrackRef theRef(hTrackProduct, inTrack-inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
-    if (simMap_ && edmSimAssociationName_!="") {
+    if (simMap_ && !edmSimAssociationName_.empty()) {
       reco::TrackBaseRef theBaseRef(theRef);
       std::vector<std::pair<TrackingParticleRef, double> > simRefs;
       Bool_t noSimParticle=0;

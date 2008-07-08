@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.1 2008/07/07 16:13:22 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,7 +12,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg, name, active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","recoCaloJets:iterativeCone5CaloJets")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)),
   jets_(new mithep::JetArr)
 {
@@ -43,22 +43,17 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
 
   jets_->Reset();
 
-  try {
-    event.getByLabel(edm::InputTag(edmName_),jetProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerCaloJets") << "Error! Cannot get collection with label " 
-                                    << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerCaloJets:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+  Handle<reco::CaloJetCollection> hJetProduct;
+  GetProduct(edmName_, hJetProduct, event);
 
-  const reco::CaloJetCollection inJets = *(jetProduct_.product());  
+  const reco::CaloJetCollection inJets = *(hJetProduct.product());  
 
   // loop through all jets
   for (reco::CaloJetCollection::const_iterator inJet = inJets.begin(); 
        inJet != inJets.end(); ++inJet) {
     
     mithep::Jet *jet = jets_->Allocate();
+    if (!jet) continue;
   }
 
   jets_->Trim();

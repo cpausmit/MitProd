@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.1 2008/07/07 16:13:21 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -33,7 +33,6 @@ namespace mithep
       std::string                           edmName_;
       std::string                           mitName_;
       mithep::JetArr                       *jets_;
-      edm::Handle<reco::CaloJetCollection>  jetProduct_;
   };
 }
 #endif

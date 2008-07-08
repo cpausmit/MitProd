@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.3 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,17 +50,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   // Fill photon array.
 
   photons_->Reset();
-  
-  try {
-    event.getByLabel(edm::InputTag(edmName_),photonProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerPhotons") << "Error! Cannot get collection with label " 
-                                   << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
-  
-  const reco::PhotonCollection inPhotons = *(photonProduct_.product());  
+
+  Handle<reco::PhotonCollection> hPhotonProduct;
+  GetProduct(edmName_, hPhotonProduct, event);
+
+  const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {

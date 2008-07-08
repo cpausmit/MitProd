@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloMet.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerCaloMet.h,v 1.1 2008/07/07 16:13:21 loizides Exp $
 //
 // FillerCaloMet
 //
-// Imlementation of a filler to fill EDM jets into our mithep::Jet data structure.
+// Imlementation of a filler to fill EDM missing ET objects into our mithep::Met data structure.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -33,7 +33,6 @@ namespace mithep
       std::string                           edmName_;
       std::string                           mitName_;
       mithep::MetArr                       *mets_;
-      edm::Handle<reco::CaloMETCollection>  metProduct_;
   };
 }
 #endif

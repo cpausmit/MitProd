@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGsfTracks.h,v 1.3 2008/07/02 13:30:08 bendavid Exp $
+// $Id: FillerGsfTracks.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
 //
 // FillerGsfTracks
 //
@@ -41,7 +41,6 @@ namespace mithep
       const mithep::SimParticleMap          *simMap_;
       mithep::Array<mithep::Track>          *tracks_;
       mithep::GsfTrackMap                   *trackMap_;
-      edm::Handle<reco::GsfTrackCollection>  trackProduct_;
   };
 }
 #endif

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerElectrons.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
 //
 // FillerElectrons
 //
@@ -35,7 +35,6 @@ namespace mithep
       std::string                         	          edmName_;
       std::string                         	          mitName_;
       mithep::ElectronArr                                *electrons_;
-      edm::Handle<reco::PixelMatchGsfElectronCollection>  electronProduct_;
       const mithep::GsfTrackMap                          *gsfTrackMap_;
       const mithep::TrackMap                             *trackerTrackMap_;
   };

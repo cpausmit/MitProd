@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.1 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerMuons.h,v 1.2 2008/07/01 21:11:47 loizides Exp $
 //
 // FillerMuons
 //
@@ -35,7 +35,6 @@ namespace mithep
       std::string                          edmName_;
       std::string                          mitName_;
       mithep::MuonArr                     *muons_;
-      edm::Handle<reco::MuonCollection>    muonProduct_;
       const mithep::TrackMap              *globalTrackMap_;
       const mithep::TrackMap              *standaloneTrackMap_;
       const mithep::TrackMap              *standaloneVtxTrackMap_;

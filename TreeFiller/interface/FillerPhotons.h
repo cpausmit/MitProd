@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerPhotons.h,v 1.3 2008/07/07 16:14:01 loizides Exp $
 //
 // FillerPhotons
 //
@@ -35,8 +35,7 @@ namespace mithep
       std::string                                edmName_;
       std::string                                mitName_;
       mithep::PhotonArr                         *photons_;
-      edm::Handle<reco::PhotonCollection>        photonProduct_;
-      const mithep::ConversionMap*               conversionMap_;
+      const mithep::ConversionMap               *conversionMap_;
   };
 }
 #endif

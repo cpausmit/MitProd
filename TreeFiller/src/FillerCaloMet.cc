@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.1 2008/07/07 16:13:22 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,22 +44,17 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
 
   mets_->Reset();
 
-  try {
-    event.getByLabel(edm::InputTag(edmName_),metProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerCaloMet") << "Error! Cannot get collection with label " 
-                                   << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerCaloMet:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+  Handle<reco::CaloMETCollection> hMetProduct;
+  GetProduct(edmName_, hMetProduct, event);
 
-  const reco::CaloMETCollection inMets = *(metProduct_.product());  
+  const reco::CaloMETCollection inMets = *(hMetProduct.product());  
 
   // loop through all mets
   for (reco::CaloMETCollection::const_iterator inMet = inMets.begin(); 
        inMet != inMets.end(); ++inMet) {
     
-    mithep::Met *jet = mets_->Allocate();
+    mithep::Met *met = mets_->Allocate();
+    if (!met) continue;
   }
 
   mets_->Trim();

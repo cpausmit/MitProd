@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerTracks.cc,v 1.5 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,33 +53,18 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 
   tracks_->Reset();
   trackMap_->Reset();
-  
-  // get the tracks collection
-  try {
-    event.getByLabel(edm::InputTag(edmName_),trackProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 
-                                  << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerTracks:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+
+  Handle<reco::TrackCollection> hTrackProduct;
+  GetProduct(edmName_, hTrackProduct, event);  
 	
-  trackMap_->SetEdmProductId(trackProduct_.id().id());
-  const reco::TrackCollection inTracks = *(trackProduct_.product());  
+  trackMap_->SetEdmProductId(hTrackProduct.id().id());
+  const reco::TrackCollection inTracks = *(hTrackProduct.product());  
   
   // if we have a Sim Particle association (for monte carlo), initialize the reco->sim mappings
   reco::RecoToSimCollection simAssociation;
   if (simMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
-    try {
-      event.getByLabel(edm::InputTag(edmSimAssociationName_), simAssociationProduct);
-    }
-    catch (cms::Exception &ex) {
-      edm::LogError("FillerTracks") << "Error! Cannot get collection with label " 
-                                    << edmSimAssociationName_ << endl;
-      throw edm::Exception(edm::errors::Configuration, "FillerTracks:FillDataBlock()\n")
-        << "Error! Cannot get collection with label " << edmSimAssociationName_ << endl;
-    }
+    GetProduct(edmSimAssociationName_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
   }
   
@@ -103,7 +88,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     outTrack->SetCharge(inTrack->charge());
 	
     // add reference between mithep and edm object
-    reco::TrackRef theRef(trackProduct_, inTrack-inTracks.begin());
+    reco::TrackRef theRef(hTrackProduct, inTrack-inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
     if (simMap_ && !edmSimAssociationName_.empty()) {

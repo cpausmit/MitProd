@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.3 2008/07/07 15:33:51 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.4 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,54 +43,49 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
 void FillerConversions::FillDataBlock(const edm::Event      &event, 
                                       const edm::EventSetup &setup)
 {
+  // Fill conversions data structure and maps.
 
   conversions_->Reset();
   conversionMap_->Reset();
-  
-  try {
-    event.getByLabel(edm::InputTag(edmName_),conversionProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerConversions") << "Error! Cannot get collection with label " 
-                                       << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerConversions:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+
+  Handle<reco::ConversionCollection> hConversionProduct;
+  GetProduct(edmName_, hConversionProduct, event);
+
+  conversionMap_->SetEdmProductId(hConversionProduct.id().id());
         
-  conversionMap_->SetEdmProductId(conversionProduct_.id().id());
-  
-  const reco::ConversionCollection inConversions = *(conversionProduct_.product());  
+  const reco::ConversionCollection inConversions = *(hConversionProduct.product());  
   
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {
         
-        mithep::Conversion* outConversion = conversions_->Allocate();
-        new (outConversion) mithep::Conversion(inConversion->conversionVertex().x(),
-                                               inConversion->conversionVertex().y(),
-                                               inConversion->conversionVertex().z(), 
-                                               inConversion->conversionVertex().xError(),
-                                               inConversion->conversionVertex().yError(),
-                                               inConversion->conversionVertex().zError());
+    mithep::Conversion* outConversion = conversions_->Allocate();
+    new (outConversion) mithep::Conversion(inConversion->conversionVertex().x(),
+                                           inConversion->conversionVertex().y(),
+                                           inConversion->conversionVertex().z(), 
+                                           inConversion->conversionVertex().xError(),
+                                           inConversion->conversionVertex().yError(),
+                                           inConversion->conversionVertex().zError());
         
-        outConversion->GetVertex().SetChi2(inConversion->conversionVertex().chi2());
-        outConversion->GetVertex().SetNDof((Int_t)inConversion->conversionVertex().ndof());
+    outConversion->GetVertex().SetChi2(inConversion->conversionVertex().chi2());
+    outConversion->GetVertex().SetNDof((Int_t)inConversion->conversionVertex().ndof());
+    
+    outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
+    outConversion->SetEOverP(inConversion->EoverP());
+    outConversion->SetPairMass(inConversion->pairInvariantMass());
+    outConversion->SetPairMomentum(inConversion->pairMomentum().x(),
+                                   inConversion->pairMomentum().y(),
+                                   inConversion->pairMomentum().z());
         
-        outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
-        outConversion->SetEOverP(inConversion->EoverP());
-        outConversion->SetPairMass(inConversion->pairInvariantMass());
-        outConversion->SetPairMomentum(inConversion->pairMomentum().x(),
-                                       inConversion->pairMomentum().y(),
-                                       inConversion->pairMomentum().z());
-        
-        if (conversionElectronMap_) {
-          std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
-          for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
-               trackRef != trackRefs.end(); ++trackRef) {
-            outConversion->AddDaughter(conversionElectronMap_->GetMit(*trackRef));
-          }
-        }
-
-        reco::ConversionRef theRef(conversionProduct_, inConversion-inConversions.begin());
-        conversionMap_->Add(theRef, outConversion);
+    if (conversionElectronMap_) {
+      std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
+      for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
+           trackRef != trackRefs.end(); ++trackRef) {
+        outConversion->AddDaughter(conversionElectronMap_->GetMit(*trackRef));
+      }
+    }
+    
+    reco::ConversionRef theRef(hConversionProduct, inConversion-inConversions.begin());
+    conversionMap_->Add(theRef, outConversion);
   }
 
   conversions_->Trim();

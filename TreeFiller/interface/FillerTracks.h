@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerTracks.h,v 1.5 2008/07/07 16:14:01 loizides Exp $
 //
 // FillerTracks
 //
@@ -39,7 +39,6 @@ namespace mithep
       const mithep::SimParticleMap       *simMap_;
       mithep::TrackArr                   *tracks_;
       mithep::TrackMap                   *trackMap_;
-      edm::Handle<reco::TrackCollection>  trackProduct_;
   };
 }
 #endif

@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.4 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerMuons.cc,v 1.5 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,17 +53,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
   muons_->Reset();
   
-  // get the muons collection
-  try {
-    event.getByLabel(edm::InputTag(edmName_),muonProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerMuons") << "Error! Cannot get collection with label " 
-				       << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+  Handle<reco::MuonCollection> hMuonProduct;
+  GetProduct(edmName_, hMuonProduct, event);
   
-  const reco::MuonCollection inMuons = *(muonProduct_.product());  
+  const reco::MuonCollection inMuons = *(hMuonProduct.product());  
   
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {
 

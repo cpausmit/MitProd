@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerConversions.h,v 1.3 2008/07/07 16:14:01 loizides Exp $
 //
 // FillerConversions
 //
 // Todo
 //
-// Authors: J. Bendavid
+// Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLERCONVERSIONS_H
@@ -34,10 +34,9 @@ namespace mithep
     private:
       std::string                              edmName_;
       std::string                              mitName_;
-      const mithep::ConversionElectronMap*     conversionElectronMap_;
+      const mithep::ConversionElectronMap     *conversionElectronMap_;
       mithep::ConversionArr                   *conversions_;
       mithep::ConversionMap                   *conversionMap_;
-      edm::Handle<reco::ConversionCollection>  conversionProduct_;
   };
 }
 #endif

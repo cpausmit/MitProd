@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSimParticles.h,v 1.5 2008/07/07 13:29:05 bendavid Exp $
+// $Id: FillerSimParticles.h,v 1.6 2008/07/07 16:14:01 loizides Exp $
 //
 // FillerSimParticles
 //
@@ -38,7 +38,6 @@ namespace mithep
       const mithep::GenParticleMap             *genMap_;
       mithep::Array<mithep::SimParticle>       *simParticles_;
       mithep::SimParticleMap                   *simMap_;
-      edm::Handle<TrackingParticleCollection>   trackingParticleProduct;
   };
 }
 #endif

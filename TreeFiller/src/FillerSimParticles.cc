@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.5 2008/07/07 13:29:05 bendavid Exp $
+// $Id: FillerSimParticles.cc,v 1.6 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,23 +54,17 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
 
   simParticles_->Reset();
   simMap_->Reset();
+
+  Handle<TrackingParticleCollection> hTrackingParticleProduct;
+  GetProduct(edmName_, hTrackingParticleProduct, event);  
   
-  try {
-    event.getByLabel(edm::InputTag(edmName_),trackingParticleProduct);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerSimParticles") << "Error! Cannot get collection with label " 
-                                        << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerSimParticles:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
-  
-  const TrackingParticleCollection trackingParticles = *(trackingParticleProduct.product());  
+  const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
   
   // loop through all simParticles
   for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
        iM != trackingParticles.end(); ++iM) {
 
-      TrackingParticleRef theRef(trackingParticleProduct, iM-trackingParticles.begin());
+      TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
 
       mithep::SimParticle *outSimParticle = simParticles_->Allocate();
       new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
@@ -90,7 +84,10 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
 {
   // Resolve links among simParticles.
 
-  const TrackingParticleCollection trackingParticles = *(trackingParticleProduct.product());  
+  Handle<TrackingParticleCollection> hTrackingParticleProduct;
+  GetProduct(edmName_, hTrackingParticleProduct, event);  
+
+  const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
 
   // loop through all simParticles
   for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
@@ -99,7 +96,7 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
     if (iM->decayVertices().size() <= 0) 
       continue;
 
-    TrackingParticleRef theRef(trackingParticleProduct, iM-trackingParticles.begin());
+    TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
     mithep::SimParticle* simParent = simMap_->GetMit(theRef);
     for (TrackingVertexRefVector::iterator v= iM->decayVertices().begin(); 
          v != iM->decayVertices().end(); ++v) {

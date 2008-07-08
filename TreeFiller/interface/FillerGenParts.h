@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenParts.h,v 1.3 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerGenParts.h,v 1.4 2008/07/07 13:29:05 bendavid Exp $
 //
 // FillerGenParts
 //
@@ -37,7 +37,6 @@ namespace mithep
       std::string                         mitName_;
       mithep::Array<mithep::GenParticle> *genParticles_; 
       mithep::GenParticleMap             *genMap_;
-      edm::Handle<edm::HepMCProduct>      hepMCProduct_;
   };
 }
 #endif

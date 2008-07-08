@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerConversionElectrons.h,v 1.3 2008/07/07 16:14:01 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -7,7 +7,7 @@
 // This filler differs significantly from the others to deal with the special way in which
 // conversions are stored in the edm.
 //
-// Authors: J. Bendavid
+// Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
 #ifndef TREEFILLER_FILLERCONVERSIONELECTRONS_H
@@ -42,7 +42,7 @@ namespace mithep
     private:
       std::string                               mitName_;
       mithep::ElectronArr                      *conversionElectrons_;
-      mithep::ConversionElectronMap*            convElectronMap_;
+      mithep::ConversionElectronMap            *convElectronMap_;
       const mithep::TrackCol                   *conversionInOutTracks_;
       const mithep::TrackCol                   *conversionOutInTracks_;
       const mithep::TrackMap                   *conversionInOutTrackMap_;

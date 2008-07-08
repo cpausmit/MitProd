@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.7 2008/07/07 13:29:05 bendavid Exp $
+// $Id: FillerGenParts.cc,v 1.8 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,17 +48,10 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
   genMap_->Reset();
   genParticles_->Reset();
 
+  Handle<edm::HepMCProduct> hHepMCProduct;
+  GetProduct(edmName_, hHepMCProduct, event);
 
-  try {
-    event.getByLabel(edm::InputTag(edmName_), hepMCProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillGenParts") << "Error! Can not get collection with label " 
-                                  << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillGenParts::analyze()\n")
-      << "Error! Can not get collection with label " << edmName_ << endl;
-  }
-
-  const HepMC::GenEvent GenEvent = hepMCProduct_->getHepMCData();  
+  const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
 
   //loop over all hepmc particles and copy their information
   for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
@@ -85,7 +78,10 @@ void FillerGenParts::ResolveLinks(const edm::Event      &event,
 {
   // Loop over HepMC particle and resolve their links.
 
-  const HepMC::GenEvent GenEvent = hepMCProduct_->getHepMCData();  
+  Handle<edm::HepMCProduct> hHepMCProduct;
+  GetProduct(edmName_, hHepMCProduct, event);
+
+  const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
 
   for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
        pgen != GenEvent.particles_end(); ++pgen) {
@@ -94,18 +90,20 @@ void FillerGenParts::ResolveLinks(const edm::Event      &event,
     if(!mcPart) continue;
 
     //check if genpart has a decay vertex
-    HepMC::GenVertex *decayVertex = mcPart->end_vertex();
-    if (!decayVertex) continue;
+    HepMC::GenVertex *dVertex = mcPart->end_vertex();
+    if (!dVertex) continue;
 
     //find corresponding mithep genparticle parent in association table
     mithep::GenParticle *genParent = genMap_->GetMit(mcPart->barcode());
 
     //set decay vertex
-    genParent->SetVertex(decayVertex->point3d().x(),decayVertex->point3d().y(),decayVertex->point3d().z());
+    genParent->SetVertex(dVertex->point3d().x(),
+                         dVertex->point3d().y(),
+                         dVertex->point3d().z());
 
     //loop through daugthers
-    for (HepMC::GenVertex::particles_out_const_iterator pgenD = decayVertex->particles_in_const_begin();
-         pgenD != decayVertex->particles_in_const_end(); ++pgenD) {
+    for (HepMC::GenVertex::particles_out_const_iterator pgenD = dVertex->particles_in_const_begin();
+         pgenD != dVertex->particles_in_const_end(); ++pgenD) {
       HepMC::GenParticle *mcDaughter = (*pgenD);
       mithep::GenParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
       genParent->AddDaughter(genDaughter);

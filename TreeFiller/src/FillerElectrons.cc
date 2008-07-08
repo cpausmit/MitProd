@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.5 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.6 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,16 +53,10 @@ void FillerElectrons::FillDataBlock(const edm::Event      &event,
 
   electrons_->Reset();
   
-  try {
-    event.getByLabel(edm::InputTag(edmName_),electronProduct_);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerElectrons") << "Error! Cannot get collection with label " 
-				       << edmName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-      << "Error! Cannot get collection with label " << edmName_ << endl;
-  }
+  Handle<reco::PixelMatchGsfElectronCollection> hElectronProduct;
+  GetProduct(edmName_, hElectronProduct, event);
   
-  const reco::PixelMatchGsfElectronCollection inElectrons = *(electronProduct_.product());
+  const reco::PixelMatchGsfElectronCollection inElectrons = *(hElectronProduct.product());
   
   for (reco::PixelMatchGsfElectronCollection::const_iterator iM = inElectrons.begin(); 
        iM != inElectrons.end(); ++iM) {
