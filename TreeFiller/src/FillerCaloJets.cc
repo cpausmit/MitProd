@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.1 2008/07/07 16:13:22 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.2 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,9 +51,27 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   // loop through all jets
   for (reco::CaloJetCollection::const_iterator inJet = inJets.begin(); 
        inJet != inJets.end(); ++inJet) {
-    
+
     mithep::Jet *jet = jets_->Allocate();
-    if (!jet) continue;
+    new (jet) mithep::Jet(inJet->p4().x(),
+                          inJet->p4().y(),
+                          inJet->p4().z(),
+                          inJet->p4().e());
+
+    jet->SetMaxEInEmTowers (inJet->maxEInEmTowers());	 
+    jet->SetMaxEInHadTowers(inJet->maxEInHadTowers());
+    jet->SetEnergyFractionH(inJet->energyFractionHadronic());
+    jet->SetHadEnergyInHB  (inJet->hadEnergyInHB());
+    jet->SetHadEnergyInHO  (inJet->hadEnergyInHO());
+    jet->SetHadEnergyInHE  (inJet->hadEnergyInHE());
+    jet->SetHadEnergyInHF  (inJet->hadEnergyInHF());
+    jet->SetEmEnergyInEB   (inJet->emEnergyInEB());
+    jet->SetEmEnergyInEE   (inJet->emEnergyInEE());
+    jet->SetEmEnergyInHF   (inJet->emEnergyInHF());
+    jet->SetTowersArea     (inJet->towersArea());
+    jet->SetN              (inJet->nConstituents());
+    jet->SetN60		   (inJet->n60());
+    jet->SetN90		   (inJet->n90());
   }
 
   jets_->Trim();

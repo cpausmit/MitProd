@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.1 2008/07/07 16:13:22 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.2 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,7 +54,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
        inMet != inMets.end(); ++inMet) {
     
     mithep::Met *met = mets_->Allocate();
-    if (!met) continue;
+    new (met) mithep::Met();
   }
 
   mets_->Trim();
