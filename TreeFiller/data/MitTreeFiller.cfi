@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.5 2008/07/07 16:14:00 loizides Exp $
+# $Id: MitTreeFiller.cfi,v 1.6 2008/07/08 05:52:38 loizides Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked bool defactive = true
@@ -80,9 +80,13 @@ module MitTreeFiller = FillMitTree {
         untracked string edmName = "photons"
     }
     untracked PSet CaloJets = {
-        untracked bool active = false
+        untracked bool active = true
+        untracked string mitName = "CaloJets"
+        untracked string edmName = "iterativeCone5CaloJets"
     }
     untracked PSet CaloMet = {
-        untracked bool active = false
+        untracked bool active = true
+        untracked string mitName = "CaloMet"
+        untracked string edmName = "met"
     }
 }
