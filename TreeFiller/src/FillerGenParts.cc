@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.8 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerGenParts.cc,v 1.9 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -102,8 +102,8 @@ void FillerGenParts::ResolveLinks(const edm::Event      &event,
                          dVertex->point3d().z());
 
     //loop through daugthers
-    for (HepMC::GenVertex::particles_out_const_iterator pgenD = dVertex->particles_in_const_begin();
-         pgenD != dVertex->particles_in_const_end(); ++pgenD) {
+    for (HepMC::GenVertex::particles_out_const_iterator pgenD = dVertex->particles_out_const_begin();
+         pgenD != dVertex->particles_out_const_end(); ++pgenD) {
       HepMC::GenParticle *mcDaughter = (*pgenD);
       mithep::GenParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
       genParent->AddDaughter(genDaughter);
