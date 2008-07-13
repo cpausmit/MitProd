@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenParts.h,v 1.4 2008/07/07 13:29:05 bendavid Exp $
+// $Id: FillerGenParts.h,v 1.5 2008/07/08 12:38:20 loizides Exp $
 //
 // FillerGenParts
 //
@@ -12,10 +12,8 @@
 #define TREEFILLER_FILLERGENPARTS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/GenParticle.h"
-#include "MitAna/DataTree/interface/Array.h"
+#include "MitAna/DataTree/interface/Collections.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 
@@ -35,7 +33,7 @@ namespace mithep
     private:
       std::string                         edmName_;
       std::string                         mitName_;
-      mithep::Array<mithep::GenParticle> *genParticles_; 
+      mithep::GenParticleArr             *genParticles_; 
       mithep::GenParticleMap             *genMap_;
   };
 }
