@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.6 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.7 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,11 +18,11 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
-                                 const GsfTrackMap* gsfTrackMap, const TrackMap* trackerTrackMap) : 
-  BaseFiller(cfg, "Electrons", active),
+                                 const GsfTrackMap *gsfTrackMap, const TrackMap *trackerTrackMap) : 
+  BaseFiller(cfg,"Electrons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
-  electrons_(new mithep::ElectronArr),
+  electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(gsfTrackMap),
   trackerTrackMap_(trackerTrackMap)
 {
@@ -61,7 +61,7 @@ void FillerElectrons::FillDataBlock(const edm::Event      &event,
   for (reco::PixelMatchGsfElectronCollection::const_iterator iM = inElectrons.begin(); 
        iM != inElectrons.end(); ++iM) {
 
-    mithep::Electron* outElectron = electrons_->AddNew();
+    mithep::Electron *outElectron = electrons_->AddNew();
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
       outElectron->SetGsfTrack(gsfTrackMap_->GetMit(iM->gsfTrack()));
     if (trackerTrackMap_ && iM->track().isNonnull()) 

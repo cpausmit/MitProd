@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.5 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerTracks.cc,v 1.6 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,12 +17,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, 
                            bool active, const SimParticleMap *sm) : 
-  BaseFiller(cfg, name, active),
+  BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   simMap_(sm),
-  tracks_(new mithep::TrackArr), 
+  tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::TrackMap)
 {
   // Constructor.

@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.5 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.6 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,13 +17,13 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerGsfTracks::FillerGsfTracks(const ParameterSet &cfg, const char *name, 
                                  bool active, const SimParticleMap *sm) : 
-  BaseFiller(cfg, name, active),
+  BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfFit")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","GsfTracks")),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName",
                                                               "assoc2GsfTracks")),
   simMap_(sm),
-  tracks_(new mithep::Array<mithep::Track>), 
+  tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::GsfTrackMap)
 {
   // Constructor

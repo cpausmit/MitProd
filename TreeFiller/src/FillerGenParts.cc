@@ -1,10 +1,9 @@
-// $Id: FillerGenParts.cc,v 1.10 2008/07/10 09:51:02 bendavid Exp $
+// $Id: FillerGenParts.cc,v 1.11 2008/07/10 14:22:54 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "MitAna/DataTree/interface/GenParticle.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
@@ -16,7 +15,7 @@ FillerGenParts::FillerGenParts(const ParameterSet &cfg, bool active) :
   BaseFiller(cfg, "GenParts", active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","source")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkGenPartBrn)),
-  genParticles_(new mithep::Array<mithep::GenParticle>),
+  genParticles_(new mithep::GenParticleArr(250)),
   genMap_(new mithep::GenParticleMap)
 {
   // Constructor.
@@ -68,8 +67,6 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
     
     genMap_->Add(mcPart->barcode(), genParticle);
   }
-
-  genParticles_->Trim();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,4 +108,8 @@ void FillerGenParts::ResolveLinks(const edm::Event      &event,
         genDaughter->SetMother(genParent);
     }
   }
+
+  genParticles_->Trim();
+  for(UInt_t i=0; i<genParticles_->GetEntries(); ++i) 
+    genParticles_->At(i)->Trim();
 }

@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.3 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.4 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,10 +18,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, bool active, 
                              const ConversionMap *conversionMap) : 
-  BaseFiller(cfg, "Photons", active),
+  BaseFiller(cfg,"Photons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
-  photons_(new mithep::Array<mithep::Photon>), 
+  photons_(new mithep::PhotonArr(16)), 
   conversionMap_(conversionMap)
 {
   // Constructor.
@@ -59,7 +59,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
 
-    mithep::Photon* outPhoton = photons_->Allocate();
+    mithep::Photon *outPhoton = photons_->Allocate();
     new (outPhoton) mithep::Photon(iP->px(),iP->py(),iP->pz(),iP->energy());
     if (iP->isConverted() && conversionMap_) {
       std::vector<reco::ConversionRef> conversionRefs = iP->conversions();
@@ -71,4 +71,6 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   }
 
   photons_->Trim();
+  for(UInt_t i=0; i<photons_->GetEntries(); ++i) 
+    photons_->At(i)->Trim();
 }

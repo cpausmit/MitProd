@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.3 2008/07/08 14:42:50 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.4 2008/07/09 10:58:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,7 +12,7 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg, name, active),
+  BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)),
   mets_(new mithep::MetArr)

@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.2 2008/07/03 07:56:14 loizides Exp $
+// $Id: FillerConversionElectrons.cc,v 1.3 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,9 +17,9 @@ FillerConversionElectrons::FillerConversionElectrons(const edm::ParameterSet &cf
                                                      const TrackCol *convOutInTracks, 
                                                      const TrackMap *convInOutTrackMap, 
                                                      const TrackMap *convOutInTrackMap) : 
-  BaseFiller(cfg, "ConversionElectrons", active),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","")),
-  conversionElectrons_(new mithep::ElectronArr),
+  BaseFiller(cfg,"ConversionElectrons",active),
+  mitName_(Conf().getUntrackedParameter<string>("mitName","ConversionElectrons")),
+  conversionElectrons_(new mithep::ElectronArr(16)),
   convElectronMap_(new mithep::ConversionElectronMap),
   conversionInOutTracks_(convInOutTracks),
   conversionOutInTracks_(convOutInTracks),
@@ -67,7 +67,7 @@ void FillerConversionElectrons::FillFromTracks(const TrackCol *tracks,
 
   for (UInt_t i=0; i<tracks->GetEntries(); ++i) {
     mithep::Track *track = const_cast<Track*>(tracks->At(i));
-    mithep::Electron* electron = conversionElectrons_->AddNew();
+    mithep::Electron *electron = conversionElectrons_->AddNew();
     electron->SetTrackerTrack(track);
     convElectronMap_->Add(trackMap->GetEdmRef(track), electron);
   }

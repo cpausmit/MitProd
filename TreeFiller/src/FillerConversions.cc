@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.4 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerConversions.cc,v 1.5 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,11 +12,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerConversions::FillerConversions(const ParameterSet &cfg, bool active, 
                                      const ConversionElectronMap *conversionElectronMap) : 
-  BaseFiller(cfg, "Conversions", active),
+  BaseFiller(cfg,"Conversions",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
   conversionElectronMap_(conversionElectronMap),
-  conversions_(new mithep::ConversionArr),
+  conversions_(new mithep::ConversionArr(16)),
   conversionMap_(new mithep::ConversionMap)
 {
   // Constructor.
@@ -58,7 +58,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {
         
-    mithep::Conversion* outConversion = conversions_->Allocate();
+    mithep::Conversion *outConversion = conversions_->Allocate();
     new (outConversion) mithep::Conversion(inConversion->conversionVertex().x(),
                                            inConversion->conversionVertex().y(),
                                            inConversion->conversionVertex().z(), 
@@ -89,4 +89,6 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   }
 
   conversions_->Trim();
+  for(UInt_t i=0; i<conversions_->GetEntries(); ++i) 
+    conversions_->At(i)->Trim();
 }

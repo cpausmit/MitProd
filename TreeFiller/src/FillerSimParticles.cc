@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.6 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.7 2008/07/08 12:38:20 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,11 +19,11 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerSimParticles::FillerSimParticles(const ParameterSet &cfg, bool active, const GenParticleMap *genMap) : 
-  BaseFiller(cfg, "SimParticles", active),
+  BaseFiller(cfg,"SimParticles",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","mergedtruth:MergedTrackTruth")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkSimPartBrn)),
   genMap_(genMap),
-  simParticles_(new mithep::SimParticleArr), 
+  simParticles_(new mithep::SimParticleArr(250)), 
   simMap_(new mithep::SimParticleMap)
 {
   // Constructor.
@@ -70,12 +70,10 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
       new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
       simMap_->Add(theRef, outSimParticle);
       if (genMap_ && iM->genParticle().size()) {
-        const HepMC::GenParticle* mcPart = iM->genParticle_begin()->get();
+        const HepMC::GenParticle *mcPart = iM->genParticle_begin()->get();
         outSimParticle->SetGenParticle(genMap_->GetMit(mcPart->barcode()));
       }
   }
-  
-  simParticles_->Trim();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,12 +95,12 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
       continue;
 
     TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
-    mithep::SimParticle* simParent = simMap_->GetMit(theRef);
+    mithep::SimParticle *simParent = simMap_->GetMit(theRef);
     for (TrackingVertexRefVector::iterator v= iM->decayVertices().begin(); 
          v != iM->decayVertices().end(); ++v) {
       for (TrackingParticleRefVector::iterator pd = v->get()->daughterTracks().begin(); 
            pd != v->get()->daughterTracks().end(); ++pd) {
-        mithep::SimParticle* simDaughter = simMap_->GetMit(*pd);
+        mithep::SimParticle *simDaughter = simMap_->GetMit(*pd);
         simParent->AddDaughter(simDaughter);
         simDaughter->SetMother(simParent);
       }
@@ -112,5 +110,10 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
                              v->get()->position().z());
       }
     }
-  }     
+  }
+
+  
+  simParticles_->Trim();
+  for(UInt_t i=0; i<simParticles_->GetEntries(); ++i) 
+    simParticles_->At(i)->Trim();
 }
