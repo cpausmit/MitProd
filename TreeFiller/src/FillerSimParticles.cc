@@ -1,4 +1,4 @@
-// $Id: FillerSimParticles.cc,v 1.7 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerSimParticles.cc,v 1.8 2008/07/13 08:46:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSimParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -64,16 +64,18 @@ void FillerSimParticles::FillDataBlock(const edm::Event      &event,
   for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
        iM != trackingParticles.end(); ++iM) {
 
-      TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+    TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
 
-      mithep::SimParticle *outSimParticle = simParticles_->Allocate();
-      new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
-      simMap_->Add(theRef, outSimParticle);
-      if (genMap_ && iM->genParticle().size()) {
-        const HepMC::GenParticle *mcPart = iM->genParticle_begin()->get();
-        outSimParticle->SetGenParticle(genMap_->GetMit(mcPart->barcode()));
-      }
+    mithep::SimParticle *outSimParticle = simParticles_->Allocate();
+    new (outSimParticle) mithep::SimParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId());
+    simMap_->Add(theRef, outSimParticle);
+    if (genMap_ && iM->genParticle().size()) {
+      const HepMC::GenParticle *mcPart = iM->genParticle_begin()->get();
+      outSimParticle->SetGenPart(genMap_->GetMit(mcPart->barcode()));
+    }
   }
+  
+  simParticles_->Trim();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,9 +113,4 @@ void FillerSimParticles::ResolveLinks(const edm::Event      &event,
       }
     }
   }
-
-  
-  simParticles_->Trim();
-  for(UInt_t i=0; i<simParticles_->GetEntries(); ++i) 
-    simParticles_->At(i)->Trim();
 }

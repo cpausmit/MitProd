@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.6 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerMuons.cc,v 1.7 2008/07/13 08:46:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,19 +63,19 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     mithep::Muon* outMuon = muons_->AddNew();
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
-      outMuon->SetGlobalTrack(globalTrackMap_->GetMit(iM->combinedMuon()));
+      outMuon->SetGlobalTrk(globalTrackMap_->GetMit(iM->combinedMuon()));
 
     if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
       Int_t refProductId = iM->standAloneMuon().id().id();
       if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrack(standaloneVtxTrackMap_->GetMit(iM->standAloneMuon()));
+        outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(iM->standAloneMuon()));
       else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrack(standaloneTrackMap_->GetMit(iM->standAloneMuon()));
+        outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(iM->standAloneMuon()));
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
         << "Error! Track reference in unmapped collection " << edmName_ << endl;
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) 
-      outMuon->SetTrackerTrack(trackerTrackMap_->GetMit(iM->track()));
+      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
   }
 
   muons_->Trim();

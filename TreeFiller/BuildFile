@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.5 2008/06/11 12:50:17 loizides Exp $
+# $Id: BuildFile,v 1.6 2008/07/07 16:14:00 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -17,7 +17,7 @@
 <use name=MitProd/TreeService>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
-#<flags CXXFLAGS="-g">
+<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=MitProdTreeFiller>

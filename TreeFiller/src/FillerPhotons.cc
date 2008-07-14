@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.4 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.5 2008/07/13 08:46:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -71,6 +71,4 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   }
 
   photons_->Trim();
-  for(UInt_t i=0; i<photons_->GetEntries(); ++i) 
-    photons_->At(i)->Trim();
 }

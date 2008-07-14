@@ -1,4 +1,4 @@
-// $Id: FillerGenParts.cc,v 1.11 2008/07/10 14:22:54 bendavid Exp $
+// $Id: FillerGenParts.cc,v 1.12 2008/07/13 08:46:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenParts.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -67,6 +67,8 @@ void FillerGenParts::FillDataBlock(const edm::Event      &event,
     
     genMap_->Add(mcPart->barcode(), genParticle);
   }
+
+  genParticles_->Trim();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,8 +110,4 @@ void FillerGenParts::ResolveLinks(const edm::Event      &event,
         genDaughter->SetMother(genParent);
     }
   }
-
-  genParticles_->Trim();
-  for(UInt_t i=0; i<genParticles_->GetEntries(); ++i) 
-    genParticles_->At(i)->Trim();
 }

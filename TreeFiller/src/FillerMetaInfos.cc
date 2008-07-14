@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.9 2008/07/03 11:22:45 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.10 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +17,7 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) : 
-  BaseFiller(cfg, "MetaInfos", active),
+  BaseFiller(cfg,"MetaInfos",active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),
@@ -77,7 +77,6 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
                                     const edm::EventSetup &setup)
 {
   // Fill our data structures.
-  //gObjectTable->Print();
 
   // clear map if a new file was opened
   if (tws_->GetFileNumber()!=fileNum_) {
@@ -92,6 +91,9 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   if (runEntries_>0) {
     evtLAHeader_->SetRunNum(runnum);
     laTree_->Fill();
+    //if(laTree_->GetEntries() % 100==0)
+    //  gObjectTable->Print();
+
   }
 
   // fill event header

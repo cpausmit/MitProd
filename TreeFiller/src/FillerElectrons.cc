@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.7 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.8 2008/07/13 08:46:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,9 +63,9 @@ void FillerElectrons::FillDataBlock(const edm::Event      &event,
 
     mithep::Electron *outElectron = electrons_->AddNew();
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
-      outElectron->SetGsfTrack(gsfTrackMap_->GetMit(iM->gsfTrack()));
+      outElectron->SetGsfTrk(gsfTrackMap_->GetMit(iM->gsfTrack()));
     if (trackerTrackMap_ && iM->track().isNonnull()) 
-      outElectron->SetTrackerTrack(trackerTrackMap_->GetMit(iM->track()));
+      outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
   }
 
   electrons_->Trim();
