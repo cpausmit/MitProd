@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.10 2008/07/07 13:29:05 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.11 2008/07/07 16:14:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,8 +16,7 @@
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
-#include "MitProd/TreeFiller/interface/FillerGenParts.h"
-#include "MitProd/TreeFiller/interface/FillerSimParticles.h"
+#include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 
 using namespace std;
 using namespace edm;
@@ -90,26 +89,17 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillerMetaInfos = 0;
   }
 
-  FillerGenParts *fillerGenParts = new FillerGenParts(cfg,defactive_);
+  FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
   const GenParticleMap* genParticleMap = 0;
-  if (fillerGenParts->Active()) {
-    fillers_.push_back(fillerGenParts);
-    genParticleMap = fillerGenParts->GetGenParticleMap();
-  }
-  else {
-    delete fillerGenParts;  
-    fillerGenParts = 0;
-  }
-
-  FillerSimParticles *fillerSimParticles = new FillerSimParticles(cfg,defactive_,genParticleMap);
   const SimParticleMap *simParticleMap = 0;
-  if (fillerSimParticles->Active()) {
-    fillers_.push_back(fillerSimParticles);
-    simParticleMap = fillerSimParticles->GetSimParticleMap();
+  if (fillerMCParticles->Active()) {
+    fillers_.push_back(fillerMCParticles);
+    genParticleMap = fillerMCParticles->GetGenParticleMap();
+    simParticleMap = fillerMCParticles->GetSimParticleMap();
   }
   else {
-    delete fillerSimParticles;  
-    fillerSimParticles = 0;
+    delete fillerMCParticles;  
+    fillerMCParticles = 0;
   }
 
   FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg,"CaloJets",defactive_);

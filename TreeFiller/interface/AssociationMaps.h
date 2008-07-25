@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.3 2008/07/07 13:29:05 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.4 2008/07/07 16:14:01 loizides Exp $
 //
 // AssociationMaps
 //
@@ -17,8 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MitAna/DataTree/interface/GenParticle.h"
-#include "MitAna/DataTree/interface/SimParticle.h"
+#include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -30,8 +29,8 @@ namespace mithep
 {
   typedef AssociationMap<const reco::TrackRef,       mithep::Track*>        TrackMap;
   typedef AssociationMap<const reco::GsfTrackRef,    mithep::Track*>        GsfTrackMap;
-  typedef AssociationMap<const Int_t,                mithep::GenParticle*>  GenParticleMap;
-  typedef AssociationMap<const TrackingParticleRef,  mithep::SimParticle*>  SimParticleMap;
+  typedef AssociationMap<const Int_t,                mithep::MCParticle*>   GenParticleMap;
+  typedef AssociationMap<const TrackingParticleRef,  mithep::MCParticle*>   SimParticleMap;
   typedef AssociationMap<const reco::TrackRef,       mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,  mithep::Conversion*>   ConversionMap;
 }   

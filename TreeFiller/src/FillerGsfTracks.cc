@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.7 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,7 +101,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
         for (vector<pair<TrackingParticleRef, double> >::const_iterator simRefPair=simRefs.begin(); 
              simRefPair != simRefs.end(); ++simRefPair) 
           if ( simRefPair->second > 0.5 ) //require more than 50% shared hits between reco and sim
-            outTrack->SetSimPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
+            outTrack->SetMCPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
       }
     }
   }

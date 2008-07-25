@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.6 2008/07/08 05:52:38 loizides Exp $
+# $Id: MitTreeFiller.cfi,v 1.7 2008/07/09 11:00:03 loizides Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked bool defactive = true
@@ -6,15 +6,13 @@ module MitTreeFiller = FillMitTree {
     untracked PSet MetaInfos = {
         untracked bool active = true
     }
-    untracked PSet GenParts = {
+    untracked PSet MCParticles = {
         untracked bool active = true
-        untracked string mitName = "GenParticles"
-        untracked string edmName = "source"
-    }
-    untracked PSet SimParticles = {
-        untracked bool active = true
-        untracked string mitName = "SimParticles"
-        untracked string edmName = "mergedtruth:MergedTrackTruth"
+        untracked bool genActive = true
+        untracked bool simActive = true
+        untracked string mitName = "MCParticles"
+        untracked string genEdmName = "source"
+        untracked string simEdmName = "mergedtruth:MergedTrackTruth"
     }
     untracked PSet GeneralTracks = {
         untracked bool active = true
