@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.11 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillMitTree.cc,v 1.12 2008/07/25 11:33:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,6 +17,8 @@
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
+#include "MitProd/TreeFiller/interface/FillerDecayParts.h"
+#include "MitProd/TreeFiller/interface/FillerStableParts.h"
 
 using namespace std;
 using namespace edm;
@@ -256,6 +258,24 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else {
     delete fillerPhotons;
     fillerPhotons = 0;
+  }
+
+
+  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",defactive_);
+  if (fillerStableParts->Active()) {
+    fillers_.push_back(fillerStableParts);
+  }
+  else {
+    delete fillerStableParts;
+    fillerStableParts = 0;
+  }
+  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",defactive_);
+  if (fillerDecayParts->Active()) {
+    fillers_.push_back(fillerDecayParts);
+  }
+  else {
+    delete fillerDecayParts;
+    fillerDecayParts = 0;
   }
 
   return 1;

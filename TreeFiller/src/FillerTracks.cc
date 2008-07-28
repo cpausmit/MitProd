@@ -1,6 +1,5 @@
-// $Id: FillerTracks.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerTracks.cc,v 1.9 2008/07/25 11:33:58 bendavid Exp $
 
-#include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -9,6 +8,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/TreeFiller/interface/FillerTracks.h"
+
+// Screwing around
+#include "MitEdm/AnalysisDataFormats/interface/BasePart.h"
 
 using namespace std;
 using namespace edm;
@@ -25,14 +28,13 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name,
   tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::TrackMap)
 {
-  // Constructor.
+  // Constructor
 }
 
 //--------------------------------------------------------------------------------------------------
 FillerTracks::~FillerTracks()
 {
-  // Destructor.
-
+  // Destructor
   delete tracks_;
   delete trackMap_;
 }
@@ -41,7 +43,6 @@ FillerTracks::~FillerTracks()
 void FillerTracks::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree.
-
   tws.AddBranch(mitName_.c_str(),&tracks_);
 }
 
@@ -49,9 +50,10 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
 void FillerTracks::FillDataBlock(const edm::Event      &event, 
                                  const edm::EventSetup &setup)
 {
-  // Fill tracks from edm collection into our collection.
-
-  tracks_->Reset();
+  // -----------------------------------------------------------------------------------------------
+  // Fill tracks from edm collection into our collection
+  // -----------------------------------------------------------------------------------------------
+  tracks_  ->Reset();
   trackMap_->Reset();
 
   Handle<reco::TrackCollection> hTrackProduct;
@@ -60,7 +62,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   trackMap_->SetEdmProductId(hTrackProduct.id().id());
   const reco::TrackCollection inTracks = *(hTrackProduct.product());  
   
-  // if we have a Sim Particle association (for monte carlo), initialize the reco->sim mappings
+  // -----------------------------------------------------------------------------------------------
+  // for MC SimParticle association (reco->sim mappings)
+  // -----------------------------------------------------------------------------------------------
   reco::RecoToSimCollection simAssociation;
   if (simMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
@@ -68,48 +72,40 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     simAssociation = *(simAssociationProduct.product());
   }
   
-  // loop through all tracks
-  for (reco::TrackCollection::const_iterator inTrack = inTracks.begin(); 
-       inTrack != inTracks.end(); ++inTrack) {
-    
+  // -----------------------------------------------------------------------------------------------
+  // loop through all tracks and fill the information
+  // -----------------------------------------------------------------------------------------------
+  for (reco::TrackCollection::const_iterator it = inTracks.begin(); 
+       it != inTracks.end(); ++it) {
     mithep::Track *outTrack = tracks_->Allocate();
-    new (outTrack) mithep::Track(inTrack->phi(),
-                                 inTrack->d0(),
-                                 inTrack->pt(),
-                                 inTrack->dz(),
-                                 inTrack->theta());
-	
-    outTrack->SetErrors(inTrack->phiError(),
-                        inTrack->d0Error(),
-                        inTrack->ptError(),
-                        inTrack->dzError(),
-                        inTrack->thetaError());
-
-    outTrack->SetCharge(inTrack->charge());
+    // create track and set the core parameters
+    new (outTrack) mithep::Track(it->phi(),it->d0(),it->pt(),it->dz(),it->theta());
+    outTrack->SetErrors(it->phiError(),it->d0Error(),it->ptError(),it->dzError(),it->thetaError());
+    outTrack->SetCharge(it->charge());
 	
     // add reference between mithep and edm object
-    reco::TrackRef theRef(hTrackProduct, inTrack-inTracks.begin());
+    reco::TrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
     if (simMap_ && !edmSimAssociationName_.empty()) {
       reco::TrackBaseRef theBaseRef(theRef);
       vector<pair<TrackingParticleRef, double> > simRefs;
-      Bool_t noSimParticle=0;
+      Bool_t noSimParticle = 0;
       try {
         simRefs = simAssociation[theBaseRef]; //try to get the sim references if existing
       }
       catch (edm::Exception &ex) {
-        noSimParticle=1;
+        noSimParticle = 1;
       }
+
       if (!noSimParticle) { //loop through sim match candidates
         for (vector<pair<TrackingParticleRef, double> >::const_iterator simRefPair=simRefs.begin(); 
              simRefPair != simRefs.end(); ++simRefPair) 
 
-          if ( simRefPair->second > 0.5 ) // require more than 50% shared hits between reco and sim
+          if (simRefPair->second > 0.5) // require more than 50% shared hits between reco and sim
             outTrack->SetMCPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
       }
     }
   }
-
   tracks_->Trim();
 }

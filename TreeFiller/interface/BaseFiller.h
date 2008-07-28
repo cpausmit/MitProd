@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.7 2008/07/07 16:14:01 loizides Exp $
+// $Id: BaseFiller.h,v 1.8 2008/07/08 12:38:19 loizides Exp $
 //
 // BaseFiller
 //
@@ -39,9 +39,9 @@ namespace mithep
       void                     GetProduct(const std::string name, edm::Handle<TYPE> &product,
                                           const edm::Event &event) const;    
 
-      const std::string        name_;    //name of this filler
-      const edm::ParameterSet  config_;  //parameter set for this filler
-      const bool               active_;  //=1 if active
+      const std::string        name_;    // name of this filler
+      const edm::ParameterSet  config_;  // parameter set for this filler
+      const bool               active_;  // =1 if active
   };
 }
 

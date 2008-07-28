@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.6 2008/07/07 16:14:00 loizides Exp $
+# $Id: BuildFile,v 1.7 2008/07/14 21:01:00 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -17,6 +17,11 @@
 <use name=MitProd/TreeService>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
+
+<use name=MitVertex/Fit>
+<use name=MitEdm/VertexFitInterface>
+<use name=MitEdm/AnalysisDataFormats>
+
 <flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
