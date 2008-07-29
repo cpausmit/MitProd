@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.7 2008/07/14 21:01:00 loizides Exp $
+# $Id: BuildFile,v 1.8 2008/07/28 23:13:43 paus Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -20,7 +20,7 @@
 
 <use name=MitVertex/Fit>
 <use name=MitEdm/VertexFitInterface>
-<use name=MitEdm/AnalysisDataFormats>
+<use name=MitEdm/DataFormats>
 
 <flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>

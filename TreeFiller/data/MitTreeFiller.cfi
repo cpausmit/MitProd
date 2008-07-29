@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.8 2008/07/25 11:33:57 bendavid Exp $
+# $Id: MitTreeFiller.cfi,v 1.9 2008/07/28 23:13:43 paus Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked bool defactive = true
@@ -90,8 +90,8 @@ module MitTreeFiller = FillMitTree {
 
     untracked PSet StableParts = {
         untracked bool active = true
-        untracked string mitName = "Muons"
-        untracked string edmName = "Muons"
+        untracked string mitName = "MuonsStable"
+        untracked string edmName = "MuonsStable"
     }
 
     untracked PSet DecayParts = {

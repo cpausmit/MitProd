@@ -1,5 +1,6 @@
-// $Id: FillerTracks.cc,v 1.9 2008/07/25 11:33:58 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.10 2008/07/28 23:13:44 paus Exp $
 
+#include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -8,10 +9,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitProd/TreeFiller/interface/FillerTracks.h"
-
-// Screwing around
-#include "MitEdm/AnalysisDataFormats/interface/BasePart.h"
 
 using namespace std;
 using namespace edm;

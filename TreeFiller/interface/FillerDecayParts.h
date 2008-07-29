@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillerDecayParts.h,v 1.1 2008/07/28 23:13:43 paus Exp $
 //
 // FillerDecayParts
 //
@@ -12,7 +12,7 @@
 #define TREEFILLER_FILLERDECAYPARTS_H
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
-#include "MitAna/DataTree/interface/BasePart.h"
+#include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitAna/DataTree/interface/Collections.h"
 
 namespace mithep 
@@ -21,7 +21,7 @@ namespace mithep
   {  
   public:
     FillerDecayParts(const edm::ParameterSet &cfg, const char *name, 
-		     bool active=1);
+		     bool active=1, const mithep::BasePartMap* partMap=0);
     ~FillerDecayParts();
     
     void                  BookDataBlock(TreeWriter &tws);
@@ -30,7 +30,8 @@ namespace mithep
   private:
     std::string           edmName_;
     std::string           mitName_;
-    mithep::DecayPartObjArr *decays_;
+    const mithep::BasePartMap *partMap_;
+    mithep::DecayParticleArr *decays_;
   };
 }
 #endif

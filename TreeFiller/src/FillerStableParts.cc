@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerStableParts.cc,v 1.1 2008/07/28 23:13:44 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,22 +8,26 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
-#include "MitEdm/AnalysisDataFormats/interface/CollectionsEdm.h"
-#include "MitEdm/AnalysisDataFormats/interface/StablePart.h"
+#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/BasePartFwd.h"
+#include "MitEdm/DataFormats/interface/StablePartEdm.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitAna/DataTree/interface/StablePart.h"
+#include "MitAna/DataTree/interface/StableParticle.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, bool active) : 
+FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, bool active,
+                                     const TrackMap *trackMap) : 
   BaseFiller(cfg,name,active),
   edmName_  (Conf().getUntrackedParameter<string>("edmName","")),
   mitName_  (Conf().getUntrackedParameter<string>("mitName","")),
-  stables_  (new mithep::StablePartObjArr(250))
+  particleMap_(new mithep::BasePartMap),
+  trackMap_(trackMap),
+  stables_  (new mithep::StableParticleArr(250))
 {
   // Constructor
 }
@@ -33,6 +37,7 @@ FillerStableParts::~FillerStableParts()
 {
   // Destructor
   delete stables_;
+  delete particleMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,19 +55,26 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
   // fill edm StablePart collection into the MIT StablePart collection
   // -----------------------------------------------------------------------------------------------
   stables_->Reset();
+  particleMap_->Reset();
   // access the edm StablePart collection
-  Handle<mitedm::BasePartObjArr> hParts;
+  Handle<mitedm::StablePartCol> hParts;
   GetProduct(edmName_, hParts, evt);  
-  const mitedm::BasePartObjArr *iParts = hParts.product();
+  const mitedm::StablePartCol *iParts = hParts.product();
   
   // -----------------------------------------------------------------------------------------------
   // loop through all StableParts and fill the information
   // -----------------------------------------------------------------------------------------------
-  for (UInt_t i=0; i<iParts->Entries(); ++i) {
-    mitedm::StablePart *p = (mitedm::StablePart*) iParts->At(i);                  // for convenience
+  for (UInt_t i=0; i<iParts->size(); ++i) {
+    const mitedm::StablePartEdm &p = iParts->at(i);                  // for convenience
+    //edm::RefToBaseProd<mitedm::BasePart> baseRef(hParts);
+    //mitedm::BasePartBaseRef theRef(baseRef,i);
+    DoubleIntKey theKey(hParts.id().id(),i);
     //cout << "MITEDM...\n";p->print();
-    StablePart *d = new StablePart((const mithep::StablePart&) *p);
-    stables_->Add(d);
+    mithep::StableParticle *d = stables_->Allocate();
+    new (d) mithep::StableParticle(p.pid());
+    particleMap_->Add(theKey,d);
+    if (trackMap_)
+      d->SetTrk(trackMap_->GetMit(p.trackRef()));
     //cout << "MITHEP...\n";d->print();
   }
   stables_->Trim();
