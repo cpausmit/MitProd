@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.9 2008/07/28 23:13:43 paus Exp $
+// $Id: BaseFiller.h,v 1.10 2008/07/30 08:39:50 loizides Exp $
 //
 // BaseFiller
 //
@@ -17,6 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
+#include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include <TString.h>
 
 namespace mithep 
@@ -37,26 +39,31 @@ namespace mithep
       const edm::ParameterSet &Conf()   const { return config_; }
       void                     PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
-      void                     GetProduct(const std::string name, edm::Handle<TYPE> &product,
+      void                     GetProduct(const std::string name, edm::Handle<TYPE> &prod,
                                           const edm::Event &event) const;    
+      template <typename TYPE>
+      bool                     GetProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+                                              const edm::Event &event) const;    
 
-      const std::string        name_;    // name of this filler
-      const edm::ParameterSet  config_;  // parameter set for this filler
-      const bool               active_;  // =1 if active
+      ObjectService           *OS() { return FillMitTree::os(); }
+
+      const std::string        name_;    //name of this filler
+      const edm::ParameterSet  config_;  //parameter set for this filler
+      const bool               active_;  //=1 if active
   };
 }
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline void mithep::BaseFiller::GetProduct(const std::string edmname, edm::Handle<TYPE> &product,
+inline void mithep::BaseFiller::GetProduct(const std::string edmname, edm::Handle<TYPE> &prod,
                                            const edm::Event &event) const
 {
   // Try to access data collection from EDM file. We check if we really get just one
   // product with the given name. If not we print an error and exit.
 
   try {
-    event.getByLabel(edm::InputTag(edmname),product);
-    if (!product.isValid()) 
+    event.getByLabel(edm::InputTag(edmname),prod);
+    if (!prod.isValid()) 
       throw edm::Exception(edm::errors::Configuration, "BaseFiller::GetProduct()\n")
         << "Cannot get collection with label " << edmname << std::endl;
   } catch (...) {
@@ -64,5 +71,23 @@ inline void mithep::BaseFiller::GetProduct(const std::string edmname, edm::Handl
                                 << edmname << std::endl;
     PrintErrorAndExit(Form("Cannot get collection with label %s", edmname.c_str()));
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+template <typename TYPE>
+inline bool mithep::BaseFiller::GetProductSafe(const std::string edmname, edm::Handle<TYPE> &prod,
+                                               const edm::Event &event) const
+{
+  // Try to safely access data collection from EDM file. We check if we really get just one
+  // product with the given name. If not, we return false.
+
+  try {
+    event.getByLabel(edm::InputTag(edmname),prod);
+    if (!prod.isValid()) 
+      return false;
+  } catch (...) {
+    return false;
+  }
+  return true;
 }
 #endif

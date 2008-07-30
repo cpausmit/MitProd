@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.13 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.1 2008/07/25 11:33:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,12 +45,15 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws)
   // Add branch to tree.
 
   tws.AddBranch(mitName_.c_str(),&mcParticles_);
-  
+
+  // publish our maps
+  OS()->add(genMap_,"GenMap");
+  OS()->add(simMap_,"SimMap");
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerMCParticles::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                      const edm::EventSetup &setup)
 {
   // Loop over HepMC particle and fill their information.
 
@@ -111,18 +114,15 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       
       outSimParticle->SetIsSimulated();
       simMap_->Add(theRef, outSimParticle);
-      
     }
-  
   }
-  
 
   mcParticles_->Trim();
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerMCParticles::ResolveLinks(const edm::Event      &event, 
-                                  const edm::EventSetup &setup)
+                                     const edm::EventSetup &setup)
 {
   // Loop over HepMC particle and resolve their links.
 
@@ -164,11 +164,10 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
           genDaughter->SetMother(genParent);
       }
     }
-    
   }
   
   if (simActive_) {
-  
+
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(simEdmName_, hTrackingParticleProduct, event);  
     
@@ -198,7 +197,5 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         }
       }
     }
-  
   }
-  
 }

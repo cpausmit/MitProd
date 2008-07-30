@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.10 2008/07/28 23:13:44 paus Exp $
+// $Id: FillerTracks.cc,v 1.11 2008/07/29 22:54:37 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,6 +41,9 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree.
   tws.AddBranch(mitName_.c_str(),&tracks_);
+
+  // get simparticle map
+  simMap_ = OS()->get<SimParticleMap>("SimMap");
 }
 
 //--------------------------------------------------------------------------------------------------

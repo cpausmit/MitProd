@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.5 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillMitTree.h,v 1.6 2008/07/01 21:11:47 loizides Exp $
 //
 // FillMitTree
 //
@@ -18,10 +18,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 namespace mithep 
 {
+  class BaseFiller;
+
   class FillMitTree : public edm::EDAnalyzer
   {
     public:
@@ -31,12 +33,15 @@ namespace mithep
       void analyze (const edm::Event &e, const edm::EventSetup &es);
       void beginJob(const edm::EventSetup &es);
       void endJob();
-  
+
+      static ObjectService *os() { return os_; }
+
     protected:
       bool configure(const edm::ParameterSet &cfg);
 
       std::vector<BaseFiller*> fillers_;       //list of active fillers
       bool                     defactive_;     //default activity flag for fillers
+      static ObjectService    *os_;            //object service (set in beginJob)
   };
 }
 #endif

@@ -1,9 +1,10 @@
-// $Id: FillMitTree.cc,v 1.14 2008/07/29 22:54:37 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.15 2008/07/30 08:39:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "MitProd/TreeService/interface/TreeService.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
@@ -23,6 +24,8 @@
 using namespace std;
 using namespace edm;
 using namespace mithep;
+
+mithep::ObjectService *mithep::FillMitTree::os_ = 0;
 
 //--------------------------------------------------------------------------------------------------
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
@@ -71,10 +74,20 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
       << "Could not get pointer to tree." << "\n";
     return;
   }
-  
+
+  if (os_==0) { 
+    Service<ObjectService> os;
+    if (!os.isAvailable()) {
+      throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
+        << "Could not get object service." << "\n";
+      return;
+    }
+    os_ = &(*os);
+  }
+
   // Loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    cout << "Booking for " << (*iF)->Name() << endl;
+    edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
     (*iF)->BookDataBlock(*tws);
   }
 }
@@ -93,7 +106,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   }
 
   FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
-  const GenParticleMap* genParticleMap = 0;
+  const GenParticleMap *genParticleMap = 0;
   const SimParticleMap *simParticleMap = 0;
   if (fillerMCParticles->Active()) {
     fillers_.push_back(fillerMCParticles);
@@ -261,7 +274,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillerPhotons = 0;
   }
 
-  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",defactive_, generalTrackMap);
+  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",
+                                                               defactive_,generalTrackMap);
   const BasePartMap *particleMap=0;
   if (fillerStableParts->Active()) {
     fillers_.push_back(fillerStableParts);
@@ -272,7 +286,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillerStableParts = 0;
   }
   
-  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",defactive_,particleMap);
+  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",
+                                                            defactive_,particleMap);
   if (fillerDecayParts->Active()) {
     fillers_.push_back(fillerDecayParts);
   }
