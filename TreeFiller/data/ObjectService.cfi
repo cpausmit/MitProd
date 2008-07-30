@@ -1,0 +1,3 @@
+# $Id: TreeService.cfi,v 1.1 2008/07/01 21:11:47 loizides Exp $
+
+service = ObjectService { }
