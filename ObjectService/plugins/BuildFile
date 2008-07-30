@@ -1,0 +1,9 @@
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.1 2008/05/27 20:09:09 loizides Exp $
+
+<library name=MitProdObjectService_plugins file=*.cc>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>
+   <use name=MitProd/ObjectService>
+</library>
