@@ -1,10 +1,13 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.1 2008/07/30 09:04:39 loizides Exp $
+// $Id: ObjectService.h,v 1.2 2008/07/30 11:24:43 loizides Exp $
 //
 // ObjectService 
 //
 // This service can be used in the config files to provide a simple interface to 
-// exchange objects accross fillers and in principle also across modules.
+// exchange objects accross fillers and in principle also across modules. There
+// are two types of lifetimes: a) over the full run time b) per event. See 
+// functions add/addObjEvt and get/getObjEct.
+//
 // Usage in config files is:
 //   service = ObjectService { }
 //
@@ -20,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/ObjectService/interface/NamedObject.h"
+#include "MitProd/ObjectService/interface/NamedObjectOwned.h"
 #include <THashTable.h>
 
 namespace edm 
@@ -37,7 +41,7 @@ namespace mithep
       ~ObjectService();
 
       template<class T> bool add(const T *obj, const char *name);
-      template<class T> bool addObjEvt(const T *obj, const char *name);
+      template<class T> bool addObjEvt(T *obj, const char *name);
       template<class T> const T *get(const char *name) const;
       template<class T> const T *getObjEvt(const char *name) const;
 
@@ -62,6 +66,10 @@ bool mithep::ObjectService::add(const T *obj, const char *name)
     edm::LogError("ObjectService") << "Cannot add object with name " << name 
                                    << "since name is already used." 
                                    << std::endl;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::add()\n")
+      << "Cannot add object with name " << name 
+      << "since name is already used.\n";
+
     return 0;
   }
       
@@ -72,7 +80,7 @@ bool mithep::ObjectService::add(const T *obj, const char *name)
 
 //--------------------------------------------------------------------------------------------------
 template<class T>
-bool mithep::ObjectService::addObjEvt(const T *obj, const char *name)
+bool mithep::ObjectService::addObjEvt(T *obj, const char *name)
 {
   // Add object with given name for the current event.
 
@@ -80,10 +88,14 @@ bool mithep::ObjectService::addObjEvt(const T *obj, const char *name)
     edm::LogError("ObjectService") << "Cannot add object with name " << name 
                                    << "to event since name is already used." 
                                    << std::endl;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::addObjEvt()\n")
+      << "Cannot add object with name " << name 
+      << "since name is already used.\n";
+
     return 0;
   }
       
-  NamedObject<T> *no = new NamedObject<T>(obj, name);
+  NamedObjectOwned<T> *no = new NamedObjectOwned<T>(obj, name);
   obsEvt_.Add(no);
   return 1;
 }
@@ -98,7 +110,7 @@ const T *mithep::ObjectService::get(const char *name) const
   if (!o) 
     return 0;
 
-  const NamedObject<T> *no = dynamic_cast<const NamedObject<T>* >(o);
+  const NamedObject<T> *no = static_cast<const NamedObject<T>* >(o);
   if (!no)
     return 0;
 
@@ -115,7 +127,7 @@ const T *mithep::ObjectService::getObjEvt(const char *name) const
   if (!o) 
     return 0;
 
-  const NamedObject<T> *no = dynamic_cast<const NamedObject<T>* >(o);
+  const NamedObjectOwned<T> *no = static_cast<const NamedObjectOwned<T>* >(o);
   if (!no)
     return 0;
 
