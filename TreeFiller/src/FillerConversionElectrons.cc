@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.4 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerConversionElectrons.cc,v 1.5 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -69,6 +69,6 @@ void FillerConversionElectrons::FillFromTracks(const TrackCol *tracks,
     mithep::Track *track = const_cast<Track*>(tracks->At(i));
     mithep::Electron *electron = conversionElectrons_->AddNew();
     electron->SetTrackerTrk(track);
-    convElectronMap_->Add(trackMap->GetEdmRef(track), electron);
+    convElectronMap_->Add(trackMap->GetEdm(track), electron);
   }
 }

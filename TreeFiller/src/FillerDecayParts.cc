@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.1 2008/07/28 23:13:44 paus Exp $
+// $Id: FillerDecayParts.cc,v 1.2 2008/07/29 22:54:37 bendavid Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -95,7 +95,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     if (partMap_) {
       for (Int_t j=0; j<p.nChild();j++) {
         mitedm::BasePartBaseRef theRef = p.getChildRef(j);
-        mithep::DoubleIntKey theKey(theRef.id().id(),theRef.key());
+        mithep::PairIntKey theKey(theRef.id().id(),theRef.key());
         mithep::Particle *daughter = partMap_->GetMit(theKey);
         d->AddDaughter(daughter);
       }

@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.1 2008/07/28 23:13:44 paus Exp $
+// $Id: FillerStableParts.cc,v 1.2 2008/07/29 22:54:37 bendavid Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -68,7 +68,7 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
     const mitedm::StablePartEdm &p = iParts->at(i);                  // for convenience
     //edm::RefToBaseProd<mitedm::BasePart> baseRef(hParts);
     //mitedm::BasePartBaseRef theRef(baseRef,i);
-    DoubleIntKey theKey(hParts.id().id(),i);
+    PairIntKey theKey(hParts.id().id(),i);
     //cout << "MITEDM...\n";p->print();
     mithep::StableParticle *d = stables_->Allocate();
     new (d) mithep::StableParticle(p.pid());

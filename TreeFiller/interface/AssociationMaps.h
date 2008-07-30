@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.5 2008/07/25 11:33:57 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.6 2008/07/29 22:54:36 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -29,13 +29,14 @@
 
 namespace mithep 
 {
+  typedef std::pair<int,int> PairIntKey;
+
   typedef AssociationMap<const reco::TrackRef,       mithep::Track*>        TrackMap;
   typedef AssociationMap<const reco::GsfTrackRef,    mithep::Track*>        GsfTrackMap;
   typedef AssociationMap<const Int_t,                mithep::MCParticle*>   GenParticleMap;
   typedef AssociationMap<const TrackingParticleRef,  mithep::MCParticle*>   SimParticleMap;
   typedef AssociationMap<const reco::TrackRef,       mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,  mithep::Conversion*>   ConversionMap;
-  //typedef AssociationMap<const mitedm::BasePartBaseRef,mithep::Particle*>     BasePartMap;
-  typedef AssociationMap<const DoubleIntKey,mithep::Particle*>              BasePartMap;
+  typedef AssociationMap<const PairIntKey,           mithep::Particle*>     BasePartMap;
 }   
 #endif

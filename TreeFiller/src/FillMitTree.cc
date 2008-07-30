@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.13 2008/07/28 23:13:44 paus Exp $
+// $Id: FillMitTree.cc,v 1.14 2008/07/29 22:54:37 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,7 +29,7 @@ FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   defactive_(cfg.getUntrackedParameter<bool>("defactive",1))
 {
   // Constructor.
-    
+
   if (!configure(cfg)) {
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::FillMitTree()\n")
       << "Could not configure fillers." << "\n";
@@ -74,6 +74,7 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   
   // Loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    cout << "Booking for " << (*iF)->Name() << endl;
     (*iF)->BookDataBlock(*tws);
   }
 }
@@ -229,8 +230,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   }
 
   FillerConversionElectrons *fillerConversionElectrons = 
-    new FillerConversionElectrons(cfg, defactive_, conversionInOutTracks, conversionOutInTracks, 
-                                  conversionInOutTrackMap, conversionOutInTrackMap);
+    new FillerConversionElectrons(cfg,defactive_,conversionInOutTracks,conversionOutInTracks, 
+                                  conversionInOutTrackMap,conversionOutInTrackMap);
   const ConversionElectronMap *convElectronMap=0;
   if (fillerConversionElectrons->Active()) {
     fillers_.push_back(fillerConversionElectrons);
@@ -241,7 +242,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillerConversionElectrons = 0;
   }
 
-  FillerConversions *fillerConversions = new FillerConversions(cfg, defactive_, convElectronMap);
+  FillerConversions *fillerConversions = new FillerConversions(cfg,defactive_,convElectronMap);
   const ConversionMap *conversionMap=0;
   if (fillerConversions->Active()) {
     fillers_.push_back(fillerConversions);
@@ -252,7 +253,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     fillerConversions = 0;
   }
 
-  FillerPhotons *fillerPhotons = new FillerPhotons(cfg, defactive_, conversionMap);
+  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_,conversionMap);
   if (fillerPhotons->Active())
     fillers_.push_back(fillerPhotons);
   else {

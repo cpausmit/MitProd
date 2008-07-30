@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.8 2008/07/08 12:38:19 loizides Exp $
+// $Id: BaseFiller.h,v 1.9 2008/07/28 23:13:43 paus Exp $
 //
 // BaseFiller
 //
@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
+#include <TString.h>
 
 namespace mithep 
 {
