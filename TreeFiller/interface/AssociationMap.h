@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.2 2008/07/01 21:11:12 loizides Exp $
+// $Id: AssociationMap.h,v 1.3 2008/07/02 19:29:27 bendavid Exp $
 //
 // Association Map
 //
@@ -28,7 +28,7 @@ namespace mithep
       ~AssociationMap() {}
       
       void       Add(EdmClass edmObj, MitClass mitObj);
-      EdmClass   GetEdmRef(MitClass mitObj) const;
+      EdmClass   GetEdm(MitClass mitObj)    const;
       Int_t      GetEdmProductId()          const { return edmProductId_; }
       Int_t      GetEntries()               const { return fwdMap_.size(); }
       MitClass   GetMit(EdmClass edmObj)    const;
@@ -59,17 +59,19 @@ inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmOb
   if (iter != fwdMap_.end())
     return iter->second;
   else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetMit()\n")
-        << "Error! Edm Object not found in AssociationMap." << std::endl;
+         << "Error! EDM Object (" << typeid(edmObj).name() 
+         << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
 }
       
 //--------------------------------------------------------------------------------------------------
 template <class EdmClass, class MitClass>
-inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdmRef(MitClass mitObj) const
+inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitObj) const
 {
   typename revMapType::const_iterator iter = revMap_.find(mitObj);
   if (iter != revMap_.end())
     return iter->second;
-  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetEdmRef()\n")
-        << "Error! mithep Object not found in AssociationMap." << std::endl;
+  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetEdm()\n")
+         << "Error! MITHEP Object (" << typeid(mitObj).name() 
+         << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
 }
 #endif
