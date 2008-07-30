@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.7 2008/07/01 16:33:55 loizides Exp $
+// $Id: TreeService.cc,v 1.8 2008/07/03 08:25:12 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -114,7 +114,7 @@ TreeService::~TreeService()
 }
 
 //--------------------------------------------------------------------------------------------------
-TreeWriter* TreeService::get(const char *name) 
+TreeWriter *TreeService::get(const char *name) 
 {
   // Get TreeWriter by name. If no name given, first one will be returned.
 

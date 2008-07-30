@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.6 2008/07/01 20:32:35 loizides Exp $
+// $Id: TreeService.h,v 1.7 2008/07/03 08:25:12 loizides Exp $
 //
 // TreeService 
 //
@@ -50,7 +50,7 @@ namespace mithep
 
     private:
       void preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
-      void postEventProcessing(const edm::Event& e, const edm::EventSetup& es);
+      void postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
       void postBeginJob();
       void postEndJob();
 
