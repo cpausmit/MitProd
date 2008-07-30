@@ -1,13 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.7 2008/07/03 08:25:12 loizides Exp $
+// $Id: NamedObject.h,v 1.1 2008/07/30 09:04:39 loizides Exp $
 //
-// ObjectService 
-      // Class for storing event objects:
-      // It assumes ownership of the object.
-      // It is needed to force the THashTable to call Hash on a TNamed
-      // to allow lookup using the hash value given the object's name
-      // (as opposed to its pointer value, as is done for TObject's).
+// NamedObject
 //
+// Class for storing objects in a THashTable. Objects are not owned and will therefore not
+// be deleted. This class is only used internally by the ObjectService. 
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -23,14 +20,13 @@ namespace mithep
   class NamedObject : public TNamed
   {
     public:
-      NamedObject(T *ptr) : TNamed(((TObject*)ptr)->GetName(),0), fPtr(ptr) {}
-      NamedObject(T *ptr, const char *n) : TNamed(n,0), fPtr(ptr) {}
-      ~NamedObject() { delete fPtr; }
-      T             *Get()       { return fPtr; }
+      NamedObject(const T *ptr) : TNamed(((TObject*)ptr)->GetName(),0), fPtr(ptr) {}
+      NamedObject(const T *ptr, const char *n) : TNamed(n,0), fPtr(ptr) {}
+      ~NamedObject() { fPtr = 0; }
       const T       *Get() const { return fPtr; }
 
     private:
-      T             *fPtr; //pointer to object
+      const T       *fPtr; //pointer to object
   };
 }
 #endif
