@@ -1,9 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.6 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerTracks.h,v 1.7 2008/07/31 12:34:04 loizides Exp $
 //
 // FillerTracks
 //
 // Imlementation of a filler to fill EDM tracks into our mithep::Track data structure.
+//
+// TRACK PARAMETERS ARE CURRENTLY FILLED INCORRECTLY!
 //
 // Authors: J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -15,6 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Collections.h"
+#include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 
@@ -28,7 +31,8 @@ namespace mithep
 
       void            BookDataBlock(TreeWriter &tws);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-  
+      void            InitLayerMap();
+
     private:
       std::string                      edmName_;               //edm name of tracks collection
       std::string                      mitName_;               //name of Tracks in OAK
@@ -38,6 +42,7 @@ namespace mithep
       const mithep::SimParticleMap    *simMap_;                //map wrt simulated particles
       mithep::TrackArr                *tracks_;                //array of Tracks
       mithep::TrackMap                *trackMap_;              //map wrt tracks
+      std::map<uint32_t,mithep::Track::HitLayer> layerMap_;
   };
 }
 #endif

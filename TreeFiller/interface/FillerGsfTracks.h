@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGsfTracks.h,v 1.5 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerGsfTracks.h,v 1.6 2008/07/31 12:34:04 loizides Exp $
 //
 // FillerGsfTracks
 //
@@ -30,6 +30,7 @@ namespace mithep
 
       void 		 BookDataBlock(TreeWriter &tws);
       void 		 FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void               InitLayerMap();
   
     private:
       std::string                      edmName_;               //edm name of gsftracks collection
@@ -40,6 +41,7 @@ namespace mithep
       const mithep::SimParticleMap    *simMap_;                //map wrt simulated particles
       mithep::Array<mithep::Track>    *tracks_;                //array of Tracks
       mithep::GsfTrackMap             *trackMap_;              //map wrt tracks
+      std::map<uint32_t,mithep::Track::HitLayer> layerMap_;
   };
 }
 #endif

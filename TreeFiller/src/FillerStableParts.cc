@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.3 2008/07/30 08:39:51 loizides Exp $
+// $Id: FillerStableParts.cc,v 1.4 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitAna/DataTree/interface/StableParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +10,7 @@
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "MitEdm/DataFormats/interface/CollectionsEdm.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
-#include "MitEdm/DataFormats/interface/StablePartEdm.h"
+#include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitAna/DataTree/interface/Names.h"
 
@@ -69,7 +69,9 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
   
   // loop through all StableParts and fill the information
   for (UInt_t i=0; i<iParts->size(); ++i) {
-    const mitedm::StablePartEdm &p = iParts->at(i);  // for convenience
+    const mitedm::StablePart &p = iParts->at(i);                  // for convenience
+    //edm::RefToBaseProd<mitedm::BasePart> baseRef(hParts);
+    //mitedm::BasePartBaseRef theRef(baseRef,i);
     PairIntKey theKey(hParts.id().id(),i);
     //cout << "MITEDM...\n";p->print();
     mithep::StableParticle *d = stables_->Allocate();
