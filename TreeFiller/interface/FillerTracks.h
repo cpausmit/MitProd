@@ -5,7 +5,6 @@
 //
 // Imlementation of a filler to fill EDM tracks into our mithep::Track data structure.
 //
-// TRACK PARAMETERS ARE CURRENTLY FILLED INCORRECTLY!
 //
 // Authors: J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
