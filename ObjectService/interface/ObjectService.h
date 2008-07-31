@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.2 2008/07/30 11:24:43 loizides Exp $
+// $Id: ObjectService.h,v 1.3 2008/07/30 21:39:13 loizides Exp $
 //
 // ObjectService 
 //
@@ -64,11 +64,11 @@ bool mithep::ObjectService::add(const T *obj, const char *name)
 
   if (obs_.FindObject(name)) {
     edm::LogError("ObjectService") << "Cannot add object with name " << name 
-                                   << "since name is already used." 
+                                   << " since name is already used." 
                                    << std::endl;
     throw edm::Exception(edm::errors::Configuration, "ObjectService::add()\n")
       << "Cannot add object with name " << name 
-      << "since name is already used.\n";
+      << " since name is already used.\n";
 
     return 0;
   }
@@ -86,11 +86,11 @@ bool mithep::ObjectService::addObjEvt(T *obj, const char *name)
 
   if (obsEvt_.FindObject(name)) {
     edm::LogError("ObjectService") << "Cannot add object with name " << name 
-                                   << "to event since name is already used." 
+                                   << " to event since name is already used." 
                                    << std::endl;
     throw edm::Exception(edm::errors::Configuration, "ObjectService::addObjEvt()\n")
       << "Cannot add object with name " << name 
-      << "since name is already used.\n";
+      << " to event since name is already used.\n";
 
     return 0;
   }
