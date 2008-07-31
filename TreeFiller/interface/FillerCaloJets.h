@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.1 2008/07/07 16:13:21 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.2 2008/07/08 12:38:19 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -30,9 +30,9 @@ namespace mithep
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                           edmName_;
-      std::string                           mitName_;
-      mithep::JetArr                       *jets_;
+      std::string           edmName_;    //edm name of jets collection
+      std::string           mitName_;    //name of Jets in OAK
+      mithep::JetArr       *jets_;       //array of Jets
   };
 }
 #endif

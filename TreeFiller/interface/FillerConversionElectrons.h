@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.3 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerConversionElectrons.h,v 1.4 2008/07/08 12:38:20 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -25,28 +25,26 @@ namespace mithep
   class FillerConversionElectrons : public BaseFiller
   {  
     public:
-      FillerConversionElectrons(const edm::ParameterSet &cfg, bool active=1, 
-                                const mithep::TrackCol *convInOutTracks=0, 
-                                const mithep::TrackCol *convOutInTracks=0, 
-                                const mithep::TrackMap *convInOutTrackMap=0, 
-                                const mithep::TrackMap *convOutInTrackMap=0);
+      FillerConversionElectrons(const edm::ParameterSet &cfg, bool active=1);
       ~FillerConversionElectrons();
 
       void                         BookDataBlock(TreeWriter &tws);
       void                         FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                         FillFromTracks(const mithep::TrackCol *tracks, 
                                                   const TrackMap *trackMap);
-      
-      const ConversionElectronMap *GetConversionElectronMap() const { return convElectronMap_; }
-  
     private:
-      std::string                               mitName_;
-      mithep::ElectronArr                      *conversionElectrons_;
-      mithep::ConversionElectronMap            *convElectronMap_;
-      const mithep::TrackCol                   *conversionInOutTracks_;
-      const mithep::TrackCol                   *conversionOutInTracks_;
-      const mithep::TrackMap                   *conversionInOutTrackMap_;
-      const mithep::TrackMap                   *conversionOutInTrackMap_;
+      std::string                      mitName_;                //name of Electrons in OAK
+      std::string                      convInOutTracksName_;    //name of converted in-out track
+      std::string                      convOutInTracksName_;    //name of converted out- track
+      std::string                      convInOutTrackMapName_;  //name of imported map wrt in-out
+      std::string                      convOutInTrackMapName_;  //name of imported map wrt out-in
+      std::string                      convElectronMapName_;    //name of exported map wrt electrons
+      const mithep::TrackCol          *convInOutTracks_;        //array of converted in-out tracks
+      const mithep::TrackCol          *convOutInTracks_;        //array of converted out-in tracks
+      const mithep::TrackMap          *convInOutTrackMap_;      //imported map wrt in-out tracks
+      const mithep::TrackMap          *convOutInTrackMap_;      //imported map wrt out-in tracks
+      mithep::ElectronArr             *convElectrons_;          //array of conversion electrons
+      mithep::ConversionElectronMap   *convElectronMap_;        //exported map wrt electrons
   };
 }
 #endif

@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.5 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.6 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,13 +16,13 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, bool active, 
-                             const ConversionMap *conversionMap) : 
+FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, bool active) :
   BaseFiller(cfg,"Photons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
+  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   photons_(new mithep::PhotonArr(16)), 
-  conversionMap_(conversionMap)
+  conversionMap_(0)
 {
   // Constructor.
 }
@@ -38,9 +38,11 @@ FillerPhotons::~FillerPhotons()
 //--------------------------------------------------------------------------------------------------
 void FillerPhotons::BookDataBlock(TreeWriter &tws)
 {
-  // Add photon branch to tree.
+  // Add photon branch to tree and get the map.
 
   tws.AddBranch(mitName_.c_str(),&photons_);
+
+  conversionMap_ = OS()->get<ConversionMap>(conversionMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

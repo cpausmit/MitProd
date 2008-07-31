@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.9 2008/07/28 23:13:43 paus Exp $
+# $Id: MitTreeFiller.cfi,v 1.10 2008/07/29 22:54:36 bendavid Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked bool defactive = true
@@ -13,69 +13,102 @@ module MitTreeFiller = FillMitTree {
         untracked string mitName = "MCParticles"
         untracked string genEdmName = "source"
         untracked string simEdmName = "mergedtruth:MergedTrackTruth"
+        untracked string genMapName = "GenMap"
+        untracked string simMapName = "SimMap"
     }
     untracked PSet GeneralTracks = {
         untracked bool active = true
         untracked string mitName = "Tracks"
         untracked string edmName = "generalTracks"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "TracksMapName"
         untracked string edmSimAssociationName = "trackingParticleRecoTrackAsssociation"
     }
     untracked PSet StandaloneMuonTracks = {
         untracked bool active = true
         untracked string mitName = "StandaloneMuonTracks"
         untracked string edmName = "standAloneMuons"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "StandaloneMuonTracksMapName"
+        untracked string edmSimAssociationName = ""
     }
     untracked PSet StandaloneMuonTracksWVtxConstraint = {
         untracked bool active = true
         untracked string mitName = "StandaloneMuonTracksWVtxConstraint"
         untracked string edmName = "standAloneMuons:UpdatedAtVtx"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "StandaloneMuonTracksWVtxConstraintMapName"
+        untracked string edmSimAssociationName = ""
     }
     untracked PSet GlobalMuonTracks = {
         untracked bool active = true
         untracked string mitName = "GlobalMuonTracks"
         untracked string edmName = "globalMuons"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "GlobalMuonTracksMapName"
+        untracked string edmSimAssociationName = ""
     }
     untracked PSet ConversionInOutTracks = {
         untracked bool active = true
         untracked string mitName = "ConversionInOutTracks"
         untracked string edmName = "ckfInOutTracksFromConversions"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "ConversionInOutTracksMapName"
         untracked string edmSimAssociationName = "assocInOutConversionTracks"
     }
     untracked PSet ConversionOutInTracks = {
         untracked bool active = true
         untracked string mitName = "ConversionOutInTracks"
         untracked string edmName = "ckfOutInTracksFromConversions"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "ConversionOutInTracksMapName"
         untracked string edmSimAssociationName = "assocOutInConversionTracks"
     }
     untracked PSet GsfTracks = {
         untracked bool active = true
         untracked string mitName = "GsfTracks"
         untracked string edmName = "pixelMatchGsfFit"
+        untracked string simMapName   = "SimMap"
+        untracked string trackMapName = "GsfTracksMapName"
         untracked string edmSimAssociationName = "assoc2GsfTracks"
     }
     untracked PSet Muons = {
         untracked bool active = true
         untracked string mitName = "Muons"
         untracked string edmName = "muons"
+        untracked string globalTrackMapName  = "GlobalMuonTracksMapName"
+        untracked string staTrackMapName     = "StandaloneMuonTracksMapName"
+        untracked string staVtxTrackMapName  = "StandaloneMuonTracksWVtxConstraintMapName"
+        untracked string trackerTrackMapName = "TracksMapName"
     }
     untracked PSet Electrons = {
         untracked bool active = true
         untracked string mitName = "Electrons"
         untracked string edmName = "pixelMatchGsfElectrons"
+        untracked string gsfTrackMapName     = "GsfTracksMapName" 
+        untracked string trackerTrackMapName = "TracksMapName"
     }
     untracked PSet ConversionElectrons = {
         untracked bool active = true
         untracked string mitName = "ConversionElectrons"
+        untracked string convInOutTracksName   = "ConversionInOutTracks"
+        untracked string convOutInTracksName   = "ConversionOutInTracks"
+        untracked string convInOutTrackMapName = "ConversionInOutTracksMapName"
+        untracked string convOutInTrackMapName = "ConversionOutInTracksMapName"
+        untracked string convElectronMapName   = "ConversionElectronsMapName"
     }
     untracked PSet Conversions = {
         untracked bool active = true
         untracked string mitName = "Conversions"
         untracked string edmName = "conversions"
+        untracked string convElectronMapName = "ConversionElectronsMapName"
+        untracked string conversionMapName   = "ConversionsMapName" 
     }
     untracked PSet Photons = {
         untracked bool active = true
         untracked string mitName = "Photons"
         untracked string edmName = "photons"
+        untracked string conversionMapName = "ConversionsMapName"
     }
     untracked PSet CaloJets = {
         untracked bool active = true
@@ -87,16 +120,17 @@ module MitTreeFiller = FillMitTree {
         untracked string mitName = "CaloMet"
         untracked string edmName = "met"
     }
-
     untracked PSet StableParts = {
-        untracked bool active = true
+        untracked bool active = false
         untracked string mitName = "MuonsStable"
         untracked string edmName = "MuonsStable"
+        untracked string trackMapName = "TracksMapName"
+        untracked string basePartMap  = "MuonsStableMapName"
     }
-
     untracked PSet DecayParts = {
-        untracked bool active = true
+        untracked bool active = false
         untracked string mitName = "Jpsi2MuMu"
         untracked string edmName = "Jpsi2MuMu"
+        untracked string basePartMap  = "MuonsStableMapName"
     }
 }

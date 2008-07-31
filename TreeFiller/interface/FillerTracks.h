@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.5 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerTracks.h,v 1.6 2008/07/08 12:38:20 loizides Exp $
 //
 // FillerTracks
 //
@@ -23,22 +23,21 @@ namespace mithep
   class FillerTracks : public BaseFiller
   {  
     public:
-      FillerTracks(const edm::ParameterSet &cfg, const char *name, 
-                   bool active=1, const SimParticleMap *sm=0);
+      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerTracks();
 
       void            BookDataBlock(TreeWriter &tws);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      const TrackMap *GetTrackMap() const { return trackMap_; }
-      const TrackCol *GetTrackCol() const { return tracks_; }
   
     private:
-      std::string                         edmName_;
-      std::string                         mitName_;
-      std::string                         edmSimAssociationName_;
-      const mithep::SimParticleMap       *simMap_;
-      mithep::TrackArr                   *tracks_;
-      mithep::TrackMap                   *trackMap_;
+      std::string                      edmName_;               //edm name of tracks collection
+      std::string                      mitName_;               //name of Tracks in OAK
+      std::string                      edmSimAssociationName_; //edm name of sim association map
+      std::string                      simMapName_;            //name of inported map wrt simparts
+      std::string                      trackMapName_;          //name of export map
+      const mithep::SimParticleMap    *simMap_;                //map wrt simulated particles
+      mithep::TrackArr                *tracks_;                //array of Tracks
+      mithep::TrackMap                *trackMap_;              //map wrt tracks
   };
 }
 #endif

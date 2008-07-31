@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.6 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillMitTree.h,v 1.7 2008/07/30 16:39:57 loizides Exp $
 //
 // FillMitTree
 //
@@ -37,6 +37,7 @@ namespace mithep
       static ObjectService *os() { return os_; }
 
     protected:
+      bool addActiveFiller(BaseFiller *bf);
       bool configure(const edm::ParameterSet &cfg);
 
       std::vector<BaseFiller*> fillers_;       //list of active fillers

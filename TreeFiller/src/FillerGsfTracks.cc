@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.9 2008/07/25 11:33:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,11 +22,14 @@ FillerGsfTracks::FillerGsfTracks(const ParameterSet &cfg, const char *name,
   mitName_(Conf().getUntrackedParameter<string>("mitName","GsfTracks")),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName",
                                                               "assoc2GsfTracks")),
-  simMap_(sm),
+  simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
+  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
+                                                     Form("%sMapName",mitName_.c_str()))),
+  simMap_(0),
   tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::GsfTrackMap)
 {
-  // Constructor
+  // Constructor.
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,9 +44,13 @@ FillerGsfTracks::~FillerGsfTracks()
 //--------------------------------------------------------------------------------------------------
 void FillerGsfTracks::BookDataBlock(TreeWriter &tws)
 {
-  // Add tracks branch to tree.
+  // Add tracks branch to tree, publish and get our objects.
 
   tws.AddBranch(mitName_.c_str(),&tracks_);
+
+  simMap_ = OS()->get<SimParticleMap>(simMapName_.c_str());
+  OS()->add<GsfTrackMap>(trackMap_,trackMapName_.c_str());
+  OS()->add<TrackArr>(tracks_,mitName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

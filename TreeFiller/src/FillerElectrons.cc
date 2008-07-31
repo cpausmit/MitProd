@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.8 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.9 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
 
@@ -17,14 +16,15 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active,
-                                 const GsfTrackMap *gsfTrackMap, const TrackMap *trackerTrackMap) : 
+FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
   BaseFiller(cfg,"Electrons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
+  gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
+  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   electrons_(new mithep::ElectronArr(16)),
-  gsfTrackMap_(gsfTrackMap),
-  trackerTrackMap_(trackerTrackMap)
+  gsfTrackMap_(0),
+  trackerTrackMap_(0)
 {
   // Constructor.
 }
@@ -40,9 +40,14 @@ FillerElectrons::~FillerElectrons()
 //--------------------------------------------------------------------------------------------------
 void FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
-  // Add electron branch to our tree.
+  // Add electron branch to our tree and get our maps.
 
   tws.AddBranch(mitName_.c_str(),&electrons_);
+
+  if (!gsfTrackMapName_.empty()) 
+    gsfTrackMap_ = OS()->get<GsfTrackMap>(gsfTrackMapName_.c_str());
+  if (!trackerTrackMapName_.empty()) 
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

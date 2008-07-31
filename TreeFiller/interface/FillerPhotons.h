@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.3 2008/07/07 16:14:01 loizides Exp $
+// $Id: FillerPhotons.h,v 1.4 2008/07/08 12:38:20 loizides Exp $
 //
 // FillerPhotons
 //
@@ -24,18 +24,18 @@ namespace mithep
   class FillerPhotons : public BaseFiller
   {  
     public:
-      FillerPhotons(const edm::ParameterSet &cfg, bool active=1, 
-                    const ConversionMap *conversionMap=0);
+      FillerPhotons(const edm::ParameterSet &cfg, bool active=1);
       ~FillerPhotons();
 
       void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                                edmName_;
-      std::string                                mitName_;
-      mithep::PhotonArr                         *photons_;
-      const mithep::ConversionMap               *conversionMap_;
+      std::string                    edmName_;            //edm name of photon collection
+      std::string                    mitName_;            //name of Photons in OAK
+      std::string                    conversionMapName_;  //name of imported map wrt conv electrons
+      mithep::PhotonArr             *photons_;            //array of Photons
+      const mithep::ConversionMap   *conversionMap_;      //imported map wrt conversion electrons
   };
 }
 #endif

@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.1 2008/07/25 11:33:58 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.2 2008/07/30 16:39:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,10 +21,12 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
   genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","source")),
   simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","mergedtruth:MergedTrackTruth")),
+  genMapName_(Conf().getUntrackedParameter<string>("genMapName","GenMap")),
+  simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMCPartBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
-  genMap_(new mithep::GenParticleMap),
-  simMap_(new mithep::SimParticleMap)
+  genMap_(genActive_?new mithep::GenParticleMap:0),
+  simMap_(simActive_?new mithep::SimParticleMap:0)
 {
   // Constructor.
 }
@@ -42,13 +44,14 @@ FillerMCParticles::~FillerMCParticles()
 //--------------------------------------------------------------------------------------------------
 void FillerMCParticles::BookDataBlock(TreeWriter &tws)
 {
-  // Add branch to tree.
+  // Add branch to tree and publish our maps.
 
   tws.AddBranch(mitName_.c_str(),&mcParticles_);
 
-  // publish our maps
-  OS()->add(genMap_,"GenMap");
-  OS()->add(simMap_,"SimMap");
+  if (genActive_)
+    OS()->add(genMap_,genMapName_.c_str());
+  if (simActive_)
+    OS()->add(simMap_,simMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,11 +60,10 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 {
   // Loop over HepMC particle and fill their information.
 
-  genMap_->Reset();
-  simMap_->Reset();
   mcParticles_->Reset();
 
   if (genActive_) {
+    genMap_->Reset();
   
     Handle<edm::HepMCProduct> hHepMCProduct;
     GetProduct(genEdmName_, hHepMCProduct, event);  
@@ -89,6 +91,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   }
   
   if (simActive_) {
+    simMap_->Reset();
   
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(simEdmName_, hTrackingParticleProduct, event);
@@ -109,7 +112,12 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       }
       else {
         outSimParticle = mcParticles_->Allocate();
-        new (outSimParticle) mithep::MCParticle(iM->px(),iM->py(),iM->pz(),iM->energy(),iM->pdgId(), iM->status());
+        new (outSimParticle) mithep::MCParticle(iM->px(),
+                                                iM->py(),
+                                                iM->pz(),
+                                                iM->energy(),
+                                                iM->pdgId(), 
+                                                iM->status());
       }
       
       outSimParticle->SetIsSimulated();
@@ -145,7 +153,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   
       //find corresponding mithep genparticle parent in association table
       mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
-      
+
       if (genParent->IsSimulated()) continue;
   
       //set decay vertex
@@ -155,8 +163,9 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
                           dVertex->point3d().z()/10.0);
   
       //loop through daugthers
-      for (HepMC::GenVertex::particles_out_const_iterator pgenD = dVertex->particles_out_const_begin();
-          pgenD != dVertex->particles_out_const_end(); ++pgenD) {
+      for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
+             dVertex->particles_out_const_begin(); 
+           pgenD != dVertex->particles_out_const_end(); ++pgenD) {
         HepMC::GenParticle *mcDaughter = (*pgenD);
         mithep::MCParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
         genParent->AddDaughter(genDaughter);

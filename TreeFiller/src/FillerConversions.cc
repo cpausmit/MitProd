@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.6 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerConversions.cc,v 1.7 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,12 +10,14 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerConversions::FillerConversions(const ParameterSet &cfg, bool active, 
-                                     const ConversionElectronMap *conversionElectronMap) : 
+FillerConversions::FillerConversions(const ParameterSet &cfg, bool active) :
   BaseFiller(cfg,"Conversions",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
-  conversionElectronMap_(conversionElectronMap),
+  convElectronMapName_(Conf().getUntrackedParameter<string>("convElectronMapName","")),
+  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName",
+                                                          Form("%sMapName",mitName_.c_str()))),
+  convElectronMap_(0),
   conversions_(new mithep::ConversionArr(16)),
   conversionMap_(new mithep::ConversionMap)
 {
@@ -34,9 +36,13 @@ FillerConversions::~FillerConversions()
 //--------------------------------------------------------------------------------------------------
 void FillerConversions::BookDataBlock(TreeWriter &tws)
 {
-  // Add conversions to tree.
+  // Add conversions to tree. Publish and get our objects.
 
   tws.AddBranch(mitName_.c_str(),&conversions_);
+
+  if (!convElectronMapName_.empty())
+    OS()->add(conversionMap_,conversionMapName_.c_str());
+  convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,11 +82,11 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                                    inConversion->pairMomentum().y(),
                                    inConversion->pairMomentum().z());
         
-    if (conversionElectronMap_) {
+    if (convElectronMap_) {
       std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
-        outConversion->AddDaughter(conversionElectronMap_->GetMit(*trackRef));
+        outConversion->AddDaughter(convElectronMap_->GetMit(*trackRef));
       }
     }
     

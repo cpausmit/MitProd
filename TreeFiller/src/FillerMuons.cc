@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.7 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerMuons.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,17 +14,19 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active,
-                         const TrackMap *globalMap, const TrackMap *stdMap, 
-                         const TrackMap *stdVtxMap, const TrackMap *trackerMap) : 
+FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active) :
   BaseFiller(cfg,"Muons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","muons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
-  muons_(new mithep::MuonArr(16)), 
-  globalTrackMap_(globalMap), 
-  standaloneTrackMap_(stdMap), 
-  standaloneVtxTrackMap_(stdVtxMap), 
-  trackerTrackMap_(trackerMap)
+  globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),
+  staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
+  staVtxTrackMapName_(Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
+  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
+  globalTrackMap_(0), 
+  standaloneTrackMap_(0), 
+  standaloneVtxTrackMap_(0), 
+  trackerTrackMap_(0),
+  muons_(new mithep::MuonArr(16))
 {
   // Constructor.
 }
@@ -40,10 +42,21 @@ FillerMuons::~FillerMuons()
 //--------------------------------------------------------------------------------------------------
 void FillerMuons::BookDataBlock(TreeWriter &tws)
 {
-  // Add muons branch to tree.
+  // Add muons branch to tree and get pointers to maps.
 
   tws.AddBranch(mitName_.c_str(),&muons_);
+
+  if (!globalTrackMapName_.empty()) 
+    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_.c_str());
+  if (!staTrackMapName_.empty()) 
+    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_.c_str());
+  if (!staVtxTrackMapName_.empty()) 
+    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_.c_str());
+  if (!trackerTrackMapName_.empty()) 
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 void FillerMuons::FillDataBlock(const edm::Event      &event, 

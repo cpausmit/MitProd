@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.5 2008/07/01 14:38:33 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.6 2008/07/01 21:11:47 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -44,6 +44,8 @@ namespace mithep
       Int_t                    runEntries_;   //number of run info entries
       UShort_t                 fileNum_;      //file number of current file
       std::map<UInt_t,Int_t>   runmap_;       //map between run number and entry number
+
+      static bool              instance_;     //=true when one active instance
   };
 }
 #endif

@@ -1,10 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.6 2008/07/13 08:42:04 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.1 2008/07/25 11:33:57 bendavid Exp $
 //
 // FillerMCParticles
 //
 // Imlementation of a filler to fill HepMC particles (gen) AND TrackingParticles (sim)
-// into mithep::MCParticles.  Gen and Sim information is thus merged into a single collection
+// into mithep::MCParticles. Gen and Sim particle information is thus merged into a single 
+// collection.
 //
 // Authors: C.Loizides, J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -29,36 +30,18 @@ namespace mithep
       void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
-      const GenParticleMap *GetGenParticleMap() const;
-      const SimParticleMap *GetSimParticleMap() const;
   
     private:
-      Bool_t                              genActive_;
-      Bool_t                              simActive_;
-      std::string                         genEdmName_;
-      std::string                         simEdmName_;
-      std::string                         mitName_;
-      mithep::MCParticleArr              *mcParticles_; 
-      mithep::GenParticleMap             *genMap_;
-      mithep::SimParticleMap             *simMap_;
+      Bool_t                      genActive_;   //=true if generated particles are filled
+      Bool_t                      simActive_;   //=true if simulated particles are filled
+      std::string                 genEdmName_;  //edm name of generated particles
+      std::string                 simEdmName_;  //edm name of simulated particles
+      std::string                 genMapName_;  //name of exported map wrt generated particles
+      std::string                 simMapName_;  //name of exported map wrt simulated particles
+      std::string                 mitName_;     //name of MCParticles branch in OAK
+      mithep::MCParticleArr      *mcParticles_; //array of MCParticles
+      mithep::GenParticleMap     *genMap_;      //map wrt generated particles
+      mithep::SimParticleMap     *simMap_;      //map wrt simulated particles
   };
-}
-
-//--------------------------------------------------------------------------------------------------
-inline const mithep::GenParticleMap *mithep::FillerMCParticles::GetGenParticleMap() const
-{
-  if (genActive_)
-    return genMap_;
-  else
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-inline const mithep::SimParticleMap *mithep::FillerMCParticles::GetSimParticleMap() const
-{
-  if (simActive_)
-    return simMap_;
-  else
-    return 0;
 }
 #endif

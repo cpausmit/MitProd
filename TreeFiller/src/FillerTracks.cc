@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.11 2008/07/29 22:54:37 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.12 2008/07/30 16:39:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,23 +15,26 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, 
-                           bool active, const SimParticleMap *sm) : 
+FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","generalTracks")),
+  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
-  simMap_(sm),
+  simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
+  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
+                                                     Form("%sMapName",mitName_.c_str()))),
+  simMap_(0),
   tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::TrackMap)
 {
-  // Constructor
+  // Constructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 FillerTracks::~FillerTracks()
 {
-  // Destructor
+  // Destructor.
+
   delete tracks_;
   delete trackMap_;
 }
@@ -39,20 +42,21 @@ FillerTracks::~FillerTracks()
 //--------------------------------------------------------------------------------------------------
 void FillerTracks::BookDataBlock(TreeWriter &tws)
 {
-  // Add tracks branch to tree.
+  // Add tracks branch to tree, publish and get our objects.
+
   tws.AddBranch(mitName_.c_str(),&tracks_);
 
-  // get simparticle map
-  simMap_ = OS()->get<SimParticleMap>("SimMap");
+  simMap_ = OS()->get<SimParticleMap>(simMapName_.c_str());
+  OS()->add<TrackMap>(trackMap_,trackMapName_.c_str());
+  OS()->add<TrackArr>(tracks_,mitName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerTracks::FillDataBlock(const edm::Event      &event, 
                                  const edm::EventSetup &setup)
 {
-  // -----------------------------------------------------------------------------------------------
-  // Fill tracks from edm collection into our collection
-  // -----------------------------------------------------------------------------------------------
+  // Fill tracks from edm collection into our collection.
+
   tracks_  ->Reset();
   trackMap_->Reset();
 
@@ -62,9 +66,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   trackMap_->SetEdmProductId(hTrackProduct.id().id());
   const reco::TrackCollection inTracks = *(hTrackProduct.product());  
   
-  // -----------------------------------------------------------------------------------------------
   // for MC SimParticle association (reco->sim mappings)
-  // -----------------------------------------------------------------------------------------------
   reco::RecoToSimCollection simAssociation;
   if (simMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
@@ -72,9 +74,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     simAssociation = *(simAssociationProduct.product());
   }
   
-  // -----------------------------------------------------------------------------------------------
   // loop through all tracks and fill the information
-  // -----------------------------------------------------------------------------------------------
   for (reco::TrackCollection::const_iterator it = inTracks.begin(); 
        it != inTracks.end(); ++it) {
     mithep::Track *outTrack = tracks_->Allocate();

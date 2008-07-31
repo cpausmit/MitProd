@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.15 2008/07/30 08:39:50 loizides Exp $
+// $Id: FillMitTree.cc,v 1.16 2008/07/30 16:39:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,6 +46,21 @@ FillMitTree::~FillMitTree()
 }
 
 //--------------------------------------------------------------------------------------------------
+bool FillMitTree::addActiveFiller(BaseFiller *bf)
+{
+  // Check if filler is active and add it to list of fillers. Otherwise delete it.
+
+  if (bf->Active()) {
+    fillers_.push_back(bf);
+    return 1;
+  }
+
+  delete bf;
+  bf = 0;
+  return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
 void FillMitTree::analyze(const edm::Event      &event, 
 			  const edm::EventSetup &setup)
 {
@@ -71,7 +86,8 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   TreeWriter *tws = ts->get();
   if (! tws) {
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
-      << "Could not get pointer to tree." << "\n";
+      << "Could not get pointer to tree. " 
+      << "Do you have the TreeServie define in your config?" << "\n";
     return;
   }
 
@@ -79,7 +95,8 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
     Service<ObjectService> os;
     if (!os.isAvailable()) {
       throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
-        << "Could not get object service." << "\n";
+        << "Could not get object service. " 
+        << "Do you have the ObjectService defined in your config?" << "\n";
       return;
     }
     os_ = &(*os);
@@ -97,204 +114,64 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
   // Configure our fillers.
 
-  FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg);
-  if (fillerMetaInfos->Active())
-    fillers_.push_back(fillerMetaInfos);
-  else {
-    delete fillerMetaInfos;
-    fillerMetaInfos = 0;
-  }
+  FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg,defactive_);
+  addActiveFiller(fillerMetaInfos);
 
   FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
-  const GenParticleMap *genParticleMap = 0;
-  const SimParticleMap *simParticleMap = 0;
-  if (fillerMCParticles->Active()) {
-    fillers_.push_back(fillerMCParticles);
-    genParticleMap = fillerMCParticles->GetGenParticleMap();
-    simParticleMap = fillerMCParticles->GetSimParticleMap();
-  }
-  else {
-    delete fillerMCParticles;  
-    fillerMCParticles = 0;
-  }
+  addActiveFiller(fillerMCParticles);
 
   FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg,"CaloJets",defactive_);
-  if (fillerCaloJets->Active()) {
-    fillers_.push_back(fillerCaloJets);
-  }
-  else {
-    delete fillerCaloJets;
-    fillerCaloJets = 0;
-  }
+  addActiveFiller(fillerCaloJets);
 
   FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg,"CaloMet",defactive_);
-  if (fillerCaloMet->Active()) {
-    fillers_.push_back(fillerCaloMet);
-  }
-  else {
-    delete fillerCaloMet;
-    fillerCaloMet = 0;
-  }
+  addActiveFiller(fillerCaloMet);
 
-  FillerTracks *fillerGeneralTracks = 
-    new FillerTracks(cfg,"GeneralTracks",defactive_,simParticleMap);
-  const TrackMap *generalTrackMap=0;
-  if (fillerGeneralTracks->Active()) {
-    fillers_.push_back(fillerGeneralTracks);
-    generalTrackMap = fillerGeneralTracks->GetTrackMap();
-  }
-  else {
-    delete fillerGeneralTracks;
-    fillerGeneralTracks = 0;
-  }
+  FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_);
+  addActiveFiller(fillerGeneralTracks);
 
   FillerTracks *fillerStandaloneMuonTracks = 
     new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
-  const TrackMap *standaloneMuonTrackMap=0;
-  if (fillerStandaloneMuonTracks->Active()) {
-    fillers_.push_back(fillerStandaloneMuonTracks);
-    standaloneMuonTrackMap = fillerStandaloneMuonTracks->GetTrackMap();
-  }
-  else {
-    delete fillerStandaloneMuonTracks;
-    fillerStandaloneMuonTracks = 0;
-  }
+  addActiveFiller(fillerStandaloneMuonTracks);
 
   FillerTracks *fillerStandaloneMuonTracksVtx = 
     new FillerTracks(cfg,"StandaloneMuonTracksWVtxConstraint",defactive_);
-  const TrackMap *standaloneMuonTrackVtxMap=0;
-  if (fillerStandaloneMuonTracksVtx->Active()) {
-    fillers_.push_back(fillerStandaloneMuonTracksVtx);
-    standaloneMuonTrackVtxMap = fillerStandaloneMuonTracksVtx->GetTrackMap();
-  }
-  else {
-    delete fillerStandaloneMuonTracksVtx;
-    fillerStandaloneMuonTracksVtx = 0;
-  }
+  addActiveFiller(fillerStandaloneMuonTracksVtx);
 
   FillerTracks *fillerGlobalMuonTracks = new FillerTracks(cfg,"GlobalMuonTracks",defactive_);
-  const TrackMap *globalMuonTrackMap=0;
-  if (fillerGlobalMuonTracks->Active()) {
-    fillers_.push_back(fillerGlobalMuonTracks);
-    globalMuonTrackMap = fillerGlobalMuonTracks->GetTrackMap();
-  }
-  else {
-    delete fillerGlobalMuonTracks;  
-    fillerGlobalMuonTracks = 0;
-  }
+  addActiveFiller(fillerGlobalMuonTracks);
     
   FillerTracks *fillerConversionInOutTracks = 
-    new FillerTracks(cfg,"ConversionInOutTracks",defactive_,simParticleMap);
-  const TrackMap *conversionInOutTrackMap=0;
-  const TrackCol *conversionInOutTracks=0;
-  if (fillerConversionInOutTracks->Active()) {
-    fillers_.push_back(fillerConversionInOutTracks);
-    conversionInOutTrackMap = fillerConversionInOutTracks->GetTrackMap();
-    conversionInOutTracks = fillerConversionInOutTracks->GetTrackCol();
-  }
-  else {
-    delete fillerConversionInOutTracks;
-    fillerConversionInOutTracks = 0;
-  }
+    new FillerTracks(cfg,"ConversionInOutTracks",defactive_);
+  addActiveFiller(fillerConversionInOutTracks);
 
   FillerTracks *fillerConversionOutInTracks = 
-    new FillerTracks(cfg,"ConversionOutInTracks",defactive_,simParticleMap);
-  const TrackMap *conversionOutInTrackMap=0;
-  const TrackCol *conversionOutInTracks=0;
-  if (fillerConversionOutInTracks->Active()) {
-    fillers_.push_back(fillerConversionOutInTracks);
-    conversionOutInTrackMap = fillerConversionOutInTracks->GetTrackMap();
-    conversionOutInTracks = fillerConversionOutInTracks->GetTrackCol();
-  }
-  else {
-    delete fillerConversionOutInTracks;
-    fillerConversionOutInTracks = 0;
-  }
+    new FillerTracks(cfg,"ConversionOutInTracks",defactive_);
+  addActiveFiller(fillerConversionOutInTracks);
 
-  FillerGsfTracks *fillerGsfTracks = 
-    new FillerGsfTracks(cfg,"GsfTracks",defactive_,simParticleMap);
-  const GsfTrackMap *gsfTrackMap=0;
-  if (fillerGsfTracks->Active()) {
-    fillers_.push_back(fillerGsfTracks);
-    gsfTrackMap = (GsfTrackMap*)fillerGsfTracks->GetTrackMap();
-  }
-  else {
-    delete fillerGsfTracks;
-    fillerGsfTracks = 0;
-  }
+  FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks",defactive_);
+  addActiveFiller(fillerGsfTracks);
 
-  FillerMuons *fillerMuons = 
-    new FillerMuons(cfg,defactive_,globalMuonTrackMap,standaloneMuonTrackMap, 
-                    standaloneMuonTrackVtxMap,generalTrackMap);
-  if (fillerMuons->Active())
-    fillers_.push_back(fillerMuons);
-  else {
-    delete fillerMuons;
-    fillerMuons = 0;
-  }
+  FillerMuons *fillerMuons = new FillerMuons(cfg,defactive_);
+  addActiveFiller(fillerMuons);
 
-  FillerElectrons *fillerElectrons = 
-    new FillerElectrons(cfg,defactive_,gsfTrackMap,generalTrackMap);
-  if (fillerElectrons->Active())
-    fillers_.push_back(fillerElectrons);
-  else {
-    delete fillerElectrons;
-      fillerElectrons = 0;
-  }
+  FillerElectrons *fillerElectrons = new FillerElectrons(cfg,defactive_);
+  addActiveFiller(fillerElectrons);
 
   FillerConversionElectrons *fillerConversionElectrons = 
-    new FillerConversionElectrons(cfg,defactive_,conversionInOutTracks,conversionOutInTracks, 
-                                  conversionInOutTrackMap,conversionOutInTrackMap);
-  const ConversionElectronMap *convElectronMap=0;
-  if (fillerConversionElectrons->Active()) {
-    fillers_.push_back(fillerConversionElectrons);
-    convElectronMap = fillerConversionElectrons->GetConversionElectronMap();
-  }
-  else {
-    delete fillerConversionElectrons;
-    fillerConversionElectrons = 0;
-  }
+    new FillerConversionElectrons(cfg,defactive_);
+  addActiveFiller(fillerConversionElectrons);
 
-  FillerConversions *fillerConversions = new FillerConversions(cfg,defactive_,convElectronMap);
-  const ConversionMap *conversionMap=0;
-  if (fillerConversions->Active()) {
-    fillers_.push_back(fillerConversions);
-    conversionMap = fillerConversions->GetConversionMap();
-  }
-  else {
-    delete fillerConversions;
-    fillerConversions = 0;
-  }
+  FillerConversions *fillerConversions = new FillerConversions(cfg,defactive_);
+  addActiveFiller(fillerConversions);
 
-  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_,conversionMap);
-  if (fillerPhotons->Active())
-    fillers_.push_back(fillerPhotons);
-  else {
-    delete fillerPhotons;
-    fillerPhotons = 0;
-  }
+  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_);
+  addActiveFiller(fillerPhotons);
 
-  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",
-                                                               defactive_,generalTrackMap);
-  const BasePartMap *particleMap=0;
-  if (fillerStableParts->Active()) {
-    fillers_.push_back(fillerStableParts);
-    particleMap = fillerStableParts->GetParticleMap();
-  }
-  else {
-    delete fillerStableParts;
-    fillerStableParts = 0;
-  }
+  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",defactive_);
+  addActiveFiller(fillerStableParts);
   
-  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",
-                                                            defactive_,particleMap);
-  if (fillerDecayParts->Active()) {
-    fillers_.push_back(fillerDecayParts);
-  }
-  else {
-    delete fillerDecayParts;
-    fillerDecayParts = 0;
-  }
+  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",defactive_);
+  addActiveFiller(fillerDecayParts);
 
   return 1;
 }

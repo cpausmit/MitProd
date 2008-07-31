@@ -1,5 +1,6 @@
-// $Id: FillerDecayParts.cc,v 1.2 2008/07/29 22:54:37 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.3 2008/07/30 08:39:50 loizides Exp $
 
+#include "MitAna/DataTree/interface/DecayParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -7,61 +8,61 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-
 #include "MitEdm/DataFormats/interface/CollectionsEdm.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitAna/DataTree/interface/DecayParticle.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bool active,
-                                   const BasePartMap *partMap) : 
+FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bool active) :
   BaseFiller(cfg,name,active),
-  edmName_  (Conf().getUntrackedParameter<string>("edmName","")),
-  mitName_  (Conf().getUntrackedParameter<string>("mitName","")),
-  partMap_  (partMap),
-  decays_   (new mithep::DecayParticleArr(250))
+  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+  mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  basePartMapName_(Conf().getUntrackedParameter<string>("basePartMap","")),
+  basePartMap_(0),
+  decays_(new mithep::DecayParticleArr(250))
 {
-  // Constructor
+  // Constructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 FillerDecayParts::~FillerDecayParts()
 {
-  // Destructor
+  // Destructor.
+
   delete decays_;
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 {
-  // Add tracks branch to tree
+  // Add tracks branch to tree and get our map.
+
   tws.AddBranch(mitName_.c_str(),&decays_);
+
+  if (!basePartMapName_.empty()) 
+    basePartMap_ = OS()->get<BasePartMap>(basePartMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerDecayParts::FillDataBlock(const edm::Event      &evt, 
 				     const edm::EventSetup &setup)
 {
-  // -----------------------------------------------------------------------------------------------
-  // fill edm DecayPart collection into the MIT DecayPart collection
-  // -----------------------------------------------------------------------------------------------
+  // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
+
   decays_->Reset();
-  // access the edm DecayPart collection
+
   Handle<mitedm::DecayPartCol> hParts;
   GetProduct(edmName_, hParts, evt);  
   const mitedm::DecayPartCol *iParts = hParts.product();
   
-  // -----------------------------------------------------------------------------------------------
   // loop through all decayParts and fill the information
-  // -----------------------------------------------------------------------------------------------
   for (UInt_t i=0; i<iParts->size(); ++i) {
     const mitedm::DecayPart &p =iParts->at(i);                    // for convenience
     //cout << "MITEDM...\n";p->print();
@@ -92,11 +93,11 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     d->SetBigError(p.bigError());
     
     //loop through and add daughters
-    if (partMap_) {
+    if (basePartMap_) {
       for (Int_t j=0; j<p.nChild();j++) {
         mitedm::BasePartBaseRef theRef = p.getChildRef(j);
         mithep::PairIntKey theKey(theRef.id().id(),theRef.key());
-        mithep::Particle *daughter = partMap_->GetMit(theKey);
+        mithep::Particle *daughter = basePartMap_->GetMit(theKey);
         d->AddDaughter(daughter);
       }
     }
