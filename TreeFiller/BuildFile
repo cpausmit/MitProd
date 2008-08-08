@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.9 2008/07/29 22:54:36 bendavid Exp $
+# $Id: BuildFile,v 1.10 2008/07/30 16:40:56 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -11,6 +11,8 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
+<use name=DataFormats/PatCandidates>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=SimDataFormats/HepMCProduct>
 <use name=root>
 <use name=MitProd/TreeService>

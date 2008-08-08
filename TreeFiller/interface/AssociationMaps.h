@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.6 2008/07/29 22:54:36 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.7 2008/07/30 08:39:50 loizides Exp $
 //
 // AssociationMaps
 //
@@ -13,9 +13,14 @@
  
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
 #include "MitAna/DataTree/interface/Track.h"
+#include "MitAna/DataTree/interface/BasicCluster.h"
 #include "MitAna/DataTree/interface/Types.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "MitAna/DataTree/interface/MCParticle.h"
@@ -31,12 +36,14 @@ namespace mithep
 {
   typedef std::pair<int,int> PairIntKey;
 
-  typedef AssociationMap<const reco::TrackRef,       mithep::Track*>        TrackMap;
-  typedef AssociationMap<const reco::GsfTrackRef,    mithep::Track*>        GsfTrackMap;
-  typedef AssociationMap<const Int_t,                mithep::MCParticle*>   GenParticleMap;
-  typedef AssociationMap<const TrackingParticleRef,  mithep::MCParticle*>   SimParticleMap;
-  typedef AssociationMap<const reco::TrackRef,       mithep::Electron*>     ConversionElectronMap;
-  typedef AssociationMap<const reco::ConversionRef,  mithep::Conversion*>   ConversionMap;
-  typedef AssociationMap<const PairIntKey,           mithep::Particle*>     BasePartMap;
+  typedef AssociationMap<const reco::TrackRef,        mithep::Track*>        TrackMap;
+  typedef AssociationMap<const reco::GsfTrackRef,     mithep::Track*>        GsfTrackMap;
+  typedef AssociationMap<const reco::BasicClusterRef, mithep::BasicCluster*> BasicClusterMap;
+  typedef AssociationMap<const reco::SuperClusterRef, mithep::SuperCluster*> SuperClusterMap;
+  typedef AssociationMap<const Int_t,                 mithep::MCParticle*>   GenParticleMap;
+  typedef AssociationMap<const TrackingParticleRef,   mithep::MCParticle*>   SimParticleMap;
+  typedef AssociationMap<const reco::TrackRef,        mithep::Electron*>     ConversionElectronMap;
+  typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
+  typedef AssociationMap<const PairIntKey,            mithep::Particle*>     BasePartMap;
 }   
 #endif

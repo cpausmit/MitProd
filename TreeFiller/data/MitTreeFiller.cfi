@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.10 2008/07/29 22:54:36 bendavid Exp $
+# $Id: MitTreeFiller.cfi,v 1.11 2008/07/31 12:34:03 loizides Exp $
 
 module MitTreeFiller = FillMitTree {
     untracked bool defactive = true
@@ -87,6 +87,12 @@ module MitTreeFiller = FillMitTree {
         untracked string edmName = "pixelMatchGsfElectrons"
         untracked string gsfTrackMapName     = "GsfTracksMapName" 
         untracked string trackerTrackMapName = "TracksMapName"
+        untracked string superClusterMapName = "barrelSuperClusterMap"
+    }
+    untracked PSet Taus = {
+        untracked bool active = true
+        untracked string mitName = "Taus"
+        untracked string edmName = "coneIsolationTauJetTags"
     }
     untracked PSet ConversionElectrons = {
         untracked bool active = true
@@ -120,6 +126,37 @@ module MitTreeFiller = FillMitTree {
         untracked string mitName = "CaloMet"
         untracked string edmName = "met"
     }
+
+    untracked PSet BarrelBasicClusters = {
+        untracked bool active = true
+        untracked string mitName = "BarrelBasicClusters"
+        untracked string edmName = "hybridSuperClusters"    
+        untracked string basicClusterMapName = "barrelBasicClusterMap"
+    }
+
+    untracked PSet BarrelSuperClusters = {
+        untracked bool active = true
+        untracked string mitName = "BarrelSuperClusters"
+        untracked string edmName = "correctedHybridSuperClusters"
+        untracked string basicClusterMapName = "barrelBasicClusterMap"
+        untracked string superClusterMapName = "barrelSuperClusterMap"
+    }
+
+    untracked PSet EndcapBasicClusters = {
+        untracked bool active = true
+        untracked string mitName = "EndcapBasicClusters"
+        untracked string edmName = "islandBasicClusters:islandEndcapBasicClusters"  
+        untracked string basicClusterMapName = "endcapBasicClusterMap"
+    }
+
+    untracked PSet EndcapSuperClusters = {
+        untracked bool active = true
+        untracked string mitName = "EndcapSuperClusters"
+        untracked string edmName = "correctedIslandEndcapSuperClusters"
+        untracked string basicClusterMapName = "endcapBasicClusterMap"
+        untracked string superClusterMapName = "endcapSuperClusterMap"
+    }
+
     untracked PSet StableParts = {
         untracked bool active = false
         untracked string mitName = "MuonsStable"
@@ -133,4 +170,5 @@ module MitTreeFiller = FillMitTree {
         untracked string edmName = "Jpsi2MuMu"
         untracked string basePartMap  = "MuonsStableMapName"
     }
+
 }
