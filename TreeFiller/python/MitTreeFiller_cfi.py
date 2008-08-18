@@ -1,0 +1,214 @@
+# $Id: MitTreeFiller.cfi,v 1.7 2008/07/09 11:00:03 loizides Exp $
+
+import FWCore.ParameterSet.Config as cms
+
+MitTreeFiller = cms.EDAnalyzer("FillMitTree",
+    defactive = cms.untracked.bool(True),
+
+    MetaInfos = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        hltActive = cms.untracked.bool(False),
+        hltName = cms.untracked.string('TriggerResults::HLT')
+    ),
+                   
+    MCParticles = cms.untracked.PSet(
+        active        = cms.untracked.bool(True),
+        genActive     = cms.untracked.bool(True),
+        simActive     = cms.untracked.bool(False),
+        mitName       = cms.untracked.string('MCParticles'),
+        genJetMitName = cms.untracked.string('GenJets'),
+        genEdmName    = cms.untracked.string('source'),
+        simEdmName    = cms.untracked.string('mergedtruth:MergedTrackTruth'),
+        genMapName    = cms.untracked.string('GenMap'),
+        simMapName    = cms.untracked.string('SimMap')                                    
+    ),
+                                     
+    GeneralTracks  = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('Tracks'),
+        edmName               = cms.untracked.string('generalTracks'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('TracksMapName'),
+        edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
+    ),
+
+    StandaloneMuonTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('StandaloneMuonTracks'),
+        edmName               = cms.untracked.string('standAloneMuons'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('StandaloneMuonTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+
+    StandaloneMuonTracksWVtxConstraint = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('StandaloneMuonTracksWVtxConstraint'),
+        edmName               = cms.untracked.string('standAloneMuons:UpdatedAtVtx'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+                   
+    GlobalMuonTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('GlobalMuonTracks'),
+        edmName               = cms.untracked.string('globalMuons'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('GlobalMuonTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+                   
+    ConversionInOutTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('ConversionInOutTracks'),
+        edmName               = cms.untracked.string('ckfInOutTracksFromConversions'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('ConversionInOutTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assocInOutConversionTracks')
+    ),
+
+    ConversionOutInTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('ConversionOutInTracks'),
+        edmName               = cms.untracked.string('ckfOutInTracksFromConversions'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('ConversionOutInTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assocOutInConversionTracks')
+    ),
+                   
+    GsfTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('GsfTracks'),
+        edmName               = cms.untracked.string('pixelMatchGsfFit'),
+        simMapName            = cms.untracked.string('SimMap'),
+        trackMapName          = cms.untracked.string('GsfTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assoc2GsfTracks')
+    ),
+
+    BarrelBasicClusters = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('BarrelBasicClusters'),
+        edmName = cms.untracked.string('hybridSuperClusters:hybridBarrelBasicClusters'),    
+        basicClusterMapName = cms.untracked.string('barrelBasicClusterMap')
+    ),
+                                
+    BarrelSuperClusters = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('BarrelSuperClusters'),
+        edmName = cms.untracked.string('correctedHybridSuperClusters'),
+        basicClusterMapName = cms.untracked.string('barrelBasicClusterMap'),
+        superClusterMapName = cms.untracked.string('barrelSuperClusterMap')
+    ),
+
+    EndcapBasicClusters = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('EndcapBasicClusters'),
+        edmName = cms.untracked.string('multi5x5BasicClusters:multi5x5EndcapBasicClusters'),  
+        basicClusterMapName = cms.untracked.string('endcapBasicClusterMap')
+    ),
+
+    EndcapSuperClusters = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('EndcapSuperClusters'),                     
+        edmName = cms.untracked.string('correctedMulti5x5SuperClustersWithPreshower'),
+        basicClusterMapName = cms.untracked.string('endcapBasicClusterMap'),
+        superClusterMapName = cms.untracked.string('endcapSuperClusterMap')
+    ),
+
+    Muons = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Muons'),
+        edmName = cms.untracked.string('muons'),
+        globalTrackMapName  = cms.untracked.string('GlobalMuonTracksMapName'),
+        staTrackMapName     = cms.untracked.string('StandaloneMuonTracksMapName'),
+        staVtxTrackMapName  = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
+        trackerTrackMapName = cms.untracked.string('TracksMapName')
+    ),
+                   
+    Electrons = cms.untracked.PSet(
+        active                 = cms.untracked.bool(True),
+        mitName                = cms.untracked.string('Electrons'),
+        edmName                = cms.untracked.string('pixelMatchGsfElectrons'),
+        gsfTrackMapName        = cms.untracked.string('GsfTracksMapName'), 
+        trackerTrackMapName    = cms.untracked.string('TracksMapName'),
+        barrelEcalRecHitName   = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName   = cms.untracked.string('reducedEcalRecHitsEE'),
+        barrelBasicClusterName = cms.untracked.string(
+                                     'hybridSuperClusters:hybridBarrelBasicClusters'),
+        endcapBasicClusterName = cms.untracked.string(
+                                     'multi5x5BasicClusters:multi5x5EndcapBasicClusters'),
+        barrelSuperClusterName = cms.untracked.string('correctedHybridSuperClusters'),
+        endcapSuperClusterName = cms.untracked.string(
+                                     'multi5x5SuperClusters:multi5x5EndcapSuperClusters'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        eIDCutBasedName           = cms.untracked.string('eidCutBased'),
+        eIDCutBasedClassesName    = cms.untracked.string('eidCutBasedClasses'),
+        eIDLikelihood             = cms.untracked.string('eidLikelihood'),
+        eIDNeuralNet              = cms.untracked.string('eidNeuralNet')
+    ),
+
+    Taus = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('Taus'),
+        edmName             = cms.untracked.string('caloRecoTauProducer'),
+        gsfTrackMapName     = cms.untracked.string('GsfTracksMapName'), 
+        trackerTrackMapName = cms.untracked.string('TracksMapName'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap')
+    ),
+
+    ConversionElectrons = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('ConversionElectrons'),
+        convInOutTracksName   = cms.untracked.string('ConversionInOutTracks'),
+        convOutInTracksName   = cms.untracked.string('ConversionOutInTracks'),
+        convInOutTrackMapName = cms.untracked.string('ConversionInOutTracksMapName'),
+        convOutInTrackMapName = cms.untracked.string('ConversionOutInTracksMapName'),
+        convElectronMapName   = cms.untracked.string('ConversionElectronsMapName')
+    ),
+                   
+    Conversions = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('Conversions'),
+        edmName             = cms.untracked.string('conversions'),
+        convElectronMapName = cms.untracked.string('ConversionElectronsMapName'),
+        conversionMapName   = cms.untracked.string('ConversionsMapName') 
+    ),
+
+    Photons = cms.untracked.PSet(
+        active            = cms.untracked.bool(True),
+        mitName           = cms.untracked.string('Photons'),
+        edmName           = cms.untracked.string('photons'),
+        conversionMapName = cms.untracked.string('ConversionsMapName')
+    ),
+
+    CaloJets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('CaloJets'),
+        edmName = cms.untracked.string('iterativeCone5CaloJets')  
+    ),
+
+    CaloMet = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('CaloMet'),
+        edmName = cms.untracked.string('met')  
+    ),
+                  
+    StableParts = cms.untracked.PSet(
+        active       = cms.untracked.bool(False),
+        mitName      = cms.untracked.string('MuonsStable'),
+        edmName      = cms.untracked.string('MuonsStable'),
+        trackMapName = cms.untracked.string('racksMapName'),
+        basePartMap  = cms.untracked.string('MuonsStableMapName')
+    ),
+
+    DecayParts = cms.untracked.PSet(
+        active       = cms.untracked.bool(False),
+        mitName      = cms.untracked.string('psi2MuMu'),
+        edmName      = cms.untracked.string('Jpsi2MuMu'),
+        basePartMap  = cms.untracked.string('MuonsStableMapName')
+    )                                                            
+)
+   
