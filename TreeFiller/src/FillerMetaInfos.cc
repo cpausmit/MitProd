@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.11 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.12 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,6 +11,11 @@
 #include "MitAna/DataTree/interface/RunInfo.h"
 #include <TObjectTable.h>
  
+
+//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+
+
 using namespace std;
 using namespace edm;
 using namespace mithep;
@@ -20,6 +25,7 @@ bool mithep::FillerMetaInfos::instance_ = 0;
 //--------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg,"MetaInfos",(instance_==0||active?1:0)),
+  hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),
@@ -105,7 +111,8 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
 
-  //FillHltInfo(event,setup);
+  if(hltActive_)
+    FillHltInfo(event,setup);
 
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
@@ -134,7 +141,9 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 
   Handle<TriggerResults> triggerResultsHLT;
   try {
-    event.getByLabel(hltName_, triggerResultsHLT);
+    GetProduct(hltName_, triggerResultsHLT, event);
+
+    //event.getByLabel(hltName_, triggerResultsHLT);
   } catch (cms::Exception &ex) {
     edm::LogError("FillerMetaInfos") << "Error! Cannot get trigger results with label " 
                                      << hltName_ << endl;
@@ -142,8 +151,10 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
       << "Error! Cannot get trigger results with label " << hltName_ << endl;
   }
 
+  //This gives names of trigger paths and the accept bit.
   TriggerNames triggerNames(*(triggerResultsHLT.product())); 
   for(UInt_t i=0;i<triggerNames.size();++i) {
-    cout << i << " " << triggerNames.triggerName(i) << endl;
+    //cout << i << " " << triggerNames.triggerName(i) << " " << (*triggerResultsHLT.product())[i].accept() << endl;
   }
+
 }

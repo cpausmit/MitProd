@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.6 2008/07/01 21:11:47 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.7 2008/07/31 12:34:04 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -30,6 +30,7 @@ namespace mithep
       void FillHltInfo(const edm::Event &e, const edm::EventSetup &es);
 
     private:
+      Bool_t                   hltActive_;    //=true if HLT info are filled
       std::string              evtName_;      //event branch name
       std::string              runName_;      //run info branch name
       std::string              lahName_;      //look-ahead header branch name
