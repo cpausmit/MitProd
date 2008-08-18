@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.3 2008/07/02 19:29:27 bendavid Exp $
+// $Id: AssociationMap.h,v 1.4 2008/07/30 08:39:08 loizides Exp $
 //
 // Association Map
 //
@@ -32,6 +32,7 @@ namespace mithep
       Int_t      GetEdmProductId()          const { return edmProductId_; }
       Int_t      GetEntries()               const { return fwdMap_.size(); }
       MitClass   GetMit(EdmClass edmObj)    const;
+      bool       HasMit(EdmClass edmObj)    const;
       void       Reset()                          { fwdMap_.clear(); revMap_.clear(); }
       void       SetEdmProductId(Int_t id)        { edmProductId_ = id; }
 
@@ -74,4 +75,17 @@ inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitOb
          << "Error! MITHEP Object (" << typeid(mitObj).name() 
          << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
 }
+
+//--------------------------------------------------------------------------------------------------
+template <class EdmClass, class MitClass>
+inline bool mithep::AssociationMap<EdmClass,MitClass>::HasMit(EdmClass edmObj) const
+{
+  typename fwdMapType::const_iterator iter = fwdMap_.find(edmObj);
+
+  if (iter != fwdMap_.end())
+    return true;
+  else 
+    return false;
+}
+      
 #endif
