@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.11 2008/08/08 11:21:08 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.12 2008/08/18 11:34:02 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,6 +17,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
 
 using namespace std;
 using namespace edm;
@@ -37,9 +39,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
   endcapBasicClusterName_(Conf().getUntrackedParameter<string>("endcapBasicClusterName", "")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  eIDCutBasedName_(Conf().getUntrackedParameter<string>("eIDCutBasedName","eidCutBased")),         
-  eIDCutBasedClassesName_(Conf().getUntrackedParameter<string>("eIDCutBasedClassesName",
-                                                               "eidCutBasedClasses'")),
+  eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight'")),
+  eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),  
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihood","eidLikelihood")),     
   eIDNeuralNetName_(Conf().getUntrackedParameter<string>("eIDNeuralNet","eidNeuralNet")),
 
@@ -87,26 +88,30 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   Handle<reco::GsfElectronCollection> hElectronProduct;
   GetProduct(edmName_, hElectronProduct, event);
   
-  //Get Official Electron ID Results
-  //cout << "try electron ID \n";
-  Handle<reco::GsfElectronRefVector> hCutBasedElectronIDProduct;
-  GetProduct(eIDCutBasedName_ , hCutBasedElectronIDProduct, event);
-  Handle<reco::GsfElectronRefVector> hCutBasedClassesElectronIDProduct;
-  GetProduct(eIDCutBasedClassesName_ , hCutBasedClassesElectronIDProduct, event);
-  Handle<reco::GsfElectronRefVector> hLikelihoodElectronIDProduct;
-  GetProduct(eIDLikelihoodName_ , hLikelihoodElectronIDProduct, event);
-  Handle<reco::GsfElectronRefVector> hNeuralNetElectronIDProduct;
-  GetProduct(eIDNeuralNetName_ , hNeuralNetElectronIDProduct, event);
-
+  //Handles to get the electron ID information
+  Handle<edm::ValueMap<float> > eidLooseMap;
+  GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
+  Handle<edm::ValueMap<float> > eidTightMap;
+  GetProduct(eIDCutBasedTightName_, eidTightMap, event);
+  Handle<edm::ValueMap<float> > eidLikelihoodMap;
+  GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);
+  
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
   //loop over electrons
-  unsigned int i = 0;
+
   for (reco::GsfElectronCollection::const_iterator iM = inElectrons.begin(); 
        iM != inElectrons.end(); ++iM) {
+
+    //the index and Ref are needed for the eID association Map
+    unsigned int iElectron = iM - inElectrons.begin();
+    reco::GsfElectronRef eRef(hElectronProduct, iElectron);
+
     mithep::Electron *outElectron = electrons_->AddNew();
          
     outElectron->SetESuperClusterOverP( iM->eSuperClusterOverP() ) ;
     outElectron->SetESeedClusterOverPout( iM->eSeedClusterOverPout() ) ;
+    outElectron->SetPIn( iM->trackMomentumAtVtx().R() ) ;
+    outElectron->SetPOut( iM->trackMomentumOut().R() );
     outElectron->SetDeltaEtaSuperClusterTrackAtVtx( iM->deltaEtaSuperClusterTrackAtVtx() ) ;
     outElectron->SetDeltaEtaSeedClusterTrackAtCalo( iM->deltaEtaSeedClusterTrackAtCalo() ) ;
     outElectron->SetDeltaPhiSuperClusterTrackAtVtx( iM->deltaPhiSuperClusterTrackAtVtx() ) ;
@@ -159,7 +164,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //find out whether this electron super cluster is in the barrel or endcap
     bool isBarrel=false ;    
     if(barrelSuperClusterMap_->HasMit(iM->superCluster()))
-    //if (iM->superCluster()->eta() < 1.49) //If above method doesn't work, just use eta
       isBarrel = true;
    
     //compute ECAL isolation
@@ -201,7 +205,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       } else {
         outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
       }
-  
+
+    //Fill Electron ID information
+    outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
+    outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
+
   }  
   electrons_->Trim();
 }

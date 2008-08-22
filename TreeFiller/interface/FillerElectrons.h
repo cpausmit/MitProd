@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.5 2008/08/08 11:21:08 sixie Exp $
+// $Id: FillerElectrons.h,v 1.6 2008/08/18 11:34:02 sixie Exp $
 //
 // FillerElectrons
 //
@@ -48,8 +48,8 @@ namespace mithep
                                                                  //barrel super clusters
       std::string                    endcapSuperClusterMapName_; //name of imported map wrt to 
                                                                  //endcap super cluster
-      std::string                    eIDCutBasedName_;           //name of cut based eID algo
-      std::string                    eIDCutBasedClassesName_;    //name of cut based classes eID algo
+      std::string                    eIDCutBasedTightName_;      //name of cut based eID algo
+      std::string                    eIDCutBasedLooseName_;      //name of cut based classes eID algo
       std::string                    eIDLikelihoodName_;         //name of likelihood eID algo
       std::string                    eIDNeuralNetName_;          //name of neural net eID algo
 
