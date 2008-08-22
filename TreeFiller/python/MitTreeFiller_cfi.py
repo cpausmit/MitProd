@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller.cfi,v 1.7 2008/07/09 11:00:03 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.1 2008/08/18 15:02:36 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -143,9 +143,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                      'multi5x5SuperClusters:multi5x5EndcapSuperClusters'),
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
-        eIDCutBasedName           = cms.untracked.string('eidCutBased'),
-        eIDCutBasedClassesName    = cms.untracked.string('eidCutBasedClasses'),
-        eIDLikelihood             = cms.untracked.string('eidLikelihood'),
+        eIDCutBasedLooseName      = cms.untracked.string('eidLoose'),
+        eIDCutBasedTightName      = cms.untracked.string('eidTight'),
+        eIDLikelihood             = cms.untracked.string('eidLikelihoodExt'),
         eIDNeuralNet              = cms.untracked.string('eidNeuralNet')
     ),
 
