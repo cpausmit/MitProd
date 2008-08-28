@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.7 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerTracks.h,v 1.9 2008/07/31 13:51:10 bendavid Exp $
 //
 // FillerTracks
 //
@@ -28,20 +28,20 @@ namespace mithep
       FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerTracks();
 
-      void            BookDataBlock(TreeWriter &tws);
-      void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void            InitLayerMap();
+      void BookDataBlock(TreeWriter &tws);
+      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void InitLayerMap();
 
     private:
-      std::string                      edmName_;               //edm name of tracks collection
-      std::string                      mitName_;               //name of Tracks in OAK
-      std::string                      edmSimAssociationName_; //edm name of sim association map
-      std::string                      simMapName_;            //name of inported map wrt simparts
-      std::string                      trackMapName_;          //name of export map
-      const mithep::SimParticleMap    *simMap_;                //map wrt simulated particles
-      mithep::TrackArr                *tracks_;                //array of Tracks
-      mithep::TrackMap                *trackMap_;              //map wrt tracks
-      std::map<uint32_t,mithep::Track::HitLayer> layerMap_;
+      std::string                                 edmName_;               //edm name of tracks collection
+      std::string                                 mitName_;               //name of Tracks in OAK
+      std::string                                 edmSimAssociationName_; //edm name of sim association map
+      std::string                                 simMapName_;            //name of inported map wrt simparts
+      std::string                                 trackMapName_;          //name of export map
+      const mithep::SimParticleMap               *simMap_;                //map wrt simulated particles
+      mithep::TrackArr                           *tracks_;                //array of Tracks
+      mithep::TrackMap                           *trackMap_;              //map wrt tracks
+      std::map<uint32_t,mithep::Track::HitLayer>  layerMap_;
   };
 }
 #endif
