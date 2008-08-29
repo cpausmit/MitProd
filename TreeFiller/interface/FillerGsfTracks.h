@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGsfTracks.h,v 1.6 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerGsfTracks.h,v 1.7 2008/07/31 13:39:57 bendavid Exp $
 //
 // FillerGsfTracks
 //
@@ -12,36 +12,24 @@
 #define TREEFILLER_FILLERGSFTRACKS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
-#include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/FillerTracks.h"
 
 namespace mithep 
 {
-  class FillerGsfTracks : public BaseFiller
+  class FillerGsfTracks : public FillerTracks
   {  
     public:
-      FillerGsfTracks(const edm::ParameterSet &cfg, const char *name, bool active=1, const SimParticleMap *sm=0);
+      FillerGsfTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerGsfTracks();
 
-      void 		 BookDataBlock(TreeWriter &tws);
-      void 		 FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void               InitLayerMap();
+      void BookDataBlock(TreeWriter &tws);
+      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void InitLayerMap();
   
     private:
-      std::string                      edmName_;               //edm name of gsftracks collection
-      std::string                      mitName_;               //name of Tracks in OAK
-      std::string                      edmSimAssociationName_; //edm name of sim association map
-      std::string                      simMapName_;            //name of inported map wrt simparts
-      std::string                      trackMapName_;          //name of export map
-      const mithep::SimParticleMap    *simMap_;                //map wrt simulated particles
-      mithep::Array<mithep::Track>    *tracks_;                //array of Tracks
       mithep::GsfTrackMap             *trackMap_;              //map wrt tracks
-      std::map<uint32_t,mithep::Track::HitLayer> layerMap_;
   };
 }
 #endif

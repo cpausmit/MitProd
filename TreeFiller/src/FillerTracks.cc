@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.14 2008/07/31 13:39:58 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.15 2008/08/28 22:21:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,17 +9,17 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active) : 
+FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active,
+                           const char *edmName, const char *mitName) :
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","generalTracks")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
+  edmName_(Conf().getUntrackedParameter<string>("edmName",edmName)),
+  mitName_(Conf().getUntrackedParameter<string>("mitName",mitName)),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
@@ -29,6 +29,8 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   trackMap_(new mithep::TrackMap)
 {
   // Constructor.
+
+  InitLayerMap();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +48,6 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
   // Add tracks branch to tree, publish and get our objects.
 
   tws.AddBranch(mitName_.c_str(),&tracks_);
-  InitLayerMap();
 
   simMap_ = OS()->get<SimParticleMap>(simMapName_.c_str());
   OS()->add<TrackMap>(trackMap_,trackMapName_.c_str());
@@ -86,14 +87,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 	
     //Fill track quality information
     outTrack->SetChi2(it->chi2());
-    outTrack->SetNdof(it->ndof());
+    outTrack->SetNdof(static_cast<Int_t>(it->ndof()));
     
     //Fill hit layer map
-    // Format is known to have changed slightly in 21x
-    // Also due to reco::HitPattern limitation in 20x currently we do not distinguish stereo hits
-    // from regular hits, and therefore the stereo information is merged into
-    // the normal layer hits (this also means that stereo hits are not treated as
-    // seperate hits when counting the number of hits).  This will be fixed in 21x
     const reco::HitPattern &hits = it->hitPattern();
     for (Int_t i=0; i<hits.numberOfHits(); i++) {
       uint32_t hit = hits.getHitPattern(i);
@@ -133,12 +129,6 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
             outTrack->SetMCPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
       }
     }
-//     printf("inTrack : px=%5f,py=%5f,pz=%5f\n",it->px(),it->py(),it->pz());
-//     printf("outTrack: px=%5f,py=%5f,pz=%5f\n",outTrack->Px(),outTrack->Py(),outTrack->Pz());
-//     printf("inTrack : p=%5f,pt=%5f,theta=%5f,phi=%5f,dz=%5f\n",it->p(),it->pt(),
-//             it->theta(),it->phi(),it->dz());
-//     printf("outTrack: p=%5f,pt=%5f,theta=%5f,phi=%5f,dz=%5f\n",outTrack->P(),outTrack->Pt()
-//             ,outTrack->Theta(),outTrack->Phi(),outTrack->Z0());
   }
   tracks_->Trim();
 }
@@ -186,4 +176,3 @@ void FillerTracks::InitLayerMap()
   layerMap_[1856] = mithep::Track::TEC8;
   layerMap_[1864] = mithep::Track::TEC9;
 }
-

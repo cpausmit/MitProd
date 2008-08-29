@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.9 2008/07/31 13:51:10 bendavid Exp $
+// $Id: FillerTracks.h,v 1.10 2008/08/28 22:21:01 loizides Exp $
 //
 // FillerTracks
 //
@@ -19,20 +19,22 @@
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitAna/DataTree/interface/Names.h"
 
 namespace mithep 
 {
   class FillerTracks : public BaseFiller
   {  
     public:
-      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
-      ~FillerTracks();
+      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1, 
+                   const char *edmName="generalTracks", const char *mitName=Names::gkTrackBrn);
+      virtual ~FillerTracks();
 
       void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void InitLayerMap();
 
-    private:
+    protected:
       std::string                                 edmName_;               //edm name of tracks collection
       std::string                                 mitName_;               //name of Tracks in OAK
       std::string                                 edmSimAssociationName_; //edm name of sim association map
@@ -40,8 +42,10 @@ namespace mithep
       std::string                                 trackMapName_;          //name of export map
       const mithep::SimParticleMap               *simMap_;                //map wrt simulated particles
       mithep::TrackArr                           *tracks_;                //array of Tracks
+      std::map<uint32_t,mithep::Track::HitLayer>  layerMap_;              //hitlayer bitmap conversion map
+
+    private:
       mithep::TrackMap                           *trackMap_;              //map wrt tracks
-      std::map<uint32_t,mithep::Track::HitLayer>  layerMap_;
   };
 }
 #endif
