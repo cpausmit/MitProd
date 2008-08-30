@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.1 2008/08/18 15:02:36 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.2 2008/08/22 09:58:22 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -186,9 +186,21 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     CaloJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloJets'),
-        edmName = cms.untracked.string('iterativeCone5CaloJets')  
+        edmName = cms.untracked.string('iterativeCone5CaloJets'),
+        flavorMatchingByReferenceName = cms.untracked.string('IC5byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
     ),
+
+    SisCone5Jets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('SisCone5Jets'),
+        edmName = cms.untracked.string('sisCone5CaloJets'),
+        flavorMatchingByReferenceName = cms.untracked.string('SC5byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+    ),                          
 
     CaloMet = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
