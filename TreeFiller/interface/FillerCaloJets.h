@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.2 2008/07/08 12:38:19 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.3 2008/07/31 12:34:03 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -30,9 +30,13 @@ namespace mithep
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string           edmName_;    //edm name of jets collection
-      std::string           mitName_;    //name of Jets in OAK
-      mithep::JetArr       *jets_;       //array of Jets
+      Bool_t                flavorMatchingActive_;            //=true if flavor matching is done  
+      std::string           edmName_;                         //edm name of jets collection
+      std::string           mitName_;                         //name of Jets in OAK
+      std::string           flavorMatchingByReferenceName_;   //edm name of jets collection
+      std::string           flavorMatchingDefinition_;        //name of Jets in OAK
+      mithep::JetArr       *jets_;                            //array of Jets
+
   };
 }
 #endif
