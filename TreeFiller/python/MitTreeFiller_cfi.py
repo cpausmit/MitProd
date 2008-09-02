@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.2 2008/08/22 09:58:22 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.3 2008/08/30 19:09:09 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -212,7 +212,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active       = cms.untracked.bool(False),
         mitName      = cms.untracked.string('MuonsStable'),
         edmName      = cms.untracked.string('MuonsStable'),
-        trackMapName = cms.untracked.string('racksMapName'),
+        trackMapName = cms.untracked.string('TracksMapName'),
         basePartMap  = cms.untracked.string('MuonsStableMapName')
     ),
 
