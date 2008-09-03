@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.1 2008/07/30 09:04:39 loizides Exp $
+# $Id: BuildFile,v 1.2 2008/07/30 11:24:42 loizides Exp $
 
 <use name=DataFormats/Provenance>
 <use name=FWCore/ServiceRegistry>
@@ -7,7 +7,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=root>
-<flags CXXFLAGS="-g">
+#<flags CXXFLAGS="-g">
 <export>
    <lib name=MitProdObjectService>
 </export>
