@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.4 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.5 2008/08/31 10:13:32 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,8 +54,10 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   jets_->Reset();
 
   //Handles for jet flavour matching
-  Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;
-  GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
+   
+  Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
+  if (flavorMatchingActive_) 
+    GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
 
   Handle<reco::CaloJetCollection> hJetProduct;
   GetProduct(edmName_, hJetProduct, event);
@@ -88,48 +90,24 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     jet->SetN90		   (inJet->n90());    
 
     //Get the Monte Carlo Flavour Matching information
-    unsigned int iJet = inJet - inJets.begin();
-    const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
-    reco::MatchedPartons matchedParton = (*matchedPartons)[matchedPartons->key(iJet)];
-    int flavorPhysDef = (matchedParton.physicsDefinitionParton().isNonnull())?
-      matchedParton.physicsDefinitionParton()->pdgId():0;
-    int flavorAlgDef = (matchedParton.algoDefinitionParton().isNonnull())?
-      matchedParton.algoDefinitionParton()->pdgId():0;
-
-    if (flavorMatchingDefinition_ == "Algorithmic") {
-      jet->SetMatchedMCFlavor(flavorAlgDef);
-    } else if(flavorMatchingDefinition_ == "Physics") {
-      jet->SetMatchedMCFlavor(flavorPhysDef);
-    } else {
-      jet->SetMatchedMCFlavor(0);
+    if (flavorMatchingActive_) {
+      unsigned int iJet = inJet - inJets.begin();
+      const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
+      reco::MatchedPartons matchedParton = (*matchedPartons)[matchedPartons->key(iJet)];
+      int flavorPhysDef = (matchedParton.physicsDefinitionParton().isNonnull())?
+        matchedParton.physicsDefinitionParton()->pdgId():0;
+      int flavorAlgDef = (matchedParton.algoDefinitionParton().isNonnull())?
+        matchedParton.algoDefinitionParton()->pdgId():0;
+      
+      if (flavorMatchingDefinition_ == "Algorithmic") {
+        jet->SetMatchedMCFlavor(flavorAlgDef);
+      } else if(flavorMatchingDefinition_ == "Physics") {
+        jet->SetMatchedMCFlavor(flavorPhysDef);
+      } else {
+        jet->SetMatchedMCFlavor(0);
+      }
     }
   }
-
-  // for ( reco::JetMatchedPartonsCollection::const_iterator j  = hPartonMatchingProduct->begin();
-//         j != hPartonMatchingProduct->end();
-//         j ++ ) {
-//     const reco::Jet *aJet       = (*j).first.get();
-//     const reco::MatchedPartons aMatch = (*j).second;
-//     const reco::GenParticleRef theHeaviest = aMatch.heaviest() ;
-//     const reco::GenParticleRef theNearest2 = aMatch.nearest_status2() ;
-//     const reco::GenParticleRef theNearest3 = aMatch.nearest_status3() ;
-//     const reco::GenParticleRef thePhyDef = aMatch.physicsDefinitionParton() ;
-//     const reco::GenParticleRef theAlgDef = aMatch.algoDefinitionParton() ;  
-//     int physDef = (thePhyDef.isNonnull())?thePhyDef->pdgId():-1;
-//     int algdef = (theAlgDef.isNonnull())?theAlgDef->pdgId():-1;
-
-//     cout << j-hPartonMatchingProduct->begin() << " " << aJet->p4().pt() << " " << aJet->p4().eta() << " " << aJet->p4().phi() << " " << physDef << " " << algdef << endl;
-
-//   }
-
-//   for ( reco::JetFlavourMatchingCollection::const_iterator j  = hFlavourMatchingProduct->begin();
-//         j != hFlavourMatchingProduct->end();
-//         j ++ ) {
-//     RefToBase<reco::Jet> aJet  = (*j).first;   
-//     const reco::JetFlavour aFlav = (*j).second;
-//     int flavour = aFlav.getFlavour();
-//     cout << j-hFlavourMatchingProduct->begin() << " " << aJet->p4().pt() << " " << aJet->p4().eta() << " " << aJet->p4().phi() << " " << flavour << endl;
-//   }
-
+  
   jets_->Trim();
 }
