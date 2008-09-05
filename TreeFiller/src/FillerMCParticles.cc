@@ -1,9 +1,13 @@
-// $Id: FillerMCParticles.cc,v 1.2 2008/07/30 16:39:58 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.3 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -19,14 +23,18 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   BaseFiller(cfg, name, active),
   genActive_(Conf().getUntrackedParameter<bool>("genActive",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
+  trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
   genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","source")),
-  simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","mergedtruth:MergedTrackTruth")),
+  simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","g4SimHits")),
+  trackingEdmName_(Conf().getUntrackedParameter<string>("trackingEdmName","mergedtruth:MergedTrackTruth")),
   genMapName_(Conf().getUntrackedParameter<string>("genMapName","GenMap")),
   simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
+  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMCPartBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
   genMap_(genActive_?new mithep::GenParticleMap:0),
-  simMap_(simActive_?new mithep::SimParticleMap:0)
+  simMap_(simActive_?new mithep::SimTrackMap:0),
+  trackingMap_(trackingActive_?new mithep::TrackingParticleMap:0)
 {
   // Constructor.
 }
@@ -39,6 +47,7 @@ FillerMCParticles::~FillerMCParticles()
   delete mcParticles_;
   delete genMap_;
   delete simMap_;
+  delete trackingMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +61,8 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws)
     OS()->add(genMap_,genMapName_.c_str());
   if (simActive_)
     OS()->add(simMap_,simMapName_.c_str());
+  if (trackingActive_)
+    OS()->add(trackingMap_,trackingMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,37 +102,71 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   }
   
   if (simActive_) {
+    simTidMap_.clear();
     simMap_->Reset();
-  
-    Handle<TrackingParticleCollection> hTrackingParticleProduct;
-    GetProduct(simEdmName_, hTrackingParticleProduct, event);
-    
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
-    
+
+    Handle<edm::SimTrackContainer> hSimTrackProduct;
+    GetProduct(simEdmName_, hSimTrackProduct, event);
+
+    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
+
     // loop through all simParticles
-    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
-        iM != trackingParticles.end(); ++iM) {
-  
-      TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+    for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
+        iM != simTracks.end(); ++iM) {
+
+      SimTrackRef theRef(hSimTrackProduct, iM-simTracks.begin());
+      simTidMap_[iM->trackId()] = theRef; 
       mithep::MCParticle *outSimParticle;
       
-      if (genActive_ && iM->genParticle().size()) {
-        const HepMC::GenParticle *mcPart = iM->genParticle_begin()->get();
-        outSimParticle=genMap_->GetMit(mcPart->barcode());
-        outSimParticle->SetStatus(iM->status());
+      if (genActive_ && (iM->genpartIndex() >= 0) ) {
+        outSimParticle = genMap_->GetMit(iM->genpartIndex());
+        //printf("Sim px,py,pz,e = %f,%f,%f,%f\nGen px,py,pz,e = %f,%f,%f,%f\n",       iM->momentum().px(),iM->momentum().py(),iM->momentum().pz(),iM->momentum().e(),outSimParticle->Px(),outSimParticle->Py(),outSimParticle->Pz(),outSimParticle->E());
       }
       else {
         outSimParticle = mcParticles_->Allocate();
-        new (outSimParticle) mithep::MCParticle(iM->px(),
-                                                iM->py(),
-                                                iM->pz(),
-                                                iM->energy(),
-                                                iM->pdgId(), 
-                                                iM->status());
+        new (outSimParticle) mithep::MCParticle(iM->momentum().px(),
+                                                iM->momentum().py(),
+                                                iM->momentum().pz(),
+                                                iM->momentum().e(),
+                                                iM->type(), 
+                                                -99);
       }
       
       outSimParticle->SetIsSimulated();
       simMap_->Add(theRef, outSimParticle);
+
+    }
+  }
+
+  //loop through TrackingParticles and build association map to OAK MCParticles
+  if (trackingActive_) {
+    trackingMap_->Reset();
+  
+    Handle<TrackingParticleCollection> hTrackingParticleProduct;
+    GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
+    
+    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
+    
+    // loop through all TrackingParticles
+    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
+        iM != trackingParticles.end(); ++iM) {
+
+      if ( simActive_ && iM->g4Tracks().size() ) {
+        //printf("Tracking particle has %i SimTracks\n",iM->g4Tracks().size());
+//         if (iM->g4Tracks().size()>1) {
+//           for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
+//             iST != iM->g4Tracks().end(); ++iST) {
+//               printf("g4 trackid = %i\n",iST->trackId());
+//             }
+//         }
+        TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+        const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
+        //printf("trackId = %i\n",theSimTrack.trackId());
+        SimTrackRef theSimTrackRef = simTidMap_[theSimTrack.trackId()];
+        mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrackRef);
+        trackingMap_->Add(theRef, outSimParticle);
+      }
+
     }
   }
 
@@ -175,36 +220,72 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
   
+  //loop over SimTracks and resolve links
   if (simActive_) {
+    Handle<edm::SimTrackContainer> hSimTrackProduct;
+    GetProduct(simEdmName_, hSimTrackProduct, event);
 
-    Handle<TrackingParticleCollection> hTrackingParticleProduct;
-    GetProduct(simEdmName_, hTrackingParticleProduct, event);  
-    
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
-  
+    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
+   
+    Handle<std::vector<SimVertex> > hSimVertexProduct;
+    GetProduct(simEdmName_, hSimVertexProduct, event);
+
+    const edm::SimVertexContainer simVertexes = *(hSimVertexProduct.product());
+
+
+
+
     // loop through all simParticles
-    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
-        iM != trackingParticles.end(); ++iM) {
-    
-      if (iM->decayVertices().size() <= 0) 
-        continue;
-  
-      TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
-      mithep::MCParticle *simParent = simMap_->GetMit(theRef);
-      for (TrackingVertexRefVector::iterator v= iM->decayVertices().begin(); 
-          v != iM->decayVertices().end(); ++v) {
-        for (TrackingParticleRefVector::iterator pd = v->get()->daughterTracks().begin(); 
-            pd != v->get()->daughterTracks().end(); ++pd) {
-          mithep::MCParticle *simDaughter = simMap_->GetMit(*pd);
+    for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
+        iM != simTracks.end(); ++iM) {
+
+      if (iM->vertIndex()>=0) {
+        SimTrackRef theRef(hSimTrackProduct, iM-simTracks.begin());
+        mithep::MCParticle *simDaughter = simMap_->GetMit(theRef);
+        const SimVertex &theVertex = simVertexes.at(iM->vertIndex());
+        if (theVertex.parentIndex()>=0) {
+          mithep::MCParticle *simParent = simMap_->GetMit(simTidMap_[theVertex.parentIndex()]);
+          simParent->SetVertex(theVertex.position().x(),theVertex.position().y(),theVertex.position().z());
           simParent->AddDaughter(simDaughter);
           simDaughter->SetMother(simParent);
         }
-        if (v == iM->decayVertices().end()-1) {
-          simParent->SetVertex(v->get()->position().x(),
-                              v->get()->position().y(),
-                              v->get()->position().z());
-        }
+
       }
+
     }
+
   }
+
+//Debug output, will be uncommented and switchable later
+//   if (trackingActive_) {
+// 
+//     Handle<TrackingParticleCollection> hTrackingParticleProduct;
+//     GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
+//     
+//     const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
+//   
+//     // loop through all simParticles
+//     for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
+//         iM != trackingParticles.end(); ++iM) {
+// 
+//       TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+// 
+//       mithep::MCParticle *simParent = trackingMap_->GetMit(theRef);
+//       printf("MCParticle pdg = %i, Daughter Pdgs: ", simParent->PdgId());
+//       for (UInt_t i=0; i<simParent->NDaughters(); ++i) {
+//         printf("%i, ", simParent->Daughter(i)->PdgId());
+//       }
+//       printf("\n");
+// 
+//       printf("TrackingParticle pdg = %i, Daughter Pdgs: ", iM->pdgId());
+//       for (TrackingVertexRefVector::iterator v= iM->decayVertices().begin(); 
+//           v != iM->decayVertices().end(); ++v) {
+//         for (TrackingParticleRefVector::iterator pd = v->get()->daughterTracks().begin(); 
+//             pd != v->get()->daughterTracks().end(); ++pd) {
+//           ;//printf("%i, ", pd->get()->pdgId());
+//         }
+//       }
+//       printf("\n");
+//     }
+//   }
 }

@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.12 2008/08/28 22:21:01 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.13 2008/08/29 02:50:02 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,7 +37,7 @@ void FillerGsfTracks::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_.c_str(),&tracks_);
 
-  simMap_ = OS()->get<SimParticleMap>(simMapName_.c_str());
+  trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_.c_str());
   OS()->add<GsfTrackMap>(trackMap_,trackMapName_.c_str());
   OS()->add<TrackArr>(tracks_,mitName_.c_str());
 }
@@ -58,7 +58,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
   
   // if we have a Sim Particle association (for monte carlo), initialize the reco->sim mappings
   reco::RecoToSimCollection simAssociation;
-  if (simMap_ && !edmSimAssociationName_.empty()) {
+  if (trackingMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> hSimAssociationProduct;
     GetProduct(edmSimAssociationName_, hSimAssociationProduct, event);
     simAssociation = *(hSimAssociationProduct.product());
@@ -90,7 +90,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
     reco::GsfTrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
-    if (simMap_ && !edmSimAssociationName_.empty()) {
+    if (trackingMap_ && !edmSimAssociationName_.empty()) {
       reco::TrackBaseRef theBaseRef(theRef);
       vector<pair<TrackingParticleRef, double> > simRefs;
       Bool_t noSimParticle = 0;
@@ -106,7 +106,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
              simRefPair != simRefs.end(); ++simRefPair) 
 
           if (simRefPair->second > 0.5) // require more than 50% shared hits between reco and sim
-            outTrack->SetMCPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
+            outTrack->SetMCPart(trackingMap_->GetMit(simRefPair->first)); //add reco->sim reference
       }
     }
   }

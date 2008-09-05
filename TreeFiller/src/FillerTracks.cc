@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.15 2008/08/28 22:21:01 loizides Exp $
+// $Id: FillerTracks.cc,v 1.16 2008/08/29 02:50:02 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,10 +21,10 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   edmName_(Conf().getUntrackedParameter<string>("edmName",edmName)),
   mitName_(Conf().getUntrackedParameter<string>("mitName",mitName)),
   edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
-  simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
+  trackingMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
                                                      Form("%sMapName",mitName_.c_str()))),
-  simMap_(0),
+  trackingMap_(0),
   tracks_(new mithep::TrackArr(250)), 
   trackMap_(new mithep::TrackMap)
 {
@@ -49,7 +49,7 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_.c_str(),&tracks_);
 
-  simMap_ = OS()->get<SimParticleMap>(simMapName_.c_str());
+  trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_.c_str());
   OS()->add<TrackMap>(trackMap_,trackMapName_.c_str());
   OS()->add<TrackArr>(tracks_,mitName_.c_str());
 }
@@ -71,10 +71,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
-  if (simMap_ && !edmSimAssociationName_.empty()) {
+  if (trackingMap_ && !edmSimAssociationName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
     GetProduct(edmSimAssociationName_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
+    //printf("SimAssociation Map Size = %i\n",simAssociation.size());
   }
   
   // loop through all tracks and fill the information
@@ -110,7 +111,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     reco::TrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
-    if (simMap_ && !edmSimAssociationName_.empty()) {
+    if (trackingMap_ && !edmSimAssociationName_.empty()) {
+      //printf("Trying Track-Sim association\n");
       reco::TrackBaseRef theBaseRef(theRef);
       vector<pair<TrackingParticleRef, double> > simRefs;
       Bool_t noSimParticle = 0;
@@ -122,11 +124,12 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       }
 
       if (!noSimParticle) { //loop through sim match candidates
+        //printf("Applying track-sim association\n");
         for (vector<pair<TrackingParticleRef, double> >::const_iterator simRefPair=simRefs.begin(); 
              simRefPair != simRefs.end(); ++simRefPair) 
 
           if (simRefPair->second > 0.5) // require more than 50% shared hits between reco and sim
-            outTrack->SetMCPart(simMap_->GetMit(simRefPair->first)); //add reco->sim reference
+            outTrack->SetMCPart(trackingMap_->GetMit(simRefPair->first)); //add reco->sim reference
       }
     }
   }

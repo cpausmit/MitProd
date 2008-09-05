@@ -15,7 +15,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active        = cms.untracked.bool(True),
         genActive     = cms.untracked.bool(True),
         simActive     = cms.untracked.bool(True),
-        trackingActive = cms.untracked.bool(False),
+        trackingActive = cms.untracked.bool(True),
         mitName       = cms.untracked.string('MCParticles'),
         genJetMitName = cms.untracked.string('GenJets'),
         genEdmName    = cms.untracked.string('source'),
@@ -32,7 +32,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName               = cms.untracked.string('generalTracks'),
         trackingMapName            = cms.untracked.string('SimMap'),
         trackMapName          = cms.untracked.string('TracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
     ),
 
     StandaloneMuonTracks = cms.untracked.PSet(
@@ -68,7 +68,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName               = cms.untracked.string('ckfInOutTracksFromConversions'),
         trackingMapName            = cms.untracked.string('SimMap'),
         trackMapName          = cms.untracked.string('ConversionInOutTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assocInOutConversionTracks')
     ),
 
     ConversionOutInTracks = cms.untracked.PSet(
@@ -77,7 +77,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName               = cms.untracked.string('ckfOutInTracksFromConversions'),
         trackingMapName            = cms.untracked.string('SimMap'),
         trackMapName          = cms.untracked.string('ConversionOutInTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assocOutInConversionTracks')
     ),
                    
     GsfTracks = cms.untracked.PSet(
@@ -86,7 +86,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName               = cms.untracked.string('pixelMatchGsfFit'),
         trackingMapName            = cms.untracked.string('SimMap'),
         trackMapName          = cms.untracked.string('GsfTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assoc2GsfTracks')
     ),
 
     BarrelBasicClusters = cms.untracked.PSet(

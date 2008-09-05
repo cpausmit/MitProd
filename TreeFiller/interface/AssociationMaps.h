@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.7 2008/07/30 08:39:50 loizides Exp $
+// $Id: AssociationMaps.h,v 1.8 2008/08/08 11:21:08 sixie Exp $
 //
 // AssociationMaps
 //
@@ -26,6 +26,8 @@
 #include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -41,7 +43,8 @@ namespace mithep
   typedef AssociationMap<const reco::BasicClusterRef, mithep::BasicCluster*> BasicClusterMap;
   typedef AssociationMap<const reco::SuperClusterRef, mithep::SuperCluster*> SuperClusterMap;
   typedef AssociationMap<const Int_t,                 mithep::MCParticle*>   GenParticleMap;
-  typedef AssociationMap<const TrackingParticleRef,   mithep::MCParticle*>   SimParticleMap;
+  typedef AssociationMap<const SimTrackRef,           mithep::MCParticle*>   SimTrackMap;
+  typedef AssociationMap<const TrackingParticleRef,   mithep::MCParticle*>   TrackingParticleMap;
   typedef AssociationMap<const reco::TrackRef,        mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
   typedef AssociationMap<const PairIntKey,            mithep::Particle*>     BasePartMap;
