@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.1 2008/08/08 11:12:38 sixie Exp $
+// $Id: FillerCaloTowers.cc,v 1.1 2008/09/06 18:10:40 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,8 +19,6 @@ FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
-  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName",
-                                                            "CaloTowerClusterMap")),
   caloTowers_(new mithep::CaloTowerArr(1000))
 {
   // Constructor.
