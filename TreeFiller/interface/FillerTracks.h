@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.11 2008/08/29 02:50:02 loizides Exp $
+// $Id: FillerTracks.h,v 1.12 2008/09/05 23:46:09 bendavid Exp $
 //
 // FillerTracks
 //
@@ -38,7 +38,7 @@ namespace mithep
       std::string                                 edmName_;               //edm name of tracks collection
       std::string                                 mitName_;               //name of Tracks in OAK
       std::string                                 edmSimAssociationName_; //edm name of sim association map
-      std::string                                 trackingMapName_;       //name of inported map wrt simparts
+      std::string                                 trackingMapName_;       //name of imported map wrt simparts
       std::string                                 trackMapName_;          //name of export map
       const mithep::TrackingParticleMap          *trackingMap_;           //map wrt simulated particles
       mithep::TrackArr                           *tracks_;                //array of Tracks

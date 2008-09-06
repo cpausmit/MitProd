@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.3 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.4 2008/09/05 23:46:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -145,10 +145,10 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
     
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
+    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());
     
     // loop through all TrackingParticles
-    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
+    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin();
         iM != trackingParticles.end(); ++iM) {
 
       if ( simActive_ && iM->g4Tracks().size() ) {
