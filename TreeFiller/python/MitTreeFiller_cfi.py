@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.4 2008/09/02 13:59:04 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.5 2008/09/05 23:46:12 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -87,6 +87,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         trackingMapName            = cms.untracked.string('SimMap'),
         trackMapName          = cms.untracked.string('GsfTracksMapName'),
         edmSimAssociationName = cms.untracked.string('')
+    ),
+                               
+    CaloTowers = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('CaloTowers'),
+        edmName = cms.untracked.string('towerMaker'),    
+        caloTowersMapName = cms.untracked.string('CaloTowerMap')
     ),
 
     BarrelBasicClusters = cms.untracked.PSet(

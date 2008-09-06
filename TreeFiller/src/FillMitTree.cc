@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.18 2008/08/08 11:21:08 sixie Exp $
+// $Id: FillMitTree.cc,v 1.19 2008/08/30 19:09:09 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,6 +11,7 @@
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
+#include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
@@ -122,6 +123,10 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 
   FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
   addActiveFiller(fillerMCParticles);
+
+  FillerCaloTowers *fillerCaloTowers = 
+    new FillerCaloTowers(cfg, "CaloTowers", defactive_);
+  addActiveFiller(fillerCaloTowers);
 
   FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg,"CaloJets",defactive_);
   addActiveFiller(fillerCaloJets);
