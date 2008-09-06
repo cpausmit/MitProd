@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.12 2008/08/18 11:34:02 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.13 2008/08/22 09:57:35 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,6 +12,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -179,12 +180,23 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
     double ecalIsoValue = myEcalIsolation->getEcalEtSum(&(*iM));
     
+    //Compute CaloTower Isolation
+    edm::Handle<CaloTowerCollection> caloTowers;
+    GetProduct("towerMaker", caloTowers, event);
+    extRadius = 0.3;
+    double intRadius = 0.02;
+    etLow = 0.0;
+    EgammaTowerIsolation *myTowerIsolation = 
+      new EgammaTowerIsolation (extRadius, intRadius, etLow, caloTowers.product());
+    double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
+    outElectron->SetCaloTowerIsolation( towerIsoValue );
+
     //Compute Track Isolation        
     edm::Handle<reco::TrackCollection> tracks;
     event.getByLabel("generalTracks",tracks);
     const reco::TrackCollection* trackCollection = tracks.product();
     extRadius = 0.2;
-    double intRadius = 0.02;
+    intRadius = 0.02;
     double maxVtxDist = 0.1;      
     double ptMin = 1.5;
     ElectronTkIsolation myTkIsolation (extRadius,intRadius,ptMin,maxVtxDist,trackCollection) ;
