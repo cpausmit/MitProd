@@ -210,7 +210,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('SisCone5Jets'),
         edmName = cms.untracked.string('sisCone5CaloJets'),
         flavorMatchingByReferenceName = cms.untracked.string('SC5byRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),                          
 
     CaloMet = cms.untracked.PSet(
