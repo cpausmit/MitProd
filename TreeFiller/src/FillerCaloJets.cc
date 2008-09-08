@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.5 2008/08/31 10:13:32 sixie Exp $
+// $Id: FillerCaloJets.cc,v 1.6 2008/09/03 13:29:59 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,6 +24,9 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
                                  ("flavorMatchingByReferenceName","srcByReference")),
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
                              ("flavorMatchingDefinition","Algorithmic")),
+  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName",
+                                                            "CaloTowerMap")),
+  caloTowerMap_(0),
   jets_(new mithep::JetArr(16))
 {
   // Constructor.
@@ -43,6 +46,10 @@ void FillerCaloJets::BookDataBlock(TreeWriter &tws)
   // Add jets branch to tree.
 
   tws.AddBranch(mitName_.c_str(),&jets_);
+
+  if (!caloTowerMapName_.empty())
+    caloTowerMap_ = OS()->get<CaloTowerMap>(caloTowerMapName_.c_str());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +112,15 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
         jet->SetMatchedMCFlavor(flavorPhysDef);
       } else {
         jet->SetMatchedMCFlavor(0);
+      }
+    }
+
+    //Add CaloTower Refs
+    if (caloTowerMap_) {
+      std::vector<CaloTowerDetId> ctidVector = inJet->getTowerIndices();
+      for(std::vector<CaloTowerDetId>::const_iterator ctid = ctidVector.begin(); ctid != ctidVector.end(); ++ctid) {
+        mithep::CaloTower *caloTower = caloTowerMap_->GetMit(*ctid);
+        jet->AddTower(caloTower);
       }
     }
   }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:  $
+// $Id: FillerCaloTowers.h,v 1.1 2008/09/06 18:10:40 sixie Exp $
 //
 // FillerBasicClusters
 //
@@ -31,7 +31,9 @@ namespace mithep
     private:
       std::string                           edmName_;
       std::string                           mitName_;
+      std::string                           caloTowerMapName_;  //name of export map
       mithep::CaloTowerArr                 *caloTowers_;        //array of basic clusters
+      mithep::CaloTowerMap                 *caloTowerMap_;      //map wrt CaloTowers
       
   };
 }

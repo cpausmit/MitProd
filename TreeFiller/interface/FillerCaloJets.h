@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.3 2008/07/31 12:34:03 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.4 2008/08/31 10:13:31 sixie Exp $
 //
 // FillerCaloJets
 //
@@ -35,6 +35,8 @@ namespace mithep
       std::string           mitName_;                         //name of Jets in OAK
       std::string           flavorMatchingByReferenceName_;   //edm name of jets collection
       std::string           flavorMatchingDefinition_;        //name of Jets in OAK
+      std::string           caloTowerMapName_;                //name of imported CaloTowerMap
+      const mithep::CaloTowerMap *caloTowerMap_;              //map wrt CaloTowers
       mithep::JetArr       *jets_;                            //array of Jets
 
   };

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.8 2008/08/08 11:21:08 sixie Exp $
+// $Id: AssociationMaps.h,v 1.9 2008/09/05 23:46:09 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -14,6 +14,7 @@
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/BasicCluster.h"
+#include "MitAna/DataTree/interface/CaloTower.h"
 #include "MitAna/DataTree/interface/Types.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
@@ -48,5 +50,6 @@ namespace mithep
   typedef AssociationMap<const reco::TrackRef,        mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
   typedef AssociationMap<const PairIntKey,            mithep::Particle*>     BasePartMap;
+  typedef AssociationMap<const CaloTowerDetId,        mithep::CaloTower*>    CaloTowerMap;
 }   
 #endif

@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.1 2008/09/06 18:10:40 sixie Exp $
+// $Id: FillerCaloTowers.cc,v 1.2 2008/09/06 18:37:19 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,7 +19,10 @@ FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
-  caloTowers_(new mithep::CaloTowerArr(1000))
+  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName",
+                                                            "CaloTowerMap")),
+  caloTowers_(new mithep::CaloTowerArr(1000)),
+  caloTowerMap_(new mithep::CaloTowerMap)
 {
   // Constructor.
 }
@@ -30,6 +33,7 @@ FillerCaloTowers::~FillerCaloTowers()
   // Destructor.
 
   delete caloTowers_;
+  delete caloTowerMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,6 +43,7 @@ void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_.c_str(),&caloTowers_);
   OS()->add<CaloTowerArr>(caloTowers_,mitName_.c_str());
+  OS()->add<CaloTowerMap>(caloTowerMap_,caloTowerMapName_.c_str());
 
 }
 
@@ -49,6 +54,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   // Fill the CaloTower Data Block
 
   caloTowers_->Reset();
+  caloTowerMap_->Reset();
 
   Handle<CaloTowerCollection> hCaloTowerProduct;
   GetProduct(edmName_, hCaloTowerProduct, event);
@@ -68,6 +74,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     outCaloTower->SetEmLvl1(inCaloTower->emLvl1());
     outCaloTower->SetHadLvl1(inCaloTower->hadLv11());
 
+    caloTowerMap_->Add(inCaloTower->id(),outCaloTower);
   }
 
   caloTowers_->Trim();

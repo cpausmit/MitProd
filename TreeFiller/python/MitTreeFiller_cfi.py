@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.5 2008/09/05 23:46:12 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.6 2008/09/06 18:10:41 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -93,7 +93,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloTowers'),
         edmName = cms.untracked.string('towerMaker'),    
-        caloTowersMapName = cms.untracked.string('CaloTowerMap')
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),
 
     BarrelBasicClusters = cms.untracked.PSet(
@@ -200,7 +200,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('CaloJets'),
         edmName = cms.untracked.string('iterativeCone5CaloJets'),
         flavorMatchingByReferenceName = cms.untracked.string('IC5byRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),
 
     SisCone5Jets = cms.untracked.PSet(
