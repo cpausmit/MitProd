@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.4 2008/08/31 10:13:31 sixie Exp $
+// $Id: FillerCaloJets.h,v 1.5 2008/09/08 20:12:26 bendavid Exp $
 //
 // FillerCaloJets
 //
@@ -31,11 +31,24 @@ namespace mithep
   
     private:
       Bool_t                flavorMatchingActive_;            //=true if flavor matching is done  
+      Bool_t                bTaggingActive_;                  //=true if bTagging info is filled
       std::string           edmName_;                         //edm name of jets collection
       std::string           mitName_;                         //name of Jets in OAK
       std::string           flavorMatchingByReferenceName_;   //edm name of jets collection
       std::string           flavorMatchingDefinition_;        //name of Jets in OAK
+      std::string           jetProbabilityBJetTagsName_;      //names for various bJet Tagging
+      std::string           jetBProbabilityBJetTagsName_;     //algorithms
+      std::string           simpleSecondaryVertexBJetTagsName_;
+      std::string           combinedSecondaryVertexBJetTagsName_;
+      std::string           combinedSecondaryVertexMVABJetTagsName_;
+      std::string           impactParameterMVABJetTagsName_;
+      std::string           trackCountingHighEffBJetTagsName_;
+      std::string           trackCountingHighPurBJetTagsName_;
+      std::string           softMuonBJetTagsName_;
+      std::string           softMuonNoIPBJetTagsName_;
+      std::string           softElectronBJetTagsName_;
       std::string           caloTowerMapName_;                //name of imported CaloTowerMap
+
       const mithep::CaloTowerMap *caloTowerMap_;              //map wrt CaloTowers
       mithep::JetArr       *jets_;                            //array of Jets
 
