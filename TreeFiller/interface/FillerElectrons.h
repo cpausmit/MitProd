@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.6 2008/08/18 11:34:02 sixie Exp $
+// $Id: FillerElectrons.h,v 1.7 2008/08/22 09:57:35 sixie Exp $
 //
 // FillerElectrons
 //
@@ -33,25 +33,30 @@ namespace mithep
   
     private:
 
-      std::string                    edmName_;                   //edm name of electrons collection
-      std::string                    mitName_;                   //name of Electrons in OAK
-      std::string                    gsfTrackMapName_;           //name of imported map wrt gsf tracks
-      std::string                    trackerTrackMapName_;       //name of imported map wrt 
-                                                                 //to trk tracks 
-      std::string                    barrelEcalRecHitName_;      //name of barrel ecal rechits 
-      std::string                    endcapEcalRecHitName_;      //name of endcap ecal rechits
-      std::string                    barrelSuperClusterName_;    //name of barrel super clusters 
-      std::string                    endcapSuperClusterName_;    //name of endcap super clusters
-      std::string                    barrelBasicClusterName_;    //name of barrel basic clusters 
-      std::string                    endcapBasicClusterName_;    //name of endcap basic clusters
-      std::string                    barrelSuperClusterMapName_; //name of imported map wrt to 
-                                                                 //barrel super clusters
-      std::string                    endcapSuperClusterMapName_; //name of imported map wrt to 
-                                                                 //endcap super cluster
-      std::string                    eIDCutBasedTightName_;      //name of cut based eID algo
-      std::string                    eIDCutBasedLooseName_;      //name of cut based classes eID algo
-      std::string                    eIDLikelihoodName_;         //name of likelihood eID algo
-      std::string                    eIDNeuralNetName_;          //name of neural net eID algo
+      std::string      edmName_;                          //edm name of electrons collection
+      std::string      mitName_;                          //name of Electrons in OAK
+      std::string      gsfTrackMapName_;                  //name of imported map wrt gsf tracks
+      std::string      trackerTrackMapName_;              //name of imported map wrt 
+                                                          //to trk tracks 
+      std::string      barrelEcalRecHitName_;             //name of barrel ecal rechits 
+      std::string      endcapEcalRecHitName_;             //name of endcap ecal rechits
+      std::string      barrelSuperClusterName_;           //name of barrel super clusters 
+      std::string      endcapSuperClusterName_;           //name of endcap super clusters
+      std::string      barrelBasicClusterName_;           //name of barrel basic clusters 
+      std::string      endcapBasicClusterName_;           //name of endcap basic clusters
+      std::string      barrelSuperClusterMapName_;        //name of imported map wrt to 
+                                                          //barrel super clusters
+      std::string      endcapSuperClusterMapName_;        //name of imported map wrt to 
+                                                          //endcap super cluster
+      std::string      eIDCutBasedTightName_;             //name of cut based eID algo
+      std::string      eIDCutBasedLooseName_;             //name of cut based classes eID algo
+      std::string      eIDLikelihoodName_;                //name of likelihood eID algo
+      std::string      eIDNeuralNetName_;                 //name of neural net eID algo
+      std::string      isolationTrackCollectionName_;     //name of isolation track Collection
+      std::string      isolationCaloTowerCollectionName_; //name of isolation CaloTower Collection
+      std::string      ecalJurassicIsolationName_;        //name of Ecal Jurassic Isolation
+      std::string      hcalJurassicIsolationName_;        //name of Hcal Jurassic Isolation
+
 
       mithep::ElectronArr            *electrons_;                //array of Electrons
       const mithep::GsfTrackMap      *gsfTrackMap_;              //map wrt gsf tracks

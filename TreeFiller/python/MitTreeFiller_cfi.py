@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.6 2008/09/06 18:10:41 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.8 2008/09/08 22:12:29 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -150,13 +150,17 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                      'multi5x5BasicClusters:multi5x5EndcapBasicClusters'),
         barrelSuperClusterName = cms.untracked.string('correctedHybridSuperClusters'),
         endcapSuperClusterName = cms.untracked.string(
-                                     'multi5x5SuperClusters:multi5x5EndcapSuperClusters'),
+                                     'multi5x5SuperClusters:multi5x5EndcapSuperClusters'),        
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         eIDCutBasedLooseName      = cms.untracked.string('eidLoose'),
         eIDCutBasedTightName      = cms.untracked.string('eidTight'),
         eIDLikelihood             = cms.untracked.string('eidLikelihoodExt'),
-        eIDNeuralNet              = cms.untracked.string('eidNeuralNet')
+        eIDNeuralNet              = cms.untracked.string('eidNeuralNet'),
+        IsolationTrackCollectionName = cms.untracked.string('generalTracks'),
+        IsolationCaloTowerCollectionName = cms.untracked.string('towerMaker'),
+        EcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsEcalFromHits'),
+        HcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsHcalFromHits')        
     ),
 
     Taus = cms.untracked.PSet(
@@ -197,16 +201,31 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     CaloJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloJets'),
         edmName = cms.untracked.string('iterativeCone5CaloJets'),
         flavorMatchingByReferenceName = cms.untracked.string('IC5byRef'),
         flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        JetProbabilityBJetTags = cms.untracked.string('jetProbabilityBJetTags'),
+        JetBProbabilityBJetTags = cms.untracked.string('jetBProbabilityBJetTags'),
+        SimpleSecondaryVertexBJetTags = cms.untracked.string('simpleSecondaryVertexBJetTags'),
+        CombinedSecondaryVertexBJetTags = cms.untracked.string('combinedSecondaryVertexBJetTags'),
+        CombinedSecondaryVertexMVABJetTags = cms.untracked.string
+                                               ('combinedSecondaryVertexMVABJetTags'),
+        ImpactParameterMVABJetTags = cms.untracked.string('impactParameterMVABJetTags'),
+        TrackCountingHighEffBJetTags = cms.untracked.string('trackCountingHighEffBJetTags'),
+        TrackCountingHighPurBJetTags = cms.untracked.string('trackCountingHighPurBJetTags'),
+        SoftMuonBJetTags = cms.untracked.string('softMuonBJetTags'),
+        SoftMuonNoIPBJetTags = cms.untracked.string('softMuonNoIPBJetTags'),
+        SoftElectronBJetTags = cms.untracked.string('softElectronBJetTags'),
+        
         caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),
 
     SisCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('SisCone5Jets'),
         edmName = cms.untracked.string('sisCone5CaloJets'),
         flavorMatchingByReferenceName = cms.untracked.string('SC5byRef'),

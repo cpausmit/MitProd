@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.13 2008/08/22 09:57:35 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.14 2008/09/06 18:11:35 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +44,10 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),  
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihood","eidLikelihood")),     
   eIDNeuralNetName_(Conf().getUntrackedParameter<string>("eIDNeuralNet","eidNeuralNet")),
-
+  isolationTrackCollectionName_(Conf().getUntrackedParameter<string>("IsolationTrackCollectionName","generalTracks'")),
+  isolationCaloTowerCollectionName_(Conf().getUntrackedParameter<string>("IsolationCaloTowerCollectionName","towerMaker'")),
+  ecalJurassicIsolationName_(Conf().getUntrackedParameter<string>("EcalJurassicIsolationName","eleIsoFromDepsEcalFromHits'")),
+  hcalJurassicIsolationName_(Conf().getUntrackedParameter<string>("HcalJurassicIsolationName","eleIsoFromDepsHcalFromHits'")),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -182,7 +185,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     
     //Compute CaloTower Isolation
     edm::Handle<CaloTowerCollection> caloTowers;
-    GetProduct("towerMaker", caloTowers, event);
+    GetProduct(isolationCaloTowerCollectionName_, caloTowers, event);
     extRadius = 0.3;
     double intRadius = 0.02;
     etLow = 0.0;
@@ -193,7 +196,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
     //Compute Track Isolation        
     edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel("generalTracks",tracks);
+    event.getByLabel(isolationTrackCollectionName_,tracks);
     const reco::TrackCollection* trackCollection = tracks.product();
     extRadius = 0.2;
     intRadius = 0.02;
@@ -206,6 +209,16 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetCaloIsolation( ecalIsoValue ) ;
     outElectron->SetTrackIsolation( trackIsoValue ) ;
    
+    //Get and Fill Jurassic Isolation values
+    Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;
+    GetProduct(ecalJurassicIsolationName_, eleIsoFromDepsEcalFromHitsValueMap, event);
+    Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
+    GetProduct(hcalJurassicIsolationName_, eleIsoFromDepsHcalFromHitsValueMap, event);
+
+    outElectron->SetEcalJurassicIsolation((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
+    outElectron->SetHcalJurassicIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
+
+
     //Make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
       outElectron->SetGsfTrk(gsfTrackMap_->GetMit(iM->gsfTrack()));
