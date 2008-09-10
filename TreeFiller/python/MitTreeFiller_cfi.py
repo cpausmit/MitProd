@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.8 2008/09/08 22:12:29 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.9 2008/09/09 12:50:44 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -236,7 +236,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     CaloMet = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloMet'),
-        edmName = cms.untracked.string('met')  
+        edmName = cms.untracked.string('corMetType1Icone5')  
     ),
                   
     StableParts = cms.untracked.PSet(
