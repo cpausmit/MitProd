@@ -1,15 +1,15 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTowers.h,v 1.1 2008/09/06 18:10:40 sixie Exp $
+// $Id: FillerCaloTowers.h,v 1.2 2008/09/08 20:12:26 bendavid Exp $
 //
 // FillerBasicClusters
 //
-// Imlementation of a filler to fill EDM CaloTower's into our mithep::CaloTower data structure.
+// Imlementation of a filler to fill EDM CaloTowers into our mithep::CaloTower data structure.
 //
-// Authors: Si Xie
+// Authors: S.Xie
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERCALOTOWERS_H
-#define TREEFILLER_FILLERCALOTOWERS_H
+#ifndef MITPROD_TREEFILLER_FILLERCALOTOWERS_H
+#define MITPROD_TREEFILLER_FILLERCALOTOWERS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
@@ -25,16 +25,15 @@ namespace mithep
       FillerCaloTowers(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerCaloTowers();
 
-      void                         BookDataBlock(TreeWriter &tws);
-      void 	                   FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void BookDataBlock(TreeWriter &tws);
+      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                           edmName_;
-      std::string                           mitName_;
-      std::string                           caloTowerMapName_;  //name of export map
-      mithep::CaloTowerArr                 *caloTowers_;        //array of basic clusters
-      mithep::CaloTowerMap                 *caloTowerMap_;      //map wrt CaloTowers
-      
+      std::string                        edmName_;           //edm name of CaloTowers
+      std::string                        mitName_;           //name of CaloTowers in OAK
+      std::string                        caloTowerMapName_;  //name of export map
+      mithep::CaloTowerArr              *caloTowers_;        //array of CaloTowers
+      mithep::CaloTowerMap              *caloTowerMap_;      //map wrt CaloTowers
   };
 }
 #endif

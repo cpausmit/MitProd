@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.2 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.3 2008/09/05 23:46:09 bendavid Exp $
 //
 // FillerMCParticles
 //
@@ -10,8 +10,8 @@
 // Authors: C.Loizides, J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERMCPARTICLES_H
-#define TREEFILLER_FILLERMCPARTICLES_H
+#ifndef MITPROD_TREEFILLER_FILLERMCPARTICLES_H
+#define MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 
 #include <map>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

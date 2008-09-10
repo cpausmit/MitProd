@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillerPATElectrons.h,v 1.1 2008/08/12 10:13:45 sixie Exp $
 //
 // FillerPATElectrons
 //
@@ -8,8 +8,8 @@
 // Authors: S.Xie
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERPATELECTRONS_H
-#define TREEFILLER_FILLERPATELECTRONS_H
+#ifndef MITPROD_TREEFILLER_FILLERPATELECTRONS_H
+#define MITPROD_TREEFILLER_FILLERPATELECTRONS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -25,7 +25,7 @@ namespace mithep
   {  
     public:
       FillerPATElectrons(const edm::ParameterSet &cfg, bool active=1,
-                      const GsfTrackMap* gsfTrackMap=0, const TrackMap* trackerTrackMap=0);
+                         const GsfTrackMap* gsfTrackMap=0, const TrackMap* trackerTrackMap=0);
       ~FillerPATElectrons();
 
       void BookDataBlock(TreeWriter &tws);

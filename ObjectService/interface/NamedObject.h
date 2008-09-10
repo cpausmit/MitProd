@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: NamedObject.h,v 1.1 2008/07/30 09:04:39 loizides Exp $
+// $Id: NamedObject.h,v 1.2 2008/07/30 11:24:43 loizides Exp $
 //
 // NamedObject
 //
@@ -9,8 +9,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_NAMEDOBJECT_H
-#define MITPROD_NAMEDOBJECT_H
+#ifndef MITPROD_OBJECTSERVICE_NAMEDOBJECT_H
+#define MITPROD_OBJECTSERVICE_NAMEDOBJECT_H
 
 #include <TNamed.h>
 

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillerSuperClusters.h,v 1.1 2008/08/08 11:12:38 sixie Exp $
 //
 // FillerSuperClusters
 //
@@ -8,8 +8,8 @@
 // Authors: Si Xie
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERSUPERCLUSTERS_H
-#define TREEFILLER_FILLERSUPERCLUSTERS_H
+#ifndef MITPROD_TREEFILLER_FILLERSUPERCLUSTERS_H
+#define MITPROD_TREEFILLER_FILLERSUPERCLUSTERS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
@@ -32,19 +32,14 @@ namespace mithep
       const mithep::SuperClusterMap    *GetSuperClusterMap() const { return superClusterMap_; }
 
     private:
-      std::string                           edmName_;
-      std::string                           mitName_;
-
-      std::string                           basicClusterMapName_;          //name of imported map wrt basic clusters
-      std::string                           superClusterMapName_;          //name of export map
-
-      const mithep::BasicClusterMap         *basicClusterMap_;             //map wrt basic clusters
-
-      mithep::SuperClusterArr               *superClusters_;               //array of super clusters
-      mithep::SuperClusterMap               *superClusterMap_;             //map wrt super clusters
-      
-      
+      std::string                       edmName_;
+      std::string                       mitName_;
+      std::string                       basicClusterMapName_; //name of imp. map wrt basic clusters
+      std::string                       superClusterMapName_; //name of exported map
+      const mithep::BasicClusterMap    *basicClusterMap_;     //map wrt basic clusters
+      mithep::SuperClusterArr          *superClusters_;       //array of super clusters
+      mithep::SuperClusterMap          *superClusterMap_;     //map wrt super clusters
   };
 }
 #endif
- 
+

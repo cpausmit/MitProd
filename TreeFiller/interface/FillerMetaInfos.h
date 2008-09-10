@@ -1,13 +1,13 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.7 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.8 2008/08/18 11:16:11 sixie Exp $
 //
 // FillerMetaInfos
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERMETAINFOS_H
-#define TREEFILLER_FILLERMETAINFOS_H
+#ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
+#define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
@@ -31,6 +31,7 @@ namespace mithep
 
     private:
       Bool_t                   hltActive_;    //=true if HLT info are filled
+      Bool_t                   l1Active_;     //=true if L1 info are filled
       std::string              evtName_;      //event branch name
       std::string              runName_;      //run info branch name
       std::string              lahName_;      //look-ahead header branch name

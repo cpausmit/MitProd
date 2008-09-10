@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.4 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerConversionElectrons.h,v 1.5 2008/07/31 12:34:03 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -10,8 +10,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERCONVERSIONELECTRONS_H
-#define TREEFILLER_FILLERCONVERSIONELECTRONS_H
+#ifndef MITPROD_TREEFILLER_FILLERCONVERSIONELECTRONS_H
+#define MITPROD_TREEFILLER_FILLERCONVERSIONELECTRONS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
@@ -28,10 +28,9 @@ namespace mithep
       FillerConversionElectrons(const edm::ParameterSet &cfg, bool active=1);
       ~FillerConversionElectrons();
 
-      void                         BookDataBlock(TreeWriter &tws);
-      void                         FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void                         FillFromTracks(const mithep::TrackCol *tracks, 
-                                                  const TrackMap *trackMap);
+      void BookDataBlock(TreeWriter &tws);
+      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void FillFromTracks(const mithep::TrackCol *tracks, const TrackMap *trackMap);
     private:
       std::string                      mitName_;                //name of Electrons in OAK
       std::string                      convInOutTracksName_;    //name of converted in-out track

@@ -1,13 +1,13 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.8 2008/08/18 11:16:11 sixie Exp $
+// $Id: FillerMCEventInfo.h,v 1.1 2008/08/29 02:49:43 loizides Exp $
 //
 // FillerMCEventInfo
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERMETAINFOS_H
-#define TREEFILLER_FILLERMETAINFOS_H
+#ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
+#define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"

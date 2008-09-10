@@ -1,20 +1,19 @@
-// $Id: FillerMetaInfos.cc,v 1.12 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.13 2008/08/18 11:16:13 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
+#include "MitAna/DataTree/interface/TriggerName.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
 #include <TObjectTable.h>
- 
-
-//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-
+#include <THashTable.h>
+#include <TIterator.h>
 
 using namespace std;
 using namespace edm;
@@ -26,6 +25,7 @@ bool mithep::FillerMetaInfos::instance_ = 0;
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) : 
   BaseFiller(cfg,"MetaInfos",(instance_==0||active?1:0)),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
+  l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),
@@ -101,9 +101,10 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   if (runEntries_>0) {
     evtLAHeader_->SetRunNum(runnum);
     laTree_->Fill();
-    //if(laTree_->GetEntries() % 100==0)
-    //  gObjectTable->Print();
-
+    if(0) {
+      if(laTree_->GetEntries() % 100==0)
+        gObjectTable->Print();
+    }
   }
 
   // fill event header
@@ -111,14 +112,13 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
 
-  if(hltActive_)
-    FillHltInfo(event,setup);
-
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
   if (riter != runmap_.end()) {
     Int_t runentry = riter->second;
     eventHeader_->SetRunEntry(runentry);
+
+//      FillHltTrigger(event,setup);
     return;
   }
 
@@ -128,6 +128,9 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   runmap_.insert(pair<UInt_t,Int_t>(runnum,runentry));
 
   runInfo_->SetRunNum(runnum);
+  FillHltInfo(event,setup);
+//FillHltTrigger(event,setup);
+
   runTree_->Fill();
 
   ++runEntries_;
@@ -139,22 +142,115 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 {
   //
 
-  Handle<TriggerResults> triggerResultsHLT;
-  try {
-    GetProduct(hltName_, triggerResultsHLT, event);
+  if (!hltActive_) return;
 
-    //event.getByLabel(hltName_, triggerResultsHLT);
-  } catch (cms::Exception &ex) {
-    edm::LogError("FillerMetaInfos") << "Error! Cannot get trigger results with label " 
-                                     << hltName_ << endl;
-    throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo\n")
-      << "Error! Cannot get trigger results with label " << hltName_ << endl;
+  using namespace reco;
+  using namespace trigger;
+
+  ParameterSet ps;
+  if (!event.getProcessParameterSet("HLT",ps))
+  {
+    // todo error...
+    return;
+  } 
+
+  typedef std::vector<std::string> vstring;
+
+  Handle<TriggerResults> triggerResultsHLT;
+  GetProduct(hltName_, triggerResultsHLT, event);
+
+  THashTable trigtable(1000,0);
+  THashTable modtable(1000,0);
+  THashTable testtable(1000,0);
+
+  TriggerNames triggerNames(*(triggerResultsHLT.product())); 
+  for(UInt_t i=0;i<triggerNames.size();++i) {
+
+    TriggerName *trig = new TriggerName(triggerNames.triggerName(i).c_str(),i);
+    trigtable.Add(trig);
+
+    if (!ps.exists(triggerNames.triggerName(i))) {
+      cout << "Error " << triggerNames.triggerName(i) << " not found" << endl;
+    } else {
+      vstring path(ps.getParameter<vstring>(triggerNames.triggerName(i)));
+      for(UInt_t j=0;j<path.size();++j) {
+        TriggerName *mod = new TriggerName(path.at(j).c_str(),j);
+        if(!modtable.FindObject(mod->Name()))
+          modtable.Add(mod);
+        TriggerName *mod2 = new TriggerName(path.at(j).c_str(),i);
+        testtable.Add(mod2);
+      }
+    }
   }
+
+  trigtable.Rehash(trigtable.GetSize());
+  modtable.Rehash(modtable.GetSize());
+  testtable.Rehash(modtable.GetSize());
+  cout << "------------- " << testtable.AverageCollisions() << endl;
+  TIterator *iter = modtable.MakeIterator();
+  while( TriggerName *t = dynamic_cast<TriggerName*>(iter->Next()) ) {
+    cout << t->Name() 
+         << ": " << modtable.Collisions(t->Name()) 
+         << ": " << testtable.Collisions(t->Name()) << endl;
+  }
+  
+#if 0
+  Handle<TriggerEvent> handle;
+  GetProduct("hltTriggerSummaryAOD", handle, event);
+
+  Handle<TriggerResults> triggerResultsHLT;
+  GetProduct(hltName_, triggerResultsHLT, event);
 
   //This gives names of trigger paths and the accept bit.
   TriggerNames triggerNames(*(triggerResultsHLT.product())); 
   for(UInt_t i=0;i<triggerNames.size();++i) {
-    //cout << i << " " << triggerNames.triggerName(i) << " " << (*triggerResultsHLT.product())[i].accept() << endl;
+//    cout << i << " " << triggerNames.triggerName(i) << " " << triggerResultsHLT->accept(i) << " " 
+//         << triggerResultsHLT->index(i) << endl;
   }
+
+
+   if (1) {
+     cout << "Used Processname: " << handle->usedProcessName() << endl;
+     const size_type nC(handle->sizeCollections());
+     cout << "Number of packed Collections: " << nC << endl;
+     cout << "The Collections: #, tag, 1-past-end index" << endl;
+     for (size_type iC=0; iC!=nC; ++iC) {
+       cout << iC << " "
+	    << handle->collectionTag(iC).encode() << " "
+	    << handle->collectionKey(iC) << endl;
+     }
+     const size_type nO(handle->sizeObjects());
+     cout << "Number of TriggerObjects: " << nO << endl;
+     cout << "The TriggerObjects: #, id, pt, eta, phi, mass" << endl;
+     const TriggerObjectCollection& TOC(handle->getObjects());
+     for (size_type iO=0; iO!=nO; ++iO) {
+       const TriggerObject& TO(TOC[iO]);
+       cout << iO << " " << TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass() << endl;
+     }
+     const size_type nF(handle->sizeFilters());
+     cout << "Number of TriggerFilters: " << nF << endl;
+     cout << "The Filters: #, tag, #ids/#keys, the id/key pairs" << endl;
+     for (size_type iF=0; iF!=nF; ++iF) {
+       const Vids& VIDS (handle->filterIds(iF));
+       const Keys& KEYS(handle->filterKeys(iF));
+       const size_type nI(VIDS.size());
+       const size_type nK(KEYS.size());
+       cout << iF << " " << handle->filterTag(iF).encode()
+	    << " " << nI << "/" << nK
+	    << " the pairs: ";
+       const size_type n(max(nI,nK));
+       for (size_type i=0; i!=n; ++i) {
+	 cout << " " << VIDS[i] << "/" << KEYS[i];
+       }
+       cout << endl;
+       assert (nI==nK);
+     }
+   } else {
+     cout << "Handle invalid! Check InputTag provided." << endl;
+   }
+   cout << endl;
+
+#endif
+
 
 }

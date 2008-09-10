@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.10 2008/07/30 08:39:50 loizides Exp $
+// $Id: BaseFiller.h,v 1.11 2008/07/30 16:39:57 loizides Exp $
 //
 // BaseFiller
 //
@@ -8,8 +8,8 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_BASEFILLER_H
-#define TREEFILLER_BASEFILLER_H
+#ifndef MITPROD_TREEFILLER_BASEFILLER_H
+#define MITPROD_TREEFILLER_BASEFILLER_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

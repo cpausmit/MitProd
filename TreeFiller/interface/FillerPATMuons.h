@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.3 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerPATMuons.h,v 1.1 2008/08/12 10:13:46 sixie Exp $
 //
 // FillerPATMuons
 //
@@ -8,8 +8,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERPATMUONS_H
-#define TREEFILLER_FILLERPATMUONS_H
+#ifndef MITPROD_TREEFILLER_FILLERPATMUONS_H
+#define MITPROD_TREEFILLER_FILLERPATMUONS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"

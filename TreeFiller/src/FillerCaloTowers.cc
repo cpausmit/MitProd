@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.2 2008/09/06 18:37:19 sixie Exp $
+// $Id: FillerCaloTowers.cc,v 1.3 2008/09/08 20:12:26 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,7 +51,7 @@ void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
 void FillerCaloTowers::FillDataBlock(const edm::Event      &event, 
                                    const edm::EventSetup &setup)
 {
-  // Fill the CaloTower Data Block
+  // Fill the CaloTower info.
 
   caloTowers_->Reset();
   caloTowerMap_->Reset();
@@ -73,10 +73,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     outCaloTower->SetOuterEnergy(inCaloTower->outerEnergy());
     outCaloTower->SetEmLvl1(inCaloTower->emLvl1());
     outCaloTower->SetHadLvl1(inCaloTower->hadLv11());
-
     caloTowerMap_->Add(inCaloTower->id(),outCaloTower);
   }
-
   caloTowers_->Trim();
-
 }

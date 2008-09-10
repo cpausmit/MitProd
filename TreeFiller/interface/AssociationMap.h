@@ -1,16 +1,15 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.4 2008/07/30 08:39:08 loizides Exp $
+// $Id: AssociationMap.h,v 1.5 2008/08/18 11:10:31 sixie Exp $
 //
 // Association Map
 //
 // Wrapper for std::map, used to resolve links during tree filling.
-// This class needs work! CL.
 //
 // Authors: J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_ASSOCIATIONMAP_H
-#define TREEFILLER_ASSOCIATIONMAP_H
+#ifndef MITPROD_TREEFILLER_ASSOCIATIONMAP_H
+#define MITPROD_TREEFILLER_ASSOCIATIONMAP_H
 
 #include <map>
 #include <TObject.h>
@@ -87,5 +86,4 @@ inline bool mithep::AssociationMap<EdmClass,MitClass>::HasMit(EdmClass edmObj) c
   else 
     return false;
 }
-      
 #endif

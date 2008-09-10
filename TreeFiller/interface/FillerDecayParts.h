@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.2 2008/07/29 22:54:36 bendavid Exp $
+// $Id: FillerDecayParts.h,v 1.3 2008/07/31 12:34:04 loizides Exp $
 //
 // FillerDecayParts
 //
@@ -9,8 +9,8 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERDECAYPARTS_H
-#define TREEFILLER_FILLERDECAYPARTS_H
+#ifndef MITPROD_TREEFILLER_FILLERDECAYPARTS_H
+#define MITPROD_TREEFILLER_FILLERDECAYPARTS_H
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"

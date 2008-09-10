@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.5 2008/09/08 20:12:26 bendavid Exp $
+// $Id: FillerCaloJets.h,v 1.6 2008/09/09 12:51:38 sixie Exp $
 //
 // FillerCaloJets
 //
@@ -8,8 +8,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERCALOJETS_H
-#define TREEFILLER_FILLERCALOJETS_H
+#ifndef MITPROD_TREEFILLER_FILLERCALOJETS_H
+#define MITPROD_TREEFILLER_FILLERCALOJETS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -51,7 +51,6 @@ namespace mithep
 
       const mithep::CaloTowerMap *caloTowerMap_;              //map wrt CaloTowers
       mithep::JetArr       *jets_;                            //array of Jets
-
   };
 }
 #endif

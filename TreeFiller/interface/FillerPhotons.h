@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.4 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerPhotons.h,v 1.5 2008/07/31 12:34:04 loizides Exp $
 //
 // FillerPhotons
 //
@@ -9,8 +9,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERPHOTONS_H
-#define TREEFILLER_FILLERPHOTONS_H
+#ifndef MITPROD_TREEFILLER_FILLERPHOTONS_H
+#define MITPROD_TREEFILLER_FILLERPHOTONS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"

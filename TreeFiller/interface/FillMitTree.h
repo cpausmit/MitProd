@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.7 2008/07/30 16:39:57 loizides Exp $
+// $Id: FillMitTree.h,v 1.8 2008/07/31 12:34:03 loizides Exp $
 //
 // FillMitTree
 //
@@ -11,8 +11,8 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLMITTREE_H
-#define TREEFILLER_FILLMITTREE_H
+#ifndef MITPROD_TREEFILLER_FILLMITTREE_H
+#define MITPROD_TREEFILLER_FILLMITTREE_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.14 2008/09/06 18:11:35 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.15 2008/09/09 12:50:44 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,14 +40,18 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
   endcapBasicClusterName_(Conf().getUntrackedParameter<string>("endcapBasicClusterName", "")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight'")),
+  eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),  
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihood","eidLikelihood")),     
   eIDNeuralNetName_(Conf().getUntrackedParameter<string>("eIDNeuralNet","eidNeuralNet")),
-  isolationTrackCollectionName_(Conf().getUntrackedParameter<string>("IsolationTrackCollectionName","generalTracks'")),
-  isolationCaloTowerCollectionName_(Conf().getUntrackedParameter<string>("IsolationCaloTowerCollectionName","towerMaker'")),
-  ecalJurassicIsolationName_(Conf().getUntrackedParameter<string>("EcalJurassicIsolationName","eleIsoFromDepsEcalFromHits'")),
-  hcalJurassicIsolationName_(Conf().getUntrackedParameter<string>("HcalJurassicIsolationName","eleIsoFromDepsHcalFromHits'")),
+  isoTrackColName_(Conf().getUntrackedParameter<string>
+                   ("IsolationTrackCollectionName","generalTracks")),
+  isoCaloTowerColName_(Conf().getUntrackedParameter<string>
+                       ("IsolationCaloTowerCollectionName","towerMaker")),
+  ecalJurassicIsoName_(Conf().getUntrackedParameter<string>
+                       ("EcalJurassicIsolationName","eleIsoFromDepsEcalFromHits")),
+  hcalJurassicIsoName_(Conf().getUntrackedParameter<string>
+                       ("HcalJurassicIsolationName","eleIsoFromDepsHcalFromHits")),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -126,41 +130,33 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetNumberOfClusters( iM->numberOfClusters() ) ;
     outElectron->SetClassification( iM->classification() ) ;
 
-    //initialize
-    outElectron->SetE33( -999.0 ) ;
-    outElectron->SetE55( -999.0 ) ;
-    outElectron->SetCovEtaEta( -999.0 ) ;
-    outElectron->SetCovEtaPhi( -999.0 ) ;
-    outElectron->SetCovPhiPhi( -999.0 ) ;        
-   
-    EcalClusterLazyTools lazyTools( event, setup, edm::InputTag(barrelEcalRecHitName_), 
-                                    edm::InputTag(endcapEcalRecHitName_) );        
-
-    //Shower shape variables
-    outElectron->SetE33	 (lazyTools.e3x3( *(iM->superCluster()->seed()) ));
-    outElectron->SetE55	 (lazyTools.e5x5( *(iM->superCluster()->seed()) ));
-    std::vector<float> vCov = lazyTools.covariances( *(iM->superCluster()->seed()) );
+    //shower shape variables   
+    EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
+                                   edm::InputTag(endcapEcalRecHitName_));
+    outElectron->SetE33(lazyTools.e3x3(*(iM->superCluster()->seed())));
+    outElectron->SetE55(lazyTools.e5x5(*(iM->superCluster()->seed())));
+    std::vector<float> vCov = lazyTools.covariances(*(iM->superCluster()->seed()));
     outElectron->SetCovEtaEta(vCov[0]);
     outElectron->SetCovEtaPhi(vCov[1]);
     outElectron->SetCovPhiPhi(vCov[2]);    
 
-    //Compute Isolations
-    //Get the barrel basicClusters 
+    //compute isolations
+    //get the barrel BasicClusters 
     edm::Handle<reco::BasicClusterCollection> barrelBasicClusterHandle;    
     GetProduct(barrelBasicClusterName_, barrelBasicClusterHandle, event);
     const reco::BasicClusterCollection* barrelBasicClusters = barrelBasicClusterHandle.product();
 
-    //Get the  endcap basicClusters
+    //get the  endcap BasicClusters
     edm::Handle<reco::BasicClusterCollection> endcapBasicClusterHandle;
     GetProduct(endcapBasicClusterName_, endcapBasicClusterHandle, event);
     const reco::BasicClusterCollection* endcapBasicClusters = endcapBasicClusterHandle.product();
     
-    //Get the barrel superClusters
+    //get the barrel SuperClusters
     edm::Handle<reco::SuperClusterCollection> barrelSuperClusterHandle;
     GetProduct(barrelSuperClusterName_, barrelSuperClusterHandle, event);
     const reco::SuperClusterCollection* barrelSuperClusters = barrelSuperClusterHandle.product();  
 
-    //Get the endcap superClusters
+    //Get the endcap SuperClusters
     edm::Handle<reco::SuperClusterCollection> endcapSuperClusterHandle;
     GetProduct(endcapSuperClusterName_, endcapSuperClusterHandle, event);
     const reco::SuperClusterCollection* endcapSuperClusters = endcapSuperClusterHandle.product();
@@ -173,53 +169,53 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //compute ECAL isolation
     double extRadius = 0.3;
     double etLow = 0.0;
-    EgammaEcalIsolation *myEcalIsolation = 
-      new EgammaEcalIsolation(extRadius,etLow,barrelBasicClusters,barrelSuperClusters);
-
+    EgammaEcalIsolation *myEcalIsolation = 0;
     if (!isBarrel) {
-      delete myEcalIsolation;
       myEcalIsolation = 
         new EgammaEcalIsolation(extRadius,etLow,endcapBasicClusters,endcapSuperClusters);
+    } else { 
+      myEcalIsolation = 
+        new EgammaEcalIsolation(extRadius,etLow,barrelBasicClusters,barrelSuperClusters);
     }
+
     double ecalIsoValue = myEcalIsolation->getEcalEtSum(&(*iM));
     
-    //Compute CaloTower Isolation
+    //compute CaloTower isolation
     edm::Handle<CaloTowerCollection> caloTowers;
-    GetProduct(isolationCaloTowerCollectionName_, caloTowers, event);
+    GetProduct(isoCaloTowerColName_, caloTowers, event);
     extRadius = 0.3;
-    double intRadius = 0.02;
     etLow = 0.0;
+    double intRadius = 0.02;
     EgammaTowerIsolation *myTowerIsolation = 
       new EgammaTowerIsolation (extRadius, intRadius, etLow, caloTowers.product());
     double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
     outElectron->SetCaloTowerIsolation( towerIsoValue );
 
-    //Compute Track Isolation        
+    //compute Track isolation        
     edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel(isolationTrackCollectionName_,tracks);
+    event.getByLabel(isoTrackColName_,tracks);
     const reco::TrackCollection* trackCollection = tracks.product();
     extRadius = 0.2;
     intRadius = 0.02;
     double maxVtxDist = 0.1;      
     double ptMin = 1.5;
-    ElectronTkIsolation myTkIsolation (extRadius,intRadius,ptMin,maxVtxDist,trackCollection) ;
+    ElectronTkIsolation myTkIsolation (extRadius,intRadius,ptMin,maxVtxDist,trackCollection);
     double trackIsoValue = myTkIsolation.getPtTracks(&(*iM));
 
-    //Fill the isolation values
+    //fill the isolation values
     outElectron->SetCaloIsolation( ecalIsoValue ) ;
     outElectron->SetTrackIsolation( trackIsoValue ) ;
    
-    //Get and Fill Jurassic Isolation values
+    //get and fill Jurassic isolation values
     Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;
-    GetProduct(ecalJurassicIsolationName_, eleIsoFromDepsEcalFromHitsValueMap, event);
+    GetProduct(ecalJurassicIsoName_, eleIsoFromDepsEcalFromHitsValueMap, event);
     Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
-    GetProduct(hcalJurassicIsolationName_, eleIsoFromDepsHcalFromHitsValueMap, event);
+    GetProduct(hcalJurassicIsoName_, eleIsoFromDepsHcalFromHitsValueMap, event);
 
     outElectron->SetEcalJurassicIsolation((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
     outElectron->SetHcalJurassicIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
 
-
-    //Make proper links to Tracks and Super Clusters
+    //make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
       outElectron->SetGsfTrk(gsfTrackMap_->GetMit(iM->gsfTrack()));
     if (trackerTrackMap_ && iM->track().isNonnull()) 
@@ -231,11 +227,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
       }
 
-    //Fill Electron ID information
+    //fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
     outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
-
   }  
   electrons_->Trim();
 }

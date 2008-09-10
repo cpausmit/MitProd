@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.3 2008/07/30 21:39:13 loizides Exp $
+// $Id: ObjectService.h,v 1.4 2008/07/31 12:08:32 loizides Exp $
 //
 // ObjectService 
 //
@@ -14,8 +14,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_OBJECTSERVICE_H
-#define MITPROD_OBJECTSERVICE_H
+#ifndef MITPROD_OBJECTSERVICE_OBJECTSERVICE_H
+#define MITPROD_OBJECTSERVICE_OBJECTSERVICE_H
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"

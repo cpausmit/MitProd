@@ -1,4 +1,4 @@
-// $Id:  Exp $
+// $Id: FillerBasicClusters.cc,v 1.1 2008/08/08 11:12:38 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,7 +6,6 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
 
 using namespace std;
 using namespace edm;
@@ -47,7 +46,7 @@ void FillerBasicClusters::BookDataBlock(TreeWriter &tws)
 
 //--------------------------------------------------------------------------------------------------
 void FillerBasicClusters::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                        const edm::EventSetup &setup)
 {
   // Fill the BasicCluster Data Block
 
@@ -78,5 +77,4 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   }
 
   basicClusters_->Trim();
-
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.9 2008/09/05 23:46:09 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.10 2008/09/08 20:12:26 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -8,8 +8,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_ASSOCIATIONMAPS_H
-#define TREEFILLER_ASSOCIATIONMAPS_H
+#ifndef MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
+#define MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
  
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -36,7 +36,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
-namespace mithep 
+namespace mithep
 {
   typedef std::pair<int,int> PairIntKey;
 

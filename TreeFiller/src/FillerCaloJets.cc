@@ -1,10 +1,9 @@
-// $Id: FillerCaloJets.cc,v 1.7 2008/09/08 20:12:26 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.8 2008/09/09 12:51:38 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "MitAna/DataTree/interface/Names.h"
-
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
@@ -50,8 +49,7 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
                    ("softMuonNoIPBJetTagsName","softMuonNoIPBJetTagsName")),
   softElectronBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("softElectronBJetTagsName_","softElectronBJetTagsName_")),
-  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName",
-                                                            "CaloTowerMap")),
+  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName","CaloTowerMap")),
   caloTowerMap_(0),
   jets_(new mithep::JetArr(16))
 {
@@ -75,7 +73,6 @@ void FillerCaloJets::BookDataBlock(TreeWriter &tws)
 
   if (!caloTowerMapName_.empty())
     caloTowerMap_ = OS()->get<CaloTowerMap>(caloTowerMapName_.c_str());
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,10 +117,6 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     GetProduct("softMuonNoIPBJetTags", hSoftMuonNoIPBJetTags, event);    
     GetProduct("softElectronBJetTags", hSoftElectronBJetTags, event);    
   }
-
-
-  // edm::Handle<edm::View<Jet> > jets;
-//   GetProduct(edmName_, jets, event);
 
   const reco::CaloJetCollection inJets = *(hJetProduct.product());  
 

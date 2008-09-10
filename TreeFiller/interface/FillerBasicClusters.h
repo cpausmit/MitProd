@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:  $
+// $Id: FillerBasicClusters.h,v 1.1 2008/08/08 11:12:38 sixie Exp $
 //
 // FillerBasicClusters
 //
@@ -8,8 +8,8 @@
 // Authors: Si Xie
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERBASICCLUSTERS_H
-#define TREEFILLER_FILLERBASICCLUSTERS_H
+#ifndef MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
+#define MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
@@ -35,7 +35,6 @@ namespace mithep
       std::string                           basicClusterMapName_;  //name of export map
       mithep::BasicClusterArr               *basicClusters_;       //array of basic clusters
       mithep::BasicClusterMap               *basicClusterMap_;     //map wrt basic Clusters
-
   };
 }
 #endif

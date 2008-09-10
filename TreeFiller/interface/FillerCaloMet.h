@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloMet.h,v 1.2 2008/07/08 12:38:20 loizides Exp $
+// $Id: FillerCaloMet.h,v 1.3 2008/07/31 12:34:03 loizides Exp $
 //
 // FillerCaloMet
 //
@@ -8,8 +8,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef TREEFILLER_FILLERCALOMET_H
-#define TREEFILLER_FILLERCALOMET_H
+#ifndef MITPROD_TREEFILLER_FILLERCALOMET_H
+#define MITPROD_TREEFILLER_FILLERCALOMET_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"

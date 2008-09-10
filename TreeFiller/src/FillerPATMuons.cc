@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.8 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerPATMuons.cc,v 1.1 2008/08/12 10:13:46 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,17 +8,13 @@
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
-
-//For PAT
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-
 #include "DataFormats/Common/interface/View.h"
-
 
 using namespace std;
 using namespace edm;
@@ -26,8 +22,8 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, bool active,
-                         const TrackMap *globalMap, const TrackMap *stdMap, 
-                         const TrackMap *stdVtxMap, const TrackMap *trackerMap) : 
+                               const TrackMap *globalMap, const TrackMap *stdMap, 
+                               const TrackMap *stdVtxMap, const TrackMap *trackerMap) : 
   BaseFiller(cfg,"PATMuons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Muons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),

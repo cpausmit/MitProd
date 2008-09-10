@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.8 2008/07/30 11:30:01 loizides Exp $
+// $Id: TreeService.h,v 1.9 2008/07/31 09:05:05 loizides Exp $
 //
 // TreeService 
 //
@@ -19,8 +19,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_TREESERVICE_H
-#define MITPROD_TREESERVICE_H
+#ifndef MITPROD_TREESERVICE_TREESERVICE_H
+#define MITPROD_TREESERVICE_TREESERVICE_H
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
