@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.3 2008/09/08 20:12:26 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.4 2008/09/10 03:30:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -68,6 +68,12 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
        
     outCaloTower->SetMomentum(inCaloTower->momentum().x(),inCaloTower->momentum().y(),
                               inCaloTower->momentum().z(), inCaloTower->energy());
+    outCaloTower->SetEmPosition(inCaloTower->emPosition().x(),
+                                inCaloTower->emPosition().y(),
+                                inCaloTower->emPosition().z());
+    outCaloTower->SetHadPosition(inCaloTower->hadPosition().x(),
+                                 inCaloTower->hadPosition().y(),
+                                 inCaloTower->hadPosition().z());
     outCaloTower->SetEmEnergy(inCaloTower->emEnergy());
     outCaloTower->SetHadEnergy(inCaloTower->hadEnergy());
     outCaloTower->SetOuterEnergy(inCaloTower->outerEnergy());
