@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.3 2008/07/30 08:39:50 loizides Exp $
+// $Id: FillerDecayParts.cc,v 1.4 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +55,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 				     const edm::EventSetup &setup)
 {
   // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
-
+  cout << "Decay part block" << endl;
   decays_->Reset();
 
   Handle<mitedm::DecayPartCol> hParts;
@@ -92,6 +92,9 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     d->SetError(p.error());
     d->SetBigError(p.bigError());
     
+    d->SetChi2(p.chi2());
+    d->SetNdof(p.ndof());
+
     //loop through and add daughters
     if (basePartMap_) {
       for (Int_t j=0; j<p.nChild();j++) {
