@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.11 2008/09/10 17:12:51 pharris Exp $
+// $Id: FillerMuons.cc,v 1.12 2008/09/10 17:16:01 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,9 +37,7 @@ FillerMuons::~FillerMuons() {
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::BookDataBlock(TreeWriter &tws)
-{ vector<string> lCuts; lCuts.push_back("test");
- fTest = new AnaMuon("M",lCuts); 
+void FillerMuons::BookDataBlock(TreeWriter &tws) { 
   // Add muons branch to tree and get pointers to maps.
 
   tws.AddBranch(mitName_.c_str(),&muons_);
