@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.13 2008/08/18 11:16:13 sixie Exp $
+// $Id: FillerMetaInfos.cc,v 1.14 2008/09/10 03:31:02 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,7 +9,7 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
-#include "MitAna/DataTree/interface/TriggerName.h"
+//#include "MitAna/DataTree/interface/TriggerName.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
 #include <TObjectTable.h>
 #include <THashTable.h>
@@ -144,6 +144,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 
   if (!hltActive_) return;
 
+#if 0
   using namespace reco;
   using namespace trigger;
 
@@ -251,6 +252,5 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
    cout << endl;
 
 #endif
-
-
+#endif
 }
