@@ -24,6 +24,10 @@ process.TreeService = cms.Service("TreeService",
 
 process.add_(cms.Service("ObjectService"))
 
+#produce MET objects
+process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff")
+process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
-process.p1 = cms.Path(process.MitTreeFiller)
+process.p1 = cms.Path(process.corMetType1Icone5*process.MitTreeFiller)

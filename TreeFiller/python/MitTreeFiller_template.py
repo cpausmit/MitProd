@@ -48,6 +48,10 @@ process.eIdSequence = cms.Sequence( process.eidCutBased +
 
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
 
+#produce corrected MET objects
+process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff") 
+process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+
 process.TreeService = cms.Service("TreeService",
     fileNames = cms.untracked.vstring('XX-MITDATASET-XX')
 )
@@ -56,4 +60,5 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
-process.p1 = cms.Path((process.caloJetMCFlavour + process.eIdSequence)*process.MitTreeFiller)
+process.p1 = cms.Path((process.caloJetMCFlavour + process.eIdSequence + process.corMetType1Icone5)
+                      *process.MitTreeFiller)

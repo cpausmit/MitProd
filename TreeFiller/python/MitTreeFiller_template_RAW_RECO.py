@@ -16,6 +16,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
 )
+# Example of how to run on RAW and RECO simultaneously (files listed below do not correspond!)
 #process.source = cms.Source("PoolSource",
                             #fileNames = cms.untracked.vstring(
    #'file:/server/02a/bendavid/RECO/0079F3C0-AF75-DD11-8EF5-003048772390.root'
@@ -41,7 +42,7 @@ process.load('Configuration/StandardSequences/Digi_cff')
 process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'IDEAL_V6::All'
+process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
@@ -58,10 +59,6 @@ process.load( "RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi")
 process.load( "RecoEgamma.ElectronIdentification.electronIdCutBasedClassesExt_cfi")
 process.load( "RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi")
 process.load( "RecoEgamma.ElectronIdentification.electronIdNeuralNetExt_cfi")
-
-# process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
-
-
 
 
 process.eIdSequence = cms.Sequence( process.eidCutBased +
@@ -81,8 +78,14 @@ process.TreeService = cms.Service("TreeService",
 
 process.add_(cms.Service("ObjectService"))
 
+#produce corrected MET objects
+process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff")
+process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+
 process.load("MitProd.TreeFiller.MitPostRecoGenerator_cff")
 process.load("MitProd.TreeFiller.MitTreeFiller_RAW_RECO_cfi")
 
-process.p1 = cms.Path(process.pdigi * process.mit_postreco_generator * (process.caloJetMCFlavour + process.eIdSequence) * process.MitTreeFiller)
-# process.p1 = cms.Path((process.caloJetMCFlavour + process.eIdSequence)*process.MitTreeFiller)
+process.p1 = cms.Path(process.pdigi * 
+                      process.mit_postreco_generator * 
+		      (process.caloJetMCFlavour + process.eIdSequence + process.corMetType1Icone5) * 
+		      process.MitTreeFiller)
