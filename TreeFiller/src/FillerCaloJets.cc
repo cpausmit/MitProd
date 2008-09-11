@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.8 2008/09/09 12:51:38 sixie Exp $
+// $Id: FillerCaloJets.cc,v 1.9 2008/09/10 03:30:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -149,25 +149,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     jet->SetN              (inJet->nConstituents());
     jet->SetN60		   (inJet->n60());
     jet->SetN90		   (inJet->n90());    
-
-
       
     if (bTaggingActive_) {
-     //  cout << "jet " << inJet->eta() << " " << inJet->phi() << " "
-//            << (*(hJetProbabilityBJetTags.product()))[jetBaseRef] <<  " "
-//            << (*(hJetProbabilityBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hJetBProbabilityBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]   << " " 
-//            << (*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef] << " "
-//            << (*(hImpactParameterMVABJetTags.product()))[jetBaseRef] << " "
-//            << (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hSoftMuonBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hSoftMuonNoIPBJetTags.product()))[jetBaseRef] << " "
-//            << (*(hSoftElectronBJetTags.product()))[jetBaseRef] << " "
-//            << endl;
-
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetSimpleSecondaryVertexBJetTagsDisc(
