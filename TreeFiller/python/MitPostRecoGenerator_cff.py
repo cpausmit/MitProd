@@ -5,6 +5,7 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
+TrackAssociatorByHits.Cut_RecoToSim = 0.5
 from SimTracker.TrackAssociation.trackMCMatch_cfi import *
 from SimTracker.TrackAssociation.standAloneMuonsMCMatch_cfi import *
 from SimTracker.TrackAssociation.globalMuonsMCMatch_cfi import *
