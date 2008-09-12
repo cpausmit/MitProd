@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.6 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.7 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,6 +63,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 
     mithep::Photon *outPhoton = photons_->Allocate();
     new (outPhoton) mithep::Photon(iP->px(),iP->py(),iP->pz(),iP->energy());
+    outPhoton->SetIsConverted(iP->isConverted());
     if (iP->isConverted() && conversionMap_) {
       std::vector<reco::ConversionRef> conversionRefs = iP->conversions();
       for (std::vector<reco::ConversionRef>::const_iterator conversionRef = 
