@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.11 2008/07/30 16:39:57 loizides Exp $
+// $Id: BaseFiller.h,v 1.12 2008/09/10 03:30:22 loizides Exp $
 //
 // BaseFiller
 //
@@ -29,14 +29,16 @@ namespace mithep
       BaseFiller(const edm::ParameterSet &cfg, const char *name, bool active=true);
       virtual ~BaseFiller() {}
 
-      bool                     Active() const { return active_; }
+      bool                     Active()  const { return active_; }
       virtual void             BookDataBlock(TreeWriter &tws)                                = 0;
       virtual void             FillDataBlock(const edm::Event &e, const edm::EventSetup &es) = 0;
-      const std::string       &Name()   const { return name_; }
+      const std::string       &Name()    const { return name_; }
       virtual void             ResolveLinks(const edm::Event &e, const edm::EventSetup &es)    {}
+      int                      Verbose() const { return verbose_;}
+      bool                     Verify()  const { return verify_;}
 
     protected:
-      const edm::ParameterSet &Conf()   const { return config_; }
+      const edm::ParameterSet &Conf()    const { return config_; }
       void                     PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
       void                     GetProduct(const std::string name, edm::Handle<TYPE> &prod,
@@ -50,6 +52,8 @@ namespace mithep
       const std::string        name_;    //name of this filler
       const edm::ParameterSet  config_;  //parameter set for this filler
       const bool               active_;  //=1 if active
+      const bool               verify_;  //=1 if verificatin code is active
+      const int                verbose_; //verbosity level (do not introduce more than 0-4 levels)
   };
 }
 
