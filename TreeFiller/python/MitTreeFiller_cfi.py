@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.9 2008/09/09 12:50:44 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.10 2008/09/10 17:16:01 ksung Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -195,7 +195,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active            = cms.untracked.bool(True),
         mitName           = cms.untracked.string('Photons'),
         edmName           = cms.untracked.string('photons'),
-        conversionMapName = cms.untracked.string('ConversionsMapName')
+        conversionMapName = cms.untracked.string('ConversionsMapName'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap')
     ),
 
     CaloJets = cms.untracked.PSet(

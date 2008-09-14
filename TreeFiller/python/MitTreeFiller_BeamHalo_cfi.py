@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.4 2008/09/02 13:59:04 sixie Exp $
+# $Id: MitTreeFiller_BeamHalo_cfi.py,v 1.1 2008/09/13 12:48:23 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -175,7 +175,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active            = cms.untracked.bool(True),
         mitName           = cms.untracked.string('Photons'),
         edmName           = cms.untracked.string('photons'),
-        conversionMapName = cms.untracked.string('ConversionsMapName')
+        conversionMapName = cms.untracked.string('ConversionsMapName'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap')
     ),
 
     IC5GenJets = cms.untracked.PSet(

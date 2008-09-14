@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.5 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerPhotons.h,v 1.6 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerPhotons
 //
@@ -34,8 +34,12 @@ namespace mithep
       std::string                    edmName_;            //edm name of photon collection
       std::string                    mitName_;            //name of Photons in OAK
       std::string                    conversionMapName_;  //name of imported map wrt conv electrons
+      std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
+      std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
       mithep::PhotonArr             *photons_;            //array of Photons
       const mithep::ConversionMap   *conversionMap_;      //imported map wrt conversion electrons
+      const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
+      const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters 
   };
 }
 #endif

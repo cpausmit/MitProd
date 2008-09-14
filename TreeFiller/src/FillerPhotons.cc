@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.7 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.8 2008/09/12 12:54:08 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,8 +21,12 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, bool active) :
   edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
+  barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
+  endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
   photons_(new mithep::PhotonArr(16)), 
-  conversionMap_(0)
+  conversionMap_(0),
+  barrelSuperClusterMap_(0),
+  endcapSuperClusterMap_(0)
 {
   // Constructor.
 }
@@ -42,7 +46,12 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_.c_str(),&photons_);
 
-  conversionMap_ = OS()->get<ConversionMap>(conversionMapName_.c_str());
+  if (!conversionMapName_.empty())
+    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_.c_str());
+  if (!barrelSuperClusterMapName_.empty())
+    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_.c_str());
+  if (!endcapSuperClusterMapName_.empty())
+    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +73,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     mithep::Photon *outPhoton = photons_->Allocate();
     new (outPhoton) mithep::Photon(iP->px(),iP->py(),iP->pz(),iP->energy());
     outPhoton->SetIsConverted(iP->isConverted());
+    //make links to conversions
     if (iP->isConverted() && conversionMap_) {
       std::vector<reco::ConversionRef> conversionRefs = iP->conversions();
       for (std::vector<reco::ConversionRef>::const_iterator conversionRef = 
@@ -71,6 +81,13 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->AddConversion(conversionMap_->GetMit(*conversionRef));
       }
     }
+    //make link to supercluster
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull())
+      if(barrelSuperClusterMap_->HasMit(iP->superCluster())) {
+        outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
+      } else {
+        outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
+      }
   }
 
   photons_->Trim();
