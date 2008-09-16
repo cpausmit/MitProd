@@ -70,22 +70,34 @@ process.eIdSequence = cms.Sequence( process.eidCutBased +
                                     process.eidNeuralNet +
                                     process.eidNeuralNetExt)
 
+#Load Flavor Matching Information
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
-
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('mit-match')
-)
-
-process.add_(cms.Service("ObjectService"))
 
 #produce corrected MET objects
 process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff")
 process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
 
+#produce jet vertex association information
+process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
+
+#For Jet Corrections
+process.load("MitProd.TreeFiller.JetCorrections_cfi")
+process.prefer("L3JetCorrectorIcone5") 
+
+process.TreeService = cms.Service("TreeService",
+    fileNames = cms.untracked.vstring('mit-match')
+)
+process.add_(cms.Service("ObjectService"))
+
 process.load("MitProd.TreeFiller.MitPostRecoGenerator_cff")
 process.load("MitProd.TreeFiller.MitTreeFiller_RAW_RECO_cfi")
 
+
 process.p1 = cms.Path(process.pdigi * 
                       process.mit_postreco_generator * 
-		      (process.caloJetMCFlavour + process.eIdSequence + process.corMetType1Icone5) * 
+		      (process.caloJetMCFlavour
+                       + process.eIdSequence
+                       + process.corMetType1Icone5
+                       + process.jetvertexAssociationSequence
+                       ) * 
 		      process.MitTreeFiller)
