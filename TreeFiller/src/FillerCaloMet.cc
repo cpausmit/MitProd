@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.5 2008/07/13 08:46:04 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.6 2008/09/10 17:10:52 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +15,7 @@ FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, const char *name, bool act
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
-  caloMets_(new mithep::CaloMetArr)
+  caloMets_(new mithep::MetArr)
 {
   // Constructor.
 }
@@ -53,8 +53,8 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
   for (reco::CaloMETCollection::const_iterator inCaloMet = inCaloMets.begin(); 
        inCaloMet != inCaloMets.end(); ++inCaloMet) {
     
-    mithep::CaloMet *caloMet = caloMets_->Allocate();
-    new (caloMet) mithep::CaloMet(inCaloMet->px(), inCaloMet->py());
+    mithep::Met *caloMet = caloMets_->Allocate();
+    new (caloMet) mithep::Met(inCaloMet->px(), inCaloMet->py());
     
     // Fill Met base class data 
     caloMet->SetSumEt(inCaloMet->sumEt());
@@ -77,7 +77,6 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
     caloMet->SetEmEtInEB(inCaloMet->emEtInEB());
     caloMet->SetEmEtInEE(inCaloMet->emEtInEE());
     caloMet->SetEmEtInHF(inCaloMet->emEtInHF());
-    caloMet->SetMetSignificance(inCaloMet->metSignificance());
     caloMet->SetCaloSumEtInpHF(inCaloMet->CaloSETInpHF());
     caloMet->SetCaloSumEtInmHF(inCaloMet->CaloSETInmHF());    
     caloMet->SetCaloMetInpHF(inCaloMet->CaloMETInpHF());

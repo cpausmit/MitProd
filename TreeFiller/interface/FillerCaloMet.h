@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloMet.h,v 1.4 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerCaloMet.h,v 1.5 2008/09/10 17:10:17 ksung Exp $
 //
 // FillerCaloMet
 //
@@ -32,7 +32,7 @@ namespace mithep
     private:
       std::string           edmName_;    //edm name of met collection
       std::string           mitName_;    //name of Mets in OAK
-      mithep::CaloMetArr   *caloMets_;   //array of Mets
+      mithep::MetArr       *caloMets_;   //array of Mets
   };
 }
 #endif
