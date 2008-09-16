@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.9 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.10 2008/09/11 10:00:35 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,6 +11,7 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 using namespace std;
 using namespace edm;
@@ -21,34 +22,44 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
   BaseFiller(cfg,name,active),
   flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
   bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
+  jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),
+  jetCorrectionsActive_(Conf().getUntrackedParameter<bool>("jetCorrectionsActive",true)),
   edmName_(Conf().getUntrackedParameter<string>("edmName","recoCaloJets:iterativeCone5CaloJets")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)),  
+  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)), 
+  jetToVertexAlphaName_(Conf().getUntrackedParameter<string>
+                        ("jetToVertexAlphaName","jetToVertexAlpha")),
+  jetToVertexBetaName_(Conf().getUntrackedParameter<string>
+                       ("jetToVertexBetaName","jetToVertexBetaName")),
+  L2JetCorrectorName_(Conf().getUntrackedParameter<string>
+                      ("L2JetCorrectorName","L2JetCorrectorName")),
+  L3JetCorrectorName_(Conf().getUntrackedParameter<string>
+                      ("L3JetCorrectorName","L3JetCorrectorName")),
   flavorMatchingByReferenceName_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingByReferenceName","srcByReference")),
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
   jetProbabilityBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("jetProbabilityBJetTagsName","jetProbabilityBJetTags")),  
+                   ("JetProbabilityBJetTagsName","jetProbabilityBJetTags")),  
   jetBProbabilityBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("jetBProbabilityBJetTagsName","jetBProbabilityBJetTags")),   
+                   ("JetBProbabilityBJetTagsName","jetBProbabilityBJetTags")),   
   simpleSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("simpleSecondaryVertexBJetTagsName","simpleSecondaryVertexBJetTags")),
+                   ("SimpleSecondaryVertexBJetTagsName","simpleSecondaryVertexBJetTags")),
   combinedSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("combinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
+                   ("CombinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
   combinedSecondaryVertexMVABJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("combinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
+                   ("CombinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
   impactParameterMVABJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("impactParameterMVABJetTagsName","impactParameterMVABJetTags")),
+                   ("ImpactParameterMVABJetTagsName","impactParameterMVABJetTags")),
   trackCountingHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("trackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
+                   ("TrackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
   trackCountingHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("trackCountingHighPurBJetTagsName","trackCountingHighPurBJetTagsName")),
+                   ("TrackCountingHighPurBJetTagsName","trackCountingHighPurBJetTags")),
   softMuonBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("softMuonBJetTagsName","softMuonBJetTagsName")),
+                   ("SoftMuonBJetTagsName","softMuonBJetTags")),
   softMuonNoIPBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("softMuonNoIPBJetTagsName","softMuonNoIPBJetTagsName")),
+                   ("SoftMuonNoIPBJetTagsName","softMuonNoIPBJetTags")),
   softElectronBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("softElectronBJetTagsName_","softElectronBJetTagsName_")),
+                   ("SoftElectronBJetTagsName","softElectronBJetTags")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName","CaloTowerMap")),
   caloTowerMap_(0),
   jets_(new mithep::JetArr(16))
@@ -105,20 +116,41 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetTagCollection> hSoftElectronBJetTags;
 
   if (bTaggingActive_) {
-    GetProduct("jetProbabilityBJetTags", hJetProbabilityBJetTags, event);    
-    GetProduct("jetBProbabilityBJetTags", hJetBProbabilityBJetTags, event);    
-    GetProduct("simpleSecondaryVertexBJetTags", hSimpleSecondaryVertexBJetTags, event);    
-    GetProduct("combinedSecondaryVertexBJetTags", hCombinedSecondaryVertexBJetTags, event);    
-    GetProduct("combinedSecondaryVertexMVABJetTags", hCombinedSecondaryVertexMVABJetTags, event);
-    GetProduct("impactParameterMVABJetTags", hImpactParameterMVABJetTags, event);    
-    GetProduct("trackCountingHighEffBJetTags", hTrackCountingHighEffBJetTags, event);    
-    GetProduct("trackCountingHighPurBJetTags", hTrackCountingHighPurBJetTags, event);    
-    GetProduct("softMuonBJetTags", hSoftMuonBJetTags, event);    
-    GetProduct("softMuonNoIPBJetTags", hSoftMuonNoIPBJetTags, event);    
-    GetProduct("softElectronBJetTags", hSoftElectronBJetTags, event);    
+    GetProduct(jetProbabilityBJetTagsName_, hJetProbabilityBJetTags, event);    
+    GetProduct(jetBProbabilityBJetTagsName_, hJetBProbabilityBJetTags, event);    
+    GetProduct(simpleSecondaryVertexBJetTagsName_, hSimpleSecondaryVertexBJetTags, event);    
+    GetProduct(combinedSecondaryVertexBJetTagsName_, hCombinedSecondaryVertexBJetTags, event);    
+    GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
+    GetProduct(impactParameterMVABJetTagsName_, hImpactParameterMVABJetTags, event);    
+    GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
+    GetProduct(trackCountingHighPurBJetTagsName_, hTrackCountingHighPurBJetTags, event);    
+    GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
+    GetProduct(softMuonNoIPBJetTagsName_, hSoftMuonNoIPBJetTags, event);    
+    GetProduct(softElectronBJetTagsName_, hSoftElectronBJetTags, event);    
+  }
+  
+  const reco::CaloJetCollection inJets = *(hJetProduct.product());  
+
+  //Handles to Jet to Vertex Association
+  Handle<std::vector<double> > JV_alpha;  
+  Handle<std::vector<double> > JV_beta;    
+  std::vector<double>::const_iterator it_jv_alpha;
+  std::vector<double>::const_iterator it_jv_beta;
+
+  if (jetToVertexActive_) {
+    GetProduct(jetToVertexAlphaName_, JV_alpha, event); 
+    GetProduct(jetToVertexBetaName_, JV_beta, event);  
+    it_jv_alpha = JV_alpha->begin();
+    it_jv_beta  = JV_beta->begin();    
   }
 
-  const reco::CaloJetCollection inJets = *(hJetProduct.product());  
+  //Define Jet Correction Services
+  const JetCorrector* correctorL2; 
+  const JetCorrector* correctorL3; 
+  if (jetCorrectionsActive_) {
+    correctorL2 = JetCorrector::getJetCorrector (L2JetCorrectorName_,setup);
+    correctorL3 = JetCorrector::getJetCorrector (L3JetCorrectorName_,setup);
+  }
 
   // loop through all jets
   for (reco::CaloJetCollection::const_iterator inJet = inJets.begin(); 
@@ -126,9 +158,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     
     reco::CaloJetRef jetRef(hJetProduct, inJet - inJets.begin());    
     reco::JetBaseRef jetBaseRef(jetRef);
-
     
-
     mithep::Jet *jet = jets_->Allocate();
     new (jet) mithep::Jet(inJet->p4().x(),
                           inJet->p4().y(),
@@ -149,7 +179,21 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     jet->SetN              (inJet->nConstituents());
     jet->SetN60		   (inJet->n60());
     jet->SetN90		   (inJet->n90());    
-      
+     
+    if (jetToVertexActive_) {
+      //compute alpha and beta parameter for jets
+      jet->SetAlpha((*it_jv_alpha));
+      jet->SetBeta((*it_jv_beta));      
+    }
+
+    //Jet Corrections
+    if (jetCorrectionsActive_) {
+      double L2Scale = correctorL2->correction(inJet->p4());
+      double L3Scale = correctorL3->correction(inJet->p4()*L2Scale);
+      jet->SetL2RelativeCorrectionScale(L2Scale);
+      jet->SetL3AbsoluteCorrectionScale(L3Scale);          
+    }
+    
     if (bTaggingActive_) {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
@@ -197,7 +241,10 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
         jet->AddTower(caloTower);
       }
     }
-  }
-  
+    if (jetToVertexActive_) {
+      it_jv_alpha++; 
+      it_jv_beta++;
+    }
+  }      
   jets_->Trim();
 }
