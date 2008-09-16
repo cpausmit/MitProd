@@ -57,7 +57,6 @@ process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
 
 #For Jet Corrections
-#process.load("JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff")
 process.load("MitProd.TreeFiller.JetCorrections_cfi")
 process.prefer("L3JetCorrectorIcone5") 
 
