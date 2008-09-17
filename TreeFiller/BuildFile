@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.14 2008/09/06 18:10:41 sixie Exp $
+# $Id: BuildFile,v 1.15 2008/09/16 18:17:13 sixie Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -13,6 +13,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/PatCandidates>
+<use name=HLTrigger/HLTcore>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=JetMETCorrections/Objects>
@@ -22,7 +23,7 @@
 <use name=MitProd/ObjectService>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
-<use name=MitVertex/Fit>
+<use name=MitCommon/MathTools>
 <use name=MitEdm/VertexFitInterface>
 <use name=MitEdm/DataFormats>
 #<flags CXXFLAGS="-g">
