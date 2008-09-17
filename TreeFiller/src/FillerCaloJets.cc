@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.10 2008/09/11 10:00:35 sixie Exp $
+// $Id: FillerCaloJets.cc,v 1.11 2008/09/16 18:20:06 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -145,8 +145,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   }
 
   //Define Jet Correction Services
-  const JetCorrector* correctorL2; 
-  const JetCorrector* correctorL3; 
+  const JetCorrector* correctorL2 = 0; 
+  const JetCorrector* correctorL3 = 0; 
   if (jetCorrectionsActive_) {
     correctorL2 = JetCorrector::getJetCorrector (L2JetCorrectorName_,setup);
     correctorL3 = JetCorrector::getJetCorrector (L3JetCorrectorName_,setup);
@@ -236,7 +236,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     //Add CaloTower Refs
     if (caloTowerMap_) {
       std::vector<CaloTowerDetId> ctidVector = inJet->getTowerIndices();
-      for(std::vector<CaloTowerDetId>::const_iterator ctid = ctidVector.begin(); ctid != ctidVector.end(); ++ctid) {
+      for(std::vector<CaloTowerDetId>::const_iterator ctid = ctidVector.begin(); 
+          ctid != ctidVector.end(); ++ctid) {
         mithep::CaloTower *caloTower = caloTowerMap_->GetMit(*ctid);
         jet->AddTower(caloTower);
       }

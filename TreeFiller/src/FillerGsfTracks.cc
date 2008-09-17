@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.13 2008/08/29 02:50:02 loizides Exp $
+// $Id: FillerGsfTracks.cc,v 1.14 2008/09/05 23:46:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -58,9 +58,9 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
   
   // if we have a Sim Particle association (for monte carlo), initialize the reco->sim mappings
   reco::RecoToSimCollection simAssociation;
-  if (trackingMap_ && !edmSimAssociationName_.empty()) {
+  if (trackingMap_ && !edmSimAssocName_.empty()) {
     Handle<reco::RecoToSimCollection> hSimAssociationProduct;
-    GetProduct(edmSimAssociationName_, hSimAssociationProduct, event);
+    GetProduct(edmSimAssocName_, hSimAssociationProduct, event);
     simAssociation = *(hSimAssociationProduct.product());
   }
   
@@ -90,7 +90,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
     reco::GsfTrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
-    if (trackingMap_ && !edmSimAssociationName_.empty()) {
+    if (trackingMap_ && !edmSimAssocName_.empty()) {
       reco::TrackBaseRef theBaseRef(theRef);
       vector<pair<TrackingParticleRef, double> > simRefs;
       Bool_t noSimParticle = 0;

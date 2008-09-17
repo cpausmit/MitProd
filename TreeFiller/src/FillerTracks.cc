@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.17 2008/09/05 23:46:14 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.18 2008/09/06 19:25:43 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,7 +20,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName",edmName)),
   mitName_(Conf().getUntrackedParameter<string>("mitName",mitName)),
-  edmSimAssociationName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
+  edmSimAssocName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   trackingMapName_(Conf().getUntrackedParameter<string>("simMapName","TrackingMap")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
                                                      Form("%sMapName",mitName_.c_str()))),
@@ -71,9 +71,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
-  if (trackingMap_ && !edmSimAssociationName_.empty()) {
+  if (trackingMap_ && !edmSimAssocName_.empty()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
-    GetProduct(edmSimAssociationName_, simAssociationProduct, event);  
+    GetProduct(edmSimAssocName_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
     //printf("SimAssociation Map Size = %i\n",simAssociation.size());
   }
@@ -83,35 +83,38 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
        it != inTracks.end(); ++it) {
     mithep::Track *outTrack = tracks_->Allocate();
     // create track and set the core parameters
-    new (outTrack) mithep::Track(it->qoverp(),it->lambda(),it->phi(),it->dxy(),it->dsz());
-    outTrack->SetErrors(it->qoverpError(),it->lambdaError(),it->phiError(),it->dxyError(),it->dszError());
+    new (outTrack) mithep::Track(it->qoverp(),it->lambda(),
+                                 it->phi(),it->dxy(),it->dsz());
+    outTrack->SetErrors(it->qoverpError(),it->lambdaError(),
+                        it->phiError(),it->dxyError(),it->dszError());
 	
-    //Fill track quality information
+    // fill track quality information
     outTrack->SetChi2(it->chi2());
     outTrack->SetNdof(static_cast<Int_t>(it->ndof()));
     
-    //Fill hit layer map
+    //fill hit layer map
     const reco::HitPattern &hits = it->hitPattern();
     for (Int_t i=0; i<hits.numberOfHits(); i++) {
       uint32_t hit = hits.getHitPattern(i);
-      if ( hits.validHitFilter(hit) )
-        if ( hits.trackerHitFilter(hit) )
+      if (hits.validHitFilter(hit))
+        if (hits.trackerHitFilter(hit))
           outTrack->SetHit(layerMap_[hit]);
                 
-//       if ( hits.muonDTHitFilter(hit) )
-//         printf("Muon DT Layer = %i\n", hits.getLayer(hit));
-//       if ( hits.muonCSCHitFilter(hit) )
-//         printf("Muon CSC Layer = %i\n", hits.getLayer(hit));        
-//       if ( hits.muonRPCHitFilter(hit) )
-//         printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
+      if (0) {
+        if (hits.muonDTHitFilter(hit))
+          printf("Muon DT Layer = %i\n", hits.getLayer(hit));
+        if (hits.muonCSCHitFilter(hit))
+          printf("Muon CSC Layer = %i\n", hits.getLayer(hit));        
+        if (hits.muonRPCHitFilter(hit))
+          printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
+      }
     }
-    
     
     // add reference between mithep and edm object
     reco::TrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
-    if (trackingMap_ && !edmSimAssociationName_.empty()) {
+    if (trackingMap_ && !edmSimAssocName_.empty()) {
       //printf("Trying Track-Sim association\n");
       reco::TrackBaseRef theBaseRef(theRef);
       vector<pair<TrackingParticleRef, double> > simRefs;

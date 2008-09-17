@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.13 2008/09/06 19:25:43 bendavid Exp $
+// $Id: FillerTracks.h,v 1.14 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerTracks
 //
@@ -34,17 +34,17 @@ namespace mithep
       void InitLayerMap();
 
     protected:
-      std::string                                 edmName_;               //edm name of tracks collection
-      std::string                                 mitName_;               //name of Tracks in OAK
-      std::string                                 edmSimAssociationName_; //edm name of sim association map
-      std::string                                 trackingMapName_;       //name of imported map wrt simparts
-      std::string                                 trackMapName_;          //name of export map
-      const mithep::TrackingParticleMap          *trackingMap_;           //map wrt simulated particles
-      mithep::TrackArr                           *tracks_;                //array of Tracks
-      std::map<uint32_t,mithep::Track::HitLayer>  layerMap_;              //hitlayer bitmap conversion map
+      std::string                                  edmName_;         //edm name of tracks collection
+      std::string                                  mitName_;         //name of Tracks in OAK
+      std::string                                  edmSimAssocName_; //edm name of sim assoc map
+      std::string                                  trackingMapName_; //name of imp. map wrt simparts
+      std::string                                  trackMapName_;    //name of export map
+      const mithep::TrackingParticleMap           *trackingMap_;     //map wrt simulated particles
+      mithep::TrackArr                            *tracks_;          //array of tracks in OAK
+      std::map<uint32_t,mithep::Track::EHitLayer>  layerMap_;        //hitlayer bitmap map
 
     private:
-      mithep::TrackMap                           *trackMap_;              //map wrt tracks
+      mithep::TrackMap                            *trackMap_;        //map wrt tracks
   };
 }
 #endif
