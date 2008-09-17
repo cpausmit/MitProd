@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.12 2008/09/10 17:16:01 pharris Exp $
+// $Id: FillerMuons.cc,v 1.13 2008/09/10 17:36:42 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -96,14 +96,14 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
 	outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(iM->standAloneMuon()));
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
-	<< "Error! Track reference in unmapped collection " << edmName_ << endl;
+             << "Error! Track reference in unmapped collection " << edmName_ << endl;
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) 
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
-    //PCH 
-     outMuon->SetNChambers  (iM->numberOfChambers());
+
+    outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
-     for(int i0 = 0; i0 < 4; i0++) {
+    for(int i0 = 0; i0 < 4; i0++) {
       //DTs
       outMuon->SetDX(i0,            iM->dX(i0+1,1));
       outMuon->SetDY(i0,            iM->dY(i0+1,1));
@@ -111,7 +111,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetPullY(i0,         iM->pullY(i0+1,1));
       outMuon->SetTrackDist(i0,     iM->trackDist(i0+1,1));
       outMuon->SetTrackDistErr(i0,  iM->trackDistErr(i0+1,1));
-      outMuon->SetNSegments(i0,     iM->numberOfSegments(i0+1, 1));
+      outMuon->SetNSegments(i0,     iM->numberOfSegments(i0+1,1));
       //CSCs
       outMuon->SetDX(4+i0,          iM->dX       (i0+1,2));
       outMuon->SetDY(4+i0,          iM->dY       (i0+1,2));
