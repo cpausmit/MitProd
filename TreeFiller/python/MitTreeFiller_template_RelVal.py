@@ -49,9 +49,20 @@ process.eIdSequence = cms.Sequence( process.eidCutBased +
 #Load Flavor Matching Information
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
 
-#produce corrected MET objects
+# setup MET muon corrections
+process.load("JetMETCorrections.Type1MET.MetMuonCorrections_cff")                                          
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag="IDEAL_V9::All"
+process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("TrackingTools.TrackAssociator.default_cfi")                                                   
+process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
+
+# setup Type1 MET corrections
 process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff") 
 process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
@@ -71,7 +82,7 @@ process.load("MitProd.TreeFiller.MitTreeFiller_RAW_RECO_cfi")
 process.p1 = cms.Path(
     (process.caloJetMCFlavour
      + process.eIdSequence
-     + process.corMetType1Icone5
+     + (process.MetMuonCorrections * process.corMetType1Icone5)
      + process.jetvertexAssociationSequence
      )
     *process.MitTreeFiller)
