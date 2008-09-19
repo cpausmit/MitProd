@@ -60,9 +60,10 @@ process.load("TrackingTools.TrackAssociator.default_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
 
 # setup Type1 MET corrections
-process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff") 
+process.load("JetMETCorrections.Configuration.L2L3Corrections_CMSSW_152_cff")
 process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
 process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
+process.corMetType1Icone5.corrector           = cms.string('L2L3JetCorrectorIcone5')
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
