@@ -1,6 +1,7 @@
-// $Id: FillerDecayParts.cc,v 1.4 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerDecayParts.cc,v 1.5 2008/09/10 11:02:05 mrudolph Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
+#include "MitAna/DataTree/interface/DaughterData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -24,11 +25,11 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
-  basePartMapName_(Conf().getUntrackedParameter<string>("basePartMap","")),
-  basePartMap_(0),
   decays_(new mithep::DecayParticleArr(250))
 {
   // Constructor.
+  if (Conf().exists("basePartMaps"))
+    basePartMapNames_ = Conf().getUntrackedParameter<vector<string> >("basePartMaps");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,9 +46,13 @@ void FillerDecayParts::BookDataBlock(TreeWriter &tws)
   // Add tracks branch to tree and get our map.
 
   tws.AddBranch(mitName_.c_str(),&decays_);
-
-  if (!basePartMapName_.empty()) 
-    basePartMap_ = OS()->get<BasePartMap>(basePartMapName_.c_str());
+         
+  for (std::vector<std::string>::const_iterator bmapName = basePartMapNames_.begin();
+        bmapName!=basePartMapNames_.end(); ++bmapName) {
+    if (!bmapName->empty()) 
+      basePartMaps_.push_back(OS()->get<BasePartMap>(bmapName->c_str()));
+  }
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,12 +101,27 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     d->SetNdof(p.ndof());
 
     //loop through and add daughters
-    if (basePartMap_) {
-      for (Int_t j=0; j<p.nChild();j++) {
+    if (basePartMaps_.size()) {
+      for (Int_t j=0; j<p.nChild();++j) {
         mitedm::BasePartBaseRef theRef = p.getChildRef(j);
         mithep::PairIntKey theKey(theRef.id().id(),theRef.key());
-        mithep::Particle *daughter = basePartMap_->GetMit(theKey);
-        d->AddDaughter(daughter);
+        mithep::Particle *daughter = 0;
+        for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
+              bmap!=basePartMaps_.end(); ++bmap) {
+          const mithep::BasePartMap *theMap = *bmap;
+          if (theMap->HasMit(theKey))
+            daughter = theMap->GetMit(theKey);
+        }
+        
+        if (!daughter)
+          throw edm::Exception(edm::errors::Configuration, "FillerDecayParts::FillDataBlock()\n")
+         << "Error! MITHEP Object " 
+         << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+              
+        if (p.nChild()==p.nChildMom())
+          d->AddDaughter(daughter, mithep::DaughterData(p.getChildMom(j)));
+        else
+          d->AddDaughter(daughter);
       }
     }
     //cout << "MITHEP...\n";d->print();
