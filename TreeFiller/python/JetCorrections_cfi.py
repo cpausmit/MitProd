@@ -50,3 +50,29 @@ L3JetCorrectorKt6 = cms.ESSource("L3AbsoluteCorrectionService",
     tagName = cms.string('iCSA08_S156_L3Absolute_Kt6'),
     label = cms.string('L3AbsoluteJetCorrectorKt6')
 )
+
+#################### L2L3 Source definitions ##################################
+L2L3JetCorrectorIcone5 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorIcone5','L3AbsoluteJetCorrectorIcone5'),
+    label = cms.string('L2L3JetCorrectorIcone5') 
+)
+L2L3JetCorrectorPFIcone5 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorPFIcone5','L3AbsoluteJetCorrectorPFIcone5'),
+    label = cms.string('L2L3JetCorrectorPFIcone5') 
+)
+L2L3JetCorrectorScone5 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorScone5','L3AbsoluteJetCorrectorScone5'),
+    label = cms.string('L2L3JetCorrectorScone5') 
+)
+L2L3JetCorrectorScone7 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorScone7','L3AbsoluteJetCorrectorScone7'),
+    label = cms.string('L2L3JetCorrectorScone7') 
+) 
+L2L3JetCorrectorKt6 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorKt6','L3AbsoluteJetCorrectorKt6'),
+    label = cms.string('L2L3JetCorrectorKt6') 
+)
+L2L3JetCorrectorKt4 = cms.ESSource("JetCorrectionServiceChain",  
+    correctors = cms.vstring('L2RelativeJetCorrectorKt4','L3AbsoluteJetCorrectorKt4'),
+    label = cms.string('L2L3JetCorrectorKt4') 
+)
