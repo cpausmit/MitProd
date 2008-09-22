@@ -12,7 +12,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FILLER")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
    'file:/server/02a/sixie/RECO/001EA63A-DF60-DD11-9D5A-001A92810AA6.root'
@@ -60,7 +60,6 @@ process.load("TrackingTools.TrackAssociator.default_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
 
 # setup Type1 MET corrections
-process.load("JetMETCorrections.Configuration.L2L3Corrections_CMSSW_152_cff")
 process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
 process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
 process.corMetType1Icone5.corrector           = cms.string('L2L3JetCorrectorIcone5')
