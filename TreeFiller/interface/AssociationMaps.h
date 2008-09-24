@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.10 2008/09/08 20:12:26 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.11 2008/09/10 03:30:22 loizides Exp $
 //
 // AssociationMaps
 //
@@ -49,7 +49,7 @@ namespace mithep
   typedef AssociationMap<const TrackingParticleRef,   mithep::MCParticle*>   TrackingParticleMap;
   typedef AssociationMap<const reco::TrackRef,        mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
-  typedef AssociationMap<const PairIntKey,            mithep::Particle*>     BasePartMap;
+  typedef AssociationMap<const mitedm::BasePartPtr,   mithep::Particle*>     BasePartMap;
   typedef AssociationMap<const CaloTowerDetId,        mithep::CaloTower*>    CaloTowerMap;
 }   
 #endif

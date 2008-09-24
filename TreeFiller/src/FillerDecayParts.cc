@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.5 2008/09/10 11:02:05 mrudolph Exp $
+// $Id: FillerDecayParts.cc,v 1.6 2008/09/19 11:40:15 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -103,14 +103,13 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     //loop through and add daughters
     if (basePartMaps_.size()) {
       for (Int_t j=0; j<p.nChild();++j) {
-        mitedm::BasePartBaseRef theRef = p.getChildRef(j);
-        mithep::PairIntKey theKey(theRef.id().id(),theRef.key());
+        mitedm::BasePartPtr thePtr = p.getChildPtr(j);
         mithep::Particle *daughter = 0;
         for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
               bmap!=basePartMaps_.end(); ++bmap) {
           const mithep::BasePartMap *theMap = *bmap;
-          if (theMap->HasMit(theKey))
-            daughter = theMap->GetMit(theKey);
+          if (theMap->HasMit(thePtr))
+            daughter = theMap->GetMit(thePtr);
         }
         
         if (!daughter)
