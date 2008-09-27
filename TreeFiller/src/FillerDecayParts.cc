@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.6 2008/09/19 11:40:15 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.7 2008/09/24 09:01:09 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -9,7 +9,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
@@ -25,11 +25,12 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  basePartMapNames_(Conf().exists("basePartMaps") ? 
+                    Conf().getUntrackedParameter<vector<string> >("basePartMaps") : 
+                    vector<string>()),
   decays_(new mithep::DecayParticleArr(250))
 {
   // Constructor.
-  if (Conf().exists("basePartMaps"))
-    basePartMapNames_ = Conf().getUntrackedParameter<vector<string> >("basePartMaps");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +53,6 @@ void FillerDecayParts::BookDataBlock(TreeWriter &tws)
     if (!bmapName->empty()) 
       basePartMaps_.push_back(OS()->get<BasePartMap>(bmapName->c_str()));
   }
-  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +60,6 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 				     const edm::EventSetup &setup)
 {
   // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
-  cout << "Decay part block" << endl;
   decays_->Reset();
 
   Handle<mitedm::DecayPartCol> hParts;
@@ -70,7 +69,6 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
   // loop through all decayParts and fill the information
   for (UInt_t i=0; i<iParts->size(); ++i) {
     const mitedm::DecayPart &p =iParts->at(i);                    // for convenience
-    //cout << "MITEDM...\n";p->print();
     mithep::DecayParticle *d = decays_->Allocate();
     new (d) mithep::DecayParticle(p.pid(),(mithep::DecayParticle::DecayType)p.decayType());
     
@@ -103,7 +101,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     //loop through and add daughters
     if (basePartMaps_.size()) {
       for (Int_t j=0; j<p.nChild();++j) {
-        mitedm::BasePartPtr thePtr = p.getChildPtr(j);
+        const mitedm::BasePartPtr &thePtr = p.getChildPtr(j);
         mithep::Particle *daughter = 0;
         for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
               bmap!=basePartMaps_.end(); ++bmap) {
@@ -123,7 +121,6 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           d->AddDaughter(daughter);
       }
     }
-    //cout << "MITHEP...\n";d->print();
   }
   decays_->Trim();
 }

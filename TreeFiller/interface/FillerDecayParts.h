@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.4 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerDecayParts.h,v 1.5 2008/09/19 11:40:15 bendavid Exp $
 //
 // FillerDecayParts
 //
@@ -28,11 +28,11 @@ namespace mithep
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
     
     private:
-      std::string                    edmName_;         //edm name of decay parts collection
-      std::string                    mitName_;         //name of DecayParticles in OAK
-      std::vector<std::string>       basePartMapNames_; //name of imported maps wrt stable parts
+      std::string                             edmName_;          //edm name of decay parts collection
+      std::string                             mitName_;          //name of DecayParticles in OAK
+      std::vector<std::string>                basePartMapNames_; //name of imported maps wrt stable parts
       std::vector<const mithep::BasePartMap*> basePartMaps_;     //maps wrt stable parts
-      mithep::DecayParticleArr      *decays_;          //array of DecayParticles
+      mithep::DecayParticleArr               *decays_;           //array of DecayParticles
   };
 }
 #endif

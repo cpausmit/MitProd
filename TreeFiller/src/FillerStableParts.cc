@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.5 2008/07/31 13:39:58 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.6 2008/09/24 09:01:09 bendavid Exp $
 
 #include "MitAna/DataTree/interface/StableParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
@@ -69,15 +69,13 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
   
   // loop through all StableParts and fill the information
   for (UInt_t i=0; i<iParts->size(); ++i) {
-    const mitedm::StablePart &p = iParts->at(i);                  // for convenience
+    const mitedm::StablePart &p = iParts->at(i); 
     mitedm::BasePartPtr thePtr(hParts,i);
-    //cout << "MITEDM...\n";p->print();
     mithep::StableParticle *d = stables_->Allocate();
     new (d) mithep::StableParticle(p.pid());
     basePartMap_->Add(thePtr,d);
     if (trackMap_)
       d->SetTrk(trackMap_->GetMit(p.trackRef()));
-    //cout << "MITHEP...\n";d->print();
   }
   stables_->Trim();
 }
