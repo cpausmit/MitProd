@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.15 2008/09/10 13:18:58 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.16 2008/09/17 04:30:15 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -352,11 +352,14 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
       if (riter != hltLabMap_->end()) {
         modind = riter->second;
       }
-      Short_t labind = -1;
+      assert(modind!=-1);
+
+      Short_t filind = -1;
       riter = hltLabMap_->find(mType);
       if (riter != hltLabMap_->end()) {
-        labind = riter->second;
+        filind = riter->second;
       }
+      assert(filind!=-1);
 
       // find trigger objects
       const trigger::Vids &vids(triggerEventHLT->filterIds(find));
@@ -387,13 +390,13 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
           objind = hltObjs_->Entries();
           objmap.insert(pair<Int_t,Int_t>(tocind,objind));
           TriggerObjectBase *trigObj = hltObjs_->Allocate();
-          new (trigObj) TriggerObjectBase(tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
+          new (trigObj) TriggerObjectBase(tobj.id(),tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
         } else { // use existing trigger object
           objind = riter->second;
         }
 
         TriggerObjectRel *trigRel = hltRels_->Allocate();
-        new (trigRel) TriggerObjectRel(mytind,tobj.id(),0,0);
+        new (trigRel) TriggerObjectRel(mytind,vids[k],objind,modind,filind);
       }
     }
   }
