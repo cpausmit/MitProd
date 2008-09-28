@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 #################### L2 Source definitions ##################################

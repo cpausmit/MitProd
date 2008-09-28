@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 jetVertexAlphaIC5 = cms.EDProducer("JetVertexAssociation", 
