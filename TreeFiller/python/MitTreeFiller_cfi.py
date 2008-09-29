@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.12 2008/09/16 18:22:31 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.13 2008/09/19 11:40:15 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -206,7 +206,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('IC5GenJets'),
         edmName = cms.untracked.string('iterativeCone5GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenIC5byRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
     ),
 
     SC5GenJets = cms.untracked.PSet(
@@ -215,8 +215,34 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('SC5GenJets'),
         edmName = cms.untracked.string('sisCone5GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenSC5byRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-    ),                           
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+    ),  
+                             
+    SC7GenJets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('SC7GenJets'),
+        edmName = cms.untracked.string('sisCone7GenJets'),
+        flavorMatchingByReferenceName = cms.untracked.string('GenSC7byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+    ),  
+    
+    KT4GenJets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('KT4GenJets'),
+        edmName = cms.untracked.string('kt4GenJets'),
+        flavorMatchingByReferenceName = cms.untracked.string('GenKT4byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+    ), 
+    KT6GenJets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('KT6GenJets'),
+        edmName = cms.untracked.string('kt6GenJets'),
+        flavorMatchingByReferenceName = cms.untracked.string('GenKT6byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic')
+    ),     
 
     CaloJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
@@ -248,6 +274,23 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),
 
+    ItrCone5Jets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(False),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('ItrCone5Jets'),
+        edmName = cms.untracked.string('iterativeCone5CaloJets'),
+        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5:Var'),
+        jetToVertexBetaName = cms.untracked.string('jetVertexBetaIC5:Var'),
+        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorIcone5'),
+        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorIcone5'),
+        flavorMatchingByReferenceName = cms.untracked.string('IC5byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
+    ), 
+
     SisCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(True),
@@ -265,11 +308,89 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),                          
 
+    SisCone7Jets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(False),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('SisCone7Jets'),
+        edmName = cms.untracked.string('sisCone7CaloJets'),
+        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaSC7:Var'),
+        jetToVertexBetaName = cms.untracked.string('jetVertexBetaSC7:Var'),
+        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorScone7'),
+        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorScone7'),
+        flavorMatchingByReferenceName = cms.untracked.string('SC7byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
+    ),
+
+    Kt4Jets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(False),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Kt4Jets'),
+        edmName = cms.untracked.string('kt4CaloJets'),
+        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT4:Var'),
+        jetToVertexBetaName = cms.untracked.string('jetVertexBetaKT4:Var'),
+        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorKt4'),
+        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorKt4'),
+        flavorMatchingByReferenceName = cms.untracked.string('KT4byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
+    ),
+    Kt6Jets = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(True),
+        bTaggingActive = cms.untracked.bool(False),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Kt6Jets'),
+        edmName = cms.untracked.string('kt6CaloJets'),
+        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT6:Var'),
+        jetToVertexBetaName = cms.untracked.string('jetVertexBetaKT6:Var'),
+        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorKt6'),
+        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorKt6'),
+        flavorMatchingByReferenceName = cms.untracked.string('KT6byRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        caloTowerMapName = cms.untracked.string('CaloTowerMap')
+    ),
+
     CaloMet = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloMet'),
         edmName = cms.untracked.string('corMetType1Icone5')  
     ),
+    
+    ItrCone5Met = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('ItrCone5Met'),
+        edmName = cms.untracked.string('corMetType1Icone5')  
+    ),
+    
+    SisCone5Met = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('SisCone5Met'),
+        edmName = cms.untracked.string('corMetType1Scone5')  
+    ),
+    SisCone7Met = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('SisCone7Met'),
+        edmName = cms.untracked.string('corMetType1Scone7')  
+    ),  
+    
+    Kt4Met = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Kt4Met'),
+        edmName = cms.untracked.string('corMetType1Kt4')  
+    ),
+    Kt6Met = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Kt6Met'),
+        edmName = cms.untracked.string('corMetType1Kt6')  
+    ),     
                   
     StableParts = cms.untracked.PSet(
         active       = cms.untracked.bool(False),

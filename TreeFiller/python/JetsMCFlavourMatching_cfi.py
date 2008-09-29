@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: JetsMCFlavourMatching_cfi.py,v 1.3 2008/09/28 02:27:52 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -120,10 +120,31 @@ GenSC5byRef = cms.EDFilter("JetPartonMatcher",
     partons = cms.InputTag("myPartons")
 )
 
+#Flavour by Reference
+GenSC7byRef = cms.EDFilter("JetPartonMatcher",
+    jets = cms.InputTag("sisCone7GenJets"),
+    coneSizeToAssociate = cms.double(0.3),
+    partons = cms.InputTag("myPartons")
+)
+
+#Flavour by Reference
+GenKT4byRef = cms.EDFilter("JetPartonMatcher",
+    jets = cms.InputTag("kt4GenJets"),
+    coneSizeToAssociate = cms.double(0.3),
+    partons = cms.InputTag("myPartons")
+)
+
+#Flavour by Reference
+GenKT6byRef = cms.EDFilter("JetPartonMatcher",
+    jets = cms.InputTag("kt6GenJets"),
+    coneSizeToAssociate = cms.double(0.3),
+    partons = cms.InputTag("myPartons")
+)
+
 iterativeCone5Flavour = cms.Sequence(IC5byRef*IC5byValPhys*IC5byValAlgo)
 sisCone5Flavour = cms.Sequence(SC5byRef*SC5byValPhys*SC5byValAlgo)
 sisCone7Flavour = cms.Sequence(SC7byRef*SC7byValPhys*SC7byValAlgo)
 KT4Flavour = cms.Sequence(KT4byRef*KT4byValPhys*KT4byValAlgo)
 KT6Flavour = cms.Sequence(KT6byRef*KT6byValPhys*KT6byValAlgo)
-GenJetFlavour = cms.Sequence(GenIC5byRef*GenSC5byRef)
+GenJetFlavour = cms.Sequence(GenIC5byRef*GenSC5byRef*GenSC7byRef*GenKT4byRef*GenKT6byRef)
 caloJetMCFlavour = cms.Sequence(myPartons*iterativeCone5Flavour+sisCone5Flavour+sisCone7Flavour+KT4Flavour+KT6Flavour+GenJetFlavour)

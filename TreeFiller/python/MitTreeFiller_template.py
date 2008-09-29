@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: MitTreeFiller_template.py,v 1.8 2008/09/28 02:27:52 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -13,7 +13,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FILLER")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
    'file:/server/02a/sixie/RECO/001EA63A-DF60-DD11-9D5A-001A92810AA6.root'
@@ -61,9 +61,24 @@ process.load("TrackingTools.TrackAssociator.default_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
 
 # setup Type1 MET corrections
-process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+process.load("MitProd.TreeFiller.MetType1Corrections_cfi")
+# Iterative Cone 0.5
 process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
 process.corMetType1Icone5.corrector           = cms.string('L2L3JetCorrectorIcone5')
+# SIS Cone 0.5
+process.corMetType1Scone5.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Scone5.corrector          = cms.string('L2L3JetCorrectorScone5') 
+# SIS Cone 0.7
+process.corMetType1Scone7.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Scone7.corrector          = cms.string('L2L3JetCorrectorScone7') 
+# kT 0.4
+process.corMetType1Kt4.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Kt4.corrector          = cms.string('L2L3JetCorrectorKt4') 
+# kT 0.6
+process.corMetType1Kt6.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Kt6.corrector          = cms.string('L2L3JetCorrectorKt6') 
+
+
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
@@ -83,7 +98,7 @@ process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 process.p1 = cms.Path(
     (process.caloJetMCFlavour
      + process.eIdSequence
-     + (process.MetMuonCorrections * process.corMetType1Icone5)
+     + (process.MetMuonCorrections * process.MetType1Corrections)
      + process.jetvertexAssociationSequence
      )
     *process.MitTreeFiller)

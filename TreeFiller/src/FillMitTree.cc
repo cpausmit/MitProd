@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.21 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillMitTree.cc,v 1.22 2008/09/16 18:21:33 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -134,15 +134,51 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 
   FillerGenJets *fillerSC5GenJets = new FillerGenJets(cfg,"SC5GenJets",defactive_);
   addActiveFiller(fillerSC5GenJets);
+  
+  FillerGenJets *fillerSC7GenJets = new FillerGenJets(cfg,"SC7GenJets",defactive_);
+  addActiveFiller(fillerSC7GenJets);
+
+  FillerGenJets *fillerKT4GenJets = new FillerGenJets(cfg,"KT4GenJets",defactive_);
+  addActiveFiller(fillerKT4GenJets);
+  
+  FillerGenJets *fillerKT6GenJets = new FillerGenJets(cfg,"KT6GenJets",defactive_);
+  addActiveFiller(fillerKT6GenJets);
 
   FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg,"CaloJets",defactive_);
   addActiveFiller(fillerCaloJets);
 
+  FillerCaloJets *fillerItrCone5Jets = new FillerCaloJets(cfg,"ItrCone5Jets",defactive_);
+  addActiveFiller(fillerItrCone5Jets);
+
   FillerCaloJets *fillerSisCone5Jets = new FillerCaloJets(cfg,"SisCone5Jets",defactive_);
   addActiveFiller(fillerSisCone5Jets);
 
+  FillerCaloJets *fillerSisCone7Jets = new FillerCaloJets(cfg,"SisCone7Jets",defactive_);
+  addActiveFiller(fillerSisCone7Jets);
+
+  FillerCaloJets *fillerKt4Jets = new FillerCaloJets(cfg,"Kt4Jets",defactive_);
+  addActiveFiller(fillerKt4Jets);     
+  
+  FillerCaloJets *fillerKt6Jets = new FillerCaloJets(cfg,"Kt6Jets",defactive_);
+  addActiveFiller(fillerKt6Jets);
+
   FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg,"CaloMet",defactive_);
   addActiveFiller(fillerCaloMet);
+
+  FillerCaloMet *fillerItrCone5Met = new FillerCaloMet(cfg,"ItrCone5Met",defactive_);
+  addActiveFiller(fillerItrCone5Met);
+  
+  FillerCaloMet *fillerSisCone5Met = new FillerCaloMet(cfg,"SisCone5Met",defactive_);
+  addActiveFiller(fillerSisCone5Met);
+  
+  FillerCaloMet *fillerSisCone7Met = new FillerCaloMet(cfg,"SisCone7Met",defactive_);
+  addActiveFiller(fillerSisCone7Met);
+
+  FillerCaloMet *fillerKt4Met = new FillerCaloMet(cfg,"Kt4Met",defactive_);
+  addActiveFiller(fillerKt4Met);
+  
+  FillerCaloMet *fillerKt6Met = new FillerCaloMet(cfg,"Kt6Met",defactive_);
+  addActiveFiller(fillerKt6Met);  
 
   FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_);
   addActiveFiller(fillerGeneralTracks);
