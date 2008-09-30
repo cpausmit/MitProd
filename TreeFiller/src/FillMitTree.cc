@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.22 2008/09/16 18:21:33 sixie Exp $
+// $Id: FillMitTree.cc,v 1.23 2008/09/29 17:07:56 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,6 +7,7 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
+#include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
@@ -125,6 +126,15 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
   addActiveFiller(fillerMCParticles);
 
+  FillerVertexes *fillerPrimaryVertexes = 
+    new FillerVertexes(cfg,"PrimaryVertexes", defactive_);
+  addActiveFiller(fillerPrimaryVertexes);
+  
+  //primary vertexes with beamspot constraint
+  FillerVertexes *fillerPrimaryVertexesBS = 
+    new FillerVertexes(cfg,"PrimaryVertexesBS", defactive_);
+  addActiveFiller(fillerPrimaryVertexesBS);  
+  
   FillerCaloTowers *fillerCaloTowers = 
     new FillerCaloTowers(cfg, "CaloTowers", defactive_);
   addActiveFiller(fillerCaloTowers);
