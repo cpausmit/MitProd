@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.13 2008/09/19 11:40:15 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.14 2008/09/29 17:07:36 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     MetaInfos = cms.untracked.PSet(
         active = cms.untracked.bool(True),
-        hltActive = cms.untracked.bool(False),
+        hltActive = cms.untracked.bool(True),
         hltName = cms.untracked.string('TriggerResults::HLT')
     ),
                    
@@ -25,21 +25,35 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         simMapName    = cms.untracked.string('SimMap'),
         trackingMapName    = cms.untracked.string('TrackingMap') 
     ),
-                                     
+                  
+    PrimaryVertexes = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('PrimaryVertexes'),
+        edmName = cms.untracked.string('offlinePrimaryVertices'),    
+        vertexMapName = cms.untracked.string('PrimaryVertexMap')
+    ),
+    
+    PrimaryVertexesBS = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('PrimaryVertexesBeamSpot'),
+        edmName = cms.untracked.string('offlinePrimaryVerticesWithBS'),    
+        vertexMapName = cms.untracked.string('PrimaryVertexBSMap')
+    ),
+                       
     GeneralTracks  = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('Tracks'),
         edmName               = cms.untracked.string('generalTracks'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('TracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
     ),
 
     StandaloneMuonTracks = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('StandaloneMuonTracks'),
         edmName               = cms.untracked.string('standAloneMuons'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('StandaloneMuonTracksMapName'),
         edmSimAssociationName = cms.untracked.string('')
     ),
@@ -48,7 +62,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('StandaloneMuonTracksWVtxConstraint'),
         edmName               = cms.untracked.string('standAloneMuons:UpdatedAtVtx'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
         edmSimAssociationName = cms.untracked.string('')
     ),
@@ -57,7 +71,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('GlobalMuonTracks'),
         edmName               = cms.untracked.string('globalMuons'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('GlobalMuonTracksMapName'),
         edmSimAssociationName = cms.untracked.string('')
     ),
@@ -66,27 +80,27 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('ConversionInOutTracks'),
         edmName               = cms.untracked.string('ckfInOutTracksFromConversions'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('ConversionInOutTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assocInOutConversionTracks')
     ),
 
     ConversionOutInTracks = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('ConversionOutInTracks'),
         edmName               = cms.untracked.string('ckfOutInTracksFromConversions'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('ConversionOutInTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assocOutInConversionTracks')
     ),
                    
     GsfTracks = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
         mitName               = cms.untracked.string('GsfTracks'),
         edmName               = cms.untracked.string('pixelMatchGsfFit'),
-        trackingMapName            = cms.untracked.string('SimMap'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
         trackMapName          = cms.untracked.string('GsfTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
+        edmSimAssociationName = cms.untracked.string('assoc2GsfTracks')
     ),
                                
     CaloTowers = cms.untracked.PSet(
