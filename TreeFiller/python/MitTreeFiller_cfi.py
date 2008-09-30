@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.14 2008/09/29 17:07:36 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.15 2008/09/30 13:04:35 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -216,7 +216,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     IC5GenJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('IC5GenJets'),
         edmName = cms.untracked.string('iterativeCone5GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenIC5byRef'),
@@ -225,7 +225,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     SC5GenJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('SC5GenJets'),
         edmName = cms.untracked.string('sisCone5GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenSC5byRef'),
@@ -234,7 +234,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                              
     SC7GenJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('SC7GenJets'),
         edmName = cms.untracked.string('sisCone7GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenSC7byRef'),
@@ -243,7 +243,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     
     KT4GenJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('KT4GenJets'),
         edmName = cms.untracked.string('kt4GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenKT4byRef'),
@@ -251,7 +251,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ), 
     KT6GenJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('KT6GenJets'),
         edmName = cms.untracked.string('kt6GenJets'),
         flavorMatchingByReferenceName = cms.untracked.string('GenKT6byRef'),
@@ -260,10 +260,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     CaloJets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(True),
-        jetToVertexActive = cms.untracked.bool(True),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('CaloJets'),
         edmName = cms.untracked.string('iterativeCone5CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5:Var'),
@@ -290,10 +290,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     ItrCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(False),
         jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('ItrCone5Jets'),
         edmName = cms.untracked.string('iterativeCone5CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5:Var'),
@@ -307,10 +307,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     SisCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(False),
         jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('SisCone5Jets'),
         edmName = cms.untracked.string('sisCone5CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaSC5:Var'),
@@ -324,10 +324,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     SisCone7Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(False),
         jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('SisCone7Jets'),
         edmName = cms.untracked.string('sisCone7CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaSC7:Var'),
@@ -341,10 +341,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     Kt4Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(False),
         jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('Kt4Jets'),
         edmName = cms.untracked.string('kt4CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT4:Var'),
@@ -357,10 +357,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
     Kt6Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(False),
         jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(True),
+        jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('Kt6Jets'),
         edmName = cms.untracked.string('kt6CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT6:Var'),
