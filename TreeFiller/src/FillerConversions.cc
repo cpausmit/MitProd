@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.7 2008/07/14 21:01:00 loizides Exp $
+// $Id: FillerConversions.cc,v 1.8 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -73,7 +73,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                                            inConversion->conversionVertex().zError());
         
     outConversion->DecayVertex().SetChi2(inConversion->conversionVertex().chi2());
-    outConversion->DecayVertex().SetNDof((Int_t)inConversion->conversionVertex().ndof());
+    outConversion->DecayVertex().SetNdof((Int_t)inConversion->conversionVertex().ndof());
     
     outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
     outConversion->SetEOverP(inConversion->EoverP());
