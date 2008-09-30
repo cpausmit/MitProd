@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.5 2008/09/19 11:40:15 bendavid Exp $
+// $Id: FillerDecayParts.h,v 1.6 2008/09/27 05:50:47 loizides Exp $
 //
 // FillerDecayParts
 //
@@ -14,7 +14,9 @@
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Collections.h"
+#include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
 namespace mithep 
 {
@@ -28,11 +30,17 @@ namespace mithep
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
     
     private:
-      std::string                             edmName_;          //edm name of decay parts collection
-      std::string                             mitName_;          //name of DecayParticles in OAK
-      std::vector<std::string>                basePartMapNames_; //name of imported maps wrt stable parts
-      std::vector<const mithep::BasePartMap*> basePartMaps_;     //maps wrt stable parts
-      mithep::DecayParticleArr               *decays_;           //array of DecayParticles
+      mithep::Particle *getMitParticle(mitedm::BasePartPtr ptr) const;
+    
+      std::string                               edmName_;         //edm name of decay parts collection
+      std::string                               mitName_;         //name of DecayParticles in OAK
+      std::string                               vertexMapName_;   //name of imported map wrt primary vertexes
+      std::vector<std::string>                  basePartMapNames_; //name of imported maps wrt stable parts
+      std::vector<const mithep::BasePartMap*>   basePartMaps_;     //maps wrt stable parts
+      const mithep::VertexMap                  *vertexMap_;        //map wrt primary vertexes
+      mithep::DecayParticleArr                 *decays_;          //array of DecayParticles
+      mithep::StableDataArr                    *stableData_;      //array of StableDatas
+      mithep::DecayDataArr                     *decayData_;       //array of DecayDatas
   };
 }
 #endif

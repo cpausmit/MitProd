@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.7 2008/09/24 09:01:09 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.8 2008/09/27 05:50:47 loizides Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -25,10 +25,14 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  vertexMapName_(Conf().getUntrackedParameter<string>("vertexMap","")),
   basePartMapNames_(Conf().exists("basePartMaps") ? 
                     Conf().getUntrackedParameter<vector<string> >("basePartMaps") : 
                     vector<string>()),
-  decays_(new mithep::DecayParticleArr(250))
+  vertexMap_(0),
+  decays_(new mithep::DecayParticleArr(250)),
+  stableData_(new mithep::StableDataArr(500)),
+  decayData_(new mithep::DecayDataArr(500))
 {
   // Constructor.
 }
@@ -39,15 +43,24 @@ FillerDecayParts::~FillerDecayParts()
   // Destructor.
 
   delete decays_;
+  delete stableData_;
+  delete decayData_;
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree and get our map.
-
+  std::string stableDataName = mitName_ + "_StableDatas";
+  std::string decayDataName  = mitName_ + "_DecayDatas";
+  
   tws.AddBranch(mitName_.c_str(),&decays_);
-         
+  tws.AddBranch(stableDataName.c_str(), &stableData_);
+  tws.AddBranch(decayDataName.c_str(), &decayData_);
+
+  if (!vertexMapName_.empty())
+    vertexMap_ = OS()->get<VertexMap>(vertexMapName_.c_str());
+  
   for (std::vector<std::string>::const_iterator bmapName = basePartMapNames_.begin();
         bmapName!=basePartMapNames_.end(); ++bmapName) {
     if (!bmapName->empty()) 
@@ -61,6 +74,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 {
   // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
   decays_->Reset();
+  stableData_->Reset();
+  decayData_->Reset();
 
   Handle<mitedm::DecayPartCol> hParts;
   GetProduct(edmName_, hParts, evt);  
@@ -70,57 +85,84 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
   for (UInt_t i=0; i<iParts->size(); ++i) {
     const mitedm::DecayPart &p =iParts->at(i);                    // for convenience
     mithep::DecayParticle *d = decays_->Allocate();
-    new (d) mithep::DecayParticle(p.pid(),(mithep::DecayParticle::DecayType)p.decayType());
+    new (d) mithep::DecayParticle(p.pid());
     
-    d->SetFittedMass(p.fittedMass());
-    d->SetFittedMassError(p.fittedMassError());
-    d->SetLxy(p.lxy());
-    d->SetLxyError(p.lxyError());
-    d->SetLxyToPv(p.lxyToPv());
-    d->SetLxyToPvError(p.lxyToPvError());
-    d->SetDxy(p.dxy());
-    d->SetDxyError(p.dxyError());
-    d->SetDxyToPv(p.dxyToPv());
-    d->SetDxyToPvError(p.dxyToPvError());
-    d->SetLz(p.lz());
-    d->SetLzError(p.lzError());
-    d->SetLzToPv(p.lzToPv());
-    d->SetLzToPvError(p.lzToPvError());
-    d->SetCTau(p.cTau());
-    d->SetCTauError(p.cTauError());
-    d->SetPt(p.pt());
-    d->SetPtError(p.ptError());
+    d->SetMassError(p.fittedMassError());
+    d->SetLxy(p.lxyToPv());
+    d->SetLxyError(p.lxyToPvError());
+    d->SetDxy(p.dxyToPv());
+    d->SetDxyError(p.dxyToPvError());
+    d->SetLz(p.lzToPv());
+    d->SetLzError(p.lzToPvError());
     d->SetMom(p.fourMomentum());
-    d->SetPosition(p.position());
-    d->SetError(p.error());
-    d->SetBigError(p.bigError());
-    
     d->SetChi2(p.chi2());
     d->SetNdof(p.ndof());
 
-    //loop through and add daughters
+    if (p.primaryVertex().isNonnull())
+      d->SetPriVertex(vertexMap_->GetMit(p.primaryVertex()));
+    
     if (basePartMaps_.size()) {
-      for (Int_t j=0; j<p.nChild();++j) {
-        const mitedm::BasePartPtr &thePtr = p.getChildPtr(j);
-        mithep::Particle *daughter = 0;
-        for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
-              bmap!=basePartMaps_.end(); ++bmap) {
-          const mithep::BasePartMap *theMap = *bmap;
-          if (theMap->HasMit(thePtr))
-            daughter = theMap->GetMit(thePtr);
-        }
+       //loop through and add stable daughters
+      for (Int_t j=0; j<p.nStableChild(); ++j) {
+        const mitedm::StableData &stable = p.getStableData(j);
+        mitedm::BasePartPtr thePtr = stable.originalPtr();
+        mithep::Particle *daughter = getMitParticle(thePtr);
         
-        if (!daughter)
-          throw edm::Exception(edm::errors::Configuration, "FillerDecayParts::FillDataBlock()\n")
-         << "Error! MITHEP Object " 
-         << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
-              
-        if (p.nChild()==p.nChildMom())
-          d->AddDaughter(daughter, mithep::DaughterData(p.getChildMom(j)));
-        else
-          d->AddDaughter(daughter);
+        mithep::StableData *outStable = stableData_->Allocate();
+        new (outStable) mithep::StableData(daughter,stable.p3().x(),stable.p3().y(),stable.p3().z());
+        
+        d->AddDaughterData(outStable);
+      }
+      //loop through and add decay daughters
+      for (Int_t j=0; j<p.nDecayChild(); ++j) {
+        const mitedm::DecayData &decay = p.getDecayData(j);
+        mitedm::BasePartPtr thePtr = decay.originalPtr();
+        mithep::Particle *daughter = getMitParticle(thePtr);
+        
+        mithep::DecayData *outDecay = decayData_->Allocate();
+        new (outDecay) mithep::DecayData(daughter,decay.p4());
+        outDecay->SetMassError(decay.massErr());
+        outDecay->SetLxy(decay.lxy());
+        outDecay->SetLxyError(decay.lxyErr());
+        outDecay->SetLz(decay.lz());
+        outDecay->SetLzError(decay.lzErr());
+        outDecay->SetDxy(decay.dxy());
+        outDecay->SetDxyError(decay.dxyErr());
+        
+        d->AddDaughterData(outDecay);
       }
     }
+/*    printf("mitedm::DecayPart              position=%5f,%5f,%5f\n",p.position().x(),
+                                                          p.position().y(),
+                                                          p.position().z());
+    printf("mithep::DecayParticle          position=%5f,%5f,%5f\n",d->Position().X(),
+                                                          d->Position().Y(),
+                                                          d->Position().Z());
+    printf("mithep::DecayParticle relative position=%5f,%5f,%5f\n",d->RelativePosition().X(),
+                                                          d->RelativePosition().Y(),
+                                                          d->RelativePosition().Z()); */                                                                                                    
+    //cout << "MITHEP...\n";d->print();
   }
   decays_->Trim();
+  stableData_->Trim();
+  decayData_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+mithep::Particle *FillerDecayParts::getMitParticle(mitedm::BasePartPtr ptr) const
+{
+  mithep::Particle *mitPart = 0;
+  for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
+        bmap!=basePartMaps_.end(); ++bmap) {
+    const mithep::BasePartMap *theMap = *bmap;
+    if (theMap->HasMit(ptr))
+      mitPart = theMap->GetMit(ptr);
+  }
+  
+  if (!mitPart)
+    throw edm::Exception(edm::errors::Configuration, "FillerDecayParts::FillDataBlock()\n")
+    << "Error! MITHEP Object " 
+    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+    
+  return mitPart;
 }
