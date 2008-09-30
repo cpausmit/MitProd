@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.9 2008/09/29 17:07:47 sixie Exp $
+# $Id: MitTreeFiller_template.py,v 1.10 2008/09/30 15:59:42 sixie Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -30,6 +30,9 @@ process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
 #Load Mit vProducer
 process.load("MitEdm.Producers.vProducer_cff")
+
+#Load Mit Mvf Conversion producer
+process.load("MitEdm.Producers.conversionProducer_cff")
 
 # compute ECAL shower shape variables
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -83,6 +86,7 @@ process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
 
 process.p1 = cms.Path(
      process.vProducer *
+     process.conversionProducer *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
@@ -90,4 +94,5 @@ process.p1 = cms.Path(
      )
     *process.MitTreeFiller
     *process.vFiller
+    *process.conversionFiller
      )

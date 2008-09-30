@@ -44,86 +44,90 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
-
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load( "RecoEgamma.ElectronIdentification.electronIdCutBased_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdCutBasedClasses_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdLikelihood_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdNeuralNet_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdCutBasedClassesExt_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi")
-process.load( "RecoEgamma.ElectronIdentification.electronIdNeuralNetExt_cfi")
+#Load MitTreeFiller 
+process.TreeService = cms.Service("TreeService",
+    fileNames = cms.untracked.vstring('XX-MITDATASET-XX')
+)
+process.add_(cms.Service("ObjectService"))
+process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
+#Load Mit vProducer
+process.load("MitEdm.Producers.vProducer_cff")
 
-process.eIdSequence = cms.Sequence( process.eidCutBased +
-                                    process.eidCutBasedExt +
-                                    process.eidCutBasedClasses +
-                                    process.eidCutBasedClassesExt +
-                                    process.eidLikelihood +
-                                    process.eidLikelihoodExt + 
-                                    process.eidNeuralNet +
-                                    process.eidNeuralNetExt)
+#Load Mit Mvf Conversion producer
+process.load("MitEdm.Producers.conversionProducer_cff")
 
-#Load Flavor Matching Information
-process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
+# compute ECAL shower shape variables
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-# setup MET muon corrections
-process.load("JetMETCorrections.Type1MET.MetMuonCorrections_cff")                                          
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag="IDEAL_V9::All"
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
-process.load("TrackingTools.TrackAssociator.default_cfi")                                                   
-process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-# setup Type1 MET corrections
-process.load("MitProd.TreeFiller.MetType1Corrections_cfi")
-# Iterative Cone 0.5
-process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
-process.corMetType1Icone5.corrector           = cms.string('L2L3JetCorrectorIcone5')
-# SIS Cone 0.5
-process.corMetType1Scone5.inputUncorMetLabel = cms.string('corMetGlobalMuons')
-process.corMetType1Scone5.corrector          = cms.string('L2L3JetCorrectorScone5') 
-# SIS Cone 0.7
-process.corMetType1Scone7.inputUncorMetLabel = cms.string('corMetGlobalMuons')
-process.corMetType1Scone7.corrector          = cms.string('L2L3JetCorrectorScone7') 
-# kT 0.4
-process.corMetType1Kt4.inputUncorMetLabel = cms.string('corMetGlobalMuons')
-process.corMetType1Kt4.corrector          = cms.string('L2L3JetCorrectorKt4') 
-# kT 0.6
-process.corMetType1Kt6.inputUncorMetLabel = cms.string('corMetGlobalMuons')
-process.corMetType1Kt6.corrector          = cms.string('L2L3JetCorrectorKt6') 
-
-
-#produce jet vertex association information
-process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
+#Load ElectronID information
+process.load("MitProd.TreeFiller.ElectronID_cfi")
 
 #For Jet Corrections
 process.load("MitProd.TreeFiller.JetCorrections_cfi")
-process.prefer("L3JetCorrectorIcone5") 
+process.prefer("L3JetCorrectorIcone5")
+#enable Jet Corrections for all of our Jet collections
+process.MitTreeFiller.CaloJets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt4Jets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt6Jets.jetCorrectionsActive = cms.untracked.bool(True)
 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('mit-match')
-)
-process.add_(cms.Service("ObjectService"))
+#Load Met Corrections
+process.load("MitProd.TreeFiller.MetCorrections_cfi")
 
+#Load Flavor Matching Information
+process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
+#Enable Flavor matching for Reco Jets and GenJets
+process.MitTreeFiller.CaloJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone5Jets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone7Jets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt4Jets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt6Jets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.IC5GenJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.SC5GenJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.SC7GenJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.KT4GenJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.KT6GenJets.flavorMatchingActive = cms.untracked.bool(True)
+
+#produce jet vertex association information
+process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
+#Enable Jet Vertex association for Reco Jet collections
+process.MitTreeFiller.CaloJets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone5Jets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.SisCone7Jets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
+
+#hit based track-simulation matching
 process.load("MitProd.TreeFiller.MitPostRecoGenerator_cff")
-process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 process.MitTreeFiller.MCParticles.trackingActive=True
 
 process.p1 = cms.Path(
-     process.pdigi
-    *(process.caloJetMCFlavour
-     + process.eIdSequence
-     + (process.MetMuonCorrections * process.MetType1Corrections)
+     process.pdigi *
+     process.vProducer *
+     process.conversionProducer *
+    (  process.MitEIdSequence
+     + process.MitMetCorrections
+     + process.caloJetMCFlavour
      + process.jetvertexAssociationSequence
      )
     *process.mit_postreco_generator
-    *process.MitTreeFiller)
+    *process.MitTreeFiller
+    *process.vFiller
+    *process.conversionFiller
+     )
