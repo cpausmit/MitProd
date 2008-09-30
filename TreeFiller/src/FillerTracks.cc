@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.18 2008/09/06 19:25:43 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.19 2008/09/17 04:26:12 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,7 +21,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   edmName_(Conf().getUntrackedParameter<string>("edmName",edmName)),
   mitName_(Conf().getUntrackedParameter<string>("mitName",mitName)),
   edmSimAssocName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
-  trackingMapName_(Conf().getUntrackedParameter<string>("simMapName","TrackingMap")),
+  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
                                                      Form("%sMapName",mitName_.c_str()))),
   trackingMap_(0),
