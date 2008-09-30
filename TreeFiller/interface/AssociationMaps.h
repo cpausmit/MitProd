@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.11 2008/09/10 03:30:22 loizides Exp $
+// $Id: AssociationMaps.h,v 1.12 2008/09/24 09:01:09 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -12,6 +12,7 @@
 #define MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
  
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
+#include "MitEdm/DataFormats/interface/Types.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/BasicCluster.h"
 #include "MitAna/DataTree/interface/CaloTower.h"
@@ -28,12 +29,15 @@
 #include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
+#include "MitAna/DataTree/interface/Vertex.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
 namespace mithep
@@ -51,5 +55,6 @@ namespace mithep
   typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
   typedef AssociationMap<const mitedm::BasePartPtr,   mithep::Particle*>     BasePartMap;
   typedef AssociationMap<const CaloTowerDetId,        mithep::CaloTower*>    CaloTowerMap;
+  typedef AssociationMap<const mitedm::VertexPtr,     mithep::Vertex*>       VertexMap;
 }   
 #endif
