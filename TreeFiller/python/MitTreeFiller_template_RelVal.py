@@ -60,10 +60,22 @@ process.load("TrackingTools.TrackAssociator.default_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")  
 
 # setup Type1 MET corrections
-process.load("JetMETCorrections.Configuration.L2L3Corrections_CMSSW_152_cff")
-process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
+process.load("MitProd.TreeFiller.MetType1Corrections_cfi")
+# Iterative Cone 0.5
 process.corMetType1Icone5.inputUncorMetLabel  = cms.string('corMetGlobalMuons')
 process.corMetType1Icone5.corrector           = cms.string('L2L3JetCorrectorIcone5')
+# SIS Cone 0.5
+process.corMetType1Scone5.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Scone5.corrector          = cms.string('L2L3JetCorrectorScone5') 
+# SIS Cone 0.7
+process.corMetType1Scone7.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Scone7.corrector          = cms.string('L2L3JetCorrectorScone7') 
+# kT 0.4
+process.corMetType1Kt4.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Kt4.corrector          = cms.string('L2L3JetCorrectorKt4') 
+# kT 0.6
+process.corMetType1Kt6.inputUncorMetLabel = cms.string('corMetGlobalMuons')
+process.corMetType1Kt6.corrector          = cms.string('L2L3JetCorrectorKt6') 
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
@@ -76,14 +88,18 @@ process.TreeService = cms.Service("TreeService",
     fileNames = cms.untracked.vstring('XX-MITDATASET-XX')
 )
 
+process.load("MitProd.TreeFiller.MitPostRecoGenerator_cff")
+
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.TreeFiller.MitTreeFiller_RAW_RECO_cfi")
+process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
+process.MitTreeFiller.MCParticles.trackingActive=True
 
 process.p1 = cms.Path(
     (process.caloJetMCFlavour
      + process.eIdSequence
-     + (process.MetMuonCorrections * process.corMetType1Icone5)
+     + (process.MetMuonCorrections * process.MetType1Corrections)
      + process.jetvertexAssociationSequence
      )
+    *process.mit_postreco_generator
     *process.MitTreeFiller)
