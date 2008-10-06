@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.4 2008/09/05 23:46:14 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.5 2008/09/06 19:25:43 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -198,8 +198,6 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   
       //find corresponding mithep genparticle parent in association table
       mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
-
-      if (genParent->IsSimulated()) continue;
   
       //set decay vertex
       //division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
@@ -246,8 +244,13 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         if (theVertex.parentIndex()>=0) {
           mithep::MCParticle *simParent = simMap_->GetMit(simTidMap_[theVertex.parentIndex()]);
           simParent->SetVertex(theVertex.position().x(),theVertex.position().y(),theVertex.position().z());
-          simParent->AddDaughter(simDaughter);
-          simDaughter->SetMother(simParent);
+          //make sure we don't double count the decay tree
+          if ( !simParent->HasDaughter(simDaughter) ) {
+            simParent->AddDaughter(simDaughter);
+          }
+          if ( !simDaughter->HasMother() ) {
+            simDaughter->SetMother(simParent);
+          }
         }
 
       }
