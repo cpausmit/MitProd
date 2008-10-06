@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.9 2008/07/31 09:05:05 loizides Exp $
+// $Id: TreeService.h,v 1.10 2008/09/10 03:31:03 loizides Exp $
 //
 // TreeService 
 //
@@ -63,6 +63,7 @@ namespace mithep
       std::vector<unsigned>    compLevels_;  //compression levels
       std::vector<unsigned>    splitLevels_; //default split levels
       std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
+      bool                     fDoReset_;    //reset object counter (def=1)
   };
 }
 #endif

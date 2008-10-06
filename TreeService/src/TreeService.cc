@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.8 2008/07/03 08:25:12 loizides Exp $
+// $Id: TreeService.cc,v 1.9 2008/07/30 11:30:02 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -15,7 +15,8 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) : 
-  tws_(0)
+  tws_(0),
+  fDoReset_(cfg.getUntrackedParameter<bool>("doReset",1))
 {
   // Constructor.
 
@@ -68,7 +69,7 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) :
   // init tree writers 
   for (unsigned int i=0; i<treeNames_.size(); ++i) {
 
-    TreeWriter *t = new TreeWriter(treeNames_.at(i).c_str(),1);
+    TreeWriter *t = new TreeWriter(treeNames_.at(i).c_str(),0);
     t->SetPrefix(fileNames_.at(i).c_str());
 
     if (i<pathNames_.size())
@@ -150,8 +151,12 @@ void TreeService::postEventProcessing(const Event&, const EventSetup&)
 
   for (int i=0; i<tws_.GetEntries(); ++i) {
     TreeWriter *tw=dynamic_cast<TreeWriter*>(tws_.At(i));
-    if (tw)
-      tw->EndEvent();
+    if (tw) {
+      if (i<tws_.GetEntries()-1)
+        tw->EndEvent();
+      else // make sure objects are only reset at the end (if at all)
+        tw->EndEvent(fDoReset_);
+    }
   }
 }
 
@@ -162,7 +167,11 @@ void TreeService::preEventProcessing(const EventID&, const Timestamp&)
 
   for (int i=0; i<tws_.GetEntries(); ++i) {
     TreeWriter *tw=dynamic_cast<TreeWriter*>(tws_.At(i));
-    if (tw)
-      tw->BeginEvent();
+    if (tw) {
+      if (i==0) // make sure objects are only reset at the beginning (if at all)
+        tw->BeginEvent(fDoReset_);
+      else
+        tw->BeginEvent();
+    }
   }
 }
