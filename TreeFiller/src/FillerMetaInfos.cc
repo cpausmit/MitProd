@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.17 2008/09/27 05:51:25 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.18 2008/10/06 16:35:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,6 +101,7 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(hltBitsName_.c_str(),"mithep::BitMask256",&hltBits_);
   tws.AddBranch(hltObjsName_.c_str(),&hltObjs_);
   tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
+  tws.GetTree()->BranchRef();
 
   // add branches to run info tree
   tws.AddBranchToTree(Names::gkRunTreeName,runName_.c_str(),"mithep::RunInfo",&runInfo_);
@@ -255,7 +256,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
       delete labmap;
       return;
     }
-  } 
+  }
 
   delete hltTable_;
   delete hltLabels_;
