@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.10 2008/09/30 15:59:42 sixie Exp $
+# $Id: MitTreeFiller_template.py,v 1.11 2008/09/30 20:13:42 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -56,6 +56,11 @@ process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive = cms.untracked.bool(Tru
 process.MitTreeFiller.Kt4Jets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetCorrectionsActive = cms.untracked.bool(True)
 
+#For JetPlusTracks
+process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
+process.MitTreeFiller.IC5JetPlusTrack.active = cms.untracked.bool(True)
+
 #Load Met Corrections
 process.load("MitProd.TreeFiller.MetCorrections_cfi")
 
@@ -91,6 +96,7 @@ process.p1 = cms.Path(
      + process.MitMetCorrections
      + process.caloJetMCFlavour
      + process.jetvertexAssociationSequence
+     + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      )
     *process.MitTreeFiller
     *process.vFiller

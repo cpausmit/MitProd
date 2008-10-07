@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.23 2008/09/29 17:07:56 sixie Exp $
+// $Id: FillMitTree.cc,v 1.24 2008/09/30 13:03:42 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -171,6 +171,9 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   
   FillerCaloJets *fillerKt6Jets = new FillerCaloJets(cfg,"Kt6Jets",defactive_);
   addActiveFiller(fillerKt6Jets);
+
+  FillerCaloJets *fillerIC5JetPlusTrack = new FillerCaloJets(cfg,"IC5JetPlusTrack",defactive_);
+  addActiveFiller(fillerIC5JetPlusTrack);
 
   FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg,"CaloMet",defactive_);
   addActiveFiller(fillerCaloMet);
