@@ -101,7 +101,6 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(hltBitsName_.c_str(),"mithep::BitMask256",&hltBits_);
   tws.AddBranch(hltObjsName_.c_str(),&hltObjs_);
   tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
-  tws.GetTree()->BranchRef();
 
   // add branches to run info tree
   tws.AddBranchToTree(Names::gkRunTreeName,runName_.c_str(),"mithep::RunInfo",&runInfo_);
@@ -223,14 +222,22 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
     
     const vector<string> &mLabels(hltConfig_.moduleLabels(i));
     for (UInt_t j=0; j<mLabels.size(); ++j) {
-      const string& label(mLabels[j]);
-      const string  type(hltConfig_.moduleType(label));
 
-      map<string,Short_t>::iterator riter = labmap->find(label);
+      const string& label(mLabels[j]);
+
+      // remove characters which do not work: negation is included as !ModuleName
+      // (this might require a change in the underlying CMSSW HLT fwk, so watch out).
+      const char *lptr = &label[0];
+      if (label[0] == '!') 
+        ++lptr;
+
+      map<string,Short_t>::iterator riter = labmap->find(lptr);
       if (riter == labmap->end()) {
-        labmap->insert(pair<string,Short_t>(label,labels->Entries()));
-        labels->AddCopy(label);
+        labmap->insert(pair<string,Short_t>(lptr,labels->Entries()));
+        labels->AddCopy(lptr);
       }
+
+      const string type(hltConfig_.moduleType(lptr));
       riter = labmap->find(type);
       if (riter == labmap->end()) {
         labmap->insert(pair<string,Short_t>(type,labels->Entries()));
@@ -248,7 +255,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
       delete labmap;
       return;
     }
-  }
+  } 
 
   delete hltTable_;
   delete hltLabels_;
