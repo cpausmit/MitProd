@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.19 2008/09/17 04:26:12 loizides Exp $
+// $Id: FillerTracks.cc,v 1.20 2008/09/30 13:02:04 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,7 +30,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
 {
   // Constructor.
 
-  InitLayerMap();
+  InitLayerMap(layerMap_);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,45 +140,45 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerTracks::InitLayerMap()
+void FillerTracks::InitLayerMap(std::map<uint32_t,mithep::Track::EHitLayer> &layerMap)
 {
   // Initialize mapping between hit layer format in reco::HitPattern and the one used in
   // mithep::Track. Note in 21x stereo layers are treated separatelely.
   
-  layerMap_[1160] = mithep::Track::PXB1;
-  layerMap_[1168] = mithep::Track::PXB2;
-  layerMap_[1176] = mithep::Track::PXB3;
-  layerMap_[1288] = mithep::Track::PXF1;
-  layerMap_[1296] = mithep::Track::PXF2;
-  layerMap_[1416] = mithep::Track::TIB1;
-  layerMap_[1420] = mithep::Track::TIB1S;
-  layerMap_[1424] = mithep::Track::TIB2;
-  layerMap_[1428] = mithep::Track::TIB2S;
-  layerMap_[1432] = mithep::Track::TIB3;
-  layerMap_[1440] = mithep::Track::TIB4;
-  layerMap_[1544] = mithep::Track::TID1;
-  layerMap_[1548] = mithep::Track::TID1S;
-  layerMap_[1552] = mithep::Track::TID2;
-  layerMap_[1556] = mithep::Track::TID2S;
-  layerMap_[1560] = mithep::Track::TID3;
-  layerMap_[1672] = mithep::Track::TOB1;
-  layerMap_[1676] = mithep::Track::TOB1S;
-  layerMap_[1680] = mithep::Track::TOB2;
-  layerMap_[1684] = mithep::Track::TOB2S;
-  layerMap_[1688] = mithep::Track::TOB3;
-  layerMap_[1696] = mithep::Track::TOB4;
-  layerMap_[1704] = mithep::Track::TOB5;
-  layerMap_[1712] = mithep::Track::TOB6;
-  layerMap_[1800] = mithep::Track::TEC1;
-  layerMap_[1804] = mithep::Track::TEC1S;
-  layerMap_[1808] = mithep::Track::TEC2;
-  layerMap_[1812] = mithep::Track::TEC2S;
-  layerMap_[1816] = mithep::Track::TEC3;
-  layerMap_[1824] = mithep::Track::TEC4;
-  layerMap_[1832] = mithep::Track::TEC5;
-  layerMap_[1836] = mithep::Track::TEC5S;
-  layerMap_[1840] = mithep::Track::TEC6;
-  layerMap_[1848] = mithep::Track::TEC7;
-  layerMap_[1856] = mithep::Track::TEC8;
-  layerMap_[1864] = mithep::Track::TEC9;
+  layerMap[1160] = mithep::Track::PXB1;
+  layerMap[1168] = mithep::Track::PXB2;
+  layerMap[1176] = mithep::Track::PXB3;
+  layerMap[1288] = mithep::Track::PXF1;
+  layerMap[1296] = mithep::Track::PXF2;
+  layerMap[1416] = mithep::Track::TIB1;
+  layerMap[1420] = mithep::Track::TIB1S;
+  layerMap[1424] = mithep::Track::TIB2;
+  layerMap[1428] = mithep::Track::TIB2S;
+  layerMap[1432] = mithep::Track::TIB3;
+  layerMap[1440] = mithep::Track::TIB4;
+  layerMap[1544] = mithep::Track::TID1;
+  layerMap[1548] = mithep::Track::TID1S;
+  layerMap[1552] = mithep::Track::TID2;
+  layerMap[1556] = mithep::Track::TID2S;
+  layerMap[1560] = mithep::Track::TID3;
+  layerMap[1672] = mithep::Track::TOB1;
+  layerMap[1676] = mithep::Track::TOB1S;
+  layerMap[1680] = mithep::Track::TOB2;
+  layerMap[1684] = mithep::Track::TOB2S;
+  layerMap[1688] = mithep::Track::TOB3;
+  layerMap[1696] = mithep::Track::TOB4;
+  layerMap[1704] = mithep::Track::TOB5;
+  layerMap[1712] = mithep::Track::TOB6;
+  layerMap[1800] = mithep::Track::TEC1;
+  layerMap[1804] = mithep::Track::TEC1S;
+  layerMap[1808] = mithep::Track::TEC2;
+  layerMap[1812] = mithep::Track::TEC2S;
+  layerMap[1816] = mithep::Track::TEC3;
+  layerMap[1824] = mithep::Track::TEC4;
+  layerMap[1832] = mithep::Track::TEC5;
+  layerMap[1836] = mithep::Track::TEC5S;
+  layerMap[1840] = mithep::Track::TEC6;
+  layerMap[1848] = mithep::Track::TEC7;
+  layerMap[1856] = mithep::Track::TEC8;
+  layerMap[1864] = mithep::Track::TEC9;
 }

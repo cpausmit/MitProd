@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.14 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerTracks.h,v 1.15 2008/09/17 04:29:00 loizides Exp $
 //
 // FillerTracks
 //
@@ -31,7 +31,7 @@ namespace mithep
 
       void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void InitLayerMap();
+      static void InitLayerMap(std::map<uint32_t,mithep::Track::EHitLayer> &layerMap);
 
     protected:
       std::string                                  edmName_;         //edm name of tracks collection
