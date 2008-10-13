@@ -1,11 +1,14 @@
-// $Id: FillerDecayParts.cc,v 1.8 2008/09/27 05:50:47 loizides Exp $
+// $Id: FillerDecayParts.cc,v 1.9 2008/09/30 13:03:16 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -35,6 +38,8 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   decayData_(new mithep::DecayDataArr(500))
 {
   // Constructor.
+  FillerTracks::InitLayerMap(layerMap_);
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,10 +102,11 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     d->SetMom(p.fourMomentum());
     d->SetChi2(p.chi2());
     d->SetNdof(p.ndof());
-
-    if (p.primaryVertex().isNonnull())
-      d->SetPriVertex(vertexMap_->GetMit(p.primaryVertex()));
     
+    if (p.primaryVertex().isNonnull()) {
+      d->SetPriVertex(vertexMap_->GetMit(p.primaryVertex()));
+    }
+      
     if (basePartMaps_.size()) {
        //loop through and add stable daughters
       for (Int_t j=0; j<p.nStableChild(); ++j) {
@@ -111,7 +117,19 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         mithep::StableData *outStable = stableData_->Allocate();
         new (outStable) mithep::StableData(daughter,stable.p3().x(),stable.p3().y(),stable.p3().z());
         
+        //fill crossed layer mask information using corrected HitPattern
+        const reco::HitPattern &hitPattern = stable.Hits();
+        //search for all good crossed layers (with or without hit)
+        for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
+          uint32_t hit = hitPattern.getHitPattern(hi);
+          if (hitPattern.getHitType(hit)<=1)
+            if (hitPattern.trackerHitFilter(hit)) {
+              outStable->SetLayer(layerMap_[hit]);
+            }
+        }
+        
         d->AddDaughterData(outStable);
+        
       }
       //loop through and add decay daughters
       for (Int_t j=0; j<p.nDecayChild(); ++j) {
