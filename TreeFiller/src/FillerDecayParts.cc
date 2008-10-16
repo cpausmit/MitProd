@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.9 2008/09/30 13:03:16 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.10 2008/10/13 10:41:59 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -38,8 +38,6 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   decayData_(new mithep::DecayDataArr(500))
 {
   // Constructor.
-  FillerTracks::InitLayerMap(layerMap_);
-  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,15 +115,48 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         mithep::StableData *outStable = stableData_->Allocate();
         new (outStable) mithep::StableData(daughter,stable.p3().x(),stable.p3().y(),stable.p3().z());
         
-        //fill crossed layer mask information using corrected HitPattern
-        const reco::HitPattern &hitPattern = stable.Hits();
-        //search for all good crossed layers (with or without hit)
-        for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
-          uint32_t hit = hitPattern.getHitPattern(hi);
-          if (hitPattern.getHitType(hit)<=1)
-            if (hitPattern.trackerHitFilter(hit)) {
-              outStable->SetLayer(layerMap_[hit]);
-            }
+        //fill bad layer mask information using corrected HitPattern
+        const ChargedParticle *cDaughter = dynamic_cast<const ChargedParticle*>(daughter);
+        if (cDaughter) {
+          const reco::HitPattern &hitPattern = stable.Hits();
+          BitMask64 crossedLayers;
+          UInt_t numCrossed=0;
+          //search for all good crossed layers (with or without hit)
+          for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
+            uint32_t hit = hitPattern.getHitPattern(hi);
+            if (hitPattern.getHitType(hit)<=1)
+              if (hitPattern.trackerHitFilter(hit)) {
+                numCrossed++;
+                crossedLayers.SetBit(hitReader_.Layer(hit));
+              }
+          }
+          BitMask64 badLayers = crossedLayers ^ cDaughter->Trk()->Hits();
+          outStable->SetBadLayers(badLayers);
+          
+//           if (outStable->NWrongHits()) {          
+//             printf("numCrossed:                %i\n",numCrossed);
+//             printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
+//             printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
+//             printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
+//             printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());
+//             printf("# of missed hits:          %i\n",outStable->NMissedHits());
+//             printf("# of wrong hits:           %i\n",outStable->NWrongHits());
+//             printf("Hits              : ");
+//             for (Int_t biti=63; biti >= 0; --biti) {
+//               printf("%i",cDaughter->Trk()->Hits().TestBit(biti));
+//             }
+//             printf("\n");
+//             printf("Crossed Layers    : ");
+//             for (Int_t biti=63; biti >= 0; --biti) {
+//               printf("%i",crossedLayers.TestBit(biti));
+//             }
+//             printf("\n");
+//             printf("WrongOrMissingHits: ");
+//             for (Int_t biti=63; biti>=0; --biti) {
+//               printf("%i",badLayers.TestBit(biti));
+//             }
+//             printf("\n");    
+//           }        
         }
         
         d->AddDaughterData(outStable);
@@ -150,16 +181,6 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         d->AddDaughterData(outDecay);
       }
     }
-/*    printf("mitedm::DecayPart              position=%5f,%5f,%5f\n",p.position().x(),
-                                                          p.position().y(),
-                                                          p.position().z());
-    printf("mithep::DecayParticle          position=%5f,%5f,%5f\n",d->Position().X(),
-                                                          d->Position().Y(),
-                                                          d->Position().Z());
-    printf("mithep::DecayParticle relative position=%5f,%5f,%5f\n",d->RelativePosition().X(),
-                                                          d->RelativePosition().Y(),
-                                                          d->RelativePosition().Z()); */                                                                                                    
-    //cout << "MITHEP...\n";d->print();
   }
   decays_->Trim();
   stableData_->Trim();

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.15 2008/09/17 04:29:00 loizides Exp $
+// $Id: FillerTracks.h,v 1.16 2008/10/13 10:41:36 bendavid Exp $
 //
 // FillerTracks
 //
@@ -18,6 +18,7 @@
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/HitPatternReader.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 namespace mithep 
@@ -41,7 +42,7 @@ namespace mithep
       std::string                                  trackMapName_;    //name of export map
       const mithep::TrackingParticleMap           *trackingMap_;     //map wrt simulated particles
       mithep::TrackArr                            *tracks_;          //array of tracks in OAK
-      std::map<uint32_t,mithep::Track::EHitLayer>  layerMap_;        //hitlayer bitmap map
+      HitPatternReader                             hitReader_;       //hit pattern reader
 
     private:
       mithep::TrackMap                            *trackMap_;        //map wrt tracks

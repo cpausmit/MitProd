@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.7 2008/09/30 13:03:15 bendavid Exp $
+// $Id: FillerDecayParts.h,v 1.8 2008/10/13 10:41:59 bendavid Exp $
 //
 // FillerDecayParts
 //
@@ -15,6 +15,7 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/HitPatternReader.h"
 #include "MitAna/DataTree/interface/Particle.h"
 #include "MitAna/DataTree/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
@@ -42,7 +43,7 @@ namespace mithep
       mithep::DecayParticleArr                 *decays_;          //array of DecayParticles
       mithep::StableDataArr                    *stableData_;      //array of StableDatas
       mithep::DecayDataArr                     *decayData_;       //array of DecayDatas
-      std::map<uint32_t,mithep::Track::EHitLayer>  layerMap_;        //hitlayer bitmap map
+      HitPatternReader                          hitReader_;       //hit pattern reader
   };
 }
 #endif

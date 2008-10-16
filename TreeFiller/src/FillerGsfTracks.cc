@@ -1,4 +1,4 @@
-// $Id: FillerGsfTracks.cc,v 1.14 2008/09/05 23:46:14 bendavid Exp $
+// $Id: FillerGsfTracks.cc,v 1.15 2008/09/17 04:28:12 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +82,7 @@ void FillerGsfTracks::FillDataBlock(const edm::Event      &event,
       uint32_t hit = hits.getHitPattern(i);
       if ( hits.validHitFilter(hit) )
         if ( hits.trackerHitFilter(hit) )
-          outTrack->SetHit(layerMap_[hit]);
+          outTrack->SetHit(hitReader_.Layer(hit));
     }
     
     
