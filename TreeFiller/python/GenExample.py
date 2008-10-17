@@ -1,10 +1,10 @@
-# $Id: $
+# $Id: GenExample.py,v 1.2 2008/09/28 02:27:52 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
 
-Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff')
+process.load('Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
    
@@ -47,6 +47,7 @@ process.MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active        = cms.untracked.bool(True),
         genActive     = cms.untracked.bool(True),
         simActive     = cms.untracked.bool(False),
+        trackingActive = cms.untracked.bool(False)
     )
 )
  
