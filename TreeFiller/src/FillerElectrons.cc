@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.15 2008/09/09 12:50:44 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.16 2008/09/10 03:30:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,6 +52,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
                        ("EcalJurassicIsolationName","eleIsoFromDepsEcalFromHits")),
   hcalJurassicIsoName_(Conf().getUntrackedParameter<string>
                        ("HcalJurassicIsolationName","eleIsoFromDepsHcalFromHits")),
+  trackerIsoName_(Conf().getUntrackedParameter<string>
+		  ("TrackerIsolationName","eleIsoFromDepsTk")),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -190,21 +192,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       new EgammaTowerIsolation (extRadius, intRadius, etLow, caloTowers.product());
     double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
     outElectron->SetCaloTowerIsolation( towerIsoValue );
-
-    //compute Track isolation        
-    edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel(isoTrackColName_,tracks);
-    const reco::TrackCollection* trackCollection = tracks.product();
-    extRadius = 0.2;
-    intRadius = 0.02;
-    double maxVtxDist = 0.1;      
-    double ptMin = 1.5;
-    ElectronTkIsolation myTkIsolation (extRadius,intRadius,ptMin,maxVtxDist,trackCollection);
-    double trackIsoValue = myTkIsolation.getPtTracks(&(*iM));
-
+  
     //fill the isolation values
     outElectron->SetCaloIsolation( ecalIsoValue ) ;
-    outElectron->SetTrackIsolation( trackIsoValue ) ;
+
+    //get and fill Track isolation        
+    Handle<edm::ValueMap<double> > eleIsoFromDepsTkValueMap;
+    GetProduct(trackerIsoName_, eleIsoFromDepsTkValueMap, event);
+    outElectron->SetTrackIsolation((*eleIsoFromDepsTkValueMap)[eRef]); 
    
     //get and fill Jurassic isolation values
     Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;

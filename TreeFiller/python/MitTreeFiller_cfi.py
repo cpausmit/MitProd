@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.16 2008/09/30 15:58:29 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.17 2008/10/07 17:57:26 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -174,7 +174,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         IsolationTrackCollectionName = cms.untracked.string('generalTracks'),
         IsolationCaloTowerCollectionName = cms.untracked.string('towerMaker'),
         EcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsEcalFromHits'),
-        HcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsHcalFromHits')        
+        HcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsHcalFromHits'),
+        TrackerIsolationName = cms.untracked.string('eleIsoFromDepsTk')        
     ),
 
     Taus = cms.untracked.PSet(
