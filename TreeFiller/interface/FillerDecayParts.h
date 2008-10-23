@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.8 2008/10/13 10:41:59 bendavid Exp $
+// $Id: FillerDecayParts.h,v 1.9 2008/10/16 16:17:17 bendavid Exp $
 //
 // FillerDecayParts
 //
@@ -34,16 +34,16 @@ namespace mithep
     private:
       mithep::Particle *getMitParticle(mitedm::BasePartPtr ptr) const;
     
-      std::string                               edmName_;         //edm name of decay parts collection
-      std::string                               mitName_;         //name of DecayParticles in OAK
-      std::string                               vertexMapName_;   //name of imported map wrt primary vertexes
+      std::string                               edmName_;          //edm name of decay parts collection
+      std::string                               mitName_;          //name of DecayParticles in OAK
+      std::string                               vertexMapName_;    //name of imported map wrt primary vertexes
       std::vector<std::string>                  basePartMapNames_; //name of imported maps wrt stable parts
       std::vector<const mithep::BasePartMap*>   basePartMaps_;     //maps wrt stable parts
       const mithep::VertexMap                  *vertexMap_;        //map wrt primary vertexes
-      mithep::DecayParticleArr                 *decays_;          //array of DecayParticles
-      mithep::StableDataArr                    *stableData_;      //array of StableDatas
-      mithep::DecayDataArr                     *decayData_;       //array of DecayDatas
-      HitPatternReader                          hitReader_;       //hit pattern reader
+      mithep::DecayParticleArr                 *decays_;           //array of DecayParticles
+      mithep::StableDataArr                    *stableData_;       //array of StableDatas
+      mithep::DecayDataArr                     *decayData_;        //array of DecayDatas
+      HitPatternReader                          hitReader_;        //hit pattern reader
   };
 }
 #endif

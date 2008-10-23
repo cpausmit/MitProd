@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.10 2008/10/13 10:41:59 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.11 2008/10/16 16:17:17 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -53,13 +53,14 @@ FillerDecayParts::~FillerDecayParts()
 //--------------------------------------------------------------------------------------------------
 void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 {
-  // Add tracks branch to tree and get our map.
+  // Add our branches to tree and get our map.
+
   std::string stableDataName = mitName_ + "_StableDatas";
   std::string decayDataName  = mitName_ + "_DecayDatas";
   
-  tws.AddBranch(mitName_.c_str(),&decays_);
+  tws.AddBranch(mitName_.c_str(),       &decays_);
   tws.AddBranch(stableDataName.c_str(), &stableData_);
-  tws.AddBranch(decayDataName.c_str(), &decayData_);
+  tws.AddBranch(decayDataName.c_str(),  &decayData_);
 
   if (!vertexMapName_.empty())
     vertexMap_ = OS()->get<VertexMap>(vertexMapName_.c_str());
@@ -76,6 +77,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 				     const edm::EventSetup &setup)
 {
   // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
+
   decays_->Reset();
   stableData_->Reset();
   decayData_->Reset();
@@ -133,35 +135,37 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           BitMask64 badLayers = crossedLayers ^ cDaughter->Trk()->Hits();
           outStable->SetBadLayers(badLayers);
           
-//           if (outStable->NWrongHits()) {          
-//             printf("numCrossed:                %i\n",numCrossed);
-//             printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
-//             printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
-//             printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
-//             printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());
-//             printf("# of missed hits:          %i\n",outStable->NMissedHits());
-//             printf("# of wrong hits:           %i\n",outStable->NWrongHits());
-//             printf("Hits              : ");
-//             for (Int_t biti=63; biti >= 0; --biti) {
-//               printf("%i",cDaughter->Trk()->Hits().TestBit(biti));
-//             }
-//             printf("\n");
-//             printf("Crossed Layers    : ");
-//             for (Int_t biti=63; biti >= 0; --biti) {
-//               printf("%i",crossedLayers.TestBit(biti));
-//             }
-//             printf("\n");
-//             printf("WrongOrMissingHits: ");
-//             for (Int_t biti=63; biti>=0; --biti) {
-//               printf("%i",badLayers.TestBit(biti));
-//             }
-//             printf("\n");    
-//           }        
+          if(0) {
+            if (outStable->NWrongHits()) {          
+              printf("numCrossed:                %i\n",numCrossed);
+              printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
+              printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
+              printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
+              printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());
+              printf("# of missed hits:          %i\n",outStable->NMissedHits());
+              printf("# of wrong hits:           %i\n",outStable->NWrongHits());
+              printf("Hits              : ");
+              for (Int_t biti=63; biti >= 0; --biti) {
+                printf("%i",cDaughter->Trk()->Hits().TestBit(biti));
+              }
+              printf("\n");
+              printf("Crossed Layers    : ");
+              for (Int_t biti=63; biti >= 0; --biti) {
+                printf("%i",crossedLayers.TestBit(biti));
+              }
+              printf("\n");
+              printf("WrongOrMissingHits: ");
+              for (Int_t biti=63; biti>=0; --biti) {
+                printf("%i",badLayers.TestBit(biti));
+              }
+              printf("\n");    
+            }        
+          }
         }
-        
+
         d->AddDaughterData(outStable);
-        
       }
+
       //loop through and add decay daughters
       for (Int_t j=0; j<p.nDecayChild(); ++j) {
         const mitedm::DecayData &decay = p.getDecayData(j);
@@ -190,6 +194,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 //--------------------------------------------------------------------------------------------------
 mithep::Particle *FillerDecayParts::getMitParticle(mitedm::BasePartPtr ptr) const
 {
+  // Return our particle referenced by the edm pointer.
+
   mithep::Particle *mitPart = 0;
   for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
         bmap!=basePartMaps_.end(); ++bmap) {

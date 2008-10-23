@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.2 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerVertexes.cc,v 1.1 2008/09/30 13:03:42 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,10 +14,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerVertexes::FillerVertexes(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","PrimaryVertexes")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
   vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName",
-                                                            "VertexMap")),
+                                                      "VertexMap")),
   vertexes_(new mithep::VertexArr(100)),
   vertexMap_(new mithep::VertexMap)
 {
@@ -46,9 +46,9 @@ void FillerVertexes::BookDataBlock(TreeWriter &tws)
 
 //--------------------------------------------------------------------------------------------------
 void FillerVertexes::FillDataBlock(const edm::Event      &event, 
-                                        const edm::EventSetup &setup)
+                                   const edm::EventSetup &setup)
 {
-  // Fill the BasicCluster Data Block
+  // Fill the Vertex branch.
 
   vertexes_->Reset();
   vertexMap_->Reset();
@@ -67,7 +67,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
                                    inV->xError(), inV->yError(), inV->zError());
                                    
     outVertex->SetChi2(inV->chi2());
-    outVertex->SetNdof(inV->ndof());
+    outVertex->SetNdof(static_cast<Int_t>(inV->ndof()));
     outVertex->SetNTracks(inV->tracksSize());                                
 
     //add vertex to the map
