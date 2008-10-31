@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.11 2008/10/16 16:17:17 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.12 2008/10/23 15:43:15 loizides Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -121,7 +121,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         const ChargedParticle *cDaughter = dynamic_cast<const ChargedParticle*>(daughter);
         if (cDaughter) {
           const reco::HitPattern &hitPattern = stable.Hits();
-          BitMask64 crossedLayers;
+          BitMask48 crossedLayers;
           UInt_t numCrossed=0;
           //search for all good crossed layers (with or without hit)
           for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
@@ -132,7 +132,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
                 crossedLayers.SetBit(hitReader_.Layer(hit));
               }
           }
-          BitMask64 badLayers = crossedLayers ^ cDaughter->Trk()->Hits();
+          BitMask48 badLayers = crossedLayers ^ cDaughter->Trk()->Hits();
           outStable->SetBadLayers(badLayers);
           
           if(0) {
