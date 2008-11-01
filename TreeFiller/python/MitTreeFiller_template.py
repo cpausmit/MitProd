@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.11 2008/09/30 20:13:42 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.12 2008/10/07 17:57:19 sixie Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -13,7 +13,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FILLER")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
    'file:/server/02a/sixie/RECO/001EA63A-DF60-DD11-9D5A-001A92810AA6.root'
@@ -44,6 +44,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
+#Load Electron Isolation. For Jurassic isolation veto fix.
+process.load("RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff")
+
 
 #For Jet Corrections
 process.load("MitProd.TreeFiller.JetCorrections_cfi")
@@ -90,8 +93,9 @@ process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
 
 process.p1 = cms.Path(
-     process.vProducer *
-     process.conversionProducer *
+    process.eleIsolationSequence *
+    process.vProducer *
+    process.conversionProducer *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
