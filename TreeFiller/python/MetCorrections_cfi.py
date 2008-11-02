@@ -19,7 +19,7 @@ corMetType1Icone5 = cms.EDFilter("Type1MET",
     metType = cms.string('CaloMET'),
     jetPTthreshold = cms.double(20.0),
     inputUncorMetLabel = cms.string('corMetGlobalMuons'),
-    corrector = cms.string('L2L3JetCorrectorIcone5')
+    corrector = cms.string('L2L3JetCorrectorIC5Calo')
 )
 
 #
@@ -31,7 +31,7 @@ corMetType1Scone5 = cms.EDFilter("Type1MET",
     metType = cms.string('CaloMET'),
     jetPTthreshold = cms.double(20.0),
     inputUncorMetLabel = cms.string('corMetGlobalMuons'),
-    corrector = cms.string('L2L3JetCorrectorScone5')
+    corrector = cms.string('L2L3JetCorrectorSC5Calo')
 )
 corMetType1Scone7 = cms.EDFilter("Type1MET",
     inputUncorJetsLabel = cms.string('sisCone7CaloJets'),
@@ -39,7 +39,7 @@ corMetType1Scone7 = cms.EDFilter("Type1MET",
     metType = cms.string('CaloMET'),
     jetPTthreshold = cms.double(20.0),
     inputUncorMetLabel = cms.string('corMetGlobalMuons'),
-    corrector = cms.string('L2L3JetCorrectorScone7')
+    corrector = cms.string('L2L3JetCorrectorSC7Calo')
 )
 
 #
@@ -51,7 +51,7 @@ corMetType1Kt4 = cms.EDFilter("Type1MET",
     metType = cms.string('CaloMET'),
     jetPTthreshold = cms.double(20.0),
     inputUncorMetLabel = cms.string('corMetGlobalMuons'),
-    corrector = cms.string('L2L3JetCorrectorKt4')
+    corrector = cms.string('L2L3JetCorrectorKT4Calo')
 )
 corMetType1Kt6 = cms.EDFilter("Type1MET",
     inputUncorJetsLabel = cms.string('kt6CaloJets'),
@@ -59,7 +59,7 @@ corMetType1Kt6 = cms.EDFilter("Type1MET",
     metType = cms.string('CaloMET'),
     jetPTthreshold = cms.double(20.0),
     inputUncorMetLabel = cms.string('corMetGlobalMuons'),
-    corrector = cms.string('L2L3JetCorrectorKt6')
+    corrector = cms.string('L2L3JetCorrectorKT6Calo')
 )
 
 MitMetCorrections = cms.Sequence( MetMuonCorrections
