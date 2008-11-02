@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.12 2008/10/07 17:57:19 sixie Exp $
+# $Id: MitTreeFiller_template.py,v 1.13 2008/11/01 10:58:12 sixie Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -48,9 +48,10 @@ process.load("MitProd.TreeFiller.ElectronID_cfi")
 process.load("RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff")
 
 
-#For Jet Corrections
-process.load("MitProd.TreeFiller.JetCorrections_cfi")
-process.prefer("L3JetCorrectorIcone5")
+#For Jet Corrections (Summer08 Jet corrections)
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff")
+process.prefer("L3JetCorrectorIC5Calo")
+
 #enable Jet Corrections for all of our Jet collections
 process.MitTreeFiller.CaloJets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
