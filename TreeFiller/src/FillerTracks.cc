@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.21 2008/10/13 10:41:36 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.22 2008/10/16 16:17:17 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,19 +9,23 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active,
+FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active, bool ecalActive,
                            const char *edmName, const char *mitName) :
   BaseFiller(cfg,name,active),
+  ecalAssocActive_(Conf().getUntrackedParameter<bool>("ecalAssocActive",ecalActive)),
   edmName_(Conf().getUntrackedParameter<string>("edmName",edmName)),
   mitName_(Conf().getUntrackedParameter<string>("mitName",mitName)),
   edmSimAssocName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
+  barrelSuperClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName","barrelSuperClusterIdMap")),
+  endcapSuperClusterIdMapName_(Conf().getUntrackedParameter<string>("endcapClusterIdMapName","endcapSuperClusterIdMap")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
                                                      Form("%sMapName",mitName_.c_str()))),
   trackingMap_(0),
@@ -29,6 +33,11 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   trackMap_(new mithep::TrackMap)
 {
   // Constructor.
+  
+  //initialize track associator configuration if needed
+  if (ecalAssocActive_)
+    assocParams_.loadParameters(cfg.getUntrackedParameter<ParameterSet>("TrackAssociatorParameters"));
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +57,8 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&tracks_);
 
   trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_.c_str());
+  barrelSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(barrelSuperClusterIdMapName_.c_str());
+  endcapSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(endcapSuperClusterIdMapName_.c_str());
   OS()->add<TrackMap>(trackMap_,trackMapName_.c_str());
   OS()->add<TrackArr>(tracks_,mitName_.c_str());
 }
@@ -76,6 +87,10 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     //printf("SimAssociation Map Size = %i\n",simAssociation.size());
   }
   
+  //set up associator for Track-Ecal associations
+  TrackDetectorAssociator trackAssociator;
+  trackAssociator.useDefaultPropagator();
+
   // loop through all tracks and fill the information
   for (reco::TrackCollection::const_iterator it = inTracks.begin(); 
        it != inTracks.end(); ++it) {
@@ -107,11 +122,40 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
           printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
       }
     }
+
+    //make ecal associations
+    if (ecalAssocActive_) {
+      TrackDetMatchInfo matchInfo = trackAssociator.associate(event,setup,
+                                                             *it,
+                                                              assocParams_);
+      outTrack->SetEtaEcal(matchInfo.trkGlobPosAtEcal.eta());
+      outTrack->SetPhiEcal(matchInfo.trkGlobPosAtEcal.phi());
+
+      //fill supercluster link
+      if (barrelSuperClusterIdMap_ || endcapSuperClusterIdMap_) {
+        mithep::SuperCluster *cluster = 0;
+        for (std::vector<const ::CaloTower*>::const_iterator iTower = matchInfo.crossedTowers.begin();
+            iTower<matchInfo.crossedTowers.end() && !cluster; iTower++) {
+
+          for (uint ihit=0; ihit<(*iTower)->constituentsSize() && !cluster; ihit++) {
+            DetId hit = (*iTower)->constituent(ihit);
+            if (barrelSuperClusterIdMap_ && barrelSuperClusterIdMap_->HasMit(hit))
+              cluster = barrelSuperClusterIdMap_->GetMit(hit);
+            else if (endcapSuperClusterIdMap_ && endcapSuperClusterIdMap_->HasMit(hit))
+              cluster = endcapSuperClusterIdMap_->GetMit(hit);
+          }
+        }
+        if (cluster)
+          outTrack->SetSCluster(cluster);
+
+      }
+    }
     
     // add reference between mithep and edm object
     reco::TrackRef theRef(hTrackProduct, it - inTracks.begin());
     trackMap_->Add(theRef, outTrack);
 	
+    //do dim associations
     if (trackingMap_ && !edmSimAssocName_.empty()) {
       //printf("Trying Track-Sim association\n");
       reco::TrackBaseRef theBaseRef(theRef);

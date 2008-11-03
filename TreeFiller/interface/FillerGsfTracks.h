@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGsfTracks.h,v 1.8 2008/08/29 02:50:02 loizides Exp $
+// $Id: FillerGsfTracks.h,v 1.9 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerGsfTracks
 //
@@ -21,7 +21,7 @@ namespace mithep
   class FillerGsfTracks : public FillerTracks
   {  
     public:
-      FillerGsfTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerGsfTracks(const edm::ParameterSet &cfg, const char *name, bool active=1, bool ecalActive=0);
       ~FillerGsfTracks();
 
       void BookDataBlock(TreeWriter &tws);

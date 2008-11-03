@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.15 2008/09/16 18:17:13 sixie Exp $
+# $Id: BuildFile,v 1.16 2008/09/17 04:24:23 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -18,6 +18,7 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=JetMETCorrections/Objects>
 <use name=SimDataFormats/HepMCProduct>
+<use name=TrackingTools/TrackAssociator>
 <use name=root>
 <use name=MitProd/TreeService>
 <use name=MitProd/ObjectService>

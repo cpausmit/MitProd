@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.16 2008/10/13 10:41:36 bendavid Exp $
+// $Id: FillerTracks.h,v 1.17 2008/10/16 16:17:17 bendavid Exp $
 //
 // FillerTracks
 //
@@ -13,6 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Collections.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -26,7 +27,7 @@ namespace mithep
   class FillerTracks : public BaseFiller
   {  
     public:
-      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1, 
+      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1, bool ecalActive=0,
                    const char *edmName="generalTracks", const char *mitName=Names::gkTrackBrn);
       virtual ~FillerTracks();
 
@@ -35,14 +36,20 @@ namespace mithep
       static void InitLayerMap(std::map<uint32_t,mithep::Track::EHitLayer> &layerMap);
 
     protected:
+      bool                                         ecalAssocActive_; //do track-ECal associations
       std::string                                  edmName_;         //edm name of tracks collection
       std::string                                  mitName_;         //name of Tracks in OAK
       std::string                                  edmSimAssocName_; //edm name of sim assoc map
       std::string                                  trackingMapName_; //name of imp. map wrt simparts
+      std::string                                  barrelSuperClusterIdMapName_; //name of barrel sc id map
+      std::string                                  endcapSuperClusterIdMapName_; //name of endcap sc id map
       std::string                                  trackMapName_;    //name of export map
       const mithep::TrackingParticleMap           *trackingMap_;     //map wrt simulated particles
+      const mithep::SuperClusterIdMap             *barrelSuperClusterIdMap_; //barrel sc id map
+      const mithep::SuperClusterIdMap             *endcapSuperClusterIdMap_; //endcap sc id map
       mithep::TrackArr                            *tracks_;          //array of tracks in OAK
       HitPatternReader                             hitReader_;       //hit pattern reader
+      TrackAssociatorParameters                    assocParams_;     //track associator parameters
 
     private:
       mithep::TrackMap                            *trackMap_;        //map wrt tracks

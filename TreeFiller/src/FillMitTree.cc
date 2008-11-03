@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.24 2008/09/30 13:03:42 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.25 2008/10/07 17:57:33 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -193,6 +193,22 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   FillerCaloMet *fillerKt6Met = new FillerCaloMet(cfg,"Kt6Met",defactive_);
   addActiveFiller(fillerKt6Met);  
 
+  FillerBasicClusters *fillerBarrelBasicClusters = 
+    new FillerBasicClusters(cfg, "BarrelBasicClusters", defactive_);
+  addActiveFiller(fillerBarrelBasicClusters);
+
+  FillerSuperClusters *fillerBarrelSuperClusters =  
+    new FillerSuperClusters(cfg,"BarrelSuperClusters", defactive_);
+  addActiveFiller(fillerBarrelSuperClusters);
+
+  FillerBasicClusters *fillerEndcapBasicClusters = 
+    new FillerBasicClusters(cfg,"EndcapBasicClusters", defactive_);
+  addActiveFiller(fillerEndcapBasicClusters);
+  
+  FillerSuperClusters *fillerEndcapSuperClusters =  
+    new FillerSuperClusters(cfg,"EndcapSuperClusters", defactive_);
+  addActiveFiller(fillerEndcapSuperClusters);
+  
   FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_);
   addActiveFiller(fillerGeneralTracks);
 
@@ -218,22 +234,6 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks",defactive_);
   addActiveFiller(fillerGsfTracks);
 
-  FillerBasicClusters *fillerBarrelBasicClusters = 
-    new FillerBasicClusters(cfg, "BarrelBasicClusters", defactive_);
-  addActiveFiller(fillerBarrelBasicClusters);
-
-  FillerSuperClusters *fillerBarrelSuperClusters =  
-    new FillerSuperClusters(cfg,"BarrelSuperClusters", defactive_);
-  addActiveFiller(fillerBarrelSuperClusters);
-
-  FillerBasicClusters *fillerEndcapBasicClusters = 
-    new FillerBasicClusters(cfg,"EndcapBasicClusters", defactive_);
-  addActiveFiller(fillerEndcapBasicClusters);
-  
-  FillerSuperClusters *fillerEndcapSuperClusters =  
-    new FillerSuperClusters(cfg,"EndcapSuperClusters", defactive_);
-  addActiveFiller(fillerEndcapSuperClusters);
-  
   FillerMuons *fillerMuons = new FillerMuons(cfg,defactive_);
   addActiveFiller(fillerMuons);
   

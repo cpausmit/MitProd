@@ -1,4 +1,4 @@
-// $Id: Exp $
+// $Id: FillerSuperClusters.cc,v 1.1 2008/08/08 11:12:38 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,9 +22,12 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
                                                             "BasicClusterMap")),
   superClusterMapName_(Conf().getUntrackedParameter<string>("superClusterMapName", 
                                                             "SuperClusterMap")),
+  superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
+                                                            "SuperClusterIdMap")),
   basicClusterMap_(0),
   superClusters_(new mithep::SuperClusterArr(25)),
-  superClusterMap_(new mithep::SuperClusterMap)
+  superClusterMap_(new mithep::SuperClusterMap),
+  superClusterIdMap_(new mithep::SuperClusterIdMap)
 {
   // Constructor.
 }
@@ -36,6 +39,7 @@ FillerSuperClusters::~FillerSuperClusters()
 
   delete superClusters_;
   delete superClusterMap_;
+  delete superClusterIdMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +51,7 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
     basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_.c_str());
   
   OS()->add<SuperClusterMap>(superClusterMap_,superClusterMapName_.c_str());
+  OS()->add<SuperClusterIdMap>(superClusterIdMap_,superClusterIdMapName_.c_str());
   OS()->add<SuperClusterArr>(superClusters_,mitName_.c_str());
 }
 
@@ -57,6 +62,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   //Fill The SuperCluster DataBlock
   superClusters_->Reset();
   superClusterMap_->Reset();
+  superClusterIdMap_->Reset();
 
   Handle<reco::SuperClusterCollection> hSuperClusterProduct;
   GetProduct(edmName_, hSuperClusterProduct, event);
@@ -90,6 +96,14 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     //Add super cluster to the map
     reco::SuperClusterRef theRef(hSuperClusterProduct, inSC-inSuperClusters.begin());
     superClusterMap_->Add(theRef, outSC);
+
+    //Add super cluster det ids to the id map
+    std::vector<DetId> hits = inSC->getHitsByDetId();
+    for (std::vector<DetId>::const_iterator ihit = hits.begin();
+          ihit < hits.end(); ++ihit) {
+
+      superClusterIdMap_->Add(*ihit,outSC);
+    }
 
   }
 
