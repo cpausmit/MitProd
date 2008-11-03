@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.23 2008/11/03 11:22:35 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.24 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,6 +72,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   tracks_  ->Reset();
   trackMap_->Reset();
 
+  //initialize Handle and get product, this usage allows also to get collections of classes which
+  //inherit from reco::Track
   Handle<View<reco::Track> > hTrackProduct;
   GetProduct(edmName_, hTrackProduct, event);  
 	
