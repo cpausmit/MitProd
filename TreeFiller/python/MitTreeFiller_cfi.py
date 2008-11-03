@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.18 2008/10/22 08:58:00 peveraer Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.19 2008/11/02 11:53:51 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -39,70 +39,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName = cms.untracked.string('offlinePrimaryVerticesWithBS'),    
         vertexMapName = cms.untracked.string('PrimaryVertexBSMap')
     ),
-                       
-    GeneralTracks  = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('Tracks'),
-        edmName               = cms.untracked.string('generalTracks'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('TracksMapName'),
-        edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
-    ),
 
-    StandaloneMuonTracks = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('StandaloneMuonTracks'),
-        edmName               = cms.untracked.string('standAloneMuons'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('StandaloneMuonTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
-    ),
-
-    StandaloneMuonTracksWVtxConstraint = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('StandaloneMuonTracksWVtxConstraint'),
-        edmName               = cms.untracked.string('standAloneMuons:UpdatedAtVtx'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
-        edmSimAssociationName = cms.untracked.string('')
-    ),
-                   
-    GlobalMuonTracks = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('GlobalMuonTracks'),
-        edmName               = cms.untracked.string('globalMuons'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('GlobalMuonTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('')
-    ),
-                   
-    ConversionInOutTracks = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('ConversionInOutTracks'),
-        edmName               = cms.untracked.string('ckfInOutTracksFromConversions'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('ConversionInOutTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('assocInOutConversionTracks')
-    ),
-
-    ConversionOutInTracks = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('ConversionOutInTracks'),
-        edmName               = cms.untracked.string('ckfOutInTracksFromConversions'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('ConversionOutInTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('assocOutInConversionTracks')
-    ),
-                   
-    GsfTracks = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('GsfTracks'),
-        edmName               = cms.untracked.string('pixelMatchGsfFit'),
-        trackingMapName       = cms.untracked.string('TrackingMap'),
-        trackMapName          = cms.untracked.string('GsfTracksMapName'),
-        edmSimAssociationName = cms.untracked.string('assoc2GsfTracks')
-    ),
-                               
     CaloTowers = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('CaloTowers'),
@@ -122,7 +59,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('BarrelSuperClusters'),
         edmName = cms.untracked.string('correctedHybridSuperClusters'),
         basicClusterMapName = cms.untracked.string('barrelBasicClusterMap'),
-        superClusterMapName = cms.untracked.string('barrelSuperClusterMap')
+        superClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        superClusterIdMapName = cms.untracked.string('barrelSuperClusterIdMap')
     ),
 
     EndcapBasicClusters = cms.untracked.PSet(
@@ -137,9 +75,94 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName = cms.untracked.string('EndcapSuperClusters'),                     
         edmName = cms.untracked.string('correctedMulti5x5SuperClustersWithPreshower'),
         basicClusterMapName = cms.untracked.string('endcapBasicClusterMap'),
-        superClusterMapName = cms.untracked.string('endcapSuperClusterMap')
+        superClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        superClusterIdMapName = cms.untracked.string('endcapSuperClusterIdMap')
     ),
 
+    GeneralTracks  = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('Tracks'),
+        edmName               = cms.untracked.string('generalTracks'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('TracksMapName'),
+        edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
+    ),
+
+    StandaloneMuonTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('StandaloneMuonTracks'),
+        edmName               = cms.untracked.string('standAloneMuons'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('StandaloneMuonTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+
+    StandaloneMuonTracksWVtxConstraint = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('StandaloneMuonTracksWVtxConstraint'),
+        edmName               = cms.untracked.string('standAloneMuons:UpdatedAtVtx'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+                   
+    GlobalMuonTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('GlobalMuonTracks'),
+        edmName               = cms.untracked.string('globalMuons'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('GlobalMuonTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('')
+    ),
+                   
+    ConversionInOutTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('ConversionInOutTracks'),
+        edmName               = cms.untracked.string('ckfInOutTracksFromConversions'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('ConversionInOutTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assocInOutConversionTracks')
+    ),
+
+    ConversionOutInTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('ConversionOutInTracks'),
+        edmName               = cms.untracked.string('ckfOutInTracksFromConversions'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('ConversionOutInTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assocOutInConversionTracks')
+    ),
+                   
+    GsfTracks = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('GsfTracks'),
+        edmName               = cms.untracked.string('pixelMatchGsfFit'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('GsfTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('assoc2GsfTracks')
+    ),
+  
     Muons = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('Muons'),

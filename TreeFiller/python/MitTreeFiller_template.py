@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.13 2008/11/01 10:58:12 sixie Exp $
+# $Id: MitTreeFiller_template.py,v 1.14 2008/11/02 11:54:16 sixie Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -92,6 +92,18 @@ process.MitTreeFiller.SisCone5Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.SisCone7Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
+
+#Load track detector associator for Track-ECal association
+process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
+process.MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
+#enable Track-Ecal assocation in fillers
+process.MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
+process.MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
+process.MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+process.MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
+process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
+process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
+process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 process.p1 = cms.Path(
     process.eleIsolationSequence *
