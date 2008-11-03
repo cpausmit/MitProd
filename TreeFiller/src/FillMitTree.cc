@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.25 2008/10/07 17:57:33 sixie Exp $
+// $Id: FillMitTree.cc,v 1.26 2008/11/03 11:22:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,7 +9,6 @@
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
-#include "MitProd/TreeFiller/interface/FillerGsfTracks.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
@@ -231,7 +230,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     new FillerTracks(cfg,"ConversionOutInTracks",defactive_);
   addActiveFiller(fillerConversionOutInTracks);
 
-  FillerGsfTracks *fillerGsfTracks = new FillerGsfTracks(cfg,"GsfTracks",defactive_);
+  FillerTracks *fillerGsfTracks = new FillerTracks(cfg,"GsfTracks",defactive_);
   addActiveFiller(fillerGsfTracks);
 
   FillerMuons *fillerMuons = new FillerMuons(cfg,defactive_);

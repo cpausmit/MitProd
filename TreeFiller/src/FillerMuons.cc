@@ -1,10 +1,11 @@
-// $Id: FillerMuons.cc,v 1.13 2008/09/10 17:36:42 pharris Exp $
+// $Id: FillerMuons.cc,v 1.14 2008/09/17 04:25:36 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -88,18 +89,18 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetHoS9Energy(iM->calEnergy().hoS9);
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
-      outMuon->SetGlobalTrk(globalTrackMap_->GetMit(iM->combinedMuon()));    
+      outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
     if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
       Int_t refProductId = iM->standAloneMuon().id().id();
       if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-	outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(iM->standAloneMuon()));
+	outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
       else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-	outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(iM->standAloneMuon()));
+	outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
              << "Error! Track reference in unmapped collection " << edmName_ << endl;
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) 
-      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
+      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
 
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));

@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.16 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.17 2008/10/22 08:55:40 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
@@ -79,7 +80,7 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&electrons_);
 
   if (!gsfTrackMapName_.empty()) 
-    gsfTrackMap_ = OS()->get<GsfTrackMap>(gsfTrackMapName_.c_str());
+    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_.c_str());
   if (!trackerTrackMapName_.empty()) 
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());  
   if (!barrelSuperClusterMapName_.empty())
@@ -212,9 +213,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
     //make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
-      outElectron->SetGsfTrk(gsfTrackMap_->GetMit(iM->gsfTrack()));
+      outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
     if (trackerTrackMap_ && iM->track().isNonnull()) 
-      outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
+      outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iM->superCluster().isNonnull())
       if(isBarrel) {
         outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        

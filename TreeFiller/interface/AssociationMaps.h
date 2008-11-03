@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.13 2008/09/30 13:03:32 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.14 2008/11/03 11:22:35 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -23,8 +23,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
@@ -44,14 +42,13 @@ namespace mithep
 {
   typedef std::pair<int,int> PairIntKey;
 
-  typedef AssociationMap<const reco::TrackRef,        mithep::Track*>        TrackMap;
-  typedef AssociationMap<const reco::GsfTrackRef,     mithep::Track*>        GsfTrackMap;
+  typedef AssociationMap<const edm::Ptr<reco::Track>, mithep::Track*>        TrackMap;
   typedef AssociationMap<const reco::BasicClusterRef, mithep::BasicCluster*> BasicClusterMap;
   typedef AssociationMap<const reco::SuperClusterRef, mithep::SuperCluster*> SuperClusterMap;
   typedef AssociationMap<const Int_t,                 mithep::MCParticle*>   GenParticleMap;
   typedef AssociationMap<const SimTrackRef,           mithep::MCParticle*>   SimTrackMap;
   typedef AssociationMap<const TrackingParticleRef,   mithep::MCParticle*>   TrackingParticleMap;
-  typedef AssociationMap<const reco::TrackRef,        mithep::Electron*>     ConversionElectronMap;
+  typedef AssociationMap<const edm::Ptr<reco::Track>, mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,   mithep::Conversion*>   ConversionMap;
   typedef AssociationMap<const mitedm::BasePartPtr,   mithep::Particle*>     BasePartMap;
   typedef AssociationMap<const CaloTowerDetId,        mithep::CaloTower*>    CaloTowerMap;

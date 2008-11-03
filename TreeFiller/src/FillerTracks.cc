@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.22 2008/10/16 16:17:17 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.23 2008/11/03 11:22:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,11 +72,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   tracks_  ->Reset();
   trackMap_->Reset();
 
-  Handle<reco::TrackCollection> hTrackProduct;
+  Handle<View<reco::Track> > hTrackProduct;
   GetProduct(edmName_, hTrackProduct, event);  
 	
   trackMap_->SetEdmProductId(hTrackProduct.id().id());
-  const reco::TrackCollection inTracks = *(hTrackProduct.product());  
+  const View<reco::Track> inTracks = *(hTrackProduct.product());  
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
@@ -92,8 +92,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   trackAssociator.useDefaultPropagator();
 
   // loop through all tracks and fill the information
-  for (reco::TrackCollection::const_iterator it = inTracks.begin(); 
-       it != inTracks.end(); ++it) {
+  for (View<reco::Track>::const_iterator it = inTracks.begin();
+         it != inTracks.end(); ++it) {
+         
     mithep::Track *outTrack = tracks_->Allocate();
     // create track and set the core parameters
     new (outTrack) mithep::Track(it->qoverp(),it->lambda(),
@@ -152,13 +153,13 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
     
     // add reference between mithep and edm object
-    reco::TrackRef theRef(hTrackProduct, it - inTracks.begin());
-    trackMap_->Add(theRef, outTrack);
+    edm::Ptr<reco::Track> thePtr = inTracks.ptrAt(it - inTracks.begin());
+    trackMap_->Add(thePtr, outTrack);
 	
     //do dim associations
     if (trackingMap_ && !edmSimAssocName_.empty()) {
       //printf("Trying Track-Sim association\n");
-      reco::TrackBaseRef theBaseRef(theRef);
+      reco::TrackBaseRef theBaseRef = inTracks.refAt(it - inTracks.begin());
       vector<pair<TrackingParticleRef, double> > simRefs;
       Bool_t noSimParticle = 0;
       try {

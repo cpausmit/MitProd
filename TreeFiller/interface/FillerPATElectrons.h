@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPATElectrons.h,v 1.1 2008/08/12 10:13:45 sixie Exp $
+// $Id: FillerPATElectrons.h,v 1.2 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerPATElectrons
 //
@@ -25,7 +25,7 @@ namespace mithep
   {  
     public:
       FillerPATElectrons(const edm::ParameterSet &cfg, bool active=1,
-                         const GsfTrackMap* gsfTrackMap=0, const TrackMap* trackerTrackMap=0);
+                         const TrackMap* gsfTrackMap=0, const TrackMap* trackerTrackMap=0);
       ~FillerPATElectrons();
 
       void BookDataBlock(TreeWriter &tws);
@@ -38,7 +38,7 @@ namespace mithep
       std::string      trackerTrackMapName_;   //name of imported map wrt to trk tracks 
 
       mithep::ElectronArr           *electrons_;
-      const mithep::GsfTrackMap     *gsfTrackMap_;
+      const mithep::TrackMap        *gsfTrackMap_;
       const mithep::TrackMap        *trackerTrackMap_;
   };
 }

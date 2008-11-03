@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.1 2008/08/12 10:13:46 sixie Exp $
+// $Id: FillerPATElectrons.cc,v 1.2 2008/08/18 15:24:36 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,6 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
@@ -26,7 +27,7 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg, bool active,
-                                 const GsfTrackMap *gsfTrackMap, const TrackMap *trackerTrackMap) : 
+                                 const TrackMap *gsfTrackMap, const TrackMap *trackerTrackMap) : 
   BaseFiller(cfg,"PATElectrons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Electrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
@@ -55,7 +56,7 @@ void FillerPATElectrons::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_.c_str(),&electrons_);
 
   if (!gsfTrackMapName_.empty()) 
-    gsfTrackMap_ = OS()->get<GsfTrackMap>(gsfTrackMapName_.c_str());
+    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_.c_str());
   if (!trackerTrackMapName_.empty()) 
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());  
 }
@@ -81,9 +82,9 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
       mithep::Electron *outElectron = electrons_->AddNew();
       
       if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
-	outElectron->SetGsfTrk(gsfTrackMap_->GetMit(iM->gsfTrack()));
+	outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
       if (trackerTrackMap_ && iM->track().isNonnull()) 
-	outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));
+	outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
       
       
       outElectron->SetESuperClusterOverP( iM->eSuperClusterOverP() ) ;

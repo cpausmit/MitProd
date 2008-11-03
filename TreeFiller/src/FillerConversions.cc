@@ -1,8 +1,9 @@
-// $Id: FillerConversions.cc,v 1.8 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerConversions.cc,v 1.9 2008/09/30 13:01:26 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Names.h"
 
 using namespace std;
@@ -86,7 +87,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
       std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
-        outConversion->AddDaughter(convElectronMap_->GetMit(*trackRef));
+        outConversion->AddDaughter(convElectronMap_->GetMit(refToPtr(*trackRef)));
       }
     }
     

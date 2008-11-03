@@ -1,10 +1,11 @@
-// $Id: FillerPATMuons.cc,v 1.1 2008/08/12 10:13:46 sixie Exp $
+// $Id: FillerPATMuons.cc,v 1.2 2008/09/10 03:30:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -84,20 +85,20 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
        mithep::Muon* outMuon = muons_->AddNew();
      
        if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
-	 outMuon->SetGlobalTrk(globalTrackMap_->GetMit(iM->combinedMuon()));
+	 outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));
        
        if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
 	 Int_t refProductId = iM->standAloneMuon().id().id();
 	 if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-	   outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(iM->standAloneMuon()));
+	   outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
 	 else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-	   outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(iM->standAloneMuon()));
+	   outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
 	 else throw edm::Exception(edm::errors::Configuration, "FillerPATMuons:FillDataBlock()\n")
 	   << "Error! Track reference in unmapped collection " << edmName_ << endl;
        }
 
        if (trackerTrackMap_ && iM->track().isNonnull()) 
-	 outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(iM->track()));          
+	 outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));          
            
        outMuon->SetIsoR03SumPt(iM->isolationR03().sumPt);              
        outMuon->SetIsoR03EmEt(iM->isolationR03().emEt);              

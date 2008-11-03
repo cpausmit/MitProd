@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.9 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerElectrons.h,v 1.10 2008/10/22 08:55:40 peveraer Exp $
 //
 // FillerElectrons
 //
@@ -53,7 +53,7 @@ namespace mithep
       std::string                    hcalJurassicIsoName_;       //name of Hcal Jurassic isolation
       std::string                    trackerIsoName_;            //name of tracker isolation
       mithep::ElectronArr           *electrons_;                 //array of Electrons
-      const mithep::GsfTrackMap     *gsfTrackMap_;               //map wrt gsf tracks
+      const mithep::TrackMap        *gsfTrackMap_;               //map wrt gsf tracks
       const mithep::TrackMap        *trackerTrackMap_;           //map wrt tracker tracks
       const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
       const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters 
