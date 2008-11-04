@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.17 2008/10/22 08:55:40 peveraer Exp $
+// $Id: FillerElectrons.cc,v 1.18 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,6 +14,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "MitEdm/Producers/interface/RefToBaseToPtr.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -55,6 +56,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, bool active) :
                        ("HcalJurassicIsolationName","eleIsoFromDepsHcalFromHits")),
   trackerIsoName_(Conf().getUntrackedParameter<string>
 		  ("TrackerIsolationName","eleIsoFromDepsTk")),
+  gsfTrackAssocName_(Conf().getUntrackedParameter<string>("gsfTrackAssocName","")),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -106,6 +108,15 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(eIDCutBasedTightName_, eidTightMap, event);
   Handle<edm::ValueMap<float> > eidLikelihoodMap;
   GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);
+
+  //get gsf track association map if needed
+  mitedm::TrackAssociation gsfAssociation;
+  if (trackerTrackMap_ && !gsfTrackAssocName_.empty()) {
+    Handle<mitedm::TrackAssociation> gsfAssociationProduct;
+    GetProduct(gsfTrackAssocName_, gsfAssociationProduct, event);  
+    gsfAssociation = *(gsfAssociationProduct.product());
+  }
+  
   
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
   //loop over electrons
@@ -214,8 +225,35 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
       outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
-    if (trackerTrackMap_ && iM->track().isNonnull()) 
-      outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+    //make tracker track links, relinking from gsf track associations if configured and 
+    //link is otherwise absent
+    if (trackerTrackMap_) {
+      if (iM->track().isNonnull()) 
+        outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+      else if (!gsfTrackAssocName_.empty() && iM->gsfTrack().isNonnull()) {
+        reco::TrackBaseRef gsfRef(iM->gsfTrack());
+        std::vector<std::pair<reco::TrackBaseRef, double> > matchedTracks;
+        try {
+          matchedTracks = gsfAssociation[gsfRef];
+        }
+        catch (edm::Exception &ex) {
+        }
+        //take the best match, but only if more than 50% of the hits came from the original
+        //gsf track
+        reco::TrackBaseRef trackerRef;
+        double rMax = 0.0;
+        for (int imatch=0; imatch<matchedTracks.size(); ++imatch) {
+          std::pair<reco::TrackBaseRef, double> &match = matchedTracks.at(imatch);
+          double r = match.second;
+          if ( r>rMax && r>0.5 ) {
+            rMax = r;
+            trackerRef = match.first;
+          }
+        }
+        if (trackerRef.isNonnull())
+          outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(trackerRef)));
+      }
+    }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iM->superCluster().isNonnull())
       if(isBarrel) {
         outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        
