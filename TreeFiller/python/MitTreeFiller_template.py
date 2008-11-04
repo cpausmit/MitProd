@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.14 2008/11/02 11:54:16 sixie Exp $
+# $Id: MitTreeFiller_template.py,v 1.15 2008/11/03 11:23:07 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -105,8 +105,13 @@ process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
 process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
+#load gsf track to general track associator
+process.load("MitEdm.Producers.gsfTrackAssociator_cff")
+process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
+
 process.p1 = cms.Path(
     process.eleIsolationSequence *
+    process.gsfTrackAssociator *
     process.vProducer *
     process.conversionProducer *
     (  process.MitEIdSequence
