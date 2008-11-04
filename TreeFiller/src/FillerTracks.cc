@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.24 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.25 2008/11/03 18:16:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,6 +10,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "MitEdm/DataFormats/interface/Types.h"
 
 using namespace std;
 using namespace edm;
@@ -155,7 +156,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
     
     // add reference between mithep and edm object
-    edm::Ptr<reco::Track> thePtr = inTracks.ptrAt(it - inTracks.begin());
+    mitedm::TrackPtr thePtr = inTracks.ptrAt(it - inTracks.begin());
     trackMap_->Add(thePtr, outTrack);
 	
     //do dim associations
