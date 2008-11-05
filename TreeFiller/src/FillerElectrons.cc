@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.18 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.19 2008/11/04 19:27:45 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -242,7 +242,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         //gsf track
         reco::TrackBaseRef trackerRef;
         double rMax = 0.0;
-        for (int imatch=0; imatch<matchedTracks.size(); ++imatch) {
+        for (uint imatch=0; imatch<matchedTracks.size(); ++imatch) {
           std::pair<reco::TrackBaseRef, double> &match = matchedTracks.at(imatch);
           double r = match.second;
           if ( r>rMax && r>0.5 ) {
