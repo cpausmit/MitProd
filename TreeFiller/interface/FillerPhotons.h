@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.6 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerPhotons.h,v 1.7 2008/09/14 03:24:00 bendavid Exp $
 //
 // FillerPhotons
 //
@@ -33,6 +33,7 @@ namespace mithep
     private:
       std::string                    edmName_;            //edm name of photon collection
       std::string                    mitName_;            //name of Photons in OAK
+      std::string                    photonIDName_;       //name of Photon ID collection
       std::string                    conversionMapName_;  //name of imported map wrt conv electrons
       std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
       std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
