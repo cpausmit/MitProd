@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.15 2008/11/03 11:23:07 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.16 2008/11/04 19:28:24 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -16,7 +16,7 @@ process = cms.Process("FILLER")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-   'file:/server/02a/sixie/RECO/001EA63A-DF60-DD11-9D5A-001A92810AA6.root'
+   'file:/server/02a/bendavid/RECO/QCD_BCtoE_Pt30to80/002D4D9E-7088-DD11-9B22-001CC4445DC2.root'
                              ),
    secondaryFileNames = cms.untracked.vstring()
 )
