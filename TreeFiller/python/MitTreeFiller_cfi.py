@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.22 2008/11/06 15:04:31 paus Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.23 2008/11/06 17:20:13 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,7 +25,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         simMapName    = cms.untracked.string('SimMap'),
         trackingMapName    = cms.untracked.string('TrackingMap') 
     ),
-                  
+      
+    BeamSpot = cms.untracked.PSet(
+        active  = cms.untracked.bool(True),
+        mitName = cms.untracked.string('BeamSpot'),
+        edmName = cms.untracked.string('offlineBeamSpot'),    
+    ),
+                
     PrimaryVertexes = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('PrimaryVertexes'),

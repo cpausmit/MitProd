@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.26 2008/11/03 11:22:35 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.27 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,6 +8,7 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
+#include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
@@ -125,6 +126,10 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
   addActiveFiller(fillerMCParticles);
 
+  FillerBeamSpot *fillerBeamSpot = 
+    new FillerBeamSpot(cfg,"BeamSpot", defactive_);
+  addActiveFiller(fillerBeamSpot);
+  
   FillerVertexes *fillerPrimaryVertexes = 
     new FillerVertexes(cfg,"PrimaryVertexes", defactive_);
   addActiveFiller(fillerPrimaryVertexes);
