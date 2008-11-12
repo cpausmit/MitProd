@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.20 2008/11/05 10:47:34 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.21 2008/11/06 13:09:23 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -153,6 +153,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetCovEtaEta(vCov[0]);
     outElectron->SetCovEtaPhi(vCov[1]);
     outElectron->SetCovPhiPhi(vCov[2]);    
+    std::vector<float> vCov2 = lazyTools.localCovariances(*(iM->superCluster()->seed()));
+    outElectron->SetCoviEtaiEta(vCov2[0]);
 
     //compute isolations
     //get the barrel BasicClusters 
