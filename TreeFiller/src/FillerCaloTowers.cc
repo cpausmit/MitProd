@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.4 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerCaloTowers.cc,v 1.5 2008/09/10 14:36:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,19 +66,28 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     mithep::CaloTower *outCaloTower = caloTowers_->Allocate();
     new (outCaloTower) mithep::CaloTower();
        
-    outCaloTower->SetMomentum(inCaloTower->momentum().x(),inCaloTower->momentum().y(),
-                              inCaloTower->momentum().z(), inCaloTower->energy());
-    outCaloTower->SetEmPosition(inCaloTower->emPosition().x(),
+    double mass = inCaloTower->mass();
+    double deltaPos = (inCaloTower->hadPosition() - inCaloTower->emPosition()).mag();
+    double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
+    
+    if ( mass > 1e-4)
+      throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
+         << "Error! reco::CaloTower mass = " << mass <<", not massless as assumed by mithep::CaloTower," << std::endl;
+         
+    if ( deltaPos > 1e-4)
+      throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
+         << "Error! reco::CaloTower does not have identical HadPos and EmPos as assumed by mithep::CaloTower" << std::endl;
+         
+    if ( deltaE > 1e-4)
+      throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
+         << "Error! reco::CaloTower default energy does not exclude HO as assumed by mithep::CaloTower" << std::endl;
+    
+    outCaloTower->SetPosition(inCaloTower->emPosition().x(),
                                 inCaloTower->emPosition().y(),
                                 inCaloTower->emPosition().z());
-    outCaloTower->SetHadPosition(inCaloTower->hadPosition().x(),
-                                 inCaloTower->hadPosition().y(),
-                                 inCaloTower->hadPosition().z());
     outCaloTower->SetEmEnergy(inCaloTower->emEnergy());
     outCaloTower->SetHadEnergy(inCaloTower->hadEnergy());
     outCaloTower->SetOuterEnergy(inCaloTower->outerEnergy());
-    outCaloTower->SetEmLvl1(inCaloTower->emLvl1());
-    outCaloTower->SetHadLvl1(inCaloTower->hadLv11());
     caloTowerMap_->Add(inCaloTower->id(),outCaloTower);
   }
   caloTowers_->Trim();
