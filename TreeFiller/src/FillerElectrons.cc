@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.21 2008/11/06 13:09:23 sixie Exp $
+// $Id: FillerElectrons.cc,v 1.22 2008/11/12 18:56:25 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -185,16 +185,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //compute ECAL isolation
     double extRadius = 0.3;
     double etLow = 0.0;
-    EgammaEcalIsolation *myEcalIsolation = 0;
+    double ecalIsoValue = 0.0;
     if (!isBarrel) {
-      myEcalIsolation = 
-        new EgammaEcalIsolation(extRadius,etLow,endcapBasicClusters,endcapSuperClusters);
+      EgammaEcalIsolation myEcalIsolation(extRadius,etLow,endcapBasicClusters,endcapSuperClusters);
+      ecalIsoValue = myEcalIsolation.getEcalEtSum(&(*iM));
     } else { 
-      myEcalIsolation = 
-        new EgammaEcalIsolation(extRadius,etLow,barrelBasicClusters,barrelSuperClusters);
+      EgammaEcalIsolation myEcalIsolation(extRadius,etLow,barrelBasicClusters,barrelSuperClusters);
+      ecalIsoValue = myEcalIsolation.getEcalEtSum(&(*iM));
     }
-
-    double ecalIsoValue = myEcalIsolation->getEcalEtSum(&(*iM));
     
     //compute CaloTower isolation
     edm::Handle<CaloTowerCollection> caloTowers;
