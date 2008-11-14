@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.12 2008/10/07 17:57:19 sixie Exp $
+# $Id: MitTreeFiller_CRAFT.py,v 1.1 2008/10/28 18:52:14 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -27,7 +27,7 @@ process.source = cms.Source("PoolSource",
 
 #Load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX')
+    fileNames = cms.untracked.vstring('mit-craft')
 )
 process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_CRAFT_cfi")
@@ -37,9 +37,12 @@ process.rsTrackFiller = cms.EDAnalyzer("FillMitTree",
     
     GeneralTracks  = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
         mitName               = cms.untracked.string('RsWithMaterialTracks'),
         edmName               = cms.untracked.string('rsWithMaterialTracksP5'),
         trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         trackMapName          = cms.untracked.string('rsTracksMapName'),
         edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
     )
@@ -50,13 +53,20 @@ process.cosmicTrackFiller = cms.EDAnalyzer("FillMitTree",
     
     GeneralTracks  = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(False),
         mitName               = cms.untracked.string('CosmicTracks'),
         edmName               = cms.untracked.string('cosmictrackfinderP5'),
         trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         trackMapName          = cms.untracked.string('cosmicTracksMapName'),
         edmSimAssociationName = cms.untracked.string('trackingParticleRecoTrackAsssociation')
     )
 )
+
+#load gsf track to general track associator
+process.load("MitEdm.Producers.gsfTrackAssociator_cff")
+process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
