@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.7 2008/09/27 05:50:47 loizides Exp $
+// $Id: FillerStableParts.cc,v 1.8 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitAna/DataTree/interface/StableParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -76,7 +76,7 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
     new (d) mithep::StableParticle(p.pid());
     basePartMap_->Add(thePtr,d);
     if (trackMap_)
-      d->SetTrk(trackMap_->GetMit(refToPtr(p.trackRef())));
+      d->SetTrk(trackMap_->GetMit(p.trackPtr()));
   }
   stables_->Trim();
 }
