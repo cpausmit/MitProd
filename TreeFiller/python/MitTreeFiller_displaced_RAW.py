@@ -20,7 +20,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.77.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('MitTreeFiller_template_RAW nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -68,10 +68,8 @@ process.load("MitEdm.Producers.vProducer_cff")
 
 #Load Mit Mvf Conversion producer
 process.load("MitEdm.Producers.conversionProducer_cff")
-#Load additional producer for conversions without conversion constraint
-process.load("MitEdm.Producers.conversionProducerUnconstrained_cff")
-#Load additional producer for conversions with 2d conversion constraint only
-process.load("MitEdm.Producers.conversionProducer2d_cff")
+
+process.load("MitEdm.Producers.conversionProducerGsf_cff")
 
 # compute ECAL shower shape variables
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -84,9 +82,10 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
 
-#For Jet Corrections
-process.load("MitProd.TreeFiller.JetCorrections_cfi")
-process.prefer("L3JetCorrectorIcone5")
+#For Jet Corrections (Summer08 Jet corrections)
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff")
+process.prefer("L3JetCorrectorIC5Calo")
+
 #enable Jet Corrections for all of our Jet collections
 process.MitTreeFiller.CaloJets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
@@ -94,6 +93,11 @@ process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive = cms.untracked.bool(Tru
 process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt4Jets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetCorrectionsActive = cms.untracked.bool(True)
+
+#For JetPlusTracks
+process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
+process.MitTreeFiller.IC5JetPlusTrack.active = cms.untracked.bool(True)
 
 #Load Met Corrections
 process.load("MitProd.TreeFiller.MetCorrections_cfi")
@@ -123,26 +127,94 @@ process.MitTreeFiller.SisCone7Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
 
+#Load track detector associator for Track-ECal association
+process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
+process.MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
+#enable Track-Ecal assocation in fillers
+process.MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
+process.MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
+process.MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+process.MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
+process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
+process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
+process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+
+#load gsf track to general track associator
+process.load("MitEdm.Producers.gsfTrackAssociator_cff")
+process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
+
 #hit based track-simulation matching
 process.load("MitProd.TreeFiller.MitPostRecoGenerator_cff")
 process.MitTreeFiller.MCParticles.trackingActive=True
 
+process.load("MitEdm.TrackerElectrons.generalGsfTracking_cfi")
+
+process.generalGsfTrackFiller = cms.EDAnalyzer("FillMitTree",
+    defactive = cms.untracked.bool(False),
+    
+    GeneralTracks  = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        ecalAssocActive       = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('GeneralGsfTracks'),
+        edmName               = cms.untracked.string('generalTracksGsf'),
+        trackingMapName       = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName          = cms.untracked.string('GeneralGsfTracksMapName'),
+        edmSimAssociationName = cms.untracked.string('gsfMcMatch')
+    ),
+    
+    Electrons = cms.untracked.PSet(
+        active                 = cms.untracked.bool(True),
+        mitName                = cms.untracked.string('TrackerElectrons'),
+        edmName                = cms.untracked.string('globalGeneralGsfElectrons'),
+        gsfTrackMapName        = cms.untracked.string('GeneralGsfTracksMapName'), 
+        trackerTrackMapName    = cms.untracked.string('TracksMapName'),
+        barrelEcalRecHitName   = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName   = cms.untracked.string('reducedEcalRecHitsEE'),
+        barrelBasicClusterName = cms.untracked.string(
+                                     'hybridSuperClusters:hybridBarrelBasicClusters'),
+        endcapBasicClusterName = cms.untracked.string(
+                                     'multi5x5BasicClusters:multi5x5EndcapBasicClusters'),
+        barrelSuperClusterName = cms.untracked.string('correctedHybridSuperClusters'),
+        endcapSuperClusterName = cms.untracked.string(
+                                     'multi5x5SuperClusters:multi5x5EndcapSuperClusters'),        
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        eIDCutBasedLooseName      = cms.untracked.string('eidLooseGsf'),
+        eIDCutBasedTightName      = cms.untracked.string('eidTightGsf'),
+        eIDLikelihood             = cms.untracked.string('eidLikelihoodExtGsf'),
+        eIDNeuralNet              = cms.untracked.string('eidNeuralNetGsf'),
+        IsolationTrackCollectionName = cms.untracked.string('generalTracks'),
+        IsolationCaloTowerCollectionName = cms.untracked.string('towerMaker'),
+        EcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsEcalFromHitsGsf'),
+        HcalJurassicIsolationName = cms.untracked.string('eleIsoFromDepsHcalFromHitsGsf'),
+        TrackerIsolationName = cms.untracked.string('eleIsoFromDepsTkGsf'),
+        gsfTrackAssocName    = cms.untracked.string('generalGsfTrackAssociator')
+    ),
+)
+process.generalGsfTrackFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
+
+
 process.p1 = cms.Path(
-     process.vProducer *
-     process.conversionProducer *
-     process.conversionProducerUnconstrained *
-     process.conversionProducer2d *
+    process.generalGsfTracking *
+    #process.GsfGlobalElectronTestSequence *
+    process.gsfTrackAssociator *
+    process.vProducer *
+    process.conversionProducer *
+    process.conversionProducerGsf *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
      + process.jetvertexAssociationSequence
+     + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      )
     *process.mit_postreco_generator
     *process.MitTreeFiller
+    *process.generalGsfTrackFiller
     *process.vFiller
     *process.conversionFiller
-    *process.conversionFillerUnconstrained
-    *process.conversionFiller2d
+    *process.conversionFillerGsf
      )
 
 # Schedule definition
