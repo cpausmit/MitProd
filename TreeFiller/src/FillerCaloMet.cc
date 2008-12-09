@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.6 2008/09/10 17:10:52 ksung Exp $
+// $Id: FillerCaloMet.cc,v 1.7 2008/09/16 22:07:29 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -59,7 +59,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
     // Fill Met base class data 
     caloMet->SetSumEt(inCaloMet->sumEt());
     caloMet->SetMetSig(inCaloMet->mEtSig());    
-    caloMet->SetE_longitudinal(inCaloMet->e_longitudinal());
+    caloMet->SetElongitudinal(inCaloMet->e_longitudinal());
     for(unsigned i=0; i<inCaloMet->mEtCorr().size(); i++) {
       caloMet->PushCorrectionX(inCaloMet->mEtCorr()[i].mex);
       caloMet->PushCorrectionY(inCaloMet->mEtCorr()[i].mey);
