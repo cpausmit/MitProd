@@ -26,9 +26,9 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Z/gamma* to mumu sample, M(mumu) gt40 GeV -- sqrt(s) = 10TeV'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GenProduction/python/PYTHIA6_EWK_Zmumu_10TeV_cff.py,v $')
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/MitProd/TreeFiller/python/FullChainExample.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -116,13 +116,30 @@ process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 #disable HLT filler since the full chain example does not (and cannot at the moment) contain HLT info
 process.MitTreeFiller.MetaInfos.hltActive = False
 
+#Load Mit vProducer
+process.load("MitEdm.Producers.vProducer_cff")
+
+#Load Mit Mvf Conversion producer
+process.load("MitEdm.Producers.conversionProducer_cff")
+
+# compute ECAL shower shape variables
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
+#Load Electron Isolation. For Jurassic isolation veto fix.
+process.load("RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff")
 
-#For Jet Corrections
-process.load("MitProd.TreeFiller.JetCorrections_cfi")
-process.prefer("L3JetCorrectorIcone5")
+
+#For Jet Corrections (Summer08 Jet corrections)
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff")
+process.prefer("L3JetCorrectorIC5Calo")
+
 #enable Jet Corrections for all of our Jet collections
 process.MitTreeFiller.CaloJets.jetCorrectionsActive = cms.untracked.bool(True)
 process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
@@ -164,6 +181,22 @@ process.MitTreeFiller.SisCone7Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
 process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
 
+#Load track detector associator for Track-ECal association
+process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
+process.MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
+#enable Track-Ecal assocation in fillers
+process.MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
+process.MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
+process.MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+process.MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
+process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
+process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
+process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+
+#load gsf track to general track associator
+process.load("MitEdm.Producers.gsfTrackAssociator_cff")
+process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
@@ -173,13 +206,20 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.mitTreeFiller_step = cms.Path(
-     (process.MitEIdSequence
+    process.eleIsolationSequence *
+    process.gsfTrackAssociator *
+    process.vProducer *
+    process.conversionProducer *
+    (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
      + process.jetvertexAssociationSequence
      + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      )
-    *process.MitTreeFiller)
+    *process.MitTreeFiller
+    *process.vFiller
+    *process.conversionFiller
+     )
 #process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
