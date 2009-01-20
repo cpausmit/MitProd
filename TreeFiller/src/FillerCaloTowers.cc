@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.5 2008/09/10 14:36:02 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.6 2008/11/13 14:08:50 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -70,17 +70,17 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     double deltaPos = (inCaloTower->hadPosition() - inCaloTower->emPosition()).mag();
     double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
     
-    if ( mass > 1e-4)
+    if ( mass > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
          << "Error! reco::CaloTower mass = " << mass <<", not massless as assumed by mithep::CaloTower," << std::endl;
          
-    if ( deltaPos > 1e-4)
+    if ( deltaPos > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-         << "Error! reco::CaloTower does not have identical HadPos and EmPos as assumed by mithep::CaloTower" << std::endl;
+         << "Error! reco::CaloTower does not have identical HadPos and EmPos as assumed by mithep::CaloTower, deltaPos = " << deltaPos << std::endl;
          
-    if ( deltaE > 1e-4)
+    if ( deltaE > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-         << "Error! reco::CaloTower default energy does not exclude HO as assumed by mithep::CaloTower" << std::endl;
+         << "Error! reco::CaloTower default energy does not exclude HO as assumed by mithep::CaloTower, deltaE = " << deltaE << std::endl;
     
     outCaloTower->SetPosition(inCaloTower->emPosition().x(),
                                 inCaloTower->emPosition().y(),
