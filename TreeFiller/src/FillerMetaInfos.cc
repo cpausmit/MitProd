@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.18 2008/10/06 16:35:38 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.20 2008/10/07 00:27:13 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -115,10 +115,8 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 
   // add branches to L1 trigger info tree
 
-
   // add branches to HLT trigger info tree
   tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_.c_str(),&hltTable_,32000,0);
-  tws.SetAutoFill(Names::gkHltTreeName,0);
   tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_.c_str(),&hltLabels_,32000,0);
   tws.SetAutoFill(Names::gkHltTreeName,0);
   hltTree_=tws.GetTree(Names::gkHltTreeName);
@@ -148,7 +146,7 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   if (runEntries_>0) {
     evtLAHeader_->SetRunNum(runnum);
     laTree_->Fill();
-    if(0) {
+    if(0) { // check for memory leak in usage of ROOT objects
       if(laTree_->GetEntries() % 100==0)
         gObjectTable->Print();
     }
@@ -178,16 +176,22 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   Int_t l1entry = l1Entries_;
 //FillL1Info(event,setup);
 //FillL1Trigger(event,setup);
-  runInfo_->SetL1Entry(l1entry);
-//    if (l1entry < l1Entries_)
-//      l1Tree_->Fill();
+  if (l1entry < l1Entries_) {
+    l1Tree_->Fill();
+    runInfo_->SetL1Entry(l1entry);
+  } else {
+    runInfo_->SetL1Entry(l1entry-1);
+  }
 
   Int_t hltentry = hltEntries_;
   FillHltInfo(event,setup);
   FillHltTrig(event,setup);
-  runInfo_->SetHltEntry(hltentry);
-  if (hltentry < hltEntries_)
+  if (hltentry < hltEntries_) {
+    runInfo_->SetHltEntry(hltentry);
     hltTree_->Fill();
+  } else {
+    runInfo_->SetHltEntry(hltentry-1);
+  }
 
   runTree_->Fill();
 }
@@ -200,14 +204,17 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 
   if (!hltActive_) return;
 
+  // check if we can access the hlt config information
   if (!hltConfig_.init(hltProcName_)) {
-    // todo
+    edm::LogError("FillerMetaInfos") << "Can not access hlt config using " 
+                                     << hltProcName_ << std::endl;
     return;
   }
 
-  // todo check size of menu... < 256
+  // check size of menu... < 256
   if (hltConfig_.size()>hltBits_->Size()) {
-    // todo
+    edm::LogError("FillerMetaInfos") << "HLT config contains too many paths "
+                                     << hltConfig_.size() << " > " << hltBits_->Size() << std::endl;
     return;
   }
 
@@ -216,11 +223,11 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   Vector<string>      *labels = new Vector<string>;
   map<string,Short_t> *labmap = new map<string,Short_t>; 
 
+  // loop over hlt paths
   for(UInt_t i=0;i<hltConfig_.size();++i) {
 
     tabmap->insert(pair<string,Short_t>(hltConfig_.triggerName(i),i));
     trigtable->AddCopy(hltConfig_.triggerName(i));
-    
     const vector<string> &mLabels(hltConfig_.moduleLabels(i));
     for (UInt_t j=0; j<mLabels.size(); ++j) {
 
@@ -248,16 +255,44 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   }
 
   if (hltTable_->Entries()>=0) {
-    // check if table is still the same: todo this has to be improved
-    if ((hltTable_->Entries()==trigtable->Entries()) && 
-        (hltLabels_->Entries()==labels->Entries())) {
-      delete trigtable;
-      delete labels;
-      delete labmap;
-      return;
+    // check if existing table contains all necessary paths: 
+    // if so keep it, otherwise store the new one  
+
+    if ((hltTable_->Entries()>=trigtable->Entries()) && 
+        (hltLabels_->Entries()>=labels->Entries())) {
+
+      bool newEntryFound = false;
+      for (UInt_t i=0; i<trigtable->Entries(); ++i) {
+        map<string,Short_t>::iterator riter = tabmap->find(*trigtable->At(i));
+        if (riter == tabmap->end()) {
+          newEntryFound = true;
+          break;
+        }
+      }
+      if (!newEntryFound) {
+        for (UInt_t i=0; i<labels->Entries(); ++i) {
+          map<string,Short_t>::iterator riter = labmap->find(*labels->At(i));
+          if (riter == labmap->end()) {
+            newEntryFound = true;
+            break;
+          }
+        }
+      }
+
+      if (!newEntryFound) {
+        if (verbose_>1) 
+          cout << "FillHltInfo: Kept previous HLT information" << endl;
+
+        delete trigtable;
+        delete labels;
+        delete labmap;
+        delete tabmap;
+        return;
+      }
     }
   }
 
+  // new hlt entry
   delete hltTable_;
   delete hltLabels_;
   delete hltTabMap_;
