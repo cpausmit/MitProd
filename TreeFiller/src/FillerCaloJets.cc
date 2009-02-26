@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.12 2008/09/17 04:27:22 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.13 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -191,24 +191,20 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       double L2Scale = correctorL2->correction(inJet->p4());
       double L3Scale = correctorL3->correction(inJet->p4()*L2Scale);
       jet->SetL2RelativeCorrectionScale(L2Scale);
-      jet->SetL3AbsoluteCorrectionScale(L3Scale);          
+      jet->SetL3AbsoluteCorrectionScale(L3Scale);     
+      jet->EnableCorrection(mithep::Jet::L2);
+      jet->EnableCorrection(mithep::Jet::L3);     
     }
     
     if (bTaggingActive_) {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
-      jet->SetJetBProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
-      jet->SetSimpleSecondaryVertexBJetTagsDisc(
-        (*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);       
-      jet->SetCombinedSecondaryVertexBJetTagsDisc(
-        (*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);   
-      jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
-        (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]); 
-      jet->SetImpactParameterMVABJetTagsDisc(
-        (*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighEffBJetTagsDisc(
-        (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighPurBJetTagsDisc(
-        (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
+      jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
+      jet->SetSimpleSecondaryVertexBJetTagsDisc((*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
+      jet->SetCombinedSecondaryVertexBJetTagsDisc((*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
+      jet->SetCombinedSecondaryVertexMVABJetTagsDisc((*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
+      jet->SetImpactParameterMVABJetTagsDisc((*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighEffBJetTagsDisc((*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighPurBJetTagsDisc((*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
       jet->SetSoftMuonNoIPBJetTagsDisc((*(hSoftMuonNoIPBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftElectronBJetTagsDisc((*(hSoftElectronBJetTags.product()))[jetBaseRef]); 
