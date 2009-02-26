@@ -1,4 +1,4 @@
-// $Id: FillerPATMuons.cc,v 1.2 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerPATMuons.cc,v 1.3 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -73,7 +73,7 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
 {
   // Fill muon information. 
 
-  muons_->Reset();
+  muons_->Delete();
   
   edm::Handle<edm::View<pat::Muon> > muonHandle;
   event.getByLabel(edm::InputTag(edmName_),muonHandle);

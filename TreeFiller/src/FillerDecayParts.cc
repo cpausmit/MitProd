@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.13 2008/10/31 17:42:29 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.14 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -78,9 +78,9 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
 {
   // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
 
-  decays_->Reset();
-  stableData_->Reset();
-  decayData_->Reset();
+  decays_->Delete();
+  stableData_->Delete();
+  decayData_->Delete();
 
   Handle<mitedm::DecayPartCol> hParts;
   GetProduct(edmName_, hParts, evt);  

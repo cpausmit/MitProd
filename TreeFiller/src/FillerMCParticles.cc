@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.5 2008/09/06 19:25:43 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.6 2008/10/06 13:35:56 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -71,7 +71,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 {
   // Loop over HepMC particle and fill their information.
 
-  mcParticles_->Reset();
+  mcParticles_->Delete();
 
   if (genActive_) {
     genMap_->Reset();

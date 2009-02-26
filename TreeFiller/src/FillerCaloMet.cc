@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.7 2008/09/16 22:07:29 ksung Exp $
+// $Id: FillerCaloMet.cc,v 1.8 2008/12/09 17:48:06 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,7 +42,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
 {
   // Fill missing energy from edm collection into our collection.
 
-  caloMets_->Reset();
+  caloMets_->Delete();
 
   Handle<reco::CaloMETCollection> hCaloMetProduct;
   GetProduct(edmName_, hCaloMetProduct, event);

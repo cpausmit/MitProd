@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.24 2008/11/27 16:16:02 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.25 2008/11/30 22:43:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -96,7 +96,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 {
   // Fill electrons from edm collection into our collection.
 
-  electrons_->Reset();
+  electrons_->Delete();
   
   Handle<reco::GsfElectronCollection> hElectronProduct;
   GetProduct(edmName_, hElectronProduct, event);

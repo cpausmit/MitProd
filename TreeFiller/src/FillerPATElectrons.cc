@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.2 2008/08/18 15:24:36 loizides Exp $
+// $Id: FillerPATElectrons.cc,v 1.3 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -67,7 +67,7 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
 {
   // Fill electrons from edm collection into our collection.  
 
-  electrons_->Reset();
+  electrons_->Delete();
   
   edm::Handle<edm::View<pat::Electron> > electronHandle;
   event.getByLabel(edm::InputTag(edmName_),electronHandle);

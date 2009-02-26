@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.25 2008/11/03 18:16:23 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.26 2008/11/04 19:24:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -70,7 +70,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 {
   // Fill tracks from edm collection into our collection.
 
-  tracks_  ->Reset();
+  tracks_  ->Delete();
   trackMap_->Reset();
 
   //initialize Handle and get product, this usage allows also to get collections of classes which

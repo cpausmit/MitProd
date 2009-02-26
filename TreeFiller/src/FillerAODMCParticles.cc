@@ -1,4 +1,4 @@
-// $Id: FillerAODMCParticles.cc,v 1.6 2008/10/06 13:35:56 bendavid Exp $
+// $Id: FillerAODMCParticles.cc,v 1.1 2009/02/23 20:53:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerAODMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,7 +50,7 @@ void FillerAODMCParticles::FillDataBlock(const edm::Event      &event,
 {
   // Loop over HepMC particle and fill their information.
 
-  mcParticles_->Reset();
+  mcParticles_->Delete();
   genMap_->Reset();
 
   Handle<reco::GenParticleCollection> hGenPProduct;

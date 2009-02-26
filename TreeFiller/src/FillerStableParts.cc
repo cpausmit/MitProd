@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.8 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.9 2008/12/01 18:04:17 bendavid Exp $
 
 #include "MitAna/DataTree/interface/StableParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,7 +61,7 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
 {
   // Fill our EDM StablePart collection into the MIT StableParticle collection.
 
-  stables_->Reset();
+  stables_->Delete();
   basePartMap_->Reset();
 
   Handle<mitedm::StablePartCol> hParts;

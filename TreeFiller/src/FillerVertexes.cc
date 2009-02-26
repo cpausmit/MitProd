@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.1 2008/09/30 13:03:42 bendavid Exp $
+// $Id: FillerVertexes.cc,v 1.2 2008/10/23 15:43:15 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,7 +50,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
 {
   // Fill the Vertex branch.
 
-  vertexes_->Reset();
+  vertexes_->Delete();
   vertexMap_->Reset();
 
   Handle<reco::VertexCollection> hVertexProduct;

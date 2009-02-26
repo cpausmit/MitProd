@@ -1,4 +1,4 @@
-// $Id: FillerGenJets.cc,v 1.10 2008/09/11 10:00:35 sixie Exp $
+// $Id: FillerGenJets.cc,v 1.1 2008/09/16 18:17:46 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,7 +52,7 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
 {
   // Fill jets from edm collection into our collection.
 
-  genjets_->Reset();
+  genjets_->Delete();
 
   //Handle for the Jet Collection
   Handle<reco::GenJetCollection> hGenJetProduct;

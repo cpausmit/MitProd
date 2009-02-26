@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.14 2008/09/17 04:25:36 loizides Exp $
+// $Id: FillerMuons.cc,v 1.15 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,7 +61,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 {
   // Fill muon information. 
 
-  muons_->Reset();
+  muons_->Delete();
   
   Handle<reco::MuonCollection> hMuonProduct;
   GetProduct(edmName_, hMuonProduct, event);  

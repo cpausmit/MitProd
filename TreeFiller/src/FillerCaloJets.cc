@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.11 2008/09/16 18:20:06 sixie Exp $
+// $Id: FillerCaloJets.cc,v 1.12 2008/09/17 04:27:22 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,7 +92,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
 {
   // Fill jets from edm collection into our collection.
 
-  jets_->Reset();
+  jets_->Delete();
 
   //Handle for the Jet Collection
   Handle<reco::CaloJetCollection> hJetProduct;

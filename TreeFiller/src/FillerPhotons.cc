@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.9 2008/09/14 03:24:01 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.10 2008/11/06 17:20:00 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -64,7 +64,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 {
   // Fill photon array.
 
-  photons_->Reset();
+  photons_->Delete();
 
   //get photon collection
   Handle<reco::PhotonCollection> hPhotonProduct;

@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.6 2008/07/30 08:39:50 loizides Exp $
+// $Id: FillerConversionElectrons.cc,v 1.7 2008/07/31 12:34:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,7 +61,7 @@ void FillerConversionElectrons::FillDataBlock(const edm::Event      &event,
 {
   // Fill converted electron array.
 
-  convElectrons_->Reset();
+  convElectrons_->Delete();
   convElectronMap_->Reset();
   FillFromTracks(convInOutTracks_, convInOutTrackMap_);
   FillFromTracks(convOutInTracks_, convOutInTrackMap_);

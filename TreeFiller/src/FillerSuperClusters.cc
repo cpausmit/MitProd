@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.1 2008/08/08 11:12:38 sixie Exp $
+// $Id: FillerSuperClusters.cc,v 1.2 2008/11/03 11:22:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +60,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
                                    const edm::EventSetup &setup)
 {
   //Fill The SuperCluster DataBlock
-  superClusters_->Reset();
+  superClusters_->Delete();
   superClusterMap_->Reset();
   superClusterIdMap_->Reset();
 

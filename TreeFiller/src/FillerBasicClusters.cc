@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.1 2008/08/08 11:12:38 sixie Exp $
+// $Id: FillerBasicClusters.cc,v 1.2 2008/09/10 03:30:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,7 +50,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 {
   // Fill the BasicCluster Data Block
 
-  basicClusters_->Reset();
+  basicClusters_->Delete();
   basicClusterMap_->Reset();
 
   Handle<reco::BasicClusterCollection> hBasicClusterProduct;

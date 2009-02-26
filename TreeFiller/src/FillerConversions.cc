@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.9 2008/09/30 13:01:26 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.10 2008/11/03 18:11:10 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,7 +52,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
 {
   // Fill conversions data structure and maps.
 
-  conversions_->Reset();
+  conversions_->Delete();
   conversionMap_->Reset();
 
   Handle<reco::ConversionCollection> hConversionProduct;
