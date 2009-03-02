@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.9 2008/09/10 03:31:02 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.10 2008/09/17 04:30:15 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -64,9 +64,9 @@ namespace mithep
       THashTable                    *l1Table_;      //L1 trigger table
       TTree                         *l1Tree_;       //L1 trigger tree (not owned)
       BitMask256                    *hltBits_;      //HLT trigger bit mask 
-      Vector<std::string>           *hltTable_;     //HLT trigger table
+      std::vector<std::string>      *hltTable_;     //HLT trigger table
       std::map<std::string,Short_t> *hltTabMap_;    //HLT trigger labels map
-      Vector<std::string>           *hltLabels_;    //HLT module labels
+      std::vector<std::string>      *hltLabels_;    //HLT module labels
       std::map<std::string,Short_t> *hltLabMap_;    //HLT module labels map
       TriggerObjectBaseArr          *hltObjs_;      //HLT trigger objects
       TriggerObjectRelArr           *hltRels_;      //HLT trigger objects relation

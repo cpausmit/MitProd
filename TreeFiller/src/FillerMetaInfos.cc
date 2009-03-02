@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.20 2008/10/07 00:27:13 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.21 2009/02/13 13:01:10 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,9 +49,9 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) :
   l1Table_(0),
   l1Tree_(0),
   hltBits_(new BitMask256),
-  hltTable_(new Vector<string>),
+  hltTable_(new vector<string>),
   hltTabMap_(0),
-  hltLabels_(new Vector<string>),
+  hltLabels_(new vector<string>),
   hltLabMap_(0),
   hltObjs_(new TriggerObjectBaseArr),
   hltRels_(new TriggerObjectRelArr),
@@ -218,16 +218,16 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
     return;
   }
 
-  Vector<string>   *trigtable = new Vector<string>;
+  vector<string>   *trigtable = new vector<string>;
   map<string,Short_t> *tabmap = new map<string,Short_t>; 
-  Vector<string>      *labels = new Vector<string>;
+  vector<string>      *labels = new vector<string>;
   map<string,Short_t> *labmap = new map<string,Short_t>; 
 
   // loop over hlt paths
   for(UInt_t i=0;i<hltConfig_.size();++i) {
 
     tabmap->insert(pair<string,Short_t>(hltConfig_.triggerName(i),i));
-    trigtable->AddCopy(hltConfig_.triggerName(i));
+    trigtable->push_back(hltConfig_.triggerName(i));
     const vector<string> &mLabels(hltConfig_.moduleLabels(i));
     for (UInt_t j=0; j<mLabels.size(); ++j) {
 
@@ -241,37 +241,37 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 
       map<string,Short_t>::iterator riter = labmap->find(lptr);
       if (riter == labmap->end()) {
-        labmap->insert(pair<string,Short_t>(lptr,labels->Entries()));
-        labels->AddCopy(lptr);
+        labmap->insert(pair<string,Short_t>(lptr,labels->size()));
+        labels->push_back(lptr);
       }
 
       const string type(hltConfig_.moduleType(lptr));
       riter = labmap->find(type);
       if (riter == labmap->end()) {
-        labmap->insert(pair<string,Short_t>(type,labels->Entries()));
-        labels->AddCopy(type);
+        labmap->insert(pair<string,Short_t>(type,labels->size()));
+        labels->push_back(type);
       }
     }
   }
 
-  if (hltTable_->Entries()>=0) {
+  if (hltTable_->size()>=0) {
     // check if existing table contains all necessary paths: 
     // if so keep it, otherwise store the new one  
 
-    if ((hltTable_->Entries()>=trigtable->Entries()) && 
-        (hltLabels_->Entries()>=labels->Entries())) {
+    if ((hltTable_->size()>=trigtable->size()) && 
+        (hltLabels_->size()>=labels->size())) {
 
       bool newEntryFound = false;
-      for (UInt_t i=0; i<trigtable->Entries(); ++i) {
-        map<string,Short_t>::iterator riter = tabmap->find(*trigtable->At(i));
+      for (UInt_t i=0; i<trigtable->size(); ++i) {
+        map<string,Short_t>::iterator riter = tabmap->find(trigtable->at(i));
         if (riter == tabmap->end()) {
           newEntryFound = true;
           break;
         }
       }
       if (!newEntryFound) {
-        for (UInt_t i=0; i<labels->Entries(); ++i) {
-          map<string,Short_t>::iterator riter = labmap->find(*labels->At(i));
+        for (UInt_t i=0; i<labels->size(); ++i) {
+          map<string,Short_t>::iterator riter = labmap->find(labels->at(i));
           if (riter == labmap->end()) {
             newEntryFound = true;
             break;
