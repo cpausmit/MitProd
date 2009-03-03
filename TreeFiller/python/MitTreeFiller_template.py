@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.16 2008/11/04 19:28:24 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.17 2008/11/12 18:20:37 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -13,17 +13,17 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FILLER")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1170) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-   'file:/server/02a/bendavid/RECO/QCD_BCtoE_Pt30to80/002D4D9E-7088-DD11-9B22-001CC4445DC2.root'
+   'file:/server/02a/bendavid/RECO/Zmumu-IDEAL_V11_redigi_V1/3A9FC4B3-7FCC-DD11-BB45-003048673F9E.root'
                              ),
    secondaryFileNames = cms.untracked.vstring()
 )
 
 #Load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX')
+    fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
 )
 process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
@@ -44,26 +44,23 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
-#Load Electron Isolation. For Jurassic isolation veto fix.
-process.load("RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff")
 
-
-#For Jet Corrections (Summer08 Jet corrections)
-process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff")
+#For Jet Corrections (Summer08 redigi-rereco Jet corrections)
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff")
 process.prefer("L3JetCorrectorIC5Calo")
 
 #enable Jet Corrections for all of our Jet collections
-process.MitTreeFiller.CaloJets.jetCorrectionsActive = cms.untracked.bool(True)
-process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt4Jets.jetCorrectionsActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt6Jets.jetCorrectionsActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.Kt4Jets.jetCorrectionsActive         = True
+process.MitTreeFiller.Kt6Jets.jetCorrectionsActive         = True
+process.MitTreeFiller.IC5JetPlusTrack.jetCorrectionsActive = True
 
 #For JetPlusTracks
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
-process.MitTreeFiller.IC5JetPlusTrack.active = cms.untracked.bool(True)
+process.MitTreeFiller.IC5JetPlusTrack.active = True
 
 #Load Met Corrections
 process.load("MitProd.TreeFiller.MetCorrections_cfi")
@@ -71,27 +68,25 @@ process.load("MitProd.TreeFiller.MetCorrections_cfi")
 #Load Flavor Matching Information
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
 #Enable Flavor matching for Reco Jets and GenJets
-process.MitTreeFiller.CaloJets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.ItrCone5Jets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone5Jets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone7Jets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt4Jets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt6Jets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.IC5GenJets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.SC5GenJets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.SC7GenJets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.KT4GenJets.flavorMatchingActive = cms.untracked.bool(True)
-process.MitTreeFiller.KT6GenJets.flavorMatchingActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.flavorMatchingActive = True
+process.MitTreeFiller.SisCone5Jets.flavorMatchingActive = True
+process.MitTreeFiller.SisCone7Jets.flavorMatchingActive = True
+process.MitTreeFiller.Kt4Jets.flavorMatchingActive      = True
+process.MitTreeFiller.Kt6Jets.flavorMatchingActive      = True
+process.MitTreeFiller.IC5GenJets.flavorMatchingActive   = True
+process.MitTreeFiller.SC5GenJets.flavorMatchingActive   = True
+process.MitTreeFiller.SC7GenJets.flavorMatchingActive   = True
+process.MitTreeFiller.KT4GenJets.flavorMatchingActive   = True
+process.MitTreeFiller.KT6GenJets.flavorMatchingActive   = True
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
 #Enable Jet Vertex association for Reco Jet collections
-process.MitTreeFiller.CaloJets.jetToVertexActive = cms.untracked.bool(True)
-process.MitTreeFiller.ItrCone5Jets.jetToVertexActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone5Jets.jetToVertexActive = cms.untracked.bool(True)
-process.MitTreeFiller.SisCone7Jets.jetToVertexActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt4Jets.jetToVertexActive = cms.untracked.bool(True)
-process.MitTreeFiller.Kt6Jets.jetToVertexActive = cms.untracked.bool(True)
+process.MitTreeFiller.ItrCone5Jets.jetToVertexActive = True
+process.MitTreeFiller.SisCone5Jets.jetToVertexActive = True
+process.MitTreeFiller.SisCone7Jets.jetToVertexActive = True
+process.MitTreeFiller.Kt4Jets.jetToVertexActive      = True
+process.MitTreeFiller.Kt6Jets.jetToVertexActive      = True
 
 #Load track detector associator for Track-ECal association
 process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
@@ -110,7 +105,6 @@ process.load("MitEdm.Producers.gsfTrackAssociator_cff")
 process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
 process.p1 = cms.Path(
-    process.eleIsolationSequence *
     process.gsfTrackAssociator *
     process.vProducer *
     process.conversionProducer *
