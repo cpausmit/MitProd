@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.26 2008/11/04 19:24:48 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.27 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,6 +10,9 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 
 using namespace std;
@@ -93,7 +96,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   //set up associator for Track-Ecal associations
   TrackDetectorAssociator trackAssociator;
   trackAssociator.useDefaultPropagator();
-
+  edm::ESHandle<MagneticField> bField;
+  if (ecalAssocActive_)
+    setup.get<IdealMagneticFieldRecord>().get(bField);
+  
+  
   // loop through all tracks and fill the information
   for (View<reco::Track>::const_iterator it = inTracks.begin();
          it != inTracks.end(); ++it) {
@@ -129,9 +136,16 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 
     //make ecal associations
     if (ecalAssocActive_) {
-      TrackDetMatchInfo matchInfo = trackAssociator.associate(event,setup,
-                                                             *it,
-                                                              assocParams_);
+      TrackDetMatchInfo matchInfo;
+      //Extra check to allow propagation to work in AOD where no TrackExtra is available
+      if (it->extra().isAvailable())
+        matchInfo = trackAssociator.associate(event,setup,*it,assocParams_);
+      else {
+        TrajectoryStateTransform tsTransform;
+        FreeTrajectoryState initialState = tsTransform.initialFreeState(*it,&*bField);
+        matchInfo = trackAssociator.associate(event, setup, assocParams_, &initialState);
+      }
+        
       outTrack->SetEtaEcal(matchInfo.trkGlobPosAtEcal.eta());
       outTrack->SetPhiEcal(matchInfo.trkGlobPosAtEcal.phi());
 
