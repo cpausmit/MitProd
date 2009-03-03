@@ -1,4 +1,4 @@
-// $Id: FillerBeamSpot.cc,v 1.2 2008/10/23 15:43:15 loizides Exp $
+// $Id: FillerBeamSpot.cc,v 1.1 2008/11/12 18:21:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +15,7 @@ FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, const char *name, bool a
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","offlineBeamSpot")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","BeamSpot")),
-  beamSpot_(new mithep::BeamSpot)
+  beamSpots_(new mithep::BeamSpotArr)
 {
   // Constructor.
 }
@@ -25,7 +25,7 @@ FillerBeamSpot::~FillerBeamSpot()
 {
   // Destructor.
 
-  delete beamSpot_;
+  delete beamSpots_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,9 +33,8 @@ void FillerBeamSpot::BookDataBlock(TreeWriter &tws)
 {
   // Add Vertex branch and the VertexMap to tree.
 
-  tws.AddBranch(mitName_.c_str(),&beamSpot_);
-  OS()->add<mithep::BeamSpot>(beamSpot_,mitName_.c_str());
-
+  tws.AddBranch(mitName_.c_str(),&beamSpots_);
+  OS()->add<mithep::BeamSpotArr>(beamSpots_,mitName_.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,26 +43,13 @@ void FillerBeamSpot::FillDataBlock(const edm::Event      &event,
 {
   // Fill the BeamSpot branch.
 
+  beamSpots_->Delete();
+
   Handle<reco::BeamSpot> hBeamSpotProduct;
   GetProduct(edmName_, hBeamSpotProduct, event);
   const reco::BeamSpot *inBeamSpot = hBeamSpotProduct.product();  
 
-  new (beamSpot_) mithep::BeamSpot(inBeamSpot->x0(),
-                                   inBeamSpot->y0(),
-                                   inBeamSpot->z0(),
-                                   inBeamSpot->x0Error(),
-                                   inBeamSpot->y0Error(),
-                                   inBeamSpot->z0Error()
-                                   );
-                                   
-  beamSpot_->SetSigmaZ(inBeamSpot->sigmaZ());
-  beamSpot_->SetBeamWidth(inBeamSpot->BeamWidth());
-  beamSpot_->SetDxDz(inBeamSpot->dxdz());
-  beamSpot_->SetDyDz(inBeamSpot->dydz());
-  
-  beamSpot_->SetSigmaZErr(inBeamSpot->sigmaZ0Error());
-  beamSpot_->SetBeamWidthErr(inBeamSpot->BeamWidthError());
-  beamSpot_->SetDxDzErr(inBeamSpot->dxdzError());
-  beamSpot_->SetDyDzErr(inBeamSpot->dydzError());
-
+  mithep::BeamSpot *bs = beamSpots_->AddNew();
+  bs->SetErrors(inBeamSpot->x0Error(),inBeamSpot->y0Error(),inBeamSpot->z0Error());
+  bs->SetPosition(inBeamSpot->x0(),inBeamSpot->y0(),inBeamSpot->z0());
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBeamSpot.h,v 1.2 2008/10/23 15:43:15 loizides Exp $
+// $Id: FillerBeamSpot.h,v 1.1 2008/11/12 18:21:28 bendavid Exp $
 //
 // FillerBeamSpot
 //
@@ -12,8 +12,8 @@
 #define MITPROD_TREEFILLER_FILLERBEAMSPOT_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MitAna/DataTree/interface/Collections.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/BeamSpot.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
@@ -30,7 +30,7 @@ namespace mithep
     private:
       std::string                           edmName_;          //edm name of Vertex collection
       std::string                           mitName_;          //name of Vertices in OAK
-      mithep::BeamSpot                     *beamSpot_;         //the beamspot
+      mithep::BeamSpotArr                  *beamSpots_;        //the beamspot array
   };
 }
 #endif
