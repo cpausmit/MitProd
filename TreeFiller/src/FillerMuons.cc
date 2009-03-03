@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.15 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.16 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -87,6 +87,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetEmS9Energy(iM->calEnergy().emS9);
     outMuon->SetHadS9Energy(iM->calEnergy().hadS9);
     outMuon->SetHoS9Energy(iM->calEnergy().hoS9);
+    outMuon->SetIsGlobalMuon(iM->isGlobalMuon());
+    outMuon->SetIsTrackerMuon(iM->isTrackerMuon());
+    outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
+    outMuon->SetIsCaloMuon(iM->isCaloMuon());
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
       outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
