@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.25 2008/11/30 22:43:28 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.26 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -220,7 +220,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
     GetProduct(hcalJurassicIsoName_, eleIsoFromDepsHcalFromHitsValueMap, event);
 
-    outElectron->SetEcalJurassicIsolation((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
+    outElectron->SetEcalJurassicIso((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
     outElectron->SetHcalIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
 
     //make proper links to Tracks and Super Clusters
