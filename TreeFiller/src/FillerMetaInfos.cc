@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.21 2009/02/13 13:01:10 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.22 2009/03/02 13:27:34 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -116,8 +116,10 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   // add branches to L1 trigger info tree
 
   // add branches to HLT trigger info tree
-  tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_.c_str(),&hltTable_,32000,0);
-  tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_.c_str(),&hltLabels_,32000,0);
+  tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_.c_str(),
+                      "std::vector<std::string>",&hltTable_,32000,0);
+  tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_.c_str(),
+                      "std::vector<std::string>",&hltLabels_,32000,0);
   tws.SetAutoFill(Names::gkHltTreeName,0);
   hltTree_=tws.GetTree(Names::gkHltTreeName);
 
