@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.2 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerBasicClusters.cc,v 1.3 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,9 +66,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     new (outBasicCluster) mithep::BasicCluster();
 
     outBasicCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
-    outBasicCluster->SetEnergy(inBC->energy());
-    outBasicCluster->SetAlgoId(inBC->algo()); 
-    outBasicCluster->SetChiSq(inBC->chi2());    
+    outBasicCluster->SetEnergy(inBC->energy());   
 
     //add basic clusters to the map
     reco::BasicClusterRef theRef(hBasicClusterProduct, inBC-inBasicClusters.begin());
