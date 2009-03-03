@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.24 2008/11/12 18:21:28 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.25 2009/02/23 20:54:08 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -297,13 +297,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingDefinition = cms.untracked.string('Algorithmic')
     ),     
 
-    CaloJets = cms.untracked.PSet(
+    ItrCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(True),
         jetToVertexActive = cms.untracked.bool(False),
         jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('CaloJets'),
+        mitName = cms.untracked.string('ItrCone5Jets'),
         edmName = cms.untracked.string('iterativeCone5CaloJets'),
         jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5:Var'),
         jetToVertexBetaName = cms.untracked.string('jetVertexBetaIC5:Var'),
@@ -326,23 +326,6 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         SoftElectronBJetTagsName = cms.untracked.string('softElectronBJetTags'),        
         caloTowerMapName = cms.untracked.string('CaloTowerMap')
     ),
-
-    ItrCone5Jets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('ItrCone5Jets'),
-        edmName = cms.untracked.string('iterativeCone5CaloJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaIC5:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorIC5Calo'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorIC5Calo'),
-        flavorMatchingByReferenceName = cms.untracked.string('IC5byRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        caloTowerMapName = cms.untracked.string('CaloTowerMap')
-    ), 
 
     SisCone5Jets = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
@@ -419,14 +402,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         jetCorrectionsActive = cms.untracked.bool(False),
         mitName = cms.untracked.string('IC5JetPlusTrack'),
         edmName = cms.untracked.string('JetPlusTrackZSPCorJetIcone5'),
+        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorIC5JPT'),
+        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorIC5JPT'),
         caloTowerMapName = cms.untracked.string('CaloTowerMap')
-    ),
-                               
-    CaloMet = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        mitName = cms.untracked.string('CaloMet'),
-        edmName = cms.untracked.string('corMetType1Icone5')  
-    ),
+    ),                               
     
     ItrCone5Met = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
