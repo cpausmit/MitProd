@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.3 2008/06/20 17:52:24 loizides Exp $
+# $Id: BuildFile,v 1.4 2008/09/03 20:50:50 loizides Exp $
 
 <use name=DataFormats/Provenance>
 <use name=FWCore/ServiceRegistry>
@@ -7,6 +7,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 
+<use name=MitCommon/OptIO>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
 <use name=root>
