@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.10 2008/10/06 15:56:51 loizides Exp $
+// $Id: TreeService.cc,v 1.11 2009/03/03 18:06:10 bendavid Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitCommon/OptIO/interface/OptInt.h"
@@ -17,6 +18,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) : 
   tws_(0),
+  zipMode_(1),
+  bZipThres_(1),
+  gZipThres_(1),
+  lzoThres_(1),
+  lzmaThres_(1),
+  optIOVerbose_(1),
   fDoReset_(cfg.getUntrackedParameter<bool>("doReset",1))
 {
   // Constructor.
@@ -56,41 +63,59 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) :
   else 
     brSizes_.push_back(64*1024);
 
-  if (cfg.exists("zipMode"))
-    zipMode_=cfg.getUntrackedParameter<unsigned>("zipMode");
-  else 
-    zipMode_ = 99;
-
-  if (cfg.exists("bZipThres"))
-    bZipThres_=cfg.getUntrackedParameter<double>("bZipThres");
-  else 
-    bZipThres_ = -1.0;
-
-  if (cfg.exists("gZipThres"))
-    gZipThres_=cfg.getUntrackedParameter<double>("gZipThres");
-  else 
-    gZipThres_ = 1.0;
-
-  if (cfg.exists("lzoThres"))
-    lzoThres_=cfg.getUntrackedParameter<double>("lzoThres");
-  else 
-    lzoThres_ = -1.0;
-
-  if (cfg.exists("lzmaThres"))
-    lzmaThres_=cfg.getUntrackedParameter<double>("lzmaThres");
-  else 
-    lzmaThres_ = 0.95;
-
-  if (cfg.exists("optIOVerbose"))
-    optIOVerbose_=cfg.getUntrackedParameter<unsigned>("optIOVerbose");
-  else
-    optIOVerbose_ = 0;
-
   if (treeNames_.size()!=fileNames_.size()) {
     throw edm::Exception(edm::errors::Configuration, "TreeService::TreeService()\n")
       << "Number of main trees should match number of files " << treeNames_.size() 
       << " " << fileNames_.size() << "\n";
     return;
+  }
+
+  if (OptInt::IsActivated()) {
+    if (cfg.exists("zipMode"))
+      zipMode_=cfg.getUntrackedParameter<unsigned>("zipMode");
+    else 
+      zipMode_ = 99;
+
+    if (cfg.exists("bZipThres"))
+      bZipThres_=cfg.getUntrackedParameter<double>("bZipThres");
+    else 
+      bZipThres_ = -1.0;
+
+    if (cfg.exists("gZipThres"))
+      gZipThres_=cfg.getUntrackedParameter<double>("gZipThres");
+    else 
+      gZipThres_ = 1.0;
+
+    if (cfg.exists("lzoThres"))
+      lzoThres_=cfg.getUntrackedParameter<double>("lzoThres");
+    else 
+      lzoThres_ = -1.0;
+
+    if (cfg.exists("lzmaThres"))
+      lzmaThres_=cfg.getUntrackedParameter<double>("lzmaThres");
+    else 
+      lzmaThres_ = 0.95;
+
+    if (cfg.exists("optIOVerbose"))
+      optIOVerbose_=cfg.getUntrackedParameter<unsigned>("optIOVerbose");
+    else
+      optIOVerbose_ = 0;
+
+    OptInt::SetZipMode(zipMode_);
+    OptInt::SetGzipFraction(gZipThres_);
+    OptInt::SetBzipFraction(bZipThres_);
+    OptInt::SetLzoFraction(lzoThres_);
+    OptInt::SetLzmaFraction(lzmaThres_);
+    OptInt::SetVerbose(optIOVerbose_);
+
+  } else {
+
+    if (cfg.exists("zipMode")   || cfg.exists("bZipThres") ||
+        cfg.exists("gZipThres") || cfg.exists("lzoThres")  ||
+        cfg.exists("lzmaThres")) {
+      edm::LogError("TreeService") << "OptIO interface not properly pre-loaded, "
+        "ignoring given settings." << std::endl;
+    }
   }
 
   // setup tw array
@@ -127,18 +152,6 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) :
       t->SetDefaultBrSize(brSizes_.at(i));
     else if (brSizes_.size()>0)
       t->SetDefaultBrSize(brSizes_.at(0));
-
-    OptInt::SetZipMode(zipMode_);
-
-    OptInt::SetGzipFraction(gZipThres_);
-
-    OptInt::SetBzipFraction(bZipThres_);
-
-    OptInt::SetLzoFraction(lzoThres_);
-
-    OptInt::SetLzmaFraction(lzmaThres_);
-
-    OptInt::SetVerbose(optIOVerbose_);
 
     //t->Print();
     tws_.Add(t);

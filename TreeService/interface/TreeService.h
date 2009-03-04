@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.11 2008/10/06 15:56:51 loizides Exp $
+// $Id: TreeService.h,v 1.12 2009/03/03 18:06:09 bendavid Exp $
 //
 // TreeService 
 //
@@ -56,20 +56,20 @@ namespace mithep
       TObjArray tws_; //array holding the tree writers
 
       // parameters for service
-      std::vector<std::string> treeNames_;   //tree names
-      std::vector<std::string> fileNames_;   //file names 
-      std::vector<std::string> pathNames_;   //path names
-      std::vector<unsigned>    maxSizes_;    //max file sizes [MB]
-      std::vector<unsigned>    compLevels_;  //compression levels
-      std::vector<unsigned>    splitLevels_; //default split levels
-      std::vector<unsigned>    brSizes_;     //default branch sizes [Byte]
-      unsigned                 zipMode_;    //compression mode for OptIO
-      double                   bZipThres_;
-      double                   gZipThres_;
-      double                   lzoThres_;
-      double                   lzmaThres_;
-      unsigned                 optIOVerbose_;
-      bool                     fDoReset_;    //reset object counter (def=1)
+      std::vector<std::string> treeNames_;    //tree names
+      std::vector<std::string> fileNames_;    //file names 
+      std::vector<std::string> pathNames_;    //path names
+      std::vector<unsigned>    maxSizes_;     //max file sizes [MB]
+      std::vector<unsigned>    compLevels_;   //compression levels
+      std::vector<unsigned>    splitLevels_;  //default split levels
+      std::vector<unsigned>    brSizes_;      //default branch sizes [Byte]
+      unsigned                 zipMode_;      //compression mode used by OptIO
+      double                   bZipThres_;    //bzip threshold
+      double                   gZipThres_;    //gzip threshold
+      double                   lzoThres_;     //lzo threshold
+      double                   lzmaThres_;    //lzma threshold
+      unsigned                 optIOVerbose_; //OptIO verbose 
+      bool                     fDoReset_;     //reset object counter (def=1)
   };
 }
 #endif
