@@ -4,7 +4,7 @@ from JetMETCorrections.Type1MET.MetMuonCorrections_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag="IDEAL_V9::All" 
+GlobalTag.globaltag="IDEAL_V11::All" 
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 from TrackingTools.TrackAssociator.default_cfi    import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff   import *

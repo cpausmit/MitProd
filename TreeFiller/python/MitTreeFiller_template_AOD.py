@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template_AOD.py,v 1.1 2009/03/03 21:34:48 bendavid Exp $
+# $Id: MitTreeFiller_template_AOD.py,v 1.2 2009/03/06 14:40:10 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -51,7 +51,13 @@ process.load("RecoEgamma.EgammaIsolationAlgos.eleIsoFromDeposits_cff")
 #For Jet Corrections (Winter09 FastSim-specific Jet corrections)
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Winter09_cff")
 process.prefer("L3JetCorrectorIC5Calo")
-
+process.correctedJets = cms.Sequence(process.L2L3CorJetIC5Calo*
+                                     process.L2L3CorJetSC5Calo*
+                                     process.L2L3CorJetSC7Calo*
+                                     process.L2L3CorJetKT4Calo*
+                                     process.L2L3CorJetKT6Calo*
+                                     process.L2L3CorJetIC5JPT)
+                                     
 #enable Jet Corrections for all of our Jet collections
 process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = True
 process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive = True
@@ -67,6 +73,12 @@ process.MitTreeFiller.IC5JetPlusTrack.active = True
 
 #Load Met Corrections
 process.load("MitProd.TreeFiller.MetCorrections_cfi")
+
+#Load MHT sequence
+process.load("MitProd.TreeFiller.MitMHT_cfi")
+
+#load track-corrected MET module
+process.load("RecoMET.METProducers.TCMET_cfi")
 
 #Load Flavor Matching Information
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
@@ -111,6 +123,9 @@ process.p1 = cms.Path(
      + process.caloJetMCFlavour
      + process.jetvertexAssociationSequence
      + process.ZSPJetCorrections*process.JetPlusTrackCorrections
+     + process.correctedJets
+     + process.MitMHT
+     + process.tcMet
      )
     *process.MitTreeFiller
     *process.vFiller
