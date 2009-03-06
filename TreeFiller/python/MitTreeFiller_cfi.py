@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.25 2009/02/23 20:54:08 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.26 2009/03/03 18:51:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,25 +14,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     MCParticles = cms.untracked.PSet(
         active        = cms.untracked.bool(True),
         genActive     = cms.untracked.bool(True),
+        useAodGen     = cms.untracked.bool(True),
         simActive     = cms.untracked.bool(True),
         trackingActive = cms.untracked.bool(False),
         mitName       = cms.untracked.string('MCParticles'),
         genJetMitName = cms.untracked.string('GenJets'),
-        genEdmName    = cms.untracked.string('source'),
+        genEdmName    = cms.untracked.string('genParticles'),
         simEdmName    = cms.untracked.string('g4SimHits'),
         trackingEdmName    = cms.untracked.string('mergedtruth:MergedTrackTruth'),
         genMapName    = cms.untracked.string('GenMap'),
         simMapName    = cms.untracked.string('SimMap'),
         trackingMapName    = cms.untracked.string('TrackingMap') 
     ),
-    
-    AODMCParticles = cms.untracked.PSet(
-        active        = cms.untracked.bool(False),
-        mitName       = cms.untracked.string('MCParticles'),
-        genEdmName    = cms.untracked.string('genParticles'),
-        genMapName    = cms.untracked.string('AODGenMap'),
-    ),
-      
+          
     BeamSpot = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('BeamSpot'),

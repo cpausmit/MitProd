@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.17 2008/11/12 18:20:37 bendavid Exp $
+# $Id: MitTreeFiller_template_AOD.py,v 1.1 2009/03/03 21:34:48 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -28,10 +28,7 @@ process.TreeService = cms.Service("TreeService",
 process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 #Reconfigure treefiller defaults for AOD content:
-process.MitTreeFiller.MCParticles.active = False
 process.MitTreeFiller.MCParticles.simActive = False
-process.MitTreeFiller.MCParticles.mitName = 'HepMCParticles'
-process.MitTreeFiller.AODMCParticles.active = True
 process.MitTreeFiller.ConversionInOutTracks.active = False
 process.MitTreeFiller.ConversionOutInTracks.active = False
 process.MitTreeFiller.ConversionElectrons.active = False

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.16 2008/11/04 19:26:33 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.17 2009/02/23 20:53:34 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -47,8 +47,9 @@ namespace mithep
   typedef AssociationMap<const reco::BasicClusterRef,       mithep::BasicCluster*> BasicClusterMap;
   typedef AssociationMap<const reco::SuperClusterRef,       mithep::SuperCluster*> SuperClusterMap;
   typedef AssociationMap<const edm::Ptr<reco::GenParticle>, mithep::MCParticle*>   AODGenParticleMap;
-  typedef AssociationMap<const Int_t,                       mithep::MCParticle*>   GenParticleMap;
+  typedef AssociationMap<const int,                         mithep::MCParticle*>   GenParticleBarcodeMap;
   typedef AssociationMap<const SimTrackRef,                 mithep::MCParticle*>   SimTrackMap;
+  typedef AssociationMap<const unsigned int,                mithep::MCParticle*>   SimTrackTidMap;
   typedef AssociationMap<const TrackingParticleRef,         mithep::MCParticle*>   TrackingParticleMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,         mithep::Conversion*>   ConversionMap;

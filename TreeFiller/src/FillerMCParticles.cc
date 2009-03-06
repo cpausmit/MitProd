@@ -1,9 +1,12 @@
-// $Id: FillerMCParticles.cc,v 1.6 2008/10/06 13:35:56 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.7 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -22,6 +25,7 @@ using namespace mithep;
 FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg, name, active),
   genActive_(Conf().getUntrackedParameter<bool>("genActive",true)),
+  useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
   trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
   genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","source")),
@@ -32,8 +36,9 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMCPartBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
-  genMap_(genActive_?new mithep::GenParticleMap:0),
-  simMap_(simActive_?new mithep::SimTrackMap:0),
+  genMap_(genActive_?new mithep::GenParticleBarcodeMap:0),
+  aodGenMap_((genActive_&&useAodGen_)?new mithep::AODGenParticleMap:0),
+  simMap_(simActive_?new mithep::SimTrackTidMap:0),
   trackingMap_(trackingActive_?new mithep::TrackingParticleMap:0)
 {
   // Constructor.
@@ -46,6 +51,7 @@ FillerMCParticles::~FillerMCParticles()
 
   delete mcParticles_;
   delete genMap_;
+  delete aodGenMap_;
   delete simMap_;
   delete trackingMap_;
 }
@@ -73,8 +79,10 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 
   mcParticles_->Delete();
 
-  if (genActive_) {
+  if (genActive_)
     genMap_->Reset();
+  
+  if (genActive_ && !useAodGen_) {
   
     Handle<edm::HepMCProduct> hHepMCProduct;
     GetProduct(genEdmName_, hHepMCProduct, event);  
@@ -101,8 +109,50 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     
   }
   
+  
+  //loop over aod GenParticle candidates and fill their information
+  
+  if (genActive_ && useAodGen_) {
+  
+    aodGenMap_->Reset();
+  
+    Handle<reco::GenParticleCollection> hGenPProduct;
+    GetProduct(genEdmName_, hGenPProduct, event);  
+    
+    //element by element aligned collection of hepmc barcodes associated to
+    //the genparticles
+    Handle<std::vector<int> > genBarcodes;
+    if (simActive_)
+      GetProduct(genEdmName_, genBarcodes, event);  
+  
+    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
+  
+    //loop over all genparticles and copy their information
+    for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
+        pgen != genParticles.end(); ++pgen) {
+        
+      mithep::MCParticle *mcPart = mcParticles_->Allocate();
+      new (mcPart) mithep::MCParticle(pgen->px(),pgen->py(),
+                                            pgen->pz(),pgen->energy(),
+                                            pgen->pdgId(),
+                                            pgen->status());
+                                            
+      mcPart->SetIsGenerated();                                          
+      
+      //add hepmc barcode association, needed to merge in sim particles
+      if (simActive_) {
+        int genBarcode = genBarcodes->at(pgen - genParticles.begin());
+        genMap_->Add(genBarcode, mcPart);
+      }
+      
+      edm::Ptr<reco::GenParticle> thePtr(hGenPProduct, pgen - genParticles.begin());
+      aodGenMap_->Add(thePtr, mcPart);
+      
+    }
+  
+  }
+  
   if (simActive_) {
-    simTidMap_.clear();
     simMap_->Reset();
 
     Handle<edm::SimTrackContainer> hSimTrackProduct;
@@ -114,9 +164,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
         iM != simTracks.end(); ++iM) {
 
-      SimTrackRef theRef(hSimTrackProduct, iM-simTracks.begin());
-      simTidMap_[iM->trackId()] = theRef; 
-      mithep::MCParticle *outSimParticle;
+      mithep::MCParticle *outSimParticle = 0;
       
       if (genActive_ && (iM->genpartIndex() >= 0) ) {
         outSimParticle = genMap_->GetMit(iM->genpartIndex());
@@ -133,7 +181,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       }
       
       outSimParticle->SetIsSimulated();
-      simMap_->Add(theRef, outSimParticle);
+      simMap_->Add(iM->trackId(), outSimParticle);
 
     }
   }
@@ -162,8 +210,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
         const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
         //printf("trackId = %i\n",theSimTrack.trackId());
-        SimTrackRef theSimTrackRef = simTidMap_[theSimTrack.trackId()];
-        mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrackRef);
+        mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
         trackingMap_->Add(theRef, outSimParticle);
       }
 
@@ -179,7 +226,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
 {
   // Loop over HepMC particle and resolve their links.
 
-  if (genActive_) {
+  if (genActive_ && !useAodGen_) {
   
     Handle<edm::HepMCProduct> hHepMCProduct;
     GetProduct(genEdmName_, hHepMCProduct, event);
@@ -218,6 +265,43 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
   
+  //loop over aod GenParticle candidates and resolve their links
+  
+  if (genActive_ && useAodGen_) {
+  
+    Handle<reco::GenParticleCollection> hGenPProduct;
+    GetProduct(genEdmName_, hGenPProduct, event);  
+  
+    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
+  
+    //loop over all genparticles and copy their information
+    for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
+        pgen != genParticles.end(); ++pgen) {
+  
+      int nDaughters = pgen->numberOfDaughters();
+      
+      if (nDaughters>0) {
+      
+        edm::Ptr<reco::GenParticle> thePtr(hGenPProduct, pgen - genParticles.begin());
+        MCParticle *mcMother = aodGenMap_->GetMit(thePtr);
+        for (int i=0; i<nDaughters; ++i) {
+          const reco::Candidate *genDaughter = pgen->daughter(i);
+          MCParticle *mcDaughter = aodGenMap_->GetMit(refToPtr(pgen->daughterRef(i)));
+          //set mother decay vertex
+          if (i==0)
+            mcMother->SetVertex(genDaughter->vx(),genDaughter->vy(),genDaughter->vz());
+          
+          //set mother-daughter links
+          mcMother->AddDaughter(mcDaughter);
+          if (!mcDaughter->HasMother())
+            mcDaughter->SetMother(mcMother);
+          
+        }
+      }
+    }
+  
+  }
+  
   //loop over SimTracks and resolve links
   if (simActive_) {
     Handle<edm::SimTrackContainer> hSimTrackProduct;
@@ -238,11 +322,10 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         iM != simTracks.end(); ++iM) {
 
       if (iM->vertIndex()>=0) {
-        SimTrackRef theRef(hSimTrackProduct, iM-simTracks.begin());
-        mithep::MCParticle *simDaughter = simMap_->GetMit(theRef);
+        mithep::MCParticle *simDaughter = simMap_->GetMit(iM->trackId());
         const SimVertex &theVertex = simVertexes.at(iM->vertIndex());
         if (theVertex.parentIndex()>=0) {
-          mithep::MCParticle *simParent = simMap_->GetMit(simTidMap_[theVertex.parentIndex()]);
+          mithep::MCParticle *simParent = simMap_->GetMit(theVertex.parentIndex());
           simParent->SetVertex(theVertex.position().x(),theVertex.position().y(),theVertex.position().z());
           //make sure we don't double count the decay tree
           if ( !simParent->HasDaughter(simDaughter) ) {

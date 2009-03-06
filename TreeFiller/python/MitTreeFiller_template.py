@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.17 2008/11/12 18:20:37 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.18 2009/03/03 21:34:18 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" OAK tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -13,7 +13,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FILLER")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1170) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
    'file:/server/02a/bendavid/RECO/Zmumu-IDEAL_V11_redigi_V1/3A9FC4B3-7FCC-DD11-BB45-003048673F9E.root'
@@ -106,8 +106,8 @@ process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
 process.p1 = cms.Path(
     process.gsfTrackAssociator *
-    process.vProducer *
-    process.conversionProducer *
+    #process.vProducer *
+    #process.conversionProducer *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
@@ -115,6 +115,6 @@ process.p1 = cms.Path(
      + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      )
     *process.MitTreeFiller
-    *process.vFiller
-    *process.conversionFiller
+    #*process.vFiller
+    #*process.conversionFiller
      )

@@ -1,9 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.3 2008/09/05 23:46:09 bendavid Exp $
+// $Id: FillerMCParticles.h,v 1.4 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerMCParticles
 //
-// Imlementation of a filler to fill HepMC particles (gen) AND TrackingParticles (sim)
+// Imlementation of a filler to fill HepMC particles OR the aod GenParticle candidates (gen)
+// AND SimTracks (sim) with association map to TrackingParticles (for hit-based MC truth matching)
 // into mithep::MCParticles. Gen and Sim particle information is thus merged into a single 
 // collection.
 //
@@ -35,6 +36,7 @@ namespace mithep
   
     private:
       Bool_t                      genActive_;   //=true if generated particles are filled
+      Bool_t                      useAodGen_;   //=true to use aod GenParticles instead of HepMC
       Bool_t                      simActive_;   //=true if simulated particles are filled
       Bool_t                      trackingActive_;   //=true if simulated TrackingParticles are mapped
       std::string                 genEdmName_;  //edm name of generated particles
@@ -44,10 +46,10 @@ namespace mithep
       std::string                 simMapName_;  //name of exported map wrt simulated particles
       std::string                 trackingMapName_;  //name of exported map wrt simulated TrackingParticles
       std::string                 mitName_;     //name of MCParticles branch in OAK
-      std::map<unsigned int, SimTrackRef> simTidMap_; //map of SimTracks to G4 track ids
       mithep::MCParticleArr      *mcParticles_; //array of MCParticles
-      mithep::GenParticleMap     *genMap_;      //map wrt generated particles
-      mithep::SimTrackMap        *simMap_;      //map wrt simulated particles
+      mithep::GenParticleBarcodeMap *genMap_;      //map wrt generated particles
+      mithep::AODGenParticleMap  *aodGenMap_;      //map wrt generated particles
+      mithep::SimTrackTidMap     *simMap_;      //map of SimTracks to G4 track ids
       mithep::TrackingParticleMap *trackingMap_;      //map wrt simulated TrackingParticles
   };
 }
