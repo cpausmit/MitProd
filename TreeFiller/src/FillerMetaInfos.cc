@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.23 2009/03/03 08:37:51 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.24 2009/03/07 19:28:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,6 +9,7 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
+#include "MitAna/DataTree/interface/TriggerMask.h"
 #include "MitAna/DataTree/interface/TriggerName.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
 #include <TObjectTable.h>
@@ -48,7 +49,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, bool active) :
   l1Entries_(0),
   l1Table_(0),
   l1Tree_(0),
-  hltBits_(new BitMask256),
+  hltBits_(new TriggerMask),
   hltTable_(new vector<string>),
   hltTabMap_(0),
   hltLabels_(new vector<string>),
@@ -105,13 +106,13 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 
   // add branches to run info tree
   tws.AddBranchToTree(Names::gkRunTreeName,runName_.c_str(),
-                      TClass::GetClass(typeid(runInfo_))->GetName(),&runInfo_);
+                      TClass::GetClass(typeid(*runInfo_))->GetName(),&runInfo_);
   tws.SetAutoFill(Names::gkRunTreeName,0);
   runTree_=tws.GetTree(Names::gkRunTreeName);
 
   // add branches to lookahead tree
   tws.AddBranchToTree(Names::gkLATreeName,Names::gkLAHeaderBrn,
-                      TClass::GetClass(typeid(evtLAHeader_))->GetName(),&runInfo_);
+                      TClass::GetClass(typeid(*evtLAHeader_))->GetName(),&runInfo_);
   tws.SetAutoFill(Names::gkLATreeName,0);
   laTree_=tws.GetTree(Names::gkLATreeName);
 
@@ -119,9 +120,9 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 
   // add branches to HLT trigger info tree
   tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_.c_str(),
-                      TClass::GetClass(typeid(hltTable_))->GetName(),&hltTable_,32000,0);
+                      TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32000,0);
   tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_.c_str(),
-                      TClass::GetClass(typeid(hltLabels_))->GetName(),&hltLabels_,32000,0);
+                      TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32000,0);
   tws.SetAutoFill(Names::gkHltTreeName,0);
   hltTree_=tws.GetTree(Names::gkHltTreeName);
 
@@ -218,7 +219,8 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   // check size of menu... < 256
   if (hltConfig_.size()>hltBits_->Size()) {
     edm::LogError("FillerMetaInfos") << "HLT config contains too many paths "
-                                     << hltConfig_.size() << " > " << hltBits_->Size() << std::endl;
+                                     << hltConfig_.size() << " > " 
+                                     << hltBits_->Size() << std::endl;
     return;
   }
 
@@ -331,8 +333,8 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
   if (verify_)
     assert(triggerResultsHLT->size()==hltConfig_.size());
 
-  // reset bitmask
-  hltBits_->Clear();
+  // new bitmask
+  BitMask256 mask;
 
   //map between EDM and OAK trigger object indices
   std::map<Int_t,Int_t> objmap;       
@@ -366,7 +368,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
     }
 
     // set trigger bit
-    hltBits_->SetBit(mytind);
+    mask.SetBit(mytind);
 
     // modules on this trigger path
     const UInt_t M(hltConfig_.size(tind));
@@ -448,6 +450,8 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
       }
     }
   }
+  
+  hltBits_->SetBits(mask);
   hltObjs_->Trim();
   hltRels_->Trim();
 }

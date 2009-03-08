@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.10 2008/09/17 04:30:15 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.11 2009/03/02 13:27:34 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -21,6 +21,7 @@ namespace mithep
   class RunInfo;
   class EventHeader;
   class LAHeader;
+  class TriggerMask;
 
   class FillerMetaInfos : public BaseFiller
   {
@@ -63,7 +64,7 @@ namespace mithep
       Int_t                          l1Entries_;    //number of l1 info entries
       THashTable                    *l1Table_;      //L1 trigger table
       TTree                         *l1Tree_;       //L1 trigger tree (not owned)
-      BitMask256                    *hltBits_;      //HLT trigger bit mask 
+      TriggerMask                   *hltBits_;      //HLT trigger bit mask 
       std::vector<std::string>      *hltTable_;     //HLT trigger table
       std::map<std::string,Short_t> *hltTabMap_;    //HLT trigger labels map
       std::vector<std::string>      *hltLabels_;    //HLT module labels
