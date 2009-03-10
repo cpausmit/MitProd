@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.10 2008/11/06 17:20:00 sixie Exp $
+// $Id: FillerPhotons.cc,v 1.11 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,11 +19,12 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, bool active) :
-  BaseFiller(cfg,"Photons",active),
+FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active) :
+  BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
-  photonIDName_(Conf().getUntrackedParameter<string>("photonIDName","PhotonIDProd:PhotonAssociatedID")),
+  photonIDName_(Conf().getUntrackedParameter<string>("photonIDName",
+                                                     "PhotonIDProd:PhotonAssociatedID")),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),

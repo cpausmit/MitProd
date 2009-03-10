@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.11 2008/11/03 18:11:09 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.12 2008/11/04 19:27:44 bendavid Exp $
 //
 // FillerElectrons
 //
@@ -24,7 +24,7 @@ namespace mithep
   class FillerElectrons : public BaseFiller
   {  
     public:
-      FillerElectrons(const edm::ParameterSet &cfg, bool active=1);
+      FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerElectrons();
 
       void BookDataBlock(TreeWriter &tws);

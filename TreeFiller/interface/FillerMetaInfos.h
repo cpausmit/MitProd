@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.11 2009/03/02 13:27:34 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.12 2009/03/08 12:16:00 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -26,7 +26,7 @@ namespace mithep
   class FillerMetaInfos : public BaseFiller
   {
     public:
-      FillerMetaInfos(const edm::ParameterSet &cfg, bool active=1);
+      FillerMetaInfos(const edm::ParameterSet &cfg, const char *name="MetaInfos", bool active=1);
       ~FillerMetaInfos();
 
       void BookDataBlock(TreeWriter &tws);

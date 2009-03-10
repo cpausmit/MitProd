@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.4 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerMuons.h,v 1.5 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerMuons
 //
@@ -23,7 +23,7 @@ namespace mithep
   class FillerMuons : public BaseFiller
   {  
     public:
-      FillerMuons(const edm::ParameterSet &cfg, bool active=1);
+      FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerMuons();
 
       void BookDataBlock(TreeWriter &tws);

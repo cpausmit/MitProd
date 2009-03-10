@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.7 2008/09/14 03:24:00 bendavid Exp $
+// $Id: FillerPhotons.h,v 1.8 2008/11/06 17:19:54 sixie Exp $
 //
 // FillerPhotons
 //
@@ -24,7 +24,7 @@ namespace mithep
   class FillerPhotons : public BaseFiller
   {  
     public:
-      FillerPhotons(const edm::ParameterSet &cfg, bool active=1);
+      FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPhotons();
 
       void BookDataBlock(TreeWriter &tws);

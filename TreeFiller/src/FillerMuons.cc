@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.16 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.17 2009/03/03 18:10:19 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,8 +15,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::FillerMuons(const edm::ParameterSet &cfg, bool active) :
-  BaseFiller(cfg,"Muons",active),
+FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
+  BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","muons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),

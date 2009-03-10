@@ -1,7 +1,8 @@
-// $Id: FillMitTree.cc,v 1.30 2009/02/26 20:29:33 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.31 2009/03/06 14:40:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -72,12 +73,12 @@ void FillMitTree::analyze(const edm::Event      &event,
 {
   // Access and copy event content.
 
-  // First step: Loop over the data fillers of the various components
+  // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->FillDataBlock(event,setup);
   }
 
-  // Second step: Loop over the link resolution of the various components
+  // second step: Loop over the link resolution of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->ResolveLinks(event,setup);
   }
@@ -108,7 +109,7 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
     os_ = &(*os);
   }
 
-  // Loop over the various components and book the branches
+  // loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
     (*iF)->BookDataBlock(*tws);
@@ -118,141 +119,141 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
 //--------------------------------------------------------------------------------------------------
 bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
-  // Configure our fillers.
+  // Configure our fillers according to given order ("fillerOrder").
 
-  FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg,defactive_);
-  addActiveFiller(fillerMetaInfos);
+  std::vector<std::string> pars(cfg.getParameterNames());
+  if (cfg.exists("fillerOrder"))
+    pars=cfg.getUntrackedParameter<vector<string> >("fillerOrder");
 
-  FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg,"MCParticles",defactive_);
-  addActiveFiller(fillerMCParticles);
+  // loop over psets
+  for (unsigned int i = 0; i<pars.size(); ++i) {
 
-  FillerBeamSpot *fillerBeamSpot = 
-    new FillerBeamSpot(cfg,"BeamSpot", defactive_);
-  addActiveFiller(fillerBeamSpot);
-  
-  FillerVertexes *fillerPrimaryVertexes = 
-    new FillerVertexes(cfg,"PrimaryVertexes", defactive_);
-  addActiveFiller(fillerPrimaryVertexes);
-  
-  //primary vertexes with beamspot constraint
-  FillerVertexes *fillerPrimaryVertexesBS = 
-    new FillerVertexes(cfg,"PrimaryVertexesBS", defactive_);
-  addActiveFiller(fillerPrimaryVertexesBS);  
-  
-  FillerCaloTowers *fillerCaloTowers = 
-    new FillerCaloTowers(cfg, "CaloTowers", defactive_);
-  addActiveFiller(fillerCaloTowers);
+    const string name(pars.at(i));
+    if (!cfg.existsAs<ParameterSet>(name,0))
+      continue;
 
-  FillerGenJets *fillerIC5GenJets = new FillerGenJets(cfg,"IC5GenJets",defactive_);
-  addActiveFiller(fillerIC5GenJets);
+    ParameterSet next(cfg.getUntrackedParameter<ParameterSet>(name));
+    if (!next.exists("fillerType")) {
+      edm::LogError("FillMitTree") << "Can not determine fillerType for pset named "
+                                   << name << std::endl;
+      continue;
+    }
 
-  FillerGenJets *fillerSC5GenJets = new FillerGenJets(cfg,"SC5GenJets",defactive_);
-  addActiveFiller(fillerSC5GenJets);
-  
-  FillerGenJets *fillerSC7GenJets = new FillerGenJets(cfg,"SC7GenJets",defactive_);
-  addActiveFiller(fillerSC7GenJets);
+    string ftype(next.getUntrackedParameter<string>("fillerType"));
 
-  FillerGenJets *fillerKT4GenJets = new FillerGenJets(cfg,"KT4GenJets",defactive_);
-  addActiveFiller(fillerKT4GenJets);
-  
-  FillerGenJets *fillerKT6GenJets = new FillerGenJets(cfg,"KT6GenJets",defactive_);
-  addActiveFiller(fillerKT6GenJets);
+    if (ftype.compare("FillerMetaInfos")==0) {
+      FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerMetaInfos);
+      continue;
+    }
+    if (ftype.compare("FillerMCParticles")==0) {
+      FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerMCParticles);
+      continue;
+    }
+    if (ftype.compare("FillerBeamSpot")==0) {
+      FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerBeamSpot);
+      continue;
+    }
+    if (ftype.compare("FillerVertexes")==0) {
+      FillerVertexes *fillerVertexes = new FillerVertexes(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerVertexes);
+      continue;
+    }  
 
-  FillerCaloJets *fillerItrCone5Jets = new FillerCaloJets(cfg,"ItrCone5Jets",defactive_);
-  addActiveFiller(fillerItrCone5Jets);
+    if (ftype.compare("FillerCaloTowers")==0) {
+      FillerCaloTowers *fillerCaloTowers = new FillerCaloTowers(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerCaloTowers);
+      continue;
+    }  
 
-  FillerCaloJets *fillerSisCone5Jets = new FillerCaloJets(cfg,"SisCone5Jets",defactive_);
-  addActiveFiller(fillerSisCone5Jets);
+    if (ftype.compare("FillerGenJets")==0) {
+      FillerGenJets *fillerGenJets = new FillerGenJets(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerGenJets);
+      continue;
+    }  
 
-  FillerCaloJets *fillerSisCone7Jets = new FillerCaloJets(cfg,"SisCone7Jets",defactive_);
-  addActiveFiller(fillerSisCone7Jets);
+    if (ftype.compare("FillerCaloJets")==0) {
+      FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerCaloJets);
+      continue;
+    }  
 
-  FillerCaloJets *fillerKt4Jets = new FillerCaloJets(cfg,"Kt4Jets",defactive_);
-  addActiveFiller(fillerKt4Jets);     
-  
-  FillerCaloJets *fillerKt6Jets = new FillerCaloJets(cfg,"Kt6Jets",defactive_);
-  addActiveFiller(fillerKt6Jets);
+    if (ftype.compare("FillerCaloMet")==0) {
+      FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerCaloMet);
+      continue;
+    }  
 
-  FillerCaloJets *fillerIC5JetPlusTrack = new FillerCaloJets(cfg,"IC5JetPlusTrack",defactive_);
-  addActiveFiller(fillerIC5JetPlusTrack);
+    if (ftype.compare("FillerBasicClusters")==0) {
+      FillerBasicClusters *fillerBasicClusters = 
+        new FillerBasicClusters(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerBasicClusters);
+      continue;
+    }  
 
-  FillerCaloMet *fillerItrCone5Met = new FillerCaloMet(cfg,"ItrCone5Met",defactive_);
-  addActiveFiller(fillerItrCone5Met);
-  
-  FillerCaloMet *fillerSisCone5Met = new FillerCaloMet(cfg,"SisCone5Met",defactive_);
-  addActiveFiller(fillerSisCone5Met);
-  
-  FillerCaloMet *fillerSisCone7Met = new FillerCaloMet(cfg,"SisCone7Met",defactive_);
-  addActiveFiller(fillerSisCone7Met);
+    if (ftype.compare("FillerSuperClusters")==0) {
+      FillerSuperClusters *fillerSuperClusters =  
+        new FillerSuperClusters(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerSuperClusters);
+      continue;
+    }  
 
-  FillerCaloMet *fillerKt4Met = new FillerCaloMet(cfg,"Kt4Met",defactive_);
-  addActiveFiller(fillerKt4Met);
-  
-  FillerCaloMet *fillerKt6Met = new FillerCaloMet(cfg,"Kt6Met",defactive_);
-  addActiveFiller(fillerKt6Met);  
+    if (ftype.compare("FillerTracks")==0) {
+      FillerTracks *fillerTracks = new FillerTracks(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerTracks);
+      continue;
+    }  
 
-  FillerBasicClusters *fillerBarrelBasicClusters = 
-    new FillerBasicClusters(cfg, "BarrelBasicClusters", defactive_);
-  addActiveFiller(fillerBarrelBasicClusters);
+    if (ftype.compare("FillerMuons")==0) {
+      FillerMuons *fillerMuons = new FillerMuons(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerMuons);
+      continue;
+    }  
 
-  FillerSuperClusters *fillerBarrelSuperClusters =  
-    new FillerSuperClusters(cfg,"BarrelSuperClusters", defactive_);
-  addActiveFiller(fillerBarrelSuperClusters);
+    if (ftype.compare("FillerElectrons")==0) {
+      FillerElectrons *fillerElectrons = new FillerElectrons(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerElectrons);
+      continue;
+    }  
 
-  FillerBasicClusters *fillerEndcapBasicClusters = 
-    new FillerBasicClusters(cfg,"EndcapBasicClusters", defactive_);
-  addActiveFiller(fillerEndcapBasicClusters);
-  
-  FillerSuperClusters *fillerEndcapSuperClusters =  
-    new FillerSuperClusters(cfg,"EndcapSuperClusters", defactive_);
-  addActiveFiller(fillerEndcapSuperClusters);
-  
-  FillerTracks *fillerGeneralTracks = new FillerTracks(cfg,"GeneralTracks",defactive_);
-  addActiveFiller(fillerGeneralTracks);
+    if (ftype.compare("FillerConversionElectrons")==0) {
+      FillerConversionElectrons *fillerConversionElectrons = 
+        new FillerConversionElectrons(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerConversionElectrons);
+      continue;
+    }  
 
-  FillerTracks *fillerStandaloneMuonTracks = 
-    new FillerTracks(cfg,"StandaloneMuonTracks",defactive_);
-  addActiveFiller(fillerStandaloneMuonTracks);
+    if (ftype.compare("FillerConversions")==0) {
+      FillerConversions *fillerConversions = new FillerConversions(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerConversions);
+      continue;
+    }  
 
-  FillerTracks *fillerStandaloneMuonTracksVtx = 
-    new FillerTracks(cfg,"StandaloneMuonTracksWVtxConstraint",defactive_);
-  addActiveFiller(fillerStandaloneMuonTracksVtx);
+    if (ftype.compare("FillerPhotons")==0) { 
+      FillerPhotons *fillerPhotons = new FillerPhotons(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPhotons);
+      continue;
+    }  
 
-  FillerTracks *fillerGlobalMuonTracks = new FillerTracks(cfg,"GlobalMuonTracks",defactive_);
-  addActiveFiller(fillerGlobalMuonTracks);
-    
-  FillerTracks *fillerConversionInOutTracks = 
-    new FillerTracks(cfg,"ConversionInOutTracks",defactive_);
-  addActiveFiller(fillerConversionInOutTracks);
+    if (ftype.compare("FillerStableParts")==0) {
+      FillerStableParts *fillerStableParts = new FillerStableParts(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerStableParts);
+      continue;
+    }  
 
-  FillerTracks *fillerConversionOutInTracks = 
-    new FillerTracks(cfg,"ConversionOutInTracks",defactive_);
-  addActiveFiller(fillerConversionOutInTracks);
+    if (ftype.compare("FillerDecayParts")==0) {
+      FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerDecayParts);
+      continue;
+    }  
 
-  FillerTracks *fillerGsfTracks = new FillerTracks(cfg,"GsfTracks",defactive_);
-  addActiveFiller(fillerGsfTracks);
-
-  FillerMuons *fillerMuons = new FillerMuons(cfg,defactive_);
-  addActiveFiller(fillerMuons);
-  
-  FillerElectrons *fillerElectrons = new FillerElectrons(cfg,defactive_);
-  addActiveFiller(fillerElectrons);
-
-  FillerConversionElectrons *fillerConversionElectrons = 
-    new FillerConversionElectrons(cfg,defactive_);
-  addActiveFiller(fillerConversionElectrons);
-
-  FillerConversions *fillerConversions = new FillerConversions(cfg,defactive_);
-  addActiveFiller(fillerConversions);
-
-  FillerPhotons *fillerPhotons = new FillerPhotons(cfg,defactive_);
-  addActiveFiller(fillerPhotons);
-
-  FillerStableParts *fillerStableParts = new FillerStableParts(cfg,"StableParts",defactive_);
-  addActiveFiller(fillerStableParts);
-  
-  FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg,"DecayParts",defactive_);
-  addActiveFiller(fillerDecayParts);
+    edm::LogError("FillMitTree") 
+      << "Unknown fillerType " << ftype << " for pset named " << name << std::endl;
+    throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
+      << "Unknown fillerType " << ftype << " for pset named " << name << std::endl;
+  }
 
   return 1;
 }

@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.7 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerConversionElectrons.cc,v 1.8 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +12,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerConversionElectrons::FillerConversionElectrons(const edm::ParameterSet &cfg, bool active) :
-  BaseFiller(cfg,"ConversionElectrons",active),
+FillerConversionElectrons::FillerConversionElectrons(const edm::ParameterSet &cfg, 
+                                                     const char *name, bool active) :
+  BaseFiller(cfg,name,active),
   mitName_(Conf().getUntrackedParameter<string>("mitName","ConversionElectrons")),
   convInOutTracksName_(Conf().getUntrackedParameter<string>("convInOutTracksName","")),
   convOutInTracksName_(Conf().getUntrackedParameter<string>("convOutInTracksName","")),
