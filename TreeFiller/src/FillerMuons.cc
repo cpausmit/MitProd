@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.17 2009/03/03 18:10:19 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.18 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,10 +23,12 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
   staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
   staVtxTrackMapName_(Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
-  globalTrackMap_(0), 
-  standaloneTrackMap_(0), 
-  standaloneVtxTrackMap_(0), 
+  muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
+  globalTrackMap_(0),
+  standaloneTrackMap_(0),
+  standaloneVtxTrackMap_(0),
   trackerTrackMap_(0),
+  muonMap_(new mithep::MuonMap),
   muons_(new mithep::MuonArr(16))
 {
   // Constructor.
@@ -35,6 +37,7 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
 //--------------------------------------------------------------------------------------------------
 FillerMuons::~FillerMuons() {
   delete muons_;
+  delete muonMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +54,9 @@ void FillerMuons::BookDataBlock(TreeWriter &tws) {
     standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_.c_str());
   if (!trackerTrackMapName_.empty()) 
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
+
+  OS()->add<MuonMap>(muonMap_,muonMapName_.c_str());
+
 }
 
 
@@ -62,6 +68,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   // Fill muon information. 
 
   muons_->Delete();
+  muonMap_->Reset();
   
   Handle<reco::MuonCollection> hMuonProduct;
   GetProduct(edmName_, hMuonProduct, event);  
@@ -126,6 +133,11 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetTrackDistErr(4+i0,iM->trackDistErr(i0+1,2));
       outMuon->SetNSegments(4+i0,   iM->numberOfSegments(i0+1,2));
     }
+
+    //add muon to map
+    edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
+    muonMap_->Add(thePtr, outMuon);
+
   }
   muons_->Trim();
 }
