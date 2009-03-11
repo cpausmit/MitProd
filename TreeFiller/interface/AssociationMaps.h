@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.17 2009/02/23 20:53:34 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.18 2009/03/06 14:40:10 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -24,10 +24,12 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/MCParticle.h"
 #include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Conversion.h"
 #include "MitAna/DataTree/interface/Vertex.h"
+#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -37,6 +39,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
 namespace mithep
@@ -57,5 +61,7 @@ namespace mithep
   typedef AssociationMap<const CaloTowerDetId,              mithep::CaloTower*>    CaloTowerMap;
   typedef AssociationMap<const mitedm::VertexPtr,           mithep::Vertex*>       VertexMap;
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*> SuperClusterIdMap;
+  typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>         MuonMap;
+  typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>  PFCandidateMap;
 }   
 #endif
