@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.13 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.14 2009/02/26 20:30:13 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -62,7 +62,7 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
                    ("SoftElectronBJetTagsName","softElectronBJetTags")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName","CaloTowerMap")),
   caloTowerMap_(0),
-  jets_(new mithep::JetArr(16))
+  jets_(new mithep::CaloJetArr(16))
 {
   // Constructor.
 }
@@ -159,15 +159,17 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     reco::CaloJetRef jetRef(hJetProduct, inJet - inJets.begin());    
     reco::JetBaseRef jetBaseRef(jetRef);
     
-    mithep::Jet *jet = jets_->Allocate();
-    new (jet) mithep::Jet(inJet->p4().x(),
+    mithep::CaloJet *jet = jets_->Allocate();
+    new (jet) mithep::CaloJet(inJet->p4().x(),
                           inJet->p4().y(),
                           inJet->p4().z(),
                           inJet->p4().e());
 
+    //fill calojet-specific quantities
     jet->SetMaxEInEmTowers (inJet->maxEInEmTowers());	 
     jet->SetMaxEInHadTowers(inJet->maxEInHadTowers());
     jet->SetEnergyFractionH(inJet->energyFractionHadronic());
+    jet->SetEnergyFractionEm(inJet->emEnergyFraction());
     jet->SetHadEnergyInHB  (inJet->hadEnergyInHB());
     jet->SetHadEnergyInHO  (inJet->hadEnergyInHO());
     jet->SetHadEnergyInHE  (inJet->hadEnergyInHE());
@@ -176,9 +178,6 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     jet->SetEmEnergyInEE   (inJet->emEnergyInEE());
     jet->SetEmEnergyInHF   (inJet->emEnergyInHF());
     jet->SetTowersArea     (inJet->towersArea());
-    jet->SetN              (inJet->nConstituents());
-    jet->SetN60		   (inJet->n60());
-    jet->SetN90		   (inJet->n90());    
      
     if (jetToVertexActive_) {
       //compute alpha and beta parameter for jets
@@ -192,8 +191,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       double L3Scale = correctorL3->correction(inJet->p4()*L2Scale);
       jet->SetL2RelativeCorrectionScale(L2Scale);
       jet->SetL3AbsoluteCorrectionScale(L3Scale);     
-      jet->EnableCorrection(mithep::Jet::L2);
-      jet->EnableCorrection(mithep::Jet::L3);     
+      jet->EnableCorrection(mithep::CaloJet::L2);
+      jet->EnableCorrection(mithep::CaloJet::L3);     
     }
     
     if (bTaggingActive_) {

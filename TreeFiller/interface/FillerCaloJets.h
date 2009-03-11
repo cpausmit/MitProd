@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.7 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.8 2008/09/16 18:20:46 sixie Exp $
 //
 // FillerCaloJets
 //
-// Imlementation of a filler to fill EDM jets into our mithep::Jet data structure.
+// Imlementation of a filler to fill EDM jets into our mithep::CaloJet data structure.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace mithep
       std::string           caloTowerMapName_;                //name of imported CaloTowerMap
 
       const mithep::CaloTowerMap *caloTowerMap_;              //map wrt CaloTowers
-      mithep::JetArr       *jets_;                            //array of Jets
+      mithep::CaloJetArr   *jets_;                            //array of Jets
   };
 }
 #endif
