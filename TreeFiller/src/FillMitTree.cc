@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.31 2009/03/06 14:40:11 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.32 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,6 +18,7 @@
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
+#include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
@@ -25,6 +26,7 @@
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
+#include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 
@@ -121,9 +123,11 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
   // Configure our fillers according to given order ("fillerOrder").
 
-  std::vector<std::string> pars(cfg.getParameterNames());
+  std::vector<std::string> pars;
   if (cfg.exists("fillerOrder"))
     pars=cfg.getUntrackedParameter<vector<string> >("fillerOrder");
+  else
+    cfg.getParameterSetNames(pars, false);
 
   // loop over psets
   for (unsigned int i = 0; i<pars.size(); ++i) {
@@ -248,7 +252,19 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerDecayParts);
       continue;
     }  
+    
+    if (ftype.compare("FillerPFCandidates")==0) {
+      FillerPFCandidates *fillerPFCandidates = new FillerPFCandidates(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPFCandidates);
+      continue;
+    }  
 
+    if (ftype.compare("FillerPFJets")==0) {
+      FillerPFJets *fillerPFJets = new FillerPFJets(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPFJets);
+      continue;
+    }  
+    
     edm::LogError("FillMitTree") 
       << "Unknown fillerType " << ftype << " for pset named " << name << std::endl;
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
