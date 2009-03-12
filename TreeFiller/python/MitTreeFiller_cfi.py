@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.28 2009/03/10 15:56:01 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.29 2009/03/11 18:17:49 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -48,13 +48,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                         'SisCone7Met',
                                         'Kt4Met',
                                         'Kt6Met',
-#                                         'TCMet',
-#                                         'ItrCone5Mht',
-#                                         'SisCone5Mht',
-#                                         'SisCone7Mht',
-#                                         'Kt4Mht',
-#                                         'Kt6Mht',
-#                                         'IC5JPTMht',
+                                        'PFMet',
+                                        'TCMet',
+                                        'ItrCone5Mht',
+                                        'SisCone5Mht',
+                                        'SisCone7Mht',
+                                        'Kt4Mht',
+                                        'Kt6Mht',
+                                        'IC5JPTMht',
                                         'StableParts',
                                         'DecayParts'),      
                                                                                                                                                 
@@ -611,53 +612,60 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType = cms.untracked.string('FillerCaloMet')
     ),
     
+    PFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(True),
+        mitName    = cms.untracked.string('PFMet'),
+        edmName    = cms.untracked.string('pfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ),      
+        
     TCMet = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('TCMet'),
         edmName    = cms.untracked.string('tcMet'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),      
            
     ItrCone5Mht = cms.untracked.PSet(
         active  = cms.untracked.bool(True),
         mitName = cms.untracked.string('ItrCone5Mht'),
         edmName = cms.untracked.string('htMetIC5'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),
     
     SisCone5Mht = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('SisCone5Mht'),
         edmName    = cms.untracked.string('htMetSC5'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),
 
     SisCone7Mht = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('SisCone7Mht'),
         edmName    = cms.untracked.string('htMetSC7'), 
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),  
     
     Kt4Mht = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('Kt4Mht'),
         edmName    = cms.untracked.string('htMetKT4'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),
 
     Kt6Mht = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('Kt6Mht'),
         edmName    = cms.untracked.string('htMetKT6'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),     
          
     IC5JPTMht = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('IC5JPTMht'),
         edmName    = cms.untracked.string('htMetIC5JPT'),
-        fillerType = cms.untracked.string('FillerCaloMet')
+        fillerType = cms.untracked.string('FillerMet')
     ),
           
     StableParts = cms.untracked.PSet(
