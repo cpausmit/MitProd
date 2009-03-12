@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.8 2008/12/09 17:48:06 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.9 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +15,7 @@ FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, const char *name, bool act
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
-  caloMets_(new mithep::MetArr)
+  caloMets_(new mithep::CaloMetArr)
 {
   // Constructor.
 }
@@ -53,12 +53,11 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
   for (reco::CaloMETCollection::const_iterator inCaloMet = inCaloMets.begin(); 
        inCaloMet != inCaloMets.end(); ++inCaloMet) {
     
-    mithep::Met *caloMet = caloMets_->Allocate();
-    new (caloMet) mithep::Met(inCaloMet->px(), inCaloMet->py());
+    mithep::CaloMet *caloMet = caloMets_->Allocate();
+    new (caloMet) mithep::CaloMet(inCaloMet->px(), inCaloMet->py());
     
     // Fill Met base class data 
     caloMet->SetSumEt(inCaloMet->sumEt());
-    caloMet->SetMetSig(inCaloMet->mEtSig());    
     caloMet->SetElongitudinal(inCaloMet->e_longitudinal());
     for(unsigned i=0; i<inCaloMet->mEtCorr().size(); i++) {
       caloMet->PushCorrectionX(inCaloMet->mEtCorr()[i].mex);
@@ -66,6 +65,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
       caloMet->PushCorrectionSumEt(inCaloMet->mEtCorr()[i].sumet);
     }
     // Fill CaloMet class data
+    caloMet->SetCaloMetSig(inCaloMet->metSignificance());    
     caloMet->SetMaxEtInEmTowers(inCaloMet->maxEtInEmTowers());
     caloMet->SetMaxEtInHadTowers(inCaloMet->maxEtInHadTowers());
     caloMet->SetEtFractionHadronic(inCaloMet->etFractionHadronic());

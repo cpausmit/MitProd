@@ -1,18 +1,18 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloMet.h,v 1.6 2008/09/16 22:07:16 ksung Exp $
+// $Id: FillerMet.h,v 1.6 2008/09/16 22:07:16 ksung Exp $
 //
-// FillerCaloMet
+// FillerMet
 //
 // Imlementation of a filler to fill EDM missing ET objects into our mithep::Met data structure.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_TREEFILLER_FILLERCALOMET_H
-#define MITPROD_TREEFILLER_FILLERCALOMET_H
+#ifndef MITPROD_TREEFILLER_FILLERMET_H
+#define MITPROD_TREEFILLER_FILLERMET_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include "MitAna/DataTree/interface/Collections.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
@@ -20,11 +20,11 @@
 
 namespace mithep 
 {
-  class FillerCaloMet : public BaseFiller
+  class FillerMet : public BaseFiller
   {  
     public:
-      FillerCaloMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
-      ~FillerCaloMet();
+      FillerMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      ~FillerMet();
 
       void            BookDataBlock(TreeWriter &tws);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
@@ -32,7 +32,7 @@ namespace mithep
     private:
       std::string           edmName_;    //edm name of met collection
       std::string           mitName_;    //name of Mets in OAK
-      mithep::CaloMetArr   *caloMets_;   //array of Mets
+      mithep::MetArr       *mets_;   //array of Mets
   };
 }
 #endif
