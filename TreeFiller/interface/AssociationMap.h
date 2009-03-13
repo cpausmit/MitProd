@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.5 2008/08/18 11:10:31 sixie Exp $
+// $Id: AssociationMap.h,v 1.6 2008/09/10 03:30:22 loizides Exp $
 //
 // Association Map
 //
@@ -23,22 +23,25 @@ namespace mithep
     typedef std::map<MitClass, EdmClass> revMapType;
     
     public:
-      AssociationMap() : edmProductId_(0) {}
+      AssociationMap(const char *n=0) : edmProductId_(0), brname_(n) {}
       ~AssociationMap() {}
       
-      void       Add(EdmClass edmObj, MitClass mitObj);
-      EdmClass   GetEdm(MitClass mitObj)    const;
-      Int_t      GetEdmProductId()          const { return edmProductId_; }
-      Int_t      GetEntries()               const { return fwdMap_.size(); }
-      MitClass   GetMit(EdmClass edmObj)    const;
-      bool       HasMit(EdmClass edmObj)    const;
-      void       Reset()                          { fwdMap_.clear(); revMap_.clear(); }
-      void       SetEdmProductId(Int_t id)        { edmProductId_ = id; }
+      void         Add(EdmClass edmObj, MitClass mitObj);
+      EdmClass     GetEdm(MitClass mitObj)    const;
+      Int_t        GetEdmProductId()          const { return edmProductId_;  }
+      Int_t        GetEntries()               const { return fwdMap_.size(); }
+      MitClass     GetMit(EdmClass edmObj)    const;
+      const char  *GetName()                  const { return brname_.c_str();           }
+      bool         HasMit(EdmClass edmObj)    const;
+      void         Reset()                          { fwdMap_.clear(); revMap_.clear(); }
+      void         SetEdmProductId(Int_t id)        { edmProductId_ = id;               }
+      void         SetName(const char *n)           { brname_ = n;                      }
 
     protected:
-      fwdMapType fwdMap_;       //map between edm ref and mit ptr 
-      revMapType revMap_;       //map between mit ptr and edm ref
-      Int_t      edmProductId_; //product id for consistency check
+      fwdMapType   fwdMap_;       //map between edm ref and mit ptr 
+      revMapType   revMap_;       //map between mit ptr and edm ref
+      Int_t        edmProductId_; //product id for consistency check
+      std::string  brname_;       //branch name of MIT objects 
   };
 }
 
