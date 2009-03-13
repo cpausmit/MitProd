@@ -1,4 +1,4 @@
-// $Id: ObjectService.cc,v 1.1 2008/07/30 09:04:40 loizides Exp $
+// $Id: ObjectService.cc,v 1.2 2008/07/30 11:24:43 loizides Exp $
 
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -61,4 +61,5 @@ void ObjectService::postEventProcessing(const Event&, const EventSetup&)
 //--------------------------------------------------------------------------------------------------
 void ObjectService::preEventProcessing(const EventID&, const Timestamp&)
 {
+  // Nothing to be done for now
 }

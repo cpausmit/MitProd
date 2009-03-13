@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.4 2008/07/31 12:08:32 loizides Exp $
+// $Id: ObjectService.h,v 1.5 2008/09/10 03:31:02 loizides Exp $
 //
 // ObjectService 
 //
@@ -42,8 +42,10 @@ namespace mithep
 
       template<class T> bool add(const T *obj, const char *name);
       template<class T> bool addObjEvt(T *obj, const char *name);
-      template<class T> const T *get(const char *name) const;
+      template<class T> const T *get(const char *name)       const;
       template<class T> const T *getObjEvt(const char *name) const;
+      template<class T> T *mod(const char *name)             const;
+      template<class T> T *modObjEvt(const char *name)       const;
 
     private:
       void preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
@@ -132,5 +134,23 @@ const T *mithep::ObjectService::getObjEvt(const char *name) const
     return 0;
 
   return no->Get();
+}
+
+//--------------------------------------------------------------------------------------------------
+template<class T>
+T *mithep::ObjectService::mod(const char *name) const
+{
+  // Retrieve object with given name for write access.
+
+  return const_cast<T*>(this->get<T>(name));
+}
+
+//--------------------------------------------------------------------------------------------------
+template<class T>
+T *mithep::ObjectService::modObjEvt(const char *name) const
+{
+  // Retrieve object for the current event with given name for write access.
+
+  return const_cast<T*>(this->getObjEvt<T>(name));
 }
 #endif
