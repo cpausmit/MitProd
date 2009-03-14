@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.6 2008/09/10 03:30:22 loizides Exp $
+// $Id: AssociationMap.h,v 1.7 2009/03/13 09:35:19 loizides Exp $
 //
 // Association Map
 //
@@ -23,7 +23,7 @@ namespace mithep
     typedef std::map<MitClass, EdmClass> revMapType;
     
     public:
-      AssociationMap(const char *n=0) : edmProductId_(0), brname_(n) {}
+      AssociationMap() : edmProductId_(0) {}
       ~AssociationMap() {}
       
       void         Add(EdmClass edmObj, MitClass mitObj);
@@ -31,11 +31,11 @@ namespace mithep
       Int_t        GetEdmProductId()          const { return edmProductId_;  }
       Int_t        GetEntries()               const { return fwdMap_.size(); }
       MitClass     GetMit(EdmClass edmObj)    const;
-      const char  *GetName()                  const { return brname_.c_str();           }
+      const char  *GetBrName()                const { return brname_.c_str();           }
       bool         HasMit(EdmClass edmObj)    const;
       void         Reset()                          { fwdMap_.clear(); revMap_.clear(); }
       void         SetEdmProductId(Int_t id)        { edmProductId_ = id;               }
-      void         SetName(const char *n)           { brname_ = n;                      }
+      void         SetBrName(const char *n)         { brname_ = n;                      }
 
     protected:
       fwdMapType   fwdMap_;       //map between edm ref and mit ptr 
