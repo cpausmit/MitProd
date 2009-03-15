@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMet.h,v 1.6 2008/09/16 22:07:16 ksung Exp $
+// $Id: FillerMet.h,v 1.1 2009/03/12 16:00:23 bendavid Exp $
 //
 // FillerMet
 //
-// Imlementation of a filler to fill EDM missing ET objects into our mithep::Met data structure.
+// Implementation of a filler to fill EDM missing ET objects into our mithep::Met data structure.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -31,8 +31,8 @@ namespace mithep
   
     private:
       std::string           edmName_;    //edm name of met collection
-      std::string           mitName_;    //name of Mets in OAK
-      mithep::MetArr       *mets_;   //array of Mets
+      std::string           mitName_;    //mit name of Mets
+      mithep::MetArr       *mets_;       //array of Mets
   };
 }
 #endif

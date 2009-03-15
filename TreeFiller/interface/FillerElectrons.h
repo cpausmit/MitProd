@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.12 2008/11/04 19:27:44 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.13 2009/03/10 15:56:00 loizides Exp $
 //
 // FillerElectrons
 //
-// Imlementation of a filler to fill EDM electrons into our mithep::Electron data structure.
+// Implementation of a filler to fill EDM electrons into our mithep::Electron data structure.
 //
 // Authors: J.Bendavid, S.Xie
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ namespace mithep
       std::string                    barrelBasicClusterName_;    //name of barrel basic clusters 
       std::string                    endcapBasicClusterName_;    //name of endcap basic clusters
       std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
-      std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
+      std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
       std::string                    eIDLikelihoodName_;         //name of likelihood eID algo

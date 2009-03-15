@@ -1,4 +1,4 @@
-// $Id: FillerPFMet.cc,v 1.9 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerPFMet.cc,v 1.1 2009/03/12 16:00:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,12 +33,13 @@ void FillerPFMet::BookDataBlock(TreeWriter &tws)
 {
   // Add mets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&pfMets_);
+  tws.AddBranch(mitName_,&pfMets_);
+  OS()->add<mithep::PFMetArr>(pfMets_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerPFMet::FillDataBlock(const edm::Event      &event, 
-                                  const edm::EventSetup &setup)
+                                const edm::EventSetup &setup)
 {
   // Fill missing energy from edm collection into our collection.
 
@@ -56,7 +57,7 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
     mithep::PFMet *pfMet = pfMets_->Allocate();
     new (pfMet) mithep::PFMet(inPFMet->px(), inPFMet->py());
     
-    // Fill Met base class data 
+    // fill Met base class data 
     pfMet->SetSumEt(inPFMet->sumEt());
     pfMet->SetElongitudinal(inPFMet->e_longitudinal());
     for(unsigned i=0; i<inPFMet->mEtCorr().size(); i++) {
@@ -65,7 +66,7 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
       pfMet->PushCorrectionSumEt(inPFMet->mEtCorr()[i].sumet);
     }
     
-    // Fill PFMet class data
+    // fill PFMet class data
     pfMet->SetNeutralEMFraction(inPFMet->NeutralEMFraction());
     pfMet->SetNeutralHadFraction(inPFMet->NeutralHadFraction());
     pfMet->SetChargedEMFraction(inPFMet->ChargedEMFraction());
@@ -73,6 +74,5 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
     pfMet->SetMuonFraction(inPFMet->MuonFraction());
 
   }
-
   pfMets_->Trim();
 }

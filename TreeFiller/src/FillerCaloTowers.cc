@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.7 2009/01/20 16:20:47 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.8 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,8 +19,7 @@ FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
-  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName",
-                                                            "CaloTowerMap")),
+  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),
   caloTowers_(new mithep::CaloTowerArr(1000)),
   caloTowerMap_(new mithep::CaloTowerMap)
 {
@@ -41,15 +40,18 @@ void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
 {
   // Add CaloTower branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&caloTowers_);
-  OS()->add<CaloTowerArr>(caloTowers_,mitName_.c_str());
-  OS()->add<CaloTowerMap>(caloTowerMap_,caloTowerMapName_.c_str());
+  tws.AddBranch(mitName_,&caloTowers_);
+  OS()->add<CaloTowerArr>(caloTowers_,mitName_);
 
+  if (!caloTowerMapName_.empty()) {
+    caloTowerMap_->SetBrName(mitName_);
+    OS()->add<CaloTowerMap>(caloTowerMap_,caloTowerMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerCaloTowers::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                     const edm::EventSetup &setup)
 {
   // Fill the CaloTower info.
 
@@ -72,15 +74,18 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     
     if ( mass > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-         << "Error! reco::CaloTower mass = " << mass <<", not massless as assumed by mithep::CaloTower," << std::endl;
+         << "Error! reco::CaloTower mass = " << mass 
+         << ", not massless as assumed by mithep::CaloTower," << std::endl;
          
     if ( deltaPos > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-         << "Error! reco::CaloTower does not have identical HadPos and EmPos as assumed by mithep::CaloTower, deltaPos = " << deltaPos << std::endl;
+        << "Error! reco::CaloTower does not have identical HadPos and EmPos " 
+        << "as assumed by mithep::CaloTower, deltaPos = " << deltaPos << std::endl;
          
     if ( deltaE > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-         << "Error! reco::CaloTower default energy does not exclude HO as assumed by mithep::CaloTower, deltaE = " << deltaE << std::endl;
+        << "Error! reco::CaloTower default energy does not exclude HO " 
+        << "as assumed by mithep::CaloTower, deltaE = " << deltaE << std::endl;
     
     outCaloTower->SetPosition(inCaloTower->emPosition().x(),
                                 inCaloTower->emPosition().y(),

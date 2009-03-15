@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.6 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerConversions.h,v 1.7 2009/03/10 15:56:00 loizides Exp $
 //
 // FillerConversions
 //
@@ -32,7 +32,7 @@ namespace mithep
   
     private:
       std::string                            edmName_;             //name of edm conversions
-      std::string                            mitName_;             //name of Conversions in OAK
+      std::string                            mitName_;             //mit name of Conversions
       std::string                            convElectronMapName_; //name of imported electrons map
       std::string                            conversionMapName_;   //name of exported conv map
       const mithep::ConversionElectronMap   *convElectronMap_;     //imported map wrt conv electrons

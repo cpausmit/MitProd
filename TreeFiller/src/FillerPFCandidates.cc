@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.17 2009/03/03 18:10:19 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.1 2009/03/11 20:08:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +18,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, const char *name, bool active) :
+FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, 
+                                       const char *name, bool active) :
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","particleFlow")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
@@ -38,34 +39,51 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, const char 
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerPFCandidates::~FillerPFCandidates() {
+FillerPFCandidates::~FillerPFCandidates() 
+{
+  // Destructor.
+
   delete pfCands_;
   delete pfCandMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPFCandidates::BookDataBlock(TreeWriter &tws) { 
-  // Add pf candidate branch to tree and get pointers to maps.
+void FillerPFCandidates::BookDataBlock(TreeWriter &tws) 
+{ 
+  // Add particle-flow candidate branch to tree and get pointers to maps.
 
-  tws.AddBranch(mitName_.c_str(),&pfCands_);
+  tws.AddBranch(mitName_,&pfCands_);
+  OS()->add<mithep::PFCandidateArr>(pfCands_,mitName_);
 
-  if (!trackerTrackMapName_.empty()) 
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
-  if (!gsfTrackMapName_.empty()) 
-    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_.c_str());
-  if (!muonMapName_.empty()) 
-    muonMap_ = OS()->get<MuonMap>(muonMapName_.c_str());
-  if (!conversionMapName_.empty()) 
-    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_.c_str());
-
-  OS()->add<PFCandidateMap>(pfCandMap_,pfCandMapName_.c_str());
+  if (!trackerTrackMapName_.empty()) {
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+    if (trackerTrackMap_)
+      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  }
+  if (!gsfTrackMapName_.empty()) {
+    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
+    if (gsfTrackMap_)
+      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+  }
+  if (!muonMapName_.empty()) {
+    muonMap_ = OS()->get<MuonMap>(muonMapName_);
+    if (muonMap_)
+      AddBranchDep(mitName_,muonMap_->GetBrName());
+  }
+  if (!conversionMapName_.empty()) {
+    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
+    if (conversionMap_)
+      AddBranchDep(mitName_,conversionMap_->GetBrName());
+  }
+  if (!pfCandMapName_.empty()) {
+    pfCandMap_->SetBrName(mitName_);
+    OS()->add<PFCandidateMap>(pfCandMap_,pfCandMapName_);
+  }
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 void FillerPFCandidates::FillDataBlock(const edm::Event      &event, 
-                                const edm::EventSetup &setup)
+                                       const edm::EventSetup &setup)
 {
   // Fill muon information. 
 
@@ -76,11 +94,12 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
   GetProduct(edmName_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
-  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end(); ++iP) {
+  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
+       iP != inPfCands.end(); ++iP) {
     mithep::PFCandidate *outPfCand = pfCands_->Allocate();
     new (outPfCand) mithep::PFCandidate(iP->px(),iP->py(),iP->pz(),iP->energy());
 
-    //fill variables
+    // fill variables
     outPfCand->SetCharge(iP->charge());
     outPfCand->SetEECal(iP->ecalEnergy());
     outPfCand->SetEHCal(iP->hcalEnergy());
@@ -98,10 +117,10 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     outPfCand->SetEtaECal(iP->positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(iP->positionAtECALEntrance().eta());
 
-    //fill source vertex
+    // fill source vertex
     outPfCand->SetVertex(iP->vertex().x(),iP->vertex().y(),iP->vertex().z());
 
-    //fill pf type enum
+    // fill pf type enum
     if (iP->particleId()==reco::PFCandidate::X)
       outPfCand->SetPFType(mithep::PFCandidate::eX);
     else if (iP->particleId()==reco::PFCandidate::h)
@@ -119,26 +138,43 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     else if (iP->particleId()==reco::PFCandidate::egamma_HF)
       outPfCand->SetPFType(mithep::PFCandidate::eEGammaHF);
 
-    //fill pf flags bitmask
-    outPfCand->SetFlag(mithep::PFCandidate::eNormal, iP->flag(reco::PFCandidate::NORMAL));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMPhiSModules, iP->flag(reco::PFCandidate::E_PHI_SMODULES));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMEta0, iP->flag(reco::PFCandidate::E_ETA_0));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMEtaModules, iP->flag(reco::PFCandidate::E_ETA_MODULES));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMBarrelEndcap, iP->flag(reco::PFCandidate::E_BARREL_ENDCAP));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMPreshowerEdge, iP->flag(reco::PFCandidate::E_PRESHOWER_EDGE));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMPreshower, iP->flag(reco::PFCandidate::E_PRESHOWER));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMEndCapEdge, iP->flag(reco::PFCandidate::E_ENDCAP_EDGE));
-    outPfCand->SetFlag(mithep::PFCandidate::eHEta0, iP->flag(reco::PFCandidate::H_ETA_0));
-    outPfCand->SetFlag(mithep::PFCandidate::eHBarrelEndcap, iP->flag(reco::PFCandidate::H_BARREL_ENDCAP));
-    outPfCand->SetFlag(mithep::PFCandidate::eHEndcapVFCal, iP->flag(reco::PFCandidate::H_ENDCAP_VFCAL));
-    outPfCand->SetFlag(mithep::PFCandidate::eHVFCalEdge, iP->flag(reco::PFCandidate::H_VFCAL_EDGE));
-    outPfCand->SetFlag(mithep::PFCandidate::eToNuclInt, iP->flag(reco::PFCandidate::T_TO_NUCLINT));
-    outPfCand->SetFlag(mithep::PFCandidate::eFromNuclInt, iP->flag(reco::PFCandidate::T_FROM_NUCLINT));
-    outPfCand->SetFlag(mithep::PFCandidate::eFromV0, iP->flag(reco::PFCandidate::T_FROM_V0));
-    outPfCand->SetFlag(mithep::PFCandidate::eFromGammaConv, iP->flag(reco::PFCandidate::T_FROM_GAMMACONV));
-    outPfCand->SetFlag(mithep::PFCandidate::eToConversion, iP->flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
+    // fill pf flags bitmask
+    outPfCand->SetFlag(mithep::PFCandidate::eNormal, 
+                       iP->flag(reco::PFCandidate::NORMAL));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMPhiSModules, 
+                       iP->flag(reco::PFCandidate::E_PHI_SMODULES));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMEta0, 
+                       iP->flag(reco::PFCandidate::E_ETA_0));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMEtaModules, 
+                       iP->flag(reco::PFCandidate::E_ETA_MODULES));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMBarrelEndcap, 
+                       iP->flag(reco::PFCandidate::E_BARREL_ENDCAP));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMPreshowerEdge, 
+                       iP->flag(reco::PFCandidate::E_PRESHOWER_EDGE));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMPreshower, 
+                       iP->flag(reco::PFCandidate::E_PRESHOWER));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMEndCapEdge, 
+                       iP->flag(reco::PFCandidate::E_ENDCAP_EDGE));
+    outPfCand->SetFlag(mithep::PFCandidate::eHEta0, 
+                       iP->flag(reco::PFCandidate::H_ETA_0));
+    outPfCand->SetFlag(mithep::PFCandidate::eHBarrelEndcap, 
+                       iP->flag(reco::PFCandidate::H_BARREL_ENDCAP));
+    outPfCand->SetFlag(mithep::PFCandidate::eHEndcapVFCal, 
+                       iP->flag(reco::PFCandidate::H_ENDCAP_VFCAL));
+    outPfCand->SetFlag(mithep::PFCandidate::eHVFCalEdge, 
+                       iP->flag(reco::PFCandidate::H_VFCAL_EDGE));
+    outPfCand->SetFlag(mithep::PFCandidate::eToNuclInt, 
+                       iP->flag(reco::PFCandidate::T_TO_NUCLINT));
+    outPfCand->SetFlag(mithep::PFCandidate::eFromNuclInt, 
+                       iP->flag(reco::PFCandidate::T_FROM_NUCLINT));
+    outPfCand->SetFlag(mithep::PFCandidate::eFromV0, 
+                       iP->flag(reco::PFCandidate::T_FROM_V0));
+    outPfCand->SetFlag(mithep::PFCandidate::eFromGammaConv, 
+                       iP->flag(reco::PFCandidate::T_FROM_GAMMACONV));
+    outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
+                       iP->flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
 
-    //fill references to other branches
+    // fill references to other branches
     if (trackerTrackMap_ && iP->trackRef().isNonnull()) 
       outPfCand->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iP->trackRef())));    
     if (gsfTrackMap_ && iP->gsfTrackRef().isNonnull()) 
@@ -148,7 +184,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     if (conversionMap_ && iP->conversionRef().isNonnull()) 
       outPfCand->SetConversion(conversionMap_->GetMit(iP->conversionRef()));
 
-    //add to exported pf candidate map
+    // add to exported pf candidate map
     reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
     pfCandMap_->Add(thePtr, outPfCand);
     
@@ -158,20 +194,22 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
 
 //--------------------------------------------------------------------------------------------------
 void FillerPFCandidates::ResolveLinks(const edm::Event      &event, 
-                                     const edm::EventSetup &setup)
+                                      const edm::EventSetup &setup)
 {
+  // Resolve and fill mother-daughter links.
 
   Handle<reco::PFCandidateCollection> hPfCandProduct;
   GetProduct(edmName_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
-  //loop through pf candidates and resolve mother-daughter links
-  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end(); ++iP) {
-  
+  // loop through pf candidates and resolve mother-daughter links
+  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
+       iP != inPfCands.end(); ++iP) {
+    
     reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
     mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
 
-    //fill mother-daughter links
+    // fill mother-daughter links
     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
     if (motherCandPtr.isNonnull()) {
@@ -179,7 +217,5 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
       outPfCand->SetMother(mother);
       mother->AddDaughter(outPfCand);
     }
-
   }
-
 }

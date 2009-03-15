@@ -1,4 +1,4 @@
-// $Id: FillerPATMuons.cc,v 1.3 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerPATMuons.cc,v 1.4 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,9 +22,7 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, bool active,
-                               const TrackMap *globalMap, const TrackMap *stdMap, 
-                               const TrackMap *stdVtxMap, const TrackMap *trackerMap) : 
+FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
   BaseFiller(cfg,"PATMuons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Muons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
@@ -54,17 +52,29 @@ void FillerPATMuons::BookDataBlock(TreeWriter &tws)
 {
   // Add muons branch to tree and get pointers to maps.
 
-  tws.AddBranch(mitName_.c_str(),&muons_);
+  tws.AddBranch(mitName_,&muons_);
+  OS()->add<mithep::MuonArr>(muons_,mitName_);
 
-  if (!globalTrackMapName_.empty()) 
-    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_.c_str());
-  if (!staTrackMapName_.empty()) 
-    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_.c_str());
-  if (!staVtxTrackMapName_.empty()) 
-    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_.c_str());
-  if (!trackerTrackMapName_.empty()) 
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
-
+  if (!globalTrackMapName_.empty()) {
+    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
+    if (globalTrackMap_)
+      AddBranchDep(mitName_,globalTrackMap_->GetBrName());
+  }
+  if (!staTrackMapName_.empty()) {
+    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_); 
+    if (standaloneTrackMap_)
+      AddBranchDep(mitName_,standaloneTrackMap_->GetBrName());
+  }
+  if (!staVtxTrackMapName_.empty()) {
+    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
+    if (standaloneVtxTrackMap_)
+      AddBranchDep(mitName_,standaloneVtxTrackMap_->GetBrName());
+  }
+  if (!trackerTrackMapName_.empty()) {
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+    if (trackerTrackMap_)
+      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,46 +89,46 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
   event.getByLabel(edm::InputTag(edmName_),muonHandle);
   edm::View<pat::Muon> muons = *muonHandle;
 
-   for(edm::View<pat::Muon>::const_iterator iM = muons.begin(); iM!=muons.end(); ++iM){
-              
-     if(iM->pt()>0) {
-       mithep::Muon* outMuon = muons_->AddNew();
-     
-       if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
-	 outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));
-       
-       if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
-	 Int_t refProductId = iM->standAloneMuon().id().id();
-	 if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-	   outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
-	 else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-	   outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
-	 else throw edm::Exception(edm::errors::Configuration, "FillerPATMuons:FillDataBlock()\n")
-	   << "Error! Track reference in unmapped collection " << edmName_ << endl;
-       }
+  for(edm::View<pat::Muon>::const_iterator iM = muons.begin(); iM!=muons.end(); ++iM){
 
-       if (trackerTrackMap_ && iM->track().isNonnull()) 
-	 outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));          
+    if(iM->pt()>0) {
+      mithep::Muon* outMuon = muons_->AddNew();
+     
+      if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
+        outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));
+       
+      if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
+        Int_t refProductId = iM->standAloneMuon().id().id();
+        if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
+          outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
+        else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
+          outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
+        else throw edm::Exception(edm::errors::Configuration, "FillerPATMuons:FillDataBlock()\n")
+          << "Error! Track reference in unmapped collection " << edmName_ << endl;
+      }
+
+      if (trackerTrackMap_ && iM->track().isNonnull()) 
+        outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));          
            
-       outMuon->SetIsoR03SumPt(iM->isolationR03().sumPt);              
-       outMuon->SetIsoR03EmEt(iM->isolationR03().emEt);              
-       outMuon->SetIsoR03HadEt(iM->isolationR03().hadEt);
-       outMuon->SetIsoR03HoEt(iM->isolationR03().hoEt);
-       outMuon->SetIsoR03NTracks(iM->isolationR03().nTracks);
-       outMuon->SetIsoR03NJets(iM->isolationR03().nJets);
-       outMuon->SetIsoR05SumPt(iM->isolationR05().sumPt);
-       outMuon->SetIsoR05EmEt(iM->isolationR05().emEt);
-       outMuon->SetIsoR05HadEt(iM->isolationR05().hadEt);
-       outMuon->SetIsoR05HoEt(iM->isolationR05().hoEt);
-       outMuon->SetIsoR05NTracks(iM->isolationR05().nTracks);
-       outMuon->SetIsoR05NJets(iM->isolationR05().nJets);
-       outMuon->SetEmEnergy(iM->calEnergy().em);
-       outMuon->SetHadEnergy(iM->calEnergy().had);
-       outMuon->SetHoEnergy(iM->calEnergy().ho);
-       outMuon->SetEmS9Energy(iM->calEnergy().emS9);
-       outMuon->SetHadS9Energy(iM->calEnergy().hadS9);
-       outMuon->SetHoS9Energy(iM->calEnergy().hoS9);
-     }
-   }
-   muons_->Trim();
+      outMuon->SetIsoR03SumPt(iM->isolationR03().sumPt);              
+      outMuon->SetIsoR03EmEt(iM->isolationR03().emEt);              
+      outMuon->SetIsoR03HadEt(iM->isolationR03().hadEt);
+      outMuon->SetIsoR03HoEt(iM->isolationR03().hoEt);
+      outMuon->SetIsoR03NTracks(iM->isolationR03().nTracks);
+      outMuon->SetIsoR03NJets(iM->isolationR03().nJets);
+      outMuon->SetIsoR05SumPt(iM->isolationR05().sumPt);
+      outMuon->SetIsoR05EmEt(iM->isolationR05().emEt);
+      outMuon->SetIsoR05HadEt(iM->isolationR05().hadEt);
+      outMuon->SetIsoR05HoEt(iM->isolationR05().hoEt);
+      outMuon->SetIsoR05NTracks(iM->isolationR05().nTracks);
+      outMuon->SetIsoR05NJets(iM->isolationR05().nJets);
+      outMuon->SetEmEnergy(iM->calEnergy().em);
+      outMuon->SetHadEnergy(iM->calEnergy().had);
+      outMuon->SetHoEnergy(iM->calEnergy().ho);
+      outMuon->SetEmS9Energy(iM->calEnergy().emS9);
+      outMuon->SetHadS9Energy(iM->calEnergy().hadS9);
+      outMuon->SetHoS9Energy(iM->calEnergy().hoS9);
+    }
+  }
+  muons_->Trim();
 }

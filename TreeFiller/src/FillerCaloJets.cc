@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.14 2009/02/26 20:30:13 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.15 2009/03/11 18:14:56 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,6 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
-
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
@@ -80,10 +79,14 @@ void FillerCaloJets::BookDataBlock(TreeWriter &tws)
 {
   // Add jets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&jets_);
+  tws.AddBranch(mitName_,&jets_);
+  OS()->add<mithep::CaloJetArr>(jets_,mitName_);
 
-  if (!caloTowerMapName_.empty())
-    caloTowerMap_ = OS()->get<CaloTowerMap>(caloTowerMapName_.c_str());
+  if (!caloTowerMapName_.empty()) {
+    caloTowerMap_ = OS()->get<CaloTowerMap>(caloTowerMapName_);
+    if (caloTowerMap_)
+      AddBranchDep(mitName_, caloTowerMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,11 +97,11 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
 
   jets_->Delete();
 
-  //Handle for the Jet Collection
+  // handle for the jet collection
   Handle<reco::CaloJetCollection> hJetProduct;
   GetProduct(edmName_, hJetProduct, event);
 
-  //Handles for jet flavour matching 
+  // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
     GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
@@ -131,7 +134,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   
   const reco::CaloJetCollection inJets = *(hJetProduct.product());  
 
-  //Handles to Jet to Vertex Association
+  // handle to Jet to Vertex association
   Handle<std::vector<double> > JV_alpha;  
   Handle<std::vector<double> > JV_beta;    
   std::vector<double>::const_iterator it_jv_alpha;
@@ -144,7 +147,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     it_jv_beta  = JV_beta->begin();    
   }
 
-  //Define Jet Correction Services
+  // define jet correction services
   const JetCorrector* correctorL2 = 0; 
   const JetCorrector* correctorL3 = 0; 
   if (jetCorrectionsActive_) {
@@ -165,7 +168,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().z(),
                           inJet->p4().e());
 
-    //fill calojet-specific quantities
+    // fill calojet-specific quantities
     jet->SetMaxEInEmTowers (inJet->maxEInEmTowers());	 
     jet->SetMaxEInHadTowers(inJet->maxEInHadTowers());
     jet->SetEnergyFractionH(inJet->energyFractionHadronic());
@@ -180,12 +183,12 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     jet->SetTowersArea     (inJet->towersArea());
      
     if (jetToVertexActive_) {
-      //compute alpha and beta parameter for jets
+      // compute alpha and beta parameter for jets
       jet->SetAlpha((*it_jv_alpha));
       jet->SetBeta((*it_jv_beta));      
     }
 
-    //Jet Corrections
+    // jet corrections
     if (jetCorrectionsActive_) {
       double L2Scale = correctorL2->correction(inJet->p4());
       double L3Scale = correctorL3->correction(inJet->p4()*L2Scale);
@@ -198,18 +201,24 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     if (bTaggingActive_) {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
-      jet->SetSimpleSecondaryVertexBJetTagsDisc((*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
-      jet->SetCombinedSecondaryVertexBJetTagsDisc((*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
-      jet->SetCombinedSecondaryVertexMVABJetTagsDisc((*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
-      jet->SetImpactParameterMVABJetTagsDisc((*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighEffBJetTagsDisc((*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighPurBJetTagsDisc((*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
+      jet->SetSimpleSecondaryVertexBJetTagsDisc(
+        (*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
+      jet->SetCombinedSecondaryVertexBJetTagsDisc(
+        (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
+      jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
+        (*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
+      jet->SetImpactParameterMVABJetTagsDisc(
+        (*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighEffBJetTagsDisc(
+        (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighPurBJetTagsDisc(
+        (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
       jet->SetSoftMuonNoIPBJetTagsDisc((*(hSoftMuonNoIPBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftElectronBJetTagsDisc((*(hSoftElectronBJetTags.product()))[jetBaseRef]); 
     }
 
-    //Get the Monte Carlo Flavour Matching information
+    // get the Monte Carlo flavour matching information
     if (flavorMatchingActive_) {
       unsigned int iJet = inJet - inJets.begin();
       const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
@@ -228,7 +237,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       }
     }
 
-    //Add CaloTower Refs
+    // add CaloTower references
     if (caloTowerMap_) {
       std::vector<CaloTowerDetId> ctidVector = inJet->getTowerIndices();
       for(std::vector<CaloTowerDetId>::const_iterator ctid = ctidVector.begin(); 

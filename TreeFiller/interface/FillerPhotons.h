@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.8 2008/11/06 17:19:54 sixie Exp $
+// $Id: FillerPhotons.h,v 1.9 2009/03/10 15:56:00 loizides Exp $
 //
 // FillerPhotons
 //
@@ -31,16 +31,16 @@ namespace mithep
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                    edmName_;            //edm name of photon collection
-      std::string                    mitName_;            //name of Photons in OAK
-      std::string                    photonIDName_;       //name of Photon ID collection
-      std::string                    conversionMapName_;  //name of imported map wrt conv electrons
-      std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
-      std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
+      std::string             edmName_;                   //edm name of photon collection
+      std::string             mitName_;                   //mit name of photon collection
+      std::string             photonIDName_;              //name of Photon ID collection
+      std::string             conversionMapName_;         //name of imported map wrt conv electrons
+      std::string             barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
+      std::string             endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
       mithep::PhotonArr             *photons_;            //array of Photons
       const mithep::ConversionMap   *conversionMap_;      //imported map wrt conversion electrons
-      const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
-      const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters 
+      const mithep::SuperClusterMap *barrelSuperClusterMap_;  //map wrt barrel super clusters
+      const mithep::SuperClusterMap *endcapSuperClusterMap_;  //map wrt endcap super clusters 
   };
 }
 #endif

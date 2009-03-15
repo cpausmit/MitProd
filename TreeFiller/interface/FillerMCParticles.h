@@ -1,12 +1,12 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.4 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.5 2009/03/06 14:40:10 bendavid Exp $
 //
 // FillerMCParticles
 //
-// Imlementation of a filler to fill HepMC particles OR the aod GenParticle candidates (gen)
-// AND SimTracks (sim) with association map to TrackingParticles (for hit-based MC truth matching)
-// into mithep::MCParticles. Gen and Sim particle information is thus merged into a single 
-// collection.
+// Imlementation of a filler to fill HepMC particles or the AOD GenParticle candidates (gen)
+// and SimTracks (sim) with association map to TrackingParticles (for hit-based MC truth matching)
+// into mithep::MCParticles. Generated and simulated particle information is thus merged into a 
+// single collection.
 //
 // Authors: C.Loizides, J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -35,22 +35,22 @@ namespace mithep
       void ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      Bool_t                      genActive_;   //=true if generated particles are filled
-      Bool_t                      useAodGen_;   //=true to use aod GenParticles instead of HepMC
-      Bool_t                      simActive_;   //=true if simulated particles are filled
-      Bool_t                      trackingActive_;   //=true if simulated TrackingParticles are mapped
-      std::string                 genEdmName_;  //edm name of generated particles
-      std::string                 simEdmName_;  //edm name of simulated particles
-      std::string                 trackingEdmName_;  //edm name of simulated TrackingParticles
-      std::string                 genMapName_;  //name of exported map wrt generated particles
-      std::string                 simMapName_;  //name of exported map wrt simulated particles
-      std::string                 trackingMapName_;  //name of exported map wrt simulated TrackingParticles
-      std::string                 mitName_;     //name of MCParticles branch in OAK
-      mithep::MCParticleArr      *mcParticles_; //array of MCParticles
-      mithep::GenParticleBarcodeMap *genMap_;      //map wrt generated particles
-      mithep::AODGenParticleMap  *aodGenMap_;      //map wrt generated particles
-      mithep::SimTrackTidMap     *simMap_;      //map of SimTracks to G4 track ids
-      mithep::TrackingParticleMap *trackingMap_;      //map wrt simulated TrackingParticles
+      bool                           genActive_;       //=true if generated particles are filled
+      bool                           useAodGen_;       //=true if AOD GenParticles to be used
+      bool                           simActive_;       //=true if simulated particles are filled
+      bool                           trackingActive_;  //=true if TrackingParticles are mapped
+      std::string                    genEdmName_;      //edm name of generated particles
+      std::string                    simEdmName_;      //edm name of simulated particles
+      std::string                    trackingEdmName_; //edm name of simulated TrackingParticles
+      std::string                    genMapName_;      //name of exp map wrt generated particles
+      std::string                    simMapName_;      //name of exp map wrt simulated particles
+      std::string                    trackingMapName_; //name of exp map wrt TrackingParticles
+      std::string                    mitName_;         //name of MCParticles branch
+      mithep::MCParticleArr         *mcParticles_;     //array of MCParticles
+      mithep::GenParticleBarcodeMap *genMap_;          //map wrt generated particles
+      mithep::AODGenParticleMap     *aodGenMap_;       //map wrt generated particles
+      mithep::SimTrackTidMap        *simMap_;          //map of SimTracks to G4 track ids
+      mithep::TrackingParticleMap   *trackingMap_;     //map wrt TrackingParticles
   };
 }
 #endif

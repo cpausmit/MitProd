@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.9 2008/10/16 16:17:17 bendavid Exp $
+// $Id: FillerDecayParts.h,v 1.10 2008/10/23 15:43:15 loizides Exp $
 //
 // FillerDecayParts
 //
@@ -34,10 +34,12 @@ namespace mithep
     private:
       mithep::Particle *getMitParticle(mitedm::BasePartPtr ptr) const;
     
-      std::string                               edmName_;          //edm name of decay parts collection
-      std::string                               mitName_;          //name of DecayParticles in OAK
-      std::string                               vertexMapName_;    //name of imported map wrt primary vertexes
-      std::vector<std::string>                  basePartMapNames_; //name of imported maps wrt stable parts
+      std::string                               edmName_;          //edm name of collection
+      std::string                               mitName_;          //mit name of collection
+      std::string                               stableDataName_;   //= mitName_ + "_StableDatas"
+      std::string                               decayDataName_;    //= mitName_ + "_DecayDatas"
+      std::string                               vertexMapName_;    //name map wrt primary vertexes
+      std::vector<std::string>                  basePartMapNames_; //name imp maps wrt stable parts
       std::vector<const mithep::BasePartMap*>   basePartMaps_;     //maps wrt stable parts
       const mithep::VertexMap                  *vertexMap_;        //map wrt primary vertexes
       mithep::DecayParticleArr                 *decays_;           //array of DecayParticles

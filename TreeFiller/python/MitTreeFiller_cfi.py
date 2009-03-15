@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.29 2009/03/11 18:17:49 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.30 2009/03/12 16:04:16 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -57,8 +57,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                         'Kt6Mht',
                                         'IC5JPTMht',
                                         'StableParts',
-                                        'DecayParts'),      
-                                                                                                                                                
+                                        'DecayParts'),
+
     MetaInfos = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         hltActive  = cms.untracked.bool(True),
@@ -312,15 +312,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     PFCandidates = cms.untracked.PSet(
-        active            = cms.untracked.bool(True),
-        mitName           = cms.untracked.string('PFCandidates'),
-        edmName           = cms.untracked.string('particleFlow'),
-        trackerTrackMapName    = cms.untracked.string('TracksMapName'),
-        gsfTrackMapName        = cms.untracked.string('GsfTracksMapName'),
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('PFCandidates'),
+        edmName             = cms.untracked.string('particleFlow'),
+        trackerTrackMapName = cms.untracked.string('TracksMapName'),
+        gsfTrackMapName     = cms.untracked.string('GsfTracksMapName'),
         muonMapName         = cms.untracked.string('MuonMapName'),
-        conversionMapName = cms.untracked.string('ConversionsMapName'),
-        pfCandMapName     = cms.untracked.string('PFCandMapName'),
-        fillerType                    = cms.untracked.string('FillerPFCandidates')
+        conversionMapName   = cms.untracked.string('ConversionsMapName'),
+        pfCandMapName       = cms.untracked.string('PFCandMapName'),
+        fillerType          = cms.untracked.string('FillerPFCandidates')
     ),
   
     IC5GenJets = cms.untracked.PSet(
@@ -489,98 +489,99 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),                               
     
     ItrCone5PFJets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('ItrCone5PFJets'),
-        edmName = cms.untracked.string('iterativeCone5PFJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaIC5PF:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaIC5PF:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorIC5PF'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorIC5PF'),
+        active                        = cms.untracked.bool(True),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('ItrCone5PFJets'),
+        edmName                       = cms.untracked.string('iterativeCone5PFJets'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaIC5PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaIC5PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorIC5PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorIC5PF'),
         flavorMatchingByReferenceName = cms.untracked.string('IC5PFbyRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        pfCandMapName = cms.untracked.string('PFCandMapName'),
-        fillerType           = cms.untracked.string('FillerPFJets')
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
     ),  
     
     SisCone5PFJets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('SisCone5PFJets'),
-        edmName = cms.untracked.string('sisCone5PFJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaSC5PF:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaSC5PF:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorSC5PF'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorSC5PF'),
+        active                        = cms.untracked.bool(True),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('SisCone5PFJets'),
+        edmName                       = cms.untracked.string('sisCone5PFJets'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaSC5PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaSC5PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorSC5PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorSC5PF'),
         flavorMatchingByReferenceName = cms.untracked.string('SC5PFbyRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        pfCandMapName = cms.untracked.string('PFCandMapName'),
-        fillerType           = cms.untracked.string('FillerPFJets')
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
     ),                          
 
     SisCone7PFJets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('SisCone7PFJets'),
-        edmName = cms.untracked.string('sisCone7PFJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaSC7PF:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaSC7PF:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorSC7PF'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorSC7PF'),
+        active                        = cms.untracked.bool(True),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('SisCone7PFJets'),
+        edmName                       = cms.untracked.string('sisCone7PFJets'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaSC7PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaSC7PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorSC7PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorSC7PF'),
         flavorMatchingByReferenceName = cms.untracked.string('SC7PFbyRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        pfCandMapName = cms.untracked.string('PFCandMapName'),
-        fillerType           = cms.untracked.string('FillerPFJets')
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
     Kt4PFJets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('Kt4PFJets'),
-        edmName = cms.untracked.string('kt4PFJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT4PF:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaKT4PF:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorKT4PF'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorKT4PF'),
+        active                        = cms.untracked.bool(True),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('Kt4PFJets'),
+        edmName                       = cms.untracked.string('kt4PFJets'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaKT4PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaKT4PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorKT4PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorKT4PF'),
         flavorMatchingByReferenceName = cms.untracked.string('KT4PFbyRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        pfCandMapName = cms.untracked.string('PFCandMapName'),
-        fillerType           = cms.untracked.string('FillerPFJets')
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
     ),
+
     Kt6PFJets = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive = cms.untracked.bool(False),
-        jetToVertexActive = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName = cms.untracked.string('Kt6PFJets'),
-        edmName = cms.untracked.string('kt6PFJets'),
-        jetToVertexAlphaName = cms.untracked.string('jetVertexAlphaKT6PF:Var'),
-        jetToVertexBetaName = cms.untracked.string('jetVertexBetaKT6PF:Var'),
-        L2JetCorrectorName  = cms.untracked.string('L2RelativeJetCorrectorKT6PF'),
-        L3JetCorrectorName  = cms.untracked.string('L3AbsoluteJetCorrectorKT6PF'),
+        active                        = cms.untracked.bool(True),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('Kt6PFJets'),
+        edmName                       = cms.untracked.string('kt6PFJets'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaKT6PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaKT6PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorKT6PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorKT6PF'),
         flavorMatchingByReferenceName = cms.untracked.string('KT6PFbyRef'),
-        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
-        pfCandMapName = cms.untracked.string('PFCandMapName'),
-        fillerType           = cms.untracked.string('FillerPFJets')
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
     ),
     
     ItrCone5Met = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        mitName = cms.untracked.string('ItrCone5Met'),
-        edmName = cms.untracked.string('corMetType1Icone5'),
+        active     = cms.untracked.bool(True),
+        mitName    = cms.untracked.string('ItrCone5Met'),
+        edmName    = cms.untracked.string('corMetType1Icone5'),
         fillerType = cms.untracked.string('FillerCaloMet')
     ),
     
@@ -626,10 +627,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType = cms.untracked.string('FillerMet')
     ),      
            
-    ItrCone5Mht = cms.untracked.PSet(
-        active  = cms.untracked.bool(True),
-        mitName = cms.untracked.string('ItrCone5Mht'),
-        edmName = cms.untracked.string('htMetIC5'),
+    ItrCone5Mht    = cms.untracked.PSet(
+        active     = cms.untracked.bool(True),
+        mitName    = cms.untracked.string('ItrCone5Mht'),
+        edmName    = cms.untracked.string('htMetIC5'),
         fillerType = cms.untracked.string('FillerMet')
     ),
     
@@ -685,4 +686,3 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType   = cms.untracked.string('FillerDecayParts')
     )                                                            
 )
-   

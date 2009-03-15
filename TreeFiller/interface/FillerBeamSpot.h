@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBeamSpot.h,v 1.1 2008/11/12 18:21:28 bendavid Exp $
+// $Id: FillerBeamSpot.h,v 1.2 2009/03/03 17:05:16 loizides Exp $
 //
 // FillerBeamSpot
 //
-// Imlementation of a filler to fill EDM reco:Vertex into our mithep::Vertex data structure.
+// Implementation of a filler to fill EDM reco:BeamSpot into our mithep::BeamSpot data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -28,9 +28,9 @@ namespace mithep
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                           edmName_;          //edm name of Vertex collection
-      std::string                           mitName_;          //name of Vertices in OAK
-      mithep::BeamSpotArr                  *beamSpots_;        //the beamspot array
+      std::string                      edmName_;        //edm name of Vertex collection
+      std::string                      mitName_;        //mit name of vertex branch
+      mithep::BeamSpotArr             *beamSpots_;      //the beamspot array
   };
 }
 #endif

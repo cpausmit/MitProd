@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.6 2009/03/10 15:56:00 loizides Exp $
+// $Id: FillerMuons.h,v 1.7 2009/03/11 18:15:27 bendavid Exp $
 //
 // FillerMuons
 //
-// Imlementation of a filler to fill EDM muons into our mithep::Muon data structure.
+// Implementation of a filler to fill EDM muons into our mithep::Muon data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace mithep
   
     private:
       std::string                 edmName_;               //edm name of muons collection
-      std::string                 mitName_;               //name of Muons in OAK
+      std::string                 mitName_;               //mit name of Muons
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons
       std::string                 staVtxTrackMapName_;    //name of imported map wrt sta vtx muons

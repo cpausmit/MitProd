@@ -1,4 +1,4 @@
-// $Id: FillerBeamSpot.cc,v 1.1 2008/11/12 18:21:28 bendavid Exp $
+// $Id: FillerBeamSpot.cc,v 1.2 2009/03/03 17:05:09 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,8 +33,8 @@ void FillerBeamSpot::BookDataBlock(TreeWriter &tws)
 {
   // Add Vertex branch and the VertexMap to tree.
 
-  tws.AddBranch(mitName_.c_str(),&beamSpots_);
-  OS()->add<mithep::BeamSpotArr>(beamSpots_,mitName_.c_str());
+  tws.AddBranch(mitName_,&beamSpots_);
+  OS()->add<mithep::BeamSpotArr>(beamSpots_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------

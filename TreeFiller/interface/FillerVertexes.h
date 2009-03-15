@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerVertexes.h,v 1.1 2008/09/30 13:03:32 bendavid Exp $
+// $Id: FillerVertexes.h,v 1.2 2008/10/23 15:43:15 loizides Exp $
 //
 // FillerVertexes
 //
-// Imlementation of a filler to fill EDM reco:Vertex into our mithep::Vertex data structure.
+// Implementation of a filler to fill EDM reco:Vertex into our mithep::Vertex data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -29,11 +29,11 @@ namespace mithep
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                           edmName_;        //edm name of Vertex collection
-      std::string                           mitName_;        //name of Vertices in OAK
-      std::string                           vertexMapName_;  //name of exported map
-      mithep::VertexArr                    *vertexes_;       //array of vertexes
-      mithep::VertexMap                    *vertexMap_;      //map wrt vertexes
+      std::string                     edmName_;        //edm name of Vertex collection
+      std::string                     mitName_;        //name of Vertices in OAK
+      std::string                     vertexMapName_;  //name of exported map
+      mithep::VertexArr              *vertexes_;       //array of vertexes
+      mithep::VertexMap              *vertexMap_;      //map wrt vertexes
   };
 }
 #endif

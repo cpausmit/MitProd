@@ -1,9 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: FillerGenJets.h,v 1.1 2008/09/16 18:17:36 sixie Exp $
 //
 // FillerGenJets
 //
-// Imlementation of a filler to fill EDM genjets into our mithep::GenJet data structure.
+// Implementation of a filler to fill EDM generator-level jets into our 
+// mithep::GenJet data structure.
 //
 // Authors: S.Xie
 //--------------------------------------------------------------------------------------------------
@@ -29,12 +30,12 @@ namespace mithep
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      Bool_t                flavorMatchingActive_;            //=true if flavor matching is done        
-      std::string           edmName_;                         //edm name of genjets collection
-      std::string           mitName_;                         //name of GenJets in OAK
-      std::string           flavorMatchingByReferenceName_;   //name of flavor matching collection
-      std::string           flavorMatchingDefinition_;        //name of flavor matching algorithm
-      mithep::GenJetArr    *genjets_;                         //array of GenJets
+      Bool_t              flavorMatchingActive_;            //=true if flavor matching is done
+      std::string         edmName_;                         //edm name of genjets collection
+      std::string         mitName_;                         //mit name of GenJets 
+      std::string         flavorMatchingByReferenceName_;   //name of flavor matching collection
+      std::string         flavorMatchingDefinition_;        //name of flavor matching algorithm
+      mithep::GenJetArr  *genjets_;                         //array of GenJets
   };
 }
 #endif

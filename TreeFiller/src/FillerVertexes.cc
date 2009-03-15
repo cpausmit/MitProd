@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.2 2008/10/23 15:43:15 loizides Exp $
+// $Id: FillerVertexes.cc,v 1.3 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,8 +16,7 @@ FillerVertexes::FillerVertexes(const ParameterSet &cfg, const char *name, bool a
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","PrimaryVertexes")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
-  vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName",
-                                                      "VertexMap")),
+  vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName","VertexMap")),
   vertexes_(new mithep::VertexArr(100)),
   vertexMap_(new mithep::VertexMap)
 {
@@ -38,10 +37,13 @@ void FillerVertexes::BookDataBlock(TreeWriter &tws)
 {
   // Add Vertex branch and the VertexMap to tree.
 
-  tws.AddBranch(mitName_.c_str(),&vertexes_);
-  OS()->add<VertexMap>(vertexMap_,vertexMapName_.c_str());
-  OS()->add<VertexArr>(vertexes_,mitName_.c_str());
+  tws.AddBranch(mitName_,&vertexes_);
+  OS()->add<VertexArr>(vertexes_,mitName_);
 
+  if (!vertexMapName_.empty()) {
+    vertexMap_->SetBrName(mitName_);
+    OS()->add<VertexMap>(vertexMap_,vertexMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +67,6 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
     mithep::Vertex *outVertex = vertexes_->Allocate();
     new (outVertex) mithep::Vertex(inV->x(), inV->y(), inV->z(),
                                    inV->xError(), inV->yError(), inV->zError());
-                                   
     outVertex->SetChi2(inV->chi2());
     outVertex->SetNdof(static_cast<Int_t>(inV->ndof()));
     outVertex->SetNTracks(inV->tracksSize());                                
@@ -73,8 +74,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
     //add vertex to the map
     mitedm::VertexPtr thePtr(hVertexProduct, inV-inVertexes.begin());
     vertexMap_->Add(thePtr, outVertex);
-          
+         
   }
-
   vertexes_->Trim();
 }

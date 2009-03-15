@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.14 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.15 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitAna/DataTree/interface/DecayParticle.h"
 #include "MitAna/DataTree/interface/DaughterData.h"
@@ -28,6 +28,8 @@ FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  stableDataName_(mitName_ + "_StableDatas"),
+  decayDataName_(mitName_ + "_DecayDatas"),
   vertexMapName_(Conf().getUntrackedParameter<string>("vertexMap","")),
   basePartMapNames_(Conf().exists("basePartMaps") ? 
                     Conf().getUntrackedParameter<vector<string> >("basePartMaps") : 
@@ -54,21 +56,30 @@ FillerDecayParts::~FillerDecayParts()
 void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 {
   // Add our branches to tree and get our map.
-
-  std::string stableDataName = mitName_ + "_StableDatas";
-  std::string decayDataName  = mitName_ + "_DecayDatas";
   
-  tws.AddBranch(mitName_.c_str(),       &decays_);
-  tws.AddBranch(stableDataName.c_str(), &stableData_);
-  tws.AddBranch(decayDataName.c_str(),  &decayData_);
+  tws.AddBranch(mitName_,        &decays_);
+  OS()->add<mithep::DecayParticleArr>(decays_,mitName_);
+  tws.AddBranch(stableDataName_, &stableData_);
+  OS()->add<mithep::StableDataArr>(stableData_,stableDataName_);
+  tws.AddBranch(decayDataName_,  &decayData_);
+  OS()->add<mithep::DecayDataArr>(decayData_,decayDataName_);
 
-  if (!vertexMapName_.empty())
-    vertexMap_ = OS()->get<VertexMap>(vertexMapName_.c_str());
-  
+  if (!vertexMapName_.empty()) {
+    vertexMap_ = OS()->get<VertexMap>(vertexMapName_);
+    if (vertexMap_)
+      AddBranchDep(mitName_,vertexMap_->GetBrName());
+  }
+
   for (std::vector<std::string>::const_iterator bmapName = basePartMapNames_.begin();
         bmapName!=basePartMapNames_.end(); ++bmapName) {
-    if (!bmapName->empty()) 
-      basePartMaps_.push_back(OS()->get<BasePartMap>(bmapName->c_str()));
+    if (!bmapName->empty()) {
+      const BasePartMap *map = OS()->get<BasePartMap>(*bmapName);
+      if (map) {
+        basePartMaps_.push_back(map);
+        AddBranchDep(stableDataName_,map->GetBrName());
+        AddBranchDep(decayDataName_,map->GetBrName());
+      }
+    }
   }
 }
 
@@ -76,7 +87,7 @@ void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 void FillerDecayParts::FillDataBlock(const edm::Event      &evt, 
 				     const edm::EventSetup &setup)
 {
-  // Fill our EDM DecayPart collection into the MIT DecayParticle collection.
+  // Fill the EDM DecayPart collection into the MIT DecayParticle collection.
 
   decays_->Delete();
   stableData_->Delete();
@@ -86,9 +97,9 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
   GetProduct(edmName_, hParts, evt);  
   const mitedm::DecayPartCol *iParts = hParts.product();
   
-  // loop through all decayParts and fill the information
+  // loop through all DecayParts and fill the information
   for (UInt_t i=0; i<iParts->size(); ++i) {
-    const mitedm::DecayPart &p =iParts->at(i);                    // for convenience
+    const mitedm::DecayPart &p = iParts->at(i); // for convenience
     mithep::DecayParticle *d = decays_->Allocate();
     new (d) mithep::DecayParticle(p.pid());
     
@@ -108,34 +119,37 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     }
       
     if (basePartMaps_.size()) {
-       //loop through and add stable daughters
+       // loop through and add stable daughters
       for (Int_t j=0; j<p.nStableChild(); ++j) {
         const mitedm::StableData &stable = p.getStableData(j);
         mitedm::BasePartPtr thePtr = stable.originalPtr();
         mithep::Particle *daughter = getMitParticle(thePtr);
         
         mithep::StableData *outStable = stableData_->Allocate();
-        new (outStable) mithep::StableData(daughter,stable.p3().x(),stable.p3().y(),stable.p3().z());
+        new (outStable) mithep::StableData(daughter,
+                                           stable.p3().x(),stable.p3().y(),stable.p3().z());
         
-        //fill bad layer mask information using corrected HitPattern
+        // fill bad layer mask information using corrected HitPattern
         const ChargedParticle *cDaughter = dynamic_cast<const ChargedParticle*>(daughter);
         if (stable.HitsFilled() && cDaughter) {
           const reco::HitPattern &hitPattern = stable.Hits();
           BitMask48 crossedLayers;
           UInt_t numCrossed=0;
-          //search for all good crossed layers (with or without hit)
+          // search for all good crossed layers (with or without hit)
           for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
             uint32_t hit = hitPattern.getHitPattern(hi);
-            if (hitPattern.getHitType(hit)<=1)
+            if (hitPattern.getHitType(hit)<=1) {
               if (hitPattern.trackerHitFilter(hit)) {
                 numCrossed++;
                 crossedLayers.SetBit(hitReader_.Layer(hit));
               }
+            }
           }
+
           BitMask48 badLayers = crossedLayers ^ cDaughter->Trk()->Hits();
           outStable->SetBadLayers(badLayers);
           
-          if(0) {
+          if(verbose_>1) {
             if (outStable->NWrongHits()) {          
               printf("numCrossed:                %i\n",numCrossed);
               printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
@@ -166,7 +180,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         d->AddDaughterData(outStable);
       }
 
-      //loop through and add decay daughters
+      // loop through and add decay daughters
       for (Int_t j=0; j<p.nDecayChild(); ++j) {
         const mitedm::DecayData &decay = p.getDecayData(j);
         mitedm::BasePartPtr thePtr = decay.originalPtr();
@@ -200,8 +214,10 @@ mithep::Particle *FillerDecayParts::getMitParticle(mitedm::BasePartPtr ptr) cons
   for (std::vector<const mithep::BasePartMap*>::const_iterator bmap = basePartMaps_.begin();
         bmap!=basePartMaps_.end(); ++bmap) {
     const mithep::BasePartMap *theMap = *bmap;
-    if (theMap->HasMit(ptr))
+    if (theMap->HasMit(ptr)) {
       mitPart = theMap->GetMit(ptr);
+      return mitPart;
+    }
   }
   
   if (!mitPart)

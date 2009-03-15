@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.11 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.12 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,11 +39,19 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
 {
   // Add conversions to tree. Publish and get our objects.
 
-  tws.AddBranch(mitName_.c_str(),&conversions_);
+  tws.AddBranch(mitName_,&conversions_);
+  OS()->add<mithep::ConversionArr>(conversions_,mitName_);
 
-  if (!convElectronMapName_.empty())
-    OS()->add(conversionMap_,conversionMapName_.c_str());
-  convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_.c_str());
+  if (!convElectronMapName_.empty()) {
+    conversionMap_->SetBrName(mitName_);
+    OS()->add(conversionMap_,conversionMapName_);
+  }
+
+  if (!convElectronMapName_.empty()) {
+    convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_);
+    if (convElectronMap_)
+      AddBranchDep(mitName_, convElectronMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

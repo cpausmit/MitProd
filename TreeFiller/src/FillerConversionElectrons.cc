@@ -1,4 +1,4 @@
-// $Id: FillerConversionElectrons.cc,v 1.8 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerConversionElectrons.cc,v 1.9 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,14 +46,27 @@ void FillerConversionElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add converted electron branch to tree. Publish and get our objects.
 
-  tws.AddBranch(mitName_.c_str(),&convElectrons_);
+  tws.AddBranch(mitName_,&convElectrons_);
+  OS()->add<ElectronArr>(convElectrons_,mitName_);
 
-  OS()->add<ElectronArr>(convElectrons_,mitName_.c_str());
-  OS()->add<ConversionElectronMap>(convElectronMap_,convElectronMapName_.c_str());
-  convInOutTracks_ = OS()->get<TrackArr>(convInOutTracksName_.c_str());
-  convOutInTracks_ = OS()->get<TrackArr>(convOutInTracksName_.c_str());
-  convInOutTrackMap_ = OS()->get<TrackMap>(convInOutTrackMapName_.c_str());
-  convOutInTrackMap_ = OS()->get<TrackMap>(convOutInTrackMapName_.c_str());
+  if (!convElectronMapName_.empty()) {
+    convElectronMap_->SetBrName(mitName_);
+    OS()->add<ConversionElectronMap>(convElectronMap_,convElectronMapName_);
+  }
+  if (!convInOutTracksName_.empty()) 
+    convInOutTracks_ = OS()->get<TrackArr>(convInOutTracksName_);
+  if (!convOutInTracksName_.empty()) 
+    convOutInTracks_ = OS()->get<TrackArr>(convOutInTracksName_);
+  if (!convInOutTrackMapName_.empty()) {
+    convInOutTrackMap_ = OS()->get<TrackMap>(convInOutTrackMapName_);
+    if (convInOutTrackMap_)
+      AddBranchDep(mitName_,convInOutTrackMap_->GetBrName());
+  }
+  if (!convOutInTrackMapName_.empty()) {
+    convOutInTrackMap_ = OS()->get<TrackMap>(convOutInTrackMapName_);
+    if (convOutInTrackMap_)
+      AddBranchDep(mitName_,convOutInTrackMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +87,9 @@ void FillerConversionElectrons::FillFromTracks(const TrackCol *tracks,
                                                const TrackMap *trackMap) 
 {
   // Obtain information from tracks.
+
+  if (!tracks || !trackMap)
+    return;
 
   for (UInt_t i=0; i<tracks->GetEntries(); ++i) {
     mithep::Track *track = const_cast<Track*>(tracks->At(i));

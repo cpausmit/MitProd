@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.9 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerCaloMet.cc,v 1.10 2009/03/12 16:00:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,7 +33,8 @@ void FillerCaloMet::BookDataBlock(TreeWriter &tws)
 {
   // Add mets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&caloMets_);
+  tws.AddBranch(mitName_,&caloMets_);
+  OS()->add<mithep::CaloMetArr>(caloMets_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
     mithep::CaloMet *caloMet = caloMets_->Allocate();
     new (caloMet) mithep::CaloMet(inCaloMet->px(), inCaloMet->py());
     
-    // Fill Met base class data 
+    // fill Met base class data 
     caloMet->SetSumEt(inCaloMet->sumEt());
     caloMet->SetElongitudinal(inCaloMet->e_longitudinal());
     for(unsigned i=0; i<inCaloMet->mEtCorr().size(); i++) {
@@ -64,7 +65,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
       caloMet->PushCorrectionY(inCaloMet->mEtCorr()[i].mey);
       caloMet->PushCorrectionSumEt(inCaloMet->mEtCorr()[i].sumet);
     }
-    // Fill CaloMet class data
+    // fill CaloMet class data
     caloMet->SetCaloMetSig(inCaloMet->metSignificance());    
     caloMet->SetMaxEtInEmTowers(inCaloMet->maxEtInEmTowers());
     caloMet->SetMaxEtInHadTowers(inCaloMet->maxEtInHadTowers());
@@ -84,6 +85,5 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
     caloMet->SetCaloMetPhiInpHF(inCaloMet->CaloMETPhiInpHF());
     caloMet->SetCaloMetPhiInmHF(inCaloMet->CaloMETPhiInmHF());
   }
-
   caloMets_->Trim();
 }

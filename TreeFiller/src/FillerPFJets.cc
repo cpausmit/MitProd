@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.14 2009/02/26 20:30:13 bendavid Exp $
+// $Id: FillerPFJets.cc,v 1.1 2009/03/11 20:08:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,25 +82,29 @@ void FillerPFJets::BookDataBlock(TreeWriter &tws)
 {
   // Add jets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&jets_);
+  tws.AddBranch(mitName_,&jets_);
+  OS()->add<mithep::PFJetArr>(jets_,mitName_);
 
-  if (!pfCandMapName_.empty())
-    pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_.c_str());
+  if (!pfCandMapName_.empty()) {
+    pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_);
+    if (pfCandMap_)
+      AddBranchDep(mitName_,pfCandMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerPFJets::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                 const edm::EventSetup &setup)
 {
   // Fill jets from edm collection into our collection.
 
   jets_->Delete();
 
-  //Handle for the Jet Collection
+  // handle for the Jet Collection
   Handle<reco::PFJetCollection> hJetProduct;
   GetProduct(edmName_, hJetProduct, event);
 
-  //Handles for jet flavour matching 
+  // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
     GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
@@ -196,18 +200,24 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     if (bTaggingActive_) {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
-      jet->SetSimpleSecondaryVertexBJetTagsDisc((*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
-      jet->SetCombinedSecondaryVertexBJetTagsDisc((*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
-      jet->SetCombinedSecondaryVertexMVABJetTagsDisc((*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
-      jet->SetImpactParameterMVABJetTagsDisc((*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighEffBJetTagsDisc((*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
-      jet->SetTrackCountingHighPurBJetTagsDisc((*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
+      jet->SetSimpleSecondaryVertexBJetTagsDisc(
+        (*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
+      jet->SetCombinedSecondaryVertexBJetTagsDisc(
+        (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
+      jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
+        (*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
+      jet->SetImpactParameterMVABJetTagsDisc(
+        (*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighEffBJetTagsDisc(
+        (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighPurBJetTagsDisc(
+        (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
       jet->SetSoftMuonNoIPBJetTagsDisc((*(hSoftMuonNoIPBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftElectronBJetTagsDisc((*(hSoftElectronBJetTags.product()))[jetBaseRef]); 
     }
 
-    //Get the Monte Carlo Flavour Matching information
+    // get the Monte Carlo Flavour Matching information
     if (flavorMatchingActive_) {
       unsigned int iJet = inJet - inJets.begin();
       const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
@@ -226,7 +236,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       }
     }
 
-    //Add PFCandidate Refs
+    // add PFCandidate Refs
     if (pfCandMap_) {
       for (uint i=0; i<inJet->numberOfDaughters(); ++i) {
         const reco::CandidatePtr candPtr = inJet->daughterPtr(i);

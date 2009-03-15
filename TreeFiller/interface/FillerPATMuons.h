@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPATMuons.h,v 1.1 2008/08/12 10:13:46 sixie Exp $
+// $Id: FillerPATMuons.h,v 1.2 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerPATMuons
 //
-// Imlementation of a filler to fill EDM muons into our mithep::Muon data structure.
+// Implementation of a filler to fill EDM muons into our mithep::Muon data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -23,27 +23,24 @@ namespace mithep
   class FillerPATMuons : public BaseFiller
   {  
     public:
-      FillerPATMuons(const edm::ParameterSet &cfg, bool active=1,
-                  const TrackMap *globalMap=0, const TrackMap *stdMap=0, 
-                  const TrackMap *stdVtxMap=0, const TrackMap *trackerMap=0);
+      FillerPATMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPATMuons();
 
       void BookDataBlock(TreeWriter &tws);
       void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                 edmName_;
-      std::string                 mitName_;
+      std::string                 edmName_;               //edm name of muon collection
+      std::string                 mitName_;               //mit name of muon collection
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons
       std::string                 staVtxTrackMapName_;    //name of imported map wrt sta vtx muons
       std::string                 trackerTrackMapName_;   //name of imported map wrt tracker muons
-
-      const mithep::TrackMap     *globalTrackMap_;
-      const mithep::TrackMap     *standaloneTrackMap_;
-      const mithep::TrackMap     *standaloneVtxTrackMap_;
-      const mithep::TrackMap     *trackerTrackMap_;
-      mithep::MuonArr            *muons_;
+      const mithep::TrackMap     *globalTrackMap_;        //map wrt global muons
+      const mithep::TrackMap     *standaloneTrackMap_;    //map wrt standalone muons
+      const mithep::TrackMap     *standaloneVtxTrackMap_; //map wrt standalone vertex muons
+      const mithep::TrackMap     *trackerTrackMap_;       //map wrt tracker track muons
+      mithep::MuonArr            *muons_;                 //array of Muons
   };
 }
 #endif

@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.7 2009/03/13 09:35:19 loizides Exp $
+// $Id: AssociationMap.h,v 1.8 2009/03/14 06:04:59 loizides Exp $
 //
-// Association Map
+// AssociationMap
 //
 // Wrapper for std::map, used to resolve links during tree filling.
 //
@@ -35,6 +35,7 @@ namespace mithep
       bool         HasMit(EdmClass edmObj)    const;
       void         Reset()                          { fwdMap_.clear(); revMap_.clear(); }
       void         SetEdmProductId(Int_t id)        { edmProductId_ = id;               }
+      void         SetBrName(const std::string &n)  { brname_ = n;                      }
       void         SetBrName(const char *n)         { brname_ = n;                      }
 
     protected:

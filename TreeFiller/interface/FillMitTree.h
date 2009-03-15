@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.8 2008/07/31 12:34:03 loizides Exp $
+// $Id: FillMitTree.h,v 1.9 2008/09/10 03:30:22 loizides Exp $
 //
 // FillMitTree
 //
@@ -23,6 +23,7 @@
 namespace mithep 
 {
   class BaseFiller;
+  class BranchTable;
 
   class FillMitTree : public edm::EDAnalyzer
   {
@@ -42,6 +43,7 @@ namespace mithep
 
       std::vector<BaseFiller*> fillers_;       //list of active fillers
       bool                     defactive_;     //default activity flag for fillers
+      BranchTable             *brtable_;       //branch dependency table
       static ObjectService    *os_;            //object service (set in beginJob)
   };
 }

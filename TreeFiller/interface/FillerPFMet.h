@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFMet.h,v 1.6 2008/09/16 22:07:16 ksung Exp $
+// $Id: FillerPFMet.h,v 1.1 2009/03/12 16:00:23 bendavid Exp $
 //
 // FillerPFMet
 //
@@ -31,7 +31,7 @@ namespace mithep
   
     private:
       std::string           edmName_;    //edm name of met collection
-      std::string           mitName_;    //name of Mets in OAK
+      std::string           mitName_;    //mit name of met collection
       mithep::PFMetArr     *pfMets_;     //array of Mets
   };
 }

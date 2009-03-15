@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.27 2009/03/03 17:04:56 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.28 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,7 +20,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 
 using namespace std;
@@ -79,20 +78,33 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 
-  tws.AddBranch(mitName_.c_str(),&electrons_);
+  tws.AddBranch(mitName_,&electrons_);
+  OS()->add<mithep::ElectronArr>(electrons_,mitName_);
 
-  if (!gsfTrackMapName_.empty()) 
-    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_.c_str());
-  if (!trackerTrackMapName_.empty()) 
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());  
-  if (!barrelSuperClusterMapName_.empty())
-    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_.c_str());
-  if (!endcapSuperClusterMapName_.empty())
-    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_.c_str());
+  if (!gsfTrackMapName_.empty()) {
+    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
+    if (gsfTrackMap_)
+      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+  }
+  if (!trackerTrackMapName_.empty()) {
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+    if (trackerTrackMap_)
+      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  }
+  if (!barrelSuperClusterMapName_.empty()) {
+    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
+    if (barrelSuperClusterMap_)
+      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+  }
+  if (!endcapSuperClusterMapName_.empty()) {
+    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
+    if (endcapSuperClusterMap_)
+      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)			 
+void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)	 
 {
   // Fill electrons from edm collection into our collection.
 
@@ -101,7 +113,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   Handle<reco::GsfElectronCollection> hElectronProduct;
   GetProduct(edmName_, hElectronProduct, event);
   
-  //Handles to get the electron ID information
+  // handles to get the electron ID information
   Handle<edm::ValueMap<float> > eidLooseMap;
   GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
@@ -109,7 +121,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   Handle<edm::ValueMap<float> > eidLikelihoodMap;
   GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);
 
-  //get gsf track association map if needed
+  // get gsf track association map if needed
   mitedm::TrackAssociation gsfAssociation;
   if (trackerTrackMap_ && !gsfTrackAssocName_.empty()) {
     Handle<mitedm::TrackAssociation> gsfAssociationProduct;
@@ -117,34 +129,32 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     gsfAssociation = *(gsfAssociationProduct.product());
   }
   
-  
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
-  //loop over electrons
-
+  // loop over electrons
   for (reco::GsfElectronCollection::const_iterator iM = inElectrons.begin(); 
        iM != inElectrons.end(); ++iM) {
 
-    //the index and Ref are needed for the eID association Map
+    // the index and Ref are needed for the eID association Map
     unsigned int iElectron = iM - inElectrons.begin();
     reco::GsfElectronRef eRef(hElectronProduct, iElectron);
 
     mithep::Electron *outElectron = electrons_->AddNew();
          
-    outElectron->SetESuperClusterOverP( iM->eSuperClusterOverP() ) ;
-    outElectron->SetESeedClusterOverPout( iM->eSeedClusterOverPout() ) ;
-    outElectron->SetPIn( iM->trackMomentumAtVtx().R() ) ;
-    outElectron->SetPOut( iM->trackMomentumOut().R() );
-    outElectron->SetDeltaEtaSuperClusterTrackAtVtx( iM->deltaEtaSuperClusterTrackAtVtx() ) ;
-    outElectron->SetDeltaEtaSeedClusterTrackAtCalo( iM->deltaEtaSeedClusterTrackAtCalo() ) ;
-    outElectron->SetDeltaPhiSuperClusterTrackAtVtx( iM->deltaPhiSuperClusterTrackAtVtx() ) ;
-    outElectron->SetDeltaPhiSeedClusterTrackAtCalo( iM->deltaPhiSeedClusterTrackAtCalo() ) ;
-    outElectron->SetHadronicOverEm( iM->hadronicOverEm() ) ;
-    outElectron->SetIsEnergyScaleCorrected( iM->isEnergyScaleCorrected() ) ;
-    outElectron->SetIsMomentumCorrected( iM->isMomentumCorrected() ) ;
-    outElectron->SetNumberOfClusters( iM->numberOfClusters() ) ;
-    outElectron->SetClassification( iM->classification() ) ;
+    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP()) ;
+    outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout()) ;
+    outElectron->SetPIn(iM->trackMomentumAtVtx().R()) ;
+    outElectron->SetPOut(iM->trackMomentumOut().R());
+    outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx()) ;
+    outElectron->SetDeltaEtaSeedClusterTrackAtCalo(iM->deltaEtaSeedClusterTrackAtCalo()) ;
+    outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx()) ;
+    outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo()) ;
+    outElectron->SetHadronicOverEm(iM->hadronicOverEm()) ;
+    outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected()) ;
+    outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected()) ;
+    outElectron->SetNumberOfClusters(iM->numberOfClusters()) ;
+    outElectron->SetClassification(iM->classification()) ;
 
-    //shower shape variables   
+    // shower shape variables   
     EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
                                    edm::InputTag(endcapEcalRecHitName_));
     outElectron->SetE33(lazyTools.e3x3(*(iM->superCluster()->seed())));
@@ -156,33 +166,33 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     std::vector<float> vCov2 = lazyTools.localCovariances(*(iM->superCluster()->seed()));
     outElectron->SetCoviEtaiEta(vCov2[0]);
 
-    //compute isolations
-    //get the barrel BasicClusters 
+    // compute isolations
+    // get the barrel BasicClusters 
     edm::Handle<reco::BasicClusterCollection> barrelBasicClusterHandle;    
     GetProduct(barrelBasicClusterName_, barrelBasicClusterHandle, event);
     const reco::BasicClusterCollection* barrelBasicClusters = barrelBasicClusterHandle.product();
 
-    //get the  endcap BasicClusters
+    // get the  endcap BasicClusters
     edm::Handle<reco::BasicClusterCollection> endcapBasicClusterHandle;
     GetProduct(endcapBasicClusterName_, endcapBasicClusterHandle, event);
     const reco::BasicClusterCollection* endcapBasicClusters = endcapBasicClusterHandle.product();
     
-    //get the barrel SuperClusters
+    // get the barrel SuperClusters
     edm::Handle<reco::SuperClusterCollection> barrelSuperClusterHandle;
     GetProduct(barrelSuperClusterName_, barrelSuperClusterHandle, event);
     const reco::SuperClusterCollection* barrelSuperClusters = barrelSuperClusterHandle.product();  
 
-    //Get the endcap SuperClusters
+    // get the endcap SuperClusters
     edm::Handle<reco::SuperClusterCollection> endcapSuperClusterHandle;
     GetProduct(endcapSuperClusterName_, endcapSuperClusterHandle, event);
     const reco::SuperClusterCollection* endcapSuperClusters = endcapSuperClusterHandle.product();
 
-    //find out whether this electron super cluster is in the barrel or endcap
+    // find out whether this electron super cluster is in the barrel or endcap
     bool isBarrel=false ;    
     if(barrelSuperClusterMap_->HasMit(iM->superCluster()))
       isBarrel = true;
    
-    //compute ECAL isolation
+    // compute ECAL isolation
     double extRadius = 0.3;
     double etLow = 0.0;
     double ecalIsoValue = 0.0;
@@ -194,7 +204,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       ecalIsoValue = myEcalIsolation.getEcalEtSum(&(*iM));
     }
     
-    //compute CaloTower isolation
+    // compute CaloTower isolation
     edm::Handle<CaloTowerCollection> caloTowers;
     GetProduct(isoCaloTowerColName_, caloTowers, event);
     extRadius = 0.3;
@@ -204,17 +214,17 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     EgammaTowerIsolation *myTowerIsolation = 
       new EgammaTowerIsolation (extRadius, intRadius, etLow, caloTowers.product());
     double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
-    outElectron->SetCaloTowerIsolation( towerIsoValue );
+    outElectron->SetCaloTowerIsolation(towerIsoValue);
   
-    //fill the isolation values
-    outElectron->SetCaloIsolation( ecalIsoValue ) ;
+    // fill the isolation values
+    outElectron->SetCaloIsolation(ecalIsoValue) ;
 
-    //get and fill Track isolation        
+    // get and fill Track isolation        
     Handle<edm::ValueMap<double> > eleIsoFromDepsTkValueMap;
     GetProduct(trackerIsoName_, eleIsoFromDepsTkValueMap, event);
     outElectron->SetTrackIsolation((*eleIsoFromDepsTkValueMap)[eRef]); 
    
-    //get and fill Jurassic isolation values
+    // get and fill Jurassic isolation values
     Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;
     GetProduct(ecalJurassicIsoName_, eleIsoFromDepsEcalFromHitsValueMap, event);
     Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
@@ -223,11 +233,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetEcalJurassicIso((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
     outElectron->SetHcalIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
 
-    //make proper links to Tracks and Super Clusters
+    // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
       outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
-    //make tracker track links, relinking from gsf track associations if configured and 
-    //link is otherwise absent
+    // make tracker track links, relinking from gsf track associations if configured and 
+    // link is otherwise absent
     if (trackerTrackMap_) {
       if (iM->track().isNonnull()) 
         outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
@@ -239,14 +249,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         }
         catch (edm::Exception &ex) {
         }
-        //take the best match, but only if more than 50% of the hits came from the original
-        //gsf track
+        // take the best match, but only if more than 50% of the hits came 
+        // from the original gsf track
         reco::TrackBaseRef trackerRef;
         double rMax = 0.0;
         for (uint imatch=0; imatch<matchedTracks.size(); ++imatch) {
           std::pair<reco::TrackBaseRef, double> &match = matchedTracks.at(imatch);
           double r = match.second;
-          if ( r>rMax && r>0.5 ) {
+          if (r>rMax && r>0.5) {
             rMax = r;
             trackerRef = match.first;
           }
@@ -262,7 +272,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
       }
 
-    //fill Electron ID information
+    // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
     outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);

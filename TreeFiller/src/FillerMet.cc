@@ -1,4 +1,4 @@
-// $Id: FillerMet.cc,v 1.9 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerMet.cc,v 1.1 2009/03/12 16:00:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,12 +33,13 @@ void FillerMet::BookDataBlock(TreeWriter &tws)
 {
   // Add mets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&mets_);
+  tws.AddBranch(mitName_,&mets_);
+  OS()->add<mithep::MetArr>(mets_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerMet::FillDataBlock(const edm::Event      &event, 
-                                  const edm::EventSetup &setup)
+                              const edm::EventSetup &setup)
 {
   // Fill missing energy from edm collection into our collection.
 
@@ -56,7 +57,7 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
     mithep::Met *met = mets_->Allocate();
     new (met) mithep::Met(inMet->px(), inMet->py());
     
-    // Fill Met base class data 
+    // fill met base class data 
     met->SetSumEt(inMet->sumEt());
     met->SetElongitudinal(inMet->e_longitudinal());
     for(unsigned i=0; i<inMet->mEtCorr().size(); i++) {
@@ -66,6 +67,5 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
     }
 
   }
-
   mets_->Trim();
 }

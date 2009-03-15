@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.2 2008/11/03 11:22:35 bendavid Exp $
+// $Id: FillerSuperClusters.cc,v 1.3 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,21 +45,33 @@ FillerSuperClusters::~FillerSuperClusters()
 //--------------------------------------------------------------------------------------------------
 void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
 {
-  // Load the BasicClusters and Add SuperClusters branch and the SuperClusterMap to tree. 
-  tws.AddBranch(mitName_.c_str(),&superClusters_);
-  if (!basicClusterMapName_.empty())
-    basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_.c_str());
+  // Add super cluster branch to tree and get pointers to maps.
+
+  tws.AddBranch(mitName_,&superClusters_);
+  OS()->add<SuperClusterArr>(superClusters_,mitName_);
+
+  if (!basicClusterMapName_.empty()) {
+    basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_);
+    if (basicClusterMap_)
+      AddBranchDep(mitName_,basicClusterMap_->GetBrName());
+  }
   
-  OS()->add<SuperClusterMap>(superClusterMap_,superClusterMapName_.c_str());
-  OS()->add<SuperClusterIdMap>(superClusterIdMap_,superClusterIdMapName_.c_str());
-  OS()->add<SuperClusterArr>(superClusters_,mitName_.c_str());
+  if (!superClusterMapName_.empty()) {
+    superClusterMap_->SetBrName(mitName_);
+    OS()->add<SuperClusterMap>(superClusterMap_,superClusterMapName_);
+  }
+  if (!superClusterIdMapName_.empty()) {
+    superClusterIdMap_->SetBrName(mitName_);
+    OS()->add<SuperClusterIdMap>(superClusterIdMap_,superClusterIdMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerSuperClusters::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                        const edm::EventSetup &setup)
 {
-  //Fill The SuperCluster DataBlock
+  // Fill the collection.
+
   superClusters_->Delete();
   superClusterMap_->Reset();
   superClusterIdMap_->Reset();
@@ -83,29 +95,27 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     outSC->SetPhiWidth(inSC->phiWidth());
     outSC->SetEtaWidth(inSC->etaWidth());
 
-    //set the seed
+    // set the seed
     if (basicClusterMap_ && inSC->seed().isNonnull())
       outSC->SetSeed(basicClusterMap_->GetMit(inSC->seed()));
     
-    //Add Basic Clusters that belong to this super cluster
+    // add basic clusters that belong to this super cluster
     for(reco::basicCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
       if (basicClusterMap_ && bc->isNonnull())
 	outSC->AddCluster(basicClusterMap_->GetMit(*bc));
     }
 
-    //Add super cluster to the map
+    // add super cluster to the map
     reco::SuperClusterRef theRef(hSuperClusterProduct, inSC-inSuperClusters.begin());
     superClusterMap_->Add(theRef, outSC);
 
-    //Add super cluster det ids to the id map
+    // add super cluster det ids to the id map
     std::vector<DetId> hits = inSC->getHitsByDetId();
     for (std::vector<DetId>::const_iterator ihit = hits.begin();
           ihit < hits.end(); ++ihit) {
 
       superClusterIdMap_->Add(*ihit,outSC);
     }
-
   }
-
   superClusters_->Trim();
 }

@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.3 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerBasicClusters.cc,v 1.4 2009/03/03 18:10:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,17 +38,20 @@ void FillerBasicClusters::BookDataBlock(TreeWriter &tws)
 {
   // Add BasicCluster branch and the BasicClusterMap to tree.
 
-  tws.AddBranch(mitName_.c_str(),&basicClusters_);
-  OS()->add<BasicClusterMap>(basicClusterMap_,basicClusterMapName_.c_str());
-  OS()->add<BasicClusterArr>(basicClusters_,mitName_.c_str());
+  tws.AddBranch(mitName_,&basicClusters_);
+  OS()->add<BasicClusterArr>(basicClusters_,mitName_);
 
+  if (!basicClusterMapName_.empty()) {
+    basicClusterMap_->SetBrName(mitName_);
+    OS()->add<BasicClusterMap>(basicClusterMap_,basicClusterMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerBasicClusters::FillDataBlock(const edm::Event      &event, 
                                         const edm::EventSetup &setup)
 {
-  // Fill the BasicCluster Data Block
+  // Fill the BasicCluster information into our structures.
 
   basicClusters_->Delete();
   basicClusterMap_->Reset();
@@ -71,8 +74,6 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     //add basic clusters to the map
     reco::BasicClusterRef theRef(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(theRef, outBasicCluster);
-          
   }
-
   basicClusters_->Trim();
 }

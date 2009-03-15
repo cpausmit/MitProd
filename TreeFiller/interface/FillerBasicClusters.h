@@ -1,11 +1,12 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.1 2008/08/08 11:12:38 sixie Exp $
+// $Id: FillerBasicClusters.h,v 1.2 2008/09/10 03:30:22 loizides Exp $
 //
 // FillerBasicClusters
 //
-// Imlementation of a filler to fill EDM basic clusters into our mithep::BasicCluster data structure.
+// Implementation of a filler to fill EDM basic clusters into the
+// mithep::BasicCluster data structure.
 //
-// Authors: Si Xie
+// Authors: S.Xie
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
@@ -30,11 +31,11 @@ namespace mithep
       const BasicClusterMap    *GetBasicClusterMap() const { return basicClusterMap_; }
   
     private:
-      std::string                           edmName_;
-      std::string                           mitName_;
-      std::string                           basicClusterMapName_;  //name of export map
-      mithep::BasicClusterArr               *basicClusters_;       //array of basic clusters
-      mithep::BasicClusterMap               *basicClusterMap_;     //map wrt basic Clusters
+      std::string                      edmName_;             //edm name of clusters
+      std::string                      mitName_;             //mit name of clusters
+      std::string                      basicClusterMapName_; //name of export map
+      mithep::BasicClusterArr         *basicClusters_;       //array of basic clusters
+      mithep::BasicClusterMap         *basicClusterMap_;     //map wrt basic Clusters
   };
 }
 #endif

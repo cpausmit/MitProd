@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.11 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.12 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,30 +49,40 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
 {
   // Add photon branch to tree and get the map.
 
-  tws.AddBranch(mitName_.c_str(),&photons_);
+  tws.AddBranch(mitName_,&photons_);
+  OS()->add<mithep::PhotonArr>(photons_,mitName_);
 
-  if (!conversionMapName_.empty())
-    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_.c_str());
-  if (!barrelSuperClusterMapName_.empty())
-    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_.c_str());
-  if (!endcapSuperClusterMapName_.empty())
-    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_.c_str());
+  if (!conversionMapName_.empty()) {
+    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
+    if (conversionMap_)
+      AddBranchDep(mitName_,conversionMap_->GetBrName());
+  }
+  if (!barrelSuperClusterMapName_.empty()) {
+    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
+    if (barrelSuperClusterMap_)
+      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+  }
+  if (!endcapSuperClusterMapName_.empty()) {
+    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
+    if (endcapSuperClusterMap_)
+      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerPhotons::FillDataBlock(const edm::Event      &event, 
-                                      const edm::EventSetup &setup)
+                                  const edm::EventSetup &setup)
 {
   // Fill photon array.
 
   photons_->Delete();
 
-  //get photon collection
+  // get photon collection
   Handle<reco::PhotonCollection> hPhotonProduct;
   GetProduct(edmName_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
-  //get associated PhotonID objects
+  // get associated PhotonID objects
   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
   GetProduct(photonIDName_, photonIDMapColl, event);
   const reco::PhotonIDAssociationCollection *photonIDMap = photonIDMapColl.product();
@@ -105,7 +115,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsLoosePhoton(phID->isLoosePhoton());
     outPhoton->SetIsTightPhoton(phID->isTightPhoton());   
 
-    //make links to conversions
+    // make links to conversions
     if (photon->isConverted() && conversionMap_) {
       std::vector<reco::ConversionRef> conversionRefs = photon->conversions();
       for (std::vector<reco::ConversionRef>::const_iterator conversionRef = 
@@ -113,7 +123,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->AddConversion(conversionMap_->GetMit(*conversionRef));
       }
     }
-    //make link to supercluster
+
+    // make link to supercluster
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && photon->superCluster().isNonnull())
       if(barrelSuperClusterMap_->HasMit(photon->superCluster())) {
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(photon->superCluster()));        
@@ -121,6 +132,5 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(photon->superCluster()));
       }
   }
-
   photons_->Trim();
 }

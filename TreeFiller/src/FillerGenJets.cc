@@ -1,4 +1,4 @@
-// $Id: FillerGenJets.cc,v 1.1 2008/09/16 18:17:46 sixie Exp $
+// $Id: FillerGenJets.cc,v 1.2 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,23 +42,23 @@ void FillerGenJets::BookDataBlock(TreeWriter &tws)
 {
   // Add jets branch to tree.
 
-  tws.AddBranch(mitName_.c_str(),&genjets_);
-
+  tws.AddBranch(mitName_,&genjets_);
+  OS()->add<mithep::GenJetArr>(genjets_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerGenJets::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                  const edm::EventSetup &setup)
 {
   // Fill jets from edm collection into our collection.
 
   genjets_->Delete();
 
-  //Handle for the Jet Collection
+  // handle for the jet collection
   Handle<reco::GenJetCollection> hGenJetProduct;
   GetProduct(edmName_, hGenJetProduct, event);
 
-  //Handles for jet flavour matching 
+  // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
     GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.12 2008/09/10 03:30:22 loizides Exp $
+// $Id: BaseFiller.h,v 1.13 2008/09/14 15:37:42 loizides Exp $
 //
 // BaseFiller
 //
@@ -23,22 +23,29 @@
 
 namespace mithep 
 {
+  class BranchTable;
+
   class BaseFiller
   {
     public:
       BaseFiller(const edm::ParameterSet &cfg, const char *name, bool active=true);
       virtual ~BaseFiller() {}
 
-      bool                     Active()  const { return active_; }
+      bool                     Active()  const { return active_;       }
+      void                     AddBranchDep(const char *n, const char *d);
+      void                     AddBranchDep(const std::string &n, const char *d)
+                                 { AddBranchDep(n.c_str(), d);         }
+      void                     AddBranchDep(const std::string &n, const std::string &d)
+                                 { AddBranchDep(n.c_str(), d.c_str()); }
       virtual void             BookDataBlock(TreeWriter &tws)                                = 0;
       virtual void             FillDataBlock(const edm::Event &e, const edm::EventSetup &es) = 0;
-      const std::string       &Name()    const { return name_; }
+      const std::string       &Name()    const { return name_;         }
       virtual void             ResolveLinks(const edm::Event &e, const edm::EventSetup &es)    {}
-      int                      Verbose() const { return verbose_;}
-      bool                     Verify()  const { return verify_;}
+      int                      Verbose() const { return verbose_;      }
+      bool                     Verify()  const { return verify_;       }
 
     protected:
-      const edm::ParameterSet &Conf()    const { return config_; }
+      const edm::ParameterSet &Conf()    const { return config_;       }
       void                     PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
       void                     GetProduct(const std::string name, edm::Handle<TYPE> &prod,
@@ -47,13 +54,15 @@ namespace mithep
       bool                     GetProductSafe(const std::string name, edm::Handle<TYPE> &prod,
                                               const edm::Event &event) const;    
 
-      ObjectService           *OS() { return FillMitTree::os(); }
+      ObjectService           *OS()            { return FillMitTree::os(); }
 
       const std::string        name_;    //name of this filler
+      const std::string        brtname_; //name of branch table (def = BranchTable)
       const edm::ParameterSet  config_;  //parameter set for this filler
       const bool               active_;  //=1 if active
       const bool               verify_;  //=1 if verificatin code is active
       const int                verbose_; //verbosity level (do not introduce more than 0-4 levels)
+      BranchTable             *brtable_; //branch dependency table
   };
 }
 

@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.3 2008/07/31 12:34:04 loizides Exp $
+// $Id: FillerStableParts.h,v 1.4 2008/09/10 03:30:23 loizides Exp $
 //
 // FillerStableParts
 //
-// Imlementation of a filler to copy the mitedm::StablePart collection into the
+// Implementation of a filler to copy the mitedm::StablePart collection into the
 // mithep::StableParticle collection.
 //
 // Authors: C.Paus

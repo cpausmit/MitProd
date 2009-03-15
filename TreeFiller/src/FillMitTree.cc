@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.33 2009/03/11 18:16:22 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.34 2009/03/12 16:00:23 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +31,8 @@
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/BranchTable.h"
 
 using namespace std;
 using namespace edm;
@@ -40,7 +42,8 @@ mithep::ObjectService *mithep::FillMitTree::os_ = 0;
 
 //--------------------------------------------------------------------------------------------------
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
-  defactive_(cfg.getUntrackedParameter<bool>("defactive",1))
+  defactive_(cfg.getUntrackedParameter<bool>("defactive",1)),
+  brtable_(new BranchTable)
 {
   // Constructor.
 
@@ -48,18 +51,26 @@ FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::FillMitTree()\n")
       << "Could not configure fillers." << "\n";
   }
+
+  brtable_->SetName(Names::gkBranchTable);
+  brtable_->SetOwner();
 }
 
 //--------------------------------------------------------------------------------------------------
 FillMitTree::~FillMitTree()
 {
-  // Destructor: nothing to be done here.
+  // Destructor.
+
+  delete brtable_;
 }
 
 //--------------------------------------------------------------------------------------------------
 bool FillMitTree::addActiveFiller(BaseFiller *bf)
 {
   // Check if filler is active and add it to list of fillers. Otherwise delete it.
+
+  if (!bf)
+    return 0;
 
   if (bf->Active()) {
     fillers_.push_back(bf);
@@ -111,6 +122,7 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
       return;
     }
     os_ = &(*os);
+    os->add(brtable_, brtable_->GetName());
   }
 
   // loop over the various components and book the branches
@@ -142,10 +154,15 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (!next.exists("fillerType")) {
       edm::LogError("FillMitTree") << "Can not determine fillerType for pset named "
                                    << name << std::endl;
-      continue;
+      throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
+        << "Can not determine fillerType for pset named "
+        << name << std::endl;
     }
 
     string ftype(next.getUntrackedParameter<string>("fillerType"));
+
+    edm::LogInfo("FillMitTree") << "Configure '" << ftype << "' for '" 
+                                << name << "'" << std::endl;
 
     if (ftype.compare("FillerMetaInfos")==0) {
       FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg, name.c_str(), defactive_);
@@ -191,7 +208,6 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerMet);
       continue;
     }  
-
 
     if (ftype.compare("FillerCaloMet")==0) {
       FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg, name.c_str(), defactive_);
@@ -269,8 +285,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     }  
     
     if (ftype.compare("FillerPFCandidates")==0) {
-      FillerPFCandidates *fillerPFCandidates = new FillerPFCandidates(cfg, name.c_str(), defactive_);
-      addActiveFiller(fillerPFCandidates);
+      FillerPFCandidates *fillerPFCands = new FillerPFCandidates(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPFCands);
       continue;
     }  
 

@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.18 2009/03/10 15:56:01 loizides Exp $
+// $Id: FillerMuons.cc,v 1.19 2009/03/11 18:15:27 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,31 +35,47 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::~FillerMuons() {
+FillerMuons::~FillerMuons() 
+{
+  // Destructor.
+
   delete muons_;
   delete muonMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::BookDataBlock(TreeWriter &tws) { 
+void FillerMuons::BookDataBlock(TreeWriter &tws) 
+{ 
   // Add muons branch to tree and get pointers to maps.
 
-  tws.AddBranch(mitName_.c_str(),&muons_);
+  tws.AddBranch(mitName_,&muons_);
+  OS()->add<mithep::MuonArr>(muons_,mitName_);
 
-  if (!globalTrackMapName_.empty()) 
-    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_.c_str());
-  if (!staTrackMapName_.empty()) 
-    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_.c_str());
-  if (!staVtxTrackMapName_.empty()) 
-    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_.c_str());
-  if (!trackerTrackMapName_.empty()) 
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());
-
-  OS()->add<MuonMap>(muonMap_,muonMapName_.c_str());
-
+  if (!globalTrackMapName_.empty()) {
+    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
+    if (globalTrackMap_)
+      AddBranchDep(mitName_,globalTrackMap_->GetBrName());
+  }
+  if (!staTrackMapName_.empty()) {
+    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_);
+    if (standaloneTrackMap_)
+      AddBranchDep(mitName_,standaloneTrackMap_->GetBrName());
+  }
+  if (!staVtxTrackMapName_.empty()) {
+    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
+    if (standaloneVtxTrackMap_)
+      AddBranchDep(mitName_,standaloneVtxTrackMap_->GetBrName());
+  }
+  if (!trackerTrackMapName_.empty()) {
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+    if (trackerTrackMap_)
+      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  }
+  if (!muonMapName_.empty()) {
+    muonMap_->SetBrName(mitName_);
+    OS()->add<MuonMap>(muonMap_,muonMapName_);
+  }
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 void FillerMuons::FillDataBlock(const edm::Event      &event, 
@@ -116,7 +132,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
     for(int i0 = 0; i0 < 4; i0++) {
-      //DTs
+      // DTs
       outMuon->SetDX(i0,            iM->dX(i0+1,1));
       outMuon->SetDY(i0,            iM->dY(i0+1,1));
       outMuon->SetPullX(i0,         iM->pullX(i0+1,1));
@@ -124,7 +140,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetTrackDist(i0,     iM->trackDist(i0+1,1));
       outMuon->SetTrackDistErr(i0,  iM->trackDistErr(i0+1,1));
       outMuon->SetNSegments(i0,     iM->numberOfSegments(i0+1,1));
-      //CSCs
+      // CSCs
       outMuon->SetDX(4+i0,          iM->dX       (i0+1,2));
       outMuon->SetDY(4+i0,          iM->dY       (i0+1,2));
       outMuon->SetPullX(4+i0,       iM->pullX    (i0+1,2));
@@ -134,7 +150,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetNSegments(4+i0,   iM->numberOfSegments(i0+1,2));
     }
 
-    //add muon to map
+    // add muon to map
     edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
     muonMap_->Add(thePtr, outMuon);
 

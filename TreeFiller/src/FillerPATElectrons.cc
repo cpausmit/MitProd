@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.3 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerPATElectrons.cc,v 1.4 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,10 +9,8 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
-
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -26,8 +24,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg, bool active,
-                                 const TrackMap *gsfTrackMap, const TrackMap *trackerTrackMap) : 
+FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg, 
+                                       const char *name, bool active) :
   BaseFiller(cfg,"PATElectrons",active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Electrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
@@ -53,17 +51,24 @@ void FillerPATElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 
-  tws.AddBranch(mitName_.c_str(),&electrons_);
+  tws.AddBranch(mitName_,&electrons_);
+  OS()->add<mithep::ElectronArr>(electrons_,mitName_);
 
-  if (!gsfTrackMapName_.empty()) 
-    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_.c_str());
-  if (!trackerTrackMapName_.empty()) 
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_.c_str());  
+  if (!gsfTrackMapName_.empty()) {
+    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
+    if (gsfTrackMap_)
+      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+  }
+  if (!trackerTrackMapName_.empty()) {
+    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+    if (trackerTrackMap_)
+      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerPATElectrons::FillDataBlock(const edm::Event      &event, 
-				    const edm::EventSetup &setup)
+                                       const edm::EventSetup &setup)
 {
   // Fill electrons from edm collection into our collection.  
 
@@ -86,24 +91,20 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
       if (trackerTrackMap_ && iM->track().isNonnull()) 
 	outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
       
-      
-      outElectron->SetESuperClusterOverP( iM->eSuperClusterOverP() ) ;
-      outElectron->SetESeedClusterOverPout( iM->eSeedClusterOverPout() ) ;
-      outElectron->SetDeltaEtaSuperClusterTrackAtVtx( iM->deltaEtaSuperClusterTrackAtVtx() ) ;
-      outElectron->SetDeltaEtaSeedClusterTrackAtCalo( iM->deltaEtaSeedClusterTrackAtCalo() ) ;
-      outElectron->SetDeltaPhiSuperClusterTrackAtVtx( iM->deltaPhiSuperClusterTrackAtVtx() ) ;
-      outElectron->SetDeltaPhiSeedClusterTrackAtCalo( iM->deltaPhiSeedClusterTrackAtCalo() ) ;
-      outElectron->SetHadronicOverEm( iM->hadronicOverEm() ) ;
-      outElectron->SetIsEnergyScaleCorrected( iM->isEnergyScaleCorrected() ) ;
-  
-      outElectron->SetIsMomentumCorrected( iM->isMomentumCorrected() ) ;
-      outElectron->SetNumberOfClusters( iM->numberOfClusters() ) ;
-      outElectron->SetClassification( iM->classification() ) ;           
-
-      outElectron->SetCaloIsolation( iM->caloIso() ) ;
-      outElectron->SetTrackIsolation( iM->trackIso() ) ;
+      outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
+      outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
+      outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx());
+      outElectron->SetDeltaEtaSeedClusterTrackAtCalo(iM->deltaEtaSeedClusterTrackAtCalo());
+      outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx());
+      outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo());
+      outElectron->SetHadronicOverEm(iM->hadronicOverEm());
+      outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
+      outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
+      outElectron->SetNumberOfClusters(iM->numberOfClusters());
+      outElectron->SetClassification(iM->classification());           
+      outElectron->SetCaloIsolation(iM->caloIso());
+      outElectron->SetTrackIsolation(iM->trackIso());
     }
   }
-
   electrons_->Trim();
 }

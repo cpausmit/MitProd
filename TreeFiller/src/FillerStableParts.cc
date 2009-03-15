@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.9 2008/12/01 18:04:17 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.10 2009/02/26 17:04:03 bendavid Exp $
 
 #include "MitAna/DataTree/interface/StableParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,11 +48,18 @@ void FillerStableParts::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree, get and publish our maps.
 
-  tws.AddBranch(mitName_.c_str(),&stables_);
+  tws.AddBranch(mitName_,&stables_);
+  OS()->add<mithep::StableParticleArr>(stables_,mitName_);
 
-  OS()->add(basePartMap_,basePartMapName_.c_str());
-  if (!trackMapName_.empty()) 
-    trackMap_ = OS()->get<TrackMap>(trackMapName_.c_str());
+  if (!basePartMapName_.empty()) {
+    basePartMap_->SetBrName(mitName_);
+    OS()->add(basePartMap_,basePartMapName_);
+  }
+  if (!trackMapName_.empty()) {
+    trackMap_ = OS()->get<TrackMap>(trackMapName_);
+    if (trackMap_)
+      AddBranchDep(mitName_,trackMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
