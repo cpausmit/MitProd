@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.12 2009/03/03 18:06:09 bendavid Exp $
+// $Id: TreeService.h,v 1.13 2009/03/04 07:25:24 loizides Exp $
 //
 // TreeService 
 //
@@ -46,6 +46,7 @@ namespace mithep
       ~TreeService();
 
       TreeWriter *get(const char *name=0);
+      TreeWriter *get(const std::string &name) { return get(name.c_str()); }
 
     private:
       void preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);

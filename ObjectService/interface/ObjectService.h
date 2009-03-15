@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.5 2008/09/10 03:31:02 loizides Exp $
+// $Id: ObjectService.h,v 1.6 2009/03/13 20:32:25 loizides Exp $
 //
 // ObjectService 
 //
@@ -17,6 +17,7 @@
 #ifndef MITPROD_OBJECTSERVICE_OBJECTSERVICE_H
 #define MITPROD_OBJECTSERVICE_OBJECTSERVICE_H
 
+#include <string>
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,23 +36,38 @@ namespace edm
 
 namespace mithep 
 {
+  using std::string;
+
   class ObjectService  {
     public:
       ObjectService(const edm::ParameterSet &cfg, edm::ActivityRegistry &ar);
       ~ObjectService();
 
-      template<class T> bool add(const T *obj, const char *name);
-      template<class T> bool addObjEvt(T *obj, const char *name);
-      template<class T> const T *get(const char *name)       const;
-      template<class T> const T *getObjEvt(const char *name) const;
-      template<class T> T *mod(const char *name)             const;
-      template<class T> T *modObjEvt(const char *name)       const;
+      template<class T> bool     add(const T *obj, const char *name);
+      template<class T> bool     addObjEvt(T *obj, const char *name);
+      template<class T> const T *get(const char *name)             const;
+      template<class T> const T *getObjEvt(const char *name)       const;
+      template<class T> T       *mod(const char *name)             const;
+      template<class T> T       *modObjEvt(const char *name)       const;
+
+      template<class T> bool     add(const T *obj, const string &name)
+                                   { return add<T>(obj,name.c_str());       }
+      template<class T> bool     addObjEvt(T *obj, const string &name)
+                                   { return addObjEvt<T>(obj,name.c_str()); }
+      template<class T> const T *get(const string &name)           const
+                                   { return get<T>(name.c_str());           }
+      template<class T> const T *getObjEvt(const string &name)     const
+                                   { return getObjEvt<T>(name.c_str());     }
+      template<class T> T       *mod(const string &name)           const
+                                   { return mod<T>(name.c_str()); }
+      template<class T> T       *modObjEvt(const string &name)     const
+                                   { return modObjEvt<T>(name.c_str());     }
 
     private:
-      void preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
-      void postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
-      void postBeginJob();
-      void postEndJob();
+      void       preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
+      void       postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
+      void       postBeginJob();
+      void       postEndJob();
 
       THashTable obs_;    //hash table holding the objects
       THashTable obsEvt_; //hash table holding the objects per event
