@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.25 2009/03/08 12:16:01 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.26 2009/03/10 15:56:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -98,14 +98,15 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   // Create run info tre and book our branches.
 
   // add branches to main tree
-  tws.AddBranch(evtName_.c_str(),&eventHeader_);
-  tws.AddBranch(hltBitsName_.c_str(),&hltBits_);
-  tws.AddBranch(hltObjsName_.c_str(),&hltObjs_);
+  tws.AddBranch(evtName_,&eventHeader_);
+  OS()->add<mithep::EventHeader>(eventHeader_,evtName_);
+  tws.AddBranch(hltBitsName_,&hltBits_);
+  tws.AddBranch(hltObjsName_,&hltObjs_);
   tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
   tws.GetTree()->BranchRef();
 
   // add branches to run info tree
-  tws.AddBranchToTree(Names::gkRunTreeName,runName_.c_str(),
+  tws.AddBranchToTree(Names::gkRunTreeName,runName_,
                       TClass::GetClass(typeid(*runInfo_))->GetName(),&runInfo_);
   tws.SetAutoFill(Names::gkRunTreeName,0);
   runTree_=tws.GetTree(Names::gkRunTreeName);
@@ -119,9 +120,9 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   // add branches to L1 trigger info tree
 
   // add branches to HLT trigger info tree
-  tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_.c_str(),
+  tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_,
                       TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32000,0);
-  tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_.c_str(),
+  tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_,
                       TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32000,0);
   tws.SetAutoFill(Names::gkHltTreeName,0);
   hltTree_=tws.GetTree(Names::gkHltTreeName);
@@ -161,6 +162,13 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   eventHeader_->SetEvtNum(event.id().event());
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
+  eventHeader_->SetIsMC(!event.isRealData());
+  if (eventHeader_->IsMC()) {
+    Handle<double> genEventWeight;
+    if (GetProductSafe("genEventWeight", genEventWeight, event)) {
+      eventHeader_->SetWeight(*genEventWeight);
+    } 
+  }
 
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
