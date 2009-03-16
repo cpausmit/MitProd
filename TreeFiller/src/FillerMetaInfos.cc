@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.26 2009/03/10 15:56:01 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.27 2009/03/15 11:19:54 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -236,6 +236,13 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   map<string,Short_t> *tabmap = new map<string,Short_t>; 
   vector<string>      *labels = new vector<string>;
   map<string,Short_t> *labmap = new map<string,Short_t>; 
+
+  if (0) {
+    if (!hltConfig_.tableName().empty())
+      trigtable->push_back(hltConfig_.tableName());
+    else
+      trigtable->push_back("unknown_hlt_config");
+  }
 
   // loop over hlt paths
   for(UInt_t i=0;i<hltConfig_.size();++i) {
