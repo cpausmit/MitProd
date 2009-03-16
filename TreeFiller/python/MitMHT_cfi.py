@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 htMetSC5 = cms.EDProducer("METProducer",

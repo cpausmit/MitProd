@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff import *
