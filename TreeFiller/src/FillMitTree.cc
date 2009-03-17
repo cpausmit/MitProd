@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.34 2009/03/12 16:00:23 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.35 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -135,11 +135,11 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
 //--------------------------------------------------------------------------------------------------
 bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
-  // Configure our fillers according to given order ("fillerOrder").
+  // Configure our fillers according to given parameter ("fillers").
 
   std::vector<std::string> pars;
-  if (cfg.exists("fillerOrder"))
-    pars=cfg.getUntrackedParameter<vector<string> >("fillerOrder");
+  if (cfg.exists("fillers"))
+    pars=cfg.getUntrackedParameter<vector<string> >("fillers");
   else
     cfg.getParameterSetNames(pars, false);
 
