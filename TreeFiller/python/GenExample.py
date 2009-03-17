@@ -1,4 +1,4 @@
-# $Id: GenExample.py,v 1.2 2008/09/28 02:27:52 loizides Exp $
+# $Id: GenExample.py,v 1.3 2008/10/17 10:59:54 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,15 +9,15 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
    
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PythiaSource",
     pythiaPylistVerbosity = cms.untracked.int32(0),
-    filterEfficiency = cms.untracked.double(1.0),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    #comEnergy = cms.untracked.double(10000.0),    
-    maxEventsToPrint = cms.untracked.int32(0),
+    filterEfficiency      = cms.untracked.double(1.0),
+    pythiaHepMCVerbosity  = cms.untracked.bool(False),
+    comEnergy             = cms.untracked.double(10000.0),    
+    maxEventsToPrint      = cms.untracked.int32(0),
 
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring()
@@ -36,18 +36,22 @@ process.TreeService = cms.Service("TreeService",
 )
 
 process.MitTreeFiller = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
+    fillers = cms.untracked.vstring('MetaInfos',
+                                    'MCParticles'), 
 
     MetaInfos = cms.untracked.PSet(
-        active = cms.untracked.bool(True),
-        hltActive = cms.untracked.bool(False),
+        active     = cms.untracked.bool(True),
+        hltActive  = cms.untracked.bool(False),
+        fillerType = cms.untracked.string('FillerMetaInfos')
     ),
 
     MCParticles = cms.untracked.PSet(
-        active        = cms.untracked.bool(True),
-        genActive     = cms.untracked.bool(True),
-        simActive     = cms.untracked.bool(False),
-        trackingActive = cms.untracked.bool(False)
+        active         = cms.untracked.bool(True),
+        genActive      = cms.untracked.bool(True),
+        useAodGen      = cms.untracked.bool(False),
+        simActive      = cms.untracked.bool(False),
+        trackingActive = cms.untracked.bool(False),
+        fillerType     = cms.untracked.string('FillerMCParticles')
     )
 )
  
