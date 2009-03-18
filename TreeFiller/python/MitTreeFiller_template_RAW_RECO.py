@@ -1,6 +1,6 @@
-# $Id: MitTreeFiller_template_RAW_RECO.py,v 1.8 2009/03/16 08:29:30 loizides Exp $
+# $Id: MitTreeFiller_template_RAW_RECO.py,v 1.9 2009/03/18 14:58:18 loizides Exp $
 #---------------------------------------------------------------------------------------------------
-# This template config file is intended to be a reference for the "HEAD" bambo tree version.
+# This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
 # be ensured that this config file is always working with the production CMSSW release
 #---------------------------------------------------------------------------------------------------
