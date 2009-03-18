@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.8 2009/03/06 14:40:11 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.9 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -192,7 +192,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     }
   }
 
-  // loop through TrackingParticles and build association map to OAK MCParticles
+  // loop through TrackingParticles and build association map to MCParticles
   if (trackingActive_) {
     trackingMap_->Reset();
   

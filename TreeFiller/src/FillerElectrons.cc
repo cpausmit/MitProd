@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.28 2009/03/10 15:56:01 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.29 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -140,19 +140,19 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
     mithep::Electron *outElectron = electrons_->AddNew();
          
-    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP()) ;
-    outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout()) ;
-    outElectron->SetPIn(iM->trackMomentumAtVtx().R()) ;
+    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
+    outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
+    outElectron->SetPIn(iM->trackMomentumAtVtx().R());
     outElectron->SetPOut(iM->trackMomentumOut().R());
-    outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx()) ;
-    outElectron->SetDeltaEtaSeedClusterTrackAtCalo(iM->deltaEtaSeedClusterTrackAtCalo()) ;
-    outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx()) ;
-    outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo()) ;
-    outElectron->SetHadronicOverEm(iM->hadronicOverEm()) ;
-    outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected()) ;
-    outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected()) ;
-    outElectron->SetNumberOfClusters(iM->numberOfClusters()) ;
-    outElectron->SetClassification(iM->classification()) ;
+    outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx());
+    outElectron->SetDeltaEtaSeedClusterTrackAtCalo(iM->deltaEtaSeedClusterTrackAtCalo());
+    outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx());
+    outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo());
+    outElectron->SetHadronicOverEm(iM->hadronicOverEm());
+    outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
+    outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
+    outElectron->SetNumberOfClusters(iM->numberOfClusters());
+    outElectron->SetClassification(iM->classification());
 
     // shower shape variables   
     EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
@@ -188,7 +188,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     const reco::SuperClusterCollection* endcapSuperClusters = endcapSuperClusterHandle.product();
 
     // find out whether this electron super cluster is in the barrel or endcap
-    bool isBarrel=false ;    
+    bool isBarrel=false;    
     if(barrelSuperClusterMap_->HasMit(iM->superCluster()))
       isBarrel = true;
    
@@ -210,14 +210,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     extRadius = 0.3;
     etLow = 0.0;
     double intRadius = 0.02;
-    //int hcalDepth = -1;  //-1 means we take all depths.
+    //int hcalDepth = -1;  //-1 means we take all depths
     EgammaTowerIsolation *myTowerIsolation = 
-      new EgammaTowerIsolation (extRadius, intRadius, etLow, caloTowers.product());
+      new EgammaTowerIsolation (extRadius,intRadius,etLow,caloTowers.product());
     double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
     outElectron->SetCaloTowerIsolation(towerIsoValue);
   
     // fill the isolation values
-    outElectron->SetCaloIsolation(ecalIsoValue) ;
+    outElectron->SetCaloIsolation(ecalIsoValue);
 
     // get and fill Track isolation        
     Handle<edm::ValueMap<double> > eleIsoFromDepsTkValueMap;

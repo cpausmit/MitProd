@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.18 2008/11/03 11:22:35 bendavid Exp $
+// $Id: FillerTracks.h,v 1.19 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerTracks
 //
@@ -37,7 +37,7 @@ namespace mithep
     protected:
       bool                                ecalAssocActive_; //do track-ECal associations
       std::string                         edmName_;         //edm name of tracks collection
-      std::string                         mitName_;         //name of Tracks in OAK
+      std::string                         mitName_;         //mit name of Tracks
       std::string                         edmSimAssocName_; //edm name of sim assoc map
       std::string                         trackingMapName_; //name of imp. map wrt simparts
       std::string                         barrelSuperClusterIdMapName_; //name of barrel sc id map
@@ -46,7 +46,7 @@ namespace mithep
       const mithep::TrackingParticleMap  *trackingMap_;     //map wrt simulated particles
       const mithep::SuperClusterIdMap    *barrelSuperClusterIdMap_; //barrel sc id map
       const mithep::SuperClusterIdMap    *endcapSuperClusterIdMap_; //endcap sc id map
-      mithep::TrackArr                   *tracks_;          //array of tracks in OAK
+      mithep::TrackArr                   *tracks_;          //array of tracks
       HitPatternReader                    hitReader_;       //hit pattern reader
       TrackAssociatorParameters           assocParams_;     //track associator parameters
 

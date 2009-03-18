@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerVertexes.h,v 1.2 2008/10/23 15:43:15 loizides Exp $
+// $Id: FillerVertexes.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerVertexes
 //
@@ -30,7 +30,7 @@ namespace mithep
   
     private:
       std::string                     edmName_;        //edm name of Vertex collection
-      std::string                     mitName_;        //name of Vertices in OAK
+      std::string                     mitName_;        //mit name of Vertices
       std::string                     vertexMapName_;  //name of exported map
       mithep::VertexArr              *vertexes_;       //array of vertexes
       mithep::VertexMap              *vertexMap_;      //map wrt vertexes

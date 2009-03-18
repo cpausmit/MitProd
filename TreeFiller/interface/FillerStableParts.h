@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.4 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerStableParts.h,v 1.5 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerStableParts
 //
@@ -29,7 +29,7 @@ namespace mithep
       
     private:
       std::string                    edmName_;         //edm name of stable parts collection
-      std::string                    mitName_;         //name of StableParticles in OAK
+      std::string                    mitName_;         //mit name of StableParticles
       std::string                    trackMapName_;    //name of imported map wrt tracks
       std::string                    basePartMapName_; //name of exported map wrt stable parts
       const mithep::TrackMap        *trackMap_;        //imported map wrt tracks

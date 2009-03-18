@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.27 2009/03/15 11:19:54 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.28 2009/03/16 07:42:36 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -121,9 +121,9 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 
   // add branches to HLT trigger info tree
   tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_,
-                      TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32000,0);
+                      TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32*1024,0);
   tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_,
-                      TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32000,0);
+                      TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32*1024,0);
   tws.SetAutoFill(Names::gkHltTreeName,0);
   hltTree_=tws.GetTree(Names::gkHltTreeName);
 
@@ -351,7 +351,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
   // new bitmask
   BitMask256 mask;
 
-  //map between EDM and OAK trigger object indices
+  //map between EDM and our trigger object indices
   std::map<Int_t,Int_t> objmap;       
 
   // loop over trigger paths

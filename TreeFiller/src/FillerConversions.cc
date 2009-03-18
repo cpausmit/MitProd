@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.12 2009/03/10 15:56:01 loizides Exp $
+// $Id: FillerConversions.cc,v 1.13 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -73,17 +73,18 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {
         
+    mithep::Vertex vertex(inConversion->conversionVertex().x(),
+                          inConversion->conversionVertex().y(),
+                          inConversion->conversionVertex().z(), 
+                          inConversion->conversionVertex().xError(),
+                          inConversion->conversionVertex().yError(),
+                          inConversion->conversionVertex().zError());
+    vertex.SetChi2(inConversion->conversionVertex().chi2());
+    vertex.SetNdof((Int_t)inConversion->conversionVertex().ndof());
+    vertex.SetNTracks(inConversion->conversionVertex().tracksSize());
+
     mithep::Conversion *outConversion = conversions_->Allocate();
-    new (outConversion) mithep::Conversion(inConversion->conversionVertex().x(),
-                                           inConversion->conversionVertex().y(),
-                                           inConversion->conversionVertex().z(), 
-                                           inConversion->conversionVertex().xError(),
-                                           inConversion->conversionVertex().yError(),
-                                           inConversion->conversionVertex().zError());
-        
-    outConversion->DecayVertex().SetChi2(inConversion->conversionVertex().chi2());
-    outConversion->DecayVertex().SetNdof((Int_t)inConversion->conversionVertex().ndof());
-    
+    new (outConversion) mithep::Conversion(vertex);
     outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
     outConversion->SetEOverP(inConversion->EoverP());
     outConversion->SetPairMass(inConversion->pairInvariantMass());

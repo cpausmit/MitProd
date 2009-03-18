@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.7 2009/03/10 15:56:00 loizides Exp $
+// $Id: FillerConversionElectrons.h,v 1.8 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -33,7 +33,7 @@ namespace mithep
       void FillFromTracks(const mithep::TrackCol *tracks, const TrackMap *trackMap);
 
     private:
-      std::string                      mitName_;                //name of Electrons in OAK
+      std::string                      mitName_;                //name of Electrons
       std::string                      convInOutTracksName_;    //name of converted in-out track
       std::string                      convOutInTracksName_;    //name of converted out- track
       std::string                      convInOutTrackMapName_;  //name of imported map wrt in-out

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.13 2009/03/10 15:56:00 loizides Exp $
+// $Id: FillerElectrons.h,v 1.14 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerElectrons
 //
@@ -32,7 +32,7 @@ namespace mithep
   
     private:
       std::string                    edmName_;                   //edm name of electrons collection
-      std::string                    mitName_;                   //name of Electrons in OAK
+      std::string                    mitName_;                   //mit name of Electrons collection
       std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
       std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
       std::string                    barrelEcalRecHitName_;      //name of barrel ecal rechits 

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTowers.h,v 1.3 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerCaloTowers.h,v 1.4 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerCaloTowers
 //
@@ -30,7 +30,7 @@ namespace mithep
   
     private:
       std::string                        edmName_;           //edm name of CaloTowers
-      std::string                        mitName_;           //name of CaloTowers in OAK
+      std::string                        mitName_;           //name of CaloTowers
       std::string                        caloTowerMapName_;  //name of export map
       mithep::CaloTowerArr              *caloTowers_;        //array of CaloTowers
       mithep::CaloTowerMap              *caloTowerMap_;      //map wrt CaloTowers

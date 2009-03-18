@@ -1,6 +1,6 @@
-# $Id: MitTreeFiller_template.py,v 1.19 2009/03/06 14:40:10 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.20 2009/03/06 18:46:46 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
-# This template config file is intended to be a reference for the "HEAD" OAK tree version.
+# This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
 # be ensured that this config file is always working with the production CMSSW release
 #---------------------------------------------------------------------------------------------------
