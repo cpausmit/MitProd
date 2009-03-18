@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.9 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.10 2009/03/18 14:57:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -108,10 +108,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   
       mithep::MCParticle *genParticle = mcParticles_->Allocate();
       new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
-                                            mcPart->momentum().z(),mcPart->momentum().e(),
-                                            mcPart->pdg_id(),
-                                            mcPart->status());
-                                            
+                                           mcPart->momentum().z(),mcPart->momentum().e(),
+                                           mcPart->pdg_id(),mcPart->status());
       genParticle->SetIsGenerated();                                          
       genMap_->Add(mcPart->barcode(), genParticle);
     }
@@ -132,7 +130,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
   
-    //loop over all genparticles and copy their information
+    // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
         
@@ -246,20 +244,20 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
       HepMC::GenParticle *mcPart = (*pgen);
       if(!mcPart) continue;
       
-      //check if genpart has a decay vertex
+      // check if genpart has a decay vertex
       HepMC::GenVertex *dVertex = mcPart->end_vertex();
       if (!dVertex) continue;
   
-      //find corresponding mithep genparticle parent in association table
+      // find corresponding mithep genparticle parent in association table
       mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
   
-      //set decay vertex
-      //division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
+      // set decay vertex
+      // division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
       genParent->SetVertex(dVertex->point3d().x()/10.0,
                           dVertex->point3d().y()/10.0,
                           dVertex->point3d().z()/10.0);
   
-      //loop through daugthers
+      // loop through daugthers
       for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
              dVertex->particles_out_const_begin(); 
            pgenD != dVertex->particles_out_const_end(); ++pgenD) {
@@ -272,8 +270,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
   
-  //loop over aod GenParticle candidates and resolve their links
-  
+  // loop over aod GenParticle candidates and resolve their links
   if (genActive_ && useAodGen_) {
   
     Handle<reco::GenParticleCollection> hGenPProduct;
@@ -281,7 +278,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
   
-    //loop over all genparticles and copy their information
+    // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
   
@@ -294,11 +291,11 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         for (int i=0; i<nDaughters; ++i) {
           const reco::Candidate *genDaughter = pgen->daughter(i);
           MCParticle *mcDaughter = aodGenMap_->GetMit(refToPtr(pgen->daughterRef(i)));
-          //set mother decay vertex
+          // set mother decay vertex
           if (i==0)
             mcMother->SetVertex(genDaughter->vx(),genDaughter->vy(),genDaughter->vz());
           
-          //set mother-daughter links
+          // set mother-daughter links
           mcMother->AddDaughter(mcDaughter);
           if (!mcDaughter->HasMother())
             mcDaughter->SetMother(mcMother);
@@ -309,7 +306,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   
   }
   
-  //loop over SimTracks and resolve links
+  // loop over SimTracks and resolve links
   if (simActive_) {
     Handle<edm::SimTrackContainer> hSimTrackProduct;
     GetProduct(simEdmName_, hSimTrackProduct, event);
