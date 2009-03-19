@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.35 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillMitTree.cc,v 1.36 2009/03/17 14:26:07 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,30 +7,30 @@
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
-#include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
-#include "MitProd/TreeFiller/interface/FillerVertexes.h"
-#include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
-#include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
-#include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
+#include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
+#include "MitProd/TreeFiller/interface/FillerCaloJets.h"
+#include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
-#include "MitProd/TreeFiller/interface/FillerMuons.h"
+#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerConversions.h"
+#include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
-#include "MitProd/TreeFiller/interface/FillerCaloJets.h"
-#include "MitProd/TreeFiller/interface/FillerPFJets.h"
-#include "MitProd/TreeFiller/interface/FillerMet.h"
-#include "MitProd/TreeFiller/interface/FillerCaloMet.h"
-#include "MitProd/TreeFiller/interface/FillerPFMet.h"
-#include "MitProd/TreeFiller/interface/FillerConversions.h"
-#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
-#include "MitProd/TreeFiller/interface/FillerPhotons.h"
+#include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
+#include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
-#include "MitProd/TreeFiller/interface/FillerDecayParts.h"
-#include "MitProd/TreeFiller/interface/FillerStableParts.h"
+#include "MitProd/TreeFiller/interface/FillerMet.h"
+#include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
+#include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
-#include "MitProd/TreeFiller/interface/FillerPATMuons.h"
-#include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerPFJets.h"
+#include "MitProd/TreeFiller/interface/FillerPFMet.h"
+#include "MitProd/TreeFiller/interface/FillerPhotons.h"
+#include "MitProd/TreeFiller/interface/FillerStableParts.h"
+#include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
+#include "MitProd/TreeFiller/interface/FillerTracks.h"
+#include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/BranchTable.h"
 
@@ -147,33 +147,41 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   for (unsigned int i = 0; i<pars.size(); ++i) {
 
     const string name(pars.at(i));
-    if (!cfg.existsAs<ParameterSet>(name,0))
-      continue;
 
-    ParameterSet next(cfg.getUntrackedParameter<ParameterSet>(name));
-    if (!next.exists("fillerType")) {
-      edm::LogError("FillMitTree") << "Can not determine fillerType for pset named "
-                                   << name << std::endl;
-      throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
-        << "Can not determine fillerType for pset named "
-        << name << std::endl;
+    string ftype("Filler" + name);
+    if (cfg.existsAs<ParameterSet>(name,0)) {
+      ParameterSet next(cfg.getUntrackedParameter<ParameterSet>(name));
+      if (!next.exists("fillerType")) {
+        edm::LogError("FillMitTree") << "Can not determine fillerType for pset named "
+                                     << name << std::endl;
+        throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
+          << "Can not determine fillerType for pset named "
+          << name << std::endl;
+      }
+      ftype = next.getUntrackedParameter<string>("fillerType");
     }
 
-    string ftype(next.getUntrackedParameter<string>("fillerType"));
-
-    edm::LogInfo("FillMitTree") << "Configure '" << ftype << "' for '" 
-                                << name << "'" << std::endl;
+    edm::LogInfo("FillMitTree") << "Attempting to configure '" << ftype 
+                                << "' for '" << name << "'" << std::endl;
 
     if (ftype.compare("FillerMetaInfos")==0) {
       FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMetaInfos);
       continue;
     }
+
     if (ftype.compare("FillerMCParticles")==0) {
       FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMCParticles);
       continue;
     }
+
+    if (ftype.compare("FillerMCEventInfo")==0) {
+      FillerMCEventInfo *fillerMCEventInfo = new FillerMCEventInfo(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerMCEventInfo);
+      continue;
+    }
+
     if (ftype.compare("FillerBeamSpot")==0) {
       FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerBeamSpot);
