@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.31 2009/03/15 11:20:40 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.32 2009/03/17 14:26:07 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -6,6 +6,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     fillers = cms.untracked.vstring('MetaInfos',
                                     'MCParticles',
+                                    'MCEventInfo',
                                     'BeamSpot',
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
@@ -60,12 +61,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts'),
 
     MetaInfos = cms.untracked.PSet(
-        active     = cms.untracked.bool(True),
-        hltActive  = cms.untracked.bool(True),
-        hltName    = cms.untracked.string('TriggerResults::HLT'),
-        fillerType = cms.untracked.string('FillerMetaInfos')
+        active        = cms.untracked.bool(True),
+        l1Active      = cms.untracked.bool(False),
+        hltActive     = cms.untracked.bool(True),
+        hltResEdmName = cms.untracked.string('TriggerResults::HLT'),
+        hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD::HLT'),
+        fillerType    = cms.untracked.string('FillerMetaInfos')
     ),
-                   
+
     MCParticles = cms.untracked.PSet(
         active          = cms.untracked.bool(True),
         genActive       = cms.untracked.bool(True),
@@ -82,7 +85,16 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         trackingMapName = cms.untracked.string('TrackingMap'), 
         fillerType      = cms.untracked.string('FillerMCParticles')
     ),
-          
+
+    MCEventInfo = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        genEventWeightEdmName = cms.untracked.string('genEventWeight'),
+        genEventScaleEdmName  = cms.untracked.string('genEventScale'),
+        genEventProcIdEdmName = cms.untracked.string('genEventProcId'),
+        genPdfInfoEdmName     = cms.untracked.string('genPdfInfo'),
+        fillerType            = cms.untracked.string('FillerMCEventInfo')
+    ),
+
     BeamSpot = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('BeamSpot'),
