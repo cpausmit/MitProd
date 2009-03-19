@@ -1,4 +1,4 @@
-# $Id: GenExample.py,v 1.3 2008/10/17 10:59:54 bendavid Exp $
+# $Id: GenExample.py,v 1.4 2009/03/17 17:21:09 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -37,21 +37,17 @@ process.TreeService = cms.Service("TreeService",
 
 process.MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fillers = cms.untracked.vstring('MetaInfos',
-                                    'MCParticles'), 
+                                    'MCParticles',
+                                    'MCEventInfo'), 
 
     MetaInfos = cms.untracked.PSet(
-        active     = cms.untracked.bool(True),
         hltActive  = cms.untracked.bool(False),
         fillerType = cms.untracked.string('FillerMetaInfos')
     ),
 
     MCParticles = cms.untracked.PSet(
-        active         = cms.untracked.bool(True),
-        genActive      = cms.untracked.bool(True),
-        useAodGen      = cms.untracked.bool(False),
-        simActive      = cms.untracked.bool(False),
-        trackingActive = cms.untracked.bool(False),
-        fillerType     = cms.untracked.string('FillerMCParticles')
+        simActive  = cms.untracked.bool(False),
+        fillerType = cms.untracked.string('FillerMCParticles')
     )
 )
  
