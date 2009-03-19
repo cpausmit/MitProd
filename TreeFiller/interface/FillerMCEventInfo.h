@@ -1,7 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.2 2008/09/10 03:30:23 loizides Exp $
+// $Id: FillerMCEventInfo.h,v 1.3 2009/03/19 16:13:59 loizides Exp $
 //
 // FillerMCEventInfo
+//
+// TODO by CL
+// 
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
@@ -28,6 +31,7 @@ namespace mithep
 
     private:
       std::string              evtName_;          //event branch name
+      std::string              genHepMCEvName_;   //hepmc branch name (if present)
       std::string              genEvWeightName_;  //edm event weight name
       std::string              genEvScaleName_;   //edm event scale name
       std::string              genEvProcIdName_;  //edm event process id name

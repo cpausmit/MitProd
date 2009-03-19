@@ -1,9 +1,10 @@
-// $Id: FillerMCEventInfo.cc,v 1.2 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.3 2009/03/19 16:13:59 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 
@@ -15,6 +16,7 @@ using namespace mithep;
 FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, const char *name,  bool active) : 
   BaseFiller(cfg,"MCEventInfo",active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
+  genHepMCEvName_(Conf().getUntrackedParameter<string>("genHepMCEventEdmName","source")),
   genEvWeightName_(Conf().getUntrackedParameter<string>("genEventWeightEdmName","genEventWeight")),
   genEvScaleName_(Conf().getUntrackedParameter<string>("genEventScaleEdmName","genEventScale")),
   genEvProcIdName_(Conf().getUntrackedParameter<string>("genEventProcIdEdmName","genEventProcID")),
@@ -51,25 +53,48 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
     PrintErrorAndExit("Expected monte-carlo record, but did not get it. Aborting.");
   }
 
-  Handle<double> genEventWeight;
-  GetProduct(genEvWeightName_, genEventWeight, event);
-  eventInfo_->SetWeight(*genEventWeight);
+  Handle<edm::HepMCProduct> hHepMCProduct;
+  if (!GetProductSafe(genHepMCEvName_, hHepMCProduct, event)) {
 
-  Handle<double> genEventScale;
-  GetProduct(genEvScaleName_, genEventScale, event);
-  eventInfo_->SetScale(*genEventScale);
+    edm::LogError("FillerMCEventInfo") << "Can not access HepMC info, trying to use AOD instead." 
+                                       << std::endl;
 
-  Handle<int> genEventProcId;
-  GetProduct(genEvProcIdName_, genEventProcId, event);
-  eventInfo_->SetProcessId(*genEventProcId);
+    Handle<double> genEventWeight;
+    GetProduct(genEvWeightName_, genEventWeight, event);
+    eventInfo_->SetWeight(*genEventWeight);
 
-  Handle<reco::PdfInfo> genPdfInfo;
-  GetProduct(genPdfInfoName_, genPdfInfo, event);
-  eventInfo_->SetId1(genPdfInfo->id1);
-  eventInfo_->SetId2(genPdfInfo->id2);
-  eventInfo_->SetPdf1(genPdfInfo->pdf1);
-  eventInfo_->SetPdf2(genPdfInfo->pdf2);
-  eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
-  eventInfo_->SetX1(genPdfInfo->pdf1);
-  eventInfo_->SetX2(genPdfInfo->pdf2);
+    Handle<double> genEventScale;
+    GetProduct(genEvScaleName_, genEventScale, event);
+    eventInfo_->SetScale(*genEventScale);
+
+    Handle<int> genEventProcId;
+    GetProduct(genEvProcIdName_, genEventProcId, event);
+    eventInfo_->SetProcessId(*genEventProcId);
+
+    Handle<reco::PdfInfo> genPdfInfo;
+    GetProduct(genPdfInfoName_, genPdfInfo, event);
+    
+    eventInfo_->SetId1(genPdfInfo->id1);
+    eventInfo_->SetId2(genPdfInfo->id2);
+    eventInfo_->SetPdf1(genPdfInfo->pdf1);
+    eventInfo_->SetPdf2(genPdfInfo->pdf2);
+    eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
+    eventInfo_->SetX1(genPdfInfo->pdf1);
+    eventInfo_->SetX2(genPdfInfo->pdf2);
+  } else {
+    const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
+    eventInfo_->SetScale(genEvt->event_scale());
+    eventInfo_->SetProcessId(genEvt->signal_process_id());
+    HepMC::WeightContainer wc = genEvt->weights();
+    if (wc.size() > 0)  
+      eventInfo_->SetWeight(wc[0]);
+    const HepMC::PdfInfo *genPdfInfo = genEvt->pdf_info();
+    eventInfo_->SetId1(genPdfInfo->id1());
+    eventInfo_->SetId2(genPdfInfo->id2());
+    eventInfo_->SetPdf1(genPdfInfo->pdf1());
+    eventInfo_->SetPdf2(genPdfInfo->pdf2());
+    eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
+    eventInfo_->SetX1(genPdfInfo->pdf1());
+    eventInfo_->SetX2(genPdfInfo->pdf2());
+  }
 }

@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.32 2009/03/17 14:26:07 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.33 2009/03/19 16:17:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,7 +17,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'EndcapSuperClusters',
                                     'GeneralTracks',
                                     'StandaloneMuonTracks',
-                                    'StandaloneMuonTracksWVtxConstraint'
+                                    'StandaloneMuonTracksWVtxConstraint',
                                     'GlobalMuonTracks',
                                     'ConversionInOutTracks',
                                     'ConversionOutInTracks',
@@ -88,6 +88,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     MCEventInfo = cms.untracked.PSet(
         active                = cms.untracked.bool(True),
+        genHepMCEventEdmName  = cms.untracked.string('source'),
         genEventWeightEdmName = cms.untracked.string('genEventWeight'),
         genEventScaleEdmName  = cms.untracked.string('genEventScale'),
         genEventProcIdEdmName = cms.untracked.string('genEventProcId'),

@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.36 2009/03/17 14:26:07 loizides Exp $
+// $Id: FillMitTree.cc,v 1.37 2009/03/19 16:15:35 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -97,6 +97,8 @@ void FillMitTree::analyze(const edm::Event      &event,
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->ResolveLinks(event,setup);
   }
+
+  brtable_->Print();
 }
 
 //--------------------------------------------------------------------------------------------------
