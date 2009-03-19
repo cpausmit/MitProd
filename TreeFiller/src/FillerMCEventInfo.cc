@@ -1,8 +1,9 @@
-// $Id: FillerMCEventInfo.cc,v 1.1 2008/08/29 02:49:43 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.2 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 
@@ -11,10 +12,13 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, bool active) : 
+FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, const char *name,  bool active) : 
   BaseFiller(cfg,"MCEventInfo",active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
-  datasetName_(Conf().getUntrackedParameter<string>("datasetName","")),
+  genEvWeightName_(Conf().getUntrackedParameter<string>("genEventWeightEdmName","genEventWeight")),
+  genEvScaleName_(Conf().getUntrackedParameter<string>("genEventScaleEdmName","genEventScale")),
+  genEvProcIdName_(Conf().getUntrackedParameter<string>("genEventProcIdEdmName","genEventProcID")),
+  genPdfInfoName_(Conf().getUntrackedParameter<string>("genPdfInfoEdmName","genEventPdfInfo")),
   eventInfo_(new MCEventInfo())
 {
   // Constructor.
@@ -43,5 +47,29 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
 {
   // Fill our data structures.
 
-  eventInfo_->SetWeight(1);
+  if (event.isRealData()) {
+    PrintErrorAndExit("Expected monte-carlo record, but did not get it. Aborting.");
+  }
+
+  Handle<double> genEventWeight;
+  GetProduct(genEvWeightName_, genEventWeight, event);
+  eventInfo_->SetWeight(*genEventWeight);
+
+  Handle<double> genEventScale;
+  GetProduct(genEvScaleName_, genEventScale, event);
+  eventInfo_->SetScale(*genEventScale);
+
+  Handle<int> genEventProcId;
+  GetProduct(genEvProcIdName_, genEventProcId, event);
+  eventInfo_->SetProcessId(*genEventProcId);
+
+  Handle<reco::PdfInfo> genPdfInfo;
+  GetProduct(genPdfInfoName_, genPdfInfo, event);
+  eventInfo_->SetId1(genPdfInfo->id1);
+  eventInfo_->SetId2(genPdfInfo->id2);
+  eventInfo_->SetPdf1(genPdfInfo->pdf1);
+  eventInfo_->SetPdf2(genPdfInfo->pdf2);
+  eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
+  eventInfo_->SetX1(genPdfInfo->pdf1);
+  eventInfo_->SetX2(genPdfInfo->pdf2);
 }
