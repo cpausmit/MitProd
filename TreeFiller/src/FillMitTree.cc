@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.37 2009/03/19 16:15:35 loizides Exp $
+// $Id: FillMitTree.cc,v 1.38 2009/03/19 17:28:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,7 +43,7 @@ mithep::ObjectService *mithep::FillMitTree::os_ = 0;
 //--------------------------------------------------------------------------------------------------
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   defactive_(cfg.getUntrackedParameter<bool>("defactive",1)),
-  brtable_(new BranchTable)
+  brtable_(new BranchTable(100,1))
 {
   // Constructor.
 
