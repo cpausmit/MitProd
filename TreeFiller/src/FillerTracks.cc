@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.28 2009/03/03 18:09:38 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.29 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,12 +66,12 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
     if (trackingMap_)
       AddBranchDep(mitName_,trackingMap_->GetBrName());
   }
-  if (!barrelSuperClusterIdMapName_.empty()) {
+  if (ecalAssocActive_ && !barrelSuperClusterIdMapName_.empty()) {
     barrelSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(barrelSuperClusterIdMapName_);
     if (barrelSuperClusterIdMap_)
       AddBranchDep(mitName_,barrelSuperClusterIdMap_->GetBrName());
   }
-  if (!endcapSuperClusterIdMapName_.empty()) {
+  if (ecalAssocActive_ && !endcapSuperClusterIdMapName_.empty()) {
     endcapSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(endcapSuperClusterIdMapName_);
     if (endcapSuperClusterIdMap_)
       AddBranchDep(mitName_,endcapSuperClusterIdMap_->GetBrName());
@@ -181,14 +181,15 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
         }
         if (cluster)
           outTrack->SetSCluster(cluster);
-
       }
     }
     
     // add reference between mithep and edm object
-    mitedm::TrackPtr thePtr = inTracks.ptrAt(it - inTracks.begin());
-    trackMap_->Add(thePtr, outTrack);
-	
+    if (trackMap_) {
+      mitedm::TrackPtr thePtr = inTracks.ptrAt(it - inTracks.begin());
+      trackMap_->Add(thePtr, outTrack);
+    }
+
     //do dim associations
     if (trackingMap_ && !edmSimAssocName_.empty()) {
       if (verbose_>1)
