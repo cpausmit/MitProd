@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.28 2009/03/16 07:42:36 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.29 2009/03/18 14:57:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,21 +24,21 @@ bool mithep::FillerMetaInfos::instance_ = 0;
 //--------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,(instance_==0||active?1:0)),
-  evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkEvtHeaderBrn)),
-  runName_(Conf().getUntrackedParameter<string>("runName",Names::gkRunInfoBrn)),
-  lahName_(Conf().getUntrackedParameter<string>("lahName",Names::gkLAHeaderBrn)),
+  evtName_(Conf().getUntrackedParameter<string>("evtMitName",Names::gkEvtHeaderBrn)),
+  runName_(Conf().getUntrackedParameter<string>("runMitName",Names::gkRunInfoBrn)),
+  lahName_(Conf().getUntrackedParameter<string>("lahMitName",Names::gkLAHeaderBrn)),
   l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
-  l1TableName_(Conf().getUntrackedParameter<string>("l1TableName",Names::gkL1TableBrn)),
-  l1BitsName_(Conf().getUntrackedParameter<string>("l1BitsName",Names::gkL1BitBrn)),
-  l1ObjsName_(Conf().getUntrackedParameter<string>("l1ObjsName",Names::gkL1ObjBrn)),
+  l1TableName_(Conf().getUntrackedParameter<string>("l1MitTableName",Names::gkL1TableBrn)),
+  l1BitsName_(Conf().getUntrackedParameter<string>("l1MitBitsName",Names::gkL1BitBrn)),
+  l1ObjsName_(Conf().getUntrackedParameter<string>("l1MitObjsName",Names::gkL1ObjBrn)),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
   hltProcName_(Conf().getUntrackedParameter<string>("hltProcName","HLT")),
-  hltResName_(Conf().getUntrackedParameter<string>("hltResName","TriggerResults::HLT")),
-  hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtName","hltTriggerSummaryAOD::HLT")),
-  hltTableName_(Conf().getUntrackedParameter<string>("hltTableName",Names::gkHltTableBrn)),
-  hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelName",Names::gkHltLabelBrn)),
-  hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsName",Names::gkHltBitBrn)),
-  hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsName",Names::gkHltObjBrn)),
+  hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults::HLT")),
+  hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD::HLT")),
+  hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
+  hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelMitName",Names::gkHltLabelBrn)),
+  hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsMitName",Names::gkHltBitBrn)),
+  hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",Names::gkHltObjBrn)),
   tws_(0),
   eventHeader_(new EventHeader()),
   evtLAHeader_(new LAHeader()),
@@ -95,7 +95,7 @@ FillerMetaInfos::~FillerMetaInfos()
 //--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 {
-  // Create run info tre and book our branches.
+  // Create run info tree and book our branches.
 
   // add branches to main tree
   tws.AddBranch(evtName_,&eventHeader_);
@@ -163,12 +163,6 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
   eventHeader_->SetIsMC(!event.isRealData());
-  if (eventHeader_->IsMC()) {
-    Handle<double> genEventWeight;
-    if (GetProductSafe("genEventWeight", genEventWeight, event)) {
-      eventHeader_->SetWeight(*genEventWeight);
-    } 
-  }
 
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
