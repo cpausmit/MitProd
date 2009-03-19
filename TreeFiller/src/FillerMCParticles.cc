@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.10 2009/03/18 14:57:58 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.11 2009/03/18 15:36:11 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +28,7 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
   trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
-  genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","source")),
+  genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","genParticles")),
   simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","g4SimHits")),
   trackingEdmName_(Conf().getUntrackedParameter<string>("trackingEdmName",
                                                         "mergedtruth:MergedTrackTruth")),
