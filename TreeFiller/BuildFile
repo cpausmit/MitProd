@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.16 2008/09/17 04:24:23 loizides Exp $
+# $Id: BuildFile,v 1.17 2008/11/03 11:22:35 bendavid Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -13,12 +13,14 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/PatCandidates>
+<use name=DataFormats/HepMCCandidate>
 <use name=HLTrigger/HLTcore>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=JetMETCorrections/Objects>
 <use name=SimDataFormats/HepMCProduct>
 <use name=TrackingTools/TrackAssociator>
+<use name=SimGeneral/HepPDTRecord>
 <use name=root>
 <use name=MitProd/TreeService>
 <use name=MitProd/ObjectService>
