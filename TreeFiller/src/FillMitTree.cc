@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.38 2009/03/19 17:28:50 loizides Exp $
+// $Id: FillMitTree.cc,v 1.39 2009/03/19 18:18:32 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,7 +43,8 @@ mithep::ObjectService *mithep::FillMitTree::os_ = 0;
 //--------------------------------------------------------------------------------------------------
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   defactive_(cfg.getUntrackedParameter<bool>("defactive",1)),
-  brtable_(new BranchTable(100,1))
+  brtable_(0),
+  acfnumber_(-1)
 {
   // Constructor.
 
@@ -51,9 +52,6 @@ FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::FillMitTree()\n")
       << "Could not configure fillers." << "\n";
   }
-
-  brtable_->SetName(Names::gkBranchTable);
-  brtable_->SetOwner();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +96,17 @@ void FillMitTree::analyze(const edm::Event      &event,
     (*iF)->ResolveLinks(event,setup);
   }
 
-  brtable_->Print();
+  if (brtable_) { // only the first FillMitTree object has to deal with the branch table
+    if (acfnumber_==-1) {
+      brtable_->Rehash(brtable_->GetSize());
+      if (0)
+        brtable_->Print();
+    }
+    if (acfnumber_ != tws_->GetFileNumber()) {
+      tws_->StoreObject(brtable_);
+      acfnumber_ = tws_->GetFileNumber();
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,15 +115,15 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   // Access the tree and book branches.
 
   Service<TreeService> ts;
-  TreeWriter *tws = ts->get();
-  if (! tws) {
+  tws_ = ts->get();
+  if (!tws_) {
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
       << "Could not get pointer to tree. " 
       << "Do you have the TreeServie define in your config?" << "\n";
     return;
   }
 
-  if (os_==0) { 
+  if (os_==0) { // only the first FillMitTree object has to deal with this
     Service<ObjectService> os;
     if (!os.isAvailable()) {
       throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
@@ -124,13 +132,16 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
       return;
     }
     os_ = &(*os);
+    brtable_ = new BranchTable;
+    brtable_->SetName(Names::gkBranchTable);
+    brtable_->SetOwner();
     os->add(brtable_, brtable_->GetName());
   }
 
   // loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
-    (*iF)->BookDataBlock(*tws);
+    (*iF)->BookDataBlock(*tws_);
   }
 }
 
@@ -189,6 +200,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerBeamSpot);
       continue;
     }
+   
     if (ftype.compare("FillerVertexes")==0) {
       FillerVertexes *fillerVertexes = new FillerVertexes(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerVertexes);
