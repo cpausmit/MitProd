@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.39 2009/03/19 18:18:32 loizides Exp $
+// $Id: FillMitTree.cc,v 1.40 2009/03/19 22:20:46 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,6 +11,7 @@
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
+#include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
@@ -26,6 +27,7 @@
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
+#include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
@@ -315,6 +317,18 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerPFJets")==0) {
       FillerPFJets *fillerPFJets = new FillerPFJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
+      continue;
+    }  
+
+    if (ftype.compare("FillerCaloTaus")==0) {
+      FillerCaloTaus *fillerCaloTaus = new FillerCaloTaus(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerCaloTaus);
+      continue;
+    }
+    
+    if (ftype.compare("FillerPFTaus")==0) {
+      FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPFTaus);
       continue;
     }  
     
