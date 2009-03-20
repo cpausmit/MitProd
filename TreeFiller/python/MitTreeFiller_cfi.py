@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.33 2009/03/19 16:17:19 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.34 2009/03/19 17:28:50 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,6 +22,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ConversionInOutTracks',
                                     'ConversionOutInTracks',
                                     'GsfTracks',
+                                    'PFGsfTracks',
                                     'Muons',
                                     'Electrons',
                                     'ConversionElectrons',
@@ -57,6 +58,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'Kt4Mht',
                                     'Kt6Mht',
                                     'IC5JPTMht',
+                                    'CaloTaus',
+                                    'PFTaus',
                                     'StableParts',
                                     'DecayParts'),
 
@@ -253,6 +256,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmSimAssociationName     = cms.untracked.string('assoc2GsfTracks'),
         fillerType                = cms.untracked.string('FillerTracks')
     ),
+    
+    PFGsfTracks = cms.untracked.PSet(
+        active                    = cms.untracked.bool(True),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('PFGsfTracks'),
+        edmName                   = cms.untracked.string('gsfPFtracks'),
+        trackingMapName           = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('PFGsfTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
   
     Muons = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
@@ -329,7 +345,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName             = cms.untracked.string('PFCandidates'),
         edmName             = cms.untracked.string('particleFlow'),
         trackerTrackMapName = cms.untracked.string('TracksMapName'),
-        gsfTrackMapName     = cms.untracked.string('GsfTracksMapName'),
+        gsfTrackMapName     = cms.untracked.string('PFGsfTracksMapName'),
         muonMapName         = cms.untracked.string('MuonMapName'),
         conversionMapName   = cms.untracked.string('ConversionsMapName'),
         pfCandMapName       = cms.untracked.string('PFCandMapName'),
@@ -412,6 +428,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         SoftMuonNoIPBJetTagsName               = cms.untracked.string('softMuonNoIPBJetTags'),
         SoftElectronBJetTagsName               = cms.untracked.string('softElectronBJetTags'),        
         caloTowerMapName                       = cms.untracked.string('CaloTowerMap'),
+        jetMapName                             = cms.untracked.string('ItrCone5JetMap'),
         fillerType                             = cms.untracked.string('FillerCaloJets')
     ),
 
@@ -430,6 +447,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('SC5byRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         caloTowerMapName              = cms.untracked.string('CaloTowerMap'),
+        jetMapName                    = cms.untracked.string('SisCone5JetMap'),
         fillerType                    = cms.untracked.string('FillerCaloJets')
     ),                          
 
@@ -448,6 +466,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('SC7byRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         caloTowerMapName              = cms.untracked.string('CaloTowerMap'),
+        jetMapName                    = cms.untracked.string('SisCone7JetMap'),
         fillerType                    = cms.untracked.string('FillerCaloJets')
     ),
 
@@ -466,6 +485,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('KT4byRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         caloTowerMapName              = cms.untracked.string('CaloTowerMap'),
+        jetMapName                    = cms.untracked.string('KT4JetMap'),
         fillerType                    = cms.untracked.string('FillerCaloJets')
     ),
 
@@ -484,6 +504,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('KT6byRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         caloTowerMapName              = cms.untracked.string('CaloTowerMap'),
+        jetMapName                    = cms.untracked.string('KT6JetMap'),
         fillerType                    = cms.untracked.string('FillerCaloJets')
     ),
 
@@ -498,6 +519,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorIC5JPT'),
         L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorIC5JPT'),
         caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('IC5JPTJetMap'),
         fillerType           = cms.untracked.string('FillerCaloJets')
     ),                               
     
@@ -516,6 +538,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('IC5PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('ItrCone5PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),  
     
@@ -534,6 +557,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('SC5PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('SisCone5PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),                          
 
@@ -552,6 +576,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('SC7PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('SisCone7PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
@@ -570,6 +595,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('KT4PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('KT4PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
@@ -588,6 +614,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('KT6PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('KT6PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
     
@@ -680,6 +707,27 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName    = cms.untracked.string('IC5JPTMht'),
         edmName    = cms.untracked.string('htMetIC5JPT'),
         fillerType = cms.untracked.string('FillerMet')
+    ),
+          
+    CaloTaus = cms.untracked.PSet(
+        active          = cms.untracked.bool(True),
+        mitName         = cms.untracked.string('CaloTaus'),
+        edmName         = cms.untracked.string('caloRecoTauProducer'),
+        trackMapName    = cms.untracked.string('TracksMapName'),
+        jetMapName      = cms.untracked.string('ItrCone5JetMap'),
+        barrelBCMapName = cms.untracked.string('barrelBasicClusterMap'),
+        endcapBCMapName = cms.untracked.string('endcapBasicClusterMap'),
+        fillerType      = cms.untracked.string('FillerCaloTaus')
+    ),
+    
+    PFTaus = cms.untracked.PSet(
+        active          = cms.untracked.bool(True),
+        mitName         = cms.untracked.string('PFTaus'),
+        edmName         = cms.untracked.string('pfRecoTauProducer'),
+        trackMapName    = cms.untracked.string('TracksMapName'),
+        jetMapName      = cms.untracked.string('ItrConePF5JetMap'),
+        pfCandMapName   = cms.untracked.string('PFCandMapName'),
+        fillerType      = cms.untracked.string('FillerPFTaus')
     ),
           
     StableParts = cms.untracked.PSet(
