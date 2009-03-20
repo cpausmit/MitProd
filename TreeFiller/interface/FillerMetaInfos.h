@@ -1,8 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.13 2009/03/10 15:56:00 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.14 2009/03/15 11:19:54 loizides Exp $
 //
 // FillerMetaInfos
-// TODO by CL
+//
+// Implementation of a filler that stores all of the meta information, as well as the HLT
+// trigger info into the bambu objects. Still missing is the implementation for the L1 info.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------

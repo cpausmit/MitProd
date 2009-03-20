@@ -1,10 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.3 2009/03/19 16:13:59 loizides Exp $
+// $Id: FillerMCEventInfo.h,v 1.4 2009/03/19 17:28:50 loizides Exp $
 //
 // FillerMCEventInfo
 //
-// TODO by CL
-// 
+// Implementation of a filler that stores MC related quantities, like the pdf info, in the
+// bambu records.
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
