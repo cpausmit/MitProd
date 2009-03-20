@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template_AOD.py,v 1.4 2009/03/18 14:58:18 loizides Exp $
+# $Id: MitTreeFiller_template_AOD.py,v 1.5 2009/03/18 15:35:34 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -16,7 +16,8 @@ process = cms.Process("FILLER")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(390) )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-   'file:/server/02a/bendavid/RECO/Zjets-madgraph_Winter09_IDEAL_V11_FastSim_v1/0405D546-3ED1-DD11-8CF9-003048322C3A.root'
+   #'file:/server/02a/bendavid/RECO/Zjets-madgraph_Winter09_IDEAL_V11_FastSim_v1/0405D546-3ED1-DD11-8CF9-003048322C3A.root'
+   'file:/server/02a/bendavid/RECO/WW2l_2lfilter_Winter09_IDEAL_V11_FastSim_test_v1/90181075-F303-DE11-A06E-00E081237983.root'
                              ),
    secondaryFileNames = cms.untracked.vstring()
 )
@@ -33,7 +34,11 @@ process.MitTreeFiller.ConversionInOutTracks.active = False
 process.MitTreeFiller.ConversionOutInTracks.active = False
 process.MitTreeFiller.ConversionElectrons.active = False
 process.MitTreeFiller.Conversions.active = False
-
+process.MitTreeFiller.SisCone5PFJets.active = False
+process.MitTreeFiller.SisCone7PFJets.active = False
+process.MitTreeFiller.Kt4PFJets.active = False
+process.MitTreeFiller.Kt6PFJets.active = False
+process.MitTreeFiller.PFGsfTracks.active = False
 
 #Load Mit vProducer
 process.load("MitEdm.Producers.vProducerNoRefit_cff")
@@ -121,6 +126,7 @@ process.p1 = cms.Path(
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
+     + process.pfJetMCFlavour
      + process.jetvertexAssociationSequence
      + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      + process.correctedJets

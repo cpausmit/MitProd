@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.20 2009/03/06 18:46:46 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.21 2009/03/18 14:58:18 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -62,6 +62,7 @@ process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive    = True
 process.MitTreeFiller.Kt4Jets.jetCorrectionsActive         = True
 process.MitTreeFiller.Kt6Jets.jetCorrectionsActive         = True
 process.MitTreeFiller.IC5JetPlusTrack.jetCorrectionsActive = True
+process.MitTreeFiller.ItrCone5PFJets.jetCorrectionsActive = True
 
 #For JetPlusTracks
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
@@ -85,6 +86,7 @@ process.MitTreeFiller.SisCone5Jets.flavorMatchingActive = True
 process.MitTreeFiller.SisCone7Jets.flavorMatchingActive = True
 process.MitTreeFiller.Kt4Jets.flavorMatchingActive      = True
 process.MitTreeFiller.Kt6Jets.flavorMatchingActive      = True
+process.MitTreeFiller.ItrCone5PFJets.flavorMatchingActive = True
 process.MitTreeFiller.IC5GenJets.flavorMatchingActive   = True
 process.MitTreeFiller.SC5GenJets.flavorMatchingActive   = True
 process.MitTreeFiller.SC7GenJets.flavorMatchingActive   = True
@@ -111,6 +113,7 @@ process.MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
 process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
 process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+process.MitTreeFiller.PFGsfTracks.ecalAssocActive                         = True
 
 #load gsf track to general track associator
 process.load("MitEdm.Producers.gsfTrackAssociator_cff")
@@ -118,11 +121,13 @@ process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
 process.p1 = cms.Path(
     process.gsfTrackAssociator *
-    #process.vProducer *
-    #process.conversionProducer *
+    process.vProducer *
+    process.conversionProducer *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
+     + process.pfJetMCFlavour
+     + process.extraPFJetMCFlavour
      + process.jetvertexAssociationSequence
      + process.ZSPJetCorrections*process.JetPlusTrackCorrections
      + process.correctedJets
@@ -130,6 +135,6 @@ process.p1 = cms.Path(
      + process.tcMet
      )
     *process.MitTreeFiller
-    #*process.vFiller
-    #*process.conversionFiller
+    *process.vFiller
+    *process.conversionFiller
      )
