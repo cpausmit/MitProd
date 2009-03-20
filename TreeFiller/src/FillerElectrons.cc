@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.29 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.30 2009/03/18 14:57:58 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -139,6 +139,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     reco::GsfElectronRef eRef(hElectronProduct, iElectron);
 
     mithep::Electron *outElectron = electrons_->AddNew();
+    
+    outElectron->SetPtEtaPhi(iM->pt(),iM->eta(),iM->phi());
          
     outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
     outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
@@ -276,6 +278,13 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
     outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
+    
+    if (verbose_>1) {
+      double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());
+      printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",outElectron->Pt(),outElectron->Eta(),outElectron->Phi(), outElectron->E(), outElectron->P(),outElectron->Mass());
+      printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->energy(), iM->p(), recomass);  
+    }
+    
   }  
   electrons_->Trim();
 }
