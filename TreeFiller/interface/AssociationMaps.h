@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.18 2009/03/06 14:40:10 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.19 2009/03/11 18:15:47 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -30,6 +30,8 @@
 #include "MitAna/DataTree/interface/Conversion.h"
 #include "MitAna/DataTree/interface/Vertex.h"
 #include "MitAna/DataTree/interface/PFCandidate.h"
+#include "MitAna/DataTree/interface/CaloJet.h"
+#include "MitAna/DataTree/interface/PFJet.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -42,6 +44,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace mithep
 {
@@ -63,5 +67,7 @@ namespace mithep
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*> SuperClusterIdMap;
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>         MuonMap;
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>  PFCandidateMap;
+  typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>      CaloJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::PFJet>,       mithep::PFJet*>        PFJetMap;
 }   
 #endif
