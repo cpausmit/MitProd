@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.21 2009/03/18 14:58:18 loizides Exp $
+# $Id: MitTreeFiller_template.py,v 1.22 2009/03/20 19:55:14 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -33,6 +33,7 @@ process.load("MitEdm.Producers.vProducer_cff")
 
 #Load Mit Mvf Conversion producer
 process.load("MitEdm.Producers.conversionProducer_cff")
+process.load("MitEdm.Producers.conversionRemovalProducer_cff")
 
 # compute ECAL shower shape variables
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -123,6 +124,7 @@ process.p1 = cms.Path(
     process.gsfTrackAssociator *
     process.vProducer *
     process.conversionProducer *
+    process.conversionRemovalProducer *
     (  process.MitEIdSequence
      + process.MitMetCorrections
      + process.caloJetMCFlavour
@@ -137,4 +139,5 @@ process.p1 = cms.Path(
     *process.MitTreeFiller
     *process.vFiller
     *process.conversionFiller
+    *process.conversionRemovalFiller
      )
