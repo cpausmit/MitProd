@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.19 2009/03/11 18:15:27 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.20 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -153,6 +153,13 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     // add muon to map
     edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
     muonMap_->Add(thePtr, outMuon);
+    
+    if (verbose_>1) {
+      if (!outMuon->HasGlobalTrk() && !outMuon->HasStandaloneTrk()) {
+        printf("mithep::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",outMuon->Pt(),outMuon->Eta(),outMuon->Phi(), outMuon->Mass());
+        printf("  reco::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->mass());  
+      }
+    }
 
   }
   muons_->Trim();
