@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFJets.h,v 1.1 2009/03/11 20:08:22 bendavid Exp $
+// $Id: FillerPFJets.h,v 1.2 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerPFJets
 //
@@ -53,7 +53,9 @@ namespace mithep
       std::string     softMuonNoIPBJetTagsName_;               //bjet algo discriminant
       std::string     softElectronBJetTagsName_;               //bjet algo discriminant
       std::string     pfCandMapName_;                   //name of imported PFCandidateMap
+      std::string     jetMapName_;                      //name of exported PFJetMap
       const mithep::PFCandidateMap       *pfCandMap_;   //map wrt PFCandidates
+      mithep::PFJetMap                   *jetMap_;      //export map
       mithep::PFJetArr                   *jets_;        //array of Jets
   };
 }

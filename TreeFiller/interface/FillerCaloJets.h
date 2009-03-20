@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.9 2009/03/11 18:14:55 bendavid Exp $
+// $Id: FillerCaloJets.h,v 1.10 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -54,7 +54,9 @@ namespace mithep
       std::string     softMuonNoIPBJetTagsName_;               //bjet algo discriminant
       std::string     softElectronBJetTagsName_;               //bjet algo discriminant
       std::string     caloTowerMapName_;                //name of imported CaloTowerMap
+      std::string     jetMapName_;                      //name of exported CaloJetMap
       const mithep::CaloTowerMap      *caloTowerMap_;   //map wrt CaloTowers
+      mithep::CaloJetMap              *jetMap_;         //export map
       mithep::CaloJetArr              *jets_;           //array of Jets
   };
 }

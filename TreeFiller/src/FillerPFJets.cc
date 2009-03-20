@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.1 2009/03/11 20:08:23 bendavid Exp $
+// $Id: FillerPFJets.cc,v 1.2 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,7 +63,9 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
   softElectronBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("SoftElectronBJetTagsName","softElectronBJetTags")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","pfCandMapName")),
+  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   pfCandMap_(0),
+  jetMap_(new mithep::PFJetMap),
   jets_(new mithep::PFJetArr(16))
 {
   // Constructor.
@@ -75,6 +77,7 @@ FillerPFJets::~FillerPFJets()
   // Destructor.
 
   delete jets_;
+  delete jetMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +93,10 @@ void FillerPFJets::BookDataBlock(TreeWriter &tws)
     if (pfCandMap_)
       AddBranchDep(mitName_,pfCandMap_->GetBrName());
   }
+  if (!jetMapName_.empty()) {
+    jetMap_->SetBrName(mitName_);
+    OS()->add<PFJetMap>(jetMap_,jetMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +106,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   // Fill jets from edm collection into our collection.
 
   jets_->Delete();
+  jetMap_->Reset();
 
   // handle for the Jet Collection
   Handle<reco::PFJetCollection> hJetProduct;
@@ -171,6 +179,10 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().z(),
                           inJet->p4().e());
 
+    //add to map
+    edm::Ptr<reco::PFJet> thePtr(hJetProduct, inJet - inJets.begin());
+    jetMap_->Add(thePtr, jet);
+                          
     //fill pfjet-specific quantities
     jet->SetChargedHadronEnergy(inJet->chargedHadronEnergy());
     jet->SetNeutralHadronEnergy(inJet->neutralHadronEnergy());

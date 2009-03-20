@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.15 2009/03/11 18:14:56 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.16 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +60,9 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
   softElectronBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("SoftElectronBJetTagsName","softElectronBJetTags")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName","CaloTowerMap")),
+  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","CaloJetMap")),
   caloTowerMap_(0),
+  jetMap_(new mithep::CaloJetMap),
   jets_(new mithep::CaloJetArr(16))
 {
   // Constructor.
@@ -72,6 +74,7 @@ FillerCaloJets::~FillerCaloJets()
   // Destructor.
 
   delete jets_;
+  delete jetMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +90,10 @@ void FillerCaloJets::BookDataBlock(TreeWriter &tws)
     if (caloTowerMap_)
       AddBranchDep(mitName_, caloTowerMap_->GetBrName());
   }
+  if (!jetMapName_.empty()) {
+    jetMap_->SetBrName(mitName_);
+    OS()->add<CaloJetMap>(jetMap_,jetMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +103,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   // Fill jets from edm collection into our collection.
 
   jets_->Delete();
+  jetMap_->Reset();
 
   // handle for the jet collection
   Handle<reco::CaloJetCollection> hJetProduct;
@@ -167,6 +175,10 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().y(),
                           inJet->p4().z(),
                           inJet->p4().e());
+
+    //add to map
+    edm::Ptr<reco::CaloJet> thePtr(hJetProduct, inJet - inJets.begin());
+    jetMap_->Add(thePtr, jet);
 
     // fill calojet-specific quantities
     jet->SetMaxEInEmTowers (inJet->maxEInEmTowers());	 
