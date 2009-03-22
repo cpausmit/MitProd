@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTowers.h,v 1.4 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerCaloTowers.h,v 1.5 2009/03/18 14:58:18 loizides Exp $
 //
 // FillerCaloTowers
 //
@@ -25,15 +25,15 @@ namespace mithep
       FillerCaloTowers(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerCaloTowers();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                   BookDataBlock(TreeWriter &tws);
+      void                   FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                        edmName_;           //edm name of CaloTowers
-      std::string                        mitName_;           //name of CaloTowers
-      std::string                        caloTowerMapName_;  //name of export map
-      mithep::CaloTowerArr              *caloTowers_;        //array of CaloTowers
-      mithep::CaloTowerMap              *caloTowerMap_;      //map wrt CaloTowers
+      std::string            edmName_;           //edm name of CaloTowers
+      std::string            mitName_;           //name of CaloTowers
+      std::string            caloTowerMapName_;  //name of export map
+      mithep::CaloTowerArr  *caloTowers_;        //array of CaloTowers
+      mithep::CaloTowerMap  *caloTowerMap_;      //map wrt CaloTowers
   };
 }
 #endif

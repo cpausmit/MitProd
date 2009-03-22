@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.7 2009/03/10 15:56:00 loizides Exp $
+// $Id: FillerConversions.h,v 1.8 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerConversions
 //
@@ -27,17 +27,18 @@ namespace mithep
       FillerConversions(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerConversions();
 
-      void                 BookDataBlock(TreeWriter &tws);
-      void                 FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                                 BookDataBlock(TreeWriter &tws);
+      void                                 FillDataBlock(const edm::Event &e, 
+                                                         const edm::EventSetup &es);
   
     private:
-      std::string                            edmName_;             //name of edm conversions
-      std::string                            mitName_;             //mit name of Conversions
-      std::string                            convElectronMapName_; //name of imported electrons map
-      std::string                            conversionMapName_;   //name of exported conv map
-      const mithep::ConversionElectronMap   *convElectronMap_;     //imported map wrt conv electrons
-      mithep::ConversionArr                 *conversions_;         //array of Conversions
-      mithep::ConversionMap                 *conversionMap_;       //exported map wrt Conversions
+      std::string                          edmName_;             //name of edm conversions
+      std::string                          mitName_;             //mit name of Conversions
+      std::string                          convElectronMapName_; //name of imported electrons map
+      std::string                          conversionMapName_;   //name of exported conv map
+      const mithep::ConversionElectronMap *convElectronMap_;     //imported map wrt conv electrons
+      mithep::ConversionArr               *conversions_;         //array of Conversions
+      mithep::ConversionMap               *conversionMap_;       //exported map wrt Conversions
   };
 }
 #endif

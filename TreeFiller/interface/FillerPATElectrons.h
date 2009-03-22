@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPATElectrons.h,v 1.3 2008/11/03 18:11:10 bendavid Exp $
+// $Id: FillerPATElectrons.h,v 1.4 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerPATElectrons
 //
@@ -27,8 +27,8 @@ namespace mithep
       FillerPATElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPATElectrons();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                      BookDataBlock(TreeWriter &tws);
+      void                      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
       std::string               edmName_;               //edm name of electron collection

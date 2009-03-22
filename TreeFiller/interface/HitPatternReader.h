@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.16 2008/10/13 10:41:36 bendavid Exp $
+// $Id: HitPatternReader.h,v 1.1 2008/10/16 16:17:17 bendavid Exp $
 //
 // HitPatternReader
 //
@@ -25,7 +25,7 @@ namespace mithep
       HitPatternReader() : layerMask_(0xFFFFFFFC) { InitLayerMap(); }
       virtual ~HitPatternReader() { layerMap_.clear(); }
       
-      mithep::Track::EHitLayer Layer(const uint32_t &hit) const;
+      mithep::Track::EHitLayer                     Layer(const uint32_t &hit) const;
 
     protected:
       void                                         InitLayerMap();

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.10 2008/10/23 15:43:15 loizides Exp $
+// $Id: FillerDecayParts.h,v 1.11 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerDecayParts
 //
@@ -28,11 +28,12 @@ namespace mithep
       FillerDecayParts(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerDecayParts();
     
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                                      BookDataBlock(TreeWriter &tws);
+      void                                      FillDataBlock(const edm::Event &e, 
+                                                              const edm::EventSetup &es);
     
     private:
-      mithep::Particle *getMitParticle(mitedm::BasePartPtr ptr) const;
+      mithep::Particle                         *getMitParticle(mitedm::BasePartPtr ptr) const;
     
       std::string                               edmName_;          //edm name of collection
       std::string                               mitName_;          //mit name of collection

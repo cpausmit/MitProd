@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFMet.h,v 1.1 2009/03/12 16:00:23 bendavid Exp $
+// $Id: FillerPFMet.h,v 1.2 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerPFMet
 //
@@ -26,8 +26,8 @@ namespace mithep
       FillerPFMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFMet();
 
-      void            BookDataBlock(TreeWriter &tws);
-      void            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                  BookDataBlock(TreeWriter &tws);
+      void                  FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
       std::string           edmName_;    //edm name of met collection

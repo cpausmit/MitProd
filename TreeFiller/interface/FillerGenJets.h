@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenJets.h,v 1.1 2008/09/16 18:17:36 sixie Exp $
+// $Id: FillerGenJets.h,v 1.2 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerGenJets
 //
@@ -26,8 +26,8 @@ namespace mithep
       FillerGenJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerGenJets();
 
-      void            BookDataBlock(TreeWriter &tws);
-      void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                BookDataBlock(TreeWriter &tws);
+      void 	          FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
       Bool_t              flavorMatchingActive_;            //=true if flavor matching is done

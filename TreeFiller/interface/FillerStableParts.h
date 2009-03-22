@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.5 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerStableParts.h,v 1.6 2009/03/18 14:58:18 loizides Exp $
 //
 // FillerStableParts
 //
@@ -24,17 +24,17 @@ namespace mithep
       FillerStableParts(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerStableParts();
     
-      void                  BookDataBlock(TreeWriter &tws);
-      void 	            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                          BookDataBlock(TreeWriter &tws);
+      void 	                    FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       
     private:
-      std::string                    edmName_;         //edm name of stable parts collection
-      std::string                    mitName_;         //mit name of StableParticles
-      std::string                    trackMapName_;    //name of imported map wrt tracks
-      std::string                    basePartMapName_; //name of exported map wrt stable parts
-      const mithep::TrackMap        *trackMap_;        //imported map wrt tracks
-      mithep::StableParticleArr     *stables_;         //array of StableParticles
-      mithep::BasePartMap           *basePartMap_;     //map wrt stable parts
+      std::string                   edmName_;         //edm name of stable parts collection
+      std::string                   mitName_;         //mit name of StableParticles
+      std::string                   trackMapName_;    //name of imported map wrt tracks
+      std::string                   basePartMapName_; //name of exported map wrt stable parts
+      const mithep::TrackMap       *trackMap_;        //imported map wrt tracks
+      mithep::StableParticleArr    *stables_;         //array of StableParticles
+      mithep::BasePartMap          *basePartMap_;     //map wrt stable parts
   };
 }
 #endif

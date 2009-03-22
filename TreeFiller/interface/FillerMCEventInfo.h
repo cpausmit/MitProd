@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.4 2009/03/19 17:28:50 loizides Exp $
+// $Id: FillerMCEventInfo.h,v 1.5 2009/03/20 18:05:40 loizides Exp $
 //
 // FillerMCEventInfo
 //
@@ -26,8 +26,8 @@ namespace mithep
                         const char *name="MCEventInfo", bool active=1);
       ~FillerMCEventInfo();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                     BookDataBlock(TreeWriter &tws);
+      void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
       std::string              evtName_;          //event branch name

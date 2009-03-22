@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.2 2008/09/10 03:30:22 loizides Exp $
+// $Id: FillerBasicClusters.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerBasicClusters
 //
@@ -26,9 +26,9 @@ namespace mithep
       FillerBasicClusters(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerBasicClusters();
 
-      void                     BookDataBlock(TreeWriter &tws);
-      void 	               FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      const BasicClusterMap    *GetBasicClusterMap() const { return basicClusterMap_; }
+      void                             BookDataBlock(TreeWriter &tws);
+      void 	                       FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+//      const BasicClusterMap           *GetBasicClusterMap() const { return basicClusterMap_; }
   
     private:
       std::string                      edmName_;             //edm name of clusters

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.1 2009/03/11 20:08:22 bendavid Exp $
+// $Id: FillerPFCandidates.h,v 1.2 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerPFCandidates
 //
@@ -25,9 +25,9 @@ namespace mithep
       FillerPFCandidates(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFCandidates();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
+      void                         BookDataBlock(TreeWriter &tws);
+      void                         FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                         ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
       std::string                  edmName_;              //edm name of PFCandidates collection

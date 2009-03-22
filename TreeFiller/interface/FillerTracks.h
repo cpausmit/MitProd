@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.19 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerTracks.h,v 1.20 2009/03/18 14:58:18 loizides Exp $
 //
 // FillerTracks
 //
@@ -30,28 +30,31 @@ namespace mithep
       FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
       virtual ~FillerTracks();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      static void InitLayerMap(std::map<uint32_t,mithep::Track::EHitLayer> &layerMap);
+      void                                BookDataBlock(TreeWriter &tws);
+      void                                FillDataBlock(const edm::Event &e, 
+                                                        const edm::EventSetup &es);
 
     protected:
-      bool                                ecalAssocActive_; //do track-ECal associations
-      std::string                         edmName_;         //edm name of tracks collection
-      std::string                         mitName_;         //mit name of Tracks
-      std::string                         edmSimAssocName_; //edm name of sim assoc map
-      std::string                         trackingMapName_; //name of imp. map wrt simparts
+      static void                         InitLayerMap(std::map<uint32_t,
+                                                       mithep::Track::EHitLayer> &layerMap);
+
+      bool                                ecalAssocActive_;             //do track-ecal associations
+      std::string                         edmName_;                     //edm name of tracks coll
+      std::string                         mitName_;                     //mit name of Tracks
+      std::string                         edmSimAssocName_;             //edm name of sim assoc map
+      std::string                         trackingMapName_;             //name of imp. map wrt sim
       std::string                         barrelSuperClusterIdMapName_; //name of barrel sc id map
       std::string                         endcapSuperClusterIdMapName_; //name of endcap sc id map
-      std::string                         trackMapName_;    //name of export map
-      const mithep::TrackingParticleMap  *trackingMap_;     //map wrt simulated particles
-      const mithep::SuperClusterIdMap    *barrelSuperClusterIdMap_; //barrel sc id map
-      const mithep::SuperClusterIdMap    *endcapSuperClusterIdMap_; //endcap sc id map
-      mithep::TrackArr                   *tracks_;          //array of tracks
-      HitPatternReader                    hitReader_;       //hit pattern reader
-      TrackAssociatorParameters           assocParams_;     //track associator parameters
+      std::string                         trackMapName_;                //name of export map
+      const mithep::TrackingParticleMap  *trackingMap_;                 //map wrt sim. particles
+      const mithep::SuperClusterIdMap    *barrelSuperClusterIdMap_;     //barrel sc id map
+      const mithep::SuperClusterIdMap    *endcapSuperClusterIdMap_;     //endcap sc id map
+      mithep::TrackArr                   *tracks_;                      //array of tracks
+      HitPatternReader                    hitReader_;                   //hit pattern reader
+      TrackAssociatorParameters           assocParams_;                 //track associator params
 
     private:
-      mithep::TrackMap                   *trackMap_;        //map wrt tracks
+      mithep::TrackMap                   *trackMap_;                    //map wrt tracks
   };
 }
 #endif

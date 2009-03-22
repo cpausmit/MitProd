@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.5 2009/03/06 14:40:10 bendavid Exp $
+// $Id: FillerMCParticles.h,v 1.6 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerMCParticles
 //
@@ -30,9 +30,9 @@ namespace mithep
       FillerMCParticles(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerMCParticles();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      void ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
+      void                           BookDataBlock(TreeWriter &tws);
+      void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                           ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
       bool                           genActive_;       //=true if generated particles are filled

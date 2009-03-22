@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.2 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerPFJets.cc,v 1.3 2009/03/20 18:46:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +10,6 @@
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
@@ -229,7 +228,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       jet->SetSoftElectronBJetTagsDisc((*(hSoftElectronBJetTags.product()))[jetBaseRef]); 
     }
 
-    // get the Monte Carlo Flavour Matching information
+    // get the Monte Carlo flavour matching information
     if (flavorMatchingActive_) {
       unsigned int iJet = inJet - inJets.begin();
       const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
@@ -248,7 +247,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       }
     }
 
-    // add PFCandidate Refs
+    // add PFCandidate refs
     if (pfCandMap_) {
       for (uint i=0; i<inJet->numberOfDaughters(); ++i) {
         const reco::CandidatePtr candPtr = inJet->daughterPtr(i);

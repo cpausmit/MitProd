@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerVertexes.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerVertexes.h,v 1.4 2009/03/18 14:58:18 loizides Exp $
 //
 // FillerVertexes
 //
@@ -25,15 +25,15 @@ namespace mithep
       FillerVertexes(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerVertexes();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                     BookDataBlock(TreeWriter &tws);
+      void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                     edmName_;        //edm name of Vertex collection
-      std::string                     mitName_;        //mit name of Vertices
-      std::string                     vertexMapName_;  //name of exported map
-      mithep::VertexArr              *vertexes_;       //array of vertexes
-      mithep::VertexMap              *vertexMap_;      //map wrt vertexes
+      std::string              edmName_;        //edm name of Vertex collection
+      std::string              mitName_;        //mit name of Vertices
+      std::string              vertexMapName_;  //name of exported map
+      mithep::VertexArr       *vertexes_;       //array of vertexes
+      mithep::VertexMap       *vertexMap_;      //map wrt vertexes
   };
 }
 #endif

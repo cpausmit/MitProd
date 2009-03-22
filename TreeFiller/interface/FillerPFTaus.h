@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.10 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerPFTaus.h,v 1.1 2009/03/20 18:47:45 bendavid Exp $
 //
 // FillerPFTaus
 //
@@ -25,19 +25,19 @@ namespace mithep
       FillerPFTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFTaus();
 
-      void            BookDataBlock(TreeWriter &tws);
-      void            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                           BookDataBlock(TreeWriter &tws);
+      void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string     edmName_;                         //edm name of jets collection
-      std::string     mitName_;                         //mit name of jets collection
-      std::string     trackMapName_;                    //name of imported TrackMap
-      std::string     jetMapName_;                      //name of imported PFJetMap
-      std::string     pfCandMapName_;                   //name of imported PFCandidateMap
-      const mithep::TrackMap          *trackMap_;       //map wrt Tracks
-      const mithep::PFJetMap          *jetMap_;         //map wrt pfjets
-      const mithep::PFCandidateMap    *pfCandMap_;      //map wrt pf candidates
-      mithep::PFTauArr                *taus_;           //array of taus
+      std::string                    edmName_;        //edm name of jets collection
+      std::string                    mitName_;        //mit name of jets collection
+      std::string                    trackMapName_;   //name of imported TrackMap
+      std::string                    jetMapName_;     //name of imported PFJetMap
+      std::string                    pfCandMapName_;  //name of imported PFCandidateMap
+      const mithep::TrackMap        *trackMap_;       //map wrt Tracks
+      const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
+      const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
+      mithep::PFTauArr              *taus_;           //array of taus
   };
 }
 #endif

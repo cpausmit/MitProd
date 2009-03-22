@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.7 2009/03/11 18:15:27 bendavid Exp $
+// $Id: FillerMuons.h,v 1.8 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerMuons
 //
@@ -26,8 +26,8 @@ namespace mithep
       FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerMuons();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                        BookDataBlock(TreeWriter &tws);
+      void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
       std::string                 edmName_;               //edm name of muons collection

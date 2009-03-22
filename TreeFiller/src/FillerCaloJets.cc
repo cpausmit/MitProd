@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.16 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.17 2009/03/20 18:46:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -176,7 +176,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().z(),
                           inJet->p4().e());
 
-    //add to map
+    // add to map
     edm::Ptr<reco::CaloJet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
 

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBeamSpot.h,v 1.2 2009/03/03 17:05:16 loizides Exp $
+// $Id: FillerBeamSpot.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
 //
 // FillerBeamSpot
 //
@@ -24,13 +24,13 @@ namespace mithep
       FillerBeamSpot(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerBeamSpot();
 
-      void BookDataBlock(TreeWriter &tws);
-      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-  
+      void                    BookDataBlock(TreeWriter &tws);
+      void                    FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+   
     private:
-      std::string                      edmName_;        //edm name of Vertex collection
-      std::string                      mitName_;        //mit name of vertex branch
-      mithep::BeamSpotArr             *beamSpots_;      //the beamspot array
+      std::string             edmName_;        //edm name of Vertex collection
+      std::string             mitName_;        //mit name of vertex branch
+      mithep::BeamSpotArr    *beamSpots_;      //the beamspot array
   };
 }
 #endif

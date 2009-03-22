@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.16 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerPFTaus.cc,v 1.1 2009/03/20 18:47:46 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,12 +61,11 @@ void FillerPFTaus::BookDataBlock(TreeWriter &tws)
     if (pfCandMap_)
       AddBranchDep(mitName_, pfCandMap_->GetBrName());
   }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 void FillerPFTaus::FillDataBlock(const edm::Event      &event, 
-                                   const edm::EventSetup &setup)
+                                 const edm::EventSetup &setup)
 {
   // Fill taus from edm collection into our collection.
 
@@ -113,25 +112,28 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     
     // add track references
     if (trackMap_) {
-      //electron preid track reference
+      // electron preid track reference
       if (inTau->electronPreIDTrack().isNonnull())
         tau->SetElectronTrack(trackMap_->GetMit(refToPtr(inTau->electronPreIDTrack())));
     }
 
     const reco::PFTauTagInfo *tagInfo = inTau->pfTauTagInfoRef().get();
 
-    //add source calojet reference
+    // add source calojet reference
     if (jetMap_) {
       tau->SetPFJet(jetMap_->GetMit(refToPtr(tagInfo->pfjetRef())));
     }
 
-    //add pf candidate references
+    // add pf candidate references
     if (pfCandMap_) {
       if (inTau->leadPFCand().isNonnull())
         tau->SetLeadPFCand(pfCandMap_->GetMit(refToPtr(inTau->leadPFCand())));
         
-      if (inTau->leadPFChargedHadrCand().isNonnull())
-        tau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(refToPtr(inTau->leadPFChargedHadrCand())));
+      if (inTau->leadPFChargedHadrCand().isNonnull()) {
+        const mithep::PFCandidate *pfc = 
+          pfCandMap_->GetMit(refToPtr(inTau->leadPFChargedHadrCand()));
+        tau->SetLeadChargedHadronPFCand(pfc);
+      }
         
       if (inTau->leadPFNeutralCand().isNonnull())
         tau->SetLeadNeutralPFCand(pfCandMap_->GetMit(refToPtr(inTau->leadPFNeutralCand())));
@@ -145,9 +147,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
         const PFCandidate *isoCand = pfCandMap_->GetMit(refToPtr(inTau->isolationPFCands().at(i)));
         tau->AddIsoPFCand(isoCand);
       }
-    
     }
-
   }      
   taus_->Trim();
 }

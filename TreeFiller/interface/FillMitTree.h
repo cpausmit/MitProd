@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.10 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillMitTree.h,v 1.11 2009/03/19 22:20:46 loizides Exp $
 //
 // FillMitTree
 //
@@ -32,15 +32,15 @@ namespace mithep
       FillMitTree(const edm::ParameterSet &cfg);
       ~FillMitTree();
 
-      void analyze (const edm::Event &e, const edm::EventSetup &es);
-      void beginJob(const edm::EventSetup &es);
-      void endJob();
+      void                     analyze (const edm::Event &e, const edm::EventSetup &es);
+      void                     beginJob(const edm::EventSetup &es);
+      void                     endJob();
 
-      static ObjectService *os() { return os_; }
+      static ObjectService    *os() { return os_; }
 
     protected:
-      bool addActiveFiller(BaseFiller *bf);
-      bool configure(const edm::ParameterSet &cfg);
+      bool                     addActiveFiller(BaseFiller *bf);
+      bool                     configure(const edm::ParameterSet &cfg);
 
       std::vector<BaseFiller*> fillers_;       //list of active fillers
       bool                     defactive_;     //default activity flag for fillers

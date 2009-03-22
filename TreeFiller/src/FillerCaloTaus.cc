@@ -1,4 +1,4 @@
-// $Id: FillerCaloTaus.cc,v 1.16 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerCaloTaus.cc,v 1.1 2009/03/20 18:47:46 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -69,7 +69,6 @@ void FillerCaloTaus::BookDataBlock(TreeWriter &tws)
     if (endcapBCMap_)
       AddBranchDep(mitName_, endcapBCMap_->GetBrName());
   }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,32 +113,31 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
 
     // add track references
     if (trackMap_) {
-      //lead track reference
+      // lead track reference
       if (inTau->leadTrack().isNonnull())
         tau->SetLeadTrack(trackMap_->GetMit(refToPtr(inTau->leadTrack())));
 
-      //signal tracks
+      // signal tracks
       for (uint i=0; i<inTau->signalTracks().size(); ++i) {
         const Track *signalTrack = trackMap_->GetMit(refToPtr(inTau->signalTracks().at(i)));
         tau->AddSignalTrack(signalTrack);
       }
 
-      //isolation tracks
+      // isolation tracks
       for (uint i=0; i<inTau->isolationTracks().size(); ++i) {
         const Track *isoTrack = trackMap_->GetMit(refToPtr(inTau->isolationTracks().at(i)));
         tau->AddIsoTrack(isoTrack);
       }
-
     }
 
     const reco::CaloTauTagInfo *tagInfo = inTau->caloTauTagInfoRef().get();
 
-    //add source calojet reference
+    // add source calojet reference
     if (jetMap_) {
       tau->SetCaloJet(jetMap_->GetMit(refToPtr(tagInfo->calojetRef())));
     }
 
-    //add neutral basic cluster references
+    // add neutral basic cluster references
     if (barrelBCMap_ && endcapBCMap_) { 
       for (uint i=0; i<tagInfo->neutralECALBasicClusters().size(); ++i) {
         reco::BasicClusterRef clusterRef = tagInfo->neutralECALBasicClusters().at(i);
@@ -151,7 +149,6 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
              << "Error! Basic Cluster reference in unmapped collection " << edmName_ << endl;
       }
     }
-
   }      
   taus_->Trim();
 }
