@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.11 2009/03/18 15:36:11 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.12 2009/03/19 16:14:29 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -62,7 +62,11 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws)
 {
   // Add branch to tree and publish our maps.
 
-  tws.AddBranch(mitName_,&mcParticles_);
+  Int_t brsize = tws.GetDefaultBrSize();
+  if (brsize<128*1024)
+    brsize=128*1024;
+
+  tws.AddBranch(mitName_,&mcParticles_,brsize);
   OS()->add<mithep::MCParticleArr>(mcParticles_,mitName_);
 
   if (genActive_ && !genMapName_.empty()) {

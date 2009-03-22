@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.8 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.9 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,7 +40,11 @@ void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
 {
   // Add CaloTower branch to tree.
 
-  tws.AddBranch(mitName_,&caloTowers_);
+  Int_t brsize = tws.GetDefaultBrSize();
+  if (brsize<32*1024)
+    brsize=32*1024;
+
+  tws.AddBranch(mitName_,&caloTowers_,brsize);
   OS()->add<CaloTowerArr>(caloTowers_,mitName_);
 
   if (!caloTowerMapName_.empty()) {
