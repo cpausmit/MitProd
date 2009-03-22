@@ -1,59 +1,59 @@
-# $Id:$
+# $Id: MitMHT_cfi.py,v 1.2 2009/03/16 08:29:30 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 htMetSC5 = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetSC5Calo"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETSC5'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetSC5Calo"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETSC5'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 htMetSC7 = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetSC7Calo"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETSC7'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetSC7Calo"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETSC7'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 htMetIC5 = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetIC5Calo"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETIC5'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetIC5Calo"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETIC5'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 htMetKT4 = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetKT4Calo"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETKT4'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetKT4Calo"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETKT4'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 htMetKT6 = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetKT6Calo"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETKT6'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetKT6Calo"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETKT6'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 htMetIC5JPT = cms.EDProducer("METProducer",
-    src = cms.InputTag("L2L3CorJetIC5JPT"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETIC5JPT'),
-    noHF = cms.bool(False),
+    src             = cms.InputTag("L2L3CorJetIC5JPT"),
+    METType         = cms.string('MET'),
+    alias           = cms.string('HTMETIC5JPT'),
+    noHF            = cms.bool(False),
     globalThreshold = cms.double(5.0),
-    InputType = cms.string('CaloJetCollection')
+    InputType       = cms.string('CaloJetCollection')
 )
 
 import JetMETCorrections.Type1MET.MetMuonCorrections_cff

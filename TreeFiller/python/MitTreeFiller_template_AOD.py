@@ -1,8 +1,8 @@
-# $Id: MitTreeFiller_template_AOD.py,v 1.5 2009/03/18 15:35:34 loizides Exp $
+# $Id: MitTreeFiller_template_AOD.py,v 1.6 2009/03/20 19:55:15 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
-# be ensured that this config file is always working with the production CMSSW release
+# be ensured that this config file is always working with the production CMSSW release.
 #---------------------------------------------------------------------------------------------------
 # List of paramters to be properly replaced
 #
@@ -28,17 +28,18 @@ process.TreeService = cms.Service("TreeService",
 )
 process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
+
 #Reconfigure treefiller defaults for AOD content:
-process.MitTreeFiller.MCParticles.simActive = False
+process.MitTreeFiller.MCParticles.simActive        = False
 process.MitTreeFiller.ConversionInOutTracks.active = False
 process.MitTreeFiller.ConversionOutInTracks.active = False
-process.MitTreeFiller.ConversionElectrons.active = False
-process.MitTreeFiller.Conversions.active = False
-process.MitTreeFiller.SisCone5PFJets.active = False
-process.MitTreeFiller.SisCone7PFJets.active = False
-process.MitTreeFiller.Kt4PFJets.active = False
-process.MitTreeFiller.Kt6PFJets.active = False
-process.MitTreeFiller.PFGsfTracks.active = False
+process.MitTreeFiller.ConversionElectrons.active   = False
+process.MitTreeFiller.Conversions.active           = False
+process.MitTreeFiller.SisCone5PFJets.active        = False
+process.MitTreeFiller.SisCone7PFJets.active        = False
+process.MitTreeFiller.Kt4PFJets.active             = False
+process.MitTreeFiller.Kt6PFJets.active             = False
+process.MitTreeFiller.PFGsfTracks.active           = False
 
 #Load Mit vProducer
 process.load("MitEdm.Producers.vProducerNoRefit_cff")
@@ -56,19 +57,19 @@ process.load("RecoEgamma.EgammaIsolationAlgos.eleIsoFromDeposits_cff")
 #For Jet Corrections (Winter09 FastSim-specific Jet corrections)
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Winter09_cff")
 process.prefer("L3JetCorrectorIC5Calo")
-process.correctedJets = cms.Sequence(process.L2L3CorJetIC5Calo*
-                                     process.L2L3CorJetSC5Calo*
-                                     process.L2L3CorJetSC7Calo*
-                                     process.L2L3CorJetKT4Calo*
-                                     process.L2L3CorJetKT6Calo*
+process.correctedJets = cms.Sequence(process.L2L3CorJetIC5Calo *
+                                     process.L2L3CorJetSC5Calo *
+                                     process.L2L3CorJetSC7Calo *
+                                     process.L2L3CorJetKT4Calo *
+                                     process.L2L3CorJetKT6Calo *
                                      process.L2L3CorJetIC5JPT)
                                      
 #enable Jet Corrections for all of our Jet collections
-process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive = True
-process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive = True
-process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive = True
-process.MitTreeFiller.Kt4Jets.jetCorrectionsActive      = True
-process.MitTreeFiller.Kt6Jets.jetCorrectionsActive      = True
+process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive    = True
+process.MitTreeFiller.Kt4Jets.jetCorrectionsActive         = True
+process.MitTreeFiller.Kt6Jets.jetCorrectionsActive         = True
 process.MitTreeFiller.IC5JetPlusTrack.jetCorrectionsActive = True
 
 #For JetPlusTracks
@@ -132,7 +133,7 @@ process.p1 = cms.Path(
      + process.correctedJets
      + process.MitMHT
      + process.tcMet
-     )
-    *process.MitTreeFiller
-    *process.vFiller
-     )
+    ) *
+    process.MitTreeFiller *
+    process.vFiller
+)

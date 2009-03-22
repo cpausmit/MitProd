@@ -1,4 +1,4 @@
-# $Id: MitPostRecoGenerator_cff.py,v 1.3 2008/09/28 02:27:52 loizides Exp $
+# $Id: MitPostRecoGenerator_cff.py,v 1.4 2008/10/01 00:23:35 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,10 @@ from SimTracker.TrackAssociation.trackMCMatch_cfi import *
 #from SimTracker.TrackAssociation.globalMuonsMCMatch_cfi import *
 #from SimTracker.TrackAssociation.allTrackMCMatch_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff import *
-trackMCMatchSequence = cms.Sequence(trackMCMatch*trackingParticleRecoTrackAsssociation*assoc2GsfTracks*assocOutInConversionTracks*assocInOutConversionTracks)
+trackMCMatchSequence = cms.Sequence(trackMCMatch*
+                                    trackingParticleRecoTrackAsssociation*
+                                    assoc2GsfTracks*assocOutInConversionTracks*
+                                    assocInOutConversionTracks)
 
 # define post-reco generator sequence
 mit_postreco_generator = cms.Sequence(trackMCMatchSequence)

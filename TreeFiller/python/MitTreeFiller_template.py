@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.22 2009/03/20 19:55:14 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.23 2009/03/20 20:43:52 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -29,11 +29,11 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
 #Load Mit vProducer
-process.load("MitEdm.Producers.vProducer_cff")
+process.load("MitProd.TreeFiller.vProducer_cff")
 
 #Load Mit Mvf Conversion producer
-process.load("MitEdm.Producers.conversionProducer_cff")
-process.load("MitEdm.Producers.conversionRemovalProducer_cff")
+process.load("MitProd.TreeFiller.conversionProducer_cff")
+process.load("MitProd.TreeFiller.conversionRemovalProducer_cff")
 
 # compute ECAL shower shape variables
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -63,7 +63,7 @@ process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive    = True
 process.MitTreeFiller.Kt4Jets.jetCorrectionsActive         = True
 process.MitTreeFiller.Kt6Jets.jetCorrectionsActive         = True
 process.MitTreeFiller.IC5JetPlusTrack.jetCorrectionsActive = True
-process.MitTreeFiller.ItrCone5PFJets.jetCorrectionsActive = True
+process.MitTreeFiller.ItrCone5PFJets.jetCorrectionsActive  = True
 
 #For JetPlusTracks
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
@@ -82,17 +82,17 @@ process.load("RecoMET.METProducers.TCMET_cfi")
 #Load Flavor Matching Information
 process.load("MitProd.TreeFiller.JetsMCFlavourMatching_cfi")
 #Enable Flavor matching for Reco Jets and GenJets
-process.MitTreeFiller.ItrCone5Jets.flavorMatchingActive = True
-process.MitTreeFiller.SisCone5Jets.flavorMatchingActive = True
-process.MitTreeFiller.SisCone7Jets.flavorMatchingActive = True
-process.MitTreeFiller.Kt4Jets.flavorMatchingActive      = True
-process.MitTreeFiller.Kt6Jets.flavorMatchingActive      = True
+process.MitTreeFiller.ItrCone5Jets.flavorMatchingActive   = True
+process.MitTreeFiller.SisCone5Jets.flavorMatchingActive   = True
+process.MitTreeFiller.SisCone7Jets.flavorMatchingActive   = True
+process.MitTreeFiller.Kt4Jets.flavorMatchingActive        = True
+process.MitTreeFiller.Kt6Jets.flavorMatchingActive        = True
 process.MitTreeFiller.ItrCone5PFJets.flavorMatchingActive = True
-process.MitTreeFiller.IC5GenJets.flavorMatchingActive   = True
-process.MitTreeFiller.SC5GenJets.flavorMatchingActive   = True
-process.MitTreeFiller.SC7GenJets.flavorMatchingActive   = True
-process.MitTreeFiller.KT4GenJets.flavorMatchingActive   = True
-process.MitTreeFiller.KT6GenJets.flavorMatchingActive   = True
+process.MitTreeFiller.IC5GenJets.flavorMatchingActive     = True
+process.MitTreeFiller.SC5GenJets.flavorMatchingActive     = True
+process.MitTreeFiller.SC7GenJets.flavorMatchingActive     = True
+process.MitTreeFiller.KT4GenJets.flavorMatchingActive     = True
+process.MitTreeFiller.KT6GenJets.flavorMatchingActive     = True
 
 #produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
@@ -135,9 +135,8 @@ process.p1 = cms.Path(
      + process.correctedJets
      + process.MitMHT
      + process.tcMet
-     )
-    *process.MitTreeFiller
-    *process.vFiller
-    *process.conversionFiller
-    *process.conversionRemovalFiller
-     )
+    ) *
+    process.MitTreeFiller *
+    process.vFiller *
+    process.conversionFiller *
+    process.conversionRemovalFiller)
