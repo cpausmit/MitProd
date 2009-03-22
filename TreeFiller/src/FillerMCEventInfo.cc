@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.3 2009/03/19 16:13:59 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.4 2009/03/19 17:28:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,33 +54,37 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
   }
 
   Handle<edm::HepMCProduct> hHepMCProduct;
-  if (!GetProductSafe(genHepMCEvName_, hHepMCProduct, event)) {
+  if (genHepMCEvName_.empty() || !GetProductSafe(genHepMCEvName_, hHepMCProduct, event)) {
 
-    edm::LogError("FillerMCEventInfo") << "Can not access HepMC info, trying to use AOD instead." 
-                                       << std::endl;
+    if (!genEvWeightName_.empty()) {
+      Handle<double> genEventWeight;
+      GetProduct(genEvWeightName_, genEventWeight, event);
+      eventInfo_->SetWeight(*genEventWeight);
+    }
 
-    Handle<double> genEventWeight;
-    GetProduct(genEvWeightName_, genEventWeight, event);
-    eventInfo_->SetWeight(*genEventWeight);
+    if (!genEvScaleName_.empty()) {
+      Handle<double> genEventScale;
+      GetProduct(genEvScaleName_, genEventScale, event);
+      eventInfo_->SetScale(*genEventScale);
+    }
 
-    Handle<double> genEventScale;
-    GetProduct(genEvScaleName_, genEventScale, event);
-    eventInfo_->SetScale(*genEventScale);
+    if (!genEvProcIdName_.empty()) {
+      Handle<int> genEventProcId;
+      GetProduct(genEvProcIdName_, genEventProcId, event);
+      eventInfo_->SetProcessId(*genEventProcId);
+    }
 
-    Handle<int> genEventProcId;
-    GetProduct(genEvProcIdName_, genEventProcId, event);
-    eventInfo_->SetProcessId(*genEventProcId);
-
-    Handle<reco::PdfInfo> genPdfInfo;
-    GetProduct(genPdfInfoName_, genPdfInfo, event);
-    
-    eventInfo_->SetId1(genPdfInfo->id1);
-    eventInfo_->SetId2(genPdfInfo->id2);
-    eventInfo_->SetPdf1(genPdfInfo->pdf1);
-    eventInfo_->SetPdf2(genPdfInfo->pdf2);
-    eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
-    eventInfo_->SetX1(genPdfInfo->pdf1);
-    eventInfo_->SetX2(genPdfInfo->pdf2);
+    if (!genPdfInfoName_.empty()) {
+      Handle<reco::PdfInfo> genPdfInfo;
+      GetProduct(genPdfInfoName_, genPdfInfo, event);
+      eventInfo_->SetId1(genPdfInfo->id1);
+      eventInfo_->SetId2(genPdfInfo->id2);
+      eventInfo_->SetPdf1(genPdfInfo->pdf1);
+      eventInfo_->SetPdf2(genPdfInfo->pdf2);
+      eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
+      eventInfo_->SetX1(genPdfInfo->pdf1);
+      eventInfo_->SetX2(genPdfInfo->pdf2);
+    }
   } else {
     const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
     eventInfo_->SetScale(genEvt->event_scale());
