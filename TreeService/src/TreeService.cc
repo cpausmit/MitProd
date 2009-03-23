@@ -1,4 +1,4 @@
-// $Id: TreeService.cc,v 1.11 2009/03/03 18:06:10 bendavid Exp $
+// $Id: TreeService.cc,v 1.12 2009/03/04 07:25:24 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -61,7 +61,7 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) :
   if (cfg.exists("brSizes"))
     brSizes_=cfg.getUntrackedParameter<vector<unsigned> >("brSizes");
   else 
-    brSizes_.push_back(64*1024);
+    brSizes_.push_back(16*1024);
 
   if (treeNames_.size()!=fileNames_.size()) {
     throw edm::Exception(edm::errors::Configuration, "TreeService::TreeService()\n")
