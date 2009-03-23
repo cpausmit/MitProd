@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.29 2009/03/18 14:57:58 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.30 2009/03/19 16:15:05 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -213,7 +213,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 
   // check if we can access the hlt config information
   if (!hltConfig_.init(hltProcName_)) {
-    edm::LogError("FillerMetaInfos") << "Can not access hlt config using " 
+    edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
                                      << hltProcName_ << std::endl;
     return;
   }

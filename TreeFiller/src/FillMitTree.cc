@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.40 2009/03/19 22:20:46 loizides Exp $
+// $Id: FillMitTree.cc,v 1.41 2009/03/20 18:47:46 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -167,10 +167,10 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (cfg.existsAs<ParameterSet>(name,0)) {
       ParameterSet next(cfg.getUntrackedParameter<ParameterSet>(name));
       if (!next.exists("fillerType")) {
-        edm::LogError("FillMitTree") << "Can not determine fillerType for pset named "
+        edm::LogError("FillMitTree") << "Cannot determine fillerType for pset named "
                                      << name << std::endl;
         throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")
-          << "Can not determine fillerType for pset named "
+          << "Cannot determine fillerType for pset named "
           << name << std::endl;
       }
       ftype = next.getUntrackedParameter<string>("fillerType");
