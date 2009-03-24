@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.30 2009/03/19 16:15:05 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.31 2009/03/23 22:13:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -270,24 +270,22 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   }
 
   if (hltTable_->size()>=0) {
-    // check if existing table contains all necessary paths: 
-    // if so keep it, otherwise store the new one  
+    // check if existing table is equal to new table:
+    //  if so keep it, otherwise store the new one  
 
-    if ((hltTable_->size()>=trigtable->size()) && 
-        (hltLabels_->size()>=labels->size())) {
+    if ((hltTable_->size()==trigtable->size()) && 
+        (hltLabels_->size()==labels->size())) {
 
       bool newEntryFound = false;
       for (UInt_t i=0; i<trigtable->size(); ++i) {
-        map<string,Short_t>::iterator riter = tabmap->find(trigtable->at(i));
-        if (riter == tabmap->end()) {
+        if (trigtable->at(i) != hltTable_->at(i)) {
           newEntryFound = true;
           break;
         }
       }
       if (!newEntryFound) {
         for (UInt_t i=0; i<labels->size(); ++i) {
-          map<string,Short_t>::iterator riter = labmap->find(labels->at(i));
-          if (riter == labmap->end()) {
+        if (labels->at(i) != hltLabels_->at(i)) {
             newEntryFound = true;
             break;
           }
