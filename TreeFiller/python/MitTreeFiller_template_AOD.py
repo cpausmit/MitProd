@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template_AOD.py,v 1.7 2009/03/22 08:49:00 loizides Exp $
+# $Id: MitTreeFiller_template_AOD.py,v 1.8 2009/03/22 10:27:11 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -44,6 +44,9 @@ process.MitTreeFiller.PFGsfTracks.active           = False
 process.load("MitProd.TreeFiller.vProducerNoRefit_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag="IDEAL_V11::All" 
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 

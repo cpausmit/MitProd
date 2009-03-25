@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.23 2009/03/20 20:43:52 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.24 2009/03/22 08:49:00 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -42,6 +42,9 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag="IDEAL_V11::All" 
 
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
