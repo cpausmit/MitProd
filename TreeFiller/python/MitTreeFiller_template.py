@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.24 2009/03/22 08:49:00 loizides Exp $
+# $Id: MitTreeFiller_template.py,v 1.25 2009/03/25 09:00:25 bendavid Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -21,6 +21,13 @@ process.source = cms.Source("PoolSource",
    secondaryFileNames = cms.untracked.vstring()
 )
 
+#Load MessageLogger
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+#Load Conditions
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag="IDEAL_V12::All" 
+
 #Load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
     fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
@@ -35,16 +42,11 @@ process.load("MitProd.TreeFiller.vProducer_cff")
 process.load("MitProd.TreeFiller.conversionProducer_cff")
 process.load("MitProd.TreeFiller.conversionRemovalProducer_cff")
 
-# compute ECAL shower shape variables
+#Compute ECAL shower shape variables
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag="IDEAL_V11::All" 
 
 #Load ElectronID information
 process.load("MitProd.TreeFiller.ElectronID_cfi")
@@ -59,7 +61,7 @@ process.correctedJets = cms.Sequence(process.L2L3CorJetIC5Calo*
                                      process.L2L3CorJetKT6Calo*
                                      process.L2L3CorJetIC5JPT)
 
-#enable Jet Corrections for all of our Jet collections
+#Enable Jet Corrections for all of our Jet collections
 process.MitTreeFiller.ItrCone5Jets.jetCorrectionsActive    = True
 process.MitTreeFiller.SisCone5Jets.jetCorrectionsActive    = True
 process.MitTreeFiller.SisCone7Jets.jetCorrectionsActive    = True
@@ -97,7 +99,7 @@ process.MitTreeFiller.SC7GenJets.flavorMatchingActive     = True
 process.MitTreeFiller.KT4GenJets.flavorMatchingActive     = True
 process.MitTreeFiller.KT6GenJets.flavorMatchingActive     = True
 
-#produce jet vertex association information
+#Produce jet vertex association information
 process.load("MitProd.TreeFiller.JetVertexAssociation_cfi")
 #Enable Jet Vertex association for Reco Jet collections
 process.MitTreeFiller.ItrCone5Jets.jetToVertexActive = True
@@ -109,7 +111,7 @@ process.MitTreeFiller.Kt6Jets.jetToVertexActive      = True
 #Load track detector associator for Track-ECal association
 process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
 process.MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
-#enable Track-Ecal assocation in fillers
+#Enable Track-Ecal assocation in fillers
 process.MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
 process.MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
 process.MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
@@ -119,7 +121,7 @@ process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 process.MitTreeFiller.PFGsfTracks.ecalAssocActive                         = True
 
-#load gsf track to general track associator
+#Load gsf track to general track associator
 process.load("MitEdm.Producers.gsfTrackAssociator_cff")
 process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
@@ -142,4 +144,5 @@ process.p1 = cms.Path(
     process.MitTreeFiller *
     process.vFiller *
     process.conversionFiller *
-    process.conversionRemovalFiller)
+    process.conversionRemovalFiller
+)
