@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.15 2009/03/20 18:05:40 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.16 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -49,7 +49,8 @@ namespace mithep
       std::string                    l1BitsName_;   //L1 trigger bits branch name
       std::string                    l1ObjsName_;   //L1 trigger branch name
       Bool_t                         hltActive_;    //=true if HLT info are filled
-      std::string                    hltProcName_;  //HLT process name
+      std::vector<std::string>       hltProcNames_; //HLT process name(s)
+      std::string                    hltProcName_;  //HLT process name to be used
       std::string                    hltResName_;   //HLT trigger results edm name
       std::string                    hltEvtName_;   //HLT trigger event edm name
       std::string                    hltTableName_; //HLT trigger table branch name

@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.31 2009/03/23 22:13:33 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.32 2009/03/24 13:40:49 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,9 +32,8 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   l1BitsName_(Conf().getUntrackedParameter<string>("l1MitBitsName",Names::gkL1BitBrn)),
   l1ObjsName_(Conf().getUntrackedParameter<string>("l1MitObjsName",Names::gkL1ObjBrn)),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
-  hltProcName_(Conf().getUntrackedParameter<string>("hltProcName","HLT")),
-  hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults::HLT")),
-  hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD::HLT")),
+  hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults")),
+  hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
   hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
   hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelMitName",Names::gkHltLabelBrn)),
   hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsMitName",Names::gkHltBitBrn)),
@@ -63,6 +62,11 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   // Constructor.
 
   instance_=1;
+
+  if (Conf().exists("hltProcNames"))
+    hltProcNames_ = Conf().getUntrackedParameter<vector<string> >("hltProcNames");
+  if (hltProcNames_.size()==0)
+    hltProcNames_.push_back("HLT");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,10 +216,45 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
   if (!hltActive_) return;
 
   // check if we can access the hlt config information
-  if (!hltConfig_.init(hltProcName_)) {
-    edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
-                                     << hltProcName_ << std::endl;
-    return;
+  if (hltProcName_.empty()) {
+    string teststr;
+    for(unsigned int i=0; i<hltProcNames_.size(); ++i) {
+      if (i>0) 
+        teststr += ", ";
+      teststr += hltProcNames_.at(i);
+      edm::LogInfo("FillerMetaInfos") << "Trying to access hlt config using " 
+                                      <<  hltProcNames_.at(i) << std::endl;
+
+      if (hltConfig_.init(hltProcNames_.at(i))) {
+        hltProcName_ = hltProcNames_.at(i);
+        if (hltResName_.find(':')==string::npos)
+          hltResName_ += "::";
+        else 
+          hltResName_ += ":";
+        hltResName_ += hltProcName_;
+        if (hltEvtName_.find(':')==string::npos)
+          hltEvtName_ += "::";
+        else 
+          hltEvtName_ += ":";
+        hltEvtName_ += hltProcName_;
+        break;
+      } 
+    }
+    if (hltProcName_.empty()) {
+      edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
+                                       << teststr << std::endl;
+      throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
+        << "Cannot access hlt config using " << teststr << std::endl;
+      return;
+    }
+  } else {
+    if (!hltConfig_.init(hltProcName_)) {
+      edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
+                                       << hltProcName_ << std::endl;
+      throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
+        << "Cannot access hlt config using " << hltProcName_ << std::endl;
+      return;
+    }
   }
 
   // check size of menu... < 256
