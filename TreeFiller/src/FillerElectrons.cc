@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.30 2009/03/18 14:57:58 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.31 2009/03/20 18:46:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -281,10 +281,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     
     if (verbose_>1) {
       double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());
-      printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",outElectron->Pt(),outElectron->Eta(),outElectron->Phi(), outElectron->E(), outElectron->P(),outElectron->Mass());
-      printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->energy(), iM->p(), recomass);  
+      printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
+             outElectron->Pt(), outElectron->Eta(), outElectron->Phi(), 
+             outElectron->E(), outElectron->P(), outElectron->Mass());
+      printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
+             iM->pt(), iM->eta(), iM->phi(), iM->energy(), iM->p(), recomass);  
     }
-    
   }  
   electrons_->Trim();
 }
