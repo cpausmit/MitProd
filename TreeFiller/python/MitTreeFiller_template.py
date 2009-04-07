@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_template.py,v 1.25 2009/03/25 09:00:25 bendavid Exp $
+# $Id: MitTreeFiller_template.py,v 1.26 2009/03/25 10:07:19 loizides Exp $
 #---------------------------------------------------------------------------------------------------
 # This template config file is intended to be a reference for the "HEAD" bambu tree version.
 # This config file will be used by the mitprod account to do production on CRAB. It must
@@ -27,6 +27,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #Load Conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag="IDEAL_V12::All" 
+
+#Pre-load gsf tracks
+process.load("MitEdm.TrackerElectrons.LoadTracks_cfi")
 
 #Load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
@@ -126,6 +129,10 @@ process.load("MitEdm.Producers.gsfTrackAssociator_cff")
 process.MitTreeFiller.Electrons.gsfTrackAssocName = 'gsfTrackAssociator'
 
 process.p1 = cms.Path(
+    process.LoadTracks
+)
+
+process.p2 = cms.Path(
     process.gsfTrackAssociator *
     process.vProducer *
     process.conversionProducer *
