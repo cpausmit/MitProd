@@ -1,4 +1,4 @@
-// $Id: FillerCaloTaus.cc,v 1.1 2009/03/20 18:47:46 bendavid Exp $
+// $Id: FillerCaloTaus.cc,v 1.2 2009/03/22 10:00:46 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,9 +92,9 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
     
     mithep::CaloTau *tau = taus_->Allocate();
     new (tau) mithep::CaloTau(inTau->px(),
-                          inTau->py(),
-                          inTau->pz(),
-                          inTau->energy());
+                              inTau->py(),
+                              inTau->pz(),
+                              inTau->energy());
 
     tau->SetMomAlt(inTau->alternatLorentzVect().x(),
                    inTau->alternatLorentzVect().y(),
