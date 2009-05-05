@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.32 2009/04/06 19:37:20 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.33 2009/04/07 08:07:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -213,9 +213,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     etLow = 0.0;
     double intRadius = 0.02;
     //int hcalDepth = -1;  //-1 means we take all depths
-    EgammaTowerIsolation *myTowerIsolation = 
-      new EgammaTowerIsolation (extRadius,intRadius,etLow,caloTowers.product());
-    double towerIsoValue = myTowerIsolation->getTowerEtSum(&(*iM));
+    EgammaTowerIsolation myTowerIsolation(extRadius,intRadius,etLow,caloTowers.product());
+    double towerIsoValue = myTowerIsolation.getTowerEtSum(&(*iM));
     outElectron->SetCaloTowerIsolation(towerIsoValue);
   
     // fill the isolation values
