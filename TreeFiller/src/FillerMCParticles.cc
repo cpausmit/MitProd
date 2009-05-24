@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.12 2009/03/19 16:14:29 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.13 2009/03/22 11:35:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -208,7 +208,12 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         iM != trackingParticles.end(); ++iM) {
 
       if ( simActive_ && iM->g4Tracks().size() ) {
+	TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+	const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
+	mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
+	trackingMap_->Add(theRef, outSimParticle);
         if (verbose_>1) {
+	  printf("trackId = %i\n",theSimTrack.trackId());
           printf("Tracking particle has %i SimTracks\n",iM->g4Tracks().size());
           if (iM->g4Tracks().size()>1) {
             for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
@@ -216,11 +221,6 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
               printf("g4 trackid = %i\n",iST->trackId());
             }
           }
-          TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
-          const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
-          printf("trackId = %i\n",theSimTrack.trackId());
-          mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
-          trackingMap_->Add(theRef, outSimParticle);
         }
       }
     }
