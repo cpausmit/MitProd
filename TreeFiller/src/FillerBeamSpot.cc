@@ -1,10 +1,10 @@
-// $Id: FillerBeamSpot.cc,v 1.2 2009/03/03 17:05:09 loizides Exp $
+// $Id: FillerBeamSpot.cc,v 1.3 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "MitAna/DataTree/interface/BeamSpotCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

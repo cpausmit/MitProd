@@ -1,12 +1,13 @@
-// $Id: FillerMCParticles.cc,v 1.13 2009/03/22 11:35:45 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.14 2009/05/24 12:54:32 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -16,6 +17,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/MCParticleCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

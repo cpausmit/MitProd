@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.20 2009/03/18 14:58:18 loizides Exp $
+// $Id: FillerTracks.h,v 1.21 2009/03/22 10:00:46 loizides Exp $
 //
 // FillerTracks
 //
@@ -11,16 +11,11 @@
 #ifndef MITPROD_TREEFILLER_FILLERTRACKS_H
 #define MITPROD_TREEFILLER_FILLERTRACKS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitAna/DataTree/interface/Track.h"
+#include "MitAna/DataTree/interface/TrackFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/HitPatternReader.h"
-#include "MitAna/DataTree/interface/Names.h"
 
 namespace mithep 
 {
@@ -50,7 +45,7 @@ namespace mithep
       const mithep::SuperClusterIdMap    *barrelSuperClusterIdMap_;     //barrel sc id map
       const mithep::SuperClusterIdMap    *endcapSuperClusterIdMap_;     //endcap sc id map
       mithep::TrackArr                   *tracks_;                      //array of tracks
-      HitPatternReader                    hitReader_;                   //hit pattern reader
+      mithep::HitPatternReader            hitReader_;                   //hit pattern reader
       TrackAssociatorParameters           assocParams_;                 //track associator params
 
     private:

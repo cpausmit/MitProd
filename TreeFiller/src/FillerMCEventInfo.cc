@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.4 2009/03/19 17:28:50 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.5 2009/03/22 10:00:29 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,6 +7,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

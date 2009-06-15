@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.10 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerPhotons.h,v 1.11 2009/03/22 10:00:46 loizides Exp $
 //
 // FillerPhotons
 //
@@ -12,12 +12,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERPHOTONS_H
 #define MITPROD_TREEFILLER_FILLERPHOTONS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

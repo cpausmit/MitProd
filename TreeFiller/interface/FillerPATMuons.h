@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPATMuons.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerPATMuons.h,v 1.4 2009/03/22 10:00:46 loizides Exp $
 //
 // FillerPATMuons
 //
@@ -11,12 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERPATMUONS_H
 #define MITPROD_TREEFILLER_FILLERPATMUONS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/MuonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

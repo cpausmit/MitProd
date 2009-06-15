@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.16 2009/03/22 10:00:45 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.17 2009/03/25 05:05:09 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -13,9 +13,9 @@
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "MitAna/DataTree/interface/Collections.h"
+#include "MitAna/DataTree/interface/TriggerObjectFwd.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 class THashTable;
 

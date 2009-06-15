@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionElectrons.h,v 1.9 2009/03/18 14:58:18 loizides Exp $
+// $Id: FillerConversionElectrons.h,v 1.10 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerConversionElectrons
 //
@@ -13,12 +13,10 @@
 #ifndef MITPROD_TREEFILLER_FILLERCONVERSIONELECTRONS_H
 #define MITPROD_TREEFILLER_FILLERCONVERSIONELECTRONS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/ElectronFwd.h"
+#include "MitAna/DataTree/interface/TrackFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

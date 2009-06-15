@@ -1,8 +1,6 @@
-// $Id: FillerPFCandidates.cc,v 1.1 2009/03/11 20:08:23 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.2 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -10,8 +8,10 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Muon.h"
-#include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/PFCandidateCol.h"
+#include "MitAna/DataTree/interface/Track.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

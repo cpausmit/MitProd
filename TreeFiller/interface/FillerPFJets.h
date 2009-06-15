@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFJets.h,v 1.2 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerPFJets.h,v 1.3 2009/03/20 18:46:58 bendavid Exp $
 //
 // FillerPFJets
 //
@@ -11,11 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERPFJETS_H
 #define MITPROD_TREEFILLER_FILLERPFJETS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/PFJetFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

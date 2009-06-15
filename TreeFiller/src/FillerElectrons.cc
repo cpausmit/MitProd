@@ -1,8 +1,6 @@
-// $Id: FillerElectrons.cc,v 1.33 2009/04/07 08:07:50 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.34 2009/05/05 13:24:01 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -11,16 +9,18 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
-#include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "MitAna/DataTree/interface/ElectronCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/Track.h"
+#include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

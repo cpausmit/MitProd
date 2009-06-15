@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloMet.h,v 1.8 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerCaloMet.h,v 1.9 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerCaloMet
 //
@@ -11,12 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERCALOMET_H
 #define MITPROD_TREEFILLER_FILLERCALOMET_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/CaloMetFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

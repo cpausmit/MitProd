@@ -1,12 +1,12 @@
-// $Id: FillerPFTaus.cc,v 1.1 2009/03/20 18:47:46 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.2 2009/03/22 10:00:46 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/PFTauCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

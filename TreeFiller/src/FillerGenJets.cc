@@ -1,14 +1,14 @@
-// $Id: FillerGenJets.cc,v 1.2 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerGenJets.cc,v 1.3 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+#include "MitAna/DataTree/interface/GenJetCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

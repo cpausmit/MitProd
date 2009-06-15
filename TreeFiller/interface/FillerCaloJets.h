@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.10 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.11 2009/03/20 18:46:58 bendavid Exp $
 //
 // FillerCaloJets
 //
@@ -11,12 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERCALOJETS_H
 #define MITPROD_TREEFILLER_FILLERCALOJETS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/CaloJetFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

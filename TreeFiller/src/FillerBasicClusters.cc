@@ -1,11 +1,11 @@
-// $Id: FillerBasicClusters.cc,v 1.4 2009/03/03 18:10:00 bendavid Exp $
+// $Id: FillerBasicClusters.cc,v 1.5 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "MitAna/DataTree/interface/BasicClusterCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

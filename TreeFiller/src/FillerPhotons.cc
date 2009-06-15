@@ -1,8 +1,6 @@
-// $Id: FillerPhotons.cc,v 1.12 2009/03/10 15:56:01 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.13 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -13,6 +11,8 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/PhotonCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

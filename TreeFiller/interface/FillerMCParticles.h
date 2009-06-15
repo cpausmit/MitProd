@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.6 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.7 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerMCParticles
 //
@@ -14,13 +14,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 #define MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 
-#include <map>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/MCParticleFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.15 2009/03/18 14:58:18 loizides Exp $
+// $Id: FillerElectrons.h,v 1.16 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerElectrons
 //
@@ -11,13 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERELECTRONS_H
 #define MITPROD_TREEFILLER_FILLERELECTRONS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/ElectronFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

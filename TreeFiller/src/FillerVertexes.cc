@@ -1,11 +1,11 @@
-// $Id: FillerVertexes.cc,v 1.3 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerVertexes.cc,v 1.4 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/VertexCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

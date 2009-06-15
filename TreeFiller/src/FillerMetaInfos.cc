@@ -1,7 +1,6 @@
-// $Id: FillerMetaInfos.cc,v 1.32 2009/03/24 13:40:49 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.33 2009/03/25 05:05:09 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -12,6 +11,8 @@
 #include "MitAna/DataTree/interface/TriggerMask.h"
 #include "MitAna/DataTree/interface/TriggerName.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
+#include "MitAna/DataTree/interface/TriggerObjectCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 #include <TObjectTable.h>
 #include <TIterator.h>
 

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.6 2009/03/18 14:58:18 loizides Exp $
+// $Id: FillerStableParts.h,v 1.7 2009/03/22 10:00:46 loizides Exp $
 //
 // FillerStableParts
 //
@@ -12,9 +12,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERSTABLEPARTS_H
 #define MITPROD_TREEFILLER_FILLERSTABLEPARTS_H
 
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/StableParticleFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
-#include "MitAna/DataTree/interface/Collections.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

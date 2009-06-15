@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.3 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerBasicClusters.h,v 1.4 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerBasicClusters
 //
@@ -12,11 +12,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
 #define MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/BasicClusterFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {
@@ -28,7 +26,6 @@ namespace mithep
 
       void                             BookDataBlock(TreeWriter &tws);
       void 	                       FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-//      const BasicClusterMap           *GetBasicClusterMap() const { return basicClusterMap_; }
   
     private:
       std::string                      edmName_;             //edm name of clusters

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.8 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerConversions.h,v 1.9 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerConversions
 //
@@ -12,12 +12,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERCONVERSIONS_H
 #define MITPROD_TREEFILLER_FILLERCONVERSIONS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/ConversionFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

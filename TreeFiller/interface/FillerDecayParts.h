@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerDecayParts.h,v 1.11 2009/03/15 11:20:40 loizides Exp $
+// $Id: FillerDecayParts.h,v 1.12 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerDecayParts
 //
@@ -12,16 +12,18 @@
 #ifndef MITPROD_TREEFILLER_FILLERDECAYPARTS_H
 #define MITPROD_TREEFILLER_FILLERDECAYPARTS_H
 
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
-#include "MitProd/TreeFiller/interface/FillerTracks.h"
-#include "MitProd/TreeFiller/interface/AssociationMaps.h"
-#include "MitProd/TreeFiller/interface/HitPatternReader.h"
-#include "MitAna/DataTree/interface/Particle.h"
-#include "MitAna/DataTree/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
+#include "MitAna/DataTree/interface/StableDataFwd.h"
+#include "MitAna/DataTree/interface/DecayDataFwd.h"
+#include "MitAna/DataTree/interface/DecayParticleFwd.h"
+#include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitProd/TreeFiller/interface/HitPatternReader.h"
 
 namespace mithep 
 {
+  class Partice;
+
   class FillerDecayParts : public BaseFiller
   {  
     public:
@@ -46,7 +48,7 @@ namespace mithep
       mithep::DecayParticleArr                 *decays_;           //array of DecayParticles
       mithep::StableDataArr                    *stableData_;       //array of StableDatas
       mithep::DecayDataArr                     *decayData_;        //array of DecayDatas
-      HitPatternReader                          hitReader_;        //hit pattern reader
+      mithep::HitPatternReader                  hitReader_;        //hit pattern reader
   };
 }
 #endif

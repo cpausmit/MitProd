@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.13 2008/09/14 15:37:42 loizides Exp $
+// $Id: BaseFiller.h,v 1.14 2009/03/15 11:20:40 loizides Exp $
 //
 // BaseFiller
 //
@@ -11,19 +11,18 @@
 #ifndef MITPROD_TREEFILLER_BASEFILLER_H
 #define MITPROD_TREEFILLER_BASEFILLER_H
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitProd/ObjectService/interface/ObjectService.h"
-#include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include <TString.h>
 
 namespace mithep 
 {
   class BranchTable;
+  class ObjectService;
 
   class BaseFiller
   {
@@ -53,8 +52,7 @@ namespace mithep
       template <typename TYPE>
       bool                     GetProductSafe(const std::string name, edm::Handle<TYPE> &prod,
                                               const edm::Event &event) const;    
-
-      ObjectService           *OS()            { return FillMitTree::os(); }
+      ObjectService           *OS();
 
       const std::string        name_;    //name of this filler
       const std::string        brtname_; //name of branch table (def = BranchTable)

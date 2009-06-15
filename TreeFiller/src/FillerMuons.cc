@@ -1,14 +1,13 @@
-// $Id: FillerMuons.cc,v 1.20 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerMuons.cc,v 1.21 2009/03/20 18:46:22 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "MitAna/DataTree/interface/Muon.h"
-#include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/MuonCol.h"
+#include "MitAna/DataTree/interface/Track.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

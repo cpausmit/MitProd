@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.5 2009/03/20 18:05:40 loizides Exp $
+// $Id: FillerMCEventInfo.h,v 1.6 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerMCEventInfo
 //
@@ -12,7 +12,6 @@
 #ifndef MITPROD_TREEFILLER_FILLERMCEVENTINFO_H
 #define MITPROD_TREEFILLER_FILLERMCEVENTINFO_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 

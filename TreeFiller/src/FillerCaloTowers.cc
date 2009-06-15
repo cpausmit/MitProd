@@ -1,14 +1,14 @@
-// $Id: FillerCaloTowers.cc,v 1.9 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerCaloTowers.cc,v 1.10 2009/03/22 11:35:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "MitAna/DataTree/interface/CaloTowerCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

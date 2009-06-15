@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTaus.h,v 1.1 2009/03/20 18:47:45 bendavid Exp $
+// $Id: FillerCaloTaus.h,v 1.2 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerCaloTaus
 //
@@ -11,11 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERCALOTAUS_H
 #define MITPROD_TREEFILLER_FILLERCALOTAUS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/CaloTauFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

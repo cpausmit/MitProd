@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTowers.h,v 1.5 2009/03/18 14:58:18 loizides Exp $
+// $Id: FillerCaloTowers.h,v 1.6 2009/03/22 10:00:45 loizides Exp $
 //
 // FillerCaloTowers
 //
@@ -11,11 +11,9 @@
 #ifndef MITPROD_TREEFILLER_FILLERCALOTOWERS_H
 #define MITPROD_TREEFILLER_FILLERCALOTOWERS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "MitAna/DataUtil/interface/TreeWriter.h"
-#include "MitAna/DataTree/interface/Collections.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/CaloTowerFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
+#include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 
 {

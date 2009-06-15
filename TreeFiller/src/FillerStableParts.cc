@@ -1,19 +1,16 @@
-// $Id: FillerStableParts.cc,v 1.10 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.11 2009/03/15 11:20:41 loizides Exp $
 
-#include "MitAna/DataTree/interface/StableParticle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
-#include "MitEdm/DataFormats/interface/BasePartFwd.h"
-#include "MitEdm/DataFormats/interface/StablePart.h"
-#include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/StableParticleCol.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

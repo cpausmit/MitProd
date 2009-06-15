@@ -1,12 +1,12 @@
-// $Id: FillerCaloTaus.cc,v 1.2 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerCaloTaus.cc,v 1.3 2009/04/09 08:01:08 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "MitAna/DataTree/interface/Names.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"
+#include "MitAna/DataTree/interface/CaloTauCol.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

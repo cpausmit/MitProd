@@ -1,9 +1,11 @@
-// $Id: BaseFiller.cc,v 1.6 2008/09/14 15:37:43 loizides Exp $
+// $Id: BaseFiller.cc,v 1.7 2009/03/15 11:20:41 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitAna/DataTree/interface/BranchName.h"
 #include "MitAna/DataTree/interface/BranchTable.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/TreeFiller/interface/FillMitTree.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 #include <TSystem.h>
 #include <TError.h>
 
@@ -48,6 +50,14 @@ void BaseFiller::AddBranchDep(const char *n, const char *d)
 
   if (!brtable_->Find(n,d))
     brtable_->Add(new BranchName(n,d));
+}
+
+//--------------------------------------------------------------------------------------------------
+ObjectService *BaseFiller::OS()           
+{ 
+  // Return ObjectService.
+
+  return FillMitTree::os(); 
 }
 
 //--------------------------------------------------------------------------------------------------

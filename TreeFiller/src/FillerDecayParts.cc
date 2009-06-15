@@ -1,23 +1,19 @@
-// $Id: FillerDecayParts.cc,v 1.15 2009/02/26 17:04:03 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.16 2009/03/15 11:20:41 loizides Exp $
 
-#include "MitAna/DataTree/interface/DecayParticle.h"
-#include "MitAna/DataTree/interface/DaughterData.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
-#include "MitEdm/DataFormats/interface/DecayPart.h"
-#include "MitEdm/DataFormats/interface/BasePart.h"
-#include "MitEdm/DataFormats/interface/BasePartFwd.h"
-#include "MitProd/TreeFiller/interface/FillerDecayParts.h"
+#include "MitAna/DataTree/interface/StableDataCol.h"
+#include "MitAna/DataTree/interface/DecayDataCol.h"
+#include "MitAna/DataTree/interface/DecayParticleCol.h"
 #include "MitAna/DataTree/interface/Names.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
 using namespace edm;

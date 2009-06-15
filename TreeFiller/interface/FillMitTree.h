@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.12 2009/03/22 10:00:45 loizides Exp $
+// $Id: FillMitTree.h,v 1.13 2009/04/06 19:36:47 loizides Exp $
 //
 // FillMitTree
 //
@@ -15,16 +15,13 @@
 #define MITPROD_TREEFILLER_FILLMITTREE_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "MitProd/ObjectService/interface/ObjectService.h"
 
 namespace mithep 
 {
   class BranchTable;
   class BaseFiller;
   class TreeWriter;
+  class ObjectService;
 
   class FillMitTree : public edm::EDAnalyzer
   {
