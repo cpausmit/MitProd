@@ -1,13 +1,13 @@
-// $Id: FillerMCParticles.cc,v 1.14 2009/05/24 12:54:32 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.15 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"

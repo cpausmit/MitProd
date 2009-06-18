@@ -1,10 +1,10 @@
-// $Id: FillerMCEventInfo.cc,v 1.5 2009/03/22 10:00:29 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.6 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
