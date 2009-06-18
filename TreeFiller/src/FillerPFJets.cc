@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.4 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerPFJets.cc,v 1.5 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -134,7 +134,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     GetProduct(simpleSecondaryVertexBJetTagsName_, hSimpleSecondaryVertexBJetTags, event);    
     GetProduct(combinedSecondaryVertexBJetTagsName_, hCombinedSecondaryVertexBJetTags, event);    
     GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
-    GetProduct(impactParameterMVABJetTagsName_, hImpactParameterMVABJetTags, event);    
+    //GetProduct(impactParameterMVABJetTagsName_, hImpactParameterMVABJetTags, event);    
     GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
     GetProduct(trackCountingHighPurBJetTagsName_, hTrackCountingHighPurBJetTags, event);    
     GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
@@ -217,8 +217,8 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
         (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
       jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
         (*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
-      jet->SetImpactParameterMVABJetTagsDisc(
-        (*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
+      //jet->SetImpactParameterMVABJetTagsDisc(
+      //  (*(hImpactParameterMVABJetTags.product()))[jetBaseRef]);  
       jet->SetTrackCountingHighEffBJetTagsDisc(
         (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
       jet->SetTrackCountingHighPurBJetTagsDisc(
