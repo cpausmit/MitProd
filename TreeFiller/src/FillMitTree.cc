@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.41 2009/03/20 18:47:46 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.42 2009/03/23 22:13:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,7 +13,6 @@
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
-#include "MitProd/TreeFiller/interface/FillerConversionElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
@@ -274,13 +273,6 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerElectrons")==0) {
       FillerElectrons *fillerElectrons = new FillerElectrons(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerElectrons);
-      continue;
-    }  
-
-    if (ftype.compare("FillerConversionElectrons")==0) {
-      FillerConversionElectrons *fillerConversionElectrons = 
-        new FillerConversionElectrons(cfg, name.c_str(), defactive_);
-      addActiveFiller(fillerConversionElectrons);
       continue;
     }  
 
