@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.5 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerPATElectrons.cc,v 1.6 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -102,7 +102,7 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
       outElectron->SetHadronicOverEm(iM->hadronicOverEm());
       outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
       outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
-      outElectron->SetNumberOfClusters(iM->numberOfClusters());
+      outElectron->SetNumberOfClusters(iM->basicClustersSize());
       outElectron->SetClassification(iM->classification());           
       outElectron->SetCaloIsolation(iM->caloIso());
       outElectron->SetTrackIsolation(iM->trackIso());
