@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.11 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerStableParts.cc,v 1.12 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -24,9 +24,12 @@ FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, 
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","")),
   basePartMapName_(Conf().getUntrackedParameter<string>("basePartMap",
                                                         Form("%sMapName",mitName_.c_str()))),
+  trackPartMapName_(Conf().getUntrackedParameter<string>("trackPartMap",
+                                                        Form("%sTrackMapName",mitName_.c_str()))),      
   trackMap_(0),
   stables_(new mithep::StableParticleArr(250)),
-  basePartMap_(new mithep::BasePartMap)
+  basePartMap_(new mithep::BasePartMap),
+  trackPartMap_(new mithep::TrackPartMap)
 {
   // Constructor.
 }
@@ -38,6 +41,7 @@ FillerStableParts::~FillerStableParts()
 
   delete stables_;
   delete basePartMap_;
+  delete trackPartMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +55,10 @@ void FillerStableParts::BookDataBlock(TreeWriter &tws)
   if (!basePartMapName_.empty()) {
     basePartMap_->SetBrName(mitName_);
     OS()->add(basePartMap_,basePartMapName_);
+  }
+  if (!trackPartMapName_.empty()) {
+    trackPartMap_->SetBrName(mitName_);
+    OS()->add(trackPartMap_,trackPartMapName_);
   }
   if (!trackMapName_.empty()) {
     trackMap_ = OS()->get<TrackMap>(trackMapName_);
@@ -79,6 +87,7 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
     mithep::StableParticle *d = stables_->Allocate();
     new (d) mithep::StableParticle(p.pid());
     basePartMap_->Add(thePtr,d);
+    trackPartMap_->Add(p.trackPtr(),d);
     if (trackMap_)
       d->SetTrk(trackMap_->GetMit(p.trackPtr()));
   }
