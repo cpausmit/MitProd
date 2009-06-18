@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.14 2009/03/18 14:57:58 loizides Exp $
+// $Id: FillerConversions.cc,v 1.15 2009/06/15 15:00:25 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -15,10 +15,13 @@ FillerConversions::FillerConversions(const ParameterSet &cfg, const char *name, 
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
-  convElectronMapName_(Conf().getUntrackedParameter<string>("convElectronMapName","")),
+  //convElectronMapName_(Conf().getUntrackedParameter<string>("convElectronMapName","")),
+  stablePartMapNames_(Conf().exists("stablePartMaps") ? 
+                    Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
+                    vector<string>()),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName",
                                                           Form("%sMapName",mitName_.c_str()))),
-  convElectronMap_(0),
+  //convElectronMap_(0),
   conversions_(new mithep::ConversionArr(16)),
   conversionMap_(new mithep::ConversionMap)
 {
@@ -47,10 +50,21 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
     OS()->add(conversionMap_,conversionMapName_);
   }
 
-  if (!convElectronMapName_.empty()) {
-    convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_);
-    if (convElectronMap_)
-      AddBranchDep(mitName_, convElectronMap_->GetBrName());
+//   if (!convElectronMapName_.empty()) {
+//     convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_);
+//     if (convElectronMap_)
+//       AddBranchDep(mitName_, convElectronMap_->GetBrName());
+//   }
+  
+  for (std::vector<std::string>::const_iterator bmapName = stablePartMapNames_.begin();
+        bmapName!=stablePartMapNames_.end(); ++bmapName) {
+    if (!bmapName->empty()) {
+      const TrackPartMap *map = OS()->get<TrackPartMap>(*bmapName);
+      if (map) {
+        stablePartMaps_.push_back(map);
+        AddBranchDep(mitName_,map->GetBrName());
+      }
+    }
   }
 }
 
@@ -92,11 +106,11 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                                    inConversion->pairMomentum().y(),
                                    inConversion->pairMomentum().z());
         
-    if (convElectronMap_) {
+    if (stablePartMaps_.size()) {
       std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
-        outConversion->AddDaughter(convElectronMap_->GetMit(refToPtr(*trackRef)));
+        outConversion->AddDaughter(getMitParticle(refToPtr(*trackRef)));
       }
     }
     
@@ -105,4 +119,27 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   }
 
   conversions_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+mithep::Particle *FillerConversions::getMitParticle(edm::Ptr<reco::Track> ptr) const
+{
+  // Return our particle referenced by the edm pointer.
+
+  mithep::Particle *mitPart = 0;
+  for (std::vector<const mithep::TrackPartMap*>::const_iterator bmap = stablePartMaps_.begin();
+        bmap!=stablePartMaps_.end(); ++bmap) {
+    const mithep::TrackPartMap *theMap = *bmap;
+    if (theMap->HasMit(ptr)) {
+      mitPart = theMap->GetMit(ptr);
+      return mitPart;
+    }
+  }
+  
+  if (!mitPart)
+    throw edm::Exception(edm::errors::Configuration, "FillerConversions::FillDataBlock()\n")
+    << "Error! MITHEP Object " 
+    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+    
+  return mitPart;
 }
