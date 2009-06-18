@@ -19,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.120 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('testingconf nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -92,6 +92,18 @@ process.MitTreeFiller.SisCone5Jets.jetToVertexActive = True
 process.MitTreeFiller.SisCone7Jets.jetToVertexActive = True
 process.MitTreeFiller.Kt4Jets.jetToVertexActive      = True
 process.MitTreeFiller.Kt6Jets.jetToVertexActive      = True
+
+#Load track detector associator for Track-ECal association
+process.load("MitProd.TreeFiller.TrackEcalAssociation_cfi")
+process.MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(process.TrackAssociatorParameters)
+#Enable Track-Ecal assocation in fillers
+process.MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
+process.MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
+process.MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+process.MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
+process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
+process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
+process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 
 # Additional output definition
