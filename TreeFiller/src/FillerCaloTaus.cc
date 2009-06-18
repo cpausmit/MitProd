@@ -1,4 +1,4 @@
-// $Id: FillerCaloTaus.cc,v 1.3 2009/04/09 08:01:08 loizides Exp $
+// $Id: FillerCaloTaus.cc,v 1.4 2009/06/15 15:00:25 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -141,10 +141,10 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
     if (barrelBCMap_ && endcapBCMap_) { 
       for (uint i=0; i<tagInfo->neutralECALBasicClusters().size(); ++i) {
         reco::BasicClusterRef clusterRef = tagInfo->neutralECALBasicClusters().at(i);
-        if ( barrelBCMap_->HasMit(clusterRef) )
-          tau->AddNeutralBC(barrelBCMap_->GetMit(clusterRef));
-        else if ( endcapBCMap_->HasMit(clusterRef) )
-          tau->AddNeutralBC(endcapBCMap_->GetMit(clusterRef));
+        if ( barrelBCMap_->HasMit(refToPtr(clusterRef)) )
+          tau->AddNeutralBC(barrelBCMap_->GetMit(refToPtr(clusterRef)));
+        else if ( endcapBCMap_->HasMit(refToPtr(clusterRef)) )
+          tau->AddNeutralBC(endcapBCMap_->GetMit(refToPtr(clusterRef)));
         else throw edm::Exception(edm::errors::Configuration, "FillerCaloTaus:FillDataBlock()\n")
              << "Error! Basic Cluster reference in unmapped collection " << edmName_ << endl;
       }
