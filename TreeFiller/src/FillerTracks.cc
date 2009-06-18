@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.30 2009/03/19 22:19:16 loizides Exp $
+// $Id: FillerTracks.cc,v 1.31 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -99,6 +99,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 	
   trackMap_->SetEdmProductId(hTrackProduct.id().id());
   const View<reco::Track> inTracks = *(hTrackProduct.product());  
+  
+  if (verbose_>1)
+    printf("Track Collection: %s, id=%i\n",edmName_.c_str(),hTrackProduct.id().id());
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
