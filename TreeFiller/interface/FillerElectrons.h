@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.16 2009/03/22 10:00:45 loizides Exp $
+// $Id: FillerElectrons.h,v 1.17 2009/06/15 15:00:24 loizides Exp $
 //
 // FillerElectrons
 //
@@ -40,10 +40,9 @@ namespace mithep
       std::string                    endcapBasicClusterName_;    //name of endcap basic clusters
       std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
       std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
+      std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
-      std::string                    eIDLikelihoodName_;         //name of likelihood eID algo
-      std::string                    eIDNeuralNetName_;          //name of neural net eID algo
       std::string                    isoTrackColName_;           //name of iso track collection
       std::string                    isoCaloTowerColName_;       //name of iso CaloTower collection
       std::string                    ecalJurassicIsoName_;       //name of Ecal Jurassic isolation
@@ -54,7 +53,8 @@ namespace mithep
       const mithep::TrackMap        *gsfTrackMap_;               //map wrt gsf tracks
       const mithep::TrackMap        *trackerTrackMap_;           //map wrt tracker tracks
       const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
-      const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters 
+      const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters
+      const mithep::SuperClusterMap *pfSuperClusterMap_;         //map wrt pflow super clusters 
   };
 }
 #endif

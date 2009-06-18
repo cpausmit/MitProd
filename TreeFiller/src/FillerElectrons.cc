@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.34 2009/05/05 13:24:01 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.35 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -41,10 +41,9 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   endcapBasicClusterName_(Conf().getUntrackedParameter<string>("endcapBasicClusterName", "")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
+  pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),  
-  eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihood","eidLikelihood")),     
-  eIDNeuralNetName_(Conf().getUntrackedParameter<string>("eIDNeuralNet","eidNeuralNet")),
   isoTrackColName_(Conf().getUntrackedParameter<string>
                    ("IsolationTrackCollectionName","generalTracks")),
   isoCaloTowerColName_(Conf().getUntrackedParameter<string>
@@ -101,6 +100,11 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (endcapSuperClusterMap_)
       AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
+  if (!pfSuperClusterMapName_.empty()) {
+    pfSuperClusterMap_ = OS()->get<SuperClusterMap>(pfSuperClusterMapName_);
+    if (pfSuperClusterMap_)
+      AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,8 +122,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
   GetProduct(eIDCutBasedTightName_, eidTightMap, event);
-  Handle<edm::ValueMap<float> > eidLikelihoodMap;
-  GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);
 
   // get gsf track association map if needed
   mitedm::TrackAssociation gsfAssociation;
@@ -153,7 +155,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHadronicOverEm(iM->hadronicOverEm());
     outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
     outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
-    outElectron->SetNumberOfClusters(iM->numberOfClusters());
+    outElectron->SetNumberOfClusters(iM->basicClustersSize());
     outElectron->SetClassification(iM->classification());
 
     // shower shape variables   
@@ -213,26 +215,33 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     etLow = 0.0;
     double intRadius = 0.02;
     //int hcalDepth = -1;  //-1 means we take all depths
-    EgammaTowerIsolation myTowerIsolation(extRadius,intRadius,etLow,caloTowers.product());
+    EgammaTowerIsolation myTowerIsolation(extRadius,intRadius,etLow,
+                                          EgammaTowerIsolation::AllDepths,
+                                          caloTowers.product());
     double towerIsoValue = myTowerIsolation.getTowerEtSum(&(*iM));
     outElectron->SetCaloTowerIsolation(towerIsoValue);
   
     // fill the isolation values
     outElectron->SetCaloIsolation(ecalIsoValue);
 
-    // get and fill Track isolation        
-    Handle<edm::ValueMap<double> > eleIsoFromDepsTkValueMap;
-    GetProduct(trackerIsoName_, eleIsoFromDepsTkValueMap, event);
-    outElectron->SetTrackIsolation((*eleIsoFromDepsTkValueMap)[eRef]); 
-   
-    // get and fill Jurassic isolation values
-    Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;
-    GetProduct(ecalJurassicIsoName_, eleIsoFromDepsEcalFromHitsValueMap, event);
-    Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
-    GetProduct(hcalJurassicIsoName_, eleIsoFromDepsHcalFromHitsValueMap, event);
+//     // get and fill Track isolation        
+//     Handle<edm::ValueMap<double> > eleIsoFromDepsTkValueMap;
+//     GetProduct(trackerIsoName_, eleIsoFromDepsTkValueMap, event);
+//     outElectron->SetTrackIsolation((*eleIsoFromDepsTkValueMap)[eRef]); 
+//    
+//     // get and fill Jurassic isolation values
+//     Handle<edm::ValueMap<double> > eleIsoFromDepsEcalFromHitsValueMap;
+//     GetProduct(ecalJurassicIsoName_, eleIsoFromDepsEcalFromHitsValueMap, event);
+//     Handle<edm::ValueMap<double> > eleIsoFromDepsHcalFromHitsValueMap;
+//     GetProduct(hcalJurassicIsoName_, eleIsoFromDepsHcalFromHitsValueMap, event);
+// 
+//     outElectron->SetEcalJurassicIso((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
+//     outElectron->SetHcalIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
 
-    outElectron->SetEcalJurassicIso((*eleIsoFromDepsEcalFromHitsValueMap)[eRef]);    
-    outElectron->SetHcalIsolation((*eleIsoFromDepsHcalFromHitsValueMap)[eRef]);
+    outElectron->SetTrackIsolation(iM->dr04TkSumPt());
+    outElectron->SetEcalJurassicIso(iM->dr04EcalRecHitSumEt());    
+    outElectron->SetHcalIsolation(iM->dr04HcalDepth1TowerSumEt());
+     
 
     // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
@@ -240,8 +249,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     // make tracker track links, relinking from gsf track associations if configured and 
     // link is otherwise absent
     if (trackerTrackMap_) {
-      if (iM->track().isNonnull()) 
-        outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+      if (iM->closestCtfTrackRef().isNonnull()) 
+        outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
       else if (!gsfTrackAssocName_.empty() && iM->gsfTrack().isNonnull()) {
         reco::TrackBaseRef gsfRef(iM->gsfTrack());
         std::vector<std::pair<reco::TrackBaseRef, double> > matchedTracks;
@@ -266,17 +275,23 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
           outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(trackerRef)));
       }
     }
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iM->superCluster().isNonnull())
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
       if(isBarrel) {
         outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        
-      } else {
+      }
+      else if (endcapSuperClusterMap_->HasMit(iM->superCluster())) {
         outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
       }
+      else if (pfSuperClusterMap_->HasMit(iM->superCluster())) {
+        outElectron->SetSuperCluster(pfSuperClusterMap_->GetMit(iM->superCluster()));  
+      }
+      else throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+             << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+    }
 
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
-    outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
     
     if (verbose_>1) {
       double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());
