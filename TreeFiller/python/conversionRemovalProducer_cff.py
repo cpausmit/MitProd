@@ -1,4 +1,4 @@
-# $Id: conversionRemovalProducer_cff.py,v 1.1 2009/03/20 20:42:47 bendavid Exp $
+# $Id: conversionRemovalProducer_cff.py,v 1.1 2009/03/22 08:49:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,10 +11,10 @@ from MitEdm.Producers.conversions_cfi import *
 mvfConversionsRemoval = MitEdm.Producers.conversions_cfi.mvfConversions.clone()
 
 #stableParts.iTracks = 'ckfOutInTracksFromConversions'
-stablePartsGsf.iTracks = 'pixelMatchGsfFit'
+stablePartsGsf.iTracks = 'electronGsfTracks'
 stablePartsGsf.oPid = 11
 mvfConversionsRemoval.rhoMin = 0.9
-mvfConversionsRemoval.iStables1 = 'stableParts'
+mvfConversionsRemoval.iStables1 = 'generalElectronsStable'
 mvfConversionsRemoval.iStables2 = 'stablePartsGsf'
 
 conversionRemovalProducer = cms.Sequence(stablePartsGsf*mvfConversionsRemoval)

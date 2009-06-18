@@ -1,12 +1,12 @@
-# $Id: vProducer_cff.py,v 1.13 2009/03/21 12:46:57 loizides Exp $
+# $Id: vProducer_cff.py,v 1.1 2009/03/22 08:49:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 import MitEdm.Producers.stableParts_cfi
 
-from Configuration.StandardSequences.Services_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.MagneticField_cff import *
+# from Configuration.StandardSequences.Services_cff import *
+# from Configuration.StandardSequences.Geometry_cff import *
+# from Configuration.StandardSequences.MagneticField_cff import *
 
 PisStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
 

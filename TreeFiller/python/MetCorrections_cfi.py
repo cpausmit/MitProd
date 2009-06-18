@@ -1,11 +1,11 @@
-# $Id: MetCorrections_cfi.py,v 1.6 2009/03/25 09:00:25 bendavid Exp $
+# $Id: MetCorrections_cfi.py,v 1.7 2009/03/25 10:07:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff           import *
-from Configuration.StandardSequences.MagneticField_cff           import *
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi           import *
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi       import *
+# from Configuration.StandardSequences.MagneticField_cff           import *
+# from Geometry.CommonDetUnit.globalTrackingGeometry_cfi           import *
+# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi       import *
 from TrackingTools.TrackAssociator.default_cfi                   import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 
@@ -61,7 +61,7 @@ corMetType1Kt6 = cms.EDFilter("Type1MET",
     corrector           = cms.string('L2L3JetCorrectorKT6Calo')
 )
 
-MitMetCorrections = cms.Sequence(MetMuonCorrections *
+MitMetCorrections = cms.Sequence(#MetMuonCorrections *
                                  corMetType1Icone5 *
 				 corMetType1Scone5 *
                                  corMetType1Scone7 *
