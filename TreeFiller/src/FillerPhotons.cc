@@ -1,13 +1,10 @@
-// $Id: FillerPhotons.cc,v 1.13 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.14 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -23,11 +20,11 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
-  photonIDName_(Conf().getUntrackedParameter<string>("photonIDName",
-                                                     "PhotonIDProd:PhotonAssociatedID")),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
+  phIDCutBasedTightName_(Conf().getUntrackedParameter<string>("phIDCutBasedTightName","PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("phIDCutBasedLooseName","PhotonIDProd:PhotonCutBasedIDLoose")),  
   photons_(new mithep::PhotonArr(16)), 
   conversionMap_(0),
   barrelSuperClusterMap_(0),
@@ -82,54 +79,55 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   GetProduct(edmName_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
-  // get associated PhotonID objects
-  Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
-  GetProduct(photonIDName_, photonIDMapColl, event);
-  const reco::PhotonIDAssociationCollection *photonIDMap = photonIDMapColl.product();
-
+  // handles to get the photon ID information
+  Handle<edm::ValueMap<bool> > phidLooseMap;
+  GetProduct(phIDCutBasedLooseName_, phidLooseMap, event);
+  Handle<edm::ValueMap<bool> > phidTightMap;
+  GetProduct(phIDCutBasedTightName_, phidTightMap, event);
+  
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
 
     int photonIndex = iP - inPhotons.begin();
-    edm::Ref<reco::PhotonCollection> photonref(hPhotonProduct, photonIndex);
-    reco::PhotonIDAssociationCollection::const_iterator photonIter = photonIDMap->find(photonref);
-    const reco::PhotonIDRef &phID = photonIter->val;
-    const reco::PhotonRef &photon = photonIter->key;
+    reco::PhotonRef phRef(hPhotonProduct, photonIndex);
 
     mithep::Photon *outPhoton = photons_->Allocate();
-    new (outPhoton) mithep::Photon(photon->px(),photon->py(),photon->pz(),photon->energy());
-    outPhoton->SetIsConverted(photon->isConverted());    
-    outPhoton->SetR9(phID->r9());
-    outPhoton->SetHadOverEm(photon->hadronicOverEm());
-    outPhoton->SetHasPixelSeed(photon->hasPixelSeed());
-    outPhoton->SetEcalRecHitIso(phID->isolationEcalRecHit());
-    outPhoton->SetHcalRecHitIso(phID->isolationHcalRecHit());
-    outPhoton->SetSolidConeTrkIso(phID->isolationSolidTrkCone());
-    outPhoton->SetHollowConeTrkIso(phID->isolationHollowTrkCone());
-    outPhoton->SetSolidConeNTrk(phID->nTrkSolidCone());
-    outPhoton->SetHollowConeNTrk(phID->nTrkHollowCone());
-    outPhoton->SetIsEBGap(phID->isEBGap());
-    outPhoton->SetIsEEGap(phID->isEEGap());
-    outPhoton->SetIsEBEEGap(phID->isEBEEGap());
-    outPhoton->SetIsLooseEM(phID->isLooseEM());
-    outPhoton->SetIsLoosePhoton(phID->isLoosePhoton());
-    outPhoton->SetIsTightPhoton(phID->isTightPhoton());   
+    new (outPhoton) mithep::Photon(iP->px(),iP->py(),iP->pz(),iP->energy());
+    outPhoton->SetIsConverted(iP->hasConversionTracks());
+    outPhoton->SetR9(iP->r9());
+    outPhoton->SetHadOverEm(iP->hadronicOverEm());
+    outPhoton->SetHasPixelSeed(iP->hasPixelSeed());
+    outPhoton->SetEcalRecHitIso(iP->ecalRecHitSumEtConeDR04());
+    //outPhoton->SetHcalRecHitIso(phID->isolationHcalRecHit());
+    outPhoton->SetSolidConeTrkIso(iP->trkSumPtSolidConeDR04());
+    outPhoton->SetHollowConeTrkIso(iP->trkSumPtHollowConeDR04());
+    outPhoton->SetSolidConeNTrk(iP->nTrkSolidConeDR04());
+    outPhoton->SetHollowConeNTrk(iP->nTrkHollowConeDR04());
+    //still some missing isolation variables here
+    //few missing gap flag variables also
+    outPhoton->SetIsEBGap(iP->isEBGap());
+    outPhoton->SetIsEEGap(iP->isEEGap());
+    outPhoton->SetIsEBEEGap(iP->isEBEEGap());
+    //outPhoton->SetIsLooseEM(phID->isLooseEM()); //deprecated?
+    //moved to valuemaps - TODO
+    outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
+    outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
     // make links to conversions
-    if (photon->isConverted() && conversionMap_) {
-      std::vector<reco::ConversionRef> conversionRefs = photon->conversions();
-      for (std::vector<reco::ConversionRef>::const_iterator conversionRef = 
+    if (iP->hasConversionTracks() && conversionMap_) {
+      reco::ConversionRefVector conversionRefs = iP->conversions();
+      for (reco::ConversionRefVector::const_iterator conversionRef = 
              conversionRefs.begin(); conversionRef != conversionRefs.end(); ++conversionRef) {
         outPhoton->AddConversion(conversionMap_->GetMit(*conversionRef));
       }
     }
 
     // make link to supercluster
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && photon->superCluster().isNonnull())
-      if(barrelSuperClusterMap_->HasMit(photon->superCluster())) {
-        outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(photon->superCluster()));        
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull())
+      if(barrelSuperClusterMap_->HasMit(iP->superCluster())) {
+        outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
       } else {
-        outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(photon->superCluster()));
+        outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
       }
   }
   photons_->Trim();
