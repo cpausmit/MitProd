@@ -1,8 +1,8 @@
-// $Id: FillerBasicClusters.cc,v 1.5 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerBasicClusters.cc,v 1.6 2009/06/15 15:00:25 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "MitAna/DataTree/interface/BasicClusterCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -56,13 +56,13 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusters_->Delete();
   basicClusterMap_->Reset();
 
-  Handle<reco::BasicClusterCollection> hBasicClusterProduct;
+  Handle<reco::CaloClusterCollection> hBasicClusterProduct;
   GetProduct(edmName_, hBasicClusterProduct, event);
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
-  const reco::BasicClusterCollection inBasicClusters = *(hBasicClusterProduct.product());  
+  const reco::CaloClusterCollection inBasicClusters = *(hBasicClusterProduct.product());  
 
   // loop through all basic clusters
-  for (reco::BasicClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
+  for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
        inBC != inBasicClusters.end(); ++inBC) {
 
     mithep::BasicCluster *outBasicCluster = basicClusters_->Allocate();
@@ -72,8 +72,8 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetEnergy(inBC->energy());   
 
     //add basic clusters to the map
-    reco::BasicClusterRef theRef(hBasicClusterProduct, inBC-inBasicClusters.begin());
-    basicClusterMap_->Add(theRef, outBasicCluster);
+    reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
+    basicClusterMap_->Add(thePtr, outBasicCluster);
   }
   basicClusters_->Trim();
 }

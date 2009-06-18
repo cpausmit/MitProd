@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.4 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerSuperClusters.cc,v 1.5 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -99,7 +99,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       outSC->SetSeed(basicClusterMap_->GetMit(inSC->seed()));
     
     // add basic clusters that belong to this super cluster
-    for(reco::basicCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
+    for(reco::CaloCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
       if (basicClusterMap_ && bc->isNonnull())
 	outSC->AddCluster(basicClusterMap_->GetMit(*bc));
     }
@@ -109,11 +109,13 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     superClusterMap_->Add(theRef, outSC);
 
     // add super cluster det ids to the id map
-    std::vector<DetId> hits = inSC->getHitsByDetId();
-    for (std::vector<DetId>::const_iterator ihit = hits.begin();
-          ihit < hits.end(); ++ihit) {
+    //std::vector<DetId> hits = inSC->getHitsByDetId();
+    const std::vector< std::pair<DetId, float> > &pairs = inSC->hitsAndFractions();
+    for (std::vector< std::pair<DetId, float> >::const_iterator ipair = pairs.begin();
+          ipair < pairs.end(); ++ipair) {
 
-      superClusterIdMap_->Add(*ihit,outSC);
+      const DetId &ihit = ipair->first;
+      superClusterIdMap_->Add(ihit,outSC);
     }
   }
   superClusters_->Trim();
