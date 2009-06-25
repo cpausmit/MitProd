@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.14 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.15 2009/06/18 23:00:45 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -97,19 +97,34 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetR9(iP->r9());
     outPhoton->SetHadOverEm(iP->hadronicOverEm());
     outPhoton->SetHasPixelSeed(iP->hasPixelSeed());
-    outPhoton->SetEcalRecHitIso(iP->ecalRecHitSumEtConeDR04());
-    //outPhoton->SetHcalRecHitIso(phID->isolationHcalRecHit());
-    outPhoton->SetSolidConeTrkIso(iP->trkSumPtSolidConeDR04());
-    outPhoton->SetHollowConeTrkIso(iP->trkSumPtHollowConeDR04());
-    outPhoton->SetSolidConeNTrk(iP->nTrkSolidConeDR04());
-    outPhoton->SetHollowConeNTrk(iP->nTrkHollowConeDR04());
-    //still some missing isolation variables here
-    //few missing gap flag variables also
+    
+    //isolation variables for dR=0.3
+    outPhoton->SetEcalRecHitIsoDr03(iP->ecalRecHitSumEtConeDR03());
+    outPhoton->SetHcalTowerSumEtDr03(iP->hcalTowerSumEtConeDR03());
+    outPhoton->SetHcalDepth1TowerSumEtDr03(iP->hcalDepth1TowerSumEtConeDR03());
+    outPhoton->SetHcalDepth2TowerSumEtDr03(iP->hcalDepth2TowerSumEtConeDR03());
+    outPhoton->SetSolidConeTrkIsoDr03(iP->trkSumPtSolidConeDR03());
+    outPhoton->SetHollowConeTrkIsoDr03(iP->trkSumPtHollowConeDR03());
+    outPhoton->SetSolidConeNTrkDr03(iP->nTrkSolidConeDR03());
+    outPhoton->SetHollowConeNTrkDr03(iP->nTrkHollowConeDR03());
+    
+    //isolation variables for dR=0.4
+    outPhoton->SetEcalRecHitIsoDr04(iP->ecalRecHitSumEtConeDR04());
+    outPhoton->SetHcalTowerSumEtDr04(iP->hcalTowerSumEtConeDR04());
+    outPhoton->SetHcalDepth1TowerSumEtDr04(iP->hcalDepth1TowerSumEtConeDR04());
+    outPhoton->SetHcalDepth2TowerSumEtDr04(iP->hcalDepth2TowerSumEtConeDR04());
+    outPhoton->SetSolidConeTrkIsoDr04(iP->trkSumPtSolidConeDR04());
+    outPhoton->SetHollowConeTrkIsoDr04(iP->trkSumPtHollowConeDR04());
+    outPhoton->SetSolidConeNTrkDr04(iP->nTrkSolidConeDR04());
+    outPhoton->SetHollowConeNTrkDr04(iP->nTrkHollowConeDR04());
+
+    //fiducial and quality flags
+    outPhoton->SetIsEB(iP->isEB());
+    outPhoton->SetIsEE(iP->isEE());
     outPhoton->SetIsEBGap(iP->isEBGap());
     outPhoton->SetIsEEGap(iP->isEEGap());
     outPhoton->SetIsEBEEGap(iP->isEBEEGap());
-    //outPhoton->SetIsLooseEM(phID->isLooseEM()); //deprecated?
-    //moved to valuemaps - TODO
+    outPhoton->SetIsLooseEM(true); //deprecated, identical to supercluster preselection in 3_1_X, so set to true
     outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
     outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
