@@ -19,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('testingconf nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -31,11 +31,11 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/7C7CDD0F-C457-DE11-8EEE-000423D951D4.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V1-v1/0001/8459B164-DE66-DE11-9A70-001D09F25393.root')
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
 
 
