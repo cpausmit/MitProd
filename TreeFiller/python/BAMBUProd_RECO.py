@@ -19,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('testingconf nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -46,6 +46,10 @@ process.TreeService = cms.Service("TreeService",
 )
 process.add_(cms.Service("ObjectService"))
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
+
+#Load flavor history
+process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi")
+process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi")
 
 #Load electron isolation value map producers
 #process.load("RecoEgamma.EgammaIsolationAlgos.eleIsoFromDeposits_cff")
@@ -115,6 +119,9 @@ process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 process.p1 = cms.Path(
     #process.eleIsoFromDeposits*
+    process.bFlavorHistoryProducer*
+    process.cFlavorHistoryProducer*
+    process.flavorHistoryFilter*
     process.conversionElectronsStable*
     process.vProducer *
     process.conversionProducer *
