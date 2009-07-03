@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.6 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.7 2009/06/18 23:03:22 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,6 +8,9 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
 using namespace std;
 using namespace edm;
@@ -102,4 +105,10 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
     eventInfo_->SetX1(genPdfInfo->pdf1());
     eventInfo_->SetX2(genPdfInfo->pdf2());
   }
+
+  //Fill Flavor History Path
+  Handle<unsigned int> flavorHistoryPath;
+  GetProduct("flavorHistoryFilter", flavorHistoryPath, event);
+  eventInfo_->SetFlavorHistoryPath(*flavorHistoryPath);
+
 }
