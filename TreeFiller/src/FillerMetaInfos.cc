@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.33 2009/03/25 05:05:09 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.34 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -168,6 +168,11 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   eventHeader_->SetLumiSec(event.luminosityBlock());
   eventHeader_->SetRunNum(runnum);
   eventHeader_->SetIsMC(!event.isRealData());
+  eventHeader_->SetBunchCrossing(event.bunchCrossing());
+  eventHeader_->SetExpType(event.experimentType());
+  eventHeader_->SetOrbitNumber(event.orbitNumber());
+  eventHeader_->SetStoreNumber(event.bunchCrossing());
+  eventHeader_->SetTimeStamp(event.time().value());
 
   // look-up if entry is in map
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
