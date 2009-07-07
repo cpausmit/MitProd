@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.6 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerPATElectrons.cc,v 1.7 2009/06/18 23:04:45 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -104,8 +104,8 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
       outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
       outElectron->SetNumberOfClusters(iM->basicClustersSize());
       outElectron->SetClassification(iM->classification());           
-      outElectron->SetCaloIsolation(iM->caloIso());
-      outElectron->SetTrackIsolation(iM->trackIso());
+      //outElectron->SetCaloIsolation(iM->caloIso());
+      //outElectron->SetTrackIsolation(iM->trackIso());
     }
   }
   electrons_->Trim();
