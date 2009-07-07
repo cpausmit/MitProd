@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.11 2009/03/20 18:46:58 bendavid Exp $
+// $Id: FillerCaloJets.h,v 1.12 2009/06/15 15:00:24 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -44,12 +44,13 @@ namespace mithep
       std::string     simpleSecondaryVertexBJetTagsName_;      //bjet algo discriminant
       std::string     combinedSecondaryVertexBJetTagsName_;    //bjet algo discriminant
       std::string     combinedSecondaryVertexMVABJetTagsName_; //bjet algo discriminant
-      std::string     impactParameterMVABJetTagsName_;         //bjet algo discriminant
       std::string     trackCountingHighEffBJetTagsName_;       //bjet algo discriminant
       std::string     trackCountingHighPurBJetTagsName_;       //bjet algo discriminant
       std::string     softMuonBJetTagsName_;                   //bjet algo discriminant        
-      std::string     softMuonNoIPBJetTagsName_;               //bjet algo discriminant
-      std::string     softElectronBJetTagsName_;               //bjet algo discriminant
+      std::string     softMuonByIP3dBJetTagsName_;             //bjet algo discriminant
+      std::string     softMuonByPtBJetTagsName_;               //bjet algo discriminant
+      std::string     softElectronByIP3dBJetTagsName_;         //bjet algo discriminant
+      std::string     softElectronByPtBJetTagsName_;           //bjet algo discriminant
       std::string     caloTowerMapName_;                //name of imported CaloTowerMap
       std::string     jetMapName_;                      //name of exported CaloJetMap
       const mithep::CaloTowerMap      *caloTowerMap_;   //map wrt CaloTowers
