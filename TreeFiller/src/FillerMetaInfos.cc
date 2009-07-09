@@ -1,9 +1,14 @@
-// $Id: FillerMetaInfos.cc,v 1.34 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.35 2009/07/06 13:38:04 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
@@ -137,8 +142,7 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillDataBlock(const edm::Event &event, 
-                                    const edm::EventSetup &setup)
+void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)
 {
   // Fill our data structures.
 
@@ -191,8 +195,8 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
   runInfo_->SetRunNum(runnum);
 
   Int_t l1entry = l1Entries_;
-//FillL1Info(event,setup);
-//FillL1Trigger(event,setup);
+  FillL1Info(event,setup);
+  FillL1Trig(event,setup);
   if (l1entry < l1Entries_) {
     l1Tree_->Fill();
     runInfo_->SetL1Entry(l1entry);
@@ -214,12 +218,12 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillHltInfo(const edm::Event &event, 
-                                  const edm::EventSetup &setup)
+void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup &setup)
 {
   // Fill HLT trigger table if it changed.
 
-  if (!hltActive_) return;
+  if (!hltActive_) 
+    return;
 
   // check if we can access the hlt config information
   if (hltProcName_.empty()) {
@@ -363,12 +367,12 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event,
 }
  
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillHltTrig(const edm::Event &event, 
-                                  const edm::EventSetup &setup)
+void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup &setup)
 {
   // Fill HLT trigger objects along triggered paths.
 
-  if (!hltActive_) return;
+  if (!hltActive_) 
+    return;
 
   // reset trigger objects
   hltObjs_->Reset();
@@ -506,4 +510,42 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event,
   hltBits_->SetBits(mask);
   hltObjs_->Trim();
   hltRels_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillerMetaInfos::FillL1Info(const edm::Event &event, const edm::EventSetup &setup)
+{
+  //
+
+}
+
+//--------------------------------------------------------------------------------------------------
+void  FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup &setup)
+{
+  //
+
+  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+  setup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
+  const AlgorithmMap &algorithmMap = l1GtMenu->gtAlgorithmMap();
+
+  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    int bitNumber   = (itAlgo->second).algoBitNumber();
+    string algoName = (itAlgo->second).algoName();
+    //algoBitToAlgo[bitNumber] = &(itAlgo->second);
+    cout << " " << bitNumber << algoName << endl;
+  }
+
+  edm::Handle<L1GlobalTriggerReadoutRecord> l1Handle;
+  GetProduct("gtDigis", l1Handle, event);
+  //l1Handle->print(cout);
+  l1Handle->printL1Objects(cout);
+
+  const DecisionWord dWord = l1Handle->decisionWord();
+  for(int i = 0;i!=128;i++){
+    //std::string trig(algorithmMap[i]);
+    bool r=dWord.at(i);
+    //std::cout << trig << " " << r << std::endl;
+  }
+
+
 }

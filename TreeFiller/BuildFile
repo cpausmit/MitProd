@@ -1,9 +1,11 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.18 2009/03/19 16:34:50 loizides Exp $
+# $Id: BuildFile,v 1.19 2009/07/02 15:11:52 bendavid Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/L1TObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/GsfTrackReco>
