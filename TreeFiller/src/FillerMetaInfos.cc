@@ -1,14 +1,9 @@
-// $Id: FillerMetaInfos.cc,v 1.36 2009/07/09 10:57:56 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.37 2009/07/10 13:15:39 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
-//#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-//#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-//#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
@@ -20,19 +15,6 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include <TObjectTable.h>
 #include <TIterator.h>
-
-#if 0
-#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1HFRings.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#endif
 
 using namespace std;
 using namespace edm;
@@ -46,10 +28,6 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   evtName_(Conf().getUntrackedParameter<string>("evtMitName",Names::gkEvtHeaderBrn)),
   runName_(Conf().getUntrackedParameter<string>("runMitName",Names::gkRunInfoBrn)),
   lahName_(Conf().getUntrackedParameter<string>("lahMitName",Names::gkLAHeaderBrn)),
-//  l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
-//  l1TableName_(Conf().getUntrackedParameter<string>("l1MitTableName",Names::gkL1TableBrn)),
-//  l1BitsName_(Conf().getUntrackedParameter<string>("l1MitBitsName",Names::gkL1BitBrn)),
-//  l1ObjsName_(Conf().getUntrackedParameter<string>("l1MitObjsName",Names::gkL1ObjBrn)),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
   hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults")),
   hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
@@ -64,9 +42,6 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   runTree_(0),
   laTree_(0),
   runEntries_(0),
-//  l1Entries_(0),
-//  l1Table_(0),
-//  l1Tree_(0),
   hltBits_(new TriggerMask),
   hltTable_(new vector<string>),
   hltTabMap_(0),
@@ -80,7 +55,8 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
 {
   // Constructor.
 
-  instance_=1; //todo test if already 1..
+  assert(instance_ == 0);
+  ++instance_;
 
   if (Conf().exists("hltProcNames"))
     hltProcNames_ = Conf().getUntrackedParameter<vector<string> >("hltProcNames");
@@ -96,7 +72,6 @@ FillerMetaInfos::~FillerMetaInfos()
   delete eventHeader_;
   delete evtLAHeader_;
   delete runInfo_;
-//  delete l1Table_;
   delete hltBits_;
   delete hltTable_;
   delete hltLabels_;
@@ -105,7 +80,6 @@ FillerMetaInfos::~FillerMetaInfos()
   eventHeader_ = 0;
   evtLAHeader_ = 0;
   runInfo_     = 0;
-//  l1Table_     = 0;
   hltTable_    = 0;
   hltLabels_   = 0;
   hltObjs_     = 0;
@@ -113,7 +87,6 @@ FillerMetaInfos::~FillerMetaInfos()
   runTree_     = 0;
   laTree_      = 0;
   hltTree_     = 0;
-//  l1Tree_      = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +136,6 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
     runmap_.clear();
     fileNum_ = tws_->GetFileNumber();
     runEntries_ = 0;
-//    l1Entries_  = -1;
     hltEntries_ = -1;
   }
 
@@ -205,18 +177,6 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
   eventHeader_->SetRunEntry(runentry);
   runmap_.insert(pair<UInt_t,Int_t>(runnum,runentry));
   runInfo_->SetRunNum(runnum);
-
-#if 0
-  Int_t l1entry = l1Entries_;
-  FillL1Info(event,setup);
-  FillL1Trig(event,setup);
-  if (l1entry < l1Entries_) {
-    l1Tree_->Fill();
-    runInfo_->SetL1Entry(l1entry);
-  } else {
-    runInfo_->SetL1Entry(l1entry-1);
-  }
-#endif
 
   Int_t hltentry = hltEntries_;
   FillHltInfo(event,setup);
@@ -521,115 +481,3 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   hltRels_->Trim();
 }
 
-//--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillL1Info(const edm::Event &event, const edm::EventSetup &setup)
-{
-  //
-
-}
-
-//--------------------------------------------------------------------------------------------------
-void  FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup &setup)
-{
-  //
-
-#if 0
-  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-  setup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-  const AlgorithmMap &algorithmMap = l1GtMenu->gtAlgorithmMap();
-
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    int bitNumber   = (itAlgo->second).algoBitNumber();
-    string algoName = (itAlgo->second).algoName();
-    //algoBitToAlgo[bitNumber] = &(itAlgo->second);
-    cout << " " << bitNumber << algoName << endl;
-  }
-
-  return ;
-
-  edm::Handle<L1GlobalTriggerReadoutRecord> l1Handle;
-  GetProduct("gtDigis", l1Handle, event);
-  //l1Handle->print(cout);
-//  l1Handle->printL1Objects(cout);
-
-  const DecisionWord dWord = l1Handle->decisionWord();
-  for(int i = 0;i!=128;i++){
-    //std::string trig(algorithmMap[i]);
-    bool r=dWord.at(i);
-    //std::cout << trig << " " << r << std::endl;
-  }
-#endif
-}
-
-
-#if 0
-  if (0) {
-    const std::vector<std::string> &test = triggerEventHLT->collectionTags();
-    int iprev = 0;
-    for(int i=0; i<test.size();++i) {
-      cout << i << " " << test.at(i) << endl;
-      
-      int inext(triggerEventHLT->collectionKey(i));
-      cout << "inext " << inext << " iprev " << iprev << endl;
-
-      TString tstr(test.at(i).c_str());
-      if (tstr.Contains("hltL1extraParticles")) {
-        testcount += (inext-iprev);
-        cout << "incremented by " << (inext-iprev) << " " << " have : " << testcount << endl;
-      }
-      // loop over trigger objects
-      const trigger::TriggerObjectCollection &toc(triggerEventHLT->getObjects());
-      for (trigger::size_type k=iprev; k<inext; ++k) {
-        
-        // get trigger object
-        const trigger::TriggerObject &tobj = toc[k];
-        cout << "   " << k << ": "
-             << tobj.id() << " " << tobj.pt() << " " << tobj.eta() 
-             << " " << tobj.phi() << " " << tobj.mass() << endl;
-      }
-      
-      iprev = inext;
-    }
-    cout << "TestCount " << testcount << endl;
-
-
-    using namespace l1extra;
-    Handle<L1EmParticleCollection> h1;
-    GetProduct("hltL1extraParticles:Isolated", h1 , event);
-    cout << "Isolated " << h1->size() << endl;
-    testcount2 += h1->size();
-    Handle<L1EmParticleCollection> h2;
-    GetProduct("hltL1extraParticles:NonIsolated", h2 , event);
-    cout << "Non-Isolated " << h2->size() << endl;
-    testcount2 += h2->size();
-    Handle<L1JetParticleCollection> h3;
-    GetProduct("hltL1extraParticles:Central", h3 , event);
-    cout << "Central " << h3->size() << endl;
-    testcount2 += h3->size();
-    Handle<L1JetParticleCollection> h4;
-    GetProduct("hltL1extraParticles:Forward", h4 , event);
-    cout << "Forward " << h4->size() << endl;
-    testcount2 += h4->size();
-    Handle<L1JetParticleCollection> h5;
-    GetProduct("hltL1extraParticles:Tau", h5 , event);
-    cout << "Tau " << h5->size() << endl;
-    testcount2 += h5->size();
-    Handle<L1MuonParticleCollection> h6;
-    GetProduct("hltL1extraParticles", h6 , event);
-    cout << "Extra " << h6->size() << endl;
-    testcount2 += h6->size();
-    Handle<L1EtMissParticleCollection> h7;
-    GetProduct("hltL1extraParticles:MET", h7 , event);
-    cout << "MET " << h7->size() << endl;
-    testcount2 += h7->size();
-    Handle<L1EtMissParticleCollection> h8;
-    GetProduct("hltL1extraParticles:MHT", h8 , event);
-    cout << "MHT " << h8->size() << endl;
-    testcount2 += h8->size();
-    Handle<L1HFRingsCollection> h9;
-    GetProduct("hltL1extraParticles", h9 , event);
-    cout << "Exra2 " << h9->size() << endl;
-    testcount2 += h9->size();
-    cout << "TestCount2 " << testcount2 << endl;
-  }
-#endif
