@@ -19,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('testingconf nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -31,11 +31,11 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V1-v1/0001/8459B164-DE66-DE11-9A70-001D09F25393.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V2-v1/0002/CEC0E4DD-5D6B-DE11-91DB-001D09F2545B.root')
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_31X_V1::All'
+process.GlobalTag.globaltag = 'MC_31X_V2::All'
 
 
 
@@ -51,22 +51,19 @@ process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi")
 process.load("PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi")
 
-#Load electron isolation value map producers
-#process.load("RecoEgamma.EgammaIsolationAlgos.eleIsoFromDeposits_cff")
-
 #Load stablePart producers
 process.load("MitEdm.Producers.conversionElectronsStable_cfi")
 process.MitTreeFiller.ElectronsStable.active                = True
 process.MitTreeFiller.ConversionInOutElectronsStable.active = True
 process.MitTreeFiller.ConversionOutInElectronsStable.active = True
+process.MitTreeFiller.GsfElectronsStable.active             = True
+process.MitTreeFiller.MergedElectronsStable.active          = True
 
 #Load Mit vProducer
 process.load("MitProd.TreeFiller.vProducer_cff")
 
 #Load Mit Mvf Conversion producer
 process.load("MitProd.TreeFiller.conversionProducer_cff")
-process.load("MitProd.TreeFiller.conversionRemovalProducer_cff")
-
 
 #For JetPlusTracks
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
@@ -109,7 +106,6 @@ process.MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
 process.MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
-
 # Additional output definition
 
 
@@ -118,23 +114,21 @@ process.MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 #process.reconstruction_step = cms.Path(process.reconstruction)
 
 process.p1 = cms.Path(
-    #process.eleIsoFromDeposits*
     process.bFlavorHistoryProducer*
     process.cFlavorHistoryProducer*
     process.flavorHistoryFilter*
     process.conversionElectronsStable*
+    process.mvfConversionElectronsStable*
     process.vProducer *
     process.conversionProducer *
-    process.conversionRemovalProducer *
     process.ZSPJetCorrections*process.JetPlusTrackCorrections*
     process.caloJetMCFlavour*
     process.pfJetMCFlavour*
     process.extraPFJetMCFlavour*
     process.jetvertexAssociationSequence*
-    process.MitTreeFiller*
+    process.MitTreeFiller
     process.vFiller *
-    process.conversionFiller *
-    process.conversionRemovalFiller
+    process.conversionFiller
 )
 
 process.endjob_step = cms.Path(process.endOfProcess)

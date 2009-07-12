@@ -1,23 +1,17 @@
-# $Id: conversionRemovalProducer_cff.py,v 1.1 2009/03/22 08:49:00 loizides Exp $
+# $Id: conversionRemovalProducer_cff.py,v 1.2 2009/06/18 23:10:39 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from MitEdm.Producers.HitDropper_cfi import *
 
-import MitEdm.Producers.stableParts_cfi
-stablePartsGsf = MitEdm.Producers.stableParts_cfi.stableParts.clone()
-
 from MitEdm.Producers.conversions_cfi import *
 mvfConversionsRemoval = MitEdm.Producers.conversions_cfi.mvfConversions.clone()
 
-#stableParts.iTracks = 'ckfOutInTracksFromConversions'
-stablePartsGsf.iTracks = 'electronGsfTracks'
-stablePartsGsf.oPid = 11
 mvfConversionsRemoval.rhoMin = 0.9
 mvfConversionsRemoval.iStables1 = 'generalElectronsStable'
 mvfConversionsRemoval.iStables2 = 'stablePartsGsf'
 
-conversionRemovalProducer = cms.Sequence(stablePartsGsf*mvfConversionsRemoval)
+conversionRemovalProducer = cms.Sequence(mvfConversionsRemoval)
 
 conversionRemovalFiller = cms.EDAnalyzer("FillMitTree",
     fillers = cms.untracked.vstring('StableParts',
@@ -26,8 +20,8 @@ conversionRemovalFiller = cms.EDAnalyzer("FillMitTree",
     StableParts = cms.untracked.PSet(
       active       = cms.untracked.bool(True),
       mitName      = cms.untracked.string('ElectronsStableGsf'),
-      edmName      = cms.untracked.string('stablePartsGsf'),
-      trackMapName = cms.untracked.string('GsfTracksMapName'),
+      edmName      = cms.untracked.string('gsfElectronsStable'),
+      trackMapNames = cms.untracked.vstring('GsfTracksMapName'),
       basePartMap  = cms.untracked.string('ElectronsStableGsfMapName'),
       fillerType   = cms.untracked.string('FillerStableParts')
     ),

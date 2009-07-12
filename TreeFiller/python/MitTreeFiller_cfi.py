@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.39 2009/07/06 06:35:28 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.40 2009/07/10 13:50:02 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -31,6 +31,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ElectronsStable',
                                     'ConversionInOutElectronsStable',
                                     'ConversionOutInElectronsStable',
+                                    'GsfElectronsStable',
+                                    'MergedElectronsStable',
                                     'Conversions',
                                     'Photons',
                                     'PFCandidates',
@@ -330,17 +332,6 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         TrackerIsolationName             = cms.untracked.string('eleIsoFromDepsTk'),
         gsfTrackAssocName                = cms.untracked.string(''),
         fillerType                       = cms.untracked.string('FillerElectrons')
-    ),
-
-    ConversionElectrons = cms.untracked.PSet(
-        active                = cms.untracked.bool(True),
-        mitName               = cms.untracked.string('ConversionElectrons'),
-        convInOutTracksName   = cms.untracked.string('ConversionInOutTracks'),
-        convOutInTracksName   = cms.untracked.string('ConversionOutInTracks'),
-        convInOutTrackMapName = cms.untracked.string('ConversionInOutTracksMapName'),
-        convOutInTrackMapName = cms.untracked.string('ConversionOutInTracksMapName'),
-        convElectronMapName   = cms.untracked.string('ConversionElectronsMapName'),
-        fillerType            = cms.untracked.string('FillerConversionElectrons')
     ),
                    
     Conversions = cms.untracked.PSet(
@@ -781,11 +772,21 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType   = cms.untracked.string('FillerDecayParts')
     ),       
     
+    MergedStableTest = cms.untracked.PSet(
+      active       = cms.untracked.bool(True),
+      mitName      = cms.untracked.string('MergedStableTest'),
+      edmName      = cms.untracked.string('mergedConversionsStable'),
+      trackMapNames = cms.untracked.vstring('ConversionInOutTracksMapName', 'ConversionOutInTracksMapName'),
+      basePartMap  = cms.untracked.string('MergedTestStableMapName'),
+      trackPartMap = cms.untracked.string('MergedTestStableTrackMapName'),
+      fillerType   = cms.untracked.string('FillerStableParts')
+    ),       
+
     ElectronsStable = cms.untracked.PSet(
       active       = cms.untracked.bool(False),
       mitName      = cms.untracked.string('ElectronsStable'),
       edmName      = cms.untracked.string('generalElectronsStable'),
-      trackMapName = cms.untracked.string('TracksMapName'),
+      trackMapNames = cms.untracked.vstring('TracksMapName'),
       basePartMap  = cms.untracked.string('ElectronsStableMapName'),
       trackPartMap = cms.untracked.string('ElectronsStableTrackMapName'),
       fillerType   = cms.untracked.string('FillerStableParts')
@@ -795,7 +796,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       active       = cms.untracked.bool(False),
       mitName      = cms.untracked.string('ConversionInOutElectronsStable'),
       edmName      = cms.untracked.string('ckfInOutElectronsStable'),
-      trackMapName = cms.untracked.string('ConversionInOutTracksMapName'),
+      trackMapNames = cms.untracked.vstring('ConversionInOutTracksMapName'),
       basePartMap  = cms.untracked.string('ConversionInOutElectronsStableMapName'),
       trackPartMap = cms.untracked.string('ConversionInOutElectronsStableTrackMapName'),
       fillerType   = cms.untracked.string('FillerStableParts')
@@ -805,9 +806,33 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       active       = cms.untracked.bool(False),
       mitName      = cms.untracked.string('ConversionOutInElectronsStable'),
       edmName      = cms.untracked.string('ckfOutInElectronsStable'),
-      trackMapName = cms.untracked.string('ConversionOutInTracksMapName'),
+      trackMapNames = cms.untracked.vstring('ConversionOutInTracksMapName'),
       basePartMap  = cms.untracked.string('ConversionOutInElectronsStableMapName'),
       trackPartMap = cms.untracked.string('ConversionOutInElectronsStableTrackMapName'),
       fillerType   = cms.untracked.string('FillerStableParts')
-    ),                                             
+    ),   
+
+    GsfElectronsStable = cms.untracked.PSet(
+      active       = cms.untracked.bool(False),
+      mitName      = cms.untracked.string('GsfElectronsStable'),
+      edmName      = cms.untracked.string('gsfElectronsStable'),
+      trackMapNames = cms.untracked.vstring('GsfTracksMapName'),
+      basePartMap  = cms.untracked.string('ElectronsStableGsfMapName'),
+      fillerType   = cms.untracked.string('FillerStableParts')
+    ),
+
+    MergedElectronsStable = cms.untracked.PSet(
+      active       = cms.untracked.bool(False),
+      mitName      = cms.untracked.string('MergedElectronsStable'),
+      edmName      = cms.untracked.string('mergedElectronsStable'),
+      trackMapNames = cms.untracked.vstring('TracksMapName',
+                                            'ConversionInOutTracksMapName',
+                                            'ConversionOutInTracksMapName',
+                                            'GsfTracksMapName',
+                                            ),
+      basePartMap  = cms.untracked.string('MergedElectronsStableMapName'),
+      trackPartMap = cms.untracked.string('MergedElectronsStableTrackMapName'),
+      fillerType   = cms.untracked.string('FillerStableParts')
+    ),  
+                                          
 )
