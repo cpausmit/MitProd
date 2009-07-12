@@ -1,0 +1,13 @@
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.21 2009/07/10 13:50:02 loizides Exp $
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=root>
+<use name=MitProd/BAMBUSequences>
+#<flags CXXFLAGS="-g">
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=MitProdConfiguration>
+</export>
