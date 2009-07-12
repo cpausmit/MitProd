@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.11 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerCaloTowers.cc,v 1.12 2009/06/18 23:06:37 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -72,31 +72,12 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     mithep::CaloTower *outCaloTower = caloTowers_->Allocate();
     new (outCaloTower) mithep::CaloTower();
        
-    double mass = inCaloTower->mass();
-    double deltaPos = (inCaloTower->hadPosition() - inCaloTower->emPosition()).mag();
     double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
-    
-//     if ( mass > 1e-3)
-//       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-//          << "Error! reco::CaloTower mass = " << mass 
-//          << ", not massless as assumed by mithep::CaloTower," << std::endl;
-         
-//     if ( deltaPos > 1e-3)
-//       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
-//         << "Error! reco::CaloTower does not have identical HadPos and EmPos " 
-//         << "as assumed by mithep::CaloTower, deltaPos = " << deltaPos << std::endl;
-//          
+       
     if ( deltaE > 1e-3)
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
         << "Error! reco::CaloTower default energy does not exclude HO " 
         << "as assumed by mithep::CaloTower, deltaE = " << deltaE << std::endl;
-    
-//     outCaloTower->SetEMPosition(inCaloTower->emPosition().x(),
-//                                 inCaloTower->emPosition().y(),
-//                                 inCaloTower->emPosition().z());
-//     outCaloTower->SetHadPosition(inCaloTower->hadPosition().x(),
-//                                 inCaloTower->hadPosition().y(),
-//                                 inCaloTower->hadPosition().z());
 
     ThreeVector avgPos;
     ThreeVector emPos(inCaloTower->emPosition().x(),
