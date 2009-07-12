@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.8 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerStableParts.h,v 1.9 2009/06/18 23:00:02 bendavid Exp $
 //
 // FillerStableParts
 //
@@ -28,12 +28,14 @@ namespace mithep
       void 	                    FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       
     private:
+      mithep::Track                *GetMitTrack(const mitedm::TrackPtr &ptr) const;
+
       std::string                   edmName_;         //edm name of stable parts collection
       std::string                   mitName_;         //mit name of StableParticles
-      std::string                   trackMapName_;    //name of imported map wrt tracks
+      std::vector<std::string>      trackMapNames_;   //name of imported maps wrt tracks
       std::string                   basePartMapName_; //name of exported map wrt stable parts
       std::string                   trackPartMapName_; //name of exported map wrt track-stable parts
-      const mithep::TrackMap       *trackMap_;        //imported map wrt tracks
+      std::vector<const mithep::TrackMap*> trackMaps_; //imported maps wrt tracks
       mithep::StableParticleArr    *stables_;         //array of StableParticles
       mithep::BasePartMap          *basePartMap_;     //map wrt stable parts
       mithep::TrackPartMap         *trackPartMap_;    //track map wrt stable parts

@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.12 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerStableParts.cc,v 1.13 2009/06/18 23:00:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -21,12 +21,13 @@ FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, 
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","")),
+  trackMapNames_(Conf().exists("trackMapNames") ? 
+                    Conf().getUntrackedParameter<vector<string> >("trackMapNames") : 
+                    vector<string>()),
   basePartMapName_(Conf().getUntrackedParameter<string>("basePartMap",
                                                         Form("%sMapName",mitName_.c_str()))),
   trackPartMapName_(Conf().getUntrackedParameter<string>("trackPartMap",
                                                         Form("%sTrackMapName",mitName_.c_str()))),      
-  trackMap_(0),
   stables_(new mithep::StableParticleArr(250)),
   basePartMap_(new mithep::BasePartMap),
   trackPartMap_(new mithep::TrackPartMap)
@@ -60,11 +61,18 @@ void FillerStableParts::BookDataBlock(TreeWriter &tws)
     trackPartMap_->SetBrName(mitName_);
     OS()->add(trackPartMap_,trackPartMapName_);
   }
-  if (!trackMapName_.empty()) {
-    trackMap_ = OS()->get<TrackMap>(trackMapName_);
-    if (trackMap_)
-      AddBranchDep(mitName_,trackMap_->GetBrName());
+
+  for (std::vector<std::string>::const_iterator tmapName = trackMapNames_.begin();
+        tmapName!=trackMapNames_.end(); ++tmapName) {
+    if (!tmapName->empty()) {
+      const TrackMap *map = OS()->get<TrackMap>(*tmapName);
+      if (map) {
+        trackMaps_.push_back(map);
+        AddBranchDep(mitName_,map->GetBrName());
+      }
+    }
   }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,8 +96,31 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
     new (d) mithep::StableParticle(p.pid());
     basePartMap_->Add(thePtr,d);
     trackPartMap_->Add(p.trackPtr(),d);
-    if (trackMap_)
-      d->SetTrk(trackMap_->GetMit(p.trackPtr()));
+    if (trackMaps_.size())
+      d->SetTrk(GetMitTrack(p.trackPtr()));
   }
   stables_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+mithep::Track *FillerStableParts::GetMitTrack(const mitedm::TrackPtr &ptr) const
+{
+  // Return our particle referenced by the edm pointer.
+
+  mithep::Track *mitTrack = 0;
+  for (std::vector<const mithep::TrackMap*>::const_iterator tmap = trackMaps_.begin();
+        tmap!=trackMaps_.end(); ++tmap) {
+    const mithep::TrackMap *theMap = *tmap;
+    if (theMap->HasMit(ptr)) {
+      mitTrack = theMap->GetMit(ptr);
+      return mitTrack;
+    }
+  }
+  
+  if (!mitTrack)
+    throw edm::Exception(edm::errors::Configuration, "FillerStableParts::FillDataBlock()\n")
+    << "Error! MITHEP Object " 
+    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+    
+  return mitTrack;
 }

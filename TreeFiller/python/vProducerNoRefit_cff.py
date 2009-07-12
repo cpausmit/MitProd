@@ -1,4 +1,4 @@
-# $Id: vProducerNoRefit_cff.py,v 1.8 2009/03/21 12:46:57 loizides Exp $
+# $Id: vProducerNoRefit_cff.py,v 1.1 2009/03/22 08:49:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -28,7 +28,7 @@ FillKsh = cms.EDAnalyzer("FillMitTree",
         active       = cms.untracked.bool(True),
         mitName      = cms.untracked.string('PisStable'),
         edmName      = cms.untracked.string('PisStable'),
-        trackMapName = cms.untracked.string('TracksMapName'),
+        trackMapNames = cms.untracked.vstring('TracksMapName'),
         basePartMap  = cms.untracked.string('PisStableMapName'),
         fillerType   = cms.untracked.string('FillerStableParts')
     ),
@@ -50,7 +50,7 @@ FillLambda = cms.EDAnalyzer("FillMitTree",
         active       = cms.untracked.bool(True),
         mitName      = cms.untracked.string('ProtonsStable'),
         edmName      = cms.untracked.string('ProtonsStable'),
-        trackMapName = cms.untracked.string('TracksMapName'),
+        trackMapNames = cms.untracked.vstring('TracksMapName'),
         basePartMap  = cms.untracked.string('ProtonsStableMapName'),
         fillerType   = cms.untracked.string('FillerStableParts')
     ),
