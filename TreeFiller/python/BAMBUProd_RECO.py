@@ -126,7 +126,7 @@ process.p1 = cms.Path(
     process.pfJetMCFlavour*
     process.extraPFJetMCFlavour*
     process.jetvertexAssociationSequence*
-    process.MitTreeFiller
+    process.MitTreeFiller*
     process.vFiller *
     process.conversionFiller
 )
