@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.38 2009/07/10 13:50:02 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.39 2009/07/13 06:39:40 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -261,6 +261,30 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
       trigtable->push_back("unknown_hlt_config");
   }
 
+  // get HLT trigger object information to be able to access the tag information
+  Handle<trigger::TriggerEvent> triggerEventHLT;
+  GetProduct(hltEvtName_, triggerEventHLT, event);
+  const std::vector<std::string> &tags(triggerEventHLT->collectionTags());
+  for(UInt_t i=0,c=0; i<tags.size(); ++i) {
+    string tag(tags.at(i));
+    if (tag.compare(0,19,"hltL1extraParticles")!=0)
+      continue;
+    if (tag == "hltL1extraParticles::HLT") {
+      if (c==0)
+        tag = "hltL1extraParticles:Muon:HLT";
+      else if (c==1)
+        tag = "hltL1extraParticles:HFRing:HLT";
+      else
+        tag = Form("hltL1extraParticles:Unknown%d:HLT", c);
+      ++c;
+    }
+    map<string,Short_t>::iterator riter = labmap->find(tag);
+    if (riter == labmap->end()) {
+      labmap->insert(pair<string,Short_t>(tag,labels->size()));
+      labels->push_back(tag);
+    }
+  }
+
   // loop over hlt paths
   for(UInt_t i=0;i<hltConfig_.size();++i) {
 
@@ -369,14 +393,34 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   // loop over trigger objects and fill them
   const trigger::TriggerObjectCollection &toc(triggerEventHLT->getObjects());
   const std::vector<std::string> &tags(triggerEventHLT->collectionTags());
-  for(UInt_t i=0,iprev=0; i<tags.size(); ++i) {
+  for(UInt_t i=0,iprev=0,c=0; i<tags.size(); ++i) {
+
+    Short_t nind = -(i+1);
+    string tag(tags.at(i));
+    if (tag.compare(0,19,"hltL1extraParticles")==0) {
+      if (tag == "hltL1extraParticles::HLT") {
+        if (c==0)
+          tag = "hltL1extraParticles:Muon:HLT";
+        else if (c==1)
+          tag = "hltL1extraParticles:HFRing:HLT";
+        else
+          tag = Form("hltL1extraParticles:Unknown%d:HLT", c-1);
+        ++c;
+      }
+      map<string,Short_t>::iterator riter = hltLabMap_->find(tag);
+      if (riter != hltLabMap_->end()) {
+        nind = riter->second;
+      }
+    }
+
     UInt_t inext(triggerEventHLT->collectionKey(i));
     if (verbose_>2)
-      cout << i << " " << tags.at(i) << " with " << inext-iprev << " objects " << endl;
+      cout << i << " " << tag << " with " << inext-iprev << " objects " << endl;
     for (UInt_t k=iprev; k<inext; ++k) {
       const trigger::TriggerObject &tobj = toc[k];
       TriggerObjectBase *trigObj = hltObjs_->Allocate();
       new (trigObj) TriggerObjectBase(tobj.id(),0,tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
+      trigObj->SetNameInd(nind);
       if (verbose_>4)
         cout << "   " << k << " " << tobj.id() << " " << tobj.pt() << " " << tobj.eta() 
              << " " << tobj.phi() << " " << tobj.mass() << endl;
@@ -389,7 +433,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   for(UInt_t i=0;i<N;++i) {
 
     const string &name(hltConfig_.triggerName(i));
-    const UInt_t tind(hltConfig_.triggerIndex(name.c_str()));
+    const UInt_t tind(hltConfig_.triggerIndex(name));
     if (verify_)
       assert(tind==i);
  
