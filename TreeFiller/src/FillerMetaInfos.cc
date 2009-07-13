@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.39 2009/07/13 06:39:40 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.40 2009/07/13 08:50:42 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -11,7 +11,9 @@
 #include "MitAna/DataTree/interface/TriggerMask.h"
 #include "MitAna/DataTree/interface/TriggerName.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
-#include "MitAna/DataTree/interface/TriggerObjectCol.h"
+#include "MitAna/DataTree/interface/TriggerObject.h"
+#include "MitAna/DataTree/interface/TriggerObjectBaseCol.h"
+#include "MitAna/DataTree/interface/TriggerObjectRelCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include <TObjectTable.h>
 #include <TIterator.h>
@@ -395,7 +397,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   const std::vector<std::string> &tags(triggerEventHLT->collectionTags());
   for(UInt_t i=0,iprev=0,c=0; i<tags.size(); ++i) {
 
-    Short_t nind = -(i+1);
+    Short_t tnind = -(i+1);
     string tag(tags.at(i));
     if (tag.compare(0,19,"hltL1extraParticles")==0) {
       if (tag == "hltL1extraParticles::HLT") {
@@ -409,7 +411,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
       }
       map<string,Short_t>::iterator riter = hltLabMap_->find(tag);
       if (riter != hltLabMap_->end()) {
-        nind = riter->second;
+        tnind = riter->second;
       }
     }
 
@@ -420,7 +422,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
       const trigger::TriggerObject &tobj = toc[k];
       TriggerObjectBase *trigObj = hltObjs_->Allocate();
       new (trigObj) TriggerObjectBase(tobj.id(),0,tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
-      trigObj->SetNameInd(nind);
+      trigObj->SetTagInd(tnind);
       if (verbose_>4)
         cout << "   " << k << " " << tobj.id() << " " << tobj.pt() << " " << tobj.eta() 
              << " " << tobj.phi() << " " << tobj.mass() << endl;
