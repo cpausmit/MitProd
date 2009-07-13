@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.37 2009/07/10 13:15:39 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.38 2009/07/10 13:50:02 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -202,7 +202,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   // check if we can access the hlt config information
   if (hltProcName_.empty()) {
     string teststr;
-    for(unsigned int i=0; i<hltProcNames_.size(); ++i) {
+    for(UInt_t i=0; i<hltProcNames_.size(); ++i) {
       if (i>0) 
         teststr += ", ";
       teststr += hltProcNames_.at(i);
@@ -368,10 +368,20 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
 
   // loop over trigger objects and fill them
   const trigger::TriggerObjectCollection &toc(triggerEventHLT->getObjects());
-  for (trigger::size_type i=0; i<toc.size(); ++i) {
-    const trigger::TriggerObject &tobj = toc[i];
-    TriggerObjectBase *trigObj = hltObjs_->Allocate();
-    new (trigObj) TriggerObjectBase(tobj.id(),tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
+  const std::vector<std::string> &tags(triggerEventHLT->collectionTags());
+  for(UInt_t i=0,iprev=0; i<tags.size(); ++i) {
+    UInt_t inext(triggerEventHLT->collectionKey(i));
+    if (verbose_>2)
+      cout << i << " " << tags.at(i) << " with " << inext-iprev << " objects " << endl;
+    for (UInt_t k=iprev; k<inext; ++k) {
+      const trigger::TriggerObject &tobj = toc[k];
+      TriggerObjectBase *trigObj = hltObjs_->Allocate();
+      new (trigObj) TriggerObjectBase(tobj.id(),0,tobj.pt(),tobj.eta(),tobj.phi(),tobj.mass());
+      if (verbose_>4)
+        cout << "   " << k << " " << tobj.id() << " " << tobj.pt() << " " << tobj.eta() 
+             << " " << tobj.phi() << " " << tobj.mass() << endl;
+    }
+    iprev = inext;
   }
 
   // loop over trigger paths
@@ -469,6 +479,16 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
 
         TriggerObjectRel *trigRel = hltRels_->Allocate();
         new (trigRel) TriggerObjectRel(mytind,vids[k],tocind,modind,filind);
+        TriggerObjectBase *trigObj = hltObjs_->At(tocind);
+        if (trigObj->Type()==0) {
+          trigObj->SetType(vids[k]);
+        } else {
+          if (trigObj->Type()!=vids[k]) {
+            if (verbose_>3) 
+              cout << "   -> Have already type " << trigObj->Type() 
+                   << " ignored new type " << vids[k] << endl;
+          }
+        }
       }
     }
 
@@ -480,4 +500,3 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   hltObjs_->Trim();
   hltRels_->Trim();
 }
-
