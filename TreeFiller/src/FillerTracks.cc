@@ -1,10 +1,11 @@
-// $Id: FillerTracks.cc,v 1.31 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerTracks.cc,v 1.32 2009/06/18 23:02:22 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -134,6 +135,15 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     // fill track quality information
     outTrack->SetChi2(it->chi2());
     outTrack->SetNdof(static_cast<Int_t>(it->ndof()));
+
+    //fill algo enum
+    outTrack->SetAlgo(static_cast<mithep::Track::ETrackAlgorithm>(it->algo()));
+
+    //fill gsf flag, some type gymastics needed...
+    if (typeid(*it)==typeid(reco::GsfTrack))
+      outTrack->SetIsGsf(kTRUE);
+    else
+      outTrack->SetIsGsf(kFALSE);
     
     //fill hit layer map
     const reco::HitPattern &hits = it->hitPattern();
