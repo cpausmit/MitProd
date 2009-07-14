@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.40 2009/07/10 13:50:02 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.42 2009/07/14 13:47:16 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -369,7 +369,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
   
     IC5GenJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(True),
+        active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         mitName                       = cms.untracked.string('IC5GenJets'),
         edmName                       = cms.untracked.string('iterativeCone5GenJets'),
@@ -379,7 +379,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     SC5GenJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(True),
+        active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         mitName                       = cms.untracked.string('SC5GenJets'),
         edmName                       = cms.untracked.string('sisCone5GenJets'),
@@ -389,7 +389,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),  
                              
     SC7GenJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(True),
+        active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         mitName                       = cms.untracked.string('SC7GenJets'),
         edmName                       = cms.untracked.string('sisCone7GenJets'),
@@ -399,7 +399,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),  
     
     KT4GenJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(True),
+        active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         mitName                       = cms.untracked.string('KT4GenJets'),
         edmName                       = cms.untracked.string('kt4GenJets'),
@@ -409,7 +409,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ), 
 
     KT6GenJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(True),
+        active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         mitName                       = cms.untracked.string('KT6GenJets'),
         edmName                       = cms.untracked.string('kt6GenJets'),
@@ -635,7 +635,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     GenMet = cms.untracked.PSet(
-        active     = cms.untracked.bool(True),
+        active     = cms.untracked.bool(False),
         mitName    = cms.untracked.string('GenMet'),
         edmName    = cms.untracked.string('genMetTrue'),
         fillerType = cms.untracked.string('FillerGenMet')
