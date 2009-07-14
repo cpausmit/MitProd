@@ -1,10 +1,13 @@
-# $Id: conversionRemovalProducer_cff.py,v 1.2 2009/06/18 23:10:39 bendavid Exp $
+# $Id: conversionRemovalProducer_cff.py,v 1.3 2009/07/12 13:12:17 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from MitEdm.Producers.HitDropper_cfi import *
 
 from MitEdm.Producers.conversions_cfi import *
+
+import MitEdm.Producers.conversions_cfi
+
 mvfConversionsRemoval = MitEdm.Producers.conversions_cfi.mvfConversions.clone()
 
 mvfConversionsRemoval.rhoMin = 0.9
