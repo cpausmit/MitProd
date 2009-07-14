@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.42 2009/07/14 13:47:16 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.43 2009/07/14 14:38:54 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -98,6 +98,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     MCEventInfo = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
+        flavorHistoryActive   = cms.untracked.bool(False),
         genHepMCEventEdmName  = cms.untracked.string('generator'),
         genEventWeightEdmName = cms.untracked.string('genEventWeight'),
         genEventScaleEdmName  = cms.untracked.string('genEventScale'),
