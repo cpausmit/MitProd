@@ -16,6 +16,8 @@ MitTreeFiller.GenMet.active      = True
 #Load flavor history
 from PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi import *
 from PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi import *
+#Enable Flavor history filling
+MitTreeFiller.MCEventInfo.flavorHistoryActive = True
 
 #Load Flavor Matching Information
 from MitProd.TreeFiller.JetsMCFlavourMatching_cfi import *
