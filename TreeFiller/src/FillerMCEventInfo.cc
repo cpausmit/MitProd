@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.7 2009/06/18 23:03:22 bendavid Exp $
+// $Id: FillerMCEventInfo.cc,v 1.8 2009/07/03 06:15:30 phedex Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,6 +19,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, const char *name,  bool active) : 
   BaseFiller(cfg,"MCEventInfo",active),
+  flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive",false)),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
   genHepMCEvName_(Conf().getUntrackedParameter<string>("genHepMCEventEdmName","source")),
   genEvWeightName_(Conf().getUntrackedParameter<string>("genEventWeightEdmName","genEventWeight")),
@@ -108,7 +109,8 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
 
   //Fill Flavor History Path
   Handle<unsigned int> flavorHistoryPath;
-  GetProduct("flavorHistoryFilter", flavorHistoryPath, event);
-  eventInfo_->SetFlavorHistoryPath(*flavorHistoryPath);
-
+  if (flavorHistoryActive_) {
+    GetProduct("flavorHistoryFilter", flavorHistoryPath, event);
+    eventInfo_->SetFlavorHistoryPath(*flavorHistoryPath);
+  }
 }

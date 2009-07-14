@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.6 2009/03/22 10:00:45 loizides Exp $
+// $Id: FillerMCEventInfo.h,v 1.7 2009/06/15 15:00:25 loizides Exp $
 //
 // FillerMCEventInfo
 //
@@ -29,13 +29,14 @@ namespace mithep
       void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      std::string              evtName_;          //event branch name
-      std::string              genHepMCEvName_;   //hepmc branch name (if present)
-      std::string              genEvWeightName_;  //edm event weight name
-      std::string              genEvScaleName_;   //edm event scale name
-      std::string              genEvProcIdName_;  //edm event process id name
-      std::string              genPdfInfoName_;   //edm event pdf info name
-      MCEventInfo             *eventInfo_;        //event info
+      bool                     flavorHistoryActive_;  //=true if flavor history is filled
+      std::string              evtName_;              //event branch name
+      std::string              genHepMCEvName_;       //hepmc branch name (if present)
+      std::string              genEvWeightName_;      //edm event weight name
+      std::string              genEvScaleName_;       //edm event scale name
+      std::string              genEvProcIdName_;      //edm event process id name
+      std::string              genPdfInfoName_;       //edm event pdf info name
+      MCEventInfo             *eventInfo_;            //event info
   };
 }
 #endif
