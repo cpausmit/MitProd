@@ -1,4 +1,4 @@
-# $Id: MitPostRecoGenerator_cff.py,v 1.4 2008/10/01 00:23:35 bendavid Exp $
+# $Id: MitPostRecoGenerator_cff.py,v 1.5 2009/03/22 08:49:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,10 +13,36 @@ from SimTracker.TrackAssociation.trackMCMatch_cfi import *
 #from SimTracker.TrackAssociation.globalMuonsMCMatch_cfi import *
 #from SimTracker.TrackAssociation.allTrackMCMatch_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff import *
-trackMCMatchSequence = cms.Sequence(trackMCMatch*
-                                    trackingParticleRecoTrackAsssociation*
-                                    assoc2GsfTracks*assocOutInConversionTracks*
-                                    assocInOutConversionTracks)
+
+#import SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi
+
+#assoc2StandaloneMuons = SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi.trackingParticleRecoTrackAsssociation.clone()
+#assoc2StandaloneMuons.label_tr = 'standAloneMuons'
+
+#assoc2StandaloneMuonsVtx = SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi.trackingParticleRecoTrackAsssociation.clone()
+#assoc2StandaloneMuonsVtx.label_tr = 'standAloneMuons:UpdatedAtVtx'
+
+#assoc2GlobalMuons = SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi.trackingParticleRecoTrackAsssociation.clone()
+#assoc2GlobalMuons.label_tr = 'globalMuons'
+
+
+#import SimMuon.MCTruth.MuonAssociatorByHits_cfi
+
+#assoc2StandaloneMuons = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+#assoc2StandaloneMuons.tracksTag = 'standAloneMuons'
+
+#assoc2StandaloneMuonsVtx = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+#assoc2StandaloneMuonsVtx.tracksTag = 'standAloneMuons:UpdatedAtVtx'
+
+#assoc2GlobalMuons = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+#assoc2GlobalMuons.tracksTag = 'globalMuons'
+
+
+trackMCMatchSequence = cms.Sequence(trackingParticleRecoTrackAsssociation*
+                                    assoc2GsfTracks*
+                                    assocOutInConversionTracks*
+                                    assocInOutConversionTracks
+                                    )
 
 # define post-reco generator sequence
 mit_postreco_generator = cms.Sequence(trackMCMatchSequence)
