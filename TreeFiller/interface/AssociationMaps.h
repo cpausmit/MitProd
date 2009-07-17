@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.20 2009/03/20 18:45:32 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.21 2009/06/18 22:58:48 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -10,42 +10,44 @@
 
 #ifndef MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
 #define MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
- 
-#include "MitProd/TreeFiller/interface/AssociationMap.h"
-#include "MitEdm/DataFormats/interface/Types.h"
-#include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/BasicCluster.h"
-#include "MitAna/DataTree/interface/CaloTower.h"
-#include "MitAna/DataTree/interface/Types.h"
+
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "MitAna/DataTree/interface/Muon.h"
-#include "MitAna/DataTree/interface/MCParticle.h"
-#include "MitAna/DataTree/interface/Electron.h"
-#include "MitAna/DataTree/interface/Conversion.h"
-#include "MitAna/DataTree/interface/Vertex.h"
-#include "MitAna/DataTree/interface/PFCandidate.h"
-#include "MitAna/DataTree/interface/CaloJet.h"
-#include "MitAna/DataTree/interface/PFJet.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "MitProd/TreeFiller/interface/AssociationMap.h"
+#include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+#include "MitAna/DataTree/interface/TrackFwd.h"
+#include "MitAna/DataTree/interface/BasicClusterFwd.h"
+#include "MitAna/DataTree/interface/SuperClusterFwd.h"
+#include "MitAna/DataTree/interface/MCParticleFwd.h"
+#include "MitAna/DataTree/interface/CaloTowerFwd.h"
+#include "MitAna/DataTree/interface/ElectronFwd.h"
+#include "MitAna/DataTree/interface/MuonFwd.h"
+#include "MitAna/DataTree/interface/ConversionFwd.h"
+#include "MitAna/DataTree/interface/ParticleFwd.h"
+#include "MitAna/DataTree/interface/VertexFwd.h"
+#include "MitAna/DataTree/interface/PFCandidateFwd.h"
+#include "MitAna/DataTree/interface/CaloJetFwd.h"
+#include "MitAna/DataTree/interface/PFJetFwd.h"
 
 namespace mithep
 {
