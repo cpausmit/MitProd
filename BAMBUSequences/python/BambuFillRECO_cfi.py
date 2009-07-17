@@ -53,11 +53,11 @@ MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 BambuFillRECO = cms.Sequence(
     conversionElectronsStable*
     mvfConversionElectronsStable*
-    vProducer *
-    conversionProducer *
+    kShProducer*
+    conversionProducer*
     ZSPJetCorrections*JetPlusTrackCorrections*
     jetvertexAssociationSequence*
     MitTreeFiller*
-    vFiller *
+    FillKsh*
     conversionFiller
 )

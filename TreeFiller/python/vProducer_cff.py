@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.2 2009/06/18 23:10:39 bendavid Exp $
+# $Id: vProducer_cff.py,v 1.3 2009/07/12 13:10:16 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -87,7 +87,9 @@ FillLambda = cms.EDAnalyzer("FillMitTree",
                             
 
 #Sequence to PRODUCE the particles
-vProducer = cms.Sequence(PisStable*TrackRefitter*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
+kShProducer = cms.Sequence(PisStable*Ksh2PiPi)
+lambdaProducer = cms.Sequence(TrackRefitter*ProtonsStable*Lambda2ProtPi)
+vProducer = cms.Sequence(kShProducer*lambdaProducer)
 
 #Sequence to fill objects - run after standard MitTreeFiller
 vFiller = cms.Sequence(FillKsh*FillLambda)
