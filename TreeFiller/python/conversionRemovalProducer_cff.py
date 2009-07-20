@@ -1,4 +1,4 @@
-# $Id: conversionRemovalProducer_cff.py,v 1.3 2009/07/12 13:12:17 bendavid Exp $
+# $Id: conversionRemovalProducer_cff.py,v 1.4 2009/07/14 13:47:05 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,12 +21,12 @@ conversionRemovalFiller = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts'),
     
     StableParts = cms.untracked.PSet(
-      active       = cms.untracked.bool(True),
-      mitName      = cms.untracked.string('ElectronsStableGsf'),
-      edmName      = cms.untracked.string('gsfElectronsStable'),
+      active        = cms.untracked.bool(True),
+      mitName       = cms.untracked.string('ElectronsStableGsf'),
+      edmName       = cms.untracked.string('gsfElectronsStable'),
       trackMapNames = cms.untracked.vstring('GsfTracksMapName'),
-      basePartMap  = cms.untracked.string('ElectronsStableGsfMapName'),
-      fillerType   = cms.untracked.string('FillerStableParts')
+      basePartMap   = cms.untracked.string('ElectronsStableGsfMapName'),
+      fillerType    = cms.untracked.string('FillerStableParts')
     ),
 
     DecayParts = cms.untracked.PSet(

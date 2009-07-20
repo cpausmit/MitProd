@@ -1,12 +1,8 @@
-# $Id: vProducer_cff.py,v 1.3 2009/07/12 13:10:16 bendavid Exp $
+# $Id: vProducer_cff.py,v 1.4 2009/07/17 13:26:47 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 import MitEdm.Producers.stableParts_cfi
-
-# from Configuration.StandardSequences.Services_cff import *
-# from Configuration.StandardSequences.Geometry_cff import *
-# from Configuration.StandardSequences.MagneticField_cff import *
 
 PisStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
 
@@ -85,11 +81,10 @@ FillLambda = cms.EDAnalyzer("FillMitTree",
     )
 )
                             
-
-#Sequence to PRODUCE the particles
+# Sequence to produce the particles
 kShProducer = cms.Sequence(PisStable*Ksh2PiPi)
 lambdaProducer = cms.Sequence(TrackRefitter*ProtonsStable*Lambda2ProtPi)
 vProducer = cms.Sequence(kShProducer*lambdaProducer)
 
-#Sequence to fill objects - run after standard MitTreeFiller
+# Sequence to fill objects - run after standard MitTreeFiller
 vFiller = cms.Sequence(FillKsh*FillLambda)

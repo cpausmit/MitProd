@@ -1,4 +1,4 @@
-# $Id: vProducerNoRefit_cff.py,v 1.1 2009/03/22 08:49:00 loizides Exp $
+# $Id: vProducerNoRefit_cff.py,v 1.2 2009/07/12 13:10:16 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,12 +25,12 @@ FillKsh = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts'),
 
     StableParts = cms.untracked.PSet(
-        active       = cms.untracked.bool(True),
-        mitName      = cms.untracked.string('PisStable'),
-        edmName      = cms.untracked.string('PisStable'),
+        active        = cms.untracked.bool(True),
+        mitName       = cms.untracked.string('PisStable'),
+        edmName       = cms.untracked.string('PisStable'),
         trackMapNames = cms.untracked.vstring('TracksMapName'),
-        basePartMap  = cms.untracked.string('PisStableMapName'),
-        fillerType   = cms.untracked.string('FillerStableParts')
+        basePartMap   = cms.untracked.string('PisStableMapName'),
+        fillerType    = cms.untracked.string('FillerStableParts')
     ),
 
     DecayParts = cms.untracked.PSet(
@@ -47,12 +47,12 @@ FillLambda = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts'),
 
     StableParts = cms.untracked.PSet(
-        active       = cms.untracked.bool(True),
-        mitName      = cms.untracked.string('ProtonsStable'),
-        edmName      = cms.untracked.string('ProtonsStable'),
+        active        = cms.untracked.bool(True),
+        mitName       = cms.untracked.string('ProtonsStable'),
+        edmName       = cms.untracked.string('ProtonsStable'),
         trackMapNames = cms.untracked.vstring('TracksMapName'),
-        basePartMap  = cms.untracked.string('ProtonsStableMapName'),
-        fillerType   = cms.untracked.string('FillerStableParts')
+        basePartMap   = cms.untracked.string('ProtonsStableMapName'),
+        fillerType    = cms.untracked.string('FillerStableParts')
     ),
 
     DecayParts = cms.untracked.PSet(

@@ -1,8 +1,8 @@
-# $Id: MitPostRecoGenerator_cff.py,v 1.5 2009/03/22 08:49:00 loizides Exp $
+# $Id: MitPostRecoGenerator_cff.py,v 1.6 2009/07/15 10:35:04 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-#track match
+# track match
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
@@ -36,7 +36,6 @@ from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff impor
 
 #assoc2GlobalMuons = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 #assoc2GlobalMuons.tracksTag = 'globalMuons'
-
 
 trackMCMatchSequence = cms.Sequence(trackingParticleRecoTrackAsssociation*
                                     assoc2GsfTracks*

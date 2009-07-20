@@ -1,11 +1,8 @@
-# $Id: MetCorrections_cfi.py,v 1.7 2009/03/25 10:07:19 loizides Exp $
+# $Id: MetCorrections_cfi.py,v 1.8 2009/06/18 23:10:39 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff           import *
-# from Configuration.StandardSequences.MagneticField_cff           import *
-# from Geometry.CommonDetUnit.globalTrackingGeometry_cfi           import *
-# from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi       import *
 from TrackingTools.TrackAssociator.default_cfi                   import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 
