@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.15 2009/06/18 23:00:45 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.16 2009/06/25 17:05:17 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -23,8 +23,10 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  phIDCutBasedTightName_(Conf().getUntrackedParameter<string>("phIDCutBasedTightName","PhotonIDProd:PhotonCutBasedIDTight")),
-  phIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("phIDCutBasedLooseName","PhotonIDProd:PhotonCutBasedIDLoose")),  
+  phIDCutBasedTightName_(Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
+                                                              "PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
+                                                              "PhotonIDProd:PhotonCutBasedIDLoose")),
   photons_(new mithep::PhotonArr(16)), 
   conversionMap_(0),
   barrelSuperClusterMap_(0),
@@ -124,7 +126,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsEBGap(iP->isEBGap());
     outPhoton->SetIsEEGap(iP->isEEGap());
     outPhoton->SetIsEBEEGap(iP->isEBEEGap());
-    outPhoton->SetIsLooseEM(true); //deprecated, identical to supercluster preselection in 3_1_X, so set to true
+    //deprecated, identical to supercluster preselection in 3_1_X, so set to true
+    outPhoton->SetIsLooseEM(true); //deprecated
     outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
     outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 

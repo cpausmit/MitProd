@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.12 2009/06/18 23:06:37 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.13 2009/07/12 13:09:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -111,14 +111,15 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     caloTowerMap_->Add(inCaloTower->id(),outCaloTower);
     
     if (verbose_>1) {
-      printf("reco::CaloTower:   pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",inCaloTower->pt(),inCaloTower->eta(),inCaloTower->phi(),inCaloTower->mass());
-      printf("mithep::CaloTower: pt=%5f, eta=%5f, phi=%5f, mass=%5f\n", outCaloTower->Pt(),outCaloTower->Eta(),outCaloTower->Phi(),outCaloTower->Mass());
+      printf("reco::CaloTower:   pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",
+             inCaloTower->pt(),inCaloTower->eta(),inCaloTower->phi(),inCaloTower->mass());
+      printf("mithep::CaloTower: pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",
+             outCaloTower->Pt(),outCaloTower->Eta(),outCaloTower->Phi(),outCaloTower->Mass());
       printf("emPos : rho=%5f, eta=%5f, phi=%5f\n",emPos.Rho(),emPos.Eta(),emPos.Phi());
       printf("hadPos: rho=%5f, eta=%5f, phi=%5f\n",hadPos.Rho(),hadPos.Eta(),hadPos.Phi());
       printf("avgPos: rho=%5f, eta=%5f, phi=%5f\n",avgPos.Rho(),avgPos.Eta(),avgPos.Phi());
       printf("finPos: rho=%5f, eta=%5f, phi=%5f\n",finalPos.Rho(),finalPos.Eta(),finalPos.Phi());
     }
-
   }
   caloTowers_->Trim();
 }

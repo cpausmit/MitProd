@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.15 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.16 2009/06/18 23:03:22 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -261,8 +261,8 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
       // set decay vertex
       // division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
       genParent->SetVertex(dVertex->point3d().x()/10.0,
-                          dVertex->point3d().y()/10.0,
-                          dVertex->point3d().z()/10.0);
+                           dVertex->point3d().y()/10.0,
+                           dVertex->point3d().z()/10.0);
   
       // loop through daugthers
       for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
@@ -310,7 +310,6 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         }
       }
     }
-  
   }
   
   // loop over SimTracks and resolve links

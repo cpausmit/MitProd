@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.5 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerSuperClusters.cc,v 1.6 2009/06/18 23:04:24 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -22,7 +22,7 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
   superClusterMapName_(Conf().getUntrackedParameter<string>("superClusterMapName", 
                                                             "SuperClusterMap")),
   superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
-                                                            "SuperClusterIdMap")),
+                                                              "SuperClusterIdMap")),
   basicClusterMap_(0),
   superClusters_(new mithep::SuperClusterArr(25)),
   superClusterMap_(new mithep::SuperClusterMap),
@@ -109,7 +109,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     superClusterMap_->Add(theRef, outSC);
 
     // add super cluster det ids to the id map
-    //std::vector<DetId> hits = inSC->getHitsByDetId();
     const std::vector< std::pair<DetId, float> > &pairs = inSC->hitsAndFractions();
     for (std::vector< std::pair<DetId, float> >::const_iterator ipair = pairs.begin();
           ipair < pairs.end(); ++ipair) {

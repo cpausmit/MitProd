@@ -1,8 +1,6 @@
-// $Id: FillerMCEventInfo.cc,v 1.8 2009/07/03 06:15:30 phedex Exp $
+// $Id: FillerMCEventInfo.cc,v 1.9 2009/07/14 16:03:23 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -107,7 +105,7 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
     eventInfo_->SetX2(genPdfInfo->pdf2());
   }
 
-  //Fill Flavor History Path
+  // fill flavor history path
   Handle<unsigned int> flavorHistoryPath;
   if (flavorHistoryActive_) {
     GetProduct("flavorHistoryFilter", flavorHistoryPath, event);

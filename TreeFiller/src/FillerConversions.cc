@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.15 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerConversions.cc,v 1.16 2009/06/18 23:07:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -15,13 +15,11 @@ FillerConversions::FillerConversions(const ParameterSet &cfg, const char *name, 
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
-  //convElectronMapName_(Conf().getUntrackedParameter<string>("convElectronMapName","")),
   stablePartMapNames_(Conf().exists("stablePartMaps") ? 
                     Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
                     vector<string>()),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName",
                                                           Form("%sMapName",mitName_.c_str()))),
-  //convElectronMap_(0),
   conversions_(new mithep::ConversionArr(16)),
   conversionMap_(new mithep::ConversionMap)
 {
@@ -50,12 +48,6 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
     OS()->add(conversionMap_,conversionMapName_);
   }
 
-//   if (!convElectronMapName_.empty()) {
-//     convElectronMap_ = OS()->get<ConversionElectronMap>(convElectronMapName_);
-//     if (convElectronMap_)
-//       AddBranchDep(mitName_, convElectronMap_->GetBrName());
-//   }
-  
   for (std::vector<std::string>::const_iterator bmapName = stablePartMapNames_.begin();
         bmapName!=stablePartMapNames_.end(); ++bmapName) {
     if (!bmapName->empty()) {
@@ -110,7 +102,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
       std::vector<reco::TrackRef> trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
-        outConversion->AddDaughter(getMitParticle(refToPtr(*trackRef)));
+        outConversion->AddDaughter(GetMitParticle(refToPtr(*trackRef)));
       }
     }
     
@@ -122,7 +114,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-mithep::Particle *FillerConversions::getMitParticle(edm::Ptr<reco::Track> ptr) const
+mithep::Particle *FillerConversions::GetMitParticle(edm::Ptr<reco::Track> ptr) const
 {
   // Return our particle referenced by the edm pointer.
 

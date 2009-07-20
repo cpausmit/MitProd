@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.20 2009/06/18 23:05:04 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.21 2009/07/07 08:31:16 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -134,7 +134,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     GetProduct(jetBProbabilityBJetTagsName_, hJetBProbabilityBJetTags, event);    
     GetProduct(simpleSecondaryVertexBJetTagsName_, hSimpleSecondaryVertexBJetTags, event);    
     GetProduct(combinedSecondaryVertexBJetTagsName_, hCombinedSecondaryVertexBJetTags, event);    
-    GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);  
+    GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
     GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
     GetProduct(trackCountingHighPurBJetTagsName_, hTrackCountingHighPurBJetTags, event);    
     GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
@@ -230,7 +230,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
       jet->SetSoftMuonByIP3dBJetTagsDisc((*(hSoftMuonByIP3dBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftMuonByPtBJetTagsDisc((*(hSoftMuonByPtBJetTags.product()))[jetBaseRef]); 
-      jet->SetSoftElectronByIP3dBJetTagsDisc((*(hSoftElectronByIP3dBJetTags.product()))[jetBaseRef]); 
+      jet->SetSoftElectronByIP3dBJetTagsDisc((*(hSoftElectronByIP3dBJetTags.product()))[jetBaseRef]);
       jet->SetSoftElectronByPtBJetTagsDisc((*(hSoftElectronByPtBJetTags.product()))[jetBaseRef]); 
     }
 

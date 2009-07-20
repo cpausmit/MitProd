@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.13 2009/06/18 23:00:02 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.14 2009/07/12 13:09:55 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -27,7 +27,7 @@ FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, 
   basePartMapName_(Conf().getUntrackedParameter<string>("basePartMap",
                                                         Form("%sMapName",mitName_.c_str()))),
   trackPartMapName_(Conf().getUntrackedParameter<string>("trackPartMap",
-                                                        Form("%sTrackMapName",mitName_.c_str()))),      
+                                                        Form("%sTrackMapName",mitName_.c_str()))),
   stables_(new mithep::StableParticleArr(250)),
   basePartMap_(new mithep::BasePartMap),
   trackPartMap_(new mithep::TrackPartMap)
@@ -72,7 +72,6 @@ void FillerStableParts::BookDataBlock(TreeWriter &tws)
       }
     }
   }
-
 }
 
 //--------------------------------------------------------------------------------------------------

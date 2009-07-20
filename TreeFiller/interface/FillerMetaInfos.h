@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.20 2009/07/10 13:50:02 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.21 2009/07/13 10:39:35 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -12,7 +12,6 @@
 #ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectRelFwd.h"

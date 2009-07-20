@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.36 2009/06/18 23:01:46 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.37 2009/07/07 08:32:26 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -133,7 +133,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetClassification(iM->classification());
     outElectron->SetFBrem(iM->fbrem());
     
-    //pflow electron stuff
+    // pflow electron stuff
     outElectron->SetIsEcalDriven(iM->isEcalDriven());
     outElectron->SetIsTrackerDriven(iM->isTrackerDriven());
     outElectron->SetMva(iM->mva());
@@ -148,7 +148,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHcalDepth1OverEcal(iM->hcalDepth1OverEcal());
     outElectron->SetHcalDepth2OverEcal(iM->hcalDepth2OverEcal());
    
-    //fill isolation variables for both cone sizes
+    // fill isolation variables for both cone sizes
     outElectron->SetEcalRecHitIsoDr04(iM->dr04EcalRecHitSumEt());
     outElectron->SetHcalDepth1TowerSumEtDr04(iM->dr04HcalDepth1TowerSumEt());
     outElectron->SetHcalDepth2TowerSumEtDr04(iM->dr04HcalDepth2TowerSumEt());
@@ -159,7 +159,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHcalDepth2TowerSumEtDr03(iM->dr03HcalDepth2TowerSumEt());
     outElectron->SetTrackIsolationDr03(iM->dr03TkSumPt());
      
-    //fiducial flags
+    // fiducial flags
     outElectron->SetIsEB(iM->isEB());
     outElectron->SetIsEE(iM->isEE());
     outElectron->SetIsEBEEGap(iM->isEBEEGap());
@@ -168,7 +168,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetIsEEDeeGap(iM->isEEDeeGap());
     outElectron->SetIsEERingGap(iM->isEERingGap());
     
-    //gsf-tracker match quality
+    // gsf-tracker match quality
     outElectron->SetFracSharedHits(iM->shFracInnerHits());
 
     // make proper links to Tracks and Super Clusters
@@ -179,7 +179,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
         outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
     }
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
+        pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
       if(barrelSuperClusterMap_->HasMit(iM->superCluster())) {
         outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        
       }

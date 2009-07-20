@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.6 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerBasicClusters.cc,v 1.7 2009/06/18 23:04:24 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -71,7 +71,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
     outBasicCluster->SetEnergy(inBC->energy());   
 
-    //add basic clusters to the map
+    // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(thePtr, outBasicCluster);
   }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenMet.h,v 1.10 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerGenMet.h,v 1.1 2009/07/14 13:47:16 bendavid Exp $
 //
 // FillerGenMet
 //
@@ -12,7 +12,6 @@
 #define MITPROD_TREEFILLER_FILLERGENMET_H
 
 #include "MitAna/DataTree/interface/GenMetFwd.h"
-#include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 namespace mithep 

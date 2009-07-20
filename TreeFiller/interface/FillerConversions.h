@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.10 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerConversions.h,v 1.11 2009/06/18 23:07:14 bendavid Exp $
 //
 // FillerConversions
 //
@@ -24,22 +24,21 @@ namespace mithep
       FillerConversions(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerConversions();
 
-      void                                 BookDataBlock(TreeWriter &tws);
-      void                                 FillDataBlock(const edm::Event &e, 
-                                                         const edm::EventSetup &es);
+      void                                     BookDataBlock(TreeWriter &tws);
+      void                                     FillDataBlock(const edm::Event &e, 
+                                                             const edm::EventSetup &es);
   
     private:
-      mithep::Particle                    *getMitParticle(edm::Ptr<reco::Track> ptr) const;
+      mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;
     
-      std::string                          edmName_;             //name of edm conversions
-      std::string                          mitName_;             //mit name of Conversions
-      std::string                          convElectronMapName_; //name of imported electrons map
-      std::vector<std::string>             stablePartMapNames_; //name imp maps wrt stable parts
-      std::string                          conversionMapName_;   //name of exported conv map
-      //const mithep::ConversionElectronMap *convElectronMap_;     //imported map wrt conv electrons
-      std::vector<const mithep::TrackPartMap*> stablePartMaps_;     //maps wrt stable parts
-      mithep::ConversionArr               *conversions_;         //array of Conversions
-      mithep::ConversionMap               *conversionMap_;       //exported map wrt Conversions
+      std::string                              edmName_;             //name of edm conversions
+      std::string                              mitName_;             //mit name of Conversions
+      std::string                              convElectronMapName_; //name of imported electrons map
+      std::vector<std::string>                 stablePartMapNames_;  //name imp maps wrt stable parts
+      std::string                              conversionMapName_;   //name of exported conv map
+      std::vector<const mithep::TrackPartMap*> stablePartMaps_;      //maps wrt stable parts
+      mithep::ConversionArr                   *conversions_;         //array of Conversions
+      mithep::ConversionMap                   *conversionMap_;       //exported map wrt Conversions
   };
 }
 #endif
