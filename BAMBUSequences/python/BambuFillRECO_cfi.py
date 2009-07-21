@@ -12,7 +12,7 @@ MitTreeFiller.GsfElectronsStable.active             = True
 MitTreeFiller.MergedElectronsStable.active          = True
 
 #Load Mit vProducer
-from MitProd.TreeFiller.vProducer_cff import *
+from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,FillKsh
 
 #Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
