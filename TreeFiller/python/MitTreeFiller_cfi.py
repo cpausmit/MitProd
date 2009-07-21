@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.44 2009/07/14 16:19:19 sixie Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.45 2009/07/20 05:04:20 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -65,7 +65,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 #                                    'SisCone7Mht',
 #                                    'Kt4Mht',
 #                                    'Kt6Mht',
-                                    'IC5JPTMht',
+#                                    'IC5JPTMht',
                                     'CaloTaus',
                                     'PFTaus',
                                     'StableParts',
