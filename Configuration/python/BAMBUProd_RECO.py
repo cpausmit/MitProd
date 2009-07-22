@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: BAMBUProd_RECO.py,v 1.2 2009/07/22 11:26:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 )
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 # load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",

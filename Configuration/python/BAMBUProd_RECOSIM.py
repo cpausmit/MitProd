@@ -19,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('testingconf nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,7 +35,7 @@ process.source = cms.Source("PoolSource",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 #Load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
