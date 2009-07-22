@@ -1,8 +1,10 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.131 
+# $Id:$
+#
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: TTbar_cfi -s GEN,FASTSIM --conditions FrontierConditions_GlobalTag,MC_31X_V3::All -n 100 --no_exec --no_output --pileup NoPileUp
+# with command line options:
+#  TTbar_cfi -s GEN,FASTSIM --conditions FrontierConditions_GlobalTag,MC_31X_V3::All
+#  -n 100 --no_exec --no_output --pileup NoPileUp
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HLT')
@@ -19,36 +21,38 @@ process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.131 $'),
+    version = cms.untracked.string('CMSSW_3_2_1 + Mit_010'),
     annotation = cms.untracked.string('TTbar_cfi nevts:100'),
-    name = cms.untracked.string('PyReleaseValidation')
+    name = cms.untracked.string('BambuFastChainExample')
 )
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
 )
-# Input source
+
+# input source
 process.source = cms.Source("EmptySource")
 
-# Output definition
+# output definition
 #process.output = cms.OutputModule("PoolOutputModule",
-    #splitLevel = cms.untracked.int32(0),
-    #outputCommands = process.RECOSIMEventContent.outputCommands,
-    #fileName = cms.untracked.string('TTbar_cfi_GEN_FASTSIM.root'),
-    #dataset = cms.untracked.PSet(
-        #dataTier = cms.untracked.string(''),
-        #filterName = cms.untracked.string('')
-    #),
-    #SelectEvents = cms.untracked.PSet(
-        #SelectEvents = cms.vstring('generation_step')
-    #)
+#    splitLevel = cms.untracked.int32(0),
+#    outputCommands = process.RECOSIMEventContent.outputCommands,
+#    fileName = cms.untracked.string('TTbar_cfi_GEN_FASTSIM.root'),
+#    dataset = cms.untracked.PSet(
+#       dataTier = cms.untracked.string(''),
+#       filterName = cms.untracked.string('')
+#    ),
+#    SelectEvents = cms.untracked.PSet(
+#       SelectEvents = cms.vstring('generation_step')
+#    )
 #)
 
 # Additional output definition
 
-# Other statements
+# other statements
 process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator
 process.famosPileUp.PileUpSimulator.averageNumber = 0
 process.famosSimHits.SimulateCalorimetry = True
@@ -61,7 +65,8 @@ process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 process.Early10TeVCollisionVtxSmearingParameters.type = cms.string("BetaFunc")
 process.famosSimHits.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
-# Apply Tracker misalignment
+
+# apply tracker misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
@@ -107,12 +112,14 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 #process.ProductionFilterSequence = cms.Sequence(process.generator)
 
-# Path and EndPath definitions
-process.generation_step = cms.Path(process.generator+cms.SequencePlaceholder("randomEngineStateProducer")+process.GeneInfo+process.genJetMET)
+# path and end path definitions
+process.generation_step = cms.Path(process.generator +
+                                   cms.SequencePlaceholder("randomEngineStateProducer") +
+                                   process.GeneInfo+process.genJetMET)
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 #process.out_step = cms.EndPath(process.output)
 
-#Load MitTreeFiller 
+# load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
     fileNames = cms.untracked.vstring('mit-full'),
 )
@@ -120,7 +127,7 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
 
-#hack out unavailable stuff, pending proper fastsim and aod sequences
+# hack out unavailable stuff, pending proper fastsim and aod sequences
 process.MitTreeFiller.MetaInfos.hltActive                   = False
 process.MitTreeFiller.MCParticles.simActive                 = False
 process.MitTreeFiller.ConversionInOutTracks.active          = False
@@ -131,10 +138,11 @@ process.MitTreeFiller.ConversionOutInElectronsStable.active = False
 
 process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
 
-# Schedule definition
+# schedule definition
 process.schedule = cms.Schedule(process.generation_step)
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.reconstruction,process.bambu_step])
+
 # special treatment in case of production filter sequence  
 #for path in process.paths: 
-    #getattr(process,path)._seq = process.ProductionFilterSequence*getattr(process,path)._seq
+#getattr(process,path)._seq = process.ProductionFilterSequence*getattr(process,path)._seq

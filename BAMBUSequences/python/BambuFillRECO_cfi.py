@@ -1,16 +1,17 @@
+# $Id:$
 
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.TreeFiller.MitTreeFiller_cfi import *
 
-#Load antikt jet producers
+# Load antikt jet producers
 from MitProd.TreeFiller.antiktJets_cfi import *
 MitTreeFiller.AKt5Jets.active = True
 MitTreeFiller.AKt7Jets.active = True
 MitTreeFiller.AKt5PFJets.active = True
 MitTreeFiller.AKt7PFJets.active = True
 
-#Load stablePart producers
+# Load stablePart producers
 from MitEdm.Producers.conversionElectronsStable_cfi import *
 MitTreeFiller.ElectronsStable.active                = True
 MitTreeFiller.ConversionInOutElectronsStable.active = True
@@ -18,20 +19,20 @@ MitTreeFiller.ConversionOutInElectronsStable.active = True
 MitTreeFiller.GsfElectronsStable.active             = True
 MitTreeFiller.MergedElectronsStable.active          = True
 
-#Load Mit vProducer
+# Load Mit vProducer
 from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,FillKsh
 
-#Load Mit Mvf Conversion producer
+# Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
 
-#For JetPlusTracks
+# For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 MitTreeFiller.IC5JetPlusTrack.active = True
 
-#Produce jet vertex association information
+# Produce jet vertex association information
 from MitProd.TreeFiller.JetVertexAssociation_cfi import *
-#Enable Jet Vertex association for Reco Jet collections
+# Enable Jet Vertex association for Reco Jet collections
 MitTreeFiller.ItrCone5Jets.jetToVertexActive = True
 MitTreeFiller.SisCone5Jets.jetToVertexActive = True
 MitTreeFiller.SisCone7Jets.jetToVertexActive = True
@@ -40,7 +41,7 @@ MitTreeFiller.Kt6Jets.jetToVertexActive      = True
 MitTreeFiller.AKt5Jets.jetToVertexActive     = True
 MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 
-#Load track detector associator for Track-ECal association
+# Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
 MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameters)
 #Enable Track-Ecal assocation in fillers
@@ -53,8 +54,6 @@ MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 # Additional output definition
-
-
 
 # Path and EndPath definitions
 #reconstruction_step = cms.Path(reconstruction)
