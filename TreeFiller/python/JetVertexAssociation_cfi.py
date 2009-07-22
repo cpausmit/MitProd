@@ -1,4 +1,4 @@
-# $Id: JetVertexAssociation_cfi.py,v 1.3 2008/09/30 15:57:32 sixie Exp $
+# $Id: JetVertexAssociation_cfi.py,v 1.4 2009/03/22 08:48:59 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -122,6 +122,55 @@ jetVertexBetaKT6 = cms.EDProducer("JetVertexAssociation",
     JV_cutType         = cms.string('delta'),
 )
 
+jetVertexAlphaAKT5 = cms.EDProducer("JetVertexAssociation", 
+    JV_sigmaZ          = cms.double(9.5),
+    JV_deltaZ          = cms.double(0.3),
+    JV_alpha_threshold = cms.double(0.2),
+    JV_cone_size       = cms.double(0.5),
+    JV_type_Algo       = cms.int32(1),
+    JET_ALGO           = cms.string('antikt5CaloJets'),
+    TRACK_ALGO         = cms.string('generalTracks'),
+    VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
+    JV_cutType         = cms.string('delta'),
+)
+
+jetVertexBetaAKT5 = cms.EDProducer("JetVertexAssociation", 
+    JV_sigmaZ          = cms.double(9.5),
+    JV_deltaZ          = cms.double(0.3),
+    JV_alpha_threshold = cms.double(0.2),
+    JV_cone_size       = cms.double(0.5),
+    JV_type_Algo       = cms.int32(2),
+    JET_ALGO           = cms.string('antikt5CaloJets'),
+    TRACK_ALGO         = cms.string('generalTracks'),
+    VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
+    JV_cutType         = cms.string('delta'),
+)
+
+jetVertexAlphaAKT7 = cms.EDProducer("JetVertexAssociation", 
+    JV_sigmaZ          = cms.double(9.5),
+    JV_deltaZ          = cms.double(0.3),
+    JV_alpha_threshold = cms.double(0.2),
+    JV_cone_size       = cms.double(0.5),
+    JV_type_Algo       = cms.int32(1),
+    JET_ALGO           = cms.string('antikt7CaloJets'),
+    TRACK_ALGO         = cms.string('generalTracks'),
+    VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
+    JV_cutType         = cms.string('delta'),
+)
+
+jetVertexBetaAKT7 = cms.EDProducer("JetVertexAssociation", 
+    JV_sigmaZ          = cms.double(9.5),
+    JV_deltaZ          = cms.double(0.3),
+    JV_alpha_threshold = cms.double(0.2),
+    JV_cone_size       = cms.double(0.5),
+    JV_type_Algo       = cms.int32(2),
+    JET_ALGO           = cms.string('antikt7CaloJets'),
+    TRACK_ALGO         = cms.string('generalTracks'),
+    VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
+    JV_cutType         = cms.string('delta'),
+)
+
+
 jetvertexAssociationSequence = cms.Sequence(jetVertexAlphaIC5
                                             + jetVertexBetaIC5
                                             + jetVertexAlphaSC5
@@ -132,3 +181,8 @@ jetvertexAssociationSequence = cms.Sequence(jetVertexAlphaIC5
                                             + jetVertexBetaKT4
                                             + jetVertexAlphaKT6
                                             + jetVertexBetaKT6)
+
+antiktJetVertexAssociationSequence = cms.Sequence(jetVertexAlphaAKT5
+                                                  + jetVertexBetaAKT5
+                                                  + jetVertexAlphaAKT7
+                                                  + jetVertexBetaAKT7)

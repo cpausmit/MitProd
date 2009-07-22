@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 
 from MitProd.TreeFiller.MitTreeFiller_cfi import *
 
+#Load antikt jet producers
+from MitProd.TreeFiller.antiktJets_cfi import *
+MitTreeFiller.AKt5Jets.active = True
+MitTreeFiller.AKt7Jets.active = True
+MitTreeFiller.AKt5PFJets.active = True
+MitTreeFiller.AKt7PFJets.active = True
+
 #Load stablePart producers
 from MitEdm.Producers.conversionElectronsStable_cfi import *
 MitTreeFiller.ElectronsStable.active                = True
@@ -30,6 +37,8 @@ MitTreeFiller.SisCone5Jets.jetToVertexActive = True
 MitTreeFiller.SisCone7Jets.jetToVertexActive = True
 MitTreeFiller.Kt4Jets.jetToVertexActive      = True
 MitTreeFiller.Kt6Jets.jetToVertexActive      = True
+MitTreeFiller.AKt5Jets.jetToVertexActive     = True
+MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 
 #Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
@@ -50,14 +59,17 @@ MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 # Path and EndPath definitions
 #reconstruction_step = cms.Path(reconstruction)
 
-BambuFillRECO = cms.Sequence(
-    conversionElectronsStable*
-    mvfConversionElectronsStable*
-    kShProducer*
-    conversionProducer*
-    ZSPJetCorrections*JetPlusTrackCorrections*
-    jetvertexAssociationSequence*
-    MitTreeFiller*
-    FillKsh*
-    conversionFiller
-)
+BambuRecoSequence = cms.Sequence(antiktJets*
+                                 conversionElectronsStable*
+                                 mvfConversionElectronsStable*
+                                 kShProducer*
+                                 conversionProducer*
+                                 ZSPJetCorrections*JetPlusTrackCorrections*
+                                 jetvertexAssociationSequence*
+                                 antiktJetVertexAssociationSequence)
+
+BambuRecoFillSequence = cms.Sequence(MitTreeFiller*
+                                     FillKsh*
+                                     conversionFiller)
+
+BambuFillRECO = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)
