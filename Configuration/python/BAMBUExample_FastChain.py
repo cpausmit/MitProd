@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.2 2009/07/22 11:26:19 loizides Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.3 2009/07/22 15:16:24 bendavid Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -22,7 +22,7 @@ process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('CMSSW_3_2_1 + Mit_010'),
-    annotation = cms.untracked.string('TTbar_cfi nevts:100'),
+    annotation = cms.untracked.string('TTbar'),
     name = cms.untracked.string('BambuFastChainExample')
 )
 
@@ -127,7 +127,7 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
-#enable fillers of MC Truth information
+# enable fillers of MC Truth information
 process.MitTreeFiller.MCParticles.active = True
 process.MitTreeFiller.MCEventInfo.active = True
 process.MitTreeFiller.IC5GenJets.active  = True
