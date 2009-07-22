@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: BAMBUExample_FastChain.py,v 1.2 2009/07/22 11:26:19 loizides Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -125,7 +125,17 @@ process.TreeService = cms.Service("TreeService",
 )
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
+process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
+
+#enable fillers of MC Truth information
+process.MitTreeFiller.MCParticles.active = True
+process.MitTreeFiller.MCEventInfo.active = True
+process.MitTreeFiller.IC5GenJets.active  = True
+process.MitTreeFiller.SC5GenJets.active  = True
+process.MitTreeFiller.SC7GenJets.active  = True
+process.MitTreeFiller.KT4GenJets.active  = True
+process.MitTreeFiller.KT6GenJets.active  = True
+process.MitTreeFiller.GenMet.active      = True
 
 # hack out unavailable stuff, pending proper fastsim and aod sequences
 process.MitTreeFiller.MetaInfos.hltActive                   = False
@@ -136,7 +146,7 @@ process.MitTreeFiller.Conversions.active                    = False
 process.MitTreeFiller.ConversionInOutElectronsStable.active = False
 process.MitTreeFiller.ConversionOutInElectronsStable.active = False
 
-process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
+process.bambu_step  = cms.Path(process.MitTreeFiller)
 
 # schedule definition
 process.schedule = cms.Schedule(process.generation_step)
