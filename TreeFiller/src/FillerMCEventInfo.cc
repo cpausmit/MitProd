@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.9 2009/07/14 16:03:23 sixie Exp $
+// $Id: FillerMCEventInfo.cc,v 1.10 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
@@ -85,8 +85,8 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
       eventInfo_->SetPdf1(genPdfInfo->pdf1);
       eventInfo_->SetPdf2(genPdfInfo->pdf2);
       eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
-      eventInfo_->SetX1(genPdfInfo->pdf1);
-      eventInfo_->SetX2(genPdfInfo->pdf2);
+      eventInfo_->SetX1(genPdfInfo->x1);
+      eventInfo_->SetX2(genPdfInfo->x2);
     }
   } else {
     const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
@@ -101,8 +101,8 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
     eventInfo_->SetPdf1(genPdfInfo->pdf1());
     eventInfo_->SetPdf2(genPdfInfo->pdf2());
     eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
-    eventInfo_->SetX1(genPdfInfo->pdf1());
-    eventInfo_->SetX2(genPdfInfo->pdf2());
+    eventInfo_->SetX1(genPdfInfo->x1());
+    eventInfo_->SetX2(genPdfInfo->x2());
   }
 
   // fill flavor history path
