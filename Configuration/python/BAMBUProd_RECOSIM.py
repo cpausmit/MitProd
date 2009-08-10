@@ -28,7 +28,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V2-v1/0002/CEC0E4DD-5D6B-DE11-91DB-001D09F2545B.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/ZmumuJet_Pt230to300_Summer09-MC_31X_V3-v1/D43739BB-477D-DE11-8995-001F29087E7C.root')
 )
 
 # other statements
