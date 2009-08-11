@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.41 2009/07/13 10:39:35 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.42 2009/08/11 15:29:27 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -103,8 +103,6 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   if (OS()->get<mithep::EventHeader>(evtName_)==0) {
     tws.AddBranch(evtName_,&eventHeader_);
     OS()->add<mithep::EventHeader>(eventHeader_,evtName_);
-    if (instance_==1)
-      tws.GetTree()->BranchRef();
   }
   tws.AddBranch(hltBitsName_,&hltBits_);
   tws.AddBranch(hltObjsName_,&hltObjs_);
