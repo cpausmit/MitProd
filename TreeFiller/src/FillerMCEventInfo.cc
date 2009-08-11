@@ -1,8 +1,8 @@
-// $Id: FillerMCEventInfo.cc,v 1.10 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.11 2009/07/25 11:13:54 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
-#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -17,13 +17,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, const char *name,  bool active) : 
   BaseFiller(cfg,"MCEventInfo",active),
-  flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive",false)),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
-  genHepMCEvName_(Conf().getUntrackedParameter<string>("genHepMCEventEdmName","source")),
-  genEvWeightName_(Conf().getUntrackedParameter<string>("genEventWeightEdmName","genEventWeight")),
-  genEvScaleName_(Conf().getUntrackedParameter<string>("genEventScaleEdmName","genEventScale")),
-  genEvProcIdName_(Conf().getUntrackedParameter<string>("genEventProcIdEdmName","genEventProcID")),
-  genPdfInfoName_(Conf().getUntrackedParameter<string>("genPdfInfoEdmName","genEventPdfInfo")),
+  genHepMCEvName_(Conf().getUntrackedParameter<string>("genHepMCEventEdmName","generator")),
+  genEvtInfoName_(Conf().getUntrackedParameter<string>("genEvtInfoEdmName","generator")),
+  flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive",false)),
+  flavorHistName_(Conf().getUntrackedParameter<string>("flavorHistEdmName","flavorHistoryFilter")),
   eventInfo_(new MCEventInfo())
 {
   // Constructor.
@@ -55,60 +53,56 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
   if (event.isRealData()) {
     PrintErrorAndExit("Expected monte-carlo record, but did not get it. Aborting.");
   }
+  
+  Handle<GenEventInfoProduct> hEvtInfo;
 
-  Handle<edm::HepMCProduct> hHepMCProduct;
-  if (genHepMCEvName_.empty() || !GetProductSafe(genHepMCEvName_, hHepMCProduct, event)) {
+  if (genEvtInfoName_.empty() || !GetProductSafe(genEvtInfoName_, hEvtInfo, event)) {
 
-    if (!genEvWeightName_.empty()) {
-      Handle<double> genEventWeight;
-      GetProduct(genEvWeightName_, genEventWeight, event);
-      eventInfo_->SetWeight(*genEventWeight);
+    // fall back to hepmc if requested
+    if (!genHepMCEvName_.empty()) {
+      Handle<edm::HepMCProduct> hHepMCProduct;
+      GetProduct(genHepMCEvName_, hHepMCProduct, event);
+      
+      const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
+      eventInfo_->SetScale(genEvt->event_scale());
+      eventInfo_->SetProcessId(genEvt->signal_process_id());
+      HepMC::WeightContainer wc = genEvt->weights();
+      Double_t weight = 0;
+      for (int i = 0; i< wc.size(); ++i) 
+        weight *= wc[i];
+      eventInfo_->SetWeight(weight);
+      const HepMC::PdfInfo *genPdfInfo = genEvt->pdf_info();
+      eventInfo_->SetId1(genPdfInfo->id1());
+      eventInfo_->SetId2(genPdfInfo->id2());
+      eventInfo_->SetPdf1(genPdfInfo->pdf1());
+      eventInfo_->SetPdf2(genPdfInfo->pdf2());
+      eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
+      eventInfo_->SetX1(genPdfInfo->x1());
+      eventInfo_->SetX2(genPdfInfo->x2());
     }
 
-    if (!genEvScaleName_.empty()) {
-      Handle<double> genEventScale;
-      GetProduct(genEvScaleName_, genEventScale, event);
-      eventInfo_->SetScale(*genEventScale);
-    }
-
-    if (!genEvProcIdName_.empty()) {
-      Handle<int> genEventProcId;
-      GetProduct(genEvProcIdName_, genEventProcId, event);
-      eventInfo_->SetProcessId(*genEventProcId);
-    }
-
-    if (!genPdfInfoName_.empty()) {
-      Handle<reco::PdfInfo> genPdfInfo;
-      GetProduct(genPdfInfoName_, genPdfInfo, event);
-      eventInfo_->SetId1(genPdfInfo->id1);
-      eventInfo_->SetId2(genPdfInfo->id2);
-      eventInfo_->SetPdf1(genPdfInfo->pdf1);
-      eventInfo_->SetPdf2(genPdfInfo->pdf2);
-      eventInfo_->SetScalePdf(genPdfInfo->scalePDF);
-      eventInfo_->SetX1(genPdfInfo->x1);
-      eventInfo_->SetX2(genPdfInfo->x2);
-    }
   } else {
-    const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
-    eventInfo_->SetScale(genEvt->event_scale());
-    eventInfo_->SetProcessId(genEvt->signal_process_id());
-    HepMC::WeightContainer wc = genEvt->weights();
-    if (wc.size() > 0)  
-      eventInfo_->SetWeight(wc[0]);
-    const HepMC::PdfInfo *genPdfInfo = genEvt->pdf_info();
-    eventInfo_->SetId1(genPdfInfo->id1());
-    eventInfo_->SetId2(genPdfInfo->id2());
-    eventInfo_->SetPdf1(genPdfInfo->pdf1());
-    eventInfo_->SetPdf2(genPdfInfo->pdf2());
-    eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
-    eventInfo_->SetX1(genPdfInfo->x1());
-    eventInfo_->SetX2(genPdfInfo->x2());
+
+    // use event info product
+    eventInfo_->SetScale(hEvtInfo->qScale());
+    eventInfo_->SetProcessId(hEvtInfo->signalProcessID());
+    eventInfo_->SetWeight(hEvtInfo->weight());
+    if (hEvtInfo->hasPDF()) {
+      const gen::PdfInfo *pdf = hEvtInfo->pdf();
+      eventInfo_->SetId1(pdf->id.first);
+      eventInfo_->SetId2(pdf->id.second);
+      eventInfo_->SetPdf1(pdf->xPDF.first);
+      eventInfo_->SetPdf2(pdf->xPDF.second);
+      eventInfo_->SetScalePdf(pdf->scalePDF);
+      eventInfo_->SetX1(pdf->x.first);
+      eventInfo_->SetX2(pdf->x.second);
+    }
   }
 
-  // fill flavor history path
-  Handle<unsigned int> flavorHistoryPath;
+  // fill flavor history path if requested
   if (flavorHistoryActive_) {
-    GetProduct("flavorHistoryFilter", flavorHistoryPath, event);
+    Handle<unsigned int> flavorHistoryPath;
+    GetProduct(flavorHistName_, flavorHistoryPath, event);
     eventInfo_->SetFlavorHistoryPath(*flavorHistoryPath);
   }
 }
