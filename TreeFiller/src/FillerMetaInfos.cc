@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.40 2009/07/13 08:50:42 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.41 2009/07/13 10:39:35 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -22,21 +22,25 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-bool mithep::FillerMetaInfos::instance_ = 0;
+Int_t mithep::FillerMetaInfos::instance_ = 0;
 
 //--------------------------------------------------------------------------------------------------
 FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,(instance_==0||active?1:0)),
   evtName_(Conf().getUntrackedParameter<string>("evtMitName",Names::gkEvtHeaderBrn)),
-  runName_(Conf().getUntrackedParameter<string>("runMitName",Names::gkRunInfoBrn)),
-  lahName_(Conf().getUntrackedParameter<string>("lahMitName",Names::gkLAHeaderBrn)),
+  runTreeName_(Conf().getUntrackedParameter<string>("runTreeMitName",Names::gkRunTreeName)),
+  lahTreeName_(Conf().getUntrackedParameter<string>("lahTreeMitName",Names::gkLATreeName)),
+  hltTreeName_(Conf().getUntrackedParameter<string>("hltTreeMitName",
+                                                Form("%s%s",Names::gkHltTreeName,Istr()))),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
   hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults")),
   hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
   hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
   hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelMitName",Names::gkHltLabelBrn)),
-  hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsMitName",Names::gkHltBitBrn)),
-  hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",Names::gkHltObjBrn)),
+  hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsMitName",
+                                                    Form("%s%s",Names::gkHltBitBrn,Istr()))),
+  hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",
+                                                    Form("%s%s",Names::gkHltObjBrn,Istr()))),
   tws_(0),
   eventHeader_(new EventHeader()),
   evtLAHeader_(new LAHeader()),
@@ -57,7 +61,6 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
 {
   // Constructor.
 
-  assert(instance_ == 0);
   ++instance_;
 
   if (Conf().exists("hltProcNames"))
@@ -97,32 +100,41 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
   // Create run info tree and book our branches.
 
   // add branches to main tree
-  tws.AddBranch(evtName_,&eventHeader_);
-  OS()->add<mithep::EventHeader>(eventHeader_,evtName_);
+  if (OS()->get<mithep::EventHeader>(evtName_)==0) {
+    tws.AddBranch(evtName_,&eventHeader_);
+    OS()->add<mithep::EventHeader>(eventHeader_,evtName_);
+    if (instance_==1)
+      tws.GetTree()->BranchRef();
+  }
   tws.AddBranch(hltBitsName_,&hltBits_);
   tws.AddBranch(hltObjsName_,&hltObjs_);
   tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
-  tws.GetTree()->BranchRef();
 
   // add branches to run info tree
-  tws.AddBranchToTree(Names::gkRunTreeName,runName_,
-                      TClass::GetClass(typeid(*runInfo_))->GetName(),&runInfo_);
-  tws.SetAutoFill(Names::gkRunTreeName,0);
-  runTree_=tws.GetTree(Names::gkRunTreeName);
+  runTree_=tws.GetTree(runTreeName_);
+  if (runTree_==0) {
+    tws.AddBranchToTree(runTreeName_,Names::gkRunInfoBrn,
+                        TClass::GetClass(typeid(*runInfo_))->GetName(),&runInfo_);
+    tws.SetAutoFill(runTreeName_,0);
+    runTree_=tws.GetTree(runTreeName_);
+  }
 
   // add branches to lookahead tree
-  tws.AddBranchToTree(Names::gkLATreeName,Names::gkLAHeaderBrn,
-                      TClass::GetClass(typeid(*evtLAHeader_))->GetName(),&runInfo_);
-  tws.SetAutoFill(Names::gkLATreeName,0);
-  laTree_=tws.GetTree(Names::gkLATreeName);
+  laTree_=tws.GetTree(lahTreeName_);
+  if (laTree_==0) {
+    tws.AddBranchToTree(lahTreeName_,Names::gkLAHeaderBrn,
+                        TClass::GetClass(typeid(*evtLAHeader_))->GetName(),&runInfo_);
+    tws.SetAutoFill(lahTreeName_,0);
+    laTree_=tws.GetTree(lahTreeName_);
+  }
 
   // add branches to HLT trigger info tree
-  tws.AddBranchToTree(Names::gkHltTreeName,hltTableName_,
+  tws.AddBranchToTree(hltTreeName_,hltTableName_,
                       TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32*1024,0);
-  tws.AddBranchToTree(Names::gkHltTreeName,hltLabelName_,
+  tws.AddBranchToTree(hltTreeName_,hltLabelName_,
                       TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32*1024,0);
-  tws.SetAutoFill(Names::gkHltTreeName,0);
-  hltTree_=tws.GetTree(Names::gkHltTreeName);
+  tws.SetAutoFill(hltTreeName_,0);
+  hltTree_=tws.GetTree(hltTreeName_);
 
   // store pointer to tree writer 
   tws_ = &tws;
@@ -545,4 +557,15 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   hltBits_->SetBits(maskhlt);
   hltObjs_->Trim();
   hltRels_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+const char *FillerMetaInfos::Istr() const 
+{
+  // Return instance if instance > 0.
+
+  if (instance_==0)
+    return "";
+
+  return Form("_%d",instance_);
 }

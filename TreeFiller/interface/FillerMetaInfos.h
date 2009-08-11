@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.21 2009/07/13 10:39:35 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.22 2009/07/20 03:19:24 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -39,9 +39,12 @@ namespace mithep
       void                           FillHltTrig(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      std::string                    evtName_;      //event branch name
-      std::string                    runName_;      //run info branch name
-      std::string                    lahName_;      //look-ahead header branch name
+      const char                    *Istr() const;
+
+      std::string                    evtName_;      //event branch name (must be unique)
+      std::string                    runTreeName_;  //run info tree name (must be unique)
+      std::string                    lahTreeName_;  //look-ahead header tree name (must be unique)
+      std::string                    hltTreeName_;  //hlt tree name (must be unique)
       Bool_t                         hltActive_;    //=true if HLT info are filled
       std::vector<std::string>       hltProcNames_; //HLT process name(s)
       std::string                    hltProcName_;  //HLT process name to be used
@@ -71,7 +74,7 @@ namespace mithep
       Int_t                          hltEntries_;   //number of hlt info entries
       UShort_t                       fileNum_;      //file number of current file
 
-      static bool                    instance_;     //=true when one active instance
+      static Int_t                   instance_;     //counts active instances
   };
 }
 #endif
