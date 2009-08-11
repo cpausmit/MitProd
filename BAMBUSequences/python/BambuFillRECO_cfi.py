@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: BambuFillRECO_cfi.py,v 1.5 2009/07/22 11:26:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -54,9 +54,8 @@ MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 # Additional output definition
+MitTreeFiller.MetaInfosE29.active = True
 
-# Path and EndPath definitions
-#reconstruction_step = cms.Path(reconstruction)
 
 BambuRecoSequence = cms.Sequence(antiktJets*
                                  conversionElectronsStable*

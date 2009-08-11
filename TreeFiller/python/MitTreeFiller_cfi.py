@@ -1,10 +1,11 @@
-# $Id: MitTreeFiller_cfi.py,v 1.46 2009/07/21 09:12:24 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.47 2009/07/22 04:41:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     fillers = cms.untracked.vstring('MetaInfos',
+                                    'MetaInfosE29',
                                     'MCParticles',
                                     'MCEventInfo',
                                     'BeamSpot',
@@ -80,6 +81,21 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     MetaInfos = cms.untracked.PSet(
         active        = cms.untracked.bool(True),
         hltActive     = cms.untracked.bool(True),
+        hltTreeMitName = cms.untracked.string('HLT'),
+        hltBitsMitName = cms.untracked.string('HLTBits'),
+        hltObjsMitName = cms.untracked.string('HLTObjects'),
+        hltResEdmName = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames  = cms.untracked.vstring('HLT','FU'),
+        fillerType    = cms.untracked.string('FillerMetaInfos')
+    ),
+
+    MetaInfosE29 = cms.untracked.PSet(
+        active         = cms.untracked.bool(False),
+        hltActive      = cms.untracked.bool(True),
+        hltTreeMitName = cms.untracked.string('HLT_E29'),
+        hltBitsMitName = cms.untracked.string('HLTBits_E29'),
+        hltObjsMitName = cms.untracked.string('HLTObjects_E29'),
         hltResEdmName = cms.untracked.string('TriggerResults'),
         hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD'),
         hltProcNames  = cms.untracked.vstring('HLT','FU'),
@@ -104,12 +120,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     MCEventInfo = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
-        flavorHistoryActive   = cms.untracked.bool(False),
         genHepMCEventEdmName  = cms.untracked.string('generator'),
-        genEventWeightEdmName = cms.untracked.string('genEventWeight'),
-        genEventScaleEdmName  = cms.untracked.string('genEventScale'),
-        genEventProcIdEdmName = cms.untracked.string('genEventProcID'),
-        genPdfInfoEdmName     = cms.untracked.string('genEventPdfInfo'),
+        genEvtInfoEdmName     = cms.untracked.string('generator'),
+        flavorHistoryActive   = cms.untracked.bool(False),
+        flavorHistEdmName     = cms.untracked.string('flavorHistoryFilter'),
         fillerType            = cms.untracked.string('FillerMCEventInfo')
     ),
 
