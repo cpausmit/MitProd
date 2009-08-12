@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.45 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillMitTree.cc,v 1.46 2009/08/11 17:28:57 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -147,7 +147,8 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   }
 
   // call branch ref for the event tree
-  tws_->GetTree()->BranchRef();
+  if (brtable_ && tws_->GetTree())
+    tws_->GetTree()->BranchRef();
 }
 
 //--------------------------------------------------------------------------------------------------
