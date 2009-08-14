@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.3 2009/07/22 15:16:44 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,7 +14,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_010'),
+    version = cms.untracked.string('Mit_011'),
     annotation = cms.untracked.string('RECO'),
     name = cms.untracked.string('BambuProduction')
 )
