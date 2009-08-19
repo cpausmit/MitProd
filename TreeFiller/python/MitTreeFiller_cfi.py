@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.47 2009/07/22 04:41:00 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.48 2009/08/11 15:31:29 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -98,7 +98,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         hltObjsMitName = cms.untracked.string('HLTObjects_E29'),
         hltResEdmName = cms.untracked.string('TriggerResults'),
         hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames  = cms.untracked.vstring('HLT','FU'),
+        hltProcNames  = cms.untracked.vstring('HLT8E29'),
         fillerType    = cms.untracked.string('FillerMetaInfos')
     ),
 
