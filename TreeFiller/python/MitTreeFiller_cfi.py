@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.48 2009/08/11 15:31:29 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.49 2009/08/19 19:03:21 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -575,8 +575,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName                       = cms.untracked.string('antikt5CaloJets'),
         jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaAKT5:Var'),
         jetToVertexBetaName           = cms.untracked.string('jetVertexBetaAKT5:Var'),
-        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorAKT5Calo'),
-        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorAKT5Calo'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorAK5Calo'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorAK5Calo'),
         flavorMatchingByReferenceName = cms.untracked.string('AKT5byRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         caloTowerMapName              = cms.untracked.string('CaloTowerMap'),
