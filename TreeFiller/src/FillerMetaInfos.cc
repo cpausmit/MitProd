@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.42 2009/08/11 15:29:27 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.43 2009/08/11 17:28:57 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -95,7 +95,7 @@ FillerMetaInfos::~FillerMetaInfos()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
+void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Create run info tree and book our branches.
 

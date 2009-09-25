@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.13 2009/07/12 13:09:02 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.14 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -36,7 +36,7 @@ FillerCaloTowers::~FillerCaloTowers()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
+void FillerCaloTowers::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add CaloTower branch to tree.
 

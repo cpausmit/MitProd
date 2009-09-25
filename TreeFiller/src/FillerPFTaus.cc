@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.2 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerPFTaus.cc,v 1.3 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -37,7 +37,7 @@ FillerPFTaus::~FillerPFTaus()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPFTaus::BookDataBlock(TreeWriter &tws)
+void FillerPFTaus::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add taus branch to tree.
 

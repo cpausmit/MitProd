@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.18 2009/06/18 23:01:45 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.19 2009/07/07 08:32:26 bendavid Exp $
 //
 // FillerElectrons
 //
@@ -23,7 +23,8 @@ namespace mithep
       FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerElectrons();
 
-      void                           BookDataBlock(TreeWriter &tws);
+      void                           BookDataBlock(TreeWriter &tws, 
+                                                   const edm::EventSetup &es);
       void                           FillDataBlock(const edm::Event &e, 
                                                    const edm::EventSetup &es);
   

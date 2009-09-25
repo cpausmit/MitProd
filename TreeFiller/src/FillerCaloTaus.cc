@@ -1,4 +1,4 @@
-// $Id: FillerCaloTaus.cc,v 1.4 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerCaloTaus.cc,v 1.5 2009/06/18 23:06:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -39,7 +39,7 @@ FillerCaloTaus::~FillerCaloTaus()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerCaloTaus::BookDataBlock(TreeWriter &tws)
+void FillerCaloTaus::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add taus branch to tree.
 

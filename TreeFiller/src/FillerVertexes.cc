@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.4 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerVertexes.cc,v 1.5 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -33,7 +33,7 @@ FillerVertexes::~FillerVertexes()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerVertexes::BookDataBlock(TreeWriter &tws)
+void FillerVertexes::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add Vertex branch and the VertexMap to tree.
 

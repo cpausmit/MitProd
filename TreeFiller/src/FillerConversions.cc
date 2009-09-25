@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.16 2009/06/18 23:07:14 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -36,7 +36,7 @@ FillerConversions::~FillerConversions()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerConversions::BookDataBlock(TreeWriter &tws)
+void FillerConversions::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add conversions to tree. Publish and get our objects.
 

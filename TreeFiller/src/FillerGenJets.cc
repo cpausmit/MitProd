@@ -1,4 +1,4 @@
-// $Id: FillerGenJets.cc,v 1.3 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerGenJets.cc,v 1.4 2009/06/15 15:00:26 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -38,7 +38,7 @@ FillerGenJets::~FillerGenJets()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerGenJets::BookDataBlock(TreeWriter &tws)
+void FillerGenJets::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add jets branch to tree.
 

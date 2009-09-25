@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenMet.h,v 1.1 2009/07/14 13:47:16 bendavid Exp $
+// $Id: FillerGenMet.h,v 1.2 2009/07/20 03:19:24 loizides Exp $
 //
 // FillerGenMet
 //
@@ -22,7 +22,7 @@ namespace mithep
       FillerGenMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerGenMet();
 
-      void                  BookDataBlock(TreeWriter &tws);
+      void                  BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void 	            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

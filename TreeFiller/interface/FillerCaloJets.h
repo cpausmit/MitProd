@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.12 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerCaloJets.h,v 1.13 2009/07/07 08:31:15 bendavid Exp $
 //
 // FillerCaloJets
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerCaloJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerCaloJets();
 
-      void            BookDataBlock(TreeWriter &tws);
+      void            BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

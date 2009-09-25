@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.6 2009/06/18 23:04:24 bendavid Exp $
+// $Id: FillerSuperClusters.cc,v 1.7 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -42,7 +42,7 @@ FillerSuperClusters::~FillerSuperClusters()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
+void FillerSuperClusters::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add super cluster branch to tree and get pointers to maps.
 

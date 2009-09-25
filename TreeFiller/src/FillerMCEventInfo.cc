@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.11 2009/07/25 11:13:54 bendavid Exp $
+// $Id: FillerMCEventInfo.cc,v 1.12 2009/08/11 15:28:55 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -36,7 +36,7 @@ FillerMCEventInfo::~FillerMCEventInfo()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMCEventInfo::BookDataBlock(TreeWriter &tws)
+void FillerMCEventInfo::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Create run info tre and book our branches.
 

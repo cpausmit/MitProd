@@ -1,4 +1,4 @@
-// $Id: FillerStableParts.cc,v 1.14 2009/07/12 13:09:55 bendavid Exp $
+// $Id: FillerStableParts.cc,v 1.15 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -46,7 +46,7 @@ FillerStableParts::~FillerStableParts()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerStableParts::BookDataBlock(TreeWriter &tws)
+void FillerStableParts::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add tracks branch to tree, get and publish our maps.
 

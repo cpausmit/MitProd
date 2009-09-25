@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPATMuons.h,v 1.4 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerPATMuons.h,v 1.5 2009/06/15 15:00:25 loizides Exp $
 //
 // FillerPATMuons
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerPATMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPATMuons();
 
-      void                        BookDataBlock(TreeWriter &tws);
+      void                        BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

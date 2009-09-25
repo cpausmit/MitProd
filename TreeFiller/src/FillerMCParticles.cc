@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.16 2009/06/18 23:03:22 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,7 +61,7 @@ FillerMCParticles::~FillerMCParticles()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMCParticles::BookDataBlock(TreeWriter &tws)
+void FillerMCParticles::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add branch to tree and publish our maps.
 
@@ -105,13 +105,14 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     GetProduct(genEdmName_, hHepMCProduct, event);  
   
     const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
-  
+
     // loop over all hepmc particles and copy their information
     for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
         pgen != GenEvent.particles_end(); ++pgen) {
   
       HepMC::GenParticle *mcPart = (*pgen);
-      if(!mcPart) continue;
+      if(!mcPart) 
+        continue;
   
       mithep::MCParticle *genParticle = mcParticles_->Allocate();
       new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
@@ -143,9 +144,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         
       mithep::MCParticle *mcPart = mcParticles_->Allocate();
       new (mcPart) mithep::MCParticle(pgen->px(),pgen->py(),
-                                            pgen->pz(),pgen->energy(),
-                                            pgen->pdgId(),
-                                            pgen->status());
+                                      pgen->pz(),pgen->energy(),
+                                      pgen->pdgId(),pgen->status());
                                             
       mcPart->SetIsGenerated();                                          
       
@@ -249,12 +249,14 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         pgen != GenEvent.particles_end(); ++pgen) {
   
       HepMC::GenParticle *mcPart = (*pgen);
-      if(!mcPart) continue;
+      if(!mcPart) 
+        continue;
       
       // check if genpart has a decay vertex
       HepMC::GenVertex *dVertex = mcPart->end_vertex();
-      if (!dVertex) continue;
-  
+      if (!dVertex) 
+        continue;
+
       // find corresponding mithep genparticle parent in association table
       mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
   
@@ -284,15 +286,13 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     GetProduct(genEdmName_, hGenPProduct, event);  
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
-  
+    int vtx=1;
     // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
   
       int nDaughters = pgen->numberOfDaughters();
-      
       if (nDaughters>0) {
-      
         edm::Ptr<reco::GenParticle> thePtr(hGenPProduct, pgen - genParticles.begin());
         MCParticle *mcMother = aodGenMap_->GetMit(thePtr);
         for (int i=0; i<nDaughters; ++i) {
@@ -301,12 +301,11 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
           // set mother decay vertex
           if (i==0)
             mcMother->SetVertex(genDaughter->vx(),genDaughter->vy(),genDaughter->vz());
-          
+
           // set mother-daughter links
           mcMother->AddDaughter(mcDaughter);
           if (!mcDaughter->HasMother())
             mcDaughter->SetMother(mcMother);
-          
         }
       }
     }

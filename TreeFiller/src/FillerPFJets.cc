@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.7 2009/07/07 08:31:16 bendavid Exp $
+// $Id: FillerPFJets.cc,v 1.8 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -82,7 +82,7 @@ FillerPFJets::~FillerPFJets()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPFJets::BookDataBlock(TreeWriter &tws)
+void FillerPFJets::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add jets branch to tree.
 

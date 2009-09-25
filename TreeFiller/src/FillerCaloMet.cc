@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.11 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerCaloMet.cc,v 1.12 2009/06/15 15:00:25 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -30,7 +30,7 @@ FillerCaloMet::~FillerCaloMet()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerCaloMet::BookDataBlock(TreeWriter &tws)
+void FillerCaloMet::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add mets branch to tree.
 

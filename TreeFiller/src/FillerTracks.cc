@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.32 2009/06/18 23:02:22 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.33 2009/07/14 13:44:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -56,7 +56,7 @@ FillerTracks::~FillerTracks()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerTracks::BookDataBlock(TreeWriter &tws)
+void FillerTracks::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add tracks branch to tree, publish and get our objects.
 

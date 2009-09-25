@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.37 2009/07/07 08:32:26 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.38 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -56,7 +56,7 @@ FillerElectrons::~FillerElectrons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerElectrons::BookDataBlock(TreeWriter &tws)
+void FillerElectrons::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add electron branch to our tree and get our maps.
 

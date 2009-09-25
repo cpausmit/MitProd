@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.12 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerPhotons.h,v 1.13 2009/06/18 23:00:45 bendavid Exp $
 //
 // FillerPhotons
 //
@@ -24,7 +24,7 @@ namespace mithep
       FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPhotons();
 
-      void                    BookDataBlock(TreeWriter &tws);
+      void                    BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void                    FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

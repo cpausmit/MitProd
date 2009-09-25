@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.3 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerPFCandidates.h,v 1.4 2009/06/15 15:00:25 loizides Exp $
 //
 // FillerPFCandidates
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerPFCandidates(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFCandidates();
 
-      void                         BookDataBlock(TreeWriter &tws);
+      void                         BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void                         FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                         ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   

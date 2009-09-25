@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFJets.h,v 1.4 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerPFJets.h,v 1.5 2009/07/07 08:31:15 bendavid Exp $
 //
 // FillerPFJets
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerPFJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFJets();
 
-      void            BookDataBlock(TreeWriter &tws);
+      void            BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

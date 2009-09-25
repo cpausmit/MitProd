@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.21 2009/07/07 08:31:16 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.22 2009/07/20 03:19:24 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -80,7 +80,7 @@ FillerCaloJets::~FillerCaloJets()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerCaloJets::BookDataBlock(TreeWriter &tws)
+void FillerCaloJets::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add jets branch to tree.
 

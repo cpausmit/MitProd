@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.22 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.23 2009/08/11 15:29:27 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -32,7 +32,7 @@ namespace mithep
       FillerMetaInfos(const edm::ParameterSet &cfg, const char *name="MetaInfos", bool active=1);
       ~FillerMetaInfos();
 
-      void                           BookDataBlock(TreeWriter &tws);
+      void                           BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltInfo(const edm::Event &e, const edm::EventSetup &es);

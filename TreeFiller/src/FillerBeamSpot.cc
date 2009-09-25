@@ -1,4 +1,4 @@
-// $Id: FillerBeamSpot.cc,v 1.3 2009/03/15 11:20:41 loizides Exp $
+// $Id: FillerBeamSpot.cc,v 1.4 2009/06/15 15:00:25 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -29,7 +29,7 @@ FillerBeamSpot::~FillerBeamSpot()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerBeamSpot::BookDataBlock(TreeWriter &tws)
+void FillerBeamSpot::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 {
   // Add Vertex branch and the VertexMap to tree.
 

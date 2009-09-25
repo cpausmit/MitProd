@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTracks.h,v 1.21 2009/03/22 10:00:46 loizides Exp $
+// $Id: FillerTracks.h,v 1.22 2009/06/15 15:00:25 loizides Exp $
 //
 // FillerTracks
 //
@@ -23,9 +23,10 @@ namespace mithep
   {  
     public:
       FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
-      virtual ~FillerTracks();
+      ~FillerTracks();
 
-      void                                BookDataBlock(TreeWriter &tws);
+      void                                BookDataBlock(TreeWriter &tws, 
+                                                        const edm::EventSetup &es);
       void                                FillDataBlock(const edm::Event &e, 
                                                         const edm::EventSetup &es);
 

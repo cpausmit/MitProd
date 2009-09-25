@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStableParts.h,v 1.10 2009/07/12 13:09:55 bendavid Exp $
+// $Id: FillerStableParts.h,v 1.11 2009/07/20 03:19:24 loizides Exp $
 //
 // FillerStableParts
 //
@@ -24,7 +24,8 @@ namespace mithep
       FillerStableParts(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerStableParts();
     
-      void                                  BookDataBlock(TreeWriter &tws);
+      void                                  BookDataBlock(TreeWriter &tws, 
+                                                          const edm::EventSetup &es);
       void 	                            FillDataBlock(const edm::Event &e, 
                                                           const edm::EventSetup &es);
     private:
