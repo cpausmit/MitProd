@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.49 2009/08/19 19:03:21 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.50 2009/09/07 23:58:19 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,6 +8,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MetaInfosE29',
                                     'MCParticles',
                                     'MCEventInfo',
+                                    'MCVertexes',
                                     'BeamSpot',
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
@@ -16,6 +17,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'BarrelSuperClusters',
                                     'EndcapBasicClusters',
                                     'EndcapSuperClusters',
+                                    'PixelHits',
                                     'PFBasicClusters',
                                     'PFSuperClusters',
                                     'GeneralTracks',
@@ -79,15 +81,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts',),
 
     MetaInfos = cms.untracked.PSet(
-        active        = cms.untracked.bool(True),
-        hltActive     = cms.untracked.bool(True),
+        active         = cms.untracked.bool(True),
+        hltActive      = cms.untracked.bool(True),
         hltTreeMitName = cms.untracked.string('HLT'),
         hltBitsMitName = cms.untracked.string('HLTBits'),
         hltObjsMitName = cms.untracked.string('HLTObjects'),
-        hltResEdmName = cms.untracked.string('TriggerResults'),
-        hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames  = cms.untracked.vstring('HLT','FU'),
-        fillerType    = cms.untracked.string('FillerMetaInfos')
+        hltResEdmName  = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName  = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames   = cms.untracked.vstring('HLT','FU'),
+        fillerType     = cms.untracked.string('FillerMetaInfos')
     ),
 
     MetaInfosE29 = cms.untracked.PSet(
@@ -96,10 +98,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         hltTreeMitName = cms.untracked.string('HLT_E29'),
         hltBitsMitName = cms.untracked.string('HLTBits_E29'),
         hltObjsMitName = cms.untracked.string('HLTObjects_E29'),
-        hltResEdmName = cms.untracked.string('TriggerResults'),
-        hltEvtEdmName = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames  = cms.untracked.vstring('HLT8E29'),
-        fillerType    = cms.untracked.string('FillerMetaInfos')
+        hltResEdmName  = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName  = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames   = cms.untracked.vstring('HLT8E29'),
+        fillerType     = cms.untracked.string('FillerMetaInfos')
     ),
 
     MCParticles = cms.untracked.PSet(
@@ -125,6 +127,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorHistoryActive   = cms.untracked.bool(False),
         flavorHistEdmName     = cms.untracked.string('flavorHistoryFilter'),
         fillerType            = cms.untracked.string('FillerMCEventInfo')
+    ),
+
+    MCVertexes = cms.untracked.PSet(
+        active        = cms.untracked.bool(False),
+        useAodGen     = cms.untracked.bool(True),
+        mitName       = cms.untracked.string('MCVertexes'),
+        edmName       = cms.untracked.string('genParticles'),    
+        fillerType    = cms.untracked.string('FillerMCVertexes')
     ),
 
     BeamSpot = cms.untracked.PSet(
@@ -193,6 +203,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         superClusterIdMapName = cms.untracked.string('endcapSuperClusterIdMap'),
         fillerType            = cms.untracked.string('FillerSuperClusters')
     ),
+
+    PixelHits = cms.untracked.PSet(
+        active                = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('PixelHits'),                     
+        edmName               = cms.untracked.string('siPixelRecHits'),
+        fillerType            = cms.untracked.string('FillerPixelHits')
+    ),
     
     PFBasicClusters = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
@@ -211,7 +228,6 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         superClusterIdMapName = cms.untracked.string('PFSuperClusterIdMap'),
         fillerType            = cms.untracked.string('FillerSuperClusters')
     ),
-
 
     GeneralTracks  = cms.untracked.PSet(
         active                    = cms.untracked.bool(True),

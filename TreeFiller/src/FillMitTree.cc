@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.46 2009/08/11 17:28:57 loizides Exp $
+// $Id: FillMitTree.cc,v 1.47 2009/08/12 10:24:45 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,6 +20,7 @@
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
+#include "MitProd/TreeFiller/interface/FillerMCVertexes.h"
 #include "MitProd/TreeFiller/interface/FillerMet.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
@@ -29,6 +30,7 @@
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
+#include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
@@ -143,7 +145,7 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   // loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
-    (*iF)->BookDataBlock(*tws_);
+    (*iF)->BookDataBlock(*tws_, event);
   }
 
   // call branch ref for the event tree
@@ -200,6 +202,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerMCEventInfo);
       continue;
     }
+
+    if (ftype.compare("FillerMCVertexes")==0) {
+      FillerMCVertexes *fillerMCVertexes = new FillerMCVertexes(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerMCVertexes);
+      continue;
+    }  
 
     if (ftype.compare("FillerBeamSpot")==0) {
       FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
@@ -266,6 +274,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerSuperClusters *fillerSuperClusters =  
         new FillerSuperClusters(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerSuperClusters);
+      continue;
+    }  
+
+    if (ftype.compare("FillerPixelHits")==0) {
+      FillerPixelHits *fillerPixelHits =  
+        new FillerPixelHits(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPixelHits);
       continue;
     }  
 
