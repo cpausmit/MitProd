@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.33 2009/07/14 13:44:35 bendavid Exp $
+// $Id: FillerPixelHits.cc,v 1.1 2009/09/25 08:42:27 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -66,6 +66,9 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
         end = hits->data().end(); hit != end; ++hit) {
+
+    if (!hit->isValid())
+      continue;
 
     DetId id(hit->geographicalId());
     LocalPoint lpos = LocalPoint(hit->localPosition().x(),
