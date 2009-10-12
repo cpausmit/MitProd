@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.18 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -286,7 +286,6 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     GetProduct(genEdmName_, hGenPProduct, event);  
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
-    int vtx=1;
     // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
