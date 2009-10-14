@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.50 2009/09/07 23:58:19 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.51 2009/09/25 08:43:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,6 +12,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'BeamSpot',
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
+                                    'PixelVertices',
                                     'CaloTowers',
                                     'BarrelBasicClusters',
                                     'BarrelSuperClusters',
@@ -157,6 +158,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName       = cms.untracked.string('PrimaryVertexesBeamSpot'),
         edmName       = cms.untracked.string('offlinePrimaryVerticesWithBS'),    
         vertexMapName = cms.untracked.string('PrimaryVertexBSMap'),
+        fillerType    = cms.untracked.string('FillerVertexes')
+    ),
+
+    PixelVertices = cms.untracked.PSet(
+        active        = cms.untracked.bool(False),
+        mitName       = cms.untracked.string('PixelVertices'),
+        edmName       = cms.untracked.string('pixelVertices'),    
+        vertexMapName = cms.untracked.string('PixelVertMap'),
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
 
