@@ -1,4 +1,4 @@
-# $Id:$
+# $Id:#
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,13 +23,15 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound')
+   Rethrow = cms.untracked.vstring('ProductNotFound'),
+   fileMode =  cms.untracked.string('NOMERGE')
 )
 
 # input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/ZmumuJet_Pt230to300_Summer09-MC_31X_V3-v1/D43739BB-477D-DE11-8995-001F29087E7C.root')
 )
+process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
 process.GlobalTag.globaltag = 'MC_31X_V3::All'
