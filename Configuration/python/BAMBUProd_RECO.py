@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
+# $Id: BAMBUProd_RECO.py,v 1.5 2009/08/14 13:10:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,13 +8,12 @@ process = cms.Process('FILLER')
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011'),
+    version = cms.untracked.string('Mit_011a'),
     annotation = cms.untracked.string('RECO'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -24,16 +23,18 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound')
+   Rethrow = cms.untracked.vstring('ProductNotFound'),
+   fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_1/RelValTTbar/GEN-SIM-RECO/MC_31X_V2-v1/0002/CEC0E4DD-5D6B-DE11-91DB-001D09F2545B.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECO/CRAFT09Cosmics327CollisionSeq/C248AC69-B0A8-DE11-85A1-0030486792B6.root')
 )
+process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'CRAFT09_R_V3::All'
 
 # load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
@@ -44,8 +45,6 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.BAMBUSequences.BambuFillRECO_cfi")
 
 process.bambu_step  = cms.Path(process.BambuFillRECO)
-process.endjob_step = cms.Path(process.endOfProcess)
-#process.out_step = cms.EndPath(process.output)
 
 # schedule definition
-process.schedule = cms.Schedule(process.bambu_step,process.endjob_step)
+process.schedule = cms.Schedule(process.bambu_step)

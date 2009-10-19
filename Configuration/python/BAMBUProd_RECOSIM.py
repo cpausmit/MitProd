@@ -9,12 +9,11 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011'),
+    version = cms.untracked.string('Mit_011a'),
     annotation = cms.untracked.string('RECOSIM'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -24,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.options = cms.untracked.PSet(
    Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode =  cms.untracked.string('NOMERGE')
+   fileMode =  cms.untracked.string('NOMERGE'),
 )
 
 # input source
@@ -34,7 +33,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 # load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
@@ -45,8 +44,6 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
 
 process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
-process.endjob_step = cms.Path(process.endOfProcess)
-#process.out_step = cms.EndPath(process.output)
 
 # schedule definition
-process.schedule = cms.Schedule(process.bambu_step,process.endjob_step)
+process.schedule = cms.Schedule(process.bambu_step)

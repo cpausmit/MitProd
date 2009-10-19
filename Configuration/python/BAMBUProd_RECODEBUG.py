@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.5 2009/08/14 13:10:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,12 +9,11 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011'),
+    version = cms.untracked.string('Mit_011a'),
     annotation = cms.untracked.string('RECODEBUG'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -24,16 +23,18 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound')
+   Rethrow = cms.untracked.vstring('ProductNotFound'),
+   fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECODEBUG/WW_MC_31X_V2_preproduction_311_GEN-SIM-RECO-v1/C678170D-146C-DE11-A610-001C23C0F1F4.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_2/RelValTTbar/GEN-SIM-RECO/MC_31X_V3-v1/0006/B8BA4AF7-5178-DE11-9F72-001D09F23A6B.root')
 )
+process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 # load MitTreeFiller 
 process.TreeService = cms.Service("TreeService",
@@ -44,8 +45,6 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.BAMBUSequences.BambuFillRECODEBUG_cfi")
 
 process.bambu_step  = cms.Path(process.BambuFillRECODEBUG)
-process.endjob_step = cms.Path(process.endOfProcess)
-#process.out_step = cms.EndPath(process.output)
 
 # schedule definition
-process.schedule = cms.Schedule(process.bambu_step,process.endjob_step)
+process.schedule = cms.Schedule(process.bambu_step)

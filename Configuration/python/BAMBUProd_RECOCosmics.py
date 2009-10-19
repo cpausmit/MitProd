@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.5 2009/08/14 13:10:00 bendavid Exp $
+# $Id: BAMBUProd_RECOCosmics.py,v 1.1 2009/10/04 12:51:10 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,13 +9,12 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011'),
-    annotation = cms.untracked.string('RECO'),
+    version = cms.untracked.string('Mit_011a'),
+    annotation = cms.untracked.string('RECOCosmics'),
     name = cms.untracked.string('BambuProduction')
 )
 
@@ -24,13 +23,15 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound')
+   Rethrow = cms.untracked.vstring('ProductNotFound'),
+   fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/CRAFT09/Cosmics/RECO/v1/000/110/972/EA5AF112-A18A-DE11-9BC8-000423D9997E.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOCosmics/CRAFT09Cosmics327CosmicsSeq/56EB243F-86A8-DE11-802D-003048678F02.root')
 )
+process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
 process.GlobalTag.globaltag = 'GR09_P_V2::All'
@@ -44,8 +45,6 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.BAMBUSequences.BambuFillRECOCosmics_cfi")
 
 process.bambu_step  = cms.Path(process.BambuFillRECOCosmics)
-process.endjob_step = cms.Path(process.endOfProcess)
-#process.out_step = cms.EndPath(process.output)
 
 # schedule definition
-process.schedule = cms.Schedule(process.bambu_step,process.endjob_step)
+process.schedule = cms.Schedule(process.bambu_step)
