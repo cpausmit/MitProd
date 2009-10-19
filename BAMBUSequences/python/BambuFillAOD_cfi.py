@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.6 2009/08/11 15:31:29 loizides Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.1 2009/10/04 12:53:19 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,10 +9,5 @@ from MitProd.BAMBUSequences.BambuFillRECO_cfi import *
 mergedConversionsStable.removeDuplicates = False
 mergedConversionsGeneralStable.removeDuplicates = False
 mergedElectronsStable.removeDuplicates = False
-
-#disable JPT in filler and sequence
-#MitTreeFiller.IC5JetPlusTrack.active = False
-#BambuRecoSequence.remove(ZSPJetCorrections)
-#BambuRecoSequence.remove(JetPlusTrackCorrections)
 
 BambuFillAOD = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)
