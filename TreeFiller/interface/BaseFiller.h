@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.15 2009/06/15 15:00:23 loizides Exp $
+// $Id: BaseFiller.h,v 1.16 2009/09/25 08:43:07 loizides Exp $
 //
 // BaseFiller
 //
@@ -76,11 +76,12 @@ inline void mithep::BaseFiller::GetProduct(const std::string edmname, edm::Handl
     event.getByLabel(edm::InputTag(edmname),prod);
     if (!prod.isValid()) 
       throw edm::Exception(edm::errors::Configuration, "BaseFiller::GetProduct()\n")
-        << "Cannot get collection with label " << edmname << std::endl;
+        << "Cannot get collection with label " << edmname << " for " << Name() <<  std::endl;
   } catch (...) {
     edm::LogError("BaseFiller") << "Cannot get collection with label "
-                                << edmname << std::endl;
-    PrintErrorAndExit(Form("Cannot get collection with label %s", edmname.c_str()));
+                                << edmname << " for " << Name() << std::endl;
+    PrintErrorAndExit(Form("Cannot get collection with label %s for %s", 
+                           edmname.c_str(), name_.c_str()));
   }
 }
 
