@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.38 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.39 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -119,6 +119,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     
     outElectron->SetPtEtaPhi(iM->pt(),iM->eta(),iM->phi());
          
+    outElectron->SetCharge(iM->charge());
+    outElectron->SetScPixCharge(iM->scPixCharge());
+    
     outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
     outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
     outElectron->SetPIn(iM->trackMomentumAtVtx().R());
