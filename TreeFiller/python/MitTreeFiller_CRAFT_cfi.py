@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_CRAFT_cfi.py,v 1.5 2009/07/10 13:50:02 loizides Exp $
+# $Id: MitTreeFiller_CRAFT_cfi.py,v 1.6 2009/10/04 12:51:10 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,6 +64,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'Kt6Jets',
                                     'CaloMet',
                                     'CorMuonMet'),                                    
+
+    TreeWriter = cms.untracked.PSet(
+        fileName = cms.untracked.string('XX-MITDATASET-XX'),
+    ),
 
     MetaInfos = cms.untracked.PSet(
         active        = cms.untracked.bool(True),

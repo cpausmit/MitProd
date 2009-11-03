@@ -1,4 +1,4 @@
-# $Id: vProducerNoRefit_cff.py,v 1.2 2009/07/12 13:10:16 bendavid Exp $
+# $Id: vProducerNoRefit_cff.py,v 1.3 2009/07/20 05:04:20 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,49 +20,52 @@ Lambda2ProtPi.minMass = cms.untracked.double(1.0)
 Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
 Lambda2ProtPi.useHitDropper = cms.untracked.bool(False)
 
-FillKsh = cms.EDAnalyzer("FillMitTree",
-    fillers = cms.untracked.vstring('StableParts',
-                                    'DecayParts'),
+vProducer = cms.Sequence(PisStable*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
 
-    StableParts = cms.untracked.PSet(
-        active        = cms.untracked.bool(True),
-        mitName       = cms.untracked.string('PisStable'),
-        edmName       = cms.untracked.string('PisStable'),
+def addKshFiller(filler):
+
+    filler.fillers.extend(('PisStable',
+                           'Ksh2PiPi'))
+
+    filler.PisStable = cms.untracked.PSet(
+        active       = cms.untracked.bool(True),
+        mitName      = cms.untracked.string('PisStable'),
+        edmName      = cms.untracked.string('PisStable'),
         trackMapNames = cms.untracked.vstring('TracksMapName'),
-        basePartMap   = cms.untracked.string('PisStableMapName'),
-        fillerType    = cms.untracked.string('FillerStableParts')
-    ),
+        basePartMap  = cms.untracked.string('PisStableMapName'),
+        fillerType   = cms.untracked.string('FillerStableParts')
+    )
 
-    DecayParts = cms.untracked.PSet(
+    filler.Ksh2PiPi = cms.untracked.PSet(
         active       = cms.untracked.bool(True),
         mitName      = cms.untracked.string('Ksh2PiPi'),
         edmName      = cms.untracked.string('Ksh2PiPi'),
         basePartMaps = cms.untracked.vstring('PisStableMapName'),
         fillerType   = cms.untracked.string('FillerDecayParts')
     )
-)
 
-FillLambda = cms.EDAnalyzer("FillMitTree",
-    fillers = cms.untracked.vstring('StableParts',
-                                    'DecayParts'),
+def addLambdaFiller(filler):
 
-    StableParts = cms.untracked.PSet(
+    filler.fillers.extend(('ProtonsStable',
+                           'Lambda2ProtPi'))
+
+    filler.ProtonsStable = cms.untracked.PSet(
         active        = cms.untracked.bool(True),
         mitName       = cms.untracked.string('ProtonsStable'),
         edmName       = cms.untracked.string('ProtonsStable'),
         trackMapNames = cms.untracked.vstring('TracksMapName'),
         basePartMap   = cms.untracked.string('ProtonsStableMapName'),
         fillerType    = cms.untracked.string('FillerStableParts')
-    ),
+    )
 
-    DecayParts = cms.untracked.PSet(
+    filler.Lambda2ProtPi = cms.untracked.PSet(
         active       = cms.untracked.bool(True),
         mitName      = cms.untracked.string('Lambda2ProtPi'),
         edmName      = cms.untracked.string('Lambda2ProtPi'),
         basePartMaps = cms.untracked.vstring('PisStableMapName','ProtonsStableMapName'),
         fillerType   = cms.untracked.string('FillerDecayParts')
     )
-)
 
-vProducer = cms.Sequence(PisStable*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
-vFiller = cms.Sequence(FillKsh*FillLambda)
+def addVFiller(filler):
+    addKshFiller(filler)
+    addLambdaFiller(filler)

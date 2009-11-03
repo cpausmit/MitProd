@@ -1,10 +1,11 @@
-# $Id: JetsMCFlavourMatching_cfi.py,v 1.7 2009/03/22 08:48:59 loizides Exp $
+# $Id: JetsMCFlavourMatching_cfi.py,v 1.8 2009/07/22 04:41:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 # select the partons for Jet MC Flavour
 myPartons = cms.EDFilter("PartonSelector",
-    withLeptons = cms.bool(False)
+    withLeptons = cms.bool(False),
+    src = cms.InputTag("genParticles")
 )
 
 #Iterative Cone
@@ -109,7 +110,7 @@ KT6byValAlgo = cms.EDFilter("JetFlavourIdentifier",
 #AntiKt Jets
 # Flavour byReference
 AKT5byRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt5CaloJets"),
+    jets                = cms.InputTag("ak5CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -128,7 +129,7 @@ AKT5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
 
 # Flavour byReference
 AKT7byRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt7CaloJets"),
+    jets                = cms.InputTag("ak7CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -247,7 +248,7 @@ KT6PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
 #AntiKt Jets
 # Flavour byReference
 AKT5PFbyRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt5PFJets"),
+    jets                = cms.InputTag("ak5PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -266,7 +267,7 @@ AKT5PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
 
 # Flavour byReference
 AKT7PFbyRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt7PFJets"),
+    jets                = cms.InputTag("ak7PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -320,14 +321,14 @@ GenKT6byRef = cms.EDFilter("JetPartonMatcher",
 
 #Flavour by Reference
 GenAKT5byRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt5GenJets"),
+    jets                = cms.InputTag("ak5GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
 GenAKT7byRef = cms.EDFilter("JetPartonMatcher",
-    jets                = cms.InputTag("antikt7GenJets"),
+    jets                = cms.InputTag("ak7GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -346,14 +347,15 @@ KT4PFFlavour = cms.Sequence(KT4PFbyRef*KT4PFbyValPhys*KT4PFbyValAlgo)
 KT6PFFlavour = cms.Sequence(KT6PFbyRef*KT6PFbyValPhys*KT6PFbyValAlgo)
 AKT5PFFlavour = cms.Sequence(AKT5PFbyRef*AKT5PFbyValPhys*AKT5PFbyValAlgo)
 AKT7PFFlavour = cms.Sequence(AKT7PFbyRef*AKT7PFbyValPhys*AKT7PFbyValAlgo)
-GenJetFlavour = cms.Sequence(GenIC5byRef*GenSC5byRef*GenSC7byRef*GenKT4byRef*GenKT6byRef)
+GenJetFlavour = cms.Sequence(GenIC5byRef*GenSC5byRef*GenSC7byRef*GenKT4byRef*GenKT6byRef*GenAKT5byRef*GenAKT7byRef)
 caloJetMCFlavour = cms.Sequence(myPartons*iterativeCone5Flavour
                                 +sisCone5Flavour
                                 +sisCone7Flavour
                                 +KT4Flavour
                                 +KT6Flavour
+                                +AKT5Flavour
+                                +AKT7Flavour
                                 +GenJetFlavour)
 
-pfJetMCFlavour = cms.Sequence(iterativeCone5PFFlavour+sisCone5PFFlavour+sisCone7PFFlavour+KT4PFFlavour+KT6PFFlavour)
+pfJetMCFlavour = cms.Sequence(iterativeCone5PFFlavour+sisCone5PFFlavour+sisCone7PFFlavour+KT4PFFlavour+KT6PFFlavour+AKT5PFFlavour+AKT7PFFlavour)
 
-antiKtJetMCFlavour = cms.Sequence(GenAKT5byRef*GenAKT7byRef*AKT5Flavour*AKT7Flavour*AKT5PFFlavour*AKT7PFFlavour)

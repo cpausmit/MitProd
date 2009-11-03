@@ -1,12 +1,13 @@
-# $Id: JetVertexAssociation_cfi.py,v 1.3 2008/09/30 15:57:32 sixie Exp $
+# $Id: TrackEcalAssociation_cfi.py,v 1.1 2008/11/03 11:23:07 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
 
-TrackAssociatorParameters.useEcal = False
-TrackAssociatorParameters.useHO   = False
-TrackAssociatorParameters.useMuon = False
-TrackAssociatorParameters.useHcal = False
-TrackAssociatorParameters.useCalo = True
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useEcal = False
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useHO   = False
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useMuon = False
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useHcal = False
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useCalo = True
+TrackAssociatorParameterBlock.TrackAssociatorParameters.usePreshower = False

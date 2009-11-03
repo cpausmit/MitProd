@@ -1,4 +1,4 @@
-# $Id: JetVertexAssociation_cfi.py,v 1.4 2009/03/22 08:48:59 loizides Exp $
+# $Id: JetVertexAssociation_cfi.py,v 1.5 2009/07/22 04:41:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -128,7 +128,7 @@ jetVertexAlphaAKT5 = cms.EDProducer("JetVertexAssociation",
     JV_alpha_threshold = cms.double(0.2),
     JV_cone_size       = cms.double(0.5),
     JV_type_Algo       = cms.int32(1),
-    JET_ALGO           = cms.string('antikt5CaloJets'),
+    JET_ALGO           = cms.string('ak5CaloJets'),
     TRACK_ALGO         = cms.string('generalTracks'),
     VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
     JV_cutType         = cms.string('delta'),
@@ -140,7 +140,7 @@ jetVertexBetaAKT5 = cms.EDProducer("JetVertexAssociation",
     JV_alpha_threshold = cms.double(0.2),
     JV_cone_size       = cms.double(0.5),
     JV_type_Algo       = cms.int32(2),
-    JET_ALGO           = cms.string('antikt5CaloJets'),
+    JET_ALGO           = cms.string('ak5CaloJets'),
     TRACK_ALGO         = cms.string('generalTracks'),
     VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
     JV_cutType         = cms.string('delta'),
@@ -152,7 +152,7 @@ jetVertexAlphaAKT7 = cms.EDProducer("JetVertexAssociation",
     JV_alpha_threshold = cms.double(0.2),
     JV_cone_size       = cms.double(0.5),
     JV_type_Algo       = cms.int32(1),
-    JET_ALGO           = cms.string('antikt7CaloJets'),
+    JET_ALGO           = cms.string('ak7CaloJets'),
     TRACK_ALGO         = cms.string('generalTracks'),
     VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
     JV_cutType         = cms.string('delta'),
@@ -164,7 +164,7 @@ jetVertexBetaAKT7 = cms.EDProducer("JetVertexAssociation",
     JV_alpha_threshold = cms.double(0.2),
     JV_cone_size       = cms.double(0.5),
     JV_type_Algo       = cms.int32(2),
-    JET_ALGO           = cms.string('antikt7CaloJets'),
+    JET_ALGO           = cms.string('ak7CaloJets'),
     TRACK_ALGO         = cms.string('generalTracks'),
     VERTEX_ALGO        = cms.string('offlinePrimaryVertices'),
     JV_cutType         = cms.string('delta'),
@@ -180,9 +180,8 @@ jetvertexAssociationSequence = cms.Sequence(jetVertexAlphaIC5
                                             + jetVertexAlphaKT4
                                             + jetVertexBetaKT4
                                             + jetVertexAlphaKT6
-                                            + jetVertexBetaKT6)
-
-antiktJetVertexAssociationSequence = cms.Sequence(jetVertexAlphaAKT5
-                                                  + jetVertexBetaAKT5
-                                                  + jetVertexAlphaAKT7
-                                                  + jetVertexBetaAKT7)
+                                            + jetVertexBetaKT6
+                                            + jetVertexAlphaAKT5
+                                            + jetVertexBetaAKT5
+                                            + jetVertexAlphaAKT7
+                                            + jetVertexBetaAKT7)
