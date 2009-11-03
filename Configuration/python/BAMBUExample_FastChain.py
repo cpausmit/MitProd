@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.3 2009/07/22 15:16:24 bendavid Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -119,10 +119,6 @@ process.generation_step = cms.Path(process.generator +
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 #process.out_step = cms.EndPath(process.output)
 
-# load MitTreeFiller 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('mit-full'),
-)
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.TreeFiller.MitTreeFiller_cfi")

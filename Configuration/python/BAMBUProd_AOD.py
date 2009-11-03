@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.1 2009/10/04 12:53:19 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.2 2009/10/19 18:45:42 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,10 +36,6 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 # other statements
 process.GlobalTag.globaltag = 'CRAFT09_R_V3::All'
 
-# load MitTreeFiller 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
-)
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")

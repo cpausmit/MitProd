@@ -28,17 +28,13 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/ZmumuJet_Pt230to300_Summer09-MC_31X_V3-v1/D43739BB-477D-DE11-8995-001F29087E7C.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_1-MC_31X_V9-v3_GEN-SIM-RECO/DAEBA2B7-3EC0-DE11-890D-000423D98BE8.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
 process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
-# load MitTreeFiller 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
-)
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")

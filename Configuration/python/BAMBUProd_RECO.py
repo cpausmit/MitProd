@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.5 2009/08/14 13:10:00 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.6 2009/10/19 18:45:42 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,17 +29,13 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECO/CRAFT09Cosmics327CollisionSeq/C248AC69-B0A8-DE11-85A1-0030486792B6.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_1-MC_31X_V9-v3_GEN-SIM-RECO/DAEBA2B7-3EC0-DE11-890D-000423D98BE8.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
 process.GlobalTag.globaltag = 'CRAFT09_R_V3::All'
 
-# load MitTreeFiller 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
-)
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECO_cfi")

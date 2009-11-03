@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECOCosmics.py,v 1.1 2009/10/04 12:51:10 bendavid Exp $
+# $Id: BAMBUProd_RECOCosmics.py,v 1.2 2009/10/19 18:45:42 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,10 +36,6 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 # other statements
 process.GlobalTag.globaltag = 'GR09_P_V2::All'
 
-# load MitTreeFiller 
-process.TreeService = cms.Service("TreeService",
-    fileNames = cms.untracked.vstring('XX-MITDATASET-XX'),
-)
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECOCosmics_cfi")
