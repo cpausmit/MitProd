@@ -1,10 +1,8 @@
-// $Id: TreeService.cc,v 1.12 2009/03/04 07:25:24 loizides Exp $
+// $Id: TreeService.cc,v 1.13 2009/03/23 22:12:58 loizides Exp $
 
 #include "MitProd/TreeService/interface/TreeService.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
@@ -16,7 +14,7 @@ using namespace std;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) : 
+TreeService::TreeService(const ParameterSet &cfg) : 
   tws_(0),
   zipMode_(1),
   bZipThres_(1),
@@ -158,10 +156,10 @@ TreeService::TreeService(const ParameterSet &cfg, ActivityRegistry &ar) :
   }
 
   // set watchers
-  ar.watchPreProcessEvent (this,&TreeService::preEventProcessing);
-  ar.watchPostProcessEvent(this,&TreeService::postEventProcessing);
-  ar.watchPostBeginJob    (this,&TreeService::postBeginJob);
-  ar.watchPostEndJob      (this,&TreeService::postEndJob);
+//   ar.watchPreProcessEvent (this,&TreeService::preEventProcessing);
+//   ar.watchPostProcessEvent(this,&TreeService::postEventProcessing);
+//   ar.watchPostBeginJob    (this,&TreeService::postBeginJob);
+//   ar.watchPostEndJob      (this,&TreeService::postEndJob);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +199,7 @@ void TreeService::postEndJob()
 }
 
 //--------------------------------------------------------------------------------------------------
-void TreeService::postEventProcessing(const Event&, const EventSetup&)
+void TreeService::postEventProcessing()
 {
   // Loop over all TreeWriter objects before processing of an event.
 
@@ -217,7 +215,7 @@ void TreeService::postEventProcessing(const Event&, const EventSetup&)
 }
 
 //--------------------------------------------------------------------------------------------------
-void TreeService::preEventProcessing(const EventID&, const Timestamp&)
+void TreeService::preEventProcessing()
 {
   // Loop over all TreeWriter objects after processing of a events.
 

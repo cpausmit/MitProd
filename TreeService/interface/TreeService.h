@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.13 2009/03/04 07:25:24 loizides Exp $
+// $Id: TreeService.h,v 1.14 2009/03/15 11:17:36 loizides Exp $
 //
 // TreeService 
 //
@@ -39,18 +39,21 @@ namespace edm
 namespace mithep 
 {
   class TreeWriter;
-
+  
   class TreeService  {
+    
+    friend class FillMitTree;
+    
     public:
-      TreeService(const edm::ParameterSet &cfg, edm::ActivityRegistry &ar);
+      TreeService(const edm::ParameterSet &cfg);
       ~TreeService();
 
       TreeWriter *get(const char *name=0);
       TreeWriter *get(const std::string &name) { return get(name.c_str()); }
 
     private:
-      void preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
-      void postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
+      void preEventProcessing();
+      void postEventProcessing();
       void postBeginJob();
       void postEndJob();
 
