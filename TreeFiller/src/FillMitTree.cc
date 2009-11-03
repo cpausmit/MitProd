@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.47 2009/08/12 10:24:45 loizides Exp $
+// $Id: FillMitTree.cc,v 1.48 2009/09/25 08:43:19 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,6 +37,7 @@
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/BranchTable.h"
+#include "MitCommon/OptIO/interface/OptInt.h"
 
 using namespace std;
 using namespace edm;
@@ -48,7 +49,8 @@ mithep::ObjectService *mithep::FillMitTree::os_ = 0;
 FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   defactive_(cfg.getUntrackedParameter<bool>("defactive",1)),
   brtable_(0),
-  acfnumber_(-1)
+  acfnumber_(-1),
+  tws_(new TreeWriter(Names::gkEvtTreeName,0))
 {
   // Constructor.
 
@@ -64,6 +66,7 @@ FillMitTree::~FillMitTree()
   // Destructor.
 
   delete brtable_;
+  delete tws_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +92,9 @@ void FillMitTree::analyze(const edm::Event      &event,
 			  const edm::EventSetup &setup)
 {
   // Access and copy event content.
+  
+  //tree writer begin event actions
+  tws_->BeginEvent(kTRUE);
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
@@ -111,6 +117,10 @@ void FillMitTree::analyze(const edm::Event      &event,
       acfnumber_ = tws_->GetFileNumber();
     }
   }
+  
+  //tree writer end of event actions
+  tws_->EndEvent(kTRUE);
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,8 +128,6 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
 {
   // Access the tree and book branches.
 
-  Service<TreeService> ts;
-  tws_ = ts->get();
   if (!tws_) {
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
       << "Could not get pointer to tree. " 
@@ -151,11 +159,21 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
   // call branch ref for the event tree
   if (brtable_ && tws_->GetTree())
     tws_->GetTree()->BranchRef();
+  
 }
 
 //--------------------------------------------------------------------------------------------------
 bool FillMitTree::configure(const edm::ParameterSet &cfg)
 {
+
+  // Configure TreeWriter
+  const std::string twsConfigName("TreeWriter");
+  ParameterSet twsConfig;
+  if (cfg.existsAs<ParameterSet>(twsConfigName,0))
+    twsConfig = cfg.getUntrackedParameter<ParameterSet>(twsConfigName);
+  
+  configureTreeWriter(twsConfig);
+  
   // Configure our fillers according to given parameter ("fillers").
 
   std::vector<std::string> pars;
@@ -360,6 +378,38 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 }
 
 //--------------------------------------------------------------------------------------------------
+bool FillMitTree::configureTreeWriter(const edm::ParameterSet &cfg)
+{
+
+  tws_->SetPrefix(cfg.getUntrackedParameter<string>("fileName","mit-test"));
+  tws_->SetBaseURL(cfg.getUntrackedParameter<string>("pathName","."));
+  tws_->SetMaxSize((Long64_t)cfg.getUntrackedParameter<unsigned>("maxSize",1024)*1024*1024);
+  tws_->SetCompressLevel(cfg.getUntrackedParameter<unsigned>("compLevel",9));
+  tws_->SetDefaultSL(cfg.getUntrackedParameter<unsigned>("splitLevel",99));
+  tws_->SetDefaultBrSize(cfg.getUntrackedParameter<unsigned>("brSize",16*1024));
+  
+  if (OptInt::IsActivated()) {
+    OptInt::SetZipMode(cfg.getUntrackedParameter<unsigned>("zipMode",99));
+    OptInt::SetGzipFraction(cfg.getUntrackedParameter<double>("gZipThres",1.0));
+    OptInt::SetBzipFraction(cfg.getUntrackedParameter<double>("bZipThres",-1.0));
+    OptInt::SetLzoFraction(cfg.getUntrackedParameter<double>("lzoThres",-1.0));
+    OptInt::SetLzmaFraction(cfg.getUntrackedParameter<double>("lzmaThres",0.95));
+    OptInt::SetVerbose(cfg.getUntrackedParameter<unsigned>("optIOVerbose",0));
+
+  } else {
+
+    if (cfg.exists("zipMode")   || cfg.exists("bZipThres") ||
+        cfg.exists("gZipThres") || cfg.exists("lzoThres")  ||
+        cfg.exists("lzmaThres")) {
+      edm::LogError("TreeService") << "OptIO interface not properly pre-loaded, "
+        "ignoring given settings." << std::endl;
+    }
+  }
+  
+  return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
 void FillMitTree::endJob()
 {
   // Delete fillers.
@@ -368,5 +418,7 @@ void FillMitTree::endJob()
     delete *iF;
   }
 
+  tws_->Clear();
+  
   edm::LogInfo("FillMitTree::endJob") << "Ending Job" << endl;
 }

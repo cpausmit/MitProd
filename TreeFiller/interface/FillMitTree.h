@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.13 2009/04/06 19:36:47 loizides Exp $
+// $Id: FillMitTree.h,v 1.14 2009/06/15 15:00:23 loizides Exp $
 //
 // FillMitTree
 //
@@ -15,6 +15,8 @@
 #define MITPROD_TREEFILLER_FILLMITTREE_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "MitProd/TreeService/interface/TreeService.h"
+
 
 namespace mithep 
 {
@@ -38,6 +40,7 @@ namespace mithep
     protected:
       bool                     addActiveFiller(BaseFiller *bf);
       bool                     configure(const edm::ParameterSet &cfg);
+      bool                     configureTreeWriter(const edm::ParameterSet &cfg);
 
       std::vector<BaseFiller*> fillers_;       //list of active fillers
       bool                     defactive_;     //default activity flag for fillers
