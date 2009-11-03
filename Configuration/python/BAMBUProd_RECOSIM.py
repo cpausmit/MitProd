@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 
