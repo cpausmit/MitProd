@@ -1,15 +1,8 @@
-# $Id: BambuFillRECO_cfi.py,v 1.6 2009/08/11 15:31:29 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.7 2009/10/04 12:53:19 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.TreeFiller.MitTreeFiller_cfi import *
-
-# Load antikt jet producers
-from MitProd.TreeFiller.antiktJets_cfi import *
-MitTreeFiller.AKt5Jets.active = True
-MitTreeFiller.AKt7Jets.active = True
-MitTreeFiller.AKt5PFJets.active = True
-MitTreeFiller.AKt7PFJets.active = True
 
 # Load stablePart producers
 from MitEdm.Producers.conversionElectronsStable_cfi import *
@@ -20,10 +13,12 @@ MitTreeFiller.GsfElectronsStable.active             = True
 MitTreeFiller.MergedElectronsStable.active          = True
 
 # Load Mit vProducer
-from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,FillKsh
+from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
+addKshFiller(MitTreeFiller)
 
 # Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
+addConversionFiller(MitTreeFiller)
 
 # For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
@@ -47,9 +42,9 @@ MitTreeFiller.Kt6Jets.jetToVertexActive      = True
 MitTreeFiller.AKt5Jets.jetToVertexActive     = True
 MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 
-# Load track detector associator for Track-ECal association
+#Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
-MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameters)
+MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameterBlock.TrackAssociatorParameters)
 #Enable Track-Ecal assocation in fillers
 MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
 MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
@@ -59,17 +54,13 @@ MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
 MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
-BambuRecoSequence = cms.Sequence(antiktJets*
-                                 conversionElectronsStable*
+BambuRecoSequence = cms.Sequence(conversionElectronsStable*
                                  mvfConversionElectronsStable*
                                  kShProducer*
                                  conversionProducer*
-                                 ZSPJetCorrections*JetPlusTrackCorrections*
-                                 jetvertexAssociationSequence*
-                                 antiktJetVertexAssociationSequence)
+                                 ZSPJetCorrectionsIcone5*JetPlusTrackCorrectionsIcone5*
+                                 jetvertexAssociationSequence)
 
-BambuRecoFillSequence = cms.Sequence(MitTreeFiller*
-                                     FillKsh*
-                                     conversionFiller)
+BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
 
 BambuFillRECO = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)

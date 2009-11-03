@@ -1,11 +1,8 @@
-# $Id: BambuFillRECOSIM_cfi.py,v 1.6 2009/07/22 11:26:19 loizides Exp $
+# $Id: BambuSIM_cfi.py,v 1.1 2009/10/04 12:53:19 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.BAMBUSequences.BambuFillRECO_cfi import *
-
-# Load antikt gen jet producers
-from MitProd.TreeFiller.antiktGenJets_cfi import *
 
 # Load flavor history
 from PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi import *
@@ -15,13 +12,11 @@ from PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi import *
 from MitProd.TreeFiller.JetsMCFlavourMatching_cfi import *
 
 BambuGenSequence = cms.Sequence(
-    antiktGenJets*
     bFlavorHistoryProducer*
     cFlavorHistoryProducer*
     flavorHistoryFilter*
     caloJetMCFlavour*
-    pfJetMCFlavour*
-    antiKtJetMCFlavour
+    pfJetMCFlavour
 )
 
 #function to enable sim filling for the given tree filler
