@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TreeService.h,v 1.14 2009/03/15 11:17:36 loizides Exp $
+// $Id: TreeService.h,v 1.15 2009/11/03 14:01:51 bendavid Exp $
 //
 // TreeService 
 //
@@ -41,21 +41,18 @@ namespace mithep
   class TreeWriter;
   
   class TreeService  {
-    
-    friend class FillMitTree;
-    
     public:
-      TreeService(const edm::ParameterSet &cfg);
+      TreeService(const edm::ParameterSet &cfg, edm::ActivityRegistry &ar);
       ~TreeService();
 
       TreeWriter *get(const char *name=0);
       TreeWriter *get(const std::string &name) { return get(name.c_str()); }
 
     private:
-      void preEventProcessing();
-      void postEventProcessing();
       void postBeginJob();
       void postEndJob();
+      void postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
+      void preEventProcessing(const edm::EventID &e, const edm::Timestamp &t);
 
       TObjArray tws_; //array holding the tree writers
 
@@ -72,8 +69,9 @@ namespace mithep
       double                   gZipThres_;    //gzip threshold
       double                   lzoThres_;     //lzo threshold
       double                   lzmaThres_;    //lzma threshold
-      unsigned                 optIOVerbose_; //OptIO verbose 
+      unsigned                 optIOVerbose_; //set verbosity for OptIO library
       bool                     fDoReset_;     //reset object counter (def=1)
+      bool                     fActivate_;    //set to true to activate the service
   };
 }
 #endif
