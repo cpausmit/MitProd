@@ -1,10 +1,9 @@
-// $Id: FillMitTree.cc,v 1.48 2009/09/25 08:43:19 loizides Exp $
+// $Id: FillMitTree.cc,v 1.49 2009/11/03 14:02:32 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "MitProd/TreeService/interface/TreeService.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
@@ -127,13 +126,6 @@ void FillMitTree::analyze(const edm::Event      &event,
 void FillMitTree::beginJob(const edm::EventSetup &event)
 {
   // Access the tree and book branches.
-
-  if (!tws_) {
-    throw edm::Exception(edm::errors::Configuration, "FillMitTree::beginJob()\n")
-      << "Could not get pointer to tree. " 
-      << "Do you have the TreeServie define in your config?" << "\n";
-    return;
-  }
 
   if (os_==0) { // only the first FillMitTree object has to deal with this
     Service<ObjectService> os;
@@ -380,6 +372,7 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
 //--------------------------------------------------------------------------------------------------
 bool FillMitTree::configureTreeWriter(const edm::ParameterSet &cfg)
 {
+  // Configure tree writer with options from config file.
 
   tws_->SetPrefix(cfg.getUntrackedParameter<string>("fileName","mit-test"));
   tws_->SetBaseURL(cfg.getUntrackedParameter<string>("pathName","."));
@@ -401,8 +394,8 @@ bool FillMitTree::configureTreeWriter(const edm::ParameterSet &cfg)
     if (cfg.exists("zipMode")   || cfg.exists("bZipThres") ||
         cfg.exists("gZipThres") || cfg.exists("lzoThres")  ||
         cfg.exists("lzmaThres")) {
-      edm::LogError("TreeService") << "OptIO interface not properly pre-loaded, "
-        "ignoring given settings." << std::endl;
+      edm::LogError("FillMitTree") << 
+        "OptIO interface not properly pre-loaded, ignoring given settings." << std::endl;
     }
   }
   
