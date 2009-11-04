@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.43 2009/08/11 17:28:57 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.44 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -104,9 +104,6 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
     tws.AddBranch(evtName_,&eventHeader_);
     OS()->add<mithep::EventHeader>(eventHeader_,evtName_);
   }
-  tws.AddBranch(hltBitsName_,&hltBits_);
-  tws.AddBranch(hltObjsName_,&hltObjs_);
-  tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
 
   // add branches to run info tree
   runTree_=tws.GetTree(runTreeName_);
@@ -126,13 +123,19 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
     laTree_=tws.GetTree(lahTreeName_);
   }
 
-  // add branches to HLT trigger info tree
-  tws.AddBranchToTree(hltTreeName_,hltTableName_,
-                      TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32*1024,0);
-  tws.AddBranchToTree(hltTreeName_,hltLabelName_,
-                      TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32*1024,0);
-  tws.SetAutoFill(hltTreeName_,0);
-  hltTree_=tws.GetTree(hltTreeName_);
+  // add HLT branches to main tree and to HLT trigger info tree
+  if (hltActive_) {
+    tws.AddBranch(hltBitsName_,&hltBits_);
+    tws.AddBranch(hltObjsName_,&hltObjs_);
+    tws.AddBranch(Form("%sRelation",hltObjsName_.c_str()),&hltRels_);
+
+    tws.AddBranchToTree(hltTreeName_,hltTableName_,
+                        TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32*1024,0);
+    tws.AddBranchToTree(hltTreeName_,hltLabelName_,
+                        TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32*1024,0);
+    tws.SetAutoFill(hltTreeName_,0);
+    hltTree_=tws.GetTree(hltTreeName_);
+  }
 
   // store pointer to tree writer 
   tws_ = &tws;
