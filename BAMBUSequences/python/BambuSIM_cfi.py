@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.1 2009/10/04 12:53:19 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.2 2009/11/03 15:14:36 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,6 +29,7 @@ def enableSIM(filler):
   # Enable fillers of MC Truth information
   filler.MCParticles.active = True
   filler.MCEventInfo.active = True
+  filler.MCVertexes.active  = True
   filler.IC5GenJets.active  = True
   filler.SC5GenJets.active  = True
   filler.SC7GenJets.active  = True
