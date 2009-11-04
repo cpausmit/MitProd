@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.14 2009/06/15 15:00:23 loizides Exp $
+// $Id: FillMitTree.h,v 1.15 2009/11/03 14:02:32 bendavid Exp $
 //
 // FillMitTree
 //
@@ -15,8 +15,6 @@
 #define MITPROD_TREEFILLER_FILLMITTREE_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "MitProd/TreeService/interface/TreeService.h"
-
 
 namespace mithep 
 {

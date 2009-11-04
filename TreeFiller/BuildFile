@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.21 2009/07/10 13:50:02 loizides Exp $
+# $Id: BuildFile,v 1.22 2009/09/25 08:43:19 loizides Exp $
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -24,9 +24,9 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=root>
 <use name=MitCommon/MathTools>
+<use name=MitCommon/OptIO>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
-<use name=MitProd/TreeService>
 <use name=MitProd/ObjectService>
 <use name=MitEdm/VertexFitInterface>
 <use name=MitEdm/DataFormats>
