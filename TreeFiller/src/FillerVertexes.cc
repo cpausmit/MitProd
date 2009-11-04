@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.5 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerVertexes.cc,v 1.6 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -14,7 +14,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerVertexes::FillerVertexes(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","PrimaryVertexes")),
+  edmName_(Conf().getUntrackedParameter<string>("edmName","offlinePrimaryVertices")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
   vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName","VertexMap")),
   vertexes_(new mithep::VertexArr(100)),
