@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.52 2009/10/14 06:51:10 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.53 2009/11/03 15:13:18 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'BeamSpot',
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
-                                    'PixelVertices',
+                                    'PixelVertexes',
                                     'CaloTowers',
                                     'BarrelBasicClusters',
                                     'BarrelSuperClusters',
@@ -22,6 +22,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'PFBasicClusters',
                                     'PFSuperClusters',
                                     'GeneralTracks',
+                                    'PixelTracks',
                                     'StandaloneMuonTracks',
                                     'StandaloneMuonTracksWVtxConstraint',
                                     'GlobalMuonTracks',
@@ -165,9 +166,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
 
-    PixelVertices = cms.untracked.PSet(
+    PixelVertexes = cms.untracked.PSet(
         active        = cms.untracked.bool(False),
-        mitName       = cms.untracked.string('PixelVertices'),
+        mitName       = cms.untracked.string('PixelVertexes'),
         edmName       = cms.untracked.string('pixelVertices'),    
         vertexMapName = cms.untracked.string('PixelVertMap'),
         fillerType    = cms.untracked.string('FillerVertexes')
@@ -223,7 +224,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName               = cms.untracked.string('siPixelRecHits'),
         fillerType            = cms.untracked.string('FillerPixelHits')
     ),
-    
+  
     PFBasicClusters = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('PFBasicClusters'),
@@ -252,6 +253,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         trackMapName              = cms.untracked.string('TracksMapName'),
         edmSimAssociationName     = cms.untracked.string('trackingParticleRecoTrackAsssociation'),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
+
+    PixelTracks  = cms.untracked.PSet(
+        active                    = cms.untracked.bool(False),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('PixelTracks'),
+        edmName                   = cms.untracked.string('pixelTracks'),
+        trackingMapName           = cms.untracked.string(''),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('PixelTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
         fillerType                = cms.untracked.string('FillerTracks')
     ),
 
