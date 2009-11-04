@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.7 2009/10/04 12:53:19 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.8 2009/11/03 15:14:36 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,7 +23,7 @@ addConversionFiller(MitTreeFiller)
 # For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
-#if JPTeidTight in ZSPrecoJetAssociations:
+# Check if JPTeidTight in ZSPrecoJetAssociations
 try:
   ZSPrecoJetAssociations.remove(JPTeidTight)
 except:
@@ -42,10 +42,10 @@ MitTreeFiller.Kt6Jets.jetToVertexActive      = True
 MitTreeFiller.AKt5Jets.jetToVertexActive     = True
 MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 
-#Load track detector associator for Track-ECal association
+# Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
 MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameterBlock.TrackAssociatorParameters)
-#Enable Track-Ecal assocation in fillers
+# Enable Track-Ecal assocation in fillers
 MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
 MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
 MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
@@ -54,11 +54,22 @@ MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
 MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
-BambuRecoSequence = cms.Sequence(conversionElectronsStable*
+# Produce pixel hit information
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
+# Enable pixel filling
+MitTreeFiller.PixelHits.active            = True
+MitTreeFiller.PixelVertexes.active        = True
+MitTreeFiller.PixelTracks.active          = True
+MitTreeFiller.PixelTracks.ecalAssocActive = True
+
+BambuRecoSequence = cms.Sequence(siPixelRecHits*
+                                 conversionElectronsStable*
                                  mvfConversionElectronsStable*
                                  kShProducer*
                                  conversionProducer*
-                                 ZSPJetCorrectionsIcone5*JetPlusTrackCorrectionsIcone5*
+                                 ZSPJetCorrectionsIcone5*
+                                 JetPlusTrackCorrectionsIcone5*
                                  jetvertexAssociationSequence)
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
