@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.8 2009/11/03 15:14:36 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.9 2009/11/04 16:34:37 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,8 +55,8 @@ MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
 MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 # Produce pixel hit information
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
-from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
+from MitEdm.Producers.pixelRecHits_cfi import *
+
 # Enable pixel filling
 MitTreeFiller.PixelHits.active            = True
 MitTreeFiller.PixelVertexes.active        = True
