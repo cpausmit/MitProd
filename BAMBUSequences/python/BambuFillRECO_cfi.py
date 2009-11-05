@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.9 2009/11/04 16:34:37 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.10 2009/11/05 10:43:35 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,13 +23,10 @@ addConversionFiller(MitTreeFiller)
 # For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
-# Check if JPTeidTight in ZSPrecoJetAssociations
-try:
-  ZSPrecoJetAssociations.remove(JPTeidTight)
-except:
-  pass
 
 MitTreeFiller.IC5JetPlusTrack.active = True
+MitTreeFiller.SC5JetPlusTrack.active = True
+MitTreeFiller.AK5JetPlusTrack.active = True
 
 # Produce jet vertex association information
 from MitProd.TreeFiller.JetVertexAssociation_cfi import *
@@ -70,6 +67,10 @@ BambuRecoSequence = cms.Sequence(siPixelRecHits*
                                  conversionProducer*
                                  ZSPJetCorrectionsIcone5*
                                  JetPlusTrackCorrectionsIcone5*
+                                 ZSPJetCorrectionsSisCone5*
+                                 JetPlusTrackCorrectionsSisCone5*
+                                 ZSPJetCorrectionsAntiKt5*
+                                 JetPlusTrackCorrectionsAntiKt5*
                                  jetvertexAssociationSequence)
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
