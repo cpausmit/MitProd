@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.53 2009/11/03 15:13:18 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.54 2009/11/04 16:31:25 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,6 +55,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'AKt5Jets',
                                     'AKt7Jets',
                                     'IC5JetPlusTrack',
+                                    'SC5JetPlusTrack',
+                                    'AK5JetPlusTrack',
                                     'ItrCone5PFJets',
                                     'SisCone5PFJets',
                                     'SisCone7PFJets',
@@ -659,7 +661,37 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
         jetMapName           = cms.untracked.string('IC5JPTJetMap'),
         fillerType           = cms.untracked.string('FillerCaloJets')
-    ),                               
+    ),
+    
+    SC5JetPlusTrack = cms.untracked.PSet(
+        active               = cms.untracked.bool(False),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('SC5JetPlusTrack'),
+        edmName              = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5'),
+        L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorSC5JPT'),
+        L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorSC5JPT'),
+        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('SC5JPTJetMap'),
+        fillerType           = cms.untracked.string('FillerCaloJets')
+    ),
+    
+    AK5JetPlusTrack = cms.untracked.PSet(
+        active               = cms.untracked.bool(False),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('AK5JetPlusTrack'),
+        edmName              = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5'),
+        L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorAK5JPT'),
+        L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorAK5JPT'),
+        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('AK5JPTJetMap'),
+        fillerType           = cms.untracked.string('FillerCaloJets')
+    ),                        
     
     ItrCone5PFJets = cms.untracked.PSet(
         active                        = cms.untracked.bool(True),
