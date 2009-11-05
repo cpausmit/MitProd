@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.5 2009/11/03 14:03:25 bendavid Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -70,7 +70,7 @@ process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingPara
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
-process.GlobalTag.globaltag = 'MC_31X_V3::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),

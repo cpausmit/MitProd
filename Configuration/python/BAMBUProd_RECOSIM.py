@@ -28,7 +28,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_1-MC_31X_V9-v3_GEN-SIM-RECO/DAEBA2B7-3EC0-DE11-890D-000423D98BE8.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_2-MC_31X_V9-v3_GEN-SIM-RECO/40709A79-C0C7-DE11-90E6-003048D15DB6.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 

@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.3 2009/11/03 14:03:25 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.4 2009/11/03 15:16:39 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECO/CRAFT09Cosmics327CollisionSeq/C248AC69-B0A8-DE11-85A1-0030486792B6.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/AOD/BeamCommissioning09ComsicsCollisionReReco/promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCA.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 # other statements
-process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
+process.GlobalTag.globaltag = 'GR09_P_V4::All'
 
 process.add_(cms.Service("ObjectService"))
 

@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECOCosmics.py,v 1.3 2009/11/03 14:03:25 bendavid Exp $
+# $Id: BAMBUProd_RECOCosmics.py,v 1.4 2009/11/03 15:16:39 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOCosmics/CRAFT09Cosmics327CosmicsSeq/56EB243F-86A8-DE11-802D-003048678F02.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOCosmics/BeamCommissioning09Cosmics332/2E4F938E-1FCA-DE11-A197-001D09F25438.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
