@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.1 2009/09/25 08:42:27 loizides Exp $
+// $Id: FillerPixelHits.cc,v 1.2 2009/09/28 14:33:21 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -8,6 +8,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -88,6 +90,26 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
         type = 12;
       if (pid.side()!=0)
         type = -type;
+    } else {
+      continue;
+    }
+
+    bool isAnyPixelOnEdge = false;
+    if (1) {
+      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo_->idToDet(id));
+      const RectangularPixelTopology *pixTopo = 
+        static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
+      vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+
+      for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
+          pixel != pixels.end(); ++pixel) {
+        int pixelX = pixel->x;
+        int pixelY = pixel->y;
+        if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
+          isAnyPixelOnEdge = true;
+          break;
+        }
+      }
     }
 
     mithep::PixelHit *newhit = phits_->Allocate();
@@ -95,7 +117,9 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
     newhit->SetType(type);
     newhit->SetQuality(hit->rawQualityWord());
     newhit->SetCharge(static_cast<int>(hit->cluster()->charge()));
-    newhit->SetSize(hit->cluster()->size());
+    newhit->SetSizeX(hit->cluster()->sizeX());
+    newhit->SetSizeY(hit->cluster()->sizeY());
+    newhit->SetAnyPixelIsOnEdge(isAnyPixelOnEdge);
   }
 	
   phits_->Trim();
