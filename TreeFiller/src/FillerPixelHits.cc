@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.2 2009/09/28 14:33:21 loizides Exp $
+// $Id: FillerPixelHits.cc,v 1.3 2009/11/17 21:16:31 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -46,11 +46,6 @@ void FillerPixelHits::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 
   tws.AddBranch(mitName_,&phits_);
   OS()->add<PixelHitArr>(phits_,mitName_);
-
-  // get tracker geometry
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  tgeo_ = trackerHandle.product();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +61,14 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
   GetProduct(edmName_, hRecHits, event);  
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
+  if (!hits->size())
+    return;
+
+  // get tracker geometry
+  edm::ESHandle<TrackerGeometry> trackerHandle;
+  setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+  tgeo_ = trackerHandle.product();
+
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
         end = hits->data().end(); hit != end; ++hit) {
 
@@ -73,12 +76,8 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
       continue;
 
     DetId id(hit->geographicalId());
-    LocalPoint lpos = LocalPoint(hit->localPosition().x(),
-                                 hit->localPosition().y(),
-                                 hit->localPosition().z());
-    GlobalPoint gpos = tgeo_->idToDet(id)->toGlobal(lpos);
 
-    Char_t type = 0;
+    int type = 0;
     if(id.subdetId() == int(PixelSubdetector::PixelBarrel)) {
       PXBDetId pid(id);
       type = pid.layer();
@@ -95,12 +94,11 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
     }
 
     bool isAnyPixelOnEdge = false;
+    const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo_->idToDetUnit(id));
     if (1) {
-      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo_->idToDet(id));
       const RectangularPixelTopology *pixTopo = 
-        static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
-      vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
-
+        static_cast<const RectangularPixelTopology*>(&pgdu->specificTopology());
+      const vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
           pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
@@ -112,6 +110,10 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
       }
     }
 
+    LocalPoint lpos = LocalPoint(hit->localPosition().x(),
+                                 hit->localPosition().y(),
+                                 hit->localPosition().z());
+    GlobalPoint gpos = pgdu->toGlobal(lpos);
     mithep::PixelHit *newhit = phits_->Allocate();
     new (newhit) mithep::PixelHit(gpos.x(),gpos.y(),gpos.z());
     newhit->SetType(type);
@@ -121,6 +123,5 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
     newhit->SetSizeY(hit->cluster()->sizeY());
     newhit->SetAnyPixelIsOnEdge(isAnyPixelOnEdge);
   }
-	
   phits_->Trim();
 }
