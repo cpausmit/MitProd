@@ -1,17 +1,22 @@
-// $Id: FillerMetaInfos.cc,v 1.44 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.45 2009/11/04 13:11:39 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "MitAna/DataTree/interface/Names.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
-#include "MitAna/DataTree/interface/TriggerMask.h"
-#include "MitAna/DataTree/interface/TriggerName.h"
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/L1TriggerMask.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
-#include "MitAna/DataTree/interface/TriggerObject.h"
+#include "MitAna/DataTree/interface/TriggerMask.h"
+#include "MitAna/DataTree/interface/TriggerObjectBase.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseCol.h"
 #include "MitAna/DataTree/interface/TriggerObjectRelCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -41,6 +46,12 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
                                                     Form("%s%s",Names::gkHltBitBrn,Istr()))),
   hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",
                                                     Form("%s%s",Names::gkHltObjBrn,Istr()))),
+  l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
+  l1GTRecName_(Conf().getUntrackedParameter<string>("l1GtRecordEdmName","l1GtRecord")),
+  l1TBitsName_(Conf().getUntrackedParameter<string>("l1TechBitsMitName",
+                                                    Form("%s%s",Names::gkL1TechBitsBrn,Istr()))),
+  l1ABitsName_(Conf().getUntrackedParameter<string>("l1AlgoBitsMitName",
+                                                    Form("%s%s",Names::gkL1AlgoBitsBrn,Istr()))),
   tws_(0),
   eventHeader_(new EventHeader()),
   evtLAHeader_(new LAHeader()),
@@ -57,7 +68,9 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltRels_(new TriggerObjectRelArr),
   hltTree_(0),
   hltEntries_(0),
-  fileNum_(0)
+  fileNum_(0),
+  l1TBits_(new L1TriggerMask),
+  l1ABits_(new L1TriggerMask)
 {
   // Constructor.
 
@@ -67,6 +80,9 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
     hltProcNames_ = Conf().getUntrackedParameter<vector<string> >("hltProcNames");
   if (hltProcNames_.size()==0)
     hltProcNames_.push_back("HLT");
+
+  if (l1Active_ && !hltActive_)
+    PrintErrorAndExit("L1Active set _without_ hltActive set as well is not supported");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +98,8 @@ FillerMetaInfos::~FillerMetaInfos()
   delete hltLabels_;
   delete hltObjs_;
   delete hltRels_;
+  delete l1TBits_;
+  delete l1ABits_;
   eventHeader_ = 0;
   evtLAHeader_ = 0;
   runInfo_     = 0;
@@ -137,6 +155,11 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
     hltTree_=tws.GetTree(hltTreeName_);
   }
 
+  if (l1Active_) {
+    tws.AddBranch(l1TBitsName_,&l1TBits_);
+    tws.AddBranch(l1ABitsName_,&l1ABits_);
+  }
+
   // store pointer to tree writer 
   tws_ = &tws;
 }
@@ -183,6 +206,7 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
     Int_t runentry = riter->second;
     eventHeader_->SetRunEntry(runentry);
     FillHltTrig(event,setup);
+    FillL1Trig(event,setup);
     return;
   }
 
@@ -196,6 +220,7 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
   Int_t hltentry = hltEntries_;
   FillHltInfo(event,setup);
   FillHltTrig(event,setup);
+  FillL1Trig(event,setup);
   if (hltentry < hltEntries_) {
     runInfo_->SetHltEntry(hltentry);
     hltTree_->Fill();
@@ -328,6 +353,38 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
         labmap->insert(pair<string,Short_t>(type,labels->size()));
         labels->push_back(type);
       }
+    }
+  }
+
+  if (l1Active_) {
+    edm::ESHandle<L1GtTriggerMenu> menuRcd;
+    setup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+    const L1GtTriggerMenu* menu = menuRcd.product();
+
+    // get l1 algo names
+    int counter = 0;
+    labels->push_back("xxx-L1AlgoNames-xxx");
+    for (CItAlgo algo = menu->gtAlgorithmMap().begin(); 
+         algo!=menu->gtAlgorithmMap().end(); ++algo) {
+      labels->push_back(algo->second.algoName());
+      ++counter;
+    }
+    if (counter>=l1ABits_->Size()) {
+      edm::LogError("FillerMetaInfos") << "Cannot store more than 64 l1 algo bits, but got " 
+                                       << counter << std::endl;
+    }
+
+    // get l1 tech names
+    counter = 0;
+    labels->push_back("xxx-l1TechNames-xxx");
+    for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); 
+         algo!=menu->gtTechnicalTriggerMap().end(); ++algo) {
+      labels->push_back(algo->second.algoName());
+      ++counter;
+    }
+    if (counter>=l1TBits_->Size()) {
+      edm::LogError("FillerMetaInfos") << "Cannot store more than 64 l1 technical bits, but got " 
+                                       << counter << std::endl;
     }
   }
 
@@ -558,6 +615,43 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
   hltBits_->SetBits(maskhlt);
   hltObjs_->Trim();
   hltRels_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup &setup)
+{
+  //  Fill l1 trigger bits after masking.
+
+  if (!l1Active_) 
+    return;
+
+  // get L1 trigger record information
+  Handle<L1GlobalTriggerRecord> gtRecord;
+  GetProduct(l1GTRecName_, gtRecord, event);
+
+  // deal with algo bits
+  BitMask64 l1amask;
+  DecisionWord dw = gtRecord->decisionWord();
+  size_t dws = dw.size();
+  if (dws>64) 
+    dws = 64;    
+  for (size_t i=0; i<dws;++i) {
+    if (dw.at(i))
+      l1amask.SetBit(i);
+  }
+  l1ABits_->SetBits(l1amask);
+
+  // deal with tech bits
+  BitMask64 l1tmask;
+  TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+  size_t tws = tw.size();
+  if (tws>64) 
+    tws = 64;    
+  for (size_t i=0; i<tws;++i) {
+    if (tw.at(i))
+      l1tmask.SetBit(i);
+  }
+  l1TBits_->SetBits(l1tmask);
 }
 
 //--------------------------------------------------------------------------------------------------

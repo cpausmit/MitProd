@@ -1,19 +1,22 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.22 2009/09/25 08:43:19 loizides Exp $
+# $Id: BuildFile,v 1.23 2009/11/04 13:40:09 loizides Exp $
 
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/L1TObjects>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/Common>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/GsfTrackReco>
+<use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/METReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/PatCandidates>
+<use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=DataFormats/Common>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/GsfTrackReco>
-<use name=DataFormats/MuonReco>
-<use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/CaloTowers>
-<use name=DataFormats/JetReco>
-<use name=DataFormats/METReco>
-<use name=DataFormats/PatCandidates>
-<use name=DataFormats/HepMCCandidate>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=HLTrigger/HLTcore>
 <use name=JetMETCorrections/Objects>
@@ -27,9 +30,9 @@
 <use name=MitCommon/OptIO>
 <use name=MitAna/DataTree>
 <use name=MitAna/DataUtil>
-<use name=MitProd/ObjectService>
 <use name=MitEdm/VertexFitInterface>
 <use name=MitEdm/DataFormats>
+<use name=MitProd/ObjectService>
 #<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>

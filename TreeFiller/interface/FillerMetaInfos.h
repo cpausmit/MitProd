@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.23 2009/08/11 15:29:27 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.24 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -13,6 +13,7 @@
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectRelFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
@@ -37,6 +38,7 @@ namespace mithep
       void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltTrig(const edm::Event &e, const edm::EventSetup &es);
+      void                           FillL1Trig(const edm::Event &e, const edm::EventSetup &es);
 
     private:
       const char                    *Istr() const;
@@ -54,6 +56,10 @@ namespace mithep
       std::string                    hltLabelName_; //HLT trigger label branch name
       std::string                    hltBitsName_;  //HLT trigger bits branch name
       std::string                    hltObjsName_;  //HLT trigger branch name
+      Bool_t                         l1Active_;     //=true if some L1 info are filled
+      std::string                    l1GTRecName_;  //L1 global trigger record edm name
+      std::string                    l1TBitsName_;  //L1 technical bit name
+      std::string                    l1ABitsName_;  //L1 algo bit name
       TreeWriter                    *tws_;          //tree writer (not owned)
       EventHeader                   *eventHeader_;  //event header
       LAHeader                      *evtLAHeader_;  //look-ahead event header
@@ -73,6 +79,8 @@ namespace mithep
       HLTConfigProvider              hltConfig_;    //HLT config from provenance
       Int_t                          hltEntries_;   //number of hlt info entries
       UShort_t                       fileNum_;      //file number of current file
+      L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
+      L1TriggerMask                 *l1ABits_;      //L1 algorithm trigger bit mask 
 
       static Int_t                   instance_;     //counts active instances
   };

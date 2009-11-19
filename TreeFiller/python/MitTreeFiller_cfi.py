@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.54 2009/11/04 16:31:25 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.55 2009/11/05 21:37:28 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -89,14 +89,18 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     MetaInfos = cms.untracked.PSet(
-        active         = cms.untracked.bool(True),
-        hltActive      = cms.untracked.bool(True),
-        hltTreeMitName = cms.untracked.string('HLT'),
-        hltBitsMitName = cms.untracked.string('HLTBits'),
-        hltObjsMitName = cms.untracked.string('HLTObjects'),
-        hltResEdmName  = cms.untracked.string('TriggerResults'),
-        hltEvtEdmName  = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames   = cms.untracked.vstring('HLT','FU'),
+        active            = cms.untracked.bool(True),
+        hltActive         = cms.untracked.bool(True),
+        hltTreeMitName    = cms.untracked.string('HLT'),
+        hltBitsMitName    = cms.untracked.string('HLTBits'),
+        hltObjsMitName    = cms.untracked.string('HLTObjects'),
+        hltResEdmName     = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName     = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames      = cms.untracked.vstring('HLT','FU'),
+        l1Active          = cms.untracked.bool(True),
+        l1GtRecordEdmName = cms.untracked.string('l1GtRecord'),   
+        l1TechBitsMitName = cms.untracked.string('L1TechBits'),
+        l1AlgoBitsMitName = cms.untracked.string('L1AlgoBits'),
         fillerType     = cms.untracked.string('FillerMetaInfos')
     ),
 
@@ -109,6 +113,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         hltResEdmName  = cms.untracked.string('TriggerResults'),
         hltEvtEdmName  = cms.untracked.string('hltTriggerSummaryAOD'),
         hltProcNames   = cms.untracked.vstring('HLT8E29'),
+        l1Active          = cms.untracked.bool(False),
+        l1GtRecordEdmName = cms.untracked.string('l1GtRecord8E29'),   
+        l1TechBitsMitName = cms.untracked.string('L1TechBits_E29'),
+        l1AlgoBitsMitName = cms.untracked.string('L1AlgoBits_E29'),
         fillerType     = cms.untracked.string('FillerMetaInfos')
     ),
 
