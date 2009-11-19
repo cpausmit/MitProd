@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.10 2009/11/05 10:43:35 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.11 2009/11/05 21:39:59 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -42,6 +42,7 @@ MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 # Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
 MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameterBlock.TrackAssociatorParameters)
+
 # Enable Track-Ecal assocation in fillers
 MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
 MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
@@ -60,7 +61,13 @@ MitTreeFiller.PixelVertexes.active        = True
 MitTreeFiller.PixelTracks.active          = True
 MitTreeFiller.PixelTracks.ecalAssocActive = True
 
-BambuRecoSequence = cms.Sequence(siPixelRecHits*
+# Produce global trigger record
+l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
+    L1GtReadoutRecordTag = cms.InputTag("gtDigis")
+)
+
+BambuRecoSequence = cms.Sequence(l1GtRecord*
+                                 siPixelRecHits*
                                  conversionElectronsStable*
                                  mvfConversionElectronsStable*
                                  kShProducer*
