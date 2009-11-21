@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.45 2009/11/04 13:11:39 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.46 2009/11/19 15:10:33 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -362,7 +362,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
     const L1GtTriggerMenu* menu = menuRcd.product();
 
     // get l1 algo names
-    int counter = 0;
+    size_t counter = 0;
     labels->push_back("xxx-L1AlgoNames-xxx");
     for (CItAlgo algo = menu->gtAlgorithmMap().begin(); 
          algo!=menu->gtAlgorithmMap().end(); ++algo) {
