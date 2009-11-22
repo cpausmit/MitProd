@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.55 2009/11/05 21:37:28 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.56 2009/11/19 15:10:33 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,6 +23,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'PFSuperClusters',
                                     'GeneralTracks',
                                     'PixelTracks',
+                                    'PixelLessTracks',
                                     'StandaloneMuonTracks',
                                     'StandaloneMuonTracksWVtxConstraint',
                                     'GlobalMuonTracks',
@@ -57,6 +58,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'IC5JetPlusTrack',
                                     'SC5JetPlusTrack',
                                     'AK5JetPlusTrack',
+                                    'IC5TrackJets',
+                                    'SC5TrackJets',
+                                    'AK5TrackJets',
                                     'ItrCone5PFJets',
                                     'SisCone5PFJets',
                                     'SisCone7PFJets',
@@ -275,6 +279,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         trackMapName              = cms.untracked.string('PixelTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
+
+    PixelLessTracks  = cms.untracked.PSet(
+        active                    = cms.untracked.bool(False),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('PixelLessTracks'),
+        edmName                   = cms.untracked.string('ctfPixelLess'),
+        trackingMapName           = cms.untracked.string(''),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('PixelLessTracksMapName'),
         edmSimAssociationName     = cms.untracked.string(''),
         fillerType                = cms.untracked.string('FillerTracks')
     ),
@@ -699,7 +716,53 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
         jetMapName           = cms.untracked.string('AK5JPTJetMap'),
         fillerType           = cms.untracked.string('FillerCaloJets')
-    ),                        
+    ),               
+
+
+    IC5TrackJets = cms.untracked.PSet(
+        active               = cms.untracked.bool(False),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('IC5TrackJets'),
+        edmName              = cms.untracked.string('iterativeCone5TrackJets'),
+        L2JetCorrectorName   = cms.untracked.string(''),
+        L3JetCorrectorName   = cms.untracked.string(''),
+        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('IC5TrackJetMap'),
+        fillerType           = cms.untracked.string('FillerCaloJets')
+    ),
+    
+    SC5TrackJets = cms.untracked.PSet(
+        active               = cms.untracked.bool(False),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('SC5TrackJets'),
+        edmName              = cms.untracked.string('sisCone5TrackJets'),
+        L2JetCorrectorName   = cms.untracked.string(''),
+        L3JetCorrectorName   = cms.untracked.string(''),
+        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('SC5TrackJetMap'),
+        fillerType           = cms.untracked.string('FillerCaloJets')
+    ),
+    
+    AK5TrackJets = cms.untracked.PSet(
+        active               = cms.untracked.bool(False),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('AK5TrackJets'),
+        edmName              = cms.untracked.string('ak5TrackJets'),
+        L2JetCorrectorName   = cms.untracked.string(''),
+        L3JetCorrectorName   = cms.untracked.string(''),
+        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        jetMapName           = cms.untracked.string('AK5TrackJetMap'),
+        fillerType           = cms.untracked.string('FillerCaloJets')
+    ),            
     
     ItrCone5PFJets = cms.untracked.PSet(
         active                        = cms.untracked.bool(True),
