@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.11 2009/11/05 21:39:59 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.12 2009/11/19 15:22:21 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,6 +27,16 @@ from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 MitTreeFiller.IC5JetPlusTrack.active = True
 MitTreeFiller.SC5JetPlusTrack.active = True
 MitTreeFiller.AK5JetPlusTrack.active = True
+
+# Add track jets producers and enable fillers, disabled for now
+#from RecoJets.JetProducers.TracksForJets_cff import *
+#from RecoJets.JetProducers.ic5TrackJets_cfi import *
+#from RecoJets.JetProducers.sc5TrackJets_cfi import *
+#from RecoJets.JetProducers.ak5TrackJets_cfi import *
+
+#MitTreeFiller.IC5TrackJets.active    = True
+#MitTreeFiller.SC5TrackJets.active    = True
+#MitTreeFiller.AK5TrackJets.active    = True
 
 # Produce jet vertex association information
 from MitProd.TreeFiller.JetVertexAssociation_cfi import *
@@ -61,6 +71,10 @@ MitTreeFiller.PixelVertexes.active        = True
 MitTreeFiller.PixelTracks.active          = True
 MitTreeFiller.PixelTracks.ecalAssocActive = True
 
+#add pixel-less tracks, needed at startup
+MitTreeFiller.PixelLessTracks.active          = True
+MitTreeFiller.PixelLessTracks.ecalAssocActive = True
+
 # Produce global trigger record
 l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
     L1GtReadoutRecordTag = cms.InputTag("gtDigis")
@@ -78,6 +92,10 @@ BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  JetPlusTrackCorrectionsSisCone5*
                                  ZSPJetCorrectionsAntiKt5*
                                  JetPlusTrackCorrectionsAntiKt5*
+                                 #tracksForJets*
+                                 #iterativeCone5TrackJets*
+                                 #sisCone5TrackJets*
+                                 #ak5TrackJets*
                                  jetvertexAssociationSequence)
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
