@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.46 2009/11/19 15:10:33 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.47 2009/11/21 19:36:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -70,7 +70,9 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltEntries_(0),
   fileNum_(0),
   l1TBits_(new L1TriggerMask),
-  l1ABits_(new L1TriggerMask)
+  l1ABits_(new L1TriggerMask),
+  l1TBits2_(new L1TriggerMask),
+  l1ABits2_(new L1TriggerMask)
 {
   // Constructor.
 
@@ -158,6 +160,8 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
   if (l1Active_) {
     tws.AddBranch(l1TBitsName_,&l1TBits_);
     tws.AddBranch(l1ABitsName_,&l1ABits_);
+    tws.AddBranch(Form("%sBeforeMask",l1TBitsName_.c_str()),&l1TBits2_);
+    tws.AddBranch(Form("%sBeforeMask",l1ABitsName_.c_str()),&l1ABits2_);
   }
 
   // store pointer to tree writer 
@@ -376,7 +380,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
 
     // get l1 tech names
     counter = 0;
-    labels->push_back("xxx-l1TechNames-xxx");
+    labels->push_back("xxx-L1TechNames-xxx");
     for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); 
          algo!=menu->gtTechnicalTriggerMap().end(); ++algo) {
       labels->push_back(algo->second.algoName());
@@ -652,6 +656,29 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
       l1tmask.SetBit(i);
   }
   l1TBits_->SetBits(l1tmask);
+
+  BitMask64 l1abmask;
+  DecisionWord dwb = gtRecord->decisionWordBeforeMask();
+  size_t dwbs = dwb.size();
+  if (dwbs>64) 
+    dwbs = 64;    
+  for (size_t i=0; i<dwbs;++i) {
+    if (dwb.at(i))
+      l1abmask.SetBit(i);
+  }
+  l1ABits2_->SetBits(l1abmask);
+
+  // deal with tech bits
+  BitMask64 l1tbmask;
+  TechnicalTriggerWord twb = gtRecord->technicalTriggerWordBeforeMask();
+  size_t twbs = twb.size();
+  if (twbs>64) 
+    twbs = 64;    
+  for (size_t i=0; i<twbs;++i) {
+    if (twb.at(i))
+      l1tbmask.SetBit(i);
+  }
+  l1TBits2_->SetBits(l1tbmask);
 }
 
 //--------------------------------------------------------------------------------------------------

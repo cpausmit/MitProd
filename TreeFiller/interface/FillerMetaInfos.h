@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.24 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.25 2009/11/19 15:10:33 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -35,12 +35,12 @@ namespace mithep
 
       void                           BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+
+    private:
       void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltTrig(const edm::Event &e, const edm::EventSetup &es);
       void                           FillL1Trig(const edm::Event &e, const edm::EventSetup &es);
-
-    private:
       const char                    *Istr() const;
 
       std::string                    evtName_;      //event branch name (must be unique)
@@ -81,6 +81,8 @@ namespace mithep
       UShort_t                       fileNum_;      //file number of current file
       L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
       L1TriggerMask                 *l1ABits_;      //L1 algorithm trigger bit mask 
+      L1TriggerMask                 *l1TBits2_;     //L1 technical trigger bit mask before masking
+      L1TriggerMask                 *l1ABits2_;     //L1 algorithm trigger bit mask before masking
 
       static Int_t                   instance_;     //counts active instances
   };
