@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.57 2009/11/22 16:18:21 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.58 2009/11/25 23:14:20 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,6 +19,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'EndcapBasicClusters',
                                     'EndcapSuperClusters',
                                     'PixelHits',
+                                    'StripHits',
                                     'PFBasicClusters',
                                     'PFSuperClusters',
                                     'GeneralTracks',
@@ -238,6 +239,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName               = cms.untracked.string('PixelHits'),                     
         edmName               = cms.untracked.string('siPixelRecHits'),
         fillerType            = cms.untracked.string('FillerPixelHits')
+    ),
+  
+    StripHits = cms.untracked.PSet(
+        active                = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('StripHits'),                     
+        edmName               = cms.untracked.string('siStripMatchedRecHits:stereoRecHit'),
+        fillerType            = cms.untracked.string('FillerStripHits')
     ),
   
     PFBasicClusters = cms.untracked.PSet(
