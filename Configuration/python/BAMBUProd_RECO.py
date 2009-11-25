@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011a'),
+    version = cms.untracked.string('Mit_012c'),
     annotation = cms.untracked.string('RECO'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -39,6 +39,8 @@ process.GlobalTag.globaltag = 'GR09_P_V6::All'
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECO_cfi")
+
+process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.bambu_step  = cms.Path(process.BambuFillRECO)
 

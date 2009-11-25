@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.6 2009/11/16 17:55:45 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.7 2009/11/22 16:19:52 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012'),
+    version = cms.untracked.string('Mit_012c'),
     annotation = cms.untracked.string('AOD'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -39,6 +39,8 @@ process.GlobalTag.globaltag = 'GR09_P_V6::All'
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
+
+process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.bambu_step  = cms.Path(process.BambuFillAOD)
 

@@ -13,8 +13,8 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_011a'),
-    annotation = cms.untracked.string('RECOSIM'),
+    version = cms.untracked.string('Mit_012c'),
+    annotation = cms.untracked.string('RECOSIMStartup'),
     name = cms.untracked.string('BambuProduction')
 )
 
@@ -40,6 +40,8 @@ process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
 process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
+
+process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 #hack pixelLess tracking back (present in special startup MC samples)
 process.MitTreeFiller.PixelLessTracks.active          = True
