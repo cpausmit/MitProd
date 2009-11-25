@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.3 2009/11/17 21:16:31 loizides Exp $
+// $Id: FillerPixelHits.cc,v 1.4 2009/11/19 14:35:23 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -25,8 +25,7 @@ FillerPixelHits::FillerPixelHits(const ParameterSet &cfg, const char *name, bool
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","siPixelRecHits")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPixelHitBrn)),
-  phits_(new mithep::PixelHitArr(1000)),
-  tgeo_(0)
+  phits_(new mithep::PixelHitArr(1000))
 {
   // Constructor.
 }
@@ -67,7 +66,7 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
   // get tracker geometry
   edm::ESHandle<TrackerGeometry> trackerHandle;
   setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  tgeo_ = trackerHandle.product();
+  const TrackerGeometry *tgeo = trackerHandle.product();
 
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
         end = hits->data().end(); hit != end; ++hit) {
@@ -94,7 +93,8 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
     }
 
     bool isAnyPixelOnEdge = false;
-    const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo_->idToDetUnit(id));
+    const PixelGeomDetUnit *pgdu = 
+      static_cast<const PixelGeomDetUnit*>(tgeo->idToDetUnit(id));
     if (1) {
       const RectangularPixelTopology *pixTopo = 
         static_cast<const RectangularPixelTopology*>(&pgdu->specificTopology());

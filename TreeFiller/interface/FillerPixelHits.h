@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPixelHits.h,v 1.22 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerPixelHits.h,v 1.1 2009/09/25 08:42:27 loizides Exp $
 //
 // FillerPixelHits
 //
@@ -34,7 +34,6 @@ namespace mithep
       std::string                         edmName_;    //edm name of pixel hits col
       std::string                         mitName_;    //mit name of pixel hits col
       mithep::PixelHitArr                *phits_;      //array of pixel hits
-      const TrackerGeometry              *tgeo_;       //tracker geometry
   };
 }
 #endif

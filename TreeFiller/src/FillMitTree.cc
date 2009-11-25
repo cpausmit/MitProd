@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.49 2009/11/03 14:02:32 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.50 2009/11/04 17:03:32 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +31,7 @@
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
+#include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
@@ -291,6 +292,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerPixelHits *fillerPixelHits =  
         new FillerPixelHits(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPixelHits);
+      continue;
+    }  
+
+    if (ftype.compare("FillerStripHits")==0) {
+      FillerStripHits *fillerStripHits =  
+        new FillerStripHits(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerStripHits);
       continue;
     }  
 
