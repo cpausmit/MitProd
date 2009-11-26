@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.58 2009/11/25 23:14:20 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.59 2009/11/25 23:41:06 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -95,35 +95,37 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     MetaInfos = cms.untracked.PSet(
-        active            = cms.untracked.bool(True),
-        hltActive         = cms.untracked.bool(True),
-        hltTreeMitName    = cms.untracked.string('HLT'),
-        hltBitsMitName    = cms.untracked.string('HLTBits'),
-        hltObjsMitName    = cms.untracked.string('HLTObjects'),
-        hltResEdmName     = cms.untracked.string('TriggerResults'),
-        hltEvtEdmName     = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames      = cms.untracked.vstring('HLT','FU'),
-        l1Active          = cms.untracked.bool(True),
-        l1GtRecordEdmName = cms.untracked.string('l1GtRecord'),   
-        l1TechBitsMitName = cms.untracked.string('L1TechBits'),
-        l1AlgoBitsMitName = cms.untracked.string('L1AlgoBits'),
-        fillerType     = cms.untracked.string('FillerMetaInfos')
+        active             = cms.untracked.bool(True),
+        hltActive          = cms.untracked.bool(True),
+        hltTreeMitName     = cms.untracked.string('HLT'),
+        hltBitsMitName     = cms.untracked.string('HLTBits'),
+        hltObjsMitName     = cms.untracked.string('HLTObjects'),
+        hltResEdmName      = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames       = cms.untracked.vstring('HLT','FU'),
+        l1Active           = cms.untracked.bool(True),
+        l1GtRecordEdmName  = cms.untracked.string('l1GtRecord'),   
+        l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
+        l1TechBitsMitName  = cms.untracked.string('L1TechBits'),
+        l1AlgoBitsMitName  = cms.untracked.string('L1AlgoBits'),
+        fillerType         = cms.untracked.string('FillerMetaInfos')
     ),
 
     MetaInfosE29 = cms.untracked.PSet(
-        active         = cms.untracked.bool(False),
-        hltActive      = cms.untracked.bool(True),
-        hltTreeMitName = cms.untracked.string('HLT_E29'),
-        hltBitsMitName = cms.untracked.string('HLTBits_E29'),
-        hltObjsMitName = cms.untracked.string('HLTObjects_E29'),
-        hltResEdmName  = cms.untracked.string('TriggerResults'),
-        hltEvtEdmName  = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames   = cms.untracked.vstring('HLT8E29'),
-        l1Active          = cms.untracked.bool(False),
-        l1GtRecordEdmName = cms.untracked.string('l1GtRecord8E29'),   
-        l1TechBitsMitName = cms.untracked.string('L1TechBits_E29'),
-        l1AlgoBitsMitName = cms.untracked.string('L1AlgoBits_E29'),
-        fillerType     = cms.untracked.string('FillerMetaInfos')
+        active             = cms.untracked.bool(False),
+        hltActive          = cms.untracked.bool(True),
+        hltTreeMitName     = cms.untracked.string('HLT_E29'),
+        hltBitsMitName     = cms.untracked.string('HLTBits_E29'),
+        hltObjsMitName     = cms.untracked.string('HLTObjects_E29'),
+        hltResEdmName      = cms.untracked.string('TriggerResults'),
+        hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'),
+        hltProcNames       = cms.untracked.vstring('HLT8E29'),
+        l1Active           = cms.untracked.bool(False),
+        l1GtRecordEdmName  = cms.untracked.string('l1GtRecord8E29'),   
+        l1GtReadRecEdmName = cms.untracked.string('gtDigis8E29'),
+        l1TechBitsMitName  = cms.untracked.string('L1TechBits_E29'),
+        l1AlgoBitsMitName  = cms.untracked.string('L1AlgoBits_E29'),
+        fillerType         = cms.untracked.string('FillerMetaInfos')
     ),
 
     MCParticles = cms.untracked.PSet(

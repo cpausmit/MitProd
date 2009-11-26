@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.47 2009/11/21 19:36:50 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.48 2009/11/24 15:58:43 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -8,12 +8,13 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitAna/DataTree/interface/L1TriggerMask.h"
+#include "MitAna/DataTree/interface/L1TriggerMaskCol.h"
 #include "MitAna/DataTree/interface/RunInfo.h"
 #include "MitAna/DataTree/interface/TriggerMask.h"
 #include "MitAna/DataTree/interface/TriggerObjectBase.h"
@@ -48,6 +49,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
                                                     Form("%s%s",Names::gkHltObjBrn,Istr()))),
   l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
   l1GTRecName_(Conf().getUntrackedParameter<string>("l1GtRecordEdmName","l1GtRecord")),
+  l1GTRRName_(Conf().getUntrackedParameter<string>("l1GtReadRecEdmName","")),
   l1TBitsName_(Conf().getUntrackedParameter<string>("l1TechBitsMitName",
                                                     Form("%s%s",Names::gkL1TechBitsBrn,Istr()))),
   l1ABitsName_(Conf().getUntrackedParameter<string>("l1AlgoBitsMitName",
@@ -72,7 +74,9 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   l1TBits_(new L1TriggerMask),
   l1ABits_(new L1TriggerMask),
   l1TBits2_(new L1TriggerMask),
-  l1ABits2_(new L1TriggerMask)
+  l1ABits2_(new L1TriggerMask),
+  l1AbArr_(new L1TriggerMaskArr),
+  l1TbArr_(new L1TriggerMaskArr)
 {
   // Constructor.
 
@@ -102,6 +106,8 @@ FillerMetaInfos::~FillerMetaInfos()
   delete hltRels_;
   delete l1TBits_;
   delete l1ABits_;
+  delete l1AbArr_;
+  delete l1TbArr_;
   eventHeader_ = 0;
   evtLAHeader_ = 0;
   runInfo_     = 0;
@@ -162,10 +168,42 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
     tws.AddBranch(l1ABitsName_,&l1ABits_);
     tws.AddBranch(Form("%sBeforeMask",l1TBitsName_.c_str()),&l1TBits2_);
     tws.AddBranch(Form("%sBeforeMask",l1ABitsName_.c_str()),&l1ABits2_);
+    if (l1GTRRName_.size()) {
+      tws.AddBranch(Form("%sBxs",l1TBitsName_.c_str()),&l1TbArr_);
+      tws.AddBranch(Form("%sBxs",l1ABitsName_.c_str()),&l1AbArr_);
+    }
   }
 
   // store pointer to tree writer 
   tws_ = &tws;
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillerMetaInfos::FillBitAMask(BitMask64 &bits, const DecisionWord &dw)
+{
+  // Fill bit mask.
+
+  size_t dws = dw.size();
+  if (dws>64) 
+    dws = 64;    
+  for (size_t i=0; i<dws;++i) {
+    if (dw.at(i))
+      bits.SetBit(i);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillerMetaInfos::FillBitTMask(BitMask64 &bits, const TechnicalTriggerWord &tw)
+{
+  // Fill bit mask.
+
+  size_t tws = tw.size();
+  if (tws>64) 
+    tws = 64;    
+  for (size_t i=0; i<tws;++i) {
+    if (tw.at(i))
+      bits.SetBit(i);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,50 +673,56 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
 
   // deal with algo bits
   BitMask64 l1amask;
-  DecisionWord dw = gtRecord->decisionWord();
-  size_t dws = dw.size();
-  if (dws>64) 
-    dws = 64;    
-  for (size_t i=0; i<dws;++i) {
-    if (dw.at(i))
-      l1amask.SetBit(i);
-  }
+  DecisionWord dw(gtRecord->decisionWord());
+  FillBitAMask(l1amask, dw);
   l1ABits_->SetBits(l1amask);
 
   // deal with tech bits
   BitMask64 l1tmask;
-  TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
-  size_t tws = tw.size();
-  if (tws>64) 
-    tws = 64;    
-  for (size_t i=0; i<tws;++i) {
-    if (tw.at(i))
-      l1tmask.SetBit(i);
-  }
+  TechnicalTriggerWord tw(gtRecord->technicalTriggerWord());
+  FillBitTMask(l1tmask, tw);
   l1TBits_->SetBits(l1tmask);
 
   BitMask64 l1abmask;
-  DecisionWord dwb = gtRecord->decisionWordBeforeMask();
-  size_t dwbs = dwb.size();
-  if (dwbs>64) 
-    dwbs = 64;    
-  for (size_t i=0; i<dwbs;++i) {
-    if (dwb.at(i))
-      l1abmask.SetBit(i);
-  }
+  DecisionWord dwb(gtRecord->decisionWordBeforeMask());
+  FillBitAMask(l1abmask, dwb);
   l1ABits2_->SetBits(l1abmask);
 
   // deal with tech bits
   BitMask64 l1tbmask;
-  TechnicalTriggerWord twb = gtRecord->technicalTriggerWordBeforeMask();
-  size_t twbs = twb.size();
-  if (twbs>64) 
-    twbs = 64;    
-  for (size_t i=0; i<twbs;++i) {
-    if (twb.at(i))
-      l1tbmask.SetBit(i);
-  }
+  TechnicalTriggerWord twb(gtRecord->technicalTriggerWordBeforeMask());
+  FillBitTMask(l1tbmask, twb);
   l1TBits2_->SetBits(l1tbmask);
+
+  // get L1 trigger readout record information if wanted
+  if (l1GTRRName_.size()==0)
+    return;
+
+  Handle<L1GlobalTriggerReadoutRecord> gtReadoutRec;
+  GetProduct(l1GTRRName_, gtReadoutRec, event);
+
+  l1AbArr_->Reset();
+  const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRec->gtFdlVector());
+  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+       itBx != m_gtFdlWord.end(); ++itBx) {
+    BitMask64 amask;
+    DecisionWord dw((*itBx).finalOR());
+    FillBitAMask(amask,dw);
+    mithep::L1TriggerMask *nm = l1AbArr_->Allocate();
+    new (nm) mithep::L1TriggerMask(amask);
+    nm->SetBx((*itBx).bxInEvent());
+  }
+
+  l1TbArr_->Reset();
+  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+       itBx != m_gtFdlWord.end(); ++itBx) {
+    BitMask64 amask;
+    TechnicalTriggerWord dw((*itBx).gtTechnicalTriggerWord());
+    FillBitTMask(amask,dw);
+    mithep::L1TriggerMask *nm = l1TbArr_->Allocate();
+    new (nm) mithep::L1TriggerMask(amask);
+    nm->SetBx((*itBx).bxInEvent());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

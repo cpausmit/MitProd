@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.25 2009/11/19 15:10:33 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.26 2009/11/24 15:58:42 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -13,9 +13,11 @@
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectRelFwd.h"
+#include "MitAna/DataTree/interface/Types.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 class THashTable;
@@ -37,10 +39,12 @@ namespace mithep
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
+      void                           FillBitAMask(BitMask64 &bits, const DecisionWord &dw);
+      void                           FillBitTMask(BitMask64 &bits, const TechnicalTriggerWord &tw);
       void                           FillHltInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltTrig(const edm::Event &e, const edm::EventSetup &es);
       void                           FillL1Trig(const edm::Event &e, const edm::EventSetup &es);
+      void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
       const char                    *Istr() const;
 
       std::string                    evtName_;      //event branch name (must be unique)
@@ -58,6 +62,7 @@ namespace mithep
       std::string                    hltObjsName_;  //HLT trigger branch name
       Bool_t                         l1Active_;     //=true if some L1 info are filled
       std::string                    l1GTRecName_;  //L1 global trigger record edm name
+      std::string                    l1GTRRName_;   //l1 global readout trigger record edm name
       std::string                    l1TBitsName_;  //L1 technical bit name
       std::string                    l1ABitsName_;  //L1 algo bit name
       TreeWriter                    *tws_;          //tree writer (not owned)
@@ -83,6 +88,8 @@ namespace mithep
       L1TriggerMask                 *l1ABits_;      //L1 algorithm trigger bit mask 
       L1TriggerMask                 *l1TBits2_;     //L1 technical trigger bit mask before masking
       L1TriggerMask                 *l1ABits2_;     //L1 algorithm trigger bit mask before masking
+      L1TriggerMaskArr              *l1AbArr_;      //L1 algorithm trigger bits
+      L1TriggerMaskArr              *l1TbArr_;      //L1 technical trigger bits
 
       static Int_t                   instance_;     //counts active instances
   };
