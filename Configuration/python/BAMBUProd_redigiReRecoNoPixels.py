@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file://GenHLT_8E29.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RAW/MinBias900GeV334Startup/FA1C6DA5-0FD7-DE11-A2BC-00304867901A.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
@@ -52,6 +52,9 @@ process.add_(cms.Service("ObjectService"))
 process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+
+#loosen conversion producer pre-selection
+process.mvfTrackerConversions.rhoMin = 0.1
 
 #hack pixelLess tracking back (present in special startup MC samples)
 process.MitTreeFiller.PixelLessTracks.active          = True
