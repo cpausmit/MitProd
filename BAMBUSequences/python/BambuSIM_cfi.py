@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.3 2009/11/04 16:35:07 loizides Exp $
+# $Id: BambuSIM_cfi.py,v 1.4 2009/11/22 16:19:15 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -26,8 +26,11 @@ def enableSIM(filler):
   # Enable filling of second HLT menu, only present in Monte Carlo
   #filler.MetaInfosE29.active = True
 
-  #disable pixelLess tracks, not in normal MC
-  MitTreeFiller.PixelLessTracks.active          = False
+  # Disable filling of out-of-time bx
+  filler.MetaInfos.l1GtReadRecEdmName = ''
+
+  # Disable pixelLess tracks, not in normal MC
+  MitTreeFiller.PixelLessTracks.active = False
 
   # Enable fillers of MC Truth information
   filler.MCParticles.active = True
