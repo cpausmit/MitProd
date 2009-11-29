@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.59 2009/11/25 23:41:06 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.60 2009/11/26 21:41:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -90,8 +90,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'DecayParts',),
 
     TreeWriter = cms.untracked.PSet(
-        fileName = cms.untracked.string('XX-MITDATASET-XX'),
-        maxSize  = cms.untracked.uint32(1790),
+        fileName  = cms.untracked.string('XX-MITDATASET-XX'),
+        maxSize   = cms.untracked.uint32(1790),
+        compLevel = cms.untracked.uint32(9)
     ),
 
     MetaInfos = cms.untracked.PSet(
