@@ -1,4 +1,4 @@
-// $Id: FillerBeamSpot.cc,v 1.4 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerBeamSpot.cc,v 1.5 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -52,4 +52,16 @@ void FillerBeamSpot::FillDataBlock(const edm::Event      &event,
   mithep::BeamSpot *bs = beamSpots_->AddNew();
   bs->SetErrors(inBeamSpot->x0Error(),inBeamSpot->y0Error(),inBeamSpot->z0Error());
   bs->SetPosition(inBeamSpot->x0(),inBeamSpot->y0(),inBeamSpot->z0());
+  bs->SetSigmaZ(inBeamSpot->sigmaZ());
+  bs->SetBeamWidthX(inBeamSpot->BeamWidthX());
+  bs->SetBeamWidthY(inBeamSpot->BeamWidthY());
+  bs->SetDxDz(inBeamSpot->dxdz());
+  bs->SetDyDz(inBeamSpot->dydz());
+  
+  bs->SetSigmaZErr(inBeamSpot->sigmaZ0Error());
+  bs->SetBeamWidthXErr(inBeamSpot->BeamWidthXError());
+  bs->SetBeamWidthYErr(inBeamSpot->BeamWidthYError());
+  bs->SetDxDzErr(inBeamSpot->dxdzError());
+  bs->SetDyDzErr(inBeamSpot->dydzError());
+
 }
