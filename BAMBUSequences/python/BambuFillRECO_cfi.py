@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.12 2009/11/19 15:22:21 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.14 2009/11/22 16:39:52 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,14 +64,17 @@ MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 # Produce pixel hit information
 from MitEdm.Producers.pixelRecHits_cfi import *
+from MitEdm.Producers.vertexz_cfi import *
 
 # Enable pixel filling
 MitTreeFiller.PixelHits.active            = True
 MitTreeFiller.PixelVertexes.active        = True
+MitTreeFiller.TrackletVertexes.active     = True
+MitTreeFiller.ClusterVertexes.active      = True
 MitTreeFiller.PixelTracks.active          = True
 MitTreeFiller.PixelTracks.ecalAssocActive = True
 
-#add pixel-less tracks, needed at startup
+# Add pixel-less tracks, needed at startup
 MitTreeFiller.PixelLessTracks.active          = True
 MitTreeFiller.PixelLessTracks.ecalAssocActive = True
 
@@ -82,6 +85,8 @@ l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
 
 BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  siPixelRecHits*
+                                 trackletVertices* 
+                                 clusterVertices* 
                                  conversionElectronsStable*
                                  mvfConversionElectronsStable*
                                  kShProducer*

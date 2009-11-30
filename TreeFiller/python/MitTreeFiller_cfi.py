@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.60 2009/11/26 21:41:51 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.61 2009/11/29 12:23:44 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,6 +13,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
                                     'PixelVertexes',
+                                    'TrackletVertexes',
+                                    'ClusterVertexes',
                                     'CaloTowers',
                                     'BarrelBasicClusters',
                                     'BarrelSuperClusters',
@@ -190,6 +192,22 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName       = cms.untracked.string('PixelVertexes'),
         edmName       = cms.untracked.string('pixelVertices'),    
         vertexMapName = cms.untracked.string('PixelVertMap'),
+        fillerType    = cms.untracked.string('FillerVertexes')
+    ),
+
+    TrackletVertexes = cms.untracked.PSet(
+        active        = cms.untracked.bool(False),
+        mitName       = cms.untracked.string('TrackletVertexes'),
+        edmName       = cms.untracked.string('trackletVertices'),    
+        vertexMapName = cms.untracked.string('TrackletVertMap'),
+        fillerType    = cms.untracked.string('FillerVertexes')
+    ),
+
+    ClusterVertexes = cms.untracked.PSet(
+        active        = cms.untracked.bool(False),
+        mitName       = cms.untracked.string('ClusterVertexes'),
+        edmName       = cms.untracked.string('clusterVertices'),    
+        vertexMapName = cms.untracked.string('ClusterVertMap'),
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
 
