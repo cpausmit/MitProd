@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.61 2009/11/29 12:23:44 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.62 2009/11/30 10:13:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -265,7 +265,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     StripHits = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('StripHits'),                     
-        edmName               = cms.untracked.string('siStripMatchedRecHits:stereoRecHit'),
+        edmName               = cms.untracked.string('siStripMatchedRecHits:matchedRecHit'),
         fillerType            = cms.untracked.string('FillerStripHits')
     ),
   
