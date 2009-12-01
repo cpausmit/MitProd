@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.16 2009/12/01 01:12:08 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.17 2009/12/01 03:40:20 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,11 +14,11 @@ MitTreeFiller.MergedElectronsStable.active          = True
 
 # Load Mit vProducer
 from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
-#addKshFiller(MitTreeFiller)
+addKshFiller(MitTreeFiller)
 
 # Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
-#addConversionFiller(MitTreeFiller)
+addConversionFiller(MitTreeFiller)
 
 # For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
