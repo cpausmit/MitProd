@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.4 2009/11/19 14:35:23 loizides Exp $
+// $Id: FillerPixelHits.cc,v 1.5 2009/11/25 14:45:40 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -76,18 +76,13 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
 
     DetId id(hit->geographicalId());
 
-    int type = 0;
+    int type = 0; // PXB: 1,2,3   // PXF: +/- 11,12
     if(id.subdetId() == int(PixelSubdetector::PixelBarrel)) {
       PXBDetId pid(id);
       type = pid.layer();
     } else if (id.subdetId() == int(PixelSubdetector::PixelEndcap)) {
       PXFDetId pid(id);
-      if (pid.disk()==0)
-        type = 11;
-      else
-        type = 12;
-      if (pid.side()!=0)
-        type = -type;
+      type = (10 + pid.disk())*((pid.side()==1)?-1:1); 
     } else {
       continue;
     }
