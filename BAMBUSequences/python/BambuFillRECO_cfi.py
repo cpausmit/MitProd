@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.15 2009/11/30 10:13:19 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.16 2009/12/01 01:12:08 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -76,7 +76,7 @@ MitTreeFiller.PixelTracks.ecalAssocActive = True
 
 # Add pixel-less tracks, needed at startup
 MitTreeFiller.PixelLessTracks.active          = True
-MitTreeFiller.PixelLessTracks.ecalAssocActive = True
+#MitTreeFiller.PixelLessTracks.ecalAssocActive = True
 
 # Produce global trigger record
 l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
@@ -89,8 +89,8 @@ BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  clusterVertices* 
                                  conversionElectronsStable*
                                  mvfConversionElectronsStable*
-#                                 kShProducer*
-#                                 conversionProducer*
+                                 kShProducer*
+                                 conversionProducer*
                                  ZSPJetCorrectionsIcone5*
                                  JetPlusTrackCorrectionsIcone5*
                                  ZSPJetCorrectionsSisCone5*
