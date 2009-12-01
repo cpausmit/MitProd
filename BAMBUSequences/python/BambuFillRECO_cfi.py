@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.14 2009/11/22 16:39:52 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.15 2009/11/30 10:13:19 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,11 +14,11 @@ MitTreeFiller.MergedElectronsStable.active          = True
 
 # Load Mit vProducer
 from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
-addKshFiller(MitTreeFiller)
+#addKshFiller(MitTreeFiller)
 
 # Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
-addConversionFiller(MitTreeFiller)
+#addConversionFiller(MitTreeFiller)
 
 # For JetPlusTracks
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
@@ -54,13 +54,13 @@ from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
 MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameterBlock.TrackAssociatorParameters)
 
 # Enable Track-Ecal assocation in fillers
-MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
-MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
-MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
-MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
-MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
-MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
-MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+#MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
+#MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
+#MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+#MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
+#MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
+#MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
+#MitTreeFiller.GsfTracks.ecalAssocActive                           = True
 
 # Produce pixel hit information
 from MitEdm.Producers.pixelRecHits_cfi import *
@@ -89,8 +89,8 @@ BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  clusterVertices* 
                                  conversionElectronsStable*
                                  mvfConversionElectronsStable*
-                                 kShProducer*
-                                 conversionProducer*
+#                                 kShProducer*
+#                                 conversionProducer*
                                  ZSPJetCorrectionsIcone5*
                                  JetPlusTrackCorrectionsIcone5*
                                  ZSPJetCorrectionsSisCone5*
