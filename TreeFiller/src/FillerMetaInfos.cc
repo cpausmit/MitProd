@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.49 2009/11/26 21:41:51 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.50 2009/12/02 20:28:16 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -404,39 +404,35 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
     const L1GtTriggerMenu* menu = menuRcd.product();
 
     // get L1 algo names
-    size_t counter = 0;
     labels->push_back("xxx-L1AlgoNames-xxx");
+    size_t position = labels->size();
+    for (size_t kk = 0; kk<128; ++kk) {
+      labels->push_back(Form("UnusedL1Algo%d",kk));
+    }
     for (CItAlgo algo = menu->gtAlgorithmMap().begin(); 
          algo!=menu->gtAlgorithmMap().end(); ++algo) {
-      int algBitNumber = algo->second.algoBitNumber();
-      if (algBitNumber!=counter) {
-        labels->push_back(Form("UnusedL1Algo%d",counter));
-      } else {
-        labels->push_back(algo->second.algoName());
+      size_t act = position + algo->second.algoBitNumber();
+      if (act>=labels->size()) {
+        edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 algorithm bits, but got " 
+                                         << algo->second.algoBitNumber() << std::endl;
       }
-      ++counter;
-    }
-    if (counter>=l1ABits_->Size()) {
-      edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 algo bits, but got " 
-                                       << counter << std::endl;
+      (*labels)[act] = algo->second.algoName();
     }
 
     // get L1 tech names
-    counter = 0;
     labels->push_back("xxx-L1TechNames-xxx");
+    position = labels->size();
+    for (size_t kk = 0; kk<64; ++kk) {
+      labels->push_back(Form("UnusedL1Tech%d",kk));
+    }
     for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); 
          algo!=menu->gtTechnicalTriggerMap().end(); ++algo) {
-      int algBitNumber = algo->second.algoBitNumber();
-      if (algBitNumber!=counter) {
-        labels->push_back(Form("UnusedL1Tech%d",counter));
-      } else {
-        labels->push_back(algo->second.algoName());
+      size_t act = position + algo->second.algoBitNumber();
+      if (act>=labels->size()) {
+        edm::LogError("FillerMetaInfos") << "Cannot store more than 64 L1 technical bits, but got " 
+                                         << algo->second.algoBitNumber() << std::endl;
       }
-      ++counter;
-    }
-    if (counter>=l1TBits_->Size()) {
-      edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 technical bits, but got " 
-                                       << counter << std::endl;
+      (*labels)[act] = algo->second.algoName();
     }
   }
 
@@ -710,6 +706,9 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
 
   Handle<L1GlobalTriggerReadoutRecord> gtReadoutRec;
   GetProduct(l1GTRRName_, gtReadoutRec, event);
+
+  const L1GtFdlWord &fdlword(gtReadoutRec->gtFdlWord());
+  eventHeader_->SetIsPhysDec(fdlword.physicsDeclared()==1);
 
   l1AbArr_->Reset();
   const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRec->gtFdlVector());
