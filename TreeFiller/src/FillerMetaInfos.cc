@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.48 2009/11/24 15:58:43 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.49 2009/11/26 21:41:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -179,13 +179,13 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillBitAMask(BitMask64 &bits, const DecisionWord &dw)
+void FillerMetaInfos::FillBitAMask(BitMask128 &bits, const DecisionWord &dw)
 {
   // Fill bit mask.
 
   size_t dws = dw.size();
-  if (dws>64) 
-    dws = 64;    
+  if (dws>128) 
+    dws = 128;    
   for (size_t i=0; i<dws;++i) {
     if (dw.at(i))
       bits.SetBit(i);
@@ -193,13 +193,13 @@ void FillerMetaInfos::FillBitAMask(BitMask64 &bits, const DecisionWord &dw)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillBitTMask(BitMask64 &bits, const TechnicalTriggerWord &tw)
+void FillerMetaInfos::FillBitTMask(BitMask128 &bits, const TechnicalTriggerWord &tw)
 {
   // Fill bit mask.
 
   size_t tws = tw.size();
-  if (tws>64) 
-    tws = 64;    
+  if (tws>128) 
+    tws = 128;    
   for (size_t i=0; i<tws;++i) {
     if (tw.at(i))
       bits.SetBit(i);
@@ -403,29 +403,39 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
     setup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
     const L1GtTriggerMenu* menu = menuRcd.product();
 
-    // get l1 algo names
+    // get L1 algo names
     size_t counter = 0;
     labels->push_back("xxx-L1AlgoNames-xxx");
     for (CItAlgo algo = menu->gtAlgorithmMap().begin(); 
          algo!=menu->gtAlgorithmMap().end(); ++algo) {
-      labels->push_back(algo->second.algoName());
+      int algBitNumber = algo->second.algoBitNumber();
+      if (algBitNumber!=counter) {
+        labels->push_back(Form("UnusedL1Algo%d",counter));
+      } else {
+        labels->push_back(algo->second.algoName());
+      }
       ++counter;
     }
     if (counter>=l1ABits_->Size()) {
-      edm::LogError("FillerMetaInfos") << "Cannot store more than 64 l1 algo bits, but got " 
+      edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 algo bits, but got " 
                                        << counter << std::endl;
     }
 
-    // get l1 tech names
+    // get L1 tech names
     counter = 0;
     labels->push_back("xxx-L1TechNames-xxx");
     for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); 
          algo!=menu->gtTechnicalTriggerMap().end(); ++algo) {
-      labels->push_back(algo->second.algoName());
+      int algBitNumber = algo->second.algoBitNumber();
+      if (algBitNumber!=counter) {
+        labels->push_back(Form("UnusedL1Tech%d",counter));
+      } else {
+        labels->push_back(algo->second.algoName());
+      }
       ++counter;
     }
     if (counter>=l1TBits_->Size()) {
-      edm::LogError("FillerMetaInfos") << "Cannot store more than 64 l1 technical bits, but got " 
+      edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 technical bits, but got " 
                                        << counter << std::endl;
     }
   }
@@ -662,7 +672,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
 //--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup &setup)
 {
-  //  Fill l1 trigger bits after masking.
+  //  Fill L1 trigger bits after masking.
 
   if (!l1Active_) 
     return;
@@ -672,24 +682,24 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   GetProduct(l1GTRecName_, gtRecord, event);
 
   // deal with algo bits
-  BitMask64 l1amask;
+  BitMask128 l1amask;
   DecisionWord dw(gtRecord->decisionWord());
   FillBitAMask(l1amask, dw);
   l1ABits_->SetBits(l1amask);
 
   // deal with tech bits
-  BitMask64 l1tmask;
+  BitMask128 l1tmask;
   TechnicalTriggerWord tw(gtRecord->technicalTriggerWord());
   FillBitTMask(l1tmask, tw);
   l1TBits_->SetBits(l1tmask);
 
-  BitMask64 l1abmask;
+  BitMask128 l1abmask;
   DecisionWord dwb(gtRecord->decisionWordBeforeMask());
   FillBitAMask(l1abmask, dwb);
   l1ABits2_->SetBits(l1abmask);
 
   // deal with tech bits
-  BitMask64 l1tbmask;
+  BitMask128 l1tbmask;
   TechnicalTriggerWord twb(gtRecord->technicalTriggerWordBeforeMask());
   FillBitTMask(l1tbmask, twb);
   l1TBits2_->SetBits(l1tbmask);
@@ -705,7 +715,7 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRec->gtFdlVector());
   for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
        itBx != m_gtFdlWord.end(); ++itBx) {
-    BitMask64 amask;
+    BitMask128 amask;
     DecisionWord dw((*itBx).finalOR());
     FillBitAMask(amask,dw);
     mithep::L1TriggerMask *nm = l1AbArr_->Allocate();
@@ -716,7 +726,7 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   l1TbArr_->Reset();
   for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
        itBx != m_gtFdlWord.end(); ++itBx) {
-    BitMask64 amask;
+    BitMask128 amask;
     TechnicalTriggerWord dw((*itBx).gtTechnicalTriggerWord());
     FillBitTMask(amask,dw);
     mithep::L1TriggerMask *nm = l1TbArr_->Allocate();

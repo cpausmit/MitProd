@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.26 2009/11/24 15:58:42 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.27 2009/11/26 21:41:50 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -39,8 +39,8 @@ namespace mithep
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      void                           FillBitAMask(BitMask64 &bits, const DecisionWord &dw);
-      void                           FillBitTMask(BitMask64 &bits, const TechnicalTriggerWord &tw);
+      void                           FillBitAMask(BitMask128 &bits, const DecisionWord &dw);
+      void                           FillBitTMask(BitMask128 &bits, const TechnicalTriggerWord &tw);
       void                           FillHltInfo(const edm::Event &e, const edm::EventSetup &es);
       void                           FillHltTrig(const edm::Event &e, const edm::EventSetup &es);
       void                           FillL1Trig(const edm::Event &e, const edm::EventSetup &es);
