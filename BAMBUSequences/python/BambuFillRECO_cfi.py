@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.18 2009/12/01 10:15:33 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.19 2009/12/03 00:28:42 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -54,13 +54,13 @@ from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
 MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorParameterBlock.TrackAssociatorParameters)
 
 # Enable Track-Ecal assocation in fillers
-#MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
-#MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
-#MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
-#MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
-#MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
-#MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
-#MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+#MitTreeFiller.GeneralTracks.ecalAssocActive                      = True
+#MitTreeFiller.StandaloneMuonTracks.ecalAssocActive               = True
+#MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive = True
+#MitTreeFiller.GlobalMuonTracks.ecalAssocActive                   = True
+#MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
+#MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
+#MitTreeFiller.GsfTracks.ecalAssocActive                          = True
 
 # Produce pixel hit information
 from MitEdm.Producers.pixelRecHits_cfi import *
