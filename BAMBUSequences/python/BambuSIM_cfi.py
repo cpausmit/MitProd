@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.5 2009/11/27 22:47:48 loizides Exp $
+# $Id: BambuSIM_cfi.py,v 1.6 2009/12/01 03:40:20 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,16 +30,16 @@ def enableSIM(filler):
   filler.MetaInfos.l1GtReadRecEdmName = ''
 
   # Disable pixelLess tracks, not in normal MC
-  MitTreeFiller.PixelLessTracks.active = False
+  filler.PixelLessTracks.active = False
 
   # Enable extrapolation to Ecal (not desired in real data for now)
-  MitTreeFiller.GeneralTracks.ecalAssocActive                       = True
-  MitTreeFiller.StandaloneMuonTracks.ecalAssocActive                = True
-  MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
-  MitTreeFiller.GlobalMuonTracks.ecalAssocActive                    = True
-  MitTreeFiller.ConversionInOutTracks.ecalAssocActive               = True
-  MitTreeFiller.ConversionOutInTracks.ecalAssocActive               = True
-  MitTreeFiller.GsfTracks.ecalAssocActive                           = True
+  filler.GeneralTracks.ecalAssocActive                       = True
+  filler.StandaloneMuonTracks.ecalAssocActive                = True
+  filler.StandaloneMuonTracksWVtxConstraint.ecalAssocActive  = True
+  filler.GlobalMuonTracks.ecalAssocActive                    = True
+  filler.ConversionInOutTracks.ecalAssocActive               = True
+  filler.ConversionOutInTracks.ecalAssocActive               = True
+  filler.GsfTracks.ecalAssocActive                           = True
 
   # Enable fillers of MC Truth information
   filler.MCParticles.active = True
@@ -81,4 +81,3 @@ def enableSIM(filler):
   filler.KT6GenJets.flavorMatchingActive     = True
   filler.AKT5GenJets.flavorMatchingActive    = True
   filler.AKT7GenJets.flavorMatchingActive    = True
-  
