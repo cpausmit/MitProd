@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.5 2009/11/03 14:03:25 bendavid Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.6 2009/11/05 21:38:09 bendavid Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -21,7 +21,7 @@ process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('CMSSW_3_2_1 + Mit_010'),
+    version = cms.untracked.string('CMSSW_3_2_1 + Mit_012d'),
     annotation = cms.untracked.string('TTbar'),
     name = cms.untracked.string('BambuFastChainExample')
 )

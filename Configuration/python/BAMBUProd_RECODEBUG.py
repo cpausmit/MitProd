@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.9 2009/11/03 15:16:39 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.10 2009/11/25 23:13:27 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012c'),
+    version = cms.untracked.string('Mit_012d'),
     annotation = cms.untracked.string('RECODEBUG'),
     name = cms.untracked.string('BambuProduction')
 )
