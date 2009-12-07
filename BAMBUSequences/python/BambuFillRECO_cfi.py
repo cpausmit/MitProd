@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.20 2009/12/03 20:41:15 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.21 2009/12/03 23:30:37 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -83,10 +83,14 @@ l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
     L1GtReadoutRecordTag = cms.InputTag("gtDigis")
 )
 
+# Produce event selection data
+from MitEdm.Producers.evtSelData_cfi import *
+
 BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  siPixelRecHits*
                                  trackletVertices* 
-                                 clusterVertices* 
+                                 clusterVertices*
+                                 evtSelData*
                                  conversionElectronsStable*
                                  mvfConversionElectronsStable*
                                  kShProducer*
