@@ -54,7 +54,7 @@ void FillerEvtSelData::FillDataBlock(const edm::Event &event,
                      hEvtSelData->eZdcNeg(), hEvtSelData->eZdcPos(),
                      hEvtSelData->eZdcNegTime(), hEvtSelData->eZdcPosTime(),
                      hEvtSelData->ePxbHits(), hEvtSelData->eClusVtxQual());
-                     } else {
+  } else {
     evtSelData_->Set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   }
 }
