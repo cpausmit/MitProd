@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.21 2009/12/03 23:30:37 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.22 2009/12/07 22:56:17 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -40,6 +40,7 @@ MitTreeFiller.AK5JetPlusTrack.active = True
 
 # Produce jet vertex association information
 from MitProd.TreeFiller.JetVertexAssociation_cfi import *
+
 # Enable Jet Vertex association for Reco Jet collections
 MitTreeFiller.ItrCone5Jets.jetToVertexActive = True
 MitTreeFiller.SisCone5Jets.jetToVertexActive = True
