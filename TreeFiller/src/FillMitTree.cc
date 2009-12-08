@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.50 2009/11/04 17:03:32 loizides Exp $
+// $Id: FillMitTree.cc,v 1.51 2009/11/25 14:45:40 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,6 +15,7 @@
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
+#include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
@@ -220,12 +221,18 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       continue;
     }  
 
+    if (ftype.compare("FillerEvtSelData")==0) {
+      FillerEvtSelData *fillerEvtSelData = new FillerEvtSelData(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerEvtSelData);
+      continue;
+    }
+
     if (ftype.compare("FillerBeamSpot")==0) {
       FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerBeamSpot);
       continue;
     }
-   
+
     if (ftype.compare("FillerVertexes")==0) {
       FillerVertexes *fillerVertexes = new FillerVertexes(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerVertexes);

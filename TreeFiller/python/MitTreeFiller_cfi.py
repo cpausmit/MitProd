@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.62 2009/11/30 10:13:19 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.63 2009/11/30 19:47:46 edwenger Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,6 +9,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MCParticles',
                                     'MCEventInfo',
                                     'MCVertexes',
+                                    'EvtSelData',
                                     'BeamSpot',
                                     'PrimaryVertexes',
                                     'PrimaryVertexesBS',
@@ -162,6 +163,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName       = cms.untracked.string('MCVertexes'),
         edmName       = cms.untracked.string('genParticles'),    
         fillerType    = cms.untracked.string('FillerMCVertexes')
+    ),
+
+    EvtSelData = cms.untracked.PSet(
+        active     = cms.untracked.bool(True),
+        mitName    = cms.untracked.string('EvtSelData'),
+        edmName    = cms.untracked.string('evtSelData'),    
+        fillerType = cms.untracked.string('FillerEvtSelData')
     ),
 
     BeamSpot = cms.untracked.PSet(
