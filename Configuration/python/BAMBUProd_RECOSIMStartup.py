@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIMStartup/MinBiasStartup900GeV334/7A31312F-0AD7-DE11-9A93-0018F3D095F6.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 

@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.10 2009/11/25 23:13:27 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.11 2009/12/03 23:30:38 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -31,7 +31,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/build/bendavid/RECODEBUG/Zee7TeVTrackingParticles/D87A5BD6-40A0-DE11-A3A9-00E08178C0B1.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'MC_31X_V9::All'

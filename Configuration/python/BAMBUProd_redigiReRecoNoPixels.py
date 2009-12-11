@@ -39,7 +39,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/build/bendavid/RAW/MinBias900GeV334Startup/FA1C6DA5-0FD7-DE11-A2BC-00304867901A.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # Other statements
 process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'

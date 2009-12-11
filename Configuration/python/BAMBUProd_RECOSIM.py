@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_2-MC_31X_V9-v3_GEN-SIM-RECO/40709A79-C0C7-DE11-90E6-003048D15DB6.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
