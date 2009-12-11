@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.6 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerVertexes.cc,v 1.7 2009/11/04 16:30:38 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -6,6 +6,7 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/VertexCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
 
 using namespace std;
 using namespace edm;
@@ -16,9 +17,11 @@ FillerVertexes::FillerVertexes(const ParameterSet &cfg, const char *name, bool a
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","offlinePrimaryVertices")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
+  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","")),
   vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName","VertexMap")),
   vertexes_(new mithep::VertexArr(100)),
-  vertexMap_(new mithep::VertexMap)
+  vertexMap_(new mithep::VertexMap),
+  trackMap_(0)
 {
   // Constructor.
 }
@@ -44,6 +47,11 @@ void FillerVertexes::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
     vertexMap_->SetBrName(mitName_);
     OS()->add<VertexMap>(vertexMap_,vertexMapName_);
   }
+  if (!trackMapName_.empty()) {
+    trackMap_ = OS()->get<TrackMap>(trackMapName_);
+    if (trackMap_)
+      AddBranchDep(mitName_,trackMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,8 +76,16 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
     new (outVertex) mithep::Vertex(inV->x(), inV->y(), inV->z(),
                                    inV->xError(), inV->yError(), inV->zError());
     outVertex->SetChi2(inV->chi2());
+    outVertex->SetIsValid(inV->isValid());
     outVertex->SetNdof(static_cast<Int_t>(inV->ndof()));
-    outVertex->SetNTracks(inV->tracksSize());                                
+    outVertex->SetNTracksFit(inV->tracksSize());
+
+    //fill tracks associated to the vertex
+    if (trackMap_) {
+      for (reco::Vertex::trackRef_iterator iTrack = inV->tracks_begin(); iTrack!=inV->tracks_end(); ++iTrack) {
+        outVertex->AddTrack(trackMap_->GetMit(mitedm::refToBaseToPtr(*iTrack)));
+      }
+    }
 
     //add vertex to the map
     mitedm::VertexPtr thePtr(hVertexProduct, inV-inVertexes.begin());

@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.63 2009/11/30 19:47:46 edwenger Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.64 2009/12/08 11:34:28 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,11 +11,6 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MCVertexes',
                                     'EvtSelData',
                                     'BeamSpot',
-                                    'PrimaryVertexes',
-                                    'PrimaryVertexesBS',
-                                    'PixelVertexes',
-                                    'TrackletVertexes',
-                                    'ClusterVertexes',
                                     'CaloTowers',
                                     'BarrelBasicClusters',
                                     'BarrelSuperClusters',
@@ -35,6 +30,11 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ConversionOutInTracks',
                                     'GsfTracks',
                                     'PFGsfTracks',
+                                    'PrimaryVertexes',
+                                    'PrimaryVertexesBS',
+                                    'PixelVertexes',
+                                    'TrackletVertexes',
+                                    'ClusterVertexes',
                                     'Muons',
                                     'Electrons',
                                     'ElectronsStable',
@@ -184,6 +184,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName       = cms.untracked.string('PrimaryVertexes'),
         edmName       = cms.untracked.string('offlinePrimaryVertices'),    
         vertexMapName = cms.untracked.string('PrimaryVertexMap'),
+        trackMapName  = cms.untracked.string('TracksMapName'),
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
     
@@ -192,6 +193,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName       = cms.untracked.string('PrimaryVertexesBeamSpot'),
         edmName       = cms.untracked.string('offlinePrimaryVerticesWithBS'),    
         vertexMapName = cms.untracked.string('PrimaryVertexBSMap'),
+        trackMapName  = cms.untracked.string('TracksMapName'),
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
 

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerVertexes.h,v 1.6 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerVertexes.h,v 1.7 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerVertexes
 //
@@ -29,9 +29,11 @@ namespace mithep
     private:
       std::string              edmName_;        //edm name of Vertex collection
       std::string              mitName_;        //mit name of Vertices
+      std::string              trackMapName_;   //name of imported map wrt trk trks
       std::string              vertexMapName_;  //name of exported map
       mithep::VertexArr       *vertexes_;       //array of vertexes
       mithep::VertexMap       *vertexMap_;      //map wrt vertexes
+      const mithep::TrackMap  *trackMap_; //map wrt tracker tracks
   };
 }
 #endif

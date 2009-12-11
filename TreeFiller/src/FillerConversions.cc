@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerConversions.cc,v 1.18 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -87,8 +87,8 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                           inConversion->conversionVertex().zError());
     vertex.SetChi2(inConversion->conversionVertex().chi2());
     vertex.SetNdof((Int_t)inConversion->conversionVertex().ndof());
-    vertex.SetNTracks(inConversion->conversionVertex().tracksSize());
-
+    vertex.SetNTracksFit(inConversion->conversionVertex().tracksSize());
+  
     mithep::Conversion *outConversion = conversions_->Allocate();
     new (outConversion) mithep::Conversion(vertex);
     outConversion->SetDCotTheta(inConversion->pairCotThetaSeparation());
