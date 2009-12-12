@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.15 2009/11/03 14:02:32 bendavid Exp $
+// $Id: FillMitTree.h,v 1.16 2009/11/04 13:40:09 loizides Exp $
 //
 // FillMitTree
 //
@@ -29,6 +29,7 @@ namespace mithep
       FillMitTree(const edm::ParameterSet &cfg);
       ~FillMitTree();
 
+      void                     beginRun(edm::Run const &, edm::EventSetup const&);
       void                     analyze(const edm::Event &e, const edm::EventSetup &es);
       void                     beginJob(const edm::EventSetup &es);
       void                     endJob();

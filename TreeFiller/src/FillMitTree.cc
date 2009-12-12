@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.51 2009/11/25 14:45:40 loizides Exp $
+// $Id: FillMitTree.cc,v 1.52 2009/12/08 11:34:28 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -86,6 +86,18 @@ bool FillMitTree::addActiveFiller(BaseFiller *bf)
   delete bf;
   bf = 0;
   return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillMitTree::beginRun(edm::Run const &run, edm::EventSetup const &setup)
+{
+  // Access and copy event content.
+
+  // first step: Loop over the data fillers of the various components
+  for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    (*iF)->FillRunBlock(run,setup);
+  }
+  
 }
 
 //--------------------------------------------------------------------------------------------------
