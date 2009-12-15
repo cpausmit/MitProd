@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.64 2009/12/08 11:34:28 loizides Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.65 2009/12/11 17:45:38 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -106,7 +106,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         hltObjsMitName     = cms.untracked.string('HLTObjects'),
         hltResEdmName      = cms.untracked.string('TriggerResults'),
         hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames       = cms.untracked.vstring('HLT','FU'),
+        hltProcName        = cms.untracked.string('HLT'),
         l1Active           = cms.untracked.bool(True),
         l1GtRecordEdmName  = cms.untracked.string('l1GtRecord'),   
         l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
@@ -123,7 +123,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         hltObjsMitName     = cms.untracked.string('HLTObjects_E29'),
         hltResEdmName      = cms.untracked.string('TriggerResults'),
         hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'),
-        hltProcNames       = cms.untracked.vstring('HLT8E29'),
+        hltProcName        = cms.untracked.string('HLT8E29'),
         l1Active           = cms.untracked.bool(False),
         l1GtRecordEdmName  = cms.untracked.string('l1GtRecord8E29'),   
         l1GtReadRecEdmName = cms.untracked.string('gtDigis8E29'),

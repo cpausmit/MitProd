@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.50 2009/12/02 20:28:16 loizides Exp $
+// $Id: FillerMetaInfos.cc,v 1.51 2009/12/02 23:56:11 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -39,6 +39,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltTreeName_(Conf().getUntrackedParameter<string>("hltTreeMitName",
                                                 Form("%s%s",Names::gkHltTreeName,Istr()))),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
+  hltProcName_(Conf().getUntrackedParameter<string>("hltProcName","")),
   hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults")),
   hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
   hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
@@ -82,13 +83,24 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
 
   ++instance_;
 
-  if (Conf().exists("hltProcNames"))
-    hltProcNames_ = Conf().getUntrackedParameter<vector<string> >("hltProcNames");
-  if (hltProcNames_.size()==0)
-    hltProcNames_.push_back("HLT");
-
   if (l1Active_ && !hltActive_)
     PrintErrorAndExit("L1Active set _without_ hltActive set as well is not supported");
+  
+    //force a particular process name for trigger output if required
+  if (!hltProcName_.empty()) {
+    if (hltResName_.find(':')==string::npos)
+      hltResName_ += "::";
+    else 
+      hltResName_ += ":";
+    hltResName_ += hltProcName_;
+    if (hltEvtName_.find(':')==string::npos)
+      hltEvtName_ += "::";
+    else 
+      hltEvtName_ += ":";
+    hltEvtName_ += hltProcName_;
+  } 
+  
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,47 +293,18 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   if (!hltActive_) 
     return;
 
-  // check if we can access the hlt config information
-  if (hltProcName_.empty()) {
-    string teststr;
-    for(UInt_t i=0; i<hltProcNames_.size(); ++i) {
-      if (i>0) 
-        teststr += ", ";
-      teststr += hltProcNames_.at(i);
-      edm::LogInfo("FillerMetaInfos") << "Trying to access hlt config using " 
-                                      <<  hltProcNames_.at(i) << std::endl;
 
-      if (hltConfig_.init(hltProcNames_.at(i))) {
-        hltProcName_ = hltProcNames_.at(i);
-        if (hltResName_.find(':')==string::npos)
-          hltResName_ += "::";
-        else 
-          hltResName_ += ":";
-        hltResName_ += hltProcName_;
-        if (hltEvtName_.find(':')==string::npos)
-          hltEvtName_ += "::";
-        else 
-          hltEvtName_ += ":";
-        hltEvtName_ += hltProcName_;
-        break;
-      } 
-    }
-    if (hltProcName_.empty()) {
-      edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
-                                       << teststr << std::endl;
-      throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
-        << "Cannot access hlt config using " << teststr << std::endl;
-      return;
-    }
-  } else {
-    if (!hltConfig_.init(hltProcName_)) {
-      edm::LogError("FillerMetaInfos") << "Cannot access hlt config using " 
-                                       << hltProcName_ << std::endl;
-      throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
-        << "Cannot access hlt config using " << hltProcName_ << std::endl;
-      return;
-    }
+  // get HLT trigger information
+  Handle<TriggerResults> triggerResultsHLT;
+  GetProduct(hltResName_, triggerResultsHLT, event);
+  if (!hltConfig_.init(triggerResultsHLT->parameterSetID())) {
+    edm::LogError("FillerMetaInfos") << "Cannot access hlt config using PSet from" 
+                                      << hltResName_ << std::endl;
+    throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
+      << "Cannot access hlt config using PSet from" << hltResName_ << std::endl;
+    return;
   }
+  
 
   // check size of menu... < 256
   if (hltConfig_.size()>hltBits_->Size()) {

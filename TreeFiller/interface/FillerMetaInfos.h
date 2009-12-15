@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.27 2009/11/26 21:41:50 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.28 2009/12/02 20:28:15 loizides Exp $
 //
 // FillerMetaInfos
 //
@@ -12,7 +12,7 @@
 #ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "MitProd/TreeFiller/interface/HLTConfigProvider.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
@@ -52,7 +52,6 @@ namespace mithep
       std::string                    lahTreeName_;  //look-ahead header tree name (must be unique)
       std::string                    hltTreeName_;  //hlt tree name (must be unique)
       Bool_t                         hltActive_;    //=true if HLT info are filled
-      std::vector<std::string>       hltProcNames_; //HLT process name(s)
       std::string                    hltProcName_;  //HLT process name to be used
       std::string                    hltResName_;   //HLT trigger results edm name
       std::string                    hltEvtName_;   //HLT trigger event edm name
@@ -81,7 +80,7 @@ namespace mithep
       TriggerObjectBaseArr          *hltObjs_;      //HLT trigger objects
       TriggerObjectRelArr           *hltRels_;      //HLT trigger objects relation
       TTree                         *hltTree_;      //HLT trigger tree (not owned)
-      HLTConfigProvider              hltConfig_;    //HLT config from provenance
+      mitedm::HLTConfigProvider      hltConfig_;    //HLT config from provenance
       Int_t                          hltEntries_;   //number of hlt info entries
       UShort_t                       fileNum_;      //file number of current file
       L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
