@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.14 2009/12/11 17:45:57 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.15 2009/12/12 19:52:10 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/Dec9thReReco_BSCNOBEAMHALO-v1/0000/F66B5C9A-22E5-DE11-88D1-0026189438B5.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/124/022/6271CBBC-DFE8-DE11-87DD-002618943921.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
