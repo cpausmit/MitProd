@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.17 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerDecayParts.cc,v 1.18 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -114,6 +114,23 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
       d->SetPriVertex(vertexMap_->GetMit(p.primaryVertex()));
     }
       
+    //fill shared layer bitmask
+    const reco::HitPattern &sharedHitPattern = p.sharedHits();
+    BitMask48 sharedLayers;
+    UInt_t numShared=0;
+    // search for all good crossed layers (with or without hit)
+    for (Int_t hi=0; hi<sharedHitPattern.numberOfHits(); hi++) {
+      uint32_t hit = sharedHitPattern.getHitPattern(hi);
+      if (sharedHitPattern.getHitType(hit)<=1) {
+        if (sharedHitPattern.trackerHitFilter(hit)) {
+          numShared++;
+          sharedLayers.SetBit(hitReader_.Layer(hit));
+        }
+      }
+    }
+
+    d->SetSharedLayers(sharedLayers);  
+    
     if (basePartMaps_.size()) {
        // loop through and add stable daughters
       for (Int_t j=0; j<p.nStableChild(); ++j) {
