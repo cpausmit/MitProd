@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.13 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.14 2009/12/08 11:34:28 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -62,7 +62,6 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
     if (!genHepMCEvName_.empty()) {
       Handle<edm::HepMCProduct> hHepMCProduct;
       GetProduct(genHepMCEvName_, hHepMCProduct, event);
-      
       const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
       eventInfo_->SetScale(genEvt->event_scale());
       eventInfo_->SetProcessId(genEvt->signal_process_id());
@@ -72,13 +71,15 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
         weight *= wc[i];
       eventInfo_->SetWeight(weight);
       const HepMC::PdfInfo *genPdfInfo = genEvt->pdf_info();
-      eventInfo_->SetId1(genPdfInfo->id1());
-      eventInfo_->SetId2(genPdfInfo->id2());
-      eventInfo_->SetPdf1(genPdfInfo->pdf1());
-      eventInfo_->SetPdf2(genPdfInfo->pdf2());
-      eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
-      eventInfo_->SetX1(genPdfInfo->x1());
-      eventInfo_->SetX2(genPdfInfo->x2());
+      if (genPdfInfo) {
+        eventInfo_->SetId1(genPdfInfo->id1());
+        eventInfo_->SetId2(genPdfInfo->id2());
+        eventInfo_->SetPdf1(genPdfInfo->pdf1());
+        eventInfo_->SetPdf2(genPdfInfo->pdf2());
+        eventInfo_->SetScalePdf(genPdfInfo->scalePDF());
+        eventInfo_->SetX1(genPdfInfo->x1());
+        eventInfo_->SetX2(genPdfInfo->x2());
+      }
     }
 
   } else {
