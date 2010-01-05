@@ -1,4 +1,4 @@
-// $Id: FillerEvtSelData.cc,v 1.2 2009/12/08 20:51:51 loizides Exp $
+// $Id: FillerEvtSelData.cc,v 1.3 2009/12/09 12:50:38 edwenger Exp $
 
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -54,8 +54,9 @@ void FillerEvtSelData::FillDataBlock(const edm::Event &event,
                      hEvtSelData->eZdcNeg(), hEvtSelData->eZdcPos(),
                      hEvtSelData->eZdcNegTime(), hEvtSelData->eZdcPosTime(),
                      hEvtSelData->ePxbHits(), hEvtSelData->ePxHits(),
-		     hEvtSelData->eClusVtxQual(), hEvtSelData->eClusVtxDiff());
+		     hEvtSelData->eClusVtxQual(), hEvtSelData->eClusVtxDiff(),
+		     hEvtSelData->eHPTrkFrac());
   } else {
-    evtSelData_->Set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+    evtSelData_->Set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   }
 }
