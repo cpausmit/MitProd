@@ -25,7 +25,8 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/home/loizides/work/cms/CMSSW_3_3_5/src/phojet.root')
+#    fileNames = cms.untracked.vstring('file:/home/loizides/work/cms/CMSSW_3_3_5/src/phojet.root')
+    fileNames = cms.untracked.vstring('file:/home/loizides/work/cms/CMSSW_3_3_5/src/p8mb.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", 
                                                      "drop *_MEtoEDMConverter_*_*", 
@@ -46,12 +47,15 @@ process.MitTreeFiller.MetaInfos.hltActive = False
 process.MitTreeFiller.MCParticles.active     = True
 process.MitTreeFiller.MCParticles.simActive  = False
 process.MitTreeFiller.MCParticles.useAodGen  = False
-process.MitTreeFiller.MCParticles.genEdmName = 'source'
+process.MitTreeFiller.MCParticles.genEdmName = 'generator'
+#process.MitTreeFiller.MCParticles.genEdmName = 'source'
 process.MitTreeFiller.MCEventInfo.active               = True
-process.MitTreeFiller.MCEventInfo.genHepMCEventEdmName = 'source'
+process.MitTreeFiller.MCEventInfo.genHepMCEventEdmName = 'generator'
+#process.MitTreeFiller.MCEventInfo.genHepMCEventEdmName = 'source'
 process.MitTreeFiller.MCVertexes.active    = True
 process.MitTreeFiller.MCVertexes.useAodGen = False
-process.MitTreeFiller.MCVertexes.edmName   = 'source'
+process.MitTreeFiller.MCVertexes.edmName   = 'generator'
+#process.MitTreeFiller.MCVertexes.edmName   = 'source'
 
 process.bambu_step  = cms.Path(process.MitTreeFiller)
 
