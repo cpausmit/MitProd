@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012d'),
+    version = cms.untracked.string('Mit_012h'),
     annotation = cms.untracked.string('RECOSIMStartup'),
     name = cms.untracked.string('BambuProduction')
 )

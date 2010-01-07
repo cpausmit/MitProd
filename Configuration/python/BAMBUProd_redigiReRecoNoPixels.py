@@ -24,7 +24,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012c'),
+    version = cms.untracked.string('Mit_012h'),
     annotation = cms.untracked.string('redigiReRecoNoPixels'),
     name = cms.untracked.string('BambuProduction')
 )
