@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.18 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.19 2009/10/12 21:41:47 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,8 +16,11 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCParticleCol.h"
+#include "MitAna/DataTree/interface/TrackingParticleCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
@@ -31,6 +34,7 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
   trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
+  fillTracking_(Conf().getUntrackedParameter<bool>("fillTracking",false)),
   genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","genParticles")),
   simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","g4SimHits")),
   trackingEdmName_(Conf().getUntrackedParameter<string>("trackingEdmName",
@@ -39,7 +43,9 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, 
   simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMCPartBrn)),
+  mitTrackingName_(Conf().getUntrackedParameter<string>("mitTrackingName",Names::gkTrackingParticleBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
+  trackingParticles_(new mithep::TrackingParticleArr(250)),
   genMap_(genActive_?new mithep::GenParticleBarcodeMap:0),
   aodGenMap_((genActive_&&useAodGen_)?new mithep::AODGenParticleMap:0),
   simMap_(simActive_?new mithep::SimTrackTidMap:0),
@@ -54,6 +60,7 @@ FillerMCParticles::~FillerMCParticles()
   // Destructor.
 
   delete mcParticles_;
+  delete trackingParticles_;
   delete genMap_;
   delete aodGenMap_;
   delete simMap_;
@@ -72,6 +79,11 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es
   tws.AddBranch(mitName_,&mcParticles_,brsize);
   OS()->add<mithep::MCParticleArr>(mcParticles_,mitName_);
 
+  if (trackingActive_ && fillTracking_) {
+    tws.AddBranch(mitTrackingName_,&trackingParticles_,brsize);
+    OS()->add<mithep::TrackingParticleArr>(trackingParticles_,mitTrackingName_);
+  }
+  
   if (genActive_ && !genMapName_.empty()) {
     genMap_->SetBrName(mitName_);
     if (genMap_)
@@ -96,6 +108,10 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   // Loop over generated or simulated particles and fill their information.
 
   mcParticles_->Delete();
+  
+  if (trackingActive_ && fillTracking_) {
+    trackingParticles_->Delete();
+  }
 
   if (genActive_)
     genMap_->Reset();
@@ -215,6 +231,58 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 	const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
 	mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
 	trackingMap_->Add(theRef, outSimParticle);
+        
+        if (fillTracking_) {
+          mithep::TrackingParticle *outTracking = trackingParticles_->AddNew();
+          
+          //fill associated sim tracks
+          for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
+                 iST != iM->g4Tracks().end(); ++iST) {
+            outTracking->AddMCPart(simMap_->GetMit(theSimTrack.trackId()));
+          }
+          
+          //fill hit information
+          reco::HitPattern hitPattern;
+          int nHits = 0;
+          
+          //loop through sim hits and construct intermediate reco::HitPattern
+          for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
+                iSimHit != iM->pSimHit_end(); ++iSimHit) {
+
+            unsigned int detectorIdIndex = iSimHit->detUnitId();
+            DetId detectorId = DetId(detectorIdIndex);
+            
+            InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);
+          
+            hitPattern.set(tHit,nHits);
+            ++nHits;
+          
+          }
+
+          //construct hit layer bitmask as used in bambu
+          BitMask48 hits;
+          // search for all good crossed layers (with or without hit)
+          for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
+            uint32_t hit = hitPattern.getHitPattern(hi);
+            if (hitPattern.getHitType(hit)<=1) {
+              if (hitPattern.trackerHitFilter(hit)) {
+                hits.SetBit(hitReader_.Layer(hit));
+              }
+            }
+          }
+          
+          outTracking->SetHits(hits); 
+          
+          if (verbose_>1) {
+            printf("Hit Layer Mask: ");
+            for (Int_t biti=47; biti >= 0; --biti) {
+                  printf("%i",hits.TestBit(biti));
+            }
+            printf("\n");
+          }
+          
+        }
+        
         if (verbose_>1) {
 	  printf("trackId = %i\n",theSimTrack.trackId());
           printf("Tracking particle has %i SimTracks\n",iM->g4Tracks().size());

@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.65 2009/12/11 17:45:38 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.66 2009/12/15 00:46:57 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -138,7 +138,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         useAodGen       = cms.untracked.bool(True),
         simActive       = cms.untracked.bool(True),
         trackingActive  = cms.untracked.bool(False),
+        fillTracking    = cms.untracked.bool(False),
         mitName         = cms.untracked.string('MCParticles'),
+        mitTrackingName = cms.untracked.string('TrackingParticles'),
         genEdmName      = cms.untracked.string('genParticles'),
         simEdmName      = cms.untracked.string('g4SimHits'),
         trackingEdmName = cms.untracked.string('mergedtruth:MergedTrackTruth'),

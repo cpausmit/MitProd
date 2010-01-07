@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.8 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.9 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerMCParticles
 //
@@ -15,8 +15,11 @@
 #define MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 
 #include "MitAna/DataTree/interface/MCParticleFwd.h"
+#include "MitAna/DataTree/interface/TrackingParticleFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitProd/TreeFiller/interface/HitPatternReader.h"
+
 
 namespace mithep 
 {
@@ -35,6 +38,7 @@ namespace mithep
       bool                           useAodGen_;       //=true if AOD GenParticles to be used
       bool                           simActive_;       //=true if simulated particles are filled
       bool                           trackingActive_;  //=true if TrackingParticles are mapped
+      bool                           fillTracking_;    //=treu if detailed sim hit info is filled
       std::string                    genEdmName_;      //edm name of generated particles
       std::string                    simEdmName_;      //edm name of simulated particles
       std::string                    trackingEdmName_; //edm name of simulated TrackingParticles
@@ -42,11 +46,14 @@ namespace mithep
       std::string                    simMapName_;      //name of exp map wrt simulated particles
       std::string                    trackingMapName_; //name of exp map wrt TrackingParticles
       std::string                    mitName_;         //name of MCParticles branch
+      std::string                    mitTrackingName_; //name of TrackingParticles branch
       mithep::MCParticleArr         *mcParticles_;     //array of MCParticles
+      mithep::TrackingParticleArr   *trackingParticles_; //array of TrackingParticles
       mithep::GenParticleBarcodeMap *genMap_;          //map wrt generated particles
       mithep::AODGenParticleMap     *aodGenMap_;       //map wrt generated particles
       mithep::SimTrackTidMap        *simMap_;          //map of SimTracks to G4 track ids
       mithep::TrackingParticleMap   *trackingMap_;     //map wrt TrackingParticles
+      mithep::HitPatternReader       hitReader_;       //hit pattern reader
   };
 }
 #endif
