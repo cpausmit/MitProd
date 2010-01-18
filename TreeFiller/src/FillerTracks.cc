@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.33 2009/07/14 13:44:35 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.34 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -139,6 +139,14 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     //fill algo enum
     outTrack->SetAlgo(static_cast<mithep::Track::ETrackAlgorithm>(it->algo()));
 
+    //fill quality bitmask
+    outTrack->Quality().SetQualityMask(BitMask8(UChar_t(it->qualityMask())));
+    
+    if (verbose_>2) {
+      printf("reco::Track   high purity = %i,  ", it->quality(reco::TrackBase::highPurity));
+      printf("mithep::Track high purity = %i\n",outTrack->Quality().Quality(mithep::TrackQuality::highPurity));
+    }
+    
     //fill gsf flag, some type gymastics needed...
     if (typeid(*it)==typeid(reco::GsfTrack))
       outTrack->SetIsGsf(kTRUE);
@@ -204,7 +212,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       trackMap_->Add(thePtr, outTrack);
     }
 
-    //do dim associations
+    //do sim associations
     if (trackingMap_ && !edmSimAssocName_.empty()) {
       if (verbose_>1)
         printf("Trying Track-Sim association\n");
