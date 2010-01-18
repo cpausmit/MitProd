@@ -9,7 +9,7 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012h'),
+    version = cms.untracked.string('Mit_012i'),
     annotation = cms.untracked.string('MCONLY'),
     name = cms.untracked.string('BambuProduction')
 )
