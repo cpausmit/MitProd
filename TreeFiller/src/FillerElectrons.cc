@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.39 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerElectrons.cc,v 1.40 2009/11/02 22:54:56 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -137,8 +137,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetFBrem(iM->fbrem());
     
     // pflow electron stuff
-    outElectron->SetIsEcalDriven(iM->isEcalDriven());
-    outElectron->SetIsTrackerDriven(iM->isTrackerDriven());
+    outElectron->SetIsEcalDriven(iM->ecalDrivenSeed());
+    outElectron->SetIsTrackerDriven(iM->trackerDrivenSeed());
     outElectron->SetMva(iM->mva());
     
     // shower shape variables   
