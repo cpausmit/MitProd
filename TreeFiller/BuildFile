@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.23 2009/11/04 13:40:09 loizides Exp $
+# $Id: BuildFile,v 1.24 2009/11/19 15:10:33 loizides Exp $
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
@@ -23,6 +23,7 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=SimDataFormats/TrackingAnalysis>
 <use name=SimGeneral/HepPDTRecord>
 <use name=TrackingTools/TrackAssociator>
 <use name=root>
