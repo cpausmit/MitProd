@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.52 2009/12/08 11:34:28 loizides Exp $
+// $Id: FillMitTree.cc,v 1.53 2009/12/12 22:33:52 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -91,13 +91,24 @@ bool FillMitTree::addActiveFiller(BaseFiller *bf)
 //--------------------------------------------------------------------------------------------------
 void FillMitTree::beginRun(edm::Run const &run, edm::EventSetup const &setup)
 {
+
+  // loop over the various components and book the branches
+  for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
+    (*iF)->BookDataBlock(*tws_, setup);
+  }
+
+  // call branch ref for the event tree
+  if (brtable_ && tws_->GetTree())
+    tws_->GetTree()->BranchRef();
+
   // Access and copy event content.
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->FillRunBlock(run,setup);
   }
-  
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +148,7 @@ void FillMitTree::analyze(const edm::Event      &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillMitTree::beginJob(const edm::EventSetup &event)
+void FillMitTree::beginJob()
 {
   // Access the tree and book branches.
 
@@ -156,16 +167,6 @@ void FillMitTree::beginJob(const edm::EventSetup &event)
     os->add(brtable_, brtable_->GetName());
   }
 
-  // loop over the various components and book the branches
-  for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
-    (*iF)->BookDataBlock(*tws_, event);
-  }
-
-  // call branch ref for the event tree
-  if (brtable_ && tws_->GetTree())
-    tws_->GetTree()->BranchRef();
-  
 }
 
 //--------------------------------------------------------------------------------------------------
