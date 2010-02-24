@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.22 2009/12/07 22:56:17 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.23 2009/12/08 11:34:47 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,16 +27,6 @@ from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 MitTreeFiller.IC5JetPlusTrack.active = True
 MitTreeFiller.SC5JetPlusTrack.active = True
 MitTreeFiller.AK5JetPlusTrack.active = True
-
-# Add track jets producers and enable fillers, disabled for now
-#from RecoJets.JetProducers.TracksForJets_cff import *
-#from RecoJets.JetProducers.ic5TrackJets_cfi import *
-#from RecoJets.JetProducers.sc5TrackJets_cfi import *
-#from RecoJets.JetProducers.ak5TrackJets_cfi import *
-
-#MitTreeFiller.IC5TrackJets.active    = True
-#MitTreeFiller.SC5TrackJets.active    = True
-#MitTreeFiller.AK5TrackJets.active    = True
 
 # Produce jet vertex association information
 from MitProd.TreeFiller.JetVertexAssociation_cfi import *
@@ -102,10 +92,6 @@ BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  JetPlusTrackCorrectionsSisCone5*
                                  ZSPJetCorrectionsAntiKt5*
                                  JetPlusTrackCorrectionsAntiKt5*
-                                 #tracksForJets*
-                                 #iterativeCone5TrackJets*
-                                 #sisCone5TrackJets*
-                                 #ak5TrackJets*
                                  jetvertexAssociationSequence)
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
