@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.17 2010/01/07 20:45:22 loizides Exp $
+# $Id: BAMBUProd_RECO.py,v 1.19 2010/01/18 17:48:43 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012i'),
+    version = cms.untracked.string('Mit_013'),
     annotation = cms.untracked.string('RECO'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/124/022/6271CBBC-DFE8-DE11-87DD-002618943921.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/18thFebPreProd_351p1_BSCNOBEAMHALO-v2/0000/48DDC2F8-471E-DF11-A427-00237DA1A548.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR09_R_V5::All'
+process.GlobalTag.globaltag = 'GR10_P_V2::All'
 
 process.add_(cms.Service("ObjectService"))
 
