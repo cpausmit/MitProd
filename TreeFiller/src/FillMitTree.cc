@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.53 2009/12/12 22:33:52 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.54 2010/02/11 14:55:27 yilmaz Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,6 +34,7 @@
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
+#include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -388,6 +389,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       continue;
     }  
     
+    if (ftype.compare("FillerTrackJets")==0) {
+      FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerTrackJets);
+      continue;
+    }  
+
     edm::LogError("FillMitTree") 
       << "Unknown fillerType " << ftype << " for pset named " << name << std::endl;
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")

@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.66 2009/12/15 00:46:57 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.67 2010/01/07 11:04:31 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -62,9 +62,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'IC5JetPlusTrack',
                                     'SC5JetPlusTrack',
                                     'AK5JetPlusTrack',
-                                    'IC5TrackJets',
-                                    'SC5TrackJets',
-                                    'AK5TrackJets',
+                                    'AKt5TrackJets',
+                                    'Kt4TrackJets',
                                     'ItrCone5PFJets',
                                     'SisCone5PFJets',
                                     'SisCone7PFJets',
@@ -760,51 +759,37 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType           = cms.untracked.string('FillerCaloJets')
     ),               
 
-
-    IC5TrackJets = cms.untracked.PSet(
-        active               = cms.untracked.bool(False),
+    AKt5TrackJets = cms.untracked.PSet(
+        active               = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive       = cms.untracked.bool(False),
         jetToVertexActive    = cms.untracked.bool(False),
         jetCorrectionsActive = cms.untracked.bool(False),
-        mitName              = cms.untracked.string('IC5TrackJets'),
-        edmName              = cms.untracked.string('iterativeCone5TrackJets'),
-        L2JetCorrectorName   = cms.untracked.string(''),
-        L3JetCorrectorName   = cms.untracked.string(''),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
-        jetMapName           = cms.untracked.string('IC5TrackJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
-    ),
-    
-    SC5TrackJets = cms.untracked.PSet(
-        active               = cms.untracked.bool(False),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive       = cms.untracked.bool(False),
-        jetToVertexActive    = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName              = cms.untracked.string('SC5TrackJets'),
-        edmName              = cms.untracked.string('sisCone5TrackJets'),
-        L2JetCorrectorName   = cms.untracked.string(''),
-        L3JetCorrectorName   = cms.untracked.string(''),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
-        jetMapName           = cms.untracked.string('SC5TrackJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
-    ),
-    
-    AK5TrackJets = cms.untracked.PSet(
-        active               = cms.untracked.bool(False),
-        flavorMatchingActive = cms.untracked.bool(False),
-        bTaggingActive       = cms.untracked.bool(False),
-        jetToVertexActive    = cms.untracked.bool(False),
-        jetCorrectionsActive = cms.untracked.bool(False),
-        mitName              = cms.untracked.string('AK5TrackJets'),
+        mitName              = cms.untracked.string('AKt5TrackJets'),
         edmName              = cms.untracked.string('ak5TrackJets'),
         L2JetCorrectorName   = cms.untracked.string(''),
         L3JetCorrectorName   = cms.untracked.string(''),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        trackMapName         = cms.untracked.string('TracksMapName'),
+        vertexMapName        = cms.untracked.string('PrimaryVertexMap'),
         jetMapName           = cms.untracked.string('AK5TrackJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
-    ),            
+        fillerType           = cms.untracked.string('FillerTrackJets')
+    ),
+                
+    Kt4TrackJets = cms.untracked.PSet(
+        active               = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive       = cms.untracked.bool(False),
+        jetToVertexActive    = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        mitName              = cms.untracked.string('Kt4TrackJets'),
+        edmName              = cms.untracked.string('kt4TrackJets'),
+        L2JetCorrectorName   = cms.untracked.string(''),
+        L3JetCorrectorName   = cms.untracked.string(''),
+        trackMapName         = cms.untracked.string('TracksMapName'),
+        vertexMapName        = cms.untracked.string('PrimaryVertexMap'),
+        jetMapName           = cms.untracked.string('KT4TrackJetMap'),
+        fillerType           = cms.untracked.string('FillerTrackJets')
+    ),
     
     ItrCone5PFJets = cms.untracked.PSet(
         active                        = cms.untracked.bool(True),

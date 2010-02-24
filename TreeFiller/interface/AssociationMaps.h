@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.21 2009/06/18 22:58:48 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.22 2009/07/17 08:55:56 loizides Exp $
 //
 // AssociationMaps
 //
@@ -21,6 +21,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -48,6 +49,7 @@
 #include "MitAna/DataTree/interface/PFCandidateFwd.h"
 #include "MitAna/DataTree/interface/CaloJetFwd.h"
 #include "MitAna/DataTree/interface/PFJetFwd.h"
+#include "MitAna/DataTree/interface/TrackJetFwd.h"
 
 namespace mithep
 {
@@ -72,5 +74,6 @@ namespace mithep
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>  PFCandidateMap;
   typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>      CaloJetMap;
   typedef AssociationMap<const edm::Ptr<reco::PFJet>,       mithep::PFJet*>        PFJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::TrackJet>,    mithep::TrackJet*>     TrackJetMap;
 }   
 #endif
