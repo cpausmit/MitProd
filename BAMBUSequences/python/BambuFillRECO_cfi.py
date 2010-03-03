@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.23 2009/12/08 11:34:47 loizides Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.24 2010/02/24 17:38:49 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,12 +46,12 @@ MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorPara
 
 # Enable Track-Ecal assocation in fillers
 #MitTreeFiller.GeneralTracks.ecalAssocActive                      = True
-#MitTreeFiller.StandaloneMuonTracks.ecalAssocActive               = True
-#MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive = True
-#MitTreeFiller.GlobalMuonTracks.ecalAssocActive                   = True
-#MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
-#MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
-#MitTreeFiller.GsfTracks.ecalAssocActive                          = True
+MitTreeFiller.StandaloneMuonTracks.ecalAssocActive               = True
+MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive = True
+MitTreeFiller.GlobalMuonTracks.ecalAssocActive                   = True
+MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
+MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
+MitTreeFiller.GsfTracks.ecalAssocActive                          = True
 
 # Produce pixel hit information
 from MitEdm.Producers.pixelRecHits_cfi import *
@@ -63,7 +63,7 @@ MitTreeFiller.PixelVertexes.active        = True
 MitTreeFiller.TrackletVertexes.active     = True
 MitTreeFiller.ClusterVertexes.active      = True
 MitTreeFiller.PixelTracks.active          = True
-MitTreeFiller.PixelTracks.ecalAssocActive = True
+#MitTreeFiller.PixelTracks.ecalAssocActive = True
 
 # Add pixel-less tracks, needed at startup
 MitTreeFiller.PixelLessTracks.active          = True

@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012i'),
+    version = cms.untracked.string('Mit_013'),
     annotation = cms.untracked.string('RECOSIM'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -28,12 +28,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIM/RelValProdTTbar_CMSSW_3_3_2-MC_31X_V9-v3_GEN-SIM-RECO/40709A79-C0C7-DE11-90E6-003048D15DB6.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0016/62FDDFEB-391E-DF11-890A-001731A28BE1.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_3XY_V24::All'
 
 process.add_(cms.Service("ObjectService"))
 
