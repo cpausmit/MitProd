@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.28 2009/12/02 20:28:15 loizides Exp $
+// $Id: FillerMetaInfos.h,v 1.29 2009/12/15 00:46:57 bendavid Exp $
 //
 // FillerMetaInfos
 //
@@ -12,7 +12,7 @@
 #ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
-#include "MitProd/TreeFiller/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
@@ -80,7 +80,7 @@ namespace mithep
       TriggerObjectBaseArr          *hltObjs_;      //HLT trigger objects
       TriggerObjectRelArr           *hltRels_;      //HLT trigger objects relation
       TTree                         *hltTree_;      //HLT trigger tree (not owned)
-      mitedm::HLTConfigProvider      hltConfig_;    //HLT config from provenance
+      HLTConfigProvider              hltConfig_;    //HLT config from provenance
       Int_t                          hltEntries_;   //number of hlt info entries
       UShort_t                       fileNum_;      //file number of current file
       L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
