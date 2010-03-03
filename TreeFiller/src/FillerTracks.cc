@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.34 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerTracks.cc,v 1.35 2010/01/18 14:37:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -118,9 +118,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   TrackDetectorAssociator trackAssociator;
   trackAssociator.useDefaultPropagator();
   edm::ESHandle<MagneticField> bField;
-  if (ecalAssocActive_)
+  if (ecalAssocActive_) {
     setup.get<IdealMagneticFieldRecord>().get(bField);
-  
+  }  
+
+
   // loop through all tracks and fill the information
   for (View<reco::Track>::const_iterator it = inTracks.begin();
          it != inTracks.end(); ++it) {
@@ -182,9 +184,11 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
         FreeTrajectoryState initialState = tsTransform.initialFreeState(*it,&*bField);
         matchInfo = trackAssociator.associate(event, setup, assocParams_, &initialState);
       }
-        
-      outTrack->SetEtaEcal(matchInfo.trkGlobPosAtEcal.eta());
-      outTrack->SetPhiEcal(matchInfo.trkGlobPosAtEcal.phi());
+       
+      if (matchInfo.isGoodEcal) {
+        outTrack->SetEtaEcal(matchInfo.trkGlobPosAtEcal.eta());
+        outTrack->SetPhiEcal(matchInfo.trkGlobPosAtEcal.phi());
+      }
 
       //fill supercluster link
       if (barrelSuperClusterIdMap_ || endcapSuperClusterIdMap_) {
