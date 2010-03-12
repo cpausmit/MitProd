@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.6 2009/11/05 21:38:09 bendavid Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.7 2009/12/03 23:30:38 loizides Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -21,7 +21,7 @@ process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('CMSSW_3_2_1 + Mit_012d'),
+    version = cms.untracked.string('CMSSW_3_5_4 + Mit_013'),
     annotation = cms.untracked.string('TTbar'),
     name = cms.untracked.string('BambuFastChainExample')
 )
@@ -70,7 +70,7 @@ process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingPara
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_3XY_V24::All'
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
@@ -121,28 +121,39 @@ process.reconstruction = cms.Path(process.reconstructionWithFamos)
 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
+#process.load("MitProd.TreeFiller.MitTreeFiller_cfi")
 
-# enable fillers of MC Truth information
-process.MitTreeFiller.MCParticles.active = True
-process.MitTreeFiller.MCEventInfo.active = True
-process.MitTreeFiller.IC5GenJets.active  = True
-process.MitTreeFiller.SC5GenJets.active  = True
-process.MitTreeFiller.SC7GenJets.active  = True
-process.MitTreeFiller.KT4GenJets.active  = True
-process.MitTreeFiller.KT6GenJets.active  = True
-process.MitTreeFiller.GenMet.active      = True
+## enable fillers of MC Truth information
+#process.MitTreeFiller.MCParticles.active = True
+#process.MitTreeFiller.MCEventInfo.active = True
+#process.MitTreeFiller.IC5GenJets.active  = True
+#process.MitTreeFiller.SC5GenJets.active  = True
+#process.MitTreeFiller.SC7GenJets.active  = True
+#process.MitTreeFiller.KT4GenJets.active  = True
+#process.MitTreeFiller.KT6GenJets.active  = True
+#process.MitTreeFiller.GenMet.active      = True
+
+process.load("MitProd.BAMBUSequences.BambuFillAODSIM_cfi")
+
+process.MitTreeFiller.TreeWriter.fileName = 'mit-full'
+
+process.bambu_step  = cms.Path(process.BambuFillAODSIM)
+
 
 # hack out unavailable stuff, pending proper fastsim and aod sequences
 process.MitTreeFiller.MetaInfos.hltActive                   = False
+process.MitTreeFiller.MetaInfos.l1Active                    = False
 process.MitTreeFiller.MCParticles.simActive                 = False
 process.MitTreeFiller.ConversionInOutTracks.active          = False
 process.MitTreeFiller.ConversionOutInTracks.active          = False
 process.MitTreeFiller.Conversions.active                    = False
 process.MitTreeFiller.ConversionInOutElectronsStable.active = False
 process.MitTreeFiller.ConversionOutInElectronsStable.active = False
+process.MitTreeFiller.AKt5TrackJets.active                  = False
+process.MitTreeFiller.Kt4TrackJets.active                   = False
 
-process.bambu_step  = cms.Path(process.MitTreeFiller)
+
+#process.bambu_step  = cms.Path(process.MitTreeFiller)
 
 # schedule definition
 process.schedule = cms.Schedule(process.generation_step)
