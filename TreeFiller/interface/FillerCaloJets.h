@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloJets.h,v 1.13 2009/07/07 08:31:15 bendavid Exp $
+// $Id: FillerCaloJets.h,v 1.14 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerCaloJets
 //
@@ -31,12 +31,14 @@ namespace mithep
       bool            bTaggingActive_;                  //=true if bTagging info is filled
       bool            jetToVertexActive_;               //=true if jet to vertex info is done
       bool            jetCorrectionsActive_;            //=true if jet corrections are done
+      bool            jetIDActive_;                     //=true if jet id variables are filled
       std::string     edmName_;                         //edm name of jets collection
       std::string     mitName_;                         //mit name of jets collection
       std::string     jetToVertexAlphaName_;            //edm name of jet to vertex alpha coll
       std::string     jetToVertexBetaName_;             //edm name of jet to vertex beta coll
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
       std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service
+      std::string     jetIDName_;                       //label of the JetID product
       std::string     flavorMatchingByReferenceName_;   //source of flavor matching
       std::string     flavorMatchingDefinition_;        //type of flavor matching
       std::string     jetProbabilityBJetTagsName_;             //bjet algo discriminant

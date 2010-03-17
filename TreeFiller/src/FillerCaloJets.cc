@@ -1,8 +1,9 @@
-// $Id: FillerCaloJets.cc,v 1.22 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerCaloJets.cc,v 1.23 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/JetReco/interface/JetID.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
@@ -23,6 +24,7 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
   bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
   jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),
   jetCorrectionsActive_(Conf().getUntrackedParameter<bool>("jetCorrectionsActive",true)),
+  jetIDActive_(Conf().getUntrackedParameter<bool>("jetIDActive",false)),
   edmName_(Conf().getUntrackedParameter<string>("edmName","recoCaloJets:iterativeCone5CaloJets")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)), 
   jetToVertexAlphaName_(Conf().getUntrackedParameter<string>
@@ -33,6 +35,8 @@ FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool a
                       ("L2JetCorrectorName","L2JetCorrectorName")),
   L3JetCorrectorName_(Conf().getUntrackedParameter<string>
                       ("L3JetCorrectorName","L3JetCorrectorName")),
+  jetIDName_(Conf().getUntrackedParameter<string>
+                      ("jetIDName","jetIDName")),
   flavorMatchingByReferenceName_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingByReferenceName","srcByReference")),
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
@@ -115,6 +119,11 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
     GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
+
+  // handle for jet id variables
+  Handle<reco::JetIDValueMap> hJetIDMap;
+  if (jetIDActive_)
+    GetProduct( jetIDName_, hJetIDMap, event);
 
   Handle<reco::JetTagCollection> hJetProbabilityBJetTags;
   Handle<reco::JetTagCollection> hJetBProbabilityBJetTags;
@@ -212,6 +221,28 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       jet->SetL3AbsoluteCorrectionScale(L3Scale);     
       jet->EnableCorrection(mithep::CaloJet::L2);
       jet->EnableCorrection(mithep::CaloJet::L3);     
+    }
+
+    //fill jet id variables
+    if (jetIDActive_) {
+      reco::JetID jetId = (*hJetIDMap)[jetBaseRef];
+
+      jet->SetFHPD(jetId.fHPD);
+      jet->SetFRBX(jetId.fRBX);
+      jet->SetN90Hits(jetId.n90Hits);
+      jet->SetFSubDetector1(jetId.fSubDetector1);
+      jet->SetFSubDetector2(jetId.fSubDetector1);
+      jet->SetFSubDetector3(jetId.fSubDetector1);
+      jet->SetFSubDetector4(jetId.fSubDetector1);
+      jet->SetRestrictedEMF(jetId.restrictedEMF);
+      jet->SetNHCalTowers(jetId.nHCALTowers);
+      jet->SetNECalTowers(jetId.nECALTowers);
+      jet->SetApproximatefHPD(jetId.approximatefHPD);
+      jet->SetApproximatefRBX(jetId.approximatefRBX);
+      jet->SetHitsInN90(jetId.hitsInN90);
+      jet->SetNHits2RPC(jetId.numberOfHits2RPC);
+      jet->SetNHits3RPC(jetId.numberOfHits3RPC);
+      jet->SetNHitsRPC(jetId.numberOfHitsRPC);
     }
     
     if (bTaggingActive_) {
