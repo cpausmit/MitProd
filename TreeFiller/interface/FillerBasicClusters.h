@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.5 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerBasicClusters.h,v 1.6 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerBasicClusters
 //
@@ -24,7 +24,7 @@ namespace mithep
       FillerBasicClusters(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerBasicClusters();
 
-      void                             BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                             BookDataBlock(TreeWriter &tws);
       void 	                       FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

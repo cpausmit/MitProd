@@ -1,4 +1,4 @@
-// $Id: FillerStripHits.cc,v 1.4 2009/11/19 14:35:23 loizides Exp $
+// $Id: FillerStripHits.cc,v 1.1 2009/11/25 23:41:07 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -41,7 +41,7 @@ FillerStripHits::~FillerStripHits()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerStripHits::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerStripHits::BookDataBlock(TreeWriter &tws)
 {
 
   // Add tracks branch to tree, publish and get tracker geometry.

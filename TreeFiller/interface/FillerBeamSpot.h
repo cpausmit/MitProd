@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBeamSpot.h,v 1.5 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerBeamSpot.h,v 1.6 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerBeamSpot
 //
@@ -22,7 +22,7 @@ namespace mithep
       FillerBeamSpot(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerBeamSpot();
 
-      void                    BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                    BookDataBlock(TreeWriter &tws);
       void                    FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
    
     private:

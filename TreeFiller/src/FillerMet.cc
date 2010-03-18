@@ -1,4 +1,4 @@
-// $Id: FillerMet.cc,v 1.3 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerMet.cc,v 1.4 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,7 +32,7 @@ FillerMet::~FillerMet()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMet::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerMet::BookDataBlock(TreeWriter &tws)
 {
   // Add mets branch to tree.
 

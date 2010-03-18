@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerStripHits.h,v 1.1 2009/09/25 08:42:27 loizides Exp $
+// $Id: FillerStripHits.h,v 1.1 2009/11/25 23:41:06 loizides Exp $
 //
 // FillerStripHits
 //
@@ -24,8 +24,7 @@ namespace mithep
       FillerStripHits(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerStripHits();
 
-      void                                BookDataBlock(TreeWriter &tws, 
-                                                        const edm::EventSetup &es);
+      void                                BookDataBlock(TreeWriter &tws);
       void                                FillDataBlock(const edm::Event &e, 
                                                         const edm::EventSetup &es);
 

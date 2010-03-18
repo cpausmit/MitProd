@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.19 2009/10/12 21:41:47 loizides Exp $
+// $Id: FillerMCParticles.cc,v 1.20 2010/01/07 11:04:32 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -68,7 +68,7 @@ FillerMCParticles::~FillerMCParticles()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMCParticles::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerMCParticles::BookDataBlock(TreeWriter &tws)
 {
   // Add branch to tree and publish our maps.
 

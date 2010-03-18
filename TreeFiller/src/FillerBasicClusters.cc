@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.8 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerBasicClusters.cc,v 1.9 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -34,7 +34,7 @@ FillerBasicClusters::~FillerBasicClusters()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerBasicClusters::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerBasicClusters::BookDataBlock(TreeWriter &tws)
 {
   // Add BasicCluster branch and the BasicClusterMap to tree.
 

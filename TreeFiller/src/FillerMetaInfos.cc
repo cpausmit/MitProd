@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.52 2009/12/15 00:46:57 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.53 2010/03/03 13:50:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -133,7 +133,7 @@ FillerMetaInfos::~FillerMetaInfos()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
 {
   // Create run info tree and book our branches.
 

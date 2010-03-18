@@ -1,4 +1,4 @@
-// $Id: FillerPATMuons.cc,v 1.6 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerPATMuons.cc,v 1.7 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,7 +49,7 @@ FillerPATMuons::~FillerPATMuons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPATMuons::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerPATMuons::BookDataBlock(TreeWriter &tws)
 {
   // Add muons branch to tree and get pointers to maps.
 

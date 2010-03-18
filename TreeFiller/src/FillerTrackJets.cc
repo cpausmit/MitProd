@@ -1,4 +1,4 @@
-// $Id: FillerTrackJets.cc,v 1.9 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerTrackJets.cc,v 1.1 2010/02/24 17:38:27 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -85,7 +85,7 @@ FillerTrackJets::~FillerTrackJets()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerTrackJets::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerTrackJets::BookDataBlock(TreeWriter &tws)
 {
   // Add jets branch to tree.
 

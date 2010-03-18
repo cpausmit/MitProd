@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.22 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerMuons.cc,v 1.23 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -43,7 +43,7 @@ FillerMuons::~FillerMuons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es) 
+void FillerMuons::BookDataBlock(TreeWriter &tws) 
 { 
   // Add muons branch to tree and get pointers to maps.
 

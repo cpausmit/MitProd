@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPixelHits.h,v 1.1 2009/09/25 08:42:27 loizides Exp $
+// $Id: FillerPixelHits.h,v 1.2 2009/11/25 14:45:40 loizides Exp $
 //
 // FillerPixelHits
 //
@@ -24,8 +24,7 @@ namespace mithep
       FillerPixelHits(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPixelHits();
 
-      void                                BookDataBlock(TreeWriter &tws, 
-                                                        const edm::EventSetup &es);
+      void                                BookDataBlock(TreeWriter &tws);
       void                                FillDataBlock(const edm::Event &e, 
                                                         const edm::EventSetup &es);
 

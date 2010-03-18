@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.18 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerDecayParts.cc,v 1.19 2009/12/15 23:27:54 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -49,7 +49,7 @@ FillerDecayParts::~FillerDecayParts()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerDecayParts::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerDecayParts::BookDataBlock(TreeWriter &tws)
 {
   // Add our branches to tree and get our map.
   

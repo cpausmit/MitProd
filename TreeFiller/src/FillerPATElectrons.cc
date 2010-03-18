@@ -1,4 +1,4 @@
-// $Id: FillerPATElectrons.cc,v 1.8 2009/07/07 08:32:26 bendavid Exp $
+// $Id: FillerPATElectrons.cc,v 1.9 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,7 +49,7 @@ FillerPATElectrons::~FillerPATElectrons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPATElectrons::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerPATElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 

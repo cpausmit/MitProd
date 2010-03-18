@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.9 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMCParticles.h,v 1.10 2010/01/07 11:04:31 bendavid Exp $
 //
 // FillerMCParticles
 //
@@ -29,7 +29,7 @@ namespace mithep
       FillerMCParticles(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerMCParticles();
 
-      void                           BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                           ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   

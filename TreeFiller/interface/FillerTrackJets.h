@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTrackJets.h,v 1.6 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerTrackJets.h,v 1.1 2010/02/24 17:38:25 bendavid Exp $
 //
 // FillerTrackJets
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerTrackJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerTrackJets();
 
-      void            BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void            BookDataBlock(TreeWriter &tws);
       void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

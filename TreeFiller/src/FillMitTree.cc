@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.54 2010/02/11 14:55:27 yilmaz Exp $
+// $Id: FillMitTree.cc,v 1.53 2009/12/12 22:33:52 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,8 +34,8 @@
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
-#include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
+#include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/BranchTable.h"
@@ -92,24 +92,13 @@ bool FillMitTree::addActiveFiller(BaseFiller *bf)
 //--------------------------------------------------------------------------------------------------
 void FillMitTree::beginRun(edm::Run const &run, edm::EventSetup const &setup)
 {
-
-  // loop over the various components and book the branches
-  for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
-    (*iF)->BookDataBlock(*tws_, setup);
-  }
-
-  // call branch ref for the event tree
-  if (brtable_ && tws_->GetTree())
-    tws_->GetTree()->BranchRef();
-
   // Access and copy event content.
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     (*iF)->FillRunBlock(run,setup);
   }
- 
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +157,16 @@ void FillMitTree::beginJob()
     os->add(brtable_, brtable_->GetName());
   }
 
+  // loop over the various components and book the branches
+  for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
+    (*iF)->BookDataBlock(*tws_);
+  }
+
+  // call branch ref for the event tree
+  if (brtable_ && tws_->GetTree())
+    tws_->GetTree()->BranchRef();
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,13 +387,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerPFTaus);
       continue;
     }  
-    
+
     if (ftype.compare("FillerTrackJets")==0) {
       FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerTrackJets);
       continue;
-    }  
-
+    }
+    
     edm::LogError("FillMitTree") 
       << "Unknown fillerType " << ftype << " for pset named " << name << std::endl;
     throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure\n")

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerEvtSelData.h,v 1.10 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerEvtSelData.h,v 1.1 2009/12/08 11:34:27 loizides Exp $
 //
 // FillerEvtSelData
 //
@@ -24,7 +24,7 @@ namespace mithep
                        const char *name="EvtSelData", bool active=1);
       ~FillerEvtSelData();
 
-      void                     BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                     BookDataBlock(TreeWriter &tws);
       void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:

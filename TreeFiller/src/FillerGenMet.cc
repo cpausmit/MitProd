@@ -1,4 +1,4 @@
-// $Id: FillerGenMet.cc,v 1.1 2009/07/14 13:47:16 bendavid Exp $
+// $Id: FillerGenMet.cc,v 1.2 2009/09/25 08:42:50 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -30,7 +30,7 @@ FillerGenMet::~FillerGenMet()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerGenMet::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerGenMet::BookDataBlock(TreeWriter &tws)
 {
   // Add mets branch to tree.
 

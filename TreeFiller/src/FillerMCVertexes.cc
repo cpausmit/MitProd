@@ -1,4 +1,4 @@
-// $Id: FillerMCVertexes.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerMCVertexes.cc,v 1.1 2009/09/25 08:42:42 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -29,7 +29,7 @@ FillerMCVertexes::~FillerMCVertexes()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMCVertexes::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerMCVertexes::BookDataBlock(TreeWriter &tws)
 {
   // Add branch to tree.
 

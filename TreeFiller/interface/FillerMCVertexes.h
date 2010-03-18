@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCVertexes.h,v 1.8 2009/06/15 15:00:25 loizides Exp $
+// $Id: FillerMCVertexes.h,v 1.1 2009/09/25 08:42:42 loizides Exp $
 //
 // FillerMCVertexes
 //
@@ -24,7 +24,7 @@ namespace mithep
       FillerMCVertexes(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerMCVertexes();
 
-      void                           BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.17 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.18 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -44,7 +44,7 @@ FillerPhotons::~FillerPhotons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPhotons::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerPhotons::BookDataBlock(TreeWriter &tws)
 {
   // Add photon branch to tree and get the map.
 

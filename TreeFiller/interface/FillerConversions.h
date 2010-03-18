@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.12 2009/07/20 03:19:24 loizides Exp $
+// $Id: FillerConversions.h,v 1.13 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerConversions
 //
@@ -24,8 +24,7 @@ namespace mithep
       FillerConversions(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerConversions();
 
-      void                                     BookDataBlock(TreeWriter &tws, 
-                                                             const edm::EventSetup &es);
+      void                                     BookDataBlock(TreeWriter &tws);
       void                                     FillDataBlock(const edm::Event &e, 
                                                              const edm::EventSetup &es);
   

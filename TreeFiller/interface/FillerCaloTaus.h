@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTaus.h,v 1.3 2009/06/15 15:00:24 loizides Exp $
+// $Id: FillerCaloTaus.h,v 1.4 2009/09/25 08:42:50 loizides Exp $
 //
 // FillerCaloTaus
 //
@@ -23,7 +23,7 @@ namespace mithep
       FillerCaloTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerCaloTaus();
 
-      void                           BookDataBlock(TreeWriter &tws, const edm::EventSetup &es);
+      void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:

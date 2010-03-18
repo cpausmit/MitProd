@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.17 2009/10/21 13:25:29 loizides Exp $
+// $Id: BaseFiller.h,v 1.18 2009/12/12 22:33:46 bendavid Exp $
 //
 // BaseFiller
 //
@@ -36,7 +36,7 @@ namespace mithep
                                  { AddBranchDep(n.c_str(), d);         }
       void                     AddBranchDep(const std::string &n, const std::string &d)
                                  { AddBranchDep(n.c_str(), d.c_str()); }
-      virtual void             BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)     = 0;
+      virtual void             BookDataBlock(TreeWriter &tws)     = 0;
       virtual void             FillDataBlock(const edm::Event &e, const edm::EventSetup &es) = 0;
       virtual void             FillRunBlock(edm::Run const &r, edm::EventSetup const &es) {}
       const std::string       &Name()    const { return name_;         }

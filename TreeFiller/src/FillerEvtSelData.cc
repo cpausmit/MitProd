@@ -1,4 +1,4 @@
-// $Id: FillerEvtSelData.cc,v 1.4 2010/01/05 16:39:44 edwenger Exp $
+// $Id: FillerEvtSelData.cc,v 1.5 2010/01/07 17:10:16 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -29,7 +29,7 @@ FillerEvtSelData::~FillerEvtSelData()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerEvtSelData::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerEvtSelData::BookDataBlock(TreeWriter &tws)
 {
   // Book our branch.
 

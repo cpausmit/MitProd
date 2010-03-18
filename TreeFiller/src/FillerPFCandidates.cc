@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.3 2009/06/15 15:00:26 loizides Exp $
+// $Id: FillerPFCandidates.cc,v 1.4 2009/09/25 08:42:51 loizides Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -48,7 +48,7 @@ FillerPFCandidates::~FillerPFCandidates()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPFCandidates::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es) 
+void FillerPFCandidates::BookDataBlock(TreeWriter &tws) 
 { 
   // Add particle-flow candidate branch to tree and get pointers to maps.
 

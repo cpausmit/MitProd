@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.5 2009/11/25 14:45:40 loizides Exp $
+// $Id: FillerPixelHits.cc,v 1.6 2009/12/01 15:55:05 edwenger Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -39,7 +39,7 @@ FillerPixelHits::~FillerPixelHits()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerPixelHits::BookDataBlock(TreeWriter &tws, const edm::EventSetup &es)
+void FillerPixelHits::BookDataBlock(TreeWriter &tws)
 {
   // Add tracks branch to tree, publish and get tracker geometry.
 
