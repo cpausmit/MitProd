@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.23 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerMuons.cc,v 1.24 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -90,7 +90,11 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   const reco::MuonCollection inMuons = *(hMuonProduct.product());  
 
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
-    mithep::Muon* outMuon = muons_->AddNew();      
+    mithep::Muon* outMuon = muons_->AddNew();
+
+    outMuon->SetPtEtaPhi(iM->pt(),iM->eta(),iM->phi());
+    outMuon->SetCharge(iM->charge());
+
     outMuon->SetIsoR03SumPt(iM->isolationR03().sumPt);
     outMuon->SetIsoR03EmEt(iM->isolationR03().emEt);
     outMuon->SetIsoR03HadEt(iM->isolationR03().hadEt);
