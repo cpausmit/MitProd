@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.36 2010/03/03 13:50:05 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.37 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -155,14 +155,24 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     else
       outTrack->SetIsGsf(kFALSE);
     
-    //fill hit layer map
+    //fill hit layer map and missing hits
     const reco::HitPattern &hits = it->hitPattern();
+    BitMask48 hitLayers;
+    BitMask48 missingHitLayers;
     for (Int_t i=0; i<hits.numberOfHits(); i++) {
       uint32_t hit = hits.getHitPattern(i);
-      if (hits.validHitFilter(hit))
-        if (hits.trackerHitFilter(hit))
-          outTrack->SetHit(hitReader_.Layer(hit));
-                
+      if (hits.validHitFilter(hit)) {
+        if (hits.trackerHitFilter(hit)) {
+          hitLayers.SetBit(hitReader_.Layer(hit));
+        }
+      }
+
+      if (hits.getHitType(hit)==1) {
+        if (hits.trackerHitFilter(hit)) {
+          missingHitLayers.SetBit(hitReader_.Layer(hit));
+        }
+      }
+       
       if (verbose_>2) {
         if (hits.muonDTHitFilter(hit))
           printf("Muon DT Layer = %i\n", hits.getLayer(hit));
@@ -172,6 +182,39 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
           printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
       }
     }
+
+    outTrack->SetHits(hitLayers);
+    outTrack->SetMissingHits(missingHitLayers);
+
+    //set expected inner hits
+    const reco::HitPattern &expectedInnerHitPattern = it->trackerExpectedHitsInner();
+    BitMask48 expectedHitsInner;
+    // search for all good crossed layers (with or without hit)
+    for (Int_t hi=0; hi<expectedInnerHitPattern.numberOfHits(); hi++) {
+      uint32_t hit = expectedInnerHitPattern.getHitPattern(hi);
+      if (expectedInnerHitPattern.getHitType(hit)<=1) {
+        if (expectedInnerHitPattern.trackerHitFilter(hit)) {
+          expectedHitsInner.SetBit(hitReader_.Layer(hit));
+        }
+      }
+    }
+
+    outTrack->SetExpectedHitsInner(expectedHitsInner);
+
+    //set expected outer hits
+    const reco::HitPattern &expectedOuterHitPattern = it->trackerExpectedHitsOuter();
+    BitMask48 expectedHitsOuter;
+    // search for all good crossed layers (with or without hit)
+    for (Int_t hi=0; hi<expectedOuterHitPattern.numberOfHits(); hi++) {
+      uint32_t hit = expectedOuterHitPattern.getHitPattern(hi);
+      if (expectedOuterHitPattern.getHitType(hit)<=1) {
+        if (expectedOuterHitPattern.trackerHitFilter(hit)) {
+          expectedHitsOuter.SetBit(hitReader_.Layer(hit));
+        }
+      }
+    }
+
+    outTrack->SetExpectedHitsOuter(expectedHitsOuter);
 
     //make ecal associations
     if (ecalAssocActive_) {
