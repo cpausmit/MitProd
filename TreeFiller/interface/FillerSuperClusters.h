@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSuperClusters.h,v 1.7 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerSuperClusters.h,v 1.8 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerSuperClusters
 //
@@ -34,6 +34,7 @@ namespace mithep
       std::string                     basicClusterMapName_;   //name of imp. map wrt basic clus
       std::string                     superClusterMapName_;   //name of exported map
       std::string                     superClusterIdMapName_; //name of exported id map
+      std::string                     caloTowerName_;         //name of calotower collection
       const mithep::BasicClusterMap  *basicClusterMap_;       //map wrt basic clusters
       mithep::SuperClusterArr        *superClusters_;         //array of super clusters
       mithep::SuperClusterMap        *superClusterMap_;       //map wrt super clusters

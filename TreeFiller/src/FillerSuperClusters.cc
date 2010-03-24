@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.8 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerSuperClusters.cc,v 1.9 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -7,6 +7,7 @@
 #include "MitAna/DataTree/interface/SuperClusterCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 using namespace std;
 using namespace edm;
@@ -23,6 +24,7 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
                                                             "SuperClusterMap")),
   superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
                                                               "SuperClusterIdMap")),
+  caloTowerName_(Conf().getUntrackedParameter<string>("caloTowerName","towerMaker")),
   basicClusterMap_(0),
   superClusters_(new mithep::SuperClusterArr(25)),
   superClusterMap_(new mithep::SuperClusterMap),
@@ -77,6 +79,10 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
   Handle<reco::SuperClusterCollection> hSuperClusterProduct;
   GetProduct(edmName_, hSuperClusterProduct, event);
+
+  Handle<CaloTowerCollection> hCaloTowerProduct;
+  GetProduct(caloTowerName_, hCaloTowerProduct, event);
+
   superClusterMap_->SetEdmProductId(hSuperClusterProduct.id().id());
   const reco::SuperClusterCollection inSuperClusters = *(hSuperClusterProduct.product());  
 
@@ -93,6 +99,12 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     outSC->SetPreshowerEnergy(inSC->preshowerEnergy());
     outSC->SetPhiWidth(inSC->phiWidth());
     outSC->SetEtaWidth(inSC->etaWidth());
+
+    //Compute Hadronic Energy behind the supercluster (within DR < 0.15)
+    EgammaTowerIsolation towerIsoDepth1(0.15,0.,0.,1,hCaloTowerProduct.product()) ;  
+    EgammaTowerIsolation towerIsoDepth2(0.15,0.,0.,2,hCaloTowerProduct.product()) ;  
+    outSC->SetHcalDepth1Energy(towerIsoDepth1.getTowerESum(&(*inSC)));
+    outSC->SetHcalDepth2Energy(towerIsoDepth2.getTowerESum(&(*inSC)));
 
     // set the seed
     if (basicClusterMap_ && inSC->seed().isNonnull())
