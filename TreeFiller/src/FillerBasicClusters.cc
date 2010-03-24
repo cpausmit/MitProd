@@ -6,6 +6,7 @@
 #include "MitAna/DataTree/interface/BasicClusterCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 using namespace std;
 using namespace edm;
@@ -16,6 +17,8 @@ FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, const char *na
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
+  barrelEcalRecHitName_(Conf().getUntrackedParameter<string>("barrelEcalRecHitName","")),
+  endcapEcalRecHitName_(Conf().getUntrackedParameter<string>("endcapEcalRecHitName","")),
   basicClusterMapName_(Conf().getUntrackedParameter<string>("basicClusterMapName",
                                                             "BasicClusterMap")),
   basicClusters_(new mithep::BasicClusterArr(100)),
@@ -61,6 +64,10 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
   const reco::CaloClusterCollection inBasicClusters = *(hBasicClusterProduct.product());  
 
+
+  EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
+                                 edm::InputTag(endcapEcalRecHitName_));
+
   // loop through all basic clusters
   for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
        inBC != inBasicClusters.end(); ++inBC) {
@@ -70,6 +77,37 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 
     outBasicCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
     outBasicCluster->SetEnergy(inBC->energy());   
+    outBasicCluster->SetNHits(inBC->size());
+    outBasicCluster->SetE1x3(lazyTools.e1x3(*inBC));
+    outBasicCluster->SetE3x1(lazyTools.e3x1(*inBC));
+    outBasicCluster->SetE1x5(lazyTools.e1x5(*inBC));
+    outBasicCluster->SetE2x2(lazyTools.e2x2(*inBC));
+    outBasicCluster->SetE3x2(lazyTools.e3x2(*inBC));
+    outBasicCluster->SetE3x3(lazyTools.e3x3(*inBC));
+    outBasicCluster->SetE4x4(lazyTools.e4x4(*inBC));
+    outBasicCluster->SetE5x5(lazyTools.e5x5(*inBC));
+    outBasicCluster->SetE2x5Right(lazyTools.e2x5Right(*inBC));
+    outBasicCluster->SetE2x5Left(lazyTools.e2x5Left(*inBC));
+    outBasicCluster->SetE2x5Top(lazyTools.e2x5Top(*inBC));
+    outBasicCluster->SetE2x5Bottom(lazyTools.e2x5Bottom(*inBC));
+    outBasicCluster->SetE2x5Max(lazyTools.e2x5Max(*inBC));
+    outBasicCluster->SetELeft(lazyTools.eLeft(*inBC));
+    outBasicCluster->SetERight(lazyTools.eRight(*inBC));
+    outBasicCluster->SetETop(lazyTools.eTop(*inBC));
+    outBasicCluster->SetEBottom(lazyTools.eBottom(*inBC));
+    outBasicCluster->SetEMax(lazyTools.eMax(*inBC));
+    outBasicCluster->SetE2nd(lazyTools.e2nd(*inBC));
+    outBasicCluster->SetEtaLat(lazyTools.lat(*inBC)[0]);
+    outBasicCluster->SetPhiLat(lazyTools.lat(*inBC)[1]);
+    outBasicCluster->SetLat(lazyTools.lat(*inBC)[2]);
+    outBasicCluster->SetCovEtaEta(lazyTools.covariances(*inBC)[0]);
+    outBasicCluster->SetCovEtaPhi(lazyTools.covariances(*inBC)[1]);
+    outBasicCluster->SetCovPhiPhi(lazyTools.covariances(*inBC)[2]);
+    outBasicCluster->SetCoviEtaiEta(lazyTools.localCovariances(*inBC)[0]);
+    outBasicCluster->SetCoviEtaiPhi(lazyTools.localCovariances(*inBC)[1]);
+    outBasicCluster->SetCoviPhiiPhi(lazyTools.localCovariances(*inBC)[2]);
+    outBasicCluster->SetZernike20(lazyTools.zernike20(*inBC));
+    outBasicCluster->SetZernike42(lazyTools.zernike42(*inBC));
 
     // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());

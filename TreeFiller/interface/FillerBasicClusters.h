@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.6 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerBasicClusters.h,v 1.7 2010/03/18 20:20:59 bendavid Exp $
 //
 // FillerBasicClusters
 //
@@ -30,6 +30,8 @@ namespace mithep
     private:
       std::string                      edmName_;             //edm name of clusters
       std::string                      mitName_;             //mit name of clusters
+      std::string                      barrelEcalRecHitName_;    //name of barrel ecal rechits 
+      std::string                      endcapEcalRecHitName_;    //name of endcap ecal rechits
       std::string                      basicClusterMapName_; //name of export map
       mithep::BasicClusterArr         *basicClusters_;       //array of basic clusters
       mithep::BasicClusterMap         *basicClusterMap_;     //map wrt basic Clusters
