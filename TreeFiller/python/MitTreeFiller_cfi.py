@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.68 2010/02/24 17:38:26 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.69 2010/03/17 15:33:15 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -231,11 +231,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     BarrelBasicClusters = cms.untracked.PSet(
-        active              = cms.untracked.bool(True),
-        mitName             = cms.untracked.string('BarrelBasicClusters'),
-        edmName             = cms.untracked.string('hybridSuperClusters:hybridBarrelBasicClusters'),
-        basicClusterMapName = cms.untracked.string('barrelBasicClusterMap'),
-        fillerType          = cms.untracked.string('FillerBasicClusters')
+        active               = cms.untracked.bool(True),
+        mitName              = cms.untracked.string('BarrelBasicClusters'),
+        edmName              = cms.untracked.string('hybridSuperClusters:hybridBarrelBasicClusters'),
+        barrelEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEE'),
+        basicClusterMapName  = cms.untracked.string('barrelBasicClusterMap'),
+        fillerType           = cms.untracked.string('FillerBasicClusters')
     ),
                                 
     BarrelSuperClusters = cms.untracked.PSet(
@@ -245,6 +247,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         basicClusterMapName   = cms.untracked.string('barrelBasicClusterMap'),
         superClusterMapName   = cms.untracked.string('barrelSuperClusterMap'),
         superClusterIdMapName = cms.untracked.string('barrelSuperClusterIdMap'),
+        caloTowerName         = cms.untracked.string('towerMaker'),  
         fillerType            = cms.untracked.string('FillerSuperClusters')
     ),
 
@@ -252,6 +255,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('EndcapBasicClusters'),
         edmName             = cms.untracked.string('multi5x5BasicClusters:multi5x5EndcapBasicClusters'),  
+        barrelEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEE'),
         basicClusterMapName = cms.untracked.string('endcapBasicClusterMap'),
         fillerType          = cms.untracked.string('FillerBasicClusters')
     ),
@@ -263,6 +268,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         basicClusterMapName   = cms.untracked.string('endcapBasicClusterMap'),
         superClusterMapName   = cms.untracked.string('endcapSuperClusterMap'),
         superClusterIdMapName = cms.untracked.string('endcapSuperClusterIdMap'),
+        caloTowerName         = cms.untracked.string('towerMaker'),  
         fillerType            = cms.untracked.string('FillerSuperClusters')
     ),
 
@@ -284,6 +290,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('PFBasicClusters'),
         edmName             = cms.untracked.string('pfElectronTranslator:pf'),  
+        barrelEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEE'),
         basicClusterMapName = cms.untracked.string('PFBasicClusterMap'),
         fillerType          = cms.untracked.string('FillerBasicClusters')
     ),
