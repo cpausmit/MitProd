@@ -1,8 +1,11 @@
-# $Id: BambuSIM_cfi.py,v 1.7 2009/12/03 12:14:45 loizides Exp $
+# $Id: BambuSIM_cfi.py,v 1.8 2010/03/03 14:31:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.BAMBUSequences.BambuFillRECO_cfi import *
+
+# Load extra gen jet producers
+from MitProd.TreeFiller.antiktGenJets_cfi import *
 
 # Load flavor history
 from PhysicsTools.HepMCCandAlgos.flavorHistoryProducer_cfi import *
@@ -12,6 +15,7 @@ from PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi import *
 from MitProd.TreeFiller.JetsMCFlavourMatching_cfi import *
 
 BambuGenSequence = cms.Sequence(
+    antiktGenJets*
     bFlavorHistoryProducer*
     cFlavorHistoryProducer*
     flavorHistoryFilter*

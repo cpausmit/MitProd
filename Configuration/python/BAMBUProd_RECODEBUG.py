@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.15 2010/01/18 17:48:43 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.16 2010/03/03 14:31:01 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V3::All'
+process.GlobalTag.globaltag = 'START3X_V25::All'
 
 process.add_(cms.Service("ObjectService"))
 
@@ -42,6 +42,9 @@ process.load("MitProd.BAMBUSequences.BambuFillRECODEBUG_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
+#hack pixelLess tracking back (present in special startup MC samples)
+process.MitTreeFiller.PixelLessTracks.active          = True
+    
 process.bambu_step  = cms.Path(process.BambuFillRECODEBUG)
 
 # schedule definition
