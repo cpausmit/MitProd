@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.8 2010/03/03 14:31:00 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.9 2010/03/25 17:13:53 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,7 +34,7 @@ def enableSIM(filler):
   filler.MetaInfos.l1GtReadRecEdmName = ''
 
   # Disable pixelLess tracks, not in normal MC
-  filler.PixelLessTracks.active = False
+  #filler.PixelLessTracks.active = False
 
   # Enable fillers of MC Truth information
   filler.MCParticles.active = True

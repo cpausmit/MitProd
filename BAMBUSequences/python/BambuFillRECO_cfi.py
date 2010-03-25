@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.24 2010/02/24 17:38:49 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.25 2010/03/03 14:31:00 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -66,7 +66,7 @@ MitTreeFiller.PixelTracks.active          = True
 #MitTreeFiller.PixelTracks.ecalAssocActive = True
 
 # Add pixel-less tracks, needed at startup
-MitTreeFiller.PixelLessTracks.active          = True
+#MitTreeFiller.PixelLessTracks.active          = True
 #MitTreeFiller.PixelLessTracks.ecalAssocActive = True
 
 # Produce global trigger record

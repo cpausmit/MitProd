@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.16 2010/03/03 14:31:01 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.17 2010/03/25 17:13:53 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -43,7 +43,7 @@ process.load("MitProd.BAMBUSequences.BambuFillRECODEBUG_cfi")
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 #hack pixelLess tracking back (present in special startup MC samples)
-process.MitTreeFiller.PixelLessTracks.active          = True
+#process.MitTreeFiller.PixelLessTracks.active          = True
     
 process.bambu_step  = cms.Path(process.BambuFillRECODEBUG)
 

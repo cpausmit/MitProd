@@ -1,4 +1,4 @@
-# $Id:#
+# $Id: BAMBUProd_RECO.py,v 1.22 2010/03/25 17:13:53 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,45 +8,41 @@ process = cms.Process('FILLER')
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('Mit_013'),
-    annotation = cms.untracked.string('RECOSIMStartup'),
+    annotation = cms.untracked.string('RECO'),
     name = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 process.options = cms.untracked.PSet(
    Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode =  cms.untracked.string('NOMERGE'),
+   fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIMSummer09/TTbar_Summer09-MC_3XY_V25_preproduction-v1/969AE5D9-DA2B-DF11-931D-001CC4C10E02.root')
+    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/18thFebPreProd_351p1_BSCNOBEAMHALO-v2/0000/48DDC2F8-471E-DF11-A427-00237DA1A548.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-
-#special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START3X_V25::All'
+process.GlobalTag.globaltag = 'GR09_R_35_V3C::All'
 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
+process.load("MitProd.BAMBUSequences.BambuFillRECO_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
-#hack pixelLess tracking back (present in special startup MC samples)
-#process.MitTreeFiller.PixelLessTracks.active          = True
-
-process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
+process.bambu_step  = cms.Path(process.BambuFillRECO)
 
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
