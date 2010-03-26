@@ -1,4 +1,4 @@
-// $Id: FillerCaloJets.cc,v 1.24 2010/03/17 15:33:15 bendavid Exp $
+// $Id: FillerCaloJets.cc,v 1.25 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -193,6 +193,10 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     edm::Ptr<reco::CaloJet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
 
+    //fill jet moments    
+    jet->SetSigmaEta(TMath::Sqrt(inJet->etaetaMoment()));
+    jet->SetSigmaPhi(TMath::Sqrt(inJet->phiphiMoment()));
+
     // fill calojet-specific quantities
     jet->SetMaxEInEmTowers (inJet->maxEInEmTowers());	 
     jet->SetMaxEInHadTowers(inJet->maxEInHadTowers());
@@ -243,6 +247,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
       jet->SetNHits2RPC(jetId.numberOfHits2RPC);
       jet->SetNHits3RPC(jetId.numberOfHits3RPC);
       jet->SetNHitsRPC(jetId.numberOfHitsRPC);
+
     }
     
     if (bTaggingActive_) {

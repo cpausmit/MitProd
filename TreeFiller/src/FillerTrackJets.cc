@@ -1,4 +1,4 @@
-// $Id: FillerTrackJets.cc,v 1.1 2010/02/24 17:38:27 bendavid Exp $
+// $Id: FillerTrackJets.cc,v 1.2 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -193,7 +193,11 @@ void FillerTrackJets::FillDataBlock(const edm::Event      &event,
     //add to map
     edm::Ptr<reco::TrackJet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
-                          
+
+    //fill jet moments
+    jet->SetSigmaEta(TMath::Sqrt(inJet->etaetaMoment()));
+    jet->SetSigmaPhi(TMath::Sqrt(inJet->phiphiMoment()));
+
     //fill TrackJet specific quantities 
     //fill primary vertex reference
     if (inJet->primaryVertex().isNonnull()) {

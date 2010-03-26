@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.9 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerPFJets.cc,v 1.10 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -185,7 +185,12 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     //add to map
     edm::Ptr<reco::PFJet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
-                          
+
+    //fill jet moments
+    jet->SetSigmaEta(TMath::Sqrt(inJet->etaetaMoment()));
+    jet->SetSigmaPhi(TMath::Sqrt(inJet->phiphiMoment()));
+
+
     //fill pfjet-specific quantities
     jet->SetChargedHadronEnergy(inJet->chargedHadronEnergy());
     jet->SetNeutralHadronEnergy(inJet->neutralHadronEnergy());
