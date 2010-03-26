@@ -1,8 +1,10 @@
-// $Id: FillerMuons.cc,v 1.24 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.25 2010/03/22 18:40:37 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
@@ -117,6 +119,56 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetIsTrackerMuon(iM->isTrackerMuon());
     outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
     outMuon->SetIsCaloMuon(iM->isCaloMuon());
+
+    //save results from the muon selector in the MuonQuality bitmask
+    outMuon->Quality().SetQuality(MuonQuality::All);
+    if (muon::isGoodMuon(*iM,muon::AllGlobalMuons))
+      outMuon->Quality().SetQuality(MuonQuality::AllGlobalMuons);
+    if (muon::isGoodMuon(*iM,muon::AllStandAloneMuons))
+      outMuon->Quality().SetQuality(MuonQuality::AllStandAloneMuons);
+    if (muon::isGoodMuon(*iM,muon::AllTrackerMuons))
+      outMuon->Quality().SetQuality(MuonQuality::AllTrackerMuons);
+    if (muon::isGoodMuon(*iM,muon::TrackerMuonArbitrated))
+      outMuon->Quality().SetQuality(MuonQuality::TrackerMuonArbitrated);
+    if (muon::isGoodMuon(*iM,muon::AllArbitrated))
+      outMuon->Quality().SetQuality(MuonQuality::AllArbitrated);
+    if (muon::isGoodMuon(*iM,muon::GlobalMuonPromptTight))
+      outMuon->Quality().SetQuality(MuonQuality::GlobalMuonPromptTight);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationLoose);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationTight);
+    if (muon::isGoodMuon(*iM,muon::TM2DCompatibilityLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TM2DCompatibilityLoose);
+    if (muon::isGoodMuon(*iM,muon::TM2DCompatibilityTight))
+      outMuon->Quality().SetQuality(MuonQuality::TM2DCompatibilityTight);
+    if (muon::isGoodMuon(*iM,muon::TMOneStationLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMOneStationLoose);
+    if (muon::isGoodMuon(*iM,muon::TMOneStationTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMOneStationTight);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedLowPtLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedLowPtLoose);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedLowPtTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedLowPtTight);
+    if (muon::isGoodMuon(*iM,muon::GMTkChiCompatibility))
+      outMuon->Quality().SetQuality(MuonQuality::GMTkChiCompatibility);
+    if (muon::isGoodMuon(*iM,muon::GMStaChiCompatibility))
+      outMuon->Quality().SetQuality(MuonQuality::GMStaChiCompatibility);
+    if (muon::isGoodMuon(*iM,muon::GMTkKinkTight))
+      outMuon->Quality().SetQuality(MuonQuality::GMTkKinkTight);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationAngLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationAngLoose);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationAngTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationAngTight);
+    if (muon::isGoodMuon(*iM,muon::TMOneStationAngLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMOneStationAngLoose);
+    if (muon::isGoodMuon(*iM,muon::TMOneStationAngTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMOneStationAngTight);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedBarrelLowPtLoose))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtLoose);
+    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedBarrelLowPtTight))
+      outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
+ 
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
       outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
