@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.6 2010/03/25 14:58:08 edwenger Exp $
+// $Id: FillerPFCandidates.cc,v 1.7 2010/03/25 18:51:29 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -163,10 +163,10 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
                        iP->flag(reco::PFCandidate::H_ENDCAP_VFCAL));
     outPfCand->SetFlag(mithep::PFCandidate::eHVFCalEdge, 
                        iP->flag(reco::PFCandidate::H_VFCAL_EDGE));
-    outPfCand->SetFlag(mithep::PFCandidate::eToDispVtx, 
-                       iP->flag(reco::PFCandidate::T_TO_DISP));
-    outPfCand->SetFlag(mithep::PFCandidate::eFromDispVtx, 
-                       iP->flag(reco::PFCandidate::T_FROM_DISP));
+    outPfCand->SetFlag(mithep::PFCandidate::eToNuclInt, 
+                       iP->flag(reco::PFCandidate::T_TO_NUCLINT));
+    outPfCand->SetFlag(mithep::PFCandidate::eFromNuclInt, 
+                       iP->flag(reco::PFCandidate::T_FROM_NUCLINT));
     outPfCand->SetFlag(mithep::PFCandidate::eFromV0, 
                        iP->flag(reco::PFCandidate::T_FROM_V0));
     outPfCand->SetFlag(mithep::PFCandidate::eFromGammaConv, 
