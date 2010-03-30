@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.53 2010/03/03 13:50:28 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.54 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -44,6 +44,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
   hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
   hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelMitName",Names::gkHltLabelBrn)),
+  hltMenuName_(Conf().getUntrackedParameter<string>("hltMenuMitName",Names::gkHltMenuBrn)),
   hltBitsName_(Conf().getUntrackedParameter<string>("hltBitsMitName",
                                                     Form("%s%s",Names::gkHltBitBrn,Istr()))),
   hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",
@@ -62,7 +63,10 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   runTree_(0),
   laTree_(0),
   runEntries_(0),
+  runentry_(-1),
+  hltentry_(-1),
   hltBits_(new TriggerMask),
+  hltMenu_(new string),
   hltTable_(new vector<string>),
   hltTabMap_(0),
   hltLabels_(new vector<string>),
@@ -171,6 +175,8 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
                         TClass::GetClass(typeid(*hltTable_))->GetName(),&hltTable_,32*1024,0);
     tws.AddBranchToTree(hltTreeName_,hltLabelName_,
                         TClass::GetClass(typeid(*hltLabels_))->GetName(),&hltLabels_,32*1024,0);
+    tws.AddBranchToTree(hltTreeName_,hltMenuName_,
+                        TClass::GetClass(typeid(*hltMenu_))->GetName(),&hltMenu_,32*1024,0);
     tws.SetAutoFill(hltTreeName_,0);
     hltTree_=tws.GetTree(hltTreeName_);
   }
@@ -226,6 +232,9 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
   // clear map if a new file was opened
   if (tws_->GetFileNumber()!=fileNum_) {
     runmap_.clear();
+    hltmap_.clear();
+    runentry_=-1;
+    hltentry_=-1;
     fileNum_ = tws_->GetFileNumber();
     runEntries_ = 0;
     hltEntries_ = -1;
@@ -254,34 +263,38 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
   eventHeader_->SetStoreNumber(event.bunchCrossing());
   eventHeader_->SetTimeStamp(event.time().value());
 
-  // look-up if entry is in map
+  // look-up if entry is in map and load existing run and hlt entries
   map<UInt_t,Int_t>::iterator riter = runmap_.find(runnum);
   if (riter != runmap_.end()) {
     Int_t runentry = riter->second;
     eventHeader_->SetRunEntry(runentry);
+    if (runentry_!=runentry) {
+//      printf("Loading cached run %i with runentry %i where current entry is %i\n",runnum,runentry,runentry_);
+      runTree_->GetEntry(runentry);
+      runentry_=runentry;
+      Int_t hltentry=runInfo_->HltEntry();
+      if (hltentry_!=hltentry) {
+        FillHltInfo(event,setup);
+      }
+    }
     FillHltTrig(event,setup);
     FillL1Trig(event,setup);
     return;
   }
 
   // fill new run info
+//  printf("Adding new run %i with entry %i\n",runnum,runEntries_);
   Int_t runentry = runEntries_;
+  runentry_ = runentry;
   ++runEntries_;
   eventHeader_->SetRunEntry(runentry);
   runmap_.insert(pair<UInt_t,Int_t>(runnum,runentry));
   runInfo_->SetRunNum(runnum);
 
-  Int_t hltentry = hltEntries_;
   FillHltInfo(event,setup);
   FillHltTrig(event,setup);
   FillL1Trig(event,setup);
-  if (hltentry < hltEntries_) {
-    runInfo_->SetHltEntry(hltentry);
-    hltTree_->Fill();
-  } else {
-    runInfo_->SetHltEntry(hltentry-1);
-  }
-
+  runInfo_->SetHltEntry(hltentry_);
   runTree_->Fill();
 }
 
@@ -320,12 +333,28 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   vector<string>      *labels = new vector<string>;
   map<string,Short_t> *labmap = new map<string,Short_t>; 
 
-  if (0) {
-    if (!hltConfig_.tableName().empty())
-      trigtable->push_back(hltConfig_.tableName());
-    else
-      trigtable->push_back("unknown_hlt_config");
+  std::string *menuname = 0;
+  if (!hltConfig_.tableName().empty())
+    menuname = new string(hltConfig_.tableName());
+  else
+    menuname= new string("unknown_hlt_config");
+
+  //check if current menu was already filled and load it if necessary
+  map<string,Int_t>::iterator hiter = hltmap_.find(*menuname);
+  if (hiter != hltmap_.end()) {
+    Int_t hltentry = hiter->second;
+//    printf("Found existing hlt menu with name %s and entry %i\n",menuname->c_str(), hltentry);
+    if (hltentry_!=hltentry) {
+      hltTree_->GetEntry(hltentry);
+      hltTabMap_=&hltTabMaps_.at(hltentry);
+      hltLabMap_=&hltLabMaps_.at(hltentry);
+      hltentry_=hltentry;
+      //printf("tabmap size = %i, labmap size = %i\n",hltTabMap_->size(),hltLabMap_->size());
+    }
+    return;
   }
+
+//  printf("Adding new hlt menu with name %s and entry %i\n",menuname->c_str(),hltEntries_);
 
   // get HLT trigger object information to be able to access the tag information
   Handle<trigger::TriggerEvent> triggerEventHLT;
@@ -420,52 +449,26 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
     }
   }
 
-  if (hltTable_->size()>=0) {
-    // check if existing table is equal to new table:
-    //  if so keep it, otherwise store the new one  
-
-    if ((hltTable_->size()==trigtable->size()) && 
-        (hltLabels_->size()==labels->size())) {
-
-      bool newEntryFound = false;
-      for (UInt_t i=0; i<trigtable->size(); ++i) {
-        if (trigtable->at(i) != hltTable_->at(i)) {
-          newEntryFound = true;
-          break;
-        }
-      }
-      if (!newEntryFound) {
-        for (UInt_t i=0; i<labels->size(); ++i) {
-        if (labels->at(i) != hltLabels_->at(i)) {
-            newEntryFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!newEntryFound) {
-        if (verbose_>1) 
-          cout << "FillHltInfo: Kept previous HLT information" << endl;
-
-        delete trigtable;
-        delete labels;
-        delete labmap;
-        delete tabmap;
-        return;
-      }
-    }
-  }
-
   // new hlt entry
   delete hltTable_;
   delete hltLabels_;
-  delete hltTabMap_;
-  delete hltLabMap_;
+  delete hltMenu_;
   hltTable_  = trigtable;
   hltLabels_ = labels;
-  hltTabMap_ = tabmap;
-  hltLabMap_ = labmap;
+  hltMenu_   = menuname;
+  hltTabMaps_.push_back(*tabmap);
+  hltLabMaps_.push_back(*labmap);
+  delete tabmap;
+  delete labmap;
+  hltentry_=hltEntries_;
+  hltTabMap_=&hltTabMaps_.at(hltentry_);
+  hltLabMap_=&hltLabMaps_.at(hltentry_);
   hltEntries_++;
+  hltmap_.insert(pair<string,Int_t>(*hltMenu_,hltentry_));
+  hltTree_->Fill();
+  
+//  printf("tabmap size = %i, labmap size = %i\n",hltTabMap_->size(),hltLabMap_->size());
+
 }
  
 //--------------------------------------------------------------------------------------------------

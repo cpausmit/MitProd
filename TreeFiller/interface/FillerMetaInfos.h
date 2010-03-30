@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.30 2010/03/03 13:50:28 bendavid Exp $
+// $Id: FillerMetaInfos.h,v 1.31 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerMetaInfos
 //
@@ -57,6 +57,7 @@ namespace mithep
       std::string                    hltEvtName_;   //HLT trigger event edm name
       std::string                    hltTableName_; //HLT trigger table branch name
       std::string                    hltLabelName_; //HLT trigger label branch name
+      std::string                    hltMenuName_;  //HLT trigger menu branch name
       std::string                    hltBitsName_;  //HLT trigger bits branch name
       std::string                    hltObjsName_;  //HLT trigger branch name
       Bool_t                         l1Active_;     //=true if some L1 info are filled
@@ -72,10 +73,16 @@ namespace mithep
       TTree                         *laTree_;       //look ahead tree (not owned)
       Int_t                          runEntries_;   //number of run info entries
       std::map<UInt_t,Int_t>         runmap_;       //map between run number and entry number
+      std::map<std::string,Int_t>    hltmap_;       //map btw hlt table name and entry number
+      Int_t                          runentry_;     //current run entry
+      Int_t                          hltentry_;     //current hlt entry
       TriggerMask                   *hltBits_;      //HLT trigger bit mask 
+      std::string                   *hltMenu_;      //HLT menu name
       std::vector<std::string>      *hltTable_;     //HLT trigger table
+      std::vector<std::map<std::string,Short_t> > hltTabMaps_; //cached tablemaps
       std::map<std::string,Short_t> *hltTabMap_;    //HLT trigger labels map
       std::vector<std::string>      *hltLabels_;    //HLT module labels
+      std::vector<std::map<std::string,Short_t> > hltLabMaps_; //cached tablemaps
       std::map<std::string,Short_t> *hltLabMap_;    //HLT module labels map
       TriggerObjectBaseArr          *hltObjs_;      //HLT trigger objects
       TriggerObjectRelArr           *hltRels_;      //HLT trigger objects relation
