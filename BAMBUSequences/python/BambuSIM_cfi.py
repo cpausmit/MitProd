@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.9 2010/03/25 17:13:53 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.10 2010/03/25 18:51:41 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -26,9 +26,6 @@ BambuGenSequence = cms.Sequence(
 #function to enable sim filling for the given tree filler
 #This avoids duplication of config sequences between RECOSIM and AODSIM
 def enableSIM(filler):
-
-  # Enable filling of second HLT menu, only present in Monte Carlo
-  #filler.MetaInfosE29.active = True
 
   # Disable filling of out-of-time bx
   filler.MetaInfos.l1GtReadRecEdmName = ''

@@ -1,4 +1,4 @@
-# $Id:#
+# $Id: BAMBUProd_AODSIM.py,v 1.12 2010/03/25 17:13:53 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,36 +14,35 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('Mit_013'),
-    annotation = cms.untracked.string('RECOSIMStartup'),
+    annotation = cms.untracked.string('AODSIM'),
     name = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 process.options = cms.untracked.PSet(
    Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode =  cms.untracked.string('NOMERGE'),
+   fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIMSummer09/TTbar_Summer09-MC_3XY_V25_preproduction-v1/969AE5D9-DA2B-DF11-931D-001CC4C10E02.root')
+    fileNames = cms.untracked.vstring('file:/server/02a/bendavid/fastsim/MinBias_TuneCW900A_7TeV/F4F949C4-F748-DF11-A419-003048678B72.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-
-#special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
 process.GlobalTag.globaltag = 'START3X_V26::All'
 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
+process.load("MitProd.BAMBUSequences.BambuFillFASTSIM_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
-process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
+process.bambu_step  = cms.Path(process.BambuFillFASTSIM)
 
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
