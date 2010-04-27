@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.15 2010/03/25 17:13:53 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.16 2010/04/27 14:29:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RECO/v2/000/122/045/AE05B1EC-E2D6-DE11-B289-000423D9989E.root')
+    fileNames = cms.untracked.vstring('file:/build/bendavid/SD_EG_1e28_AOD.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
