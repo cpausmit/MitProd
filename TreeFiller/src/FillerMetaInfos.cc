@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.54 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.55 2010/03/30 12:10:42 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -10,7 +10,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
 #include "MitAna/DataTree/interface/LAHeader.h"
 #include "MitAna/DataTree/interface/Names.h"
