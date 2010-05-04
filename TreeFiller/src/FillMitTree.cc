@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.53 2009/12/12 22:33:52 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.56 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,6 +18,7 @@
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
+#include "MitProd/TreeFiller/interface/FillerJPTJets.h"
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "MitProd/TreeFiller/interface/FillerMCVertexes.h"
@@ -373,6 +374,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerPFJets")==0) {
       FillerPFJets *fillerPFJets = new FillerPFJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
+      continue;
+    }  
+
+    if (ftype.compare("FillerJPTJets")==0) {
+      FillerJPTJets *fillerJPTJets = new FillerJPTJets(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerJPTJets);
       continue;
     }  
 

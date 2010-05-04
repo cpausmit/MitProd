@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.69 2010/03/17 15:33:15 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.70 2010/03/24 15:42:07 sixie Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -746,9 +746,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName              = cms.untracked.string('JetPlusTrackZSPCorJetIcone5'),
         L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorIC5JPT'),
         L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorIC5JPT'),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        caloJetMapName       = cms.untracked.string('ItrCone5JetMap'),
         jetMapName           = cms.untracked.string('IC5JPTJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
+        fillerType           = cms.untracked.string('FillerJPTJets')
     ),
     
     SC5JetPlusTrack = cms.untracked.PSet(
@@ -761,9 +761,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName              = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5'),
         L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorSC5JPT'),
         L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorSC5JPT'),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        caloJetMapName       = cms.untracked.string('SisCone5JetMap'),
         jetMapName           = cms.untracked.string('SC5JPTJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
+        fillerType           = cms.untracked.string('FillerJPTJets')
     ),
     
     AK5JetPlusTrack = cms.untracked.PSet(
@@ -776,9 +776,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName              = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5'),
         L2JetCorrectorName   = cms.untracked.string('L2RelativeJetCorrectorAK5JPT'),
         L3JetCorrectorName   = cms.untracked.string('L3AbsoluteJetCorrectorAK5JPT'),
-        caloTowerMapName     = cms.untracked.string('CaloTowerMap'),
+        caloJetMapName       = cms.untracked.string('AKT5JetMap'),
         jetMapName           = cms.untracked.string('AK5JPTJetMap'),
-        fillerType           = cms.untracked.string('FillerCaloJets')
+        fillerType           = cms.untracked.string('FillerJPTJets')
     ),               
 
     AKt5TrackJets = cms.untracked.PSet(
