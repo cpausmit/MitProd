@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.11 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerMuons.h,v 1.12 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerMuons
 //
@@ -34,6 +34,8 @@ namespace mithep
       std::string                 staVtxTrackMapName_;    //name of imported map wrt sta vtx muons
       std::string                 trackerTrackMapName_;   //name of imported map wrt tracker muons
       std::string                 muonMapName_;           //name of exported muon map
+      std::string                 pvEdmName_;             //name of primary vertex collection
+      std::string                 pvBSEdmName_;           //name of bs-constrained pv collection
       const mithep::TrackMap     *globalTrackMap_;        //map wrt global muons
       const mithep::TrackMap     *standaloneTrackMap_;    //map wrt standalone muons
       const mithep::TrackMap     *standaloneVtxTrackMap_; //map wrt standalone vertex muons

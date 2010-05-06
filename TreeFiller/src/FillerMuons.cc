@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.25 2010/03/22 18:40:37 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.26 2010/03/26 21:40:33 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -6,6 +6,10 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -25,6 +29,8 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
   staVtxTrackMapName_(Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
+  pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVerticesWithBS")),
   globalTrackMap_(0),
   standaloneTrackMap_(0),
   standaloneVtxTrackMap_(0),
@@ -90,6 +96,18 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   Handle<reco::MuonCollection> hMuonProduct;
   GetProduct(edmName_, hMuonProduct, event);  
   const reco::MuonCollection inMuons = *(hMuonProduct.product());  
+
+  edm::Handle<reco::VertexCollection> hVertex;
+  event.getByLabel(pvEdmName_, hVertex);
+  const reco::VertexCollection *pvCol = hVertex.product();
+
+  edm::Handle<reco::VertexCollection> hVertexBS;
+  event.getByLabel(pvBSEdmName_, hVertexBS);
+  const reco::VertexCollection *pvBSCol = hVertexBS.product();
+
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
 
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
     mithep::Muon* outMuon = muons_->AddNew();
@@ -183,6 +201,36 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) 
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+
+    //compute impact parameter with respect to PV
+    if (iM->track().isNonnull()) {
+      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
+
+      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,pvCol->at(0));
+      if (d0pv.first) {
+        outMuon->SetD0PV(d0pv.second.value());
+        outMuon->SetD0PVErr(d0pv.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
+      if (ip3dpv.first) {
+        outMuon->SetIp3dPV(ip3dpv.second.value());
+        outMuon->SetIp3dPVErr(ip3dpv.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
+      if (d0pvbs.first) {
+        outMuon->SetD0PVBS(d0pvbs.second.value());
+        outMuon->SetD0PVBSErr(d0pvbs.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
+      if (ip3dpvbs.first) {
+        outMuon->SetIp3dPVBS(ip3dpvbs.second.value());
+        outMuon->SetIp3dPVBSErr(ip3dpvbs.second.error());
+      }
+
+    }
 
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));

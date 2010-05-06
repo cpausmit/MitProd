@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.41 2010/01/24 20:59:47 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.42 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -16,6 +16,13 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MitAna/DataTree/interface/ElectronCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -37,7 +44,9 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
   pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
-  eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),  
+  eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
+  pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVerticesWithBS")),  
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -105,7 +114,28 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
   GetProduct(eIDCutBasedTightName_, eidTightMap, event);
+
+  edm::Handle<reco::VertexCollection> hVertex;
+  event.getByLabel(pvEdmName_, hVertex);
+  const reco::VertexCollection *pvCol = hVertex.product();
+
+  edm::Handle<reco::VertexCollection> hVertexBS;
+  event.getByLabel(pvBSEdmName_, hVertexBS);
+  const reco::VertexCollection *pvBSCol = hVertexBS.product();
+
+  edm::Handle<reco::TrackCollection> hGeneralTracks;
+  event.getByLabel("generalTracks", hGeneralTracks);
+  //const reco::VertexCollection *trackCol = hGeneralTracks.product();
+
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
   
+  //Get Magnetic Field from event setup, taking value at (0,0,0)
+  edm::ESHandle<MagneticField> magneticField;
+  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
   // loop over electrons
   for (reco::GsfElectronCollection::const_iterator iM = inElectrons.begin(); 
@@ -196,6 +226,50 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       else throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
              << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
     }
+
+    //compute impact parameter with respect to PV
+    if (iM->gsfTrack().isNonnull()) {
+      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->gsfTrack()); 
+      
+      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,pvCol->at(0));
+      if (d0pv.first) {
+        outElectron->SetD0PV(d0pv.second.value());
+        outElectron->SetD0PVErr(d0pv.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
+      if (ip3dpv.first) {
+        outElectron->SetIp3dPV(ip3dpv.second.value());
+        outElectron->SetIp3dPVErr(ip3dpv.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
+      if (d0pvbs.first) {
+        outElectron->SetD0PVBS(d0pvbs.second.value());
+        outElectron->SetD0PVBSErr(d0pvbs.second.error());
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
+      if (ip3dpvbs.first) {
+        outElectron->SetIp3dPVBS(ip3dpvbs.second.value());
+        outElectron->SetIp3dPVBSErr(ip3dpvbs.second.error());
+      }
+
+      if (verbose_>1) {
+        printf("gsf track      pt = %5f\n",iM->gsfTrack()->pt());
+        printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
+        printf("ttrack         pt = %5f\n",tt.initialFreeState().momentum().perp());
+        //printf("ttrackgsf      pt = %5f\n",ttgsf.innermostMeasurementState().globalMomentum().perp());
+      }
+
+    }
+
+    //fill conversion partner track info
+    ConversionFinder convFinder;
+    ConversionInfo convInfo = convFinder.getConversionInfo(*iM, hGeneralTracks, bfield);
+    outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
+    outElectron->SetConvPartnerDist(convInfo.dist());
+    outElectron->SetConvPartnerRadius(convInfo.radiusOfConversion());
 
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
