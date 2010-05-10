@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.55 2010/03/30 12:10:42 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.56 2010/05/03 11:37:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -90,7 +90,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   if (l1Active_ && !hltActive_)
     PrintErrorAndExit("L1Active set _without_ hltActive set as well is not supported");
   
-    //force a particular process name for trigger output if required
+  //force a particular process name for trigger output if required
   if (!hltProcName_.empty()) {
     if (hltResName_.find(':')==string::npos)
       hltResName_ += "::";
@@ -306,10 +306,34 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   if (!hltActive_) 
     return;
 
-
+  // get HLT trigger object information to be able to access the tag information
+  Handle<trigger::TriggerEvent> triggerEventHLT;
+  GetProduct(hltEvtName_, triggerEventHLT, event);
+  
+  //set process name from retrieved product in case no process name was specified
+  //(such that we take the hlt from the last run process)
+  if (hltProcName_.empty()) {
+    hltProcName_ = triggerEventHLT.provenance()->processName();
+    //printf("Extracted most recent process name %s\n",hltProcName_.c_str());
+    
+    //add extracted process name to input labels for future access
+    if (hltResName_.find(':')==string::npos)
+      hltResName_ += "::";
+    else 
+      hltResName_ += ":";
+    hltResName_ += hltProcName_;
+    if (hltEvtName_.find(':')==string::npos)
+      hltEvtName_ += "::";
+    else 
+      hltEvtName_ += ":";
+    hltEvtName_ += hltProcName_;
+  }
+  
   // get HLT trigger information
   Handle<TriggerResults> triggerResultsHLT;
   GetProduct(hltResName_, triggerResultsHLT, event);
+  
+  
   bool hltConfigChanged = false;
   if (!hltConfig_.init(event, hltProcName_, hltConfigChanged)) {
     edm::LogError("FillerMetaInfos") << "Cannot access hlt config using PSet from" 
@@ -356,9 +380,6 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
 
 //  printf("Adding new hlt menu with name %s and entry %i\n",menuname->c_str(),hltEntries_);
 
-  // get HLT trigger object information to be able to access the tag information
-  Handle<trigger::TriggerEvent> triggerEventHLT;
-  GetProduct(hltEvtName_, triggerEventHLT, event);
   const std::vector<std::string> &tags(triggerEventHLT->collectionTags());
   for(UInt_t i=0,c=0; i<tags.size(); ++i) {
     string tag(tags.at(i));
