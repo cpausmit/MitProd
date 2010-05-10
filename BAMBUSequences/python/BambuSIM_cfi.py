@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.10 2010/03/25 18:51:41 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.11 2010/04/27 14:29:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,6 +29,10 @@ def enableSIM(filler):
 
   # Disable filling of out-of-time bx
   filler.MetaInfos.l1GtReadRecEdmName = ''
+
+  # fill hlt from most recent process instead of 'HLT'
+  # (to cover redigi-rereco cases)
+  filler.MetaInfos.hltProcName = ''
 
   # Disable pixelLess tracks, not in normal MC
   #filler.PixelLessTracks.active = False
