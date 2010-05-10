@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.37 2010/03/18 20:21:01 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.38 2010/03/23 16:52:58 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -133,6 +133,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
                                  it->phi(),it->dxy(),it->dsz());
     outTrack->SetErrors(it->qoverpError(),it->lambdaError(),
                         it->phiError(),it->dxyError(),it->dszError());
+                        
+    outTrack->SetPtErr(it->ptError());
 	
     // fill track quality information
     outTrack->SetChi2(it->chi2());
