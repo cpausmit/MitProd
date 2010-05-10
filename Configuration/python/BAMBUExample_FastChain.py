@@ -1,4 +1,4 @@
-# $Id: BAMBUExample_FastChain.py,v 1.7 2009/12/03 23:30:38 loizides Exp $
+# $Id: BAMBUExample_FastChain.py,v 1.8 2010/03/12 14:53:03 bendavid Exp $
 #
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options:
@@ -21,7 +21,7 @@ process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('CMSSW_3_5_4 + Mit_013'),
+    version = cms.untracked.string('CMSSW_3_6_0 + Mit_014'),
     annotation = cms.untracked.string('TTbar'),
     name = cms.untracked.string('BambuFastChainExample')
 )
@@ -70,7 +70,7 @@ process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingPara
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
-process.GlobalTag.globaltag = 'MC_3XY_V24::All'
+process.GlobalTag.globaltag = 'START36_V6::All'
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
@@ -133,24 +133,16 @@ process.add_(cms.Service("ObjectService"))
 #process.MitTreeFiller.KT6GenJets.active  = True
 #process.MitTreeFiller.GenMet.active      = True
 
-process.load("MitProd.BAMBUSequences.BambuFillAODSIM_cfi")
+process.load("MitProd.BAMBUSequences.BambuFillFASTSIM_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'mit-full'
 
-process.bambu_step  = cms.Path(process.BambuFillAODSIM)
+process.bambu_step  = cms.Path(process.BambuFillFASTSIM)
 
 
 # hack out unavailable stuff, pending proper fastsim and aod sequences
 process.MitTreeFiller.MetaInfos.hltActive                   = False
 process.MitTreeFiller.MetaInfos.l1Active                    = False
-process.MitTreeFiller.MCParticles.simActive                 = False
-process.MitTreeFiller.ConversionInOutTracks.active          = False
-process.MitTreeFiller.ConversionOutInTracks.active          = False
-process.MitTreeFiller.Conversions.active                    = False
-process.MitTreeFiller.ConversionInOutElectronsStable.active = False
-process.MitTreeFiller.ConversionOutInElectronsStable.active = False
-process.MitTreeFiller.AKt5TrackJets.active                  = False
-process.MitTreeFiller.Kt4TrackJets.active                   = False
 
 
 #process.bambu_step  = cms.Path(process.MitTreeFiller)

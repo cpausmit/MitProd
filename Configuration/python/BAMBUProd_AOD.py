@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.16 2010/04/27 14:29:40 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.17 2010/04/27 17:00:56 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_013'),
+    version = cms.untracked.string('Mit_014'),
     annotation = cms.untracked.string('AOD'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V7::All'
 
 process.add_(cms.Service("ObjectService"))
 
