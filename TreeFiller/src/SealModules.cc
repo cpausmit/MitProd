@@ -1,4 +1,4 @@
-// $Id: SealModules.cc,v 1.6 2008/07/01 14:38:33 loizides Exp $
+// $Id: SealModules.cc,v 1.7 2008/07/03 07:56:14 loizides Exp $
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -7,5 +7,4 @@
 
 using mithep::FillMitTree;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(FillMitTree);
+DEFINE_FWK_MODULE(FillMitTree);

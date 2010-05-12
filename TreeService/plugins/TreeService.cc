@@ -1,9 +1,5 @@
-// $Id: TreeService.cc,v 1.1 2008/05/27 20:09:09 loizides Exp $
+// $Id: TreeService.cc,v 1.2 2009/11/03 14:01:51 bendavid Exp $
 
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "MitProd/TreeService/interface/TreeService.h"
 
 using mithep::TreeService;
-
-//DEFINE_FWK_SERVICE(TreeService);
