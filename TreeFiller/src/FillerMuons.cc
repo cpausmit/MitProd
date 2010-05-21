@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.26 2010/03/26 21:40:33 sixie Exp $
+// $Id: FillerMuons.cc,v 1.27 2010/05/06 17:31:24 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -10,6 +10,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h" 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -108,6 +109,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+
+  KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
 
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
     mithep::Muon* outMuon = muons_->AddNew();
@@ -211,11 +214,17 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetD0PV(d0pv.second.value());
         outMuon->SetD0PVErr(d0pv.second.error());
       }
+      else {
+        outMuon->SetD0PV(-99.0);
+      }
 
       const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
       if (ip3dpv.first) {
         outMuon->SetIp3dPV(ip3dpv.second.value());
         outMuon->SetIp3dPVErr(ip3dpv.second.error());
+      }
+      else {
+        outMuon->SetIp3dPV(-99.0);
       }
 
       const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
@@ -223,11 +232,38 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetD0PVBS(d0pvbs.second.value());
         outMuon->SetD0PVBSErr(d0pvbs.second.error());
       }
+      else {
+        outMuon->SetD0PVBS(-99.0);
+      }
 
       const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
       if (ip3dpvbs.first) {
         outMuon->SetIp3dPVBS(ip3dpvbs.second.value());
         outMuon->SetIp3dPVBSErr(ip3dpvbs.second.error());
+      }
+      else {
+        outMuon->SetIp3dPVBS(-99.0);
+      }
+
+      //compute compatibility with PV using taking into account also the case where muon track
+      //was included in the vertex fit
+      if (iM->track()->extra().isAvailable()) {
+  
+        const std::pair<bool,double> &pvCompat = kalmanEstimator.estimate(pvCol->at(0),tt);
+        if (pvCompat.first) {
+          outMuon->SetPVCompatibility(pvCompat.second);
+        }
+        else {
+          outMuon->SetPVCompatibility(-99.0);
+        }
+  
+        const std::pair<bool,double> &pvbsCompat = kalmanEstimator.estimate(pvBSCol->at(0),tt);
+        if (pvbsCompat.first) {
+          outMuon->SetPVBSCompatibility(pvbsCompat.second);
+        }
+        else {
+          outMuon->SetPVBSCompatibility(-99.0);
+        }
       }
 
     }
