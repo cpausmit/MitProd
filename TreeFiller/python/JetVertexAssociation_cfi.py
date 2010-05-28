@@ -1,4 +1,4 @@
-# $Id: JetVertexAssociation_cfi.py,v 1.5 2009/07/22 04:41:00 bendavid Exp $
+# $Id: JetVertexAssociation_cfi.py,v 1.6 2009/11/03 15:13:18 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -173,10 +173,6 @@ jetVertexBetaAKT7 = cms.EDProducer("JetVertexAssociation",
 
 jetvertexAssociationSequence = cms.Sequence(jetVertexAlphaIC5
                                             + jetVertexBetaIC5
-                                            + jetVertexAlphaSC5
-                                            + jetVertexBetaSC5
-                                            + jetVertexAlphaSC7
-                                            + jetVertexBetaSC7
                                             + jetVertexAlphaKT4
                                             + jetVertexBetaKT4
                                             + jetVertexAlphaKT6
