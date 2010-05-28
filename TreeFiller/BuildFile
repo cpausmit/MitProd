@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.25 2010/02/10 18:53:19 yilmaz Exp $
+# $Id: BuildFile,v 1.26 2010/05/06 17:31:23 bendavid Exp $
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
@@ -28,6 +28,8 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
+<use name=RecoVertex/GaussianSumVertexFit>
+<use name=RecoVertex/KalmanVertexFit>
 <use name=RecoEgamma/EgammaTools>
 <use name=root>
 <use name=MitCommon/MathTools>
