@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.27 2010/05/06 17:31:24 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.28 2010/05/21 18:50:36 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -204,6 +204,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) 
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+<<<<<<< FillerMuons.cc
+    
+    outMuon->SetNValidHits (iM->globalTrack()->hitPattern().numberOfValidMuonHits());
+=======
 
     //compute impact parameter with respect to PV
     if (iM->track().isNonnull()) {
@@ -268,6 +272,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
     }
 
+>>>>>>> 1.28
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
     for(int i0 = 0; i0 < 4; i0++) {
