@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.11 2010/04/27 14:29:40 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.12 2010/05/10 20:08:42 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -42,8 +42,6 @@ def enableSIM(filler):
   filler.MCEventInfo.active = True
   filler.MCVertexes.active  = True
   filler.IC5GenJets.active  = True
-  filler.SC5GenJets.active  = True
-  filler.SC7GenJets.active  = True
   filler.KT4GenJets.active  = True
   filler.KT6GenJets.active  = True
   filler.GenMet.active      = True
@@ -57,8 +55,6 @@ def enableSIM(filler):
   
   # Enable Flavor matching for Reco Jets and GenJets
   filler.ItrCone5Jets.flavorMatchingActive   = True
-  filler.SisCone5Jets.flavorMatchingActive   = True
-  filler.SisCone7Jets.flavorMatchingActive   = True
   filler.Kt4Jets.flavorMatchingActive        = True
   filler.Kt6Jets.flavorMatchingActive        = True
   filler.AKt5Jets.flavorMatchingActive       = True
