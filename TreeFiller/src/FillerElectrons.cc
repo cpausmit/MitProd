@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.42 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.43 2010/05/06 17:31:24 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -19,6 +19,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexTrackCompatibilityEstimator.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -131,6 +132,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
   
+  GsfVertexTrackCompatibilityEstimator gsfEstimator;
+
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -236,11 +239,18 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetD0PV(d0pv.second.value());
         outElectron->SetD0PVErr(d0pv.second.error());
       }
+      else {
+        outElectron->SetD0PV(-99.0);
+      }
+
 
       const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
       if (ip3dpv.first) {
         outElectron->SetIp3dPV(ip3dpv.second.value());
         outElectron->SetIp3dPVErr(ip3dpv.second.error());
+      }
+      else {
+        outElectron->SetIp3dPV(-99.0);
       }
 
       const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
@@ -248,11 +258,83 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetD0PVBS(d0pvbs.second.value());
         outElectron->SetD0PVBSErr(d0pvbs.second.error());
       }
+      else {
+        outElectron->SetD0PVBS(-99.0);
+      }
 
       const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
       if (ip3dpvbs.first) {
         outElectron->SetIp3dPVBS(ip3dpvbs.second.value());
         outElectron->SetIp3dPVBSErr(ip3dpvbs.second.error());
+      }
+      else {
+        outElectron->SetIp3dPVBS(-99.0);
+      }
+
+      //compute compatibility with PV using full GSF state mixture (but skip in AOD)
+      if (iM->gsfTrack()->gsfExtra().isAvailable()) {
+  
+        const std::pair<bool,double> &pvGsfCompat = gsfEstimator.estimate(pvCol->at(0),tt);
+        if (pvGsfCompat.first) {
+          outElectron->SetGsfPVCompatibility(pvGsfCompat.second);
+        }
+        else {
+          outElectron->SetGsfPVCompatibility(-99.0);
+        }
+
+  
+        const std::pair<bool,double> &pvbsGsfCompat = gsfEstimator.estimate(pvBSCol->at(0),tt);
+        if (pvbsGsfCompat.first) {
+          outElectron->SetGsfPVBSCompatibility(pvbsGsfCompat.second);
+        }
+        else {
+          outElectron->SetGsfPVBSCompatibility(-99.0);
+        }
+
+        //compute signal vertex compatibility with full GSF state mixture excluding matching ckf track
+        //from vertex
+        if (iM->closestCtfTrackRef().isNonnull() && iM->closestCtfTrackRef()->extra().isAvailable()) {
+          const reco::TransientTrack &ttCkf = transientTrackBuilder->build(iM->closestCtfTrackRef()); 
+  
+          const std::pair<bool,double> &pvGsfCompatMatched = gsfEstimator.estimate(pvCol->at(0),tt, ttCkf);
+          if (pvGsfCompatMatched.first) {
+            outElectron->SetGsfPVCompatibilityMatched(pvGsfCompatMatched.second);
+          }
+          else {
+            outElectron->SetGsfPVCompatibilityMatched(-99.0);
+          }
+
+    
+          const std::pair<bool,double> &pvbsGsfCompatMatched = gsfEstimator.estimate(pvBSCol->at(0),tt, ttCkf);
+          if (pvbsGsfCompatMatched.first) {
+            outElectron->SetGsfPVBSCompatibilityMatched(pvbsGsfCompatMatched.second);
+          }
+          else {
+            outElectron->SetGsfPVBSCompatibilityMatched(-99.0);
+          }
+  
+          if (verbose_>1) {
+            printf("gsf compat         = %5f\n", pvGsfCompat.second);
+            printf("gsf compat matched = %5f\n", pvGsfCompatMatched.second);
+          }
+        }
+        else {
+          //no matching ckf track, so copy existing values
+          if (pvGsfCompat.first) {
+            outElectron->SetGsfPVCompatibilityMatched(pvGsfCompat.second);
+          }
+          else {
+            outElectron->SetGsfPVCompatibilityMatched(-99.0);
+          }
+
+          if (pvbsGsfCompat.first) {
+            outElectron->SetGsfPVBSCompatibilityMatched(pvbsGsfCompat.second);
+          }
+          else {
+            outElectron->SetGsfPVBSCompatibilityMatched(-99.0);
+          }
+        }
+
       }
 
       if (verbose_>1) {
@@ -260,6 +342,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
         printf("ttrack         pt = %5f\n",tt.initialFreeState().momentum().perp());
         //printf("ttrackgsf      pt = %5f\n",ttgsf.innermostMeasurementState().globalMomentum().perp());
+        printf("ip3dpv reduced chisquared = %5f, probability = %5f\n", ip3dpv.second.value()/ip3dpv.second.error(), TMath::Prob(ip3dpv.second.value()/ip3dpv.second.error(),1));
+        //printf("gsf    reduced chisquared = %5f, probability = %5f\n", pvGsfCompat.second/2, TMath::Prob(pvGsfCompat.second,2));
       }
 
     }
