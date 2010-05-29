@@ -270,8 +270,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       }
 
     }
-
->>>>>>> 1.28
+    
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
     for(int i0 = 0; i0 < 4; i0++) {
