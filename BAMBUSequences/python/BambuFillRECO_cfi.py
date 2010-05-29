@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.28 2010/05/03 11:37:48 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.29 2010/05/04 11:56:43 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,16 +64,10 @@ MitTreeFiller.ClusterVertexes.active      = True
 MitTreeFiller.PixelTracks.active          = True
 #MitTreeFiller.PixelTracks.ecalAssocActive = True
 
-# Produce global trigger record
-l1GtRecord = cms.EDProducer("L1GlobalTriggerRecordProducer",
-    L1GtReadoutRecordTag = cms.InputTag("gtDigis")
-)
-
 # Produce event selection data
 from MitEdm.Producers.evtSelData_cfi import *
 
-BambuRecoSequence = cms.Sequence(l1GtRecord*
-                                 siPixelRecHits*
+BambuRecoSequence = cms.Sequence(siPixelRecHits*
                                  trackletVertices* 
                                  clusterVertices*
                                  evtSelData*
@@ -81,7 +75,6 @@ BambuRecoSequence = cms.Sequence(l1GtRecord*
                                  kShProducer*
                                  conversionProducer*
                                  JetPlusTrackCorrectionsIcone5*
-                                 #JetPlusTrackCorrectionsSisCone5*
                                  JetPlusTrackCorrectionsAntiKt5*
                                  jetvertexAssociationSequence)
 
