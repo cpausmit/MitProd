@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMetaInfos.h,v 1.31 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerMetaInfos.h,v 1.32 2010/03/30 12:10:41 bendavid Exp $
 //
 // FillerMetaInfos
 //
@@ -13,6 +13,8 @@
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
@@ -61,6 +63,7 @@ namespace mithep
       std::string                    hltBitsName_;  //HLT trigger bits branch name
       std::string                    hltObjsName_;  //HLT trigger branch name
       Bool_t                         l1Active_;     //=true if some L1 info are filled
+      std::string                    l1GtMenuLiteName_; //L1 trigger menu lite edm name
       std::string                    l1GTRecName_;  //L1 global trigger record edm name
       std::string                    l1GTRRName_;   //l1 global readout trigger record edm name
       std::string                    l1TBitsName_;  //L1 technical bit name
@@ -90,6 +93,7 @@ namespace mithep
       HLTConfigProvider              hltConfig_;    //HLT config from provenance
       Int_t                          hltEntries_;   //number of hlt info entries
       UShort_t                       fileNum_;      //file number of current file
+      L1GtUtils                      l1gtutils_;    //level 1 config provider
       L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
       L1TriggerMask                 *l1ABits_;      //L1 algorithm trigger bit mask 
       L1TriggerMask                 *l1TBits2_;     //L1 technical trigger bit mask before masking

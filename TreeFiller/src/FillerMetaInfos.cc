@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.56 2010/05/03 11:37:48 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.57 2010/05/10 20:08:15 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -50,6 +50,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",
                                                     Form("%s%s",Names::gkHltObjBrn,Istr()))),
   l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
+  l1GtMenuLiteName_(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName","l1GtTriggerMenuLite")),
   l1GTRecName_(Conf().getUntrackedParameter<string>("l1GtRecordEdmName","l1GtRecord")),
   l1GTRRName_(Conf().getUntrackedParameter<string>("l1GtReadRecEdmName","")),
   l1TBitsName_(Conf().getUntrackedParameter<string>("l1TechBitsMitName",
@@ -433,40 +434,37 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   }
 
   if (l1Active_) {
-    edm::ESHandle<L1GtTriggerMenu> menuRcd;
-    setup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-    const L1GtTriggerMenu* menu = menuRcd.product();
 
+    Handle<L1GtTriggerMenuLite> gtMenuLite;
+    event.getRun().getByLabel(InputTag(l1GtMenuLiteName_),gtMenuLite);
+    
     // get L1 algo names
     labels->push_back("xxx-L1AlgoNames-xxx");
     size_t position = labels->size();
-    for (size_t kk = 0; kk<128; ++kk) {
-      labels->push_back(Form("UnusedL1Algo%d",kk));
-    }
-    for (CItAlgo algo = menu->gtAlgorithmMap().begin(); 
-         algo!=menu->gtAlgorithmMap().end(); ++algo) {
-      size_t act = position + algo->second.algoBitNumber();
-      if (act>=labels->size()) {
-        edm::LogError("FillerMetaInfos") << "Cannot store more than 128 L1 algorithm bits, but got " 
-                                         << algo->second.algoBitNumber() << std::endl;
+    int algoError;
+    for (UInt_t kk = 0; kk<128; ++kk) {
+      const std::string *algoName = gtMenuLite->gtAlgorithmName(kk, algoError);
+      if (!algoError) {
+        labels->push_back(*algoName);
       }
-      (*labels)[act] = algo->second.algoName();
+      else {
+        labels->push_back(Form("UnusedL1Algo%d",kk));
+      }
     }
 
+    printf("Getting l1 tech names\n");
     // get L1 tech names
     labels->push_back("xxx-L1TechNames-xxx");
     position = labels->size();
-    for (size_t kk = 0; kk<64; ++kk) {
-      labels->push_back(Form("UnusedL1Tech%d",kk));
-    }
-    for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); 
-         algo!=menu->gtTechnicalTriggerMap().end(); ++algo) {
-      size_t act = position + algo->second.algoBitNumber();
-      if (act>=labels->size()) {
-        edm::LogError("FillerMetaInfos") << "Cannot store more than 64 L1 technical bits, but got " 
-                                         << algo->second.algoBitNumber() << std::endl;
+    int techError;
+    for (UInt_t kk = 0; kk<64; ++kk) {
+      const std::string *techName = gtMenuLite->gtTechTrigName(kk, techError);
+      if (!techError) {
+        labels->push_back(*techName);
       }
-      (*labels)[act] = algo->second.algoName();
+      else {
+        labels->push_back(Form("UnusedL1Tech%d",kk));
+      }
     }
   }
 
@@ -681,31 +679,40 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   if (!l1Active_) 
     return;
 
-  // get L1 trigger record information
-  Handle<L1GlobalTriggerRecord> gtRecord;
-  GetProduct(l1GTRecName_, gtRecord, event);
+  edm::InputTag gtliteInputTag(l1GtMenuLiteName_);
+  Handle<L1GtTriggerMenuLite> gtMenuLite;
+  event.getRun().getByLabel(gtliteInputTag, gtMenuLite);
 
-  // deal with algo bits
+  l1gtutils_.retrieveL1GtTriggerMenuLite(event, gtliteInputTag);
+
   BitMask128 l1amask;
-  DecisionWord dw(gtRecord->decisionWord());
-  FillBitAMask(l1amask, dw);
-  l1ABits_->SetBits(l1amask);
-
-  // deal with tech bits
   BitMask128 l1tmask;
-  TechnicalTriggerWord tw(gtRecord->technicalTriggerWord());
-  FillBitTMask(l1tmask, tw);
-  l1TBits_->SetBits(l1tmask);
-
   BitMask128 l1abmask;
-  DecisionWord dwb(gtRecord->decisionWordBeforeMask());
-  FillBitAMask(l1abmask, dwb);
-  l1ABits2_->SetBits(l1abmask);
-
-  // deal with tech bits
   BitMask128 l1tbmask;
-  TechnicalTriggerWord twb(gtRecord->technicalTriggerWordBeforeMask());
-  FillBitTMask(l1tbmask, twb);
+
+  int algoError,techError;
+  bool algo, tech, algoBeforeMask, techBeforeMask;
+  int algoPrescale,techPrescale,algoMask,techMask;
+  for (UInt_t i=0; i<128; ++i) {
+    const std::string *algoName = gtMenuLite->gtAlgorithmName(i, algoError);
+    if (!algoError) {
+      l1gtutils_.l1Results(event,*algoName,algoBeforeMask,algo,algoPrescale,algoMask);
+      l1amask.SetBit(i,algo);
+      l1abmask.SetBit(i,algoBeforeMask);
+    }
+
+    const std::string *techName = gtMenuLite->gtTechTrigName(i, techError);
+    if (!techError) {
+      l1gtutils_.l1Results(event,*techName,techBeforeMask,tech,techPrescale,techMask);
+      l1tmask.SetBit(i,tech);
+      l1tbmask.SetBit(i,techBeforeMask);
+    }
+
+  }
+
+  l1ABits_->SetBits(l1amask);
+  l1TBits_->SetBits(l1tmask);
+  l1ABits2_->SetBits(l1abmask);
   l1TBits2_->SetBits(l1tbmask);
 
   // get L1 trigger readout record information if wanted
