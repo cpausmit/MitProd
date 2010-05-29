@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.28 2010/05/21 18:50:36 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.29 2010/05/28 18:50:16 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -191,8 +191,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
  
 
-    if (globalTrackMap_ && iM->combinedMuon().isNonnull()) 
+    if (globalTrackMap_ && iM->combinedMuon().isNonnull()) {
       outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
+      outMuon->SetNValidHits (iM->globalTrack()->hitPattern().numberOfValidMuonHits());
+    }
     if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
       Int_t refProductId = iM->standAloneMuon().id().id();
       if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
@@ -202,12 +204,9 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
              << "Error! Track reference in unmapped collection " << edmName_ << endl;
     }
-    if (trackerTrackMap_ && iM->track().isNonnull()) 
+    if (trackerTrackMap_ && iM->track().isNonnull()) {
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
-<<<<<<< FillerMuons.cc
-    
-    outMuon->SetNValidHits (iM->globalTrack()->hitPattern().numberOfValidMuonHits());
-=======
+    }
 
     //compute impact parameter with respect to PV
     if (iM->track().isNonnull()) {
