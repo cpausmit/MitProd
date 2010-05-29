@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.57 2010/05/10 20:08:15 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.58 2010/05/29 11:58:47 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -452,7 +452,6 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
       }
     }
 
-    printf("Getting l1 tech names\n");
     // get L1 tech names
     labels->push_back("xxx-L1TechNames-xxx");
     position = labels->size();
