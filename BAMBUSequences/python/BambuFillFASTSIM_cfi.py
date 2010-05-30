@@ -1,4 +1,4 @@
-# $Id: BambuFillAODSIM_cfi.py,v 1.1 2009/10/04 12:53:19 bendavid Exp $
+# $Id: BambuFillFASTSIM_cfi.py,v 1.1 2010/04/27 14:29:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,6 +11,9 @@ enableSIM(MitTreeFiller)
 
 #Disable filling of geant4 simulation truth, not present in AODSIM
 MitTreeFiller.MCParticles.simActive = False
+
+#disable filling of L1 trigger info (not consistantly available in fastsim)
+MitTreeFiller.MetaInfos.l1Active = False
 
 #replace conversion sequence with fastsim friendly sequence omitting ecal-seeded tracks
 BambuRecoSequence.replace(electronsStable,electronsStableFastSim)

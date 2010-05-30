@@ -60,15 +60,11 @@ def enableSIM(filler):
   filler.AKt5Jets.flavorMatchingActive       = True
   filler.AKt7Jets.flavorMatchingActive       = True
   filler.ItrCone5PFJets.flavorMatchingActive = True
-  filler.SisCone5PFJets.flavorMatchingActive = True
-  filler.SisCone7PFJets.flavorMatchingActive = True
   filler.Kt4PFJets.flavorMatchingActive      = True
   filler.Kt6PFJets.flavorMatchingActive      = True
   filler.AKt5PFJets.flavorMatchingActive     = True
   filler.AKt7PFJets.flavorMatchingActive     = True
   filler.IC5GenJets.flavorMatchingActive     = True
-  filler.SC5GenJets.flavorMatchingActive     = True
-  filler.SC7GenJets.flavorMatchingActive     = True
   filler.KT4GenJets.flavorMatchingActive     = True
   filler.KT6GenJets.flavorMatchingActive     = True
   filler.AKT5GenJets.flavorMatchingActive    = True

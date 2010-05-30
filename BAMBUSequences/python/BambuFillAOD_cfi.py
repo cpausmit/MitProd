@@ -1,4 +1,4 @@
-# $Id: BambuFillAOD_cfi.py,v 1.2 2009/10/19 18:44:51 bendavid Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.3 2009/11/05 21:40:14 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,6 +9,21 @@ try:
   BambuRecoSequence.remove(siPixelRecHits)
 except:
   pass
+  
+#disable jet plus tracks
+try:
+  BambuRecoSequence.remove(JetPlusTrackCorrectionsIcone5)
+except:
+  pass
+
+try:
+  BambuRecoSequence.remove(JetPlusTrackCorrectionsAntiKt5)
+except:
+  pass
+
+
+MitTreeFiller.IC5JetPlusTrack.active = False
+MitTreeFiller.AK5JetPlusTrack.active = False
   
 MitTreeFiller.PixelHits.active            = False
 MitTreeFiller.PixelVertexes.active        = False
