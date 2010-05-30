@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 # input source
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0016/62FDDFEB-391E-DF11-890A-001731A28BE1.root')
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECOSIMSummer09/TTbar_Summer09-MC_3XY_V25_preproduction-v1/969AE5D9-DA2B-DF11-931D-001CC4C10E02.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_6_1_patch1/RelValTTbar/GEN-SIM-RECO/MC_36Y_V8-v1/0000/664A5B9D-F462-DF11-ADE5-0030487CF41E.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_36Y_V6::All'
+process.GlobalTag.globaltag = 'MC_36Y_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 
