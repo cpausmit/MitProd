@@ -1,4 +1,4 @@
-# $Id: JetsMCFlavourMatching_cfi.py,v 1.9 2009/11/03 15:13:18 bendavid Exp $
+# $Id: JetsMCFlavourMatching_cfi.py,v 1.10 2010/05/28 14:30:36 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -347,7 +347,7 @@ KT4PFFlavour = cms.Sequence(KT4PFbyRef*KT4PFbyValPhys*KT4PFbyValAlgo)
 KT6PFFlavour = cms.Sequence(KT6PFbyRef*KT6PFbyValPhys*KT6PFbyValAlgo)
 AKT5PFFlavour = cms.Sequence(AKT5PFbyRef*AKT5PFbyValPhys*AKT5PFbyValAlgo)
 AKT7PFFlavour = cms.Sequence(AKT7PFbyRef*AKT7PFbyValPhys*AKT7PFbyValAlgo)
-GenJetFlavour = cms.Sequence(GenIC5byRef*GenSC5byRef*GenSC7byRef*GenKT4byRef*GenKT6byRef*GenAKT5byRef*GenAKT7byRef)
+GenJetFlavour = cms.Sequence(GenIC5byRef*GenKT4byRef*GenKT6byRef*GenAKT5byRef*GenAKT7byRef)
 caloJetMCFlavour = cms.Sequence(myPartons*iterativeCone5Flavour
                                 +KT4Flavour
                                 +KT6Flavour
