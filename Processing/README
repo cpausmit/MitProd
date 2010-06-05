@@ -1,0 +1,15 @@
+---+ Tasks to be completed
+
+   * remove CMS dataset input to the crab cfg file
+   * put filefi setup into the repository environment
+   * commit a fully functioning setup into CVS
+   * cleanup the submit script, it is really messy by now
+
+---+ Completed Tasks
+
+   * put first version of MIT production environment into CVS
+   * merge submits on the basis of sites
+   * reduce number of ssh accesses through extractCatalog.py
+   * implement XX-CRABID-XX replacement in the right spot
+   * implement an automatic installation for a given CMSSW_VERSION (ex. 3_6_1)
+   * implement an automatic installation for a given MIT_TAG (ex. Mit_014a)
