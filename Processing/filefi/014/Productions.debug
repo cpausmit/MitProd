@@ -1,0 +1,22 @@
+#---------------------------------------------------------------------------------------------------
+# Configuration for the productions with this configuration
+#
+# XX-MITCFG-XX     = filler
+# XX-MITVERSION-XX = 013
+#
+# crontab          = 1
+#---------------------------------------------------------------------------------------------------
+# Production Parameters
+# Ex:
+# CDF_Dataset_name \
+#  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
+#---------------------------------------------------------------------------------------------------
+
+/MinBias/Spring10-START3X_V25B_356ReReco-v1/GEN-SIM-RECO  p10-minb7000-st3       25000 new -
+/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO  p10-minb7000-v26a-st3  25000 new -
+
+/Wmunu/Spring10-START3X_V26_S09_preproduction-v2/RECO     p10pp-wm-v26           25000 new -
+/Wenu/Spring10-START3X_V26_S09_preproduction-v2/RECO      p10pp-we-v26           25000 new -
+/PhotonJet_Pt15/Spring10-START3X_V26_S09_preproduction-v1/GEN-SIM-RECO \
+                                                          p10pp-pjet15-v26       25000 new -
+/QCD_Pt30/Spring10-START3X_V26_S09_preproduction-v2/RECO  p10pp-qcd30-v26        25000 new -

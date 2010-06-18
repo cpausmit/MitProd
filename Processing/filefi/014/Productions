@@ -1,0 +1,18 @@
+#---------------------------------------------------------------------------------------------------
+# Configuration for the productions with this configuration
+#
+# XX-MITCFG-XX     = filler
+# XX-MITVERSION-XX = 013
+#
+# crontab          = 1
+#---------------------------------------------------------------------------------------------------
+# Production Parameters
+# Ex:
+# CDF_Dataset_name \
+#  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
+#---------------------------------------------------------------------------------------------------
+/H140_2W_2lnu_gluonfusion_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO p10-h140ww2l-gf-v26 25000 sub -
+/H150_2W_2lnu_gluonfusion_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO p10-h150ww2l-gf-v26 25000 sub -
+/H160_2W_2lnu_gluonfusion_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO p10-h160ww2l-gf-v26 25000 sub -
+/H170_2W_2lnu_gluonfusion_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO p10-h170ww2l-gf-v26 25000 sub -
+/H200_2W_2lnu_gluonfusion_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO p10-h200ww2l-gf-v26 25000 sub -
