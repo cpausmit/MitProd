@@ -76,7 +76,7 @@ foreach file ($LIST)
 
     cat > submit.cmd <<EOF
 Universe                = vanilla
-Requirements            = (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer)
+Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
@@ -92,7 +92,8 @@ when_to_transfer_output = ON_EXIT
 Queue
 EOF
 
-    condor_submit submit.cmd >& /dev/null;
+## Requirements            = (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer)
+    condor_submit submit.cmd >& lastSub
     rm submit.cmd
 
     @ index++

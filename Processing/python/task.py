@@ -140,21 +140,22 @@ class Task:
         self.status     = 'undefined'
         # derive the missing parameters
         cmsswCfg = 'cmssw.cfg'
-        crabFile  = mitCfg + '/' + mitVersion + '/' + 'crab.cfg'
+        crabFile  = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + 'crab.cfg'
         if not os.path.exists(crabFile):
             cmd = "Crab file not found: %s" % crabFile
             raise RuntimeError, cmd
-        cmsswFile = mitCfg + '/' + mitVersion + '/' + cmsswCfg
+        cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + cmsswCfg
         if not os.path.exists(cmsswFile):
             cmd = "Cmssw file not found: %s" % cmsswFile
             cmsswCfg = 'cmssw.py'
-            cmsswFile = mitCfg + '/' + mitVersion + '/' + cmsswCfg
+            cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + cmsswCfg
             if not os.path.exists(cmsswFile):
                 cmd = "Cmssw file not found: %s" % cmsswFile
                 cmd = " XXXX ERROR no valid configuration found XXXX"
                 raise RuntimeError, cmd
         # resolve the other mitCfg parameters from the configuration file
-        cmd = 'cat ' + mitCfg + '/' + mitVersion + '/' + 'Productions'
+        cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + \
+              mitCfg + '/' + mitVersion + '/' + 'Productions'
         join       = 0
         mitDataset = ""
         fullLine   = ""

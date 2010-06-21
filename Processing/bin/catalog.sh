@@ -6,7 +6,7 @@ catalog=0
 extract=0
 generate=0
 test=0
-mitCfg=filler
+mitCfg=filefi
 while getopts "cegtm:" o
 do case "$o" in
   c) catalog=1;;
@@ -132,8 +132,17 @@ for dataset in $LIST; do
       echo ""
     fi
 
+    # Figure out whether there are new files to consider
+    newFiles=0
+    #echo " LIST $CATALOG/condor/$mitCfg/$VERSION/$extDataset"
+    if [ "`ls -1 $CATALOG/condor/$mitCfg/$VERSION/$extDataset | grep root`" != "" ]
+    then
+      newFiles=1
+    fi
+    #echo " New files: $newFiles"
+
     # Extract the catalog metadata
-    if [ "$extract" == 1 ]
+    if [ "$extract" == 1 ] && [ "$newFiles" == 1 ]
     then
       jobs=`condor_q -global cmsprod | grep catalogFile.csh | wc -l`
       #jobs=""
@@ -153,7 +162,7 @@ for dataset in $LIST; do
     fi
 
     # Generate the catalog entries
-    if [ "$generate" == 1 ]
+    if [ "$generate" == 1 ] && [ "$newFiles" == 1 ]
     then
       #echo \
       generateCatalog.py --nFilesPerSet=5 --rawFile=$CATALOG/$mitCfg/$VERSION/$dataset

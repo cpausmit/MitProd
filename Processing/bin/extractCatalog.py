@@ -69,8 +69,8 @@ except getopt.GetoptError, ex:
 server     = "srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
 catalogDir = "/home/cmsprod/catalog/t2mit"
 dataset    = None
-mitCfg     = "filler"
-version    = "013"
+mitCfg     = "filefi"
+version    = "014"
 lRetry     = 0
 lRemove    = 0
 compact    = 0
@@ -133,7 +133,7 @@ if re.search('crab_0',dataset):
 ##        if len(f) == 2:
 ##            print '\n\nOLD SCHEME\n\n'
 ##            g = f[0].split("/")
-        originalFile = offDataset + '_000_%d.root'%index
+        originalFile = offDataset + '_000_%d_1.root'%index
         if debug == 1:
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[1]))
         files[originalFile] = g[-1] 

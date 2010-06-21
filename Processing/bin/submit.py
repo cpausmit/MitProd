@@ -13,7 +13,7 @@
 # Author: C.Paus                                                                      (July 1, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import task
+import task,translator
 
 #===================================================================================================
 def searchReplace(line,mitCfg,version,mitDataset, \
@@ -52,7 +52,7 @@ def adjustCfg(line,nevents,crabId):
 #===================================================================================================
 def findStoragePath(mitCfg,version,mitDataset):
     # find the forseen storage place
-    cmd = 'grep ^storage_path ' + mitCfg + '/' + version + '/crab.cfg'
+    cmd = 'grep ^storage_path ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
         line         = searchReplace(line,mitCfg,version,mitDataset);
@@ -61,7 +61,7 @@ def findStoragePath(mitCfg,version,mitDataset):
         names        = names[1:]
         storagePath  = "=".join(names)
         storagePath  = re.sub("\s", "",storagePath)
-    cmd = 'grep ^user_remote_dir ' + mitCfg + '/' + version + '/crab.cfg'
+    cmd = 'grep ^user_remote_dir ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
         line         = searchReplace(line,mitCfg,version,mitDataset);
@@ -201,8 +201,8 @@ for line in os.popen(cmd).readlines():  # run command
 print "\n This job will be CrabId: " + crabId + "\n"
 
 cmssw      = "cmssw"
-mitCfg     = "filler"
-version    = "013"
+mitCfg     = "filefi"
+version    = "014"
 #dbs        = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
 dbs        = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
 sched      = "glite"
@@ -252,7 +252,7 @@ for opt, arg in opts:
 
 # Make sure we have the right 'database' and the right config file
 database = 'Productions'
-cmsswPy  = cmssw + '.py'
+cmsswPy  = cmssw + '_' + crabId + '.py'
 if cmssw != 'cmssw':
     database += '.' + cmssw
 
@@ -261,18 +261,23 @@ if cmsDataset == None and mitDataset == None:
     cmd = "--cmsDataset | --mitDataset  options not provided. One of them is required."
     raise RuntimeError, cmd
 
-crabFile  = mitCfg + '/' + version + '/' + 'crab.cfg'
+crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
 if not os.path.exists(crabFile):
     cmd = "Crab file not found: %s" % crabFile
     raise RuntimeError, cmd
-cmsswFile = mitCfg + '/' + version + '/' + cmsswPy
+cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmssw + '.py'
 if not os.path.exists(cmsswFile):
     cmd = "Cmssw file not found: %s" % cmsswFile
     cmd = " XXXX ERROR no valid configuration found XXXX"
     raise RuntimeError, cmd
 
+
+# Prepare the ce/se translator
+translator = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/ceTable',
+                                   os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/seTable')
+
 # Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat ' + mitCfg + '/' + version + '/' + database
+cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + database
 
 join       = 0
 fullLine   = ""
@@ -317,11 +322,14 @@ if mitDataset == None or cmsDataset == None:
     sys.exit(1)
 
 # Prepare file based processing input
-runFile  = mitCfg + '/' + version + '/' + 'run.sh'
+runFile  =  os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'run.sh'
 if not os.path.exists(runFile):
     cmd = "Run file not found: %s" % runFile
     raise RuntimeError, cmd
 cmd = 'cp ' + runFile + ' ./'
+os.system(cmd)
+writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'writeCfg.py'
+cmd = 'cp ' + writeCfgFile + ' ./'
 os.system(cmd)
 
 lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
@@ -353,12 +361,12 @@ print ' Preparing dataset: ' + cmsDataset + ' [MIT: ' + mitDataset + ' with ' + 
 # Prepare the config files
 # --------------------------------------------------------------------------------------------------
 # Cleaning up
-cmd = "rm -f crab.cfg crab.cfg-Template cmssw.cfg cmssw.py"
+cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " + cmsswPy
 os.system(cmd)
 
 # Parse template input and write the crab configuration file
 fileInput  = open(crabFile,'r')
-fileOutput = open("crab.cfg-Template",'w')
+fileOutput = open("crab_" + crabTask.tag + ".cfg-Template",'w')
 line = fileInput.readline()
 while (line != ''):
     if line[0] != '#':
@@ -401,8 +409,8 @@ for subTask in crabTask.subTasks:
     crabIdCheck = ''
 
     # adjust crab config
-    fileInput  = open("crab.cfg-Template",'r')
-    fileOutput = open("crab.cfg",'w')
+    fileInput  = open("crab_" + crabTask.tag + ".cfg-Template",'r')
+    fileOutput = open("crab_" + crabTask.tag + ".cfg",'w')
     line = fileInput.readline()
     while (line != ''):
         if line[0] != '#':
@@ -416,14 +424,14 @@ for subTask in crabTask.subTasks:
     # Deal with storage element area
     # ----------------------------------------------------------------------------------------------
     # find the forseen storage place
-    cmd = 'grep ^storage_element crab.cfg-Template'
+    cmd = 'grep ^storage_element crab_' + crabTask.tag + '.cfg-Template'
     for file in os.popen(cmd).readlines():   # run command
         line        = file[:-1]              # strip '\n'
         # decode the storage element name
         names       = line.split("=")        # splitting every '='
         storageEle  = names.pop()
         storageEle  = re.sub("\s", "",storageEle)
-    cmd = 'grep ^storage_path crab.cfg-Template'
+    cmd = 'grep ^storage_path crab_' + crabTask.tag + '.cfg-Template'
     for file in os.popen(cmd).readlines():   # run command
         line        = file[:-1]              # strip '\n'
         # decode the storage directory name
@@ -431,7 +439,7 @@ for subTask in crabTask.subTasks:
         names       = names[1:]
         storagePath = "=".join(names)
         storagePath = re.sub("\s", "",storagePath)
-    cmd = 'grep ^user_remote_dir crab.cfg-Template'
+    cmd = 'grep ^user_remote_dir crab_' + crabTask.tag + '.cfg-Template'
     for file in os.popen(cmd).readlines():   # run command
         line        = file[:-1]              # strip '\n'
         # decode the storage directory name
@@ -452,7 +460,7 @@ for subTask in crabTask.subTasks:
             createDirGeneral(storageEle,storagePath)
 
 #    cmd  = "crab -create -debug 3 -USER.ui_working_dir=" + tag + " | tee forDaniele "
-    cmd  = "crab -create -USER.ui_working_dir=" + tag
+    cmd  = "crab -create -cfg crab_" + crabTask.tag + ".cfg -USER.ui_working_dir=" + tag
     print '  -> ' + cmd
     if test != 0:
         cmd = 'echo ' + cmd
@@ -468,9 +476,12 @@ for subTask in crabTask.subTasks:
             nJobsTotal = f[1]
             if nJobsTotal == '':
                 nJobsTotal = f[2]
-    # and report
+    # report
     print '  --> %s jobs created (%s).\n'%(nJobsTotal,tag)
-
+    # and cleanup the temporary file for the subtask
+    cmd = "rm -f " + mitDataset + ".lfns_" + tag
+    os.system(cmd)
+    
     # adjust arguments
     cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
           ' > ' + tag + '/share/arguments.xml'
@@ -557,13 +568,24 @@ for subTask in crabTask.subTasks:
         nSubmit = '%d-%d'%(mergedMinIdxs[idx],mergedMaxIdxs[idx])
         if mergedMinIdxs[idx] == mergedMaxIdxs[idx]:
             nSubmit = '%d,%d'%(mergedMinIdxs[idx],100000000)
-        cmd = 'crab -submit %s -continue %s -GRID.se_white_list=%s'%(nSubmit,tag,mergedSites[idx])
+        translatedSites = translator.translateSes(mergedSites[idx])
+        cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,translatedSites)
         print '  ' + cmd
-        os.system(cmd)
+        status = os.system(cmd)
+        while status != 0:
+            print ' Submission failed  (%s) --> retry'%(cmd)
+            status = os.system(cmd)
+
         # last action in the loop: increment the merged blocks
         idx += 1
     
     print '  Number of blocks submitted: %d' % nSubmission
+
+
+# and cleanup the temporary file for the task
+cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " \
+      + cmsswPy + ' ' + cmsswPy + 'c'
+os.system(cmd)
 
 print ' Done... keep watching it...'
 sys.exit(0)

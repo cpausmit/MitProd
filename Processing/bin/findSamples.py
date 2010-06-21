@@ -45,7 +45,7 @@ def findCompletedDatasets(path):
     print " Collecting information over completed samples"
     datasetList = []
 
-    cmd = 'cat ' + mitCfg + '/' + version + '/Completed  2> /dev/null'
+    cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Completed  2> /dev/null'
     for line in os.popen(cmd).readlines():   # run command
         line    = line[:-1]                  # strip '\n'
         dataset = line
@@ -100,7 +100,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 mitCfg     = 'filefi'
-version    = '013'
+version    = '014'
 cmssw      = ''
 cmsswCfg   = 'cmssw.cfg'
 exe        = 0
@@ -132,15 +132,15 @@ for opt, arg in opts:
         debug      = True
 
 # Read parameters needed
-crabFile  = mitCfg + '/' + version + '/' + 'crab.cfg'
+crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
 if not os.path.exists(crabFile):
     cmd = "Crab file not found: %s" % crabFile
     raise RuntimeError, cmd
-cmsswFile = mitCfg + '/' + version + '/' + cmsswCfg
+cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
 if not os.path.exists(cmsswFile):
     cmd = "Cmssw file not found: %s" % cmsswFile
     cmsswCfg = 'cmssw.py'
-    cmsswFile = mitCfg + '/' + version + '/' + cmsswCfg
+    cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
     if not os.path.exists(cmsswFile):
         cmd = "Cmssw file not found: %s" % cmsswFile
         cmd = " XXXX ERROR no valid configuration found XXXX"
@@ -163,7 +163,7 @@ cleanupCompletedList(ongoingDsetList,completedDsetList)
 completedDsetList = findCompletedDatasets(path)
 
 # Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat ' + mitCfg + '/' + version + '/' + 'Productions'
+cmd = 'cat '+ os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
 if cmssw != '':
     cmd = cmd + '.' + cmssw
 

@@ -26,7 +26,7 @@ set pwd=`pwd`
 setenv SCRAM_ARCH    slc5_ia32_gcc434
 setenv VO_CMS_SW_DIR /server/02a/cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.csh
-cd     $HOME/cms/cmssw/013/CMSSW_3_5_6/src
+cd     $HOME/cms/cmssw/014/CMSSW_3_6_1_patch4/src
 eval   `scram runtime -csh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.csh
 cd $pwd
