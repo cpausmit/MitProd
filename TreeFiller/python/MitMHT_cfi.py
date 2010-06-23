@@ -1,4 +1,4 @@
-# $Id: MitMHT_cfi.py,v 1.2 2009/03/16 08:29:30 loizides Exp $
+# $Id: MitMHT_cfi.py,v 1.3 2009/03/22 08:49:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -56,35 +56,37 @@ htMetIC5JPT = cms.EDProducer("METProducer",
     InputType       = cms.string('CaloJetCollection')
 )
 
-import JetMETCorrections.Type1MET.MetMuonCorrections_cff
+#deprecated
 
-corMHTGlobalMuonsSC5 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetSC5
+#import JetMETCorrections.Type1MET.MetMuonCorrections_cff
 
-corMHTGlobalMuonsSC7 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetSC7
+#corMHTGlobalMuonsSC5 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetSC5
 
-corMHTGlobalMuonsIC5 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetIC5
+#corMHTGlobalMuonsSC7 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetSC7
 
-corMHTGlobalMuonsKT4 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetKT4
+#corMHTGlobalMuonsIC5 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetIC5
 
-corMHTGlobalMuonsKT6 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetKT6
+#corMHTGlobalMuonsKT4 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetKT4
 
-corMHTGlobalMuonsIC5JPT = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
-JetMETCorrections.Type1MET.uncorMETInputTag = htMetIC5JPT
+#corMHTGlobalMuonsKT6 = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetKT6
 
-MitMHT = cms.Sequence(htMetSC5*
-                      htMetSC7*
-                      htMetIC5*
-                      htMetKT4*
-                      htMetKT6*
-                      htMetIC5JPT*
-                      corMHTGlobalMuonsSC5*
-                      corMHTGlobalMuonsSC7*
-                      corMHTGlobalMuonsIC5*
-                      corMHTGlobalMuonsKT4*
-                      corMHTGlobalMuonsKT6*
-                      corMHTGlobalMuonsIC5JPT)
+#corMHTGlobalMuonsIC5JPT = JetMETCorrections.Type1MET.MetMuonCorrections_cff.corMetGlobalMuons.clone()
+#JetMETCorrections.Type1MET.uncorMETInputTag = htMetIC5JPT
+
+#MitMHT = cms.Sequence(htMetSC5*
+                      #htMetSC7*
+                      #htMetIC5*
+                      #htMetKT4*
+                      #htMetKT6*
+                      #htMetIC5JPT*
+                      #corMHTGlobalMuonsSC5*
+                      #corMHTGlobalMuonsSC7*
+                      #corMHTGlobalMuonsIC5*
+                      #corMHTGlobalMuonsKT4*
+                      #corMHTGlobalMuonsKT6*
+                      #corMHTGlobalMuonsIC5JPT)

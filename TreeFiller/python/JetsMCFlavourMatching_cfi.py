@@ -1,333 +1,333 @@
-# $Id: JetsMCFlavourMatching_cfi.py,v 1.10 2010/05/28 14:30:36 bendavid Exp $
+# $Id: JetsMCFlavourMatching_cfi.py,v 1.11 2010/05/30 14:21:58 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 # select the partons for Jet MC Flavour
-myPartons = cms.EDFilter("PartonSelector",
+myPartons = cms.EDProducer("PartonSelector",
     withLeptons = cms.bool(False),
     src = cms.InputTag("genParticles")
 )
 
 #Iterative Cone
 # Flavour byReference
-IC5byRef = cms.EDFilter("JetPartonMatcher",
+IC5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("iterativeCone5CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
  
 # Flavour byValue PhysDef
-IC5byValPhys = cms.EDFilter("JetFlavourIdentifier",
+IC5byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("IC5byRef"),
     physicsDefinition = cms.bool(True)
 )
  
 # Flavour byValue AlgoDef
-IC5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+IC5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("IC5byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #SisCone Jets
 # Flavour byReference
-SC5byRef = cms.EDFilter("JetPartonMatcher",
+SC5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone5CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-SC5byValPhys = cms.EDFilter("JetFlavourIdentifier",
+SC5byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC5byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-SC5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+SC5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC5byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 # Flavour byReference
-SC7byRef = cms.EDFilter("JetPartonMatcher",
+SC7byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone7CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-SC7byValPhys = cms.EDFilter("JetFlavourIdentifier",
+SC7byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC7byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-SC7byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+SC7byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC7byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #Kt Jets
 # Flavour byReference
-KT4byRef = cms.EDFilter("JetPartonMatcher",
+KT4byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt4CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-KT4byValPhys = cms.EDFilter("JetFlavourIdentifier",
+KT4byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT4byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-KT4byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+KT4byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT4byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 
 # Flavour byReference
-KT6byRef = cms.EDFilter("JetPartonMatcher",
+KT6byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt6CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-KT6byValPhys = cms.EDFilter("JetFlavourIdentifier",
+KT6byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT6byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-KT6byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+KT6byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT6byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #AntiKt Jets
 # Flavour byReference
-AKT5byRef = cms.EDFilter("JetPartonMatcher",
+AKT5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak5CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT5byValPhys = cms.EDFilter("JetFlavourIdentifier",
+AKT5byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT5byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+AKT5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT5byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 # Flavour byReference
-AKT7byRef = cms.EDFilter("JetPartonMatcher",
+AKT7byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak7CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT7byValPhys = cms.EDFilter("JetFlavourIdentifier",
+AKT7byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT7byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT7byValAlgo = cms.EDFilter("JetFlavourIdentifier",
+AKT7byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT7byRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #IC5PF Jets
 # Flavour byReference
-IC5PFbyRef = cms.EDFilter("JetPartonMatcher",
+IC5PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("iterativeCone5PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
  
 # Flavour byValue PhysDef
-IC5PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+IC5PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("IC5PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
  
 # Flavour byValue AlgoDef
-IC5PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+IC5PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("IC5PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #SisCone Jets
 # Flavour byReference
-SC5PFbyRef = cms.EDFilter("JetPartonMatcher",
+SC5PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone5PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-SC5PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+SC5PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC5PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-SC5PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+SC5PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC5PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 # Flavour byReference
-SC7PFbyRef = cms.EDFilter("JetPartonMatcher",
+SC7PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone7PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-SC7PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+SC7PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC7PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-SC7PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+SC7PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("SC7PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #Kt Jets
 # Flavour byReference
-KT4PFbyRef = cms.EDFilter("JetPartonMatcher",
+KT4PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt4PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-KT4PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+KT4PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT4PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-KT4PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+KT4PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT4PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 
 # Flavour byReference
-KT6PFbyRef = cms.EDFilter("JetPartonMatcher",
+KT6PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt6PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-KT6PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+KT6PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT6PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-KT6PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+KT6PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("KT6PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #AntiKt Jets
 # Flavour byReference
-AKT5PFbyRef = cms.EDFilter("JetPartonMatcher",
+AKT5PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak5PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT5PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+AKT5PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT5PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT5PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+AKT5PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT5PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 # Flavour byReference
-AKT7PFbyRef = cms.EDFilter("JetPartonMatcher",
+AKT7PFbyRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak7PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT7PFbyValPhys = cms.EDFilter("JetFlavourIdentifier",
+AKT7PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT7PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT7PFbyValAlgo = cms.EDFilter("JetFlavourIdentifier",
+AKT7PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference    = cms.InputTag("AKT7PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 #Flavour by Reference
-GenIC5byRef = cms.EDFilter("JetPartonMatcher",
+GenIC5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("iterativeCone5GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenSC5byRef = cms.EDFilter("JetPartonMatcher",
+GenSC5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone5GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenSC7byRef = cms.EDFilter("JetPartonMatcher",
+GenSC7byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("sisCone7GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenKT4byRef = cms.EDFilter("JetPartonMatcher",
+GenKT4byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt4GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenKT6byRef = cms.EDFilter("JetPartonMatcher",
+GenKT6byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("kt6GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenAKT5byRef = cms.EDFilter("JetPartonMatcher",
+GenAKT5byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak5GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenAKT7byRef = cms.EDFilter("JetPartonMatcher",
+GenAKT7byRef = cms.EDProducer("JetPartonMatcher",
     jets                = cms.InputTag("ak7GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")

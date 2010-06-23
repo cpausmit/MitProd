@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterConvPhi.cc,v 1.7 2009/12/18 15:29:05 loizides Exp $
+// $Id: FilterConvPhi.cc,v 1.1 2010/01/18 14:37:18 bendavid Exp $
 //
 // FilterConvPhi
 //
@@ -10,7 +10,7 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
