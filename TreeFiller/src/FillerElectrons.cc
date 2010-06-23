@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.43 2010/05/06 17:31:24 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.44 2010/05/29 11:58:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -29,6 +29,8 @@
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "MitEdm/DataFormats/interface/DecayPart.h"
+#include "MitEdm/ConversionRejection/interface/ConversionMatcher.h"
 
 using namespace std;
 using namespace edm;
@@ -127,6 +129,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   edm::Handle<reco::TrackCollection> hGeneralTracks;
   event.getByLabel("generalTracks", hGeneralTracks);
   //const reco::VertexCollection *trackCol = hGeneralTracks.product();
+  
+  edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
+  event.getByLabel("mvfConversionRemoval", hConversions);
+  
+  mitedm::ConversionMatcher convMatcher;
 
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
@@ -354,10 +361,18 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
     outElectron->SetConvPartnerDist(convInfo.dist());
     outElectron->SetConvPartnerRadius(convInfo.radiusOfConversion());
+    outElectron->SetConversionXYZ(convInfo.pointOfConversion().x(),convInfo.pointOfConversion().y(),convInfo.pointOfConversion().z());
+    reco::TrackRef convTrackRef = convInfo.conversionPartnerTk();
+    if (trackerTrackMap_ && convTrackRef.isNonnull()) {
+        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(refToPtr(convTrackRef)));
+    }
 
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    
+    //fill additional conversion flag
+    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
     
     if (verbose_>1) {
       double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());

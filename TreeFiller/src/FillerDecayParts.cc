@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.19 2009/12/15 23:27:54 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.20 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -113,7 +113,12 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     if (p.primaryVertex().isNonnull()) {
       d->SetPriVertex(vertexMap_->GetMit(p.primaryVertex()));
     }
-      
+
+    if(0) {
+      printf("In  Particle position: x = %5f, y = %5f, z = %5f\n",p.position().x(),p.position().y(),p.position().z());
+      printf("Out Particle position: x = %5f, y = %5f, z = %5f\n",d->Position().x(),d->Position().y(),d->Position().z());
+    }      
+
     //fill shared layer bitmask
     const reco::HitPattern &sharedHitPattern = p.sharedHits();
     BitMask48 sharedLayers;
@@ -191,6 +196,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
         }
 
         d->AddDaughterData(outStable);
+        
       }
 
       // loop through and add decay daughters
