@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.26 2010/05/06 17:31:23 bendavid Exp $
+# $Id: BuildFile,v 1.27 2010/05/28 13:20:12 bendavid Exp $
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
@@ -38,6 +38,7 @@
 <use name=MitAna/DataUtil>
 <use name=MitEdm/VertexFitInterface>
 <use name=MitEdm/DataFormats>
+<use name=MitEdm/ConversionRejection>
 <use name=MitProd/ObjectService>
 #<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
