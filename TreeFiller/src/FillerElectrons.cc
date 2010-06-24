@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.46 2010/06/24 12:59:51 peveraer Exp $
+// $Id: FillerElectrons.cc,v 1.47 2010/06/24 13:02:27 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -116,7 +116,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   Handle<edm::ValueMap<float> > eidLooseMap;
   GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
-  etProduct(eIDCutBasedTightName_, eidTightMap, event);
+  GetProduct(eIDCutBasedTightName_, eidTightMap, event);
 
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
