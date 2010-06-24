@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.45 2010/06/23 09:02:45 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.46 2010/06/24 12:59:51 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -113,10 +113,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(edmName_, hElectronProduct, event);
   
   // handles to get the electron ID information
-  //  Handle<edm::ValueMap<float> > eidLooseMap;
-  // GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
-  //  Handle<edm::ValueMap<float> > eidTightMap;
-  //  GetProduct(eIDCutBasedTightName_, eidTightMap, event);
+  Handle<edm::ValueMap<float> > eidLooseMap;
+  GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
+  Handle<edm::ValueMap<float> > eidTightMap;
+  etProduct(eIDCutBasedTightName_, eidTightMap, event);
 
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
@@ -368,8 +368,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
 
     // fill Electron ID information
-    //    outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
-    //    outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
+    outElectron->SetPassTightID((*eidTightMap)[eRef]);
     
     //fill additional conversion flag
     outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
