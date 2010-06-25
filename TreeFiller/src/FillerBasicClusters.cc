@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.11 2010/03/24 15:40:57 sixie Exp $
+// $Id: FillerBasicClusters.cc,v 1.12 2010/06/24 12:59:50 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -111,6 +111,36 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetZernike20(lazyTools.zernike20(*inBC));
     outBasicCluster->SetZernike42(lazyTools.zernike42(*inBC));
 
+<<<<<<< FillerBasicClusters.cc
+
+    edm::Handle< EcalRecHitCollection > pEBRecHits;
+    event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
+    const EcalRecHitCollection * ebRecHits_ = pEBRecHits.product();
+    edm::Handle< EcalRecHitCollection > pEERecHits;
+    event.getByLabel( endcapEcalRecHitName_, pEERecHits );
+    const EcalRecHitCollection * eeRecHits_ = pEERecHits.product();
+
+    DetId id = ((*inBC).hitsAndFractions()[0]).first;
+    const EcalRecHitCollection *recHits = 0;
+    if (  id.subdetId() == EcalBarrel  ) {
+                recHits = ebRecHits_;
+        } else if ( id.subdetId() == EcalEndcap  ) {
+                recHits = eeRecHits_;
+        }
+    float max = 0;
+    DetId idmax(0);
+        for ( size_t i = 0; i < (*inBC).hitsAndFractions().size(); ++i ) {
+          float energy=0;
+          if ((*inBC).hitsAndFractions()[i].first!=DetId(0)) energy= (*(recHits->find( (*inBC).hitsAndFractions()[i].first))).energy() * (((*inBC).hitsAndFractions())[i].second);
+                if ( energy > max ) {
+                        max = energy;
+                        idmax = ((*inBC).hitsAndFractions())[i].first;
+                }
+        }
+	
+   outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
+
+=======
 
     edm::Handle< EcalRecHitCollection > pEBRecHits;
     event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
@@ -138,6 +168,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
         }
    outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
 
+>>>>>>> 1.12
     // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(thePtr, outBasicCluster);
