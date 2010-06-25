@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.30 2010/05/29 11:59:09 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.31 2010/05/30 15:28:59 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -52,24 +52,25 @@ MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
 MitTreeFiller.GsfTracks.ecalAssocActive                          = True
 
 # Produce pixel hit information
-from MitEdm.Producers.pixelRecHits_cfi import *
-from MitEdm.Producers.vertexz_cfi import *
+#from MitEdm.Producers.pixelRecHits_cfi import *
+#from MitEdm.Producers.vertexz_cfi import *
 
-# Enable pixel filling
-MitTreeFiller.PixelHits.active            = True
-MitTreeFiller.PixelVertexes.active        = True
-MitTreeFiller.TrackletVertexes.active     = True
-MitTreeFiller.ClusterVertexes.active      = True
-MitTreeFiller.PixelTracks.active          = True
-#MitTreeFiller.PixelTracks.ecalAssocActive = True
+## Enable pixel filling
+#MitTreeFiller.PixelHits.active            = True
+#MitTreeFiller.PixelVertexes.active        = True
+#MitTreeFiller.TrackletVertexes.active     = True
+#MitTreeFiller.ClusterVertexes.active      = True
+#MitTreeFiller.PixelTracks.active          = True
+##MitTreeFiller.PixelTracks.ecalAssocActive = True
 
-# Produce event selection data
-from MitEdm.Producers.evtSelData_cfi import *
+## Produce event selection data
+#from MitEdm.Producers.evtSelData_cfi import *
+#MitTreeFiller.EvtSelData.active = True
 
-BambuRecoSequence = cms.Sequence(siPixelRecHits*
-                                 trackletVertices* 
-                                 clusterVertices*
-                                 evtSelData*
+BambuRecoSequence = cms.Sequence(#siPixelRecHits*
+                                 #trackletVertices* 
+                                 #clusterVertices*
+                                 #evtSelData*
                                  electronsStable*
                                  kShProducer*
                                  conversionProducer*
