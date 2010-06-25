@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.18 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerPhotons.cc,v 1.19 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -141,12 +141,13 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     }
 
     // make link to supercluster
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull())
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull()) {
       if(barrelSuperClusterMap_->HasMit(iP->superCluster())) {
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
       } else {
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
       }
+    }
   }
   photons_->Trim();
 }
