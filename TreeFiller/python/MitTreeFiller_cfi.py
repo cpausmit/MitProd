@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.72 2010/05/28 14:30:36 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.73 2010/05/29 12:59:15 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -160,7 +160,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     EvtSelData = cms.untracked.PSet(
-        active     = cms.untracked.bool(True),
+        active     = cms.untracked.bool(False),
         mitName    = cms.untracked.string('EvtSelData'),
         edmName    = cms.untracked.string('evtSelData'),    
         fillerType = cms.untracked.string('FillerEvtSelData')
