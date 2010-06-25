@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.23 2010/02/24 17:38:25 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.24 2010/05/04 11:56:43 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -70,6 +70,7 @@ namespace mithep
   typedef AssociationMap<const mitedm::BasePartPtr,         mithep::Particle*>     BasePartMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Particle*>     TrackPartMap;
   typedef AssociationMap<const CaloTowerDetId,              mithep::CaloTower*>    CaloTowerMap;
+  typedef AssociationMap<const DetId,                       mithep::CaloTower*>    CaloTowerDetIdMap;  
   typedef AssociationMap<const mitedm::VertexPtr,           mithep::Vertex*>       VertexMap;
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*> SuperClusterIdMap;
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>         MuonMap;

@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.9 2010/03/18 20:21:01 bendavid Exp $
+// $Id: FillerSuperClusters.cc,v 1.10 2010/03/24 15:41:22 sixie Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -20,12 +20,15 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
   mitName_(Conf().getUntrackedParameter<string>("mitName","SuperClusters")),
   basicClusterMapName_(Conf().getUntrackedParameter<string>("basicClusterMapName", 
                                                             "BasicClusterMap")),
+  caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", 
+                                                            "CaloTowerDetIdMap")),                                                            
   superClusterMapName_(Conf().getUntrackedParameter<string>("superClusterMapName", 
                                                             "SuperClusterMap")),
   superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
                                                               "SuperClusterIdMap")),
   caloTowerName_(Conf().getUntrackedParameter<string>("caloTowerName","towerMaker")),
   basicClusterMap_(0),
+  caloTowerDetIdMap_(0),
   superClusters_(new mithep::SuperClusterArr(25)),
   superClusterMap_(new mithep::SuperClusterMap),
   superClusterIdMap_(new mithep::SuperClusterIdMap)
@@ -55,6 +58,12 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
     basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_);
     if (basicClusterMap_)
       AddBranchDep(mitName_,basicClusterMap_->GetBrName());
+  }
+  
+  if (!caloTowerDetIdMapName_.empty()) {
+    caloTowerDetIdMap_ = OS()->get<CaloTowerDetIdMap>(caloTowerDetIdMapName_);
+    if (caloTowerDetIdMap_)
+      AddBranchDep(mitName_,caloTowerDetIdMap_->GetBrName());
   }
   
   if (!superClusterMapName_.empty()) {
@@ -116,18 +125,27 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 	outSC->AddCluster(basicClusterMap_->GetMit(*bc));
     }
 
-    // add super cluster to the map
-    reco::SuperClusterRef theRef(hSuperClusterProduct, inSC-inSuperClusters.begin());
-    superClusterMap_->Add(theRef, outSC);
-
-    // add super cluster det ids to the id map
+    //add super cluster det ids to the id map and also fill supercluster-calotower associations
     const std::vector< std::pair<DetId, float> > &pairs = inSC->hitsAndFractions();
     for (std::vector< std::pair<DetId, float> >::const_iterator ipair = pairs.begin();
           ipair < pairs.end(); ++ipair) {
 
       const DetId &ihit = ipair->first;
+    
+      if (caloTowerDetIdMap_) {
+        if (caloTowerDetIdMap_->HasMit(ihit)) {
+          outSC->AddTower(caloTowerDetIdMap_->GetMit(ihit));
+        }
+      }
+      
       superClusterIdMap_->Add(ihit,outSC);
     }
+
+
+    // add super cluster to the map
+    reco::SuperClusterRef theRef(hSuperClusterProduct, inSC-inSuperClusters.begin());
+    superClusterMap_->Add(theRef, outSC);
+
   }
   superClusters_->Trim();
 }

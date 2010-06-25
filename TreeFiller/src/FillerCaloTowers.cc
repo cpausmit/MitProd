@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.15 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerCaloTowers.cc,v 1.16 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -20,8 +20,10 @@ FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, const char *name, bo
   edmName_(Conf().getUntrackedParameter<string>("edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),
+  caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
   caloTowers_(new mithep::CaloTowerArr(1000)),
-  caloTowerMap_(new mithep::CaloTowerMap)
+  caloTowerMap_(new mithep::CaloTowerMap),
+  caloTowerDetIdMap_(new mithep::CaloTowerDetIdMap)
 {
   // Constructor.
 }
@@ -33,6 +35,7 @@ FillerCaloTowers::~FillerCaloTowers()
 
   delete caloTowers_;
   delete caloTowerMap_;
+  delete caloTowerDetIdMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,6 +53,11 @@ void FillerCaloTowers::BookDataBlock(TreeWriter &tws)
   if (!caloTowerMapName_.empty()) {
     caloTowerMap_->SetBrName(mitName_);
     OS()->add<CaloTowerMap>(caloTowerMap_,caloTowerMapName_);
+  }
+  
+  if (!caloTowerDetIdMapName_.empty()) {
+    caloTowerDetIdMap_->SetBrName(mitName_);
+    OS()->add<CaloTowerDetIdMap>(caloTowerDetIdMap_,caloTowerDetIdMapName_);
   }
 }
 
@@ -108,6 +116,13 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
     outCaloTower->SetHadEnergy(inCaloTower->hadEnergy());
     outCaloTower->SetOuterEnergy(inCaloTower->outerEnergy());
     outCaloTower->SetMass(inCaloTower->mass());
+    
+    //fill detid associations (used for supercluster-calotower assocations)
+    for (std::vector<DetId>::const_iterator itId = inCaloTower->constituents().begin(); itId!=inCaloTower->constituents().end(); ++itId) {
+      caloTowerDetIdMap_->Add(*itId,outCaloTower);
+    }
+    
+    //fill edm-mit association
     caloTowerMap_->Add(inCaloTower->id(),outCaloTower);
     
     if (verbose_>1) {

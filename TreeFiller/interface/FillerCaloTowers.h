@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerCaloTowers.h,v 1.8 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerCaloTowers.h,v 1.9 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerCaloTowers
 //
@@ -30,8 +30,10 @@ namespace mithep
       std::string            edmName_;           //edm name of CaloTowers
       std::string            mitName_;           //name of CaloTowers
       std::string            caloTowerMapName_;  //name of export map
+      std::string            caloTowerDetIdMapName_;  //name of export map      
       mithep::CaloTowerArr  *caloTowers_;        //array of CaloTowers
       mithep::CaloTowerMap  *caloTowerMap_;      //map wrt CaloTowers
+      mithep::CaloTowerDetIdMap *caloTowerDetIdMap_; //map wrt CaloTower DetId's
   };
 }
 #endif
