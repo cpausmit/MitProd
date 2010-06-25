@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.38 2010/03/23 16:52:58 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.39 2010/05/10 15:14:19 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -157,6 +157,10 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     else
       outTrack->SetIsGsf(kFALSE);
     
+    if (verbose_>2) {
+      printf("Track pt = %5f, eta = %5f, phi = %5f, nhits = %i, numberofvalidhits = %i, numberofmissinghits = %i, expectedhitsinner = %i, expectedhitsouter = %i\n",it->pt(),it->eta(),it->phi(),it->hitPattern().numberOfHits(),it->numberOfValidHits(),it->hitPattern().numberOfLostHits(),it->trackerExpectedHitsInner().numberOfHits(),it->trackerExpectedHitsOuter().numberOfHits());
+    }
+
     //fill hit layer map and missing hits
     const reco::HitPattern &hits = it->hitPattern();
     BitMask48 hitLayers;
@@ -166,6 +170,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       if (hits.validHitFilter(hit)) {
         if (hits.trackerHitFilter(hit)) {
           hitLayers.SetBit(hitReader_.Layer(hit));
+          if (verbose_>2)
+            printf("Found valid hit with layer %i\n",hitReader_.Layer(hit));
         }
       }
 
@@ -187,6 +193,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 
     outTrack->SetHits(hitLayers);
     outTrack->SetMissingHits(missingHitLayers);
+
 
     //set expected inner hits
     const reco::HitPattern &expectedInnerHitPattern = it->trackerExpectedHitsInner();
@@ -217,6 +224,18 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
 
     outTrack->SetExpectedHitsOuter(expectedHitsOuter);
+
+    //fill actual hit counts
+    outTrack->SetNHits(it->numberOfValidHits());
+    outTrack->SetNPixelHits(it->hitPattern().numberOfValidPixelHits());
+    outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits());
+    outTrack->SetNExpectedHitsInner(it->trackerExpectedHitsInner().numberOfHits());
+    outTrack->SetNExpectedHitsOuter(it->trackerExpectedHitsOuter().numberOfHits());
+
+
+    if (verbose_>2)
+      printf("OutTrack NHits = %i, NMissingHits = %i, NExpectedHitsInner = %i, NExpectedHitsOuter = %i\n",outTrack->NHits(),outTrack->NMissingHits(),outTrack->NExpectedHitsInner(),outTrack->NExpectedHitsOuter()); 
+
 
     //make ecal associations
     if (ecalAssocActive_) {
