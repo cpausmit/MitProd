@@ -11,6 +11,18 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation [ DbsInstance ]
 #---------------------------------------------------------------------------------------------------
+/EG/Run2010A-Jun14thReReco_v1/RECO                              r10a-eg-j14             40000 new /hadoop/cmsprod
+/Mu/Run2010A-Jun14thReReco_v1/RECO                              r10a-mu-j14             40000 new /hadoop/cmsprod
+/MinimumBias/Run2010A-Jun14thReReco_v2/RECO                     r10a-minb-j14           40000 new /hadoop/cmsprod
+/JetMETTau/Run2010A-Jun14thReReco_v2/RECO                       r10a-jmt-j14            40000 new /hadoop/cmsprod
+
+##/ZeroBias/Run2010A-Jun14thReReco_v1/RECO
+##/MuMonitor/Run2010A-Jun14thReReco_v1/RECO
+##/MinimumBias/Run2010A-Jun14thReReco_v1/RECO
+##/JetMETTauMonitor/Run2010A-Jun14thReReco_v1/RECO
+##/EGMonitor/Run2010A-Jun14thReReco_v1/RECO
+##/Commissioning/Run2010A-Jun14thReReco_v2/RECO
+
 /MinimumBias/Commissioning10-May27thReReco_v1/RECO              c10-minb-m27            40000 new /hadoop/cmsprod
 /MinimumBias/Run2010A-May27thReReco_v1/RECO                     r10a-minb-m27           40000 new /hadoop/cmsprod
 /JetMETTau/Run2010A-May27thReReco_v1/RECO                       r10a-jmt-m27            40000 new /hadoop/cmsprod
