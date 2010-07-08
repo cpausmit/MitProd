@@ -52,7 +52,8 @@ def adjustCfg(line,nevents,crabId):
 #===================================================================================================
 def findStoragePath(mitCfg,version,mitDataset):
     # find the forseen storage place
-    cmd = 'grep ^storage_path ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/crab.cfg'
+    cmd = 'grep ^storage_path ' + os.environ['MIT_PROD_DIR'] \
+          + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
         line         = searchReplace(line,mitCfg,version,mitDataset);
@@ -61,7 +62,8 @@ def findStoragePath(mitCfg,version,mitDataset):
         names        = names[1:]
         storagePath  = "=".join(names)
         storagePath  = re.sub("\s", "",storagePath)
-    cmd = 'grep ^user_remote_dir ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/crab.cfg'
+    cmd = 'grep ^user_remote_dir ' + os.environ['MIT_PROD_DIR'] \
+          + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
         line         = searchReplace(line,mitCfg,version,mitDataset);
@@ -347,6 +349,10 @@ crabTask.storagePath = findStoragePath(mitCfg,version,mitDataset)
 crabTask.loadAllLfns(lfnFile)
 crabTask.loadCompletedLfns()
 crabTask.createMissingLfns(lfnFile,lfnFile + '_' + crabTask.tag)
+if crabTask.nLfnMissing == 0:
+    print ' All requested LFNs are available. EXIT now.'
+    sys.exit()
+
 crabTask.createSubTasks(lfnFile + '_' + crabTask.tag)
 cmd = 'cp ' + lfnFile +  '_' + crabTask.tag + '_*' + ' ./'
 os.system(cmd)
