@@ -281,10 +281,11 @@ class Task:
             f       = file.split('/')
             file    = f[-1]
 
-            if not self.lfns.get(file):
-                self.lfns[file] = 0
-            else:
+            if file in self.lfns.keys():
                 self.lfns[file] = 1
+            else:
+                #print ' Add: >' + file + '<'
+                self.lfns[file] = 0
 
             if not self.blocks.get(block):
                 self.blocks[block]  = 1
@@ -311,11 +312,11 @@ class Task:
         for line in os.popen(cmd).readlines():  # run command
             f    = line.split()
             file = f[1]
-            if not self.lfns.get(file):
-                self.lfns[file] = 2
-                print ' ERROR -- found completed lfn not in list of all lfns?! -> ' + file
-            else:
+            if file in self.lfns.keys():
                 self.lfns[file] = 1
+            else:
+                print ' ERROR -- found completed lfn not in list of all lfns?! ->' + file + '<-'
+                self.lfns[file] = 2
             self.nLfnDone += 1
         print ' DONE    - Lfns: %6d'%(self.nLfnDone)
 
