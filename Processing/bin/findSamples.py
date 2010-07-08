@@ -79,6 +79,7 @@ def cleanupCompletedList(ongoingDsetList,completedDsetList):
 usage  = "\nUsage: findSamples.py --mitCfg=<name>\n"
 usage += "                      --version=<version>\n"
 usage += "                      --cmssw=<name>\n"
+usage += "                      --pattern=<name>\n"
 usage += "                      --exe\n"
 usage += "                      --noInfo\n"
 usage += "                      --noDownload\n"
@@ -87,7 +88,8 @@ usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','help','exe','noInfo','noDownload','forceCopy','debug']
+valid = ['mitCfg=','version=','cmssw=','pattern=',\
+         'help','exe','noInfo','noDownload','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -102,6 +104,7 @@ except getopt.GetoptError, ex:
 mitCfg     = 'filefi'
 version    = '014'
 cmssw      = ''
+pattern    = ''
 cmsswCfg   = 'cmssw.cfg'
 exe        = 0
 noInfo     = False
@@ -120,6 +123,8 @@ for opt, arg in opts:
         version    = arg
     if opt == "--cmssw":
         cmssw      = arg
+    if opt == "--pattern":
+        pattern    = arg
     if opt == "--exe":
         exe        = 1
     if opt == "--noInfo":
@@ -210,6 +215,9 @@ for line in os.popen(cmd).readlines():  # run command
         procStatus = names[3]
         local      = names[4]
         
+        if pattern != '' and not re.search(pattern,mitDataset):
+            continue
+
         cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
               ' --version=' + version + ' --noTestJob'
         if cmssw != '':
