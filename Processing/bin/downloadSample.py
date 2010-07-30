@@ -133,10 +133,20 @@ def CopyFile(storageEle,storagePath,storageUrl,file,localDir):
     deltaT = 0
     print '     working on file: ' + file + ' to ' + localDir + \
           '  (size: %d MB) '%(int(size)/1024/1024)
-    if storageEle == 'srm-cms.cern.ch':
+    if    storageEle == 'srm-cms.cern.ch':
         f = storagePath.split("=");
         rfPath = f[-1]
         cpy  = 'rfcp ' + rfPath + '/' + file + ' ' + localPath + '/' \
+               + mitCfg + '/' + version + '/' + mitDataset + '/' + file
+        #print '     using rfcp.... ' + cpy
+        #sys.exit(0)
+    elif storageEle == 'se01.cmsaf.mit.edu':
+        f = storagePath.split("=");
+        rfPath = f[-1]
+        #cpy  = 'scp paus@cgate.mit.edu:' + rfPath + '/' + file + ' ' + localPath + '/' \
+        #       + mitCfg + '/' + version + '/' + mitDataset + '/' + file
+        cpy  = 'dccp dcap://t2srv0005.cmsaf.mit.edu/' \
+               + rfPath + '/' + file + ' ' + localPath + '/' \
                + mitCfg + '/' + version + '/' + mitDataset + '/' + file
         #print '     using rfcp.... ' + cpy
         #sys.exit(0)
@@ -261,22 +271,22 @@ if cmsDataset == None and mitDataset == None:
     cmd = '--cmsDataset option not provided. This is required.'
     raise RuntimeError, cmd
 
-crabFile  = mitCfg + '/' + version + '/' + 'crab.cfg'
+crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
 if not os.path.exists(crabFile):
     cmd = 'Crab file not found: %s' % crabFile
     raise RuntimeError, cmd
-cmsswFile = mitCfg + '/' + version + '/' + cmsswCfg
+cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
 if not os.path.exists(cmsswFile):
     cmd = 'Cmssw file not found: %s' % cmsswFile
     cmsswCfg = 'cmssw.py'
-    cmsswFile = mitCfg + '/' + version + '/' + cmsswCfg
+    cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
     if not os.path.exists(cmsswFile):
         cmd = 'Cmssw file not found: %s' % cmsswFile
         cmd = ' XXXX ERROR no valid configuration found XXXX'
         raise RuntimeError, cmd
 
 # Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat ' + mitCfg + '/' + version + '/' + 'Productions'
+cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
 if cmssw != '':
     cmd = cmd + '.' + cmssw
 
@@ -348,7 +358,7 @@ pMitDset = re.compile('XX-MITDATASET-XX')
 pMitCfg  = re.compile('XX-MITCFG-XX')
 pMitVers = re.compile('XX-MITVERSION-XX')
 # find the forseen storage place
-crabFile  = mitCfg + '/' + version + '/' + 'crab.cfg'
+crabFile  = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
 cmd = 'grep ^storage_element ' + crabFile
 for file in os.popen(cmd).readlines():   # run command
     line        = file[:-1]              # strip '\n'

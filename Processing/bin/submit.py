@@ -98,12 +98,32 @@ def createDirCern(storagePath):
         sys.exit(1)
 
 #===================================================================================================
+def create(path):
+    status = -1
+    if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
+        f    = path.split('=')
+        path = f[-1]
+        #f    = path.split('/')
+        #path1 = "/".join(f[:-1])
+        #cmd = 'ssh paus@cgate mkdir -p  ' + path1
+        cmd = 'ssh paus@cgate mkdir -p  ' + path
+        status = os.system(cmd)
+        cmd = 'ssh paus@cgate chmod 777 ' + path
+        status = os.system(cmd)
+    return status
+
+#===================================================================================================
 def createDirGeneral(storageEle,storagePath):
     # create all relevant subdirectories
     f = storagePath.split('/')                    # splitting every '/'
     storagePath2 = "/".join(f[:-1])
     storagePath1 = "/".join(f[:-2])
     storagePath0 = "/".join(f[:-3])
+
+    if create(storagePath) == 0:
+        print ' '
+        print ' Directory was created at MIT.\n'
+        return
 
     # set the storage URL
     storageUrl = 'srm://' + storageEle + ':8443' + storagePath
@@ -336,12 +356,14 @@ os.system(cmd)
 
 lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
 if os.path.exists(lfnFile):
-    cmd = "Lfn file found: %s. This means someone already worked on this dataset." % lfnFile
-####    raise RuntimeError, cmd
-else:
-    cmd = 'input.py --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
-    print ' Input: ' + cmd
+    print "\n INFO -- Lfn file found: %s. This means someone already worked on this dataset.\n" % lfnFile
+    cmd = 'rm ' + lfnFile
     os.system(cmd)
+
+# always recreate, because the relvant copy still exists and is never touched
+cmd = 'input.py --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
+print ' Input: ' + cmd + '\n'
+os.system(cmd)
 
 # Create the corresponding crab task
 crabTask             = task.Task(crabId,cmsDataset,mitCfg,version)
@@ -403,7 +425,7 @@ print '\n Using CMSSW version: ' + os.environ['CMSSW_VERSION']
 print   ' Using CRAB  version: ' + os.environ['CRAB_VERS'] + '\n'
 
 pattern1    = 'working directory'
-pattern2    = 'job\(s\) can run on'
+pattern2    = 'Total of '
 
 # Go through the crabTask and submit each subtask to the grid
 for subTask in crabTask.subTasks:
@@ -479,7 +501,7 @@ for subTask in crabTask.subTasks:
             crabIdCheck = f[-2]
         if re.search(pattern2,line):
             f = line.split(" ")
-            nJobsTotal = f[1]
+            nJobsTotal = f[4]
             if nJobsTotal == '':
                 nJobsTotal = f[2]
     # report
@@ -537,6 +559,10 @@ for subTask in crabTask.subTasks:
         for line in os.popen(cmd).readlines():   # run command
             line = line[:-1]
             sites = line
+
+        sites = translator.translateSes(sites)
+        sites = translator.selectPreferred()
+
         print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
               ' at\n        > ' + sites
         # block with different sites found
@@ -574,9 +600,8 @@ for subTask in crabTask.subTasks:
         nSubmit = '%d-%d'%(mergedMinIdxs[idx],mergedMaxIdxs[idx])
         if mergedMinIdxs[idx] == mergedMaxIdxs[idx]:
             nSubmit = '%d,%d'%(mergedMinIdxs[idx],100000000)
-        translatedSites = translator.translateSes(mergedSites[idx])
-        cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,translatedSites)
-        print '  ' + cmd
+        cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
+        print '  ' + cmd + '\n'
         status = os.system(cmd)
         while status != 0:
             print ' Submission failed  (%s) --> retry'%(cmd)
@@ -587,10 +612,9 @@ for subTask in crabTask.subTasks:
     
     print '  Number of blocks submitted: %d' % nSubmission
 
-
 # and cleanup the temporary file for the task
 cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " \
-      + cmsswPy + ' ' + cmsswPy + 'c'
+      + cmsswPy + ' ' + cmsswPy + 'c' + ' writeCfg.py run.sh'
 os.system(cmd)
 
 print ' Done... keep watching it...'

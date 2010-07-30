@@ -466,7 +466,7 @@ class Task:
         # - check whether task is completed
         active = 0
         for status in self.jobStati:
-            if status.tag != 'Aborted' and status.tag != 'Retrieved' and status.tag != 'Created':
+            if status.tag != 'Aborted' and status.tag != 'Retrieved' and status.tag != 'Created' and status.tag != 'Cleared':
                 active = 1
                 break
         if active == 0:

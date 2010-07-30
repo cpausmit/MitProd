@@ -5,6 +5,7 @@
 catalog=0
 extract=0
 generate=0
+nFilesPerSet=20
 test=0
 mitCfg=filefi
 while getopts "cegtm:" o
@@ -36,7 +37,6 @@ then
   exit 1
 fi
 # Decode command line parameters
-#TASK="$1"
 VERSION="$1"
 PATTERN="empty"
 if [ ".$2" != "." ]
@@ -82,26 +82,24 @@ then
   LIST="${LOCATION}/$mitCfg/$VERSION/$PATTERN"
 fi
 
-## Show me the list
-#echo ""
-#echo "  == LIST =="
-#echo "  $LIST"
-
-# Loop through the list and catalog
-##echo ""
-for dataset in $LIST; do
+#---------------------------------------------------------------------------------------------------
+# Loop through the list and catalog --> ACTION STARTS BELOW HERE
+#---------------------------------------------------------------------------------------------------
+startTime=$(date +%s)
+for dataset in $LIST
+do
   dir=`dirname $dataset`
   dataset=`basename $dataset`
   #echo "DIR: $dir  DATASET: $dataset"
 
-  # extend dataset name for official dataset
+  # Extend dataset name for official dataset
   if [ "`echo $dataset | grep crab_0_`" != ""  ]
   then
     crabId=$dataset
     extDataset=`basename $dir`/$dataset
     dataset=`basename $dir`
 
-    # show present status
+    # Show present status
     lfnFile="$HOME/cms/jobs/$mitCfg/$VERSION/${dataset}.lfns_$crabId"
     nProc=`list $dir/$crabId | grep root | wc -l`
     nCata=`list $dir         | grep root | wc -l`
@@ -110,16 +108,22 @@ for dataset in $LIST; do
     echo " Cataloging status: $nCata (done)  $nProc (to catalog) / $nTota (total: $lfnFile)"
     echo " "
 
+    if [ "$nProc" == 0 ] && [ "$catalog" == 1 ]
+    then
+      echo ' nothing to catalog, moving on.'
+      echo ' '
+      continue
+    fi
+
   else
     extDataset=$dataset
   fi
 
-
+  # Break it off here in case we are only testing
   if [ $test != 0 ]
   then
     continue
   fi
-
 
   if [ "$PATTERN" == "empty" ] || [ "`echo $extDataset | grep $PATTERN`" != "" ]
   then
@@ -134,24 +138,29 @@ for dataset in $LIST; do
 
     # Figure out whether there are new files to consider
     newFiles=0
-    #echo " LIST $CATALOG/condor/$mitCfg/$VERSION/$extDataset"
     if [ "`ls -1 $CATALOG/condor/$mitCfg/$VERSION/$extDataset | grep root`" != "" ]
     then
       newFiles=1
     fi
-    #echo " New files: $newFiles"
+    #echo " New files: $newFiles ($extract, $catalog)"
 
     # Extract the catalog metadata
-    if [ "$extract" == 1 ] && [ "$newFiles" == 1 ]
+    if [ "$extract" == 1 ] && ( [ "$newFiles" == 1 ] || [ "$catalog" != 1 ] )
     then
-      jobs=`condor_q -global cmsprod | grep catalogFile.csh | wc -l`
-      #jobs=""
+
+      #echo " Extracting new files: $newFiles ($extract, $catalog)"
+      #condor_q
+      nowTime=$(date +%s)
+      duration=$(($nowTime - $startTime))
+      jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
       while [ "$jobs" != "0" ]
       do
-	echo " waiting... condor queue is not yet empty ($jobs)"
+	echo " waiting... condor queue is not yet empty ($jobs, $duration sec)"
 	sleep 10
 	echo ""
-	jobs=`condor_q -global cmsprod | grep catalogFile.csh | wc -l`
+	jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
+        nowTime=$(date +%s)
+        duration=$(($nowTime - $startTime))
       done
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
@@ -162,10 +171,10 @@ for dataset in $LIST; do
     fi
 
     # Generate the catalog entries
-    if [ "$generate" == 1 ] && [ "$newFiles" == 1 ]
+    if [ "$generate" == 1 ] && ( [ "$newFiles" == 1 ] || [ "$catalog" != 1 ] )
     then
       #echo \
-      generateCatalog.py --nFilesPerSet=5 --rawFile=$CATALOG/$mitCfg/$VERSION/$dataset
+      generateCatalog.py --nFilesPerSet=$nFilesPerSet --rawFile=$CATALOG/$mitCfg/$VERSION/$dataset
     fi
 
   fi

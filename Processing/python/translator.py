@@ -14,8 +14,10 @@ Each SubTask in CRAB can be described through this class
 class Translator:
     "Translator for the storage and computing elements to the "
     # variable to be determined
-    ceTable = 'undefined' # compute elements translation table
-    seTable = 'undefined' # storage elements translation table
+    ceTable        = 'undefined' # compute elements translation table
+    seTable        = 'undefined' # storage elements translation table
+    allSites       = 'undefined' # comma separated list of all sites
+    preferredSites = 'undefined' # comma separated list of preferred sites
     ces = {}
     ses = {}
     #-----------------------------------------------------------------------------------------------
@@ -50,6 +52,7 @@ class Translator:
         return table
 
     def translateSes(self,seString):
+        print ' translating SE sites: ' + seString
         sites = seString.split(",")
         newString = ''
         #print ' Looping through sites %s'%(seString)
@@ -64,9 +67,11 @@ class Translator:
                 print '  dropping  %s  because it is not in our table'%(site)
 
         #print 'Translated: %s'%(newString)
+        self.allSites = newString
         return newString
 
     def translateCes(self,ceString):
+        print ' translating CE sites: ' + ceString
         sites = ceString.split(",")
         newString = ''
         #print ' Looping through sites %s'%(ceString)
@@ -81,8 +86,23 @@ class Translator:
                 print '  dropping  %s  because it is not in our table'%(site)
 
         #print 'Translated: %s'%(newString)
+        self.allSites = newString
         return newString
 
+    def selectPreferred(self):
+        if re.search('T2_US_MIT',self.allSites):
+            self.preferredSites = 'T2_US_MIT'
+            print ' '
+            print '         ' + self.allSites
+            print ' INFO -- found a preferred site in the list. Reducing to preferred sites.'
+            print ' '
+        else:
+            #print ' ' 
+            #print ' INFO -- no preferred site in the list. Keeping all sites.'
+            #print ' '
+            self.preferredSites = self.allSites
+        return self.preferredSites    
+            
     #-----------------------------------------------------------------------------------------------
     # present the current crab subtask
     #-----------------------------------------------------------------------------------------------

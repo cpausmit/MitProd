@@ -2,7 +2,7 @@
 # Configuration for the productions with this configuration
 #
 # XX-MITCFG-XX     = filler
-# XX-MITVERSION-XX = 013
+# XX-MITVERSION-XX = 014
 #
 # crontab          = 1
 #---------------------------------------------------------------------------------------------------
@@ -12,11 +12,5 @@
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
 #---------------------------------------------------------------------------------------------------
 
-/MinBias/Spring10-START3X_V25B_356ReReco-v1/GEN-SIM-RECO  p10-minb7000-st3       25000 new -
-/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO  p10-minb7000-v26a-st3  25000 new -
+/MinBias_TuneD6T_7TeV-pythia6/Summer10-START36_V10_SP10-v1/GEN-SIM-RECODEBUG p10-minb-d6t-v10 25000 new /hadoop/cmsprod
 
-/Wmunu/Spring10-START3X_V26_S09_preproduction-v2/RECO     p10pp-wm-v26           25000 new -
-/Wenu/Spring10-START3X_V26_S09_preproduction-v2/RECO      p10pp-we-v26           25000 new -
-/PhotonJet_Pt15/Spring10-START3X_V26_S09_preproduction-v1/GEN-SIM-RECO \
-                                                          p10pp-pjet15-v26       25000 new -
-/QCD_Pt30/Spring10-START3X_V26_S09_preproduction-v2/RECO  p10pp-qcd30-v26        25000 new -

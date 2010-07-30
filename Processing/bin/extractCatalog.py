@@ -239,7 +239,8 @@ for line in os.popen(cmd).readlines():  # run command
     rm0 = "rm           " + f[1]
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm         " + f[1]
-    rm3 = "srmrm        " + server + f[1]
+    #rm3 = "srmrm        " + server + f[1]
+    rm3 = "ssh paus@cgate.mit.edu rm " + f[1]
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'

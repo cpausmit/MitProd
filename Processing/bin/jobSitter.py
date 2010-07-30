@@ -230,6 +230,12 @@ for crabTask in crabTasks:
     if catalog == 5:
             cmd = 'catalog.sh -ceg -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
                    ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --remove'
+    if catalog == 6:
+            cmd = 'catalog.sh -e -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
+    if catalog == 7:
+            cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
     print ' CATALOG: ' + cmd
     if catalog != 0:
             os.system(cmd)

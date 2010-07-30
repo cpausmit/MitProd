@@ -80,16 +80,16 @@ usage  = "\nUsage: findSamples.py --mitCfg=<name>\n"
 usage += "                      --version=<version>\n"
 usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
+usage += "                      --download=<int: -1,0,1>\n"
 usage += "                      --exe\n"
 usage += "                      --noInfo\n"
-usage += "                      --noDownload\n"
 usage += "                      --forceCopy\n"
 usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','pattern=',\
-         'help','exe','noInfo','noDownload','forceCopy','debug']
+valid = ['mitCfg=','version=','cmssw=','pattern=','download=', \
+         'help','exe','complete','noInfo','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -107,8 +107,9 @@ cmssw      = ''
 pattern    = ''
 cmsswCfg   = 'cmssw.cfg'
 exe        = 0
+complete   = 0
 noInfo     = False
-noDownload = False
+download   = -1
 forceCopy  = False
 debug      = False
 
@@ -127,10 +128,12 @@ for opt, arg in opts:
         pattern    = arg
     if opt == "--exe":
         exe        = 1
+    if opt == "--download":
+        download   = arg
+    if opt == "--complete":
+        complete   = 1
     if opt == "--noInfo":
         noInfo     = True
-    if opt == "--noDownload":
-        noDownload = True
     if opt == "--forceCopy":
         forceCopy  = True
     if opt == "--debug":
@@ -218,78 +221,52 @@ for line in os.popen(cmd).readlines():  # run command
         if pattern != '' and not re.search(pattern,mitDataset):
             continue
 
-        cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
-              ' --version=' + version + ' --noTestJob'
-        if cmssw != '':
-            cmd = cmd + " --cmssw=" + cmssw
-
-        # check for errors (to be done)
-
-        # check for the logical combinations
-        if   not inList(mitDataset,startedDsetList):
-            
-            #print ' new: ' + mitDataset
-            print ' submitting: ' + cmd
-            if exe == 1:
-                os.system(cmd)
-
-        elif     inList(mitDataset,ongoingDsetList):
-
-            #print ' sub: ' + mitDataset
-            print ' handled by jobSitter -- ' + mitDataset
-
-        elif     inList(mitDataset,completedDsetList):
-            if not noInfo:
-                print ' don: ' + mitDataset
-        else:
-
-            cmd = cmd + ' --complete'
-            #print ' toc: ' + mitDataset
-            print ' completing: ' + cmd
-            if exe == 1:
-                os.system(cmd)
+        # make sure we want to consider submission
+        if download != 1:
+            cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
+                  ' --version=' + version + ' --noTestJob'
+            if cmssw != '':
+                cmd = cmd + " --cmssw=" + cmssw
+    
+            # check for errors (to be done)
+    
+            # check for the logical combinations
+            if   not inList(mitDataset,startedDsetList):
+                #print ' new: ' + mitDataset
+                print ' submitting: ' + cmd
+                if exe == 1:
+                    os.system(cmd)
+    
+            elif     inList(mitDataset,ongoingDsetList):
+                #print ' sub: ' + mitDataset
+                print ' handled by jobSitter -- ' + mitDataset
+    
+            elif     inList(mitDataset,completedDsetList):
+                if not noInfo:
+                    print ' don: ' + mitDataset
+            else:
+                if complete == 1:
+                    cmd = cmd + ' --complete'
+                    #print ' toc: ' + mitDataset
+                    print ' completing: ' + cmd
+                    if exe == 1:
+                        os.system(cmd)
 
         # test download request
-        if local != "-" and not noDownload:
-             localPath  = local
-             cmd = 'downloadSample.py --cmsDataset=' + cmsDataset + ' --mitCfg=' + mitCfg + \
-                   " --version=" + version
-             if cmssw != '':
-                 cmd = cmd + " --cmssw=" + cmssw
-             if forceCopy:
-                 cmd += ' --forceCopy'
-             print " " + cmd
-             if exe == 1:
-                 status = os.system(cmd)
-
-##         if   procStatus == "new":
-##             print " " + cmd
-##             if exe == 1:
-##                 status = os.system(cmd)
-##         elif procStatus == "com":
-##             cmd = cmd + ' --noTestJob --complete'
-##             print " " + cmd
-##             if exe == 1:
-##                 status = os.system(cmd)
-##         elif local != "-" and not noDownload:
-##             localPath  = local
-##             cmd = 'downloadSample.py --cmsDataset=' + cmsDataset + ' --mitCfg=' + mitCfg + \
-##                   " --version=" + version
-##             if forceCopy:
-##                 cmd += ' --forceCopy'
-##             print " " + cmd
-##             if exe == 1:
-##                 status = os.system(cmd)
-##         else:
-##             if not noInfo:
-##                 print " Sample Info: " + fullLine
+        if local != "-" and download != -1:
+            localPath  = local
+            cmd = 'downloadSample.py --cmsDataset=' + cmsDataset + ' --mitCfg=' + mitCfg + \
+                  " --version=" + version
+            if cmssw != '':
+                cmd = cmd + " --cmssw=" + cmssw
+            if forceCopy:
+                cmd += ' --forceCopy'
+            print " " + cmd
+            if exe == 1:
+                status = os.system(cmd)
             
 if mitDataset == "":
     print "ERROR - dataset not defined."
     sys.exit(0)
 
 sys.exit(0)
-
-# Say what we do now
-print ' Preparing dataset: ' + cmsDataset + ' [MIT: ' + mitDataset + ' with ' + str(nevents) + \
-      ' per job]'

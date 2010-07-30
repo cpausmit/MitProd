@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 #---------------------------------------------------------------------------------------------------
 # Produce a catalog entry for the requested file.
 #---------------------------------------------------------------------------------------------------
@@ -18,9 +18,7 @@ echo "   in directory : $dataDir"
 echo "   catalog in   : $catalogDir"
 
 mkdir -p $catalogDir/condor/$book/$dataset
-#set workDir=$HOME/catalog/bin
-#cd $workDir
-set script=`which catalogFile.csh`
+set script=`which catalogFile.sh`
 
 set var=`echo $dataDir | grep castor/cern.ch`
 if ( "$var" != "" ) then
@@ -36,7 +34,7 @@ else
 endif 
 
 # Create a list of files of zero length we should not look at
-set LIST=`list $dataDir/$book/$dataset|grep ^0 |grep root|cut -d' ' -f2`
+set LIST=`list $dataDir/$book/$dataset | grep ^0 | grep root | cut -d' ' -f2`
 
 # Indicate zero-length files
 foreach file ($LIST)
@@ -47,8 +45,7 @@ end
 # Create a list of the files we need to catalog
 echo ""
 set LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
-
-set index=0
+## echo LIST :::: $LIST ::::
 
 foreach file ($LIST)
 
@@ -74,9 +71,9 @@ foreach file ($LIST)
 
     echo "  $script $dataDir/$book/$dataset $file"
 
-    cat > submit.cmd <<EOF
+    cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = ( (Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
@@ -91,21 +88,14 @@ should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 Queue
 EOF
+    condor_submit submit_$$.cmd >& /dev/null #>& lastSub
+    rm submit_$$.cmd
 
-## Requirements            = (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer)
-    condor_submit submit.cmd >& lastSub
-    rm submit.cmd
-
-    @ index++
-    ## if ( $index > 10 ) then
-    ##   exit 0
-    ## endif
-
-  ## else
-  ##   echo " exists: #$exists#"
-  ##   echo " file exists already: $exists"
   endif
 
 end
 
 exit 0
+
+
+## Requirements            = (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer)
