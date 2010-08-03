@@ -236,7 +236,16 @@ for crabTask in crabTasks:
     if catalog == 7:
             cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
                    ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
-    print ' CATALOG: ' + cmd
+
+
+    print '\n------------------------------------------------------------------------------'
+    print '  --> CATALOG ' + crabTask.tag \
+          + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
+          + '\n       -> ' + storageEle \
+          + '\n       -> ' + storagePath
+    print '------------------------------------------------------------------------------\n'
+    print '  --> ' + cmd
+
     if catalog != 0:
             os.system(cmd)
 
@@ -246,13 +255,14 @@ for crabTask in crabTasks:
 
     # do we need to extend the task
     if extend == 1:
+	cmd = 'crab -extend -c ' + crabTask.tag
         print '\n------------------------------------------------------------------------------'
         print '  --> EXTEND ' + crabTask.tag + ' -- wait crab commands first fully parsed -- ' \
               + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
               + '\n       -> ' + storageEle \
               + '\n       -> ' + storagePath
         print '------------------------------------------------------------------------------\n'
-        cmd = 'crab -extend -c ' + crabTask.tag
+	print '  --> ' + cmd
         os.system(cmd)
 
     print '\n------------------------------------------------------------------------------'
@@ -273,6 +283,8 @@ for crabTask in crabTasks:
         print ' Task status: ' + crabTask.status
         if crabTask.status == 'completed' or crabTask.status == 'finished':
             crabTask.remove(clean)
+	    print ' INFO - crab task has been removed, continuing.'
+	    continue
         print ' '
 
     # review failing sites
@@ -328,14 +340,14 @@ for crabTask in crabTasks:
             status = os.system(cmd)
 
 
+    cmd = 'crab -getoutput -continue ' + crabTask.tag
     print '\n------------------------------------------------------------------------------'
     print '  --> GETOUTPUT ' + crabTask.tag + ' -- wait crab commands first fully parsed -- ' \
           + '\n       -> ' + dataset \
           + '\n       -> ' + storageEle \
           + '\n       -> ' + storagePath
     print '------------------------------------------------------------------------------\n'
-
-    cmd = 'crab -getoutput -continue ' + crabTask.tag
+    print '  --> ' + cmd
     status = os.system(cmd)
 
     cmd = 'cleanupLog.py --crabId ' + crabTask.tag

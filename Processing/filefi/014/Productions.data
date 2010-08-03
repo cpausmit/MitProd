@@ -21,7 +21,7 @@
 
 /EG/Run2010A-Jul16thReReco-v2/RECO                             r10a-eg-j16     40000 new /mnt/hadoop/cmsprod
 /Mu/Run2010A-Jul16thReReco-v1/RECO			       r10a-mu-j16     40000 new -
-/JetMETTau/Run2010A-Jul16thReReco-v1/RECO		       r10a-minb-j16   40000 new -
+/JetMETTau/Run2010A-Jul16thReReco-v1/RECO		       r10a-jmt-j16    40000 new -
 
 /EG/Run2010A-Jun14thReReco_v1/RECO                             r10a-eg-j14     40000 new -
 /Mu/Run2010A-Jun14thReReco_v1/RECO                             r10a-mu-j14     40000 new -
