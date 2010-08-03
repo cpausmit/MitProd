@@ -47,6 +47,18 @@ echo ""
 set LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
 ## echo LIST :::: $LIST ::::
 
+# Make sure there is a kerberos ticket available
+mkdir    -p  ~/.krb5/
+chmod 0      ~/.krb5
+chmod u=rwx  ~/.krb5
+set file=`echo $KRB5CCNAME | cut -d: -f2`
+if ( -e "$file" ) then
+  cp $file ~/.krb5/ticket
+else
+  echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
+  exit 1
+endif
+
 foreach file ($LIST)
 
   set file=`basename $file`
@@ -73,7 +85,7 @@ foreach file ($LIST)
 
     cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = ( (Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
@@ -88,6 +100,7 @@ should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 Queue
 EOF
+
     condor_submit submit_$$.cmd >& /dev/null #>& lastSub
     rm submit_$$.cmd
 
