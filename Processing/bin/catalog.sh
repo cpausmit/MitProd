@@ -152,10 +152,11 @@ do
       #condor_q
       nowTime=$(date +%s)
       duration=$(($nowTime - $startTime))
+      ## echo " -> condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l"
       jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
       while [ "$jobs" != "0" ]
       do
-	echo " waiting... condor queue is not yet empty ($jobs, $duration sec)"
+	echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"
 	sleep 10
 	echo ""
 	jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
