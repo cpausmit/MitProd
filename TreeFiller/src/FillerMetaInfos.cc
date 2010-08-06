@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.58 2010/05/29 11:58:47 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.59 2010/05/29 12:58:57 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -336,7 +336,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   
   
   bool hltConfigChanged = false;
-  if (!hltConfig_.init(event, hltProcName_, hltConfigChanged)) {
+  if (!hltConfig_.init(event.getRun(), setup, hltProcName_, hltConfigChanged)) {
     edm::LogError("FillerMetaInfos") << "Cannot access hlt config using PSet from" 
                                       << hltResName_ << std::endl;
     throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
