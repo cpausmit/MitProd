@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.16 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.17 2010/06/25 15:18:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -69,6 +69,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
 
   caloTowers_->Delete();
   caloTowerMap_->Reset();
+  caloTowerDetIdMap_->Reset();
 
   Handle<CaloTowerCollection> hCaloTowerProduct;
   GetProduct(edmName_, hCaloTowerProduct, event);

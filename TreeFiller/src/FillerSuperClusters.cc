@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.10 2010/03/24 15:41:22 sixie Exp $
+// $Id: FillerSuperClusters.cc,v 1.11 2010/06/25 15:18:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -134,7 +134,10 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     
       if (caloTowerDetIdMap_) {
         if (caloTowerDetIdMap_->HasMit(ihit)) {
-          outSC->AddTower(caloTowerDetIdMap_->GetMit(ihit));
+          const mithep::CaloTower *matchedTower = caloTowerDetIdMap_->GetMit(ihit);
+          if (!outSC->HasTower(matchedTower)) {
+            outSC->AddTower(matchedTower);
+          }
         }
       }
       
