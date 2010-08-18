@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.19 2010/04/27 14:29:40 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.20 2010/05/10 20:48:18 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RECODEBUG/Zee7TeVTrackingParticles/D87A5BD6-40A0-DE11-A3A9-00E08178C0B1.root')
+    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/fall10preproduction-qcd-gensimrecodebug/8A1C614F-00A9-DF11-98A2-002481CFE888.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START36_V6::All'
+process.GlobalTag.globaltag = 'START38_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 

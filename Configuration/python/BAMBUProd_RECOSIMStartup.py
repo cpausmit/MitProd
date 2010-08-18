@@ -28,14 +28,17 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/server/02a/bendavid/ttbarSpring10/F65B25B3-AA4E-DF11-AD8A-001E0B5FC422.root')
+    fileNames = cms.untracked.vstring(
+    #'file:/data/blue/peveraer/FAF65B97-5490-DF11-8168-0030487FA4CD.root',
+    'file:/server/02a/bendavid/ttbarSpring10/F65B25B3-AA4E-DF11-AD8A-001E0B5FC422.root'
+    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 
 #special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START36_V9::All'
+process.GlobalTag.globaltag = 'START38_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 
