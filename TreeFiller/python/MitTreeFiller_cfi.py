@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.73 2010/05/29 12:59:15 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.74 2010/06/25 15:19:16 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1049,7 +1049,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName         = cms.untracked.string('CaloTaus'),
         edmName         = cms.untracked.string('caloRecoTauProducer'),
         trackMapName    = cms.untracked.string('TracksMapName'),
-        jetMapName      = cms.untracked.string('ItrCone5JetMap'),
+        jetMapName      = cms.untracked.string(''),
         barrelBCMapName = cms.untracked.string('barrelBasicClusterMap'),
         endcapBCMapName = cms.untracked.string('endcapBasicClusterMap'),
         fillerType      = cms.untracked.string('FillerCaloTaus')
@@ -1060,7 +1060,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         mitName         = cms.untracked.string('PFTaus'),
         edmName         = cms.untracked.string('fixedConePFTauProducer'),
         trackMapName    = cms.untracked.string('TracksMapName'),
-        jetMapName      = cms.untracked.string('ItrConePF5JetMap'),
+        jetMapName      = cms.untracked.string(''),
         pfCandMapName   = cms.untracked.string('PFCandMapName'),
         fillerType      = cms.untracked.string('FillerPFTaus')
     ),
