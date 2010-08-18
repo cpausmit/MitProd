@@ -1,4 +1,4 @@
-// $Id: FillerJPTJets.cc,v 1.11 2010/03/26 14:19:00 sixie Exp $
+// $Id: FillerJPTJets.cc,v 1.1 2010/05/04 11:56:43 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerJPTJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -270,10 +270,9 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
     }
 
     // fill ref to original jet
-    if (caloJetMap_) {
+    if (caloJetMap_ && inJet->getCaloJetRef().isNonnull()) {
       const edm::Ptr<reco::CaloJet> caloJetPtr(mitedm::refToBaseToPtr(inJet->getCaloJetRef()));
       const mithep::Jet *originalJet = caloJetMap_->GetMit(caloJetPtr);
-//      const mithep::Jet *originalJet = caloJetMap_->GetMit(mitedm::refToBaseToPtr(inJet->getCaloJetRef()));
       jet->SetOriginalJet(originalJet);
     }
     if (jetToVertexActive_) {
