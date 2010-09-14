@@ -29,11 +29,28 @@
 
 # No PileUp Samples
 #---------------------------------------------------------------------------------------------------
+# summer 10 production
+/Wenu/Summer10-START36_V9_S09-v1/GEN-SIM-RECO                             s10-we-v36             25000 new -
+/Wmunu/Summer10-START36_V9_S09-v2/GEN-SIM-RECO                            s10-wm-v36             25000 new -
+/Wtaunu/Summer10-START36_V9_S09-v1/GEN-SIM-RECO                           s10-wt-v36             25000 new -
+
+/Zee_M20_CTEQ66-powheg/Summer10-START36_V9_S09-v1/GEN-SIM-RECO            s10-zeem20-c66-v36     25000 new -
+/Zmumu_M20_CTEQ66-powheg/Summer10-START36_V9_S09-v2/GEN-SIM-RECO          s10-zmmm20-c66-v36     25000 new -
+/Ztautau_M20_CTEQ66-powheg/Summer10-START36_V9_S09-v1/GEN-SIM-RECO        s10-zttm20-c66-v36     25000 new -
+
+/QCD_Pt15/Summer10-START36_V9_S09-v1/GEN-SIM-RECODEBUG                    s10-qcd15-v36          25000 new /mnt/hadoop/cmsprod
+/QCD_Pt30/Summer10-MC_36Y_V9_S09-v1/GEN-SIM-RECO                          s10-qcd30-v36          25000 new /mnt/hadoop/cmsprod
+/QCD_Pt80/Summer10-START36_V9_S09-v1/GEN-SIM-RECODEBUG                    s10-qcd80-v36          25000 new /mnt/hadoop/cmsprod
+
+/PhotonJet_Pt15/Summer10-START36_V9_S09-v1/GEN-SIM-RECODEBUG              s10-pj15-v36           25000 new /mnt/hadoop/cmsprod
+/PhotonJet_Pt30/Summer10-START36_V9_S09-v1/GEN-SIM-RECODEBUG              s10-pj30-v36           25000 new /mnt/hadoop/cmsprod
+/PhotonJet_Pt80/Summer10-START36_V9_S09-v1/GEN-SIM-RECODEBUG              s10-pj80-v36           25000 new /mnt/hadoop/cmsprod
+
 # all samples needed for Higgs -> Gamma Gamma
-/Hgg_gluonfusion_M90/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO             p10-h90gg-gf-mc3       25000 new /mnt/hadoop/cmsprod
-/Hgg_gluonfusion_M110/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h110gg-gf-mc3      25000 new /mnt/hadoop/cmsprod
-/Hgg_gluonfusion_M120/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h120gg-gf-mc3      25000 new /mnt/hadoop/cmsprod
-/Hgg_gluonfusion_M150/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h150gg-gf-mc3      25000 new /mnt/hadoop/cmsprod
+/Hgg_gluonfusion_M90/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO             p10-h90gg-gf-v26       25000 new /mnt/hadoop/cmsprod
+/Hgg_gluonfusion_M110/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h110gg-gf-v26      25000 new /mnt/hadoop/cmsprod
+/Hgg_gluonfusion_M120/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h120gg-gf-v26      25000 new /mnt/hadoop/cmsprod
+/Hgg_gluonfusion_M150/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO            p10-h150gg-gf-v26      25000 new /mnt/hadoop/cmsprod
 
 /Hgg_wbf_M90/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                     p10-h90gg-wbf-v26      25000 new /mnt/hadoop/cmsprod
 /Hgg_wbf_M110/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                    p10-h110gg-wbf-v26     25000 new /mnt/hadoop/cmsprod

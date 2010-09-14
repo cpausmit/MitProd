@@ -1,4 +1,4 @@
-#---------------------------------------------------------------------------------------------------
+s -#---------------------------------------------------------------------------------------------------
 # Configuration for the productions with this configuration
 #
 # XX-MITCFG-XX     = filler
@@ -11,30 +11,36 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation [ DbsInstance ]
 #---------------------------------------------------------------------------------------------------
-/MinimumBias/Commissioning10-SD_EG-Jun14thSkim_v1/RECO         c10-eg-sd-j14   40000 new /mnt/hadoop/cmsprod
-/MinimumBias/Commissioning10-SD_Mu-Jun14thSkim_v1/RECO         c10-mu-sd-j14   40000 new -
-/MinimumBias/Commissioning10-SD_JetMETTau-Jun14thSkim_v1/RECO  c10-jmt-sd-j14  40000 new -
+#/MinimumBias/Commissioning10-SD_EG-Jun14thSkim_v1/RECO        c10-eg-sd-j14   40000 new /mnt/hadoop/cmsprod
+#/MinimumBias/Commissioning10-SD_Mu-Jun14thSkim_v1/RECO        c10-mu-sd-j14   40000 new -
+#/MinimumBias/Commissioning10-SD_JetMETTau-Jun14thSkim_v1/RECO c10-jmt-sd-j14  40000 new -
 
-/EG/Run2010A-PromptReco-v4/RECO                                r10a-eg-pr-v4   40000 new /mnt/hadoop/cmsprod
-/Mu/Run2010A-PromptReco-v4/RECO                                r10a-mu-pr-v4   40000 new -
-/JetMETTau/Run2010A-PromptReco-v4/RECO                         r10a-jmt-pr-v4  40000 new -
+/EG/Run2010A-Jul16thReReco_multilepton-v1/GEN-SIM-RECO        r10a-2l-eg-j16   40000 new -
+/EG/Run2010A-PromptReco_multilepton-v1/GEN-SIM-RECO           r10a-2l-eg-pr-v4 40000 new -
+/Mu/Run2010A-Jul16thReReco_multilepton-v1/GEN-SIM-RECO        r10a-2l-mu-j16   40000 new -
+/Mu/Run2010A-PromptReco_multilepton-v1/GEN-SIM-RECO           r10a-2l-mu-pr-v4 40000 new -
 
-/EG/Run2010A-Jul16thReReco-v2/RECO                             r10a-eg-j16     40000 new /mnt/hadoop/cmsprod
-/Mu/Run2010A-Jul16thReReco-v1/RECO			       r10a-mu-j16     40000 new -
-/JetMETTau/Run2010A-Jul16thReReco-v1/RECO		       r10a-jmt-j16    40000 new -
+/EG/Run2010A-PromptReco-v4/RECO                               r10a-eg-pr-v4   40000 new /mnt/hadoop/cmsprod
+/Mu/Run2010A-PromptReco-v4/RECO                               r10a-mu-pr-v4   40000 new -
+/JetMETTau/Run2010A-PromptReco-v4/RECO                        r10a-jmt-pr-v4  40000 new -
+/JetMET/Run2010A-PromptReco-v4/RECO                           r10a-jm-pr-v4   40000 new -
 
-/EG/Run2010A-Jun14thReReco_v1/RECO                             r10a-eg-j14     40000 new -
-/Mu/Run2010A-Jun14thReReco_v1/RECO                             r10a-mu-j14     40000 new -
-/MinimumBias/Run2010A-Jun14thReReco_v2/RECO                    r10a-minb-j14   40000 new -
-/JetMETTau/Run2010A-Jun14thReReco_v2/RECO                      r10a-jmt-j14    40000 new -
+#/EG/Run2010A-Jul16thReReco-v2/RECO                            r10a-eg-j16     40000 new /mnt/hadoop/cmsprod
+#/Mu/Run2010A-Jul16thReReco-v1/RECO			      r10a-mu-j16     40000 new -
+#/JetMETTau/Run2010A-Jul16thReReco-v1/RECO		      r10a-jmt-j16    40000 new -
 
-# /MinimumBias/Commissioning10-May27thReReco_v1/RECO              c10-minb-m27            40000 new -
-# /MinimumBias/Run2010A-May27thReReco_v1/RECO                     r10a-minb-m27           40000 new -
-# /JetMETTau/Run2010A-May27thReReco_v1/RECO                       r10a-jmt-m27            40000 new -
-# /EG/Run2010A-May27thReReco_v1/RECO                              r10a-eg-m27             40000 new -
-# /JetMETTau/Run2010A-PromptReco-v2/RECO                          r10a-jmt-pr-v2          40000 new -
-# /EG/Run2010A-PromptReco-v2/RECO                                 r10a-eg-pr-v2           40000 new -
-# /Mu/Run2010A-PromptReco-v2/RECO                                 r10a-mu-pr-v2           40000 new -
+#/EG/Run2010A-Jun14thReReco_v1/RECO                            r10a-eg-j14     40000 new -
+#/Mu/Run2010A-Jun14thReReco_v1/RECO                            r10a-mu-j14     40000 new -
+#/MinimumBias/Run2010A-Jun14thReReco_v2/RECO                   r10a-minb-j14   40000 new -
+#/JetMETTau/Run2010A-Jun14thReReco_v2/RECO                     r10a-jmt-j14    40000 new -
+
+# /MinimumBias/Commissioning10-May27thReReco_v1/RECO             c10-minb-m27            40000 new -
+# /MinimumBias/Run2010A-May27thReReco_v1/RECO                    r10a-minb-m27           40000 new -
+# /JetMETTau/Run2010A-May27thReReco_v1/RECO                      r10a-jmt-m27            40000 new -
+# /EG/Run2010A-May27thReReco_v1/RECO                             r10a-eg-m27             40000 new -
+# /JetMETTau/Run2010A-PromptReco-v2/RECO                         r10a-jmt-pr-v2          40000 new -
+# /EG/Run2010A-PromptReco-v2/RECO                                r10a-eg-pr-v2           40000 new -
+# /Mu/Run2010A-PromptReco-v2/RECO                                r10a-mu-pr-v2           40000 new -
 
 # # From 013
 # /MinimumBias/Commissioning10-SD_JetMETTau-v9/RECO               c10-jmt-sd-v9           40000 new -
