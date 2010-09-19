@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.19 2010/03/18 20:21:01 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.20 2010/06/25 15:16:35 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -100,6 +100,17 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHadOverEm(iP->hadronicOverEm());
     outPhoton->SetHasPixelSeed(iP->hasPixelSeed());
     
+    // shower shape variables   
+    outPhoton->SetHcalDepth1OverEcal(iP->hadronicDepth1OverEm());
+    outPhoton->SetHcalDepth2OverEcal(iP->hadronicDepth2OverEm());        
+    outPhoton->SetMaxEnergyXtal(iP->maxEnergyXtal());   
+    outPhoton->SetE15(iP->e1x5());
+    outPhoton->SetE25(iP->e2x5());
+    outPhoton->SetE33(iP->e3x3());    
+    outPhoton->SetE55(iP->e5x5());
+    outPhoton->SetCovEtaEta(iP->sigmaEtaEta());
+    outPhoton->SetCoviEtaiEta(iP->sigmaIetaIeta());
+
     //isolation variables for dR=0.3
     outPhoton->SetEcalRecHitIsoDr03(iP->ecalRecHitSumEtConeDR03());
     outPhoton->SetHcalTowerSumEtDr03(iP->hcalTowerSumEtConeDR03());
