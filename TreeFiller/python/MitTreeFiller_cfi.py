@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.74 2010/06/25 15:19:16 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.75 2010/08/18 04:48:58 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,7 +55,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'Kt6Jets',
                                     'AKt5Jets',
                                     'AKt7Jets',
-                                    'IC5JetPlusTrack',
+#                                    'IC5JetPlusTrack',
                                     'AK5JetPlusTrack',
                                     'AKt5TrackJets',
                                     'Kt4TrackJets',
@@ -81,6 +81,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 #                                    'IC5JPTMht',
                                     'CaloTaus',
                                     'PFTaus',
+                                    'ShrinkingConePFTaus',
                                     'StableParts',
                                     'DecayParts',),
 
@@ -1064,6 +1065,16 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         pfCandMapName   = cms.untracked.string('PFCandMapName'),
         fillerType      = cms.untracked.string('FillerPFTaus')
     ),
+    
+    ShrinkingConePFTaus = cms.untracked.PSet(
+        active          = cms.untracked.bool(True),
+        mitName         = cms.untracked.string('PFTaus'),
+        edmName         = cms.untracked.string('shrinkingConePFTauProducer'),
+        trackMapName    = cms.untracked.string('TracksMapName'),
+        jetMapName      = cms.untracked.string(''),
+        pfCandMapName   = cms.untracked.string('PFCandMapName'),
+        fillerType      = cms.untracked.string('FillerPFTaus')
+    ),    
           
     StableParts = cms.untracked.PSet(
         active       = cms.untracked.bool(False),
