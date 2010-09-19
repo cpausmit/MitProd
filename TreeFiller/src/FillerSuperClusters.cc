@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.11 2010/06/25 15:18:38 bendavid Exp $
+// $Id: FillerSuperClusters.cc,v 1.12 2010/08/18 01:36:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -120,9 +120,11 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       outSC->SetSeed(basicClusterMap_->GetMit(inSC->seed()));
     
     // add basic clusters that belong to this super cluster
-    for(reco::CaloCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
-      if (basicClusterMap_ && bc->isNonnull())
-	outSC->AddCluster(basicClusterMap_->GetMit(*bc));
+    if (basicClusterMap_) {
+      for(reco::CaloCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
+        if (bc->isNonnull())
+          outSC->AddCluster(basicClusterMap_->GetMit(*bc));
+      }
     }
 
     //add super cluster det ids to the id map and also fill supercluster-calotower associations
