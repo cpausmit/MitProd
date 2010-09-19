@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.31 2010/05/30 15:28:59 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.32 2010/06/25 15:20:21 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -74,7 +74,7 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  electronsStable*
                                  kShProducer*
                                  conversionProducer*
-                                 JetPlusTrackCorrectionsIcone5*
+                                 #JetPlusTrackCorrectionsIcone5*
                                  JetPlusTrackCorrectionsAntiKt5*
                                  jetvertexAssociationSequence)
 

@@ -1,4 +1,4 @@
-# $Id: BambuFillAOD_cfi.py,v 1.3 2009/11/05 21:40:14 bendavid Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.4 2010/05/30 15:28:58 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,9 +21,24 @@ try:
 except:
   pass
 
+try:
+  BambuRecoSequence.remove(jetVertexAlphaIC5)
+except:
+  pass
+
+try:
+  BambuRecoSequence.remove(jetVertexBetaIC5)
+except:
+  pass
 
 MitTreeFiller.IC5JetPlusTrack.active = False
 MitTreeFiller.AK5JetPlusTrack.active = False
+MitTreeFiller.ItrCone5Jets.active = False
+MitTreeFiller.ItrCone5PFJets.active = False
+MitTreeFiller.Kt4TrackJets.active = False
+MitTreeFiller.BarrelBasicClusters.active = False
+MitTreeFiller.EndcapBasicClusters.active = False
+MitTreeFiller.PFTaus.active = False
   
 MitTreeFiller.PixelHits.active            = False
 MitTreeFiller.PixelVertexes.active        = False
