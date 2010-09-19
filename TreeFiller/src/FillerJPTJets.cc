@@ -1,4 +1,4 @@
-// $Id: FillerJPTJets.cc,v 1.1 2010/05/04 11:56:43 bendavid Exp $
+// $Id: FillerJPTJets.cc,v 1.2 2010/08/18 04:48:32 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerJPTJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -110,11 +110,28 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
 
   jets_->Delete();
   jetMap_->Reset();
+  
+  //ugly hack to get collection from original reco if present (needed to handle things 
+  //automatically between 35x and post 35x samples in the correct way)
+  
+  Handle<reco::PFJetCollection> hPFJetProduct;
+  event.getByLabel("ak5PFJets",hPFJetProduct);
 
   // handle for the Jet Collection
   Handle<reco::JPTJetCollection> hJetProduct;
-  GetProduct(edmName_, hJetProduct, event);
-
+   
+  if (hPFJetProduct.isValid()) {
+    printf("Getting jpt from original reco\n");
+    InputTag jpttag(edmName_,"",hPFJetProduct.provenance()->processName());
+    event.getByLabel(jpttag,hJetProduct);
+  }
+  
+  if (!hPFJetProduct.isValid() || !hJetProduct.isValid()) {
+    printf("falling back to newly produced jpt collection\n");
+    event.getByLabel(edmName_,hJetProduct);
+  }
+  
+  
   // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
