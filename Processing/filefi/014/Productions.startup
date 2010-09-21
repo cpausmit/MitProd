@@ -12,6 +12,13 @@
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
 #---------------------------------------------------------------------------------------------------
 
+# Beamspot Study Samples
+#---------------------------------------------------------------------------------------------------
+/MinBias_7TeV-pythia8/Summer10-DESIGN_36_V8-LiMAX-v1/GEN-SIM-RECO            s10-minb-d36v8   25000 new -
+/MinBias_7TeV-pythia8/Summer10-DESIGN_36_V10_MAG_S09-v1/GEN-SIM-RECO         s10-minb-d36m    25000 new -
+/MinBias_7TeV-pythia8/Summer10-DESIGN_36_V10_S09-v1/GEN-SIM-RECO             s10-minb-d36     25000 new -
+
+
 # PileUp Samples
 #---------------------------------------------------------------------------------------------------
 /Zee/Spring10-START3X_V26_S09_PileUp_E7TeV_AVE_1_BX156-v1/GEN-SIM-RECO       p10-zee-pu-v26   25000 new /mnt/hadoop/cmsprod
@@ -99,7 +106,6 @@
 /Zee_M20_CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO               p10-zeem20-c66-v26     25000 new /mnt/hadoop/cmsprod
 /Zmumu_M20_CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO             p10-zmmm20-c66-v26     25000 new -
 /Ztautau_M20_CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO           p10-zttm20-c66-v26     25000 new -
-/Ztautau_M20_CTEQ66-powheg/Summer10-START36_V9_S09-v1/GEN-SIM-RECO        s10-zttm20-c66-v26     25000 new -
 /WminusToENu-CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO           p10-weminus-c66-v26    25000 new /mnt/hadoop/cmsprod
 /WplusToENu-CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO            p10-weplus-c66-v26     25000 new /mnt/hadoop/cmsprod
 /WminusToMuNu-CTEQ66-powheg/Spring10-START3X_V26-v2/GEN-SIM-RECO          p10-wmminus-c66-v26    25000 new -

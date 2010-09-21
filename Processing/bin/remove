@@ -7,7 +7,7 @@
 import os,sys,getopt,re
 
 def debugPrint(text):
-    if debug ==1:
+    if debug == 1:
         print ' DEBUG: ' + text
 
 def clean(file):
@@ -41,15 +41,16 @@ def remove(source):
         cmd = "stager_rm -M " + source + "; nsrm " + source
     elif re.search('/pnfs/cmsaf.mit.edu/',source):
         debugPrint(' Identified tier-2 file')
-        cmd = 'ssh paus@cgate.mit.edu rm ' + source
+        cmd = 'ssh paus@cgate.mit.edu rm -rf ' + source
     else:
         debugPrint(' Identified a normal directory')
-        cmd = 'rm ' + source
+        cmd = 'rm -rf ' + source
 
     # ready to perform the requested operation
     debugPrint('  -> removing with: ' + cmd)
-    ## status = 0
-    status = os.system(cmd)
+    status = 0
+    if exe == 1:
+        status = os.system(cmd)
 
     return status
 
@@ -58,11 +59,12 @@ def remove(source):
 #===================================================================================================
 # Define string to explain usage of the script
 usage =  "Usage: remove  <source>"
+usage += "               --exe\n"
 usage += "               --debug\n"
 usage += "               --help\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['debug','help']
+valid = ['exe','debug','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -75,6 +77,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 debug = 0
+exe   = 0
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -83,7 +86,9 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     elif opt == '--debug':
-        debug   = 1
+        debug = 1
+    elif opt == '--exe':
+        exe   = 1
 
 newArgv = []
 for arg in sys.argv[1:]:

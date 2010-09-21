@@ -349,16 +349,17 @@ if test == 0:
     fileOutput.close()
 
 # Moving all files
-cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
-print ' CMD: ' + cmd
-status = os.system(cmd)
-cmd = "ssh paus@cgate.mit.edu source " + srcFile
-print ' CMD: ' + cmd
-status = os.system(cmd)
-# Removing the source file once we are done
-cmd = "rm " + srcFile
-print ' CMD: ' + cmd
-status = os.system(cmd)
+if official == 1:
+    cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
+    print ' CMD: ' + cmd
+    status = os.system(cmd)
+    cmd = "ssh paus@cgate.mit.edu source " + srcFile
+    print ' CMD: ' + cmd
+    status = os.system(cmd)
+    # Removing the source file once we are done
+    cmd = "rm " + srcFile
+    print ' CMD: ' + cmd
+    status = os.system(cmd)
 
 # --------------------------------------------------------------------------------------------------
 #                           END ---- THE KEY ACTION

@@ -2,20 +2,22 @@
 #---------------------------------------------------------------------------------------------------
 # Perform a number of cataloging action on a bunch of datasets
 #---------------------------------------------------------------------------------------------------
+H=`basename $0`
 catalog=0
 extract=0
 generate=0
 nFilesPerSet=20
 test=0
 mitCfg=filefi
-while getopts "cegtm:" o
+while getopts "cegtm:n:" o
 do case "$o" in
   c) catalog=1;;
   e) extract=1;;
   g) generate=1;;
   t) test=1;;
   m) mitCfg=$OPTARG;;
-  [?]) print >&2 "usage: $0 [-cegt] [-m <mitcfg> ] <version> [ <pattern> [ <location> ] ]"
+  n) nFilesPerSet=$OPTARG;;
+  [?]) echo "usage: $H [-cegt] [-m <mitcfg> ] [-n <nEvts> ] <version> [ <pattern> [ <location> ] ]"
        exit 1;;
   esac
 done
@@ -32,8 +34,9 @@ CATALOG=$HOME/catalog
 # Health checks
 if [ ".$1" == "." ]
 then
-  H=`basename $0`
-  echo "";echo " usage: $H  [ -ceg -m: options ]  <version>  [ <pattern> [ <location> ] ]"; echo ""
+  echo "";
+  echo "usage: $H [-cegt] [-m <mitcfg> ] [-n <nEvts> ] <version> [ <pattern> [ <location> ] ]";
+  echo ""
   exit 1
 fi
 # Decode command line parameters

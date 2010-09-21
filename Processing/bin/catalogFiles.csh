@@ -48,15 +48,17 @@ set LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
 ## echo LIST :::: $LIST ::::
 
 # Make sure there is a kerberos ticket available
-mkdir    -p  ~/.krb5/
-chmod 0      ~/.krb5
-chmod u=rwx  ~/.krb5
-set file=`echo $KRB5CCNAME | cut -d: -f2`
-if ( -e "$file" ) then
-  cp $file ~/.krb5/ticket
-else
-  echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
-  exit 1
+if ( $?KRB5CCNAME ) then
+  mkdir    -p  ~/.krb5/
+  chmod 0      ~/.krb5
+  chmod u=rwx  ~/.krb5
+  set file=`echo $KRB5CCNAME | cut -d: -f2`
+  if ( -e "$file" ) then
+    cp $file ~/.krb5/ticket
+  else
+    echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
+    exit 1
+  endif
 endif
 
 foreach file ($LIST)

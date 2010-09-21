@@ -567,14 +567,15 @@ for subTask in crabTask.subTasks:
               ' at\n        > ' + sites
         # block with different sites found
         if sites != lastSites:
-            lastSites = sites
             mergedSites  .append(sites)
-            mergedBlocks .append(blocks[idx])
+            mergedBlocks .append(blocks [idx]) # only the first block with these sites is stored
             mergedMinIdxs.append(minIdxs[idx])
             mergedMaxIdxs.append(maxIdxs[idx])
-            mergedIdx =+ 1
+            lastSites  = sites
+            mergedIdx += 1
         else:
             mergedMaxIdxs[mergedIdx-1] = maxIdxs[idx]
+
         # last action in the loop: increment the unmerged blocks
         idx += 1
 

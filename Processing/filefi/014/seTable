@@ -18,14 +18,17 @@ T2_IN_TIFR : se01.indiacms.res.in
 T2_IT_Rome : cmsrm-se01.roma1.infn.it
 T2_PT_NCG_Lisbon : srm01.ncg.ingrid.pt
 T2_RU_ITEP : se3.itep.ru
-T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
-T2_UK_London_IC : gfe02.grid.hep.ph.ic.ac.uk
-T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk
+# 08/29/2010 CP - removed UK sites because of 8020 error in muo-pr sample
+# T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
+# T2_UK_London_IC : gfe02.grid.hep.ph.ic.ac.uk
+# T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk
 T2_US_Caltech : cit-se.ultralight.org
-T2_US_Florida : srm.ihepa.ufl.edu
+# 09/19/2010 CP - removed because lots of r10a-jm-pr-v4 aborted
+# T2_US_Florida : srm.ihepa.ufl.edu
 T2_US_MIT : se01.cmsaf.mit.edu
 T2_US_Nebraska : srm.unl.edu
-T2_US_Purdue : srm-dcache.rcac.purdue.edu
+# 08/29/2010 CP - removed Purdue sites because of 8020 error in muo-pr sample
+# T2_US_Purdue : srm-dcache.rcac.purdue.edu
 T2_US_UCSD : bsrm-1.t2.ucsd.edu
 T2_US_Wisconsin : cmssrm.hep.wisc.edu
 T2_TW_Taiwan : f-dpm001.grid.sinica.edu.tw

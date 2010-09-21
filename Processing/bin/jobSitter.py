@@ -201,6 +201,11 @@ print ' Process crab task list (please wait, crab commands are first fully parse
 i = 0
 for crabTask in crabTasks:
 
+    print '\n------------------------------------------------------------------------------'
+    print '  --> PREPPING ' + crabTask.tag \
+          + '\n       -> ' + crabTask.mitDataset
+    print '------------------------------------------------------------------------------\n'
+
     dataset     = crabTask.cmsDataset
     storageEle  = crabTask.storageEle
     storagePath = crabTask.storagePath
@@ -283,7 +288,7 @@ for crabTask in crabTasks:
         print ' Task status: ' + crabTask.status
         if crabTask.status == 'completed' or crabTask.status == 'finished':
             crabTask.remove(clean)
-	    print ' INFO - crab task has been removed, continuing.'
+	    print ' INFO - crab task has been removed, continuing.\n'
 	    continue
         print ' '
 
@@ -315,8 +320,8 @@ for crabTask in crabTasks:
                 subList += '%d'%(status.index)
             else:
                 subList += ',%d'%(status.index)
-        if ((status.tag == 'Aborted'  or status.exitCode > 0 or status.exitStatus > 0) or
-            (status.tag == 'Retrieved' and status.outputFile == 0)):
+        if ((status.tag == 'Aborted'  or status.exitCode > 0 or status.exitStatus > 0)):
+	##or(status.tag == 'Retrieved' and status.outputFile == 0)):
             status.showCompact()
             if resubList == '':
                 resubList += '%d'%(status.index)
@@ -330,14 +335,14 @@ for crabTask in crabTasks:
         if not re.search('-',subList) and not re.search(',',subList):
             subList = subList + ',999999999'
         cmd = 'crab -c ' + crabTask.tag + ' -submit ' + subList
-        print '\nACTION -- SUBMIT.PY: ' + cmd
-        if exe == 1:
-            status = os.system(cmd)
+        ##print '\nACTION -- SUBMIT.PY: ' + cmd
+        ##if exe == 1:
+        ##    status = os.system(cmd)
     if resubList != '':
         cmd = 'crab -c ' + crabTask.tag + ' -resubmit ' + resubList
-        print '\nACTION -- RE-SUBMIT.PY: ' + cmd
-        if exe == 1:
-            status = os.system(cmd)
+        ##print '\nACTION -- RE-SUBMIT.PY: ' + cmd
+        ##if exe == 1:
+        ##    status = os.system(cmd)
 
 
     cmd = 'crab -getoutput -continue ' + crabTask.tag
