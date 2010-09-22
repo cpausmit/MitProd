@@ -1,4 +1,4 @@
-// $Id: FillerJPTJets.cc,v 1.2 2010/08/18 04:48:32 bendavid Exp $
+// $Id: FillerJPTJets.cc,v 1.3 2010/09/19 23:47:33 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerJPTJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -121,13 +121,13 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JPTJetCollection> hJetProduct;
    
   if (hPFJetProduct.isValid()) {
-    printf("Getting jpt from original reco\n");
+    //printf("Getting jpt from original reco\n");
     InputTag jpttag(edmName_,"",hPFJetProduct.provenance()->processName());
     event.getByLabel(jpttag,hJetProduct);
   }
   
   if (!hPFJetProduct.isValid() || !hJetProduct.isValid()) {
-    printf("falling back to newly produced jpt collection\n");
+    //printf("falling back to newly produced jpt collection\n");
     event.getByLabel(edmName_,hJetProduct);
   }
   
