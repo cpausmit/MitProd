@@ -22,15 +22,15 @@ import os,sys,getopt,re,string
 
 def move(srcFile,source,target):
     # make an entry to be executed
-    mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
-            +            "/".join(target.split('/')[3:]) + " >> " + srcFile
-    os.system(mvCmd)
+    if not re.search('castor/cern.ch',source):
+        mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
+                +            "/".join(target.split('/')[3:]) + " >> " + srcFile
+        os.system(mvCmd)
 
     cmd = 'move ' + source + '  ' + target
-    ## print ' Moving: ' + cmd
     print cmd
-    #if test == 0:
-    #    status = os.system(cmd)
+    if test == 0 and re.search('castor/cern.ch',source):
+        status = os.system(cmd)
 
     return status
 
@@ -109,6 +109,11 @@ for opt, arg in opts:
 if dataset == None:
     cmd = "--dataset option not provided. This is required."
     raise RuntimeError, cmd
+
+# Are we dealing with a dataset residing at MIT
+atMit = 0
+if re.search('catalog/t2mit',catalogDir):
+    atMit = 1
 
 # See whether we are dealing with an official production request
 if re.search('crab_0',dataset):
@@ -295,9 +300,9 @@ print 'Raw file identified (in %s): \n     %s'%(rawDir,rawFile)
 # --------------------------------------------------------------------------------------------------
 
 # Create the moving file from this extract task
-if official == 1:
+srcFile = "EMPTY.bak"
+if official == 1 and atMit == 1:
     cmd = "date +Extracting_%y%m%d_%H%M%S.src"
-    srcFile = "EMPTY.bak"
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]
         srcFile = line
@@ -348,16 +353,17 @@ for line in os.popen(cmd).readlines():  # run command
 if test == 0:
     fileOutput.close()
 
-# Moving all files
-if official == 1:
+if atMit == 1:
+    # Moving all files
     cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
     print ' CMD: ' + cmd
     status = os.system(cmd)
     cmd = "ssh paus@cgate.mit.edu source " + srcFile
     print ' CMD: ' + cmd
     status = os.system(cmd)
+    
     # Removing the source file once we are done
-    cmd = "rm " + srcFile
+    cmd = "rm " + srcFile + "; ssh paus@cgate rm " + srcFile
     print ' CMD: ' + cmd
     status = os.system(cmd)
 
