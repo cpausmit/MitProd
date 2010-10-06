@@ -1,4 +1,4 @@
-# $Id: cmssw.py,v 1.1 2010/06/18 21:41:15 paus Exp $
+# $Id: cmssw.py,v 1.2 2010/10/06 13:39:42 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,7 +36,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_38Y_V12::All'
+process.GlobalTag.globaltag = 'START38_V12::All'
 
 # load MitTreeFiller 
 process.add_(cms.Service("ObjectService"))
