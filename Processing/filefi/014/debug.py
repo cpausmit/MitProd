@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.18 2010/03/25 18:51:41 bendavid Exp $
+# $Id: debug.py,v 1.1 2010/06/18 21:41:15 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_014a'),
+    version    = cms.untracked.string('Mit_014e'),
     annotation = cms.untracked.string('RECODEBUG'),
     name       = cms.untracked.string('BambuProduction')
 )
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START36_V6::All'
+process.GlobalTag.globaltag = 'START38_V12::All'
 
 process.add_(cms.Service("ObjectService"))
 

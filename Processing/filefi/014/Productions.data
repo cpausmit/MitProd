@@ -11,10 +11,19 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation [ DbsInstance ]
 #---------------------------------------------------------------------------------------------------
-/MinimumBias/Commissioning10-SD_EG-Jun14thSkim_v1/RECO         c10-eg-sd-j14    40000 new /mnt/hadoop/cmsprod
-/MinimumBias/Commissioning10-SD_Mu-Jun14thSkim_v1/RECO         c10-mu-sd-j14    40000 new -
-/MinimumBias/Commissioning10-SD_JetMETTau-Jun14thSkim_v1/RECO  c10-jmt-sd-j14   40000 new -
+# run 2010 b prompt reco
+/Electron/Run2010B-PromptReco-v2/RECO                          r10b-el-pr-v2    40000 new -
+/BTau/Run2010B-PromptReco-v2/RECO                              r10b-bt-pr-v2    40000 new -
+/EGMonitor/Run2010B-PromptReco-v2/RECO                         r10b-egmo-pr-v2  40000 new -
+/Jet/Run2010B-PromptReco-v2/RECO                               r10b-jet-pr-v2   40000 new -
+/JetMETTauMonitor/Run2010B-PromptReco-v2/RECO                  r10b-jmt-pr-v2   40000 new -
+/METFwd/Run2010B-PromptReco-v2/RECO                            r10b-metf-pr-v2  40000 new -
+/Mu/Run2010B-PromptReco-v2/RECO                                r10b-mu-pr-v2    40000 new -
+/MuMonitor/Run2010B-PromptReco-v2/RECO                         r10b-mumo-pr-v2  40000 new -
+/MuOnia/Run2010B-PromptReco-v2/RECO                            r10b-muo-pr-v2   40000 new -
+/Photon/Run2010B-PromptReco-v2/RECO                            r10b-pho-pr-v2   40000 new -
 
+# run 2010 a prompt reco
 /EG/Run2010A-PromptReco-v4/RECO                                r10a-eg-pr-v4    40000 new /mnt/hadoop/cmsprod
 /EG/Run2010A-PromptReco_multilepton-v1/GEN-SIM-RECO            r10a-2l-eg-pr-v4 40000 new -
 /Mu/Run2010A-PromptReco-v4/RECO                                r10a-mu-pr-v4    40000 new -
@@ -23,50 +32,28 @@
 /JetMETTau/Run2010A-PromptReco-v4/RECO                         r10a-jmt-pr-v4   40000 new -
 /JetMET/Run2010A-PromptReco-v4/RECO                            r10a-jm-pr-v4    40000 new -
 
+# september 17 re-reco
+/EG/Run2010A-Sep17ReReco_v2/RECO                               r10a-eg-s17      40000 new -
+/Mu/Run2010A-Sep17ReReco_v2/RECO			       r10a-mu-s17      40000 new -
+/MuOnia/Run2010A-Sep17ReReco_v2/RECO			       r10a-muo-s17     40000 new -
+/JetMETTau/Run2010A-Sep17ReReco_v2/RECO			       r10a-jmt-s17     40000 new -
+/JetMET/Run2010A-Sep17ReReco_v2/RECO			       r10a-jm-s17      40000 new -
+/BTau/Run2010A-Sep17ReReco_v2/RECO                             r10a-bt-s17      40000 new -
+
+# july 16 re-reco
 /EG/Run2010A-Jul16thReReco-v2/RECO                             r10a-eg-j16      40000 new /mnt/hadoop/cmsprod
 /EG/Run2010A-Jul16thReReco_multilepton-v1/GEN-SIM-RECO         r10a-2l-eg-j16   40000 new -
-/Mu/Run2010A-Jul16thReReco-v1/RECO			       r10a-mu-j16      40000 new -
+/Mu/Run2010A-Jul16thReReco-v1/RECO                             r10a-mu-j16      40000 new -
 /Mu/Run2010A-Jul16thReReco_multilepton-v1/GEN-SIM-RECO         r10a-2l-mu-j16   40000 new -
-/JetMETTau/Run2010A-Jul16thReReco-v1/RECO		       r10a-jmt-j16     40000 new -
+/JetMETTau/Run2010A-Jul16thReReco-v1/RECO                      r10a-jmt-j16     40000 new -
 
+# june 14 re-reco
 /EG/Run2010A-Jun14thReReco_v1/RECO                             r10a-eg-j14      40000 new -
 /Mu/Run2010A-Jun14thReReco_v1/RECO                             r10a-mu-j14      40000 new -
 /MinimumBias/Run2010A-Jun14thReReco_v2/RECO                    r10a-minb-j14    40000 new -
 /JetMETTau/Run2010A-Jun14thReReco_v2/RECO                      r10a-jmt-j14     40000 new -
 
-# /JetMETTau/Run2010A-PromptReco-v2/RECO                         r10a-jmt-pr-v2          40000 new -
-# /EG/Run2010A-PromptReco-v2/RECO                                r10a-eg-pr-v2           40000 new -
-# /Mu/Run2010A-PromptReco-v2/RECO                                r10a-mu-pr-v2           40000 new -
-
-# # From 013
-# /MinimumBias/Commissioning10-SD_JetMETTau-v9/RECO               c10-jmt-sd-v9           40000 new -
-# /MinimumBias/Commissioning10-May6thPDSkim2_SD_JetMETTau-v1/RECO c10-jmt-sd-m6           40000 new -
-#
-# /MinimumBias/Commissioning10-SD_EG-v9/RECO                      c10-eg-sd-v9            40000 new -
-# /MinimumBias/Commissioning10-May6thPDSkim2_SD_EG-v1/RECO        c10-eg-sd-m6            40000 new -
-#
-# /MinimumBias/Commissioning10-SD_Mu-v9/RECO                      c10-mu-sd-v9            40000 new -
-# /MinimumBias/Commissioning10-May6thPDSkim2_SD_Mu-v1/RECO        c10-mu-sd-m6            40000 new -
-#
-# /MinimumBias/Commissioning10-CS_Onia-v9/USER                    c10-on-sd-v9            40000 new -
-# /MinimumBias/Commissioning10-May6thPDSkim2_CS_Onia-v1/RECO      c10-on-sd-m6            40000 new -
-#
-# /EG/Run2010A-PromptReco-v1/RECO                                 r10a-eg-pr-v1           40000 new -
-# /EG/Run2010A-PromptReco-v2/RECO                                 r10a-eg-pr-v2           40000 new -
-# /EG/Run2010A-May27thReReco_v1/RECO                              r10a-eg-m27             40000 new -
-#
-# /Mu/Run2010A-PromptReco-v1/RECO                                 r10a-mu-pr-v1           40000 new -
-# /Mu/Run2010A-PromptReco-v2/RECO                                 r10a-mu-pr-v2           40000 new -
-# /Mu/Run2010A-May27thReReco_v2/RECO                              r10a-mu-m27             40000 new -
-#
-# /JetMETTau/Run2010A-PromptReco-v1/RECO                          r10a-jmt-pr-v1          40000 new -
-# /JetMETTau/Run2010A-PromptReco-v2/RECO                          r10a-jmt-pr-v2          40000 new -
-# /JetMETTau/Run2010A-May27thReReco_v1/RECO                       r10a-jmt-m27            40000 new -
-#
-# /MinimumBias/Run2010A-PromptReco-v1/RECO                        r10a-mb-pr-v1           40000 new -
-# /MinimumBias/Run2010A-PromptReco-v2/RECO                        r10a-mb-pr-v2           40000 new -
-#
-# /MinimumBias/Commissioning10-PromptReco-v9/RECO                 c10-minb-pr-v9          40000 new -
-# /MinimumBias/Commissioning10-GOODCOLL-v9/RAW-RECO               c10-minb-goodcoll-v9    40000 new -
-# /MinimumBias/Commissioning10-May6thPDSkim_GOODCOLL-v1/RAW-RECO  c10-minb-goodcoll-rrm6  40000 new -
-# /MinimumBias/Commissioning10-May27thReReco_v1/RECO              c10-minb-m27            40000 new -
+# commissioning 2010 secondary datasets
+/MinimumBias/Commissioning10-SD_EG-Jun14thSkim_v1/RECO         c10-eg-sd-j14    40000 new /mnt/hadoop/cmsprod
+/MinimumBias/Commissioning10-SD_Mu-Jun14thSkim_v1/RECO         c10-mu-sd-j14    40000 new -
+/MinimumBias/Commissioning10-SD_JetMETTau-Jun14thSkim_v1/RECO  c10-jmt-sd-j14   40000 new -

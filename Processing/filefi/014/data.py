@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_RECO.py,v 1.11 2009/11/22 16:19:52 bendavid Exp $
+# $Id: data.py,v 1.1 2010/06/18 21:41:15 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_014a'),
+    version    = cms.untracked.string('Mit_014e'),
     annotation = cms.untracked.string('RECO'),
     name       = cms.untracked.string('BambuProduction')
 )
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V6::All'
+process.GlobalTag.globaltag = 'GR10_P_V10::All'
 
 process.add_(cms.Service("ObjectService"))
 

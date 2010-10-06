@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_014a'),
+    version    = cms.untracked.string('Mit_014e'),
     annotation = cms.untracked.string('RECOSIMStartup'),
     name       = cms.untracked.string('BambuProduction')
 )
@@ -35,7 +35,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 # other statements
 
 #special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START36_V9::All'
+process.GlobalTag.globaltag = 'START38_V12::All'
 
 process.add_(cms.Service("ObjectService"))
 

@@ -122,6 +122,12 @@
 /WJets-sherpa/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                    p10-wjets-sp-v26       25000 new -
 #/WJets-madgraph/Spring10-START3X_V26_S09_E7TeV_L69E30_BX156-v1/GEN-SIM-RECO
 
+/TTbar_2l/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                        p10-ttbar2l-v26        25000 new -
+/WW/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                              p10-ww-v26             25000 new -
+/WW_2l_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                      p10-ww2l-v26           25000 new -
+/WZ_3l_7TeV/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                      p10-wz3l-v26           25000 new -
+/ZZ/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                              p10-zz-v26             25000 new -
+
 /QCD_EMDoubleEnriched_Pt6to20/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO    p10-qcdemde6_20-v26    25000 new -
 /QCD_EMDoubleEnriched_Pt20/Spring10-START3X_V26_S09-v2/GEN-SIM-RECO       p10-qcdemde20-v26      25000 new -
 /InclusiveMu15/Spring10-START3X_V26_S09-v1/GEN-SIM-RECO                   p10-incmu15-v26        25000 new -

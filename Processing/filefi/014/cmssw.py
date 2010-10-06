@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.4 2009/07/22 19:26:24 loizides Exp $
+# $Id: cmssw.py,v 1.1 2010/06/18 21:41:15 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_014a'),
+    version    = cms.untracked.string('Mit_014e'),
     annotation = cms.untracked.string('RECOSIM'),
     name       = cms.untracked.string('BambuProduction')
 )
@@ -36,7 +36,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_36_V9::All'
+process.GlobalTag.globaltag = 'MC_38Y_V12::All'
 
 # load MitTreeFiller 
 process.add_(cms.Service("ObjectService"))
