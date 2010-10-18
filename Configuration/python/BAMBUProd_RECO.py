@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.27 2010/08/18 04:51:22 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.28 2010/09/19 23:48:44 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,8 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
@@ -29,12 +30,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2010B/CommissioningNoBeam/RECO/PromptReco-v2/000/146/112/666650B4-25C3-DF11-ABB1-000423D996C8.root')
+    fileNames = cms.untracked.vstring('/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/222/5E50236B-38D1-DF11-9889-003048F1110E.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V10::All'
+process.GlobalTag.globaltag = 'GR10_P_V11::All'
 
 process.add_(cms.Service("ObjectService"))
 

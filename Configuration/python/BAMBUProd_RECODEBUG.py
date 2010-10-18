@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.21 2010/08/18 04:51:22 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.22 2010/09/19 23:48:44 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,8 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')

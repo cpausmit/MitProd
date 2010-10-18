@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.20 2010/08/18 04:51:22 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.21 2010/09/19 23:48:44 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,7 +7,7 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V10::All'
+process.GlobalTag.globaltag = 'GR10_P_V11::All'
 
 process.add_(cms.Service("ObjectService"))
 
