@@ -1,4 +1,4 @@
-# $Id: BambuFillAOD_cfi.py,v 1.4 2010/05/30 15:28:58 bendavid Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.5 2010/09/19 23:48:28 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -31,6 +31,11 @@ try:
 except:
   pass
 
+try:
+  BambuRecoSequence.remove(correctedExpectedHits)
+except:
+  pass
+
 MitTreeFiller.IC5JetPlusTrack.active = False
 MitTreeFiller.AK5JetPlusTrack.active = False
 MitTreeFiller.ItrCone5Jets.active = False
@@ -49,5 +54,8 @@ MitTreeFiller.PixelTracks.active          = False
 mergedConversionsStable.removeDuplicates = False
 mergedConversionsGeneralStable.removeDuplicates = False
 mergedElectronsStable.removeDuplicates = False
+
+MitTreeFiller.Electrons.expectedHitsName = ''
+MitTreeFiller.Muons.expectedHitsName = ''
 
 BambuFillAOD = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)

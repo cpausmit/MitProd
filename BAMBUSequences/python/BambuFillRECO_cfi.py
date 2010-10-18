@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.32 2010/06/25 15:20:21 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.33 2010/09/19 23:48:28 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -51,6 +51,15 @@ MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
 MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
 MitTreeFiller.GsfTracks.ecalAssocActive                          = True
 
+#electron likelihood-based id (disabled pending proper handling of sqlite file)
+#from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import *
+#MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
+
+#corrected nexpectedhitsinner information for electrons and muons
+from MitProd.TreeFiller.correctedExpectedHits_cff import *
+MitTreeFiller.Electrons.expectedHitsName = 'expectedHitsEle'
+MitTreeFiller.Muons.expectedHitsName = 'expectedHitsMu'
+
 # Produce pixel hit information
 #from MitEdm.Producers.pixelRecHits_cfi import *
 #from MitEdm.Producers.vertexz_cfi import *
@@ -76,7 +85,9 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  conversionProducer*
                                  #JetPlusTrackCorrectionsIcone5*
                                  JetPlusTrackCorrectionsAntiKt5*
-                                 jetvertexAssociationSequence)
+                                 jetvertexAssociationSequence*
+                                 #eidLikelihoodExt*
+                                 correctedExpectedHits)
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
 
