@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.47 2010/06/24 13:02:27 peveraer Exp $
+// $Id: FillerElectrons.cc,v 1.48 2010/06/24 13:04:04 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -40,6 +40,7 @@ using namespace mithep;
 FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active) :
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
+  expectedHitsName_(Conf().getUntrackedParameter<string>("expectedHitsName","")),  
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
@@ -48,6 +49,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
+  eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
   pvBSEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVerticesWithBS")),  
   electrons_(new mithep::ElectronArr(16)),
@@ -117,7 +119,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
   GetProduct(eIDCutBasedTightName_, eidTightMap, event);
-
+  edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
+  if (!eIDLikelihoodName_.empty()) {
+    GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);  
+  }
+  
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
   const reco::VertexCollection *pvCol = hVertex.product();
@@ -134,7 +140,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   event.getByLabel("mvfConversionRemoval", hConversions);
   
   mitedm::ConversionMatcher convMatcher;
-
+  
+  edm::Handle<edm::ValueMap<int> > vmEl;
+  if(!expectedHitsName_.empty()) {  
+    event.getByLabel("expectedHitsEle",vmEl);
+  }
+    
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
@@ -215,10 +226,17 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetFracSharedHits(iM->shFracInnerHits());
 
     // make proper links to Tracks and Super Clusters
-    if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
+    if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) {
       outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
-    // make tracker track links, relinking from gsf track associations if configured and 
-    // link is otherwise absent
+    }
+    // make links to ambigous gsf tracks
+    if (gsfTrackMap_) {
+      for (reco::GsfTrackRefVector::const_iterator agsfi = iM->ambiguousGsfTracksBegin(); agsfi != iM->ambiguousGsfTracksEnd(); ++agsfi) {
+        outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));
+      }
+    }
+    
+    // make tracker track links,
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
         outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
     }
@@ -370,6 +388,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    if (!eIDLikelihoodName_.empty()) {
+      outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
+    }
+    
+    // fill corrected expected inner hits
+    if(!expectedHitsName_.empty()) {
+      outElectron->SetCorrectedNExpectedHitsInner((*vmEl)[eRef]);
+    }
     
     //fill additional conversion flag
     outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));

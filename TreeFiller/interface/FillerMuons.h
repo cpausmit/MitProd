@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.12 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerMuons.h,v 1.13 2010/05/06 17:31:23 bendavid Exp $
 //
 // FillerMuons
 //
@@ -28,6 +28,7 @@ namespace mithep
   
     private:
       std::string                 edmName_;               //edm name of muons collection
+      std::string                 expectedHitsName_;      //edm name of corrected expected hits valuemap
       std::string                 mitName_;               //mit name of Muons
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons

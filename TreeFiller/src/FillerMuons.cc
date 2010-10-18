@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.29 2010/05/28 18:50:16 pharris Exp $
+// $Id: FillerMuons.cc,v 1.31 2010/05/29 12:01:34 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -24,6 +24,7 @@ using namespace mithep;
 FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","muons")),
+  expectedHitsName_(Conf().getUntrackedParameter<string>("expectedHitsName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),
   staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
@@ -106,6 +107,11 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   event.getByLabel(pvBSEdmName_, hVertexBS);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
 
+  edm::Handle<edm::ValueMap<int> > vmMu;
+  if  (!expectedHitsName_.empty()) {
+    event.getByLabel("expectedHitsMu",vmMu);  
+  }
+  
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
@@ -292,6 +298,12 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetNSegments(4+i0,   iM->numberOfSegments(i0+1,2));
     }
 
+    reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
+    // fill corrected expected inner hits
+    if(!expectedHitsName_.empty()) {
+      outMuon->SetCorrectedNExpectedHitsInner((*vmMu)[theRef]);
+    }
+    
     // add muon to map
     edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
     muonMap_->Add(thePtr, outMuon);

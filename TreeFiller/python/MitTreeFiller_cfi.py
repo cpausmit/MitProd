@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.76 2010/09/19 23:48:11 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.77 2010/09/22 08:38:15 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -434,6 +434,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('Muons'),
         edmName             = cms.untracked.string('muons'),
+        expectedHitsName                 = cms.untracked.string(''),        
         globalTrackMapName  = cms.untracked.string('GlobalMuonTracksMapName'),
         staTrackMapName     = cms.untracked.string('StandaloneMuonTracksMapName'),
         staVtxTrackMapName  = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
@@ -446,6 +447,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                           = cms.untracked.bool(True),
         mitName                          = cms.untracked.string('Electrons'),
         edmName                          = cms.untracked.string('gsfElectrons'),
+        expectedHitsName                 = cms.untracked.string(''),
         gsfTrackMapName                  = cms.untracked.string('GsfTracksMapName'), 
         trackerTrackMapName              = cms.untracked.string('TracksMapName'),
         barrelEcalRecHitName             = cms.untracked.string('reducedEcalRecHitsEB'),
@@ -459,6 +461,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         pfSuperClusterMapName            = cms.untracked.string('PFSuperClusterMap'),
         eIDCutBasedLooseName             = cms.untracked.string('eidLoose'),
         eIDCutBasedTightName             = cms.untracked.string('eidTight'),
+        eIDLikelihoodName                = cms.untracked.string(''),        
         IsolationTrackCollectionName     = cms.untracked.string('generalTracks'),
         IsolationCaloTowerCollectionName = cms.untracked.string('towerMaker'),
         EcalJurassicIsolationName        = cms.untracked.string('eleIsoFromDepsEcalFromHits'),

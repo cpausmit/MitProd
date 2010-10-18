@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.21 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.22 2010/05/06 17:31:23 bendavid Exp $
 //
 // FillerElectrons
 //
@@ -29,6 +29,7 @@ namespace mithep
   
     private:
       std::string                    edmName_;                   //edm name of electrons collection
+      std::string                    expectedHitsName_;          //edm name of corrected expected hits valuemap      
       std::string                    mitName_;                   //mit name of Electrons collection
       std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
       std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
@@ -37,6 +38,7 @@ namespace mithep
       std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
+      std::string                    eIDLikelihoodName_;         //name of likelihood cut eID algo
       std::string                 pvEdmName_;             //name of primary vertex collection
       std::string                 pvBSEdmName_;           //name of bs-constrained pv collection
       mithep::ElectronArr           *electrons_;                 //array of Electrons
