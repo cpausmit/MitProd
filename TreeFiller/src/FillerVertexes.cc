@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.8 2009/12/11 17:45:38 bendavid Exp $
+// $Id: FillerVertexes.cc,v 1.9 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -77,7 +77,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
                                    inV->xError(), inV->yError(), inV->zError());
     outVertex->SetChi2(inV->chi2());
     outVertex->SetIsValid(inV->isValid());
-    outVertex->SetNdof(static_cast<Int_t>(inV->ndof()));
+    outVertex->SetNdof(inV->ndof());
     outVertex->SetNTracksFit(inV->tracksSize());
 
     //fill tracks associated to the vertex
