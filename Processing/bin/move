@@ -22,13 +22,13 @@ def clean(file):
 def exists(target):
     if   re.search('/castor/cern.ch/',target):
         debugPrint(' Identified a castor directory: ' + target)
-        cmd = 'rfdir ' + target + '\>\& /dev/null'
+        cmd = 'rfdir ' + target + '>& /dev/null'
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
         cmd = 'ssh paus@cgate.mit.edu ls -1 ' + target + '\>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory: ' + target)
-        cmd = 'ls -1 ' + target + '\>\& /dev/null'
+        cmd = 'ls -1 ' + target + '>& /dev/null'
             
     status = os.system(cmd)
     debugPrint(' Status: %d' % status)
