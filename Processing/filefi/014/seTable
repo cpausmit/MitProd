@@ -5,6 +5,7 @@ T1_FR_CCIN2P3 : ccsrm.in2p3.fr
 T1_IT_CNAF : storm-fe-cms.cr.cnaf.infn.it
 T1_UK_RAL : srm-cms.gridpp.rl.ac.uk
 T1_US_FNAL : cmssrm.fnal.gov
+T2_AT_Vienna: hephyse.oeaw.ac.at
 T2_BE_IIHE : maite.iihe.ac.be
 T2_BR_SPRACE : osg-se.sprace.org.br
 T2_BR_UERJ : se-dcache.hepgrid.uerj.br
@@ -34,10 +35,13 @@ T2_US_Wisconsin : cmssrm.hep.wisc.edu
 T2_TW_Taiwan : f-dpm001.grid.sinica.edu.tw
 T2_DE_DESY : dcache-se-cms.desy.de
 T2_IT_Legnaro : t2-srm-02.lnl.infn.it
+T2_IT_Pisa : cmsdcache.pi.infn.it
+T2_IT_Bari: storm-se-01.ba.infn.it
 T2_ES_CIEMAT : srm.ciemat.es
 T2_CH_CSC : storage01.lcg.cscs.ch
 T2_CN_Beijing : srm.ihep.ac.cn
 T2_RU_JINR : lcgsedc01.jinr.ru
+T2_HU_Budapest: grid143.kfki.hu
 T3_CH_PSI : t3se01.psi.ch
 T3_GR_Ioannina : pc138.physics.uoi.gr
 T3_US_FNALLPC : cmsdca2.fnal.gov
