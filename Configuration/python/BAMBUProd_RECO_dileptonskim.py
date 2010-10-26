@@ -43,14 +43,6 @@ process.load("MitProd.BAMBUSequences.BambuFillRECO_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
-#set up skim filters here
-def mkCandChannel(label):
-    filter = cms.EDFilter("CandViewCountFilter", src = cms.InputTag(label), minNumber = cms.uint32(1));
-    setattr(process,label+"Filter", filter)
-    mkChannel(label, filter)
-def mkChannel(label, filter):
-    setattr(process,"Skim_"+label, cms.Path(process.main + filter))
-    process.out.SelectEvents.SelectEvents += [ 'Skim_' + label ]
 
 TM_ARBITRATION = "numberOfMatches('SegmentAndTrackArbitration')>0";
 MUON_CUT="pt > 10 && (isGlobalMuon || (isTrackerMuon && "+TM_ARBITRATION+"))"
