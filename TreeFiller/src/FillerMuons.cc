@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.31 2010/05/29 12:01:34 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.32 2010/10/18 01:34:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -279,6 +279,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
+    outMuon->SetNMatches   (iM->numberOfMatches());
     for(int i0 = 0; i0 < 4; i0++) {
       // DTs
       outMuon->SetDX(i0,            iM->dX(i0+1,1));
