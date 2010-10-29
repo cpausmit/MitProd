@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.32 2010/10/18 01:34:48 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.33 2010/10/29 16:22:01 ceballos Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -288,7 +288,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetPullY(i0,         iM->pullY(i0+1,1));
       outMuon->SetTrackDist(i0,     iM->trackDist(i0+1,1));
       outMuon->SetTrackDistErr(i0,  iM->trackDistErr(i0+1,1));
-      outMuon->SetNSegments(i0,     iM->numberOfSegments(i0+1,1));
+      outMuon->SetNSegments(i0,     NumberOfSegments(&(*iM),i0+1,1));
       // CSCs
       outMuon->SetDX(4+i0,          iM->dX       (i0+1,2));
       outMuon->SetDY(4+i0,          iM->dY       (i0+1,2));
@@ -296,7 +296,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetPullY(4+i0,       iM->pullY    (i0+1,2));
       outMuon->SetTrackDist(4+i0,   iM->trackDist(i0+1,2));
       outMuon->SetTrackDistErr(4+i0,iM->trackDistErr(i0+1,2));
-      outMuon->SetNSegments(4+i0,   iM->numberOfSegments(i0+1,2));
+      outMuon->SetNSegments(4+i0,   NumberOfSegments(&(*iM),i0+1,2));
     }
 
     reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
@@ -319,3 +319,48 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   }
   muons_->Trim();
 }
+
+int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId, reco::Muon::ArbitrationType type ) {
+  if(!iM->isMatchesValid()) return 0;
+  int segments(0);
+  
+  for( std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = iM->matches().begin();
+       chamberMatch != iM->matches().end(); chamberMatch++ )
+    {
+      if(chamberMatch->segmentMatches.empty()) continue;
+      if(!(chamberMatch->station()==station && chamberMatch->detector()==muonSubdetId)) continue;
+      if(type == reco::Muon::NoArbitration) {
+	segments += chamberMatch->segmentMatches.size();
+	continue;
+      }
+      for( std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+	   segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
+	{
+	  if(type == reco::Muon::SegmentArbitration)
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR)) {
+	      segments++;
+	      break;
+	    }
+	  if(type == reco::Muon::SegmentAndTrackArbitration)
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
+	      segments++;
+	      break;
+	    }
+	  if(type == reco::Muon::SegmentAndTrackArbitrationCleaned)
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
+	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
+	      segments++;
+	      break;
+	    }
+	  if(type > 1<<7)
+	    if(segmentMatch->isMask(type)) {
+	      segments++;
+	      break;
+	    }
+	}
+    }
+  return segments;
+}
+

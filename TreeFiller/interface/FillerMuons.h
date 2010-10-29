@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.13 2010/05/06 17:31:23 bendavid Exp $
+// $Id: FillerMuons.h,v 1.14 2010/10/18 01:34:47 bendavid Exp $
 //
 // FillerMuons
 //
@@ -14,6 +14,7 @@
 #include "MitAna/DataTree/interface/MuonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 namespace mithep 
 {
@@ -25,7 +26,7 @@ namespace mithep
 
       void                        BookDataBlock(TreeWriter &tws);
       void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-  
+      int                         NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId,  reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
     private:
       std::string                 edmName_;               //edm name of muons collection
       std::string                 expectedHitsName_;      //edm name of corrected expected hits valuemap
