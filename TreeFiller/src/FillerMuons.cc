@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.33 2010/10/29 16:22:01 ceballos Exp $
+// $Id: FillerMuons.cc,v 1.34 2010/10/29 18:15:30 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -337,18 +337,18 @@ int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSub
 	   segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
 	{
 	  if(type == reco::Muon::SegmentArbitration)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR)) {
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
 	      segments++;
 	      break;
 	    }
 	  if(type == reco::Muon::SegmentAndTrackArbitration)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
 	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
 	      segments++;
 	      break;
 	    }
 	  if(type == reco::Muon::SegmentAndTrackArbitrationCleaned)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
 	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
 	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
 	      segments++;
