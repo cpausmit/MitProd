@@ -1,4 +1,4 @@
-// $Id: FillerDecayParts.cc,v 1.20 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerDecayParts.cc,v 1.21 2010/06/23 09:02:45 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -174,8 +174,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
               printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
               printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
               printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());
-              printf("# of missed hits:          %i\n",outStable->NMissedHits());
-              printf("# of wrong hits:           %i\n",outStable->NWrongHits());
+              printf("# of missed layers:        %i\n",outStable->NMissedLayers());
+              printf("# of wrong layers:         %i\n",outStable->NWrongLayers());
               printf("Hits              : ");
               for (Int_t biti=63; biti >= 0; --biti) {
                 printf("%i",cDaughter->Trk()->Hits().TestBit(biti));
