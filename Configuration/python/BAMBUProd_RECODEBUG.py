@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECODEBUG.py,v 1.22 2010/09/19 23:48:44 bendavid Exp $
+# $Id: BAMBUProd_RECODEBUG.py,v 1.23 2010/10/18 01:35:27 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,14 +7,13 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_014'),
+    version = cms.untracked.string('Mit_017'),
     annotation = cms.untracked.string('RECODEBUG'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -30,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/fall10preproduction-qcd-gensimrecodebug/8A1C614F-00A9-DF11-98A2-002481CFE888.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_9_0_pre6/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V1-v1/0040/E6E7D420-E7D2-DF11-BE6E-003048678F8C.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START38_V12::All'
+process.GlobalTag.globaltag = 'START39_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 

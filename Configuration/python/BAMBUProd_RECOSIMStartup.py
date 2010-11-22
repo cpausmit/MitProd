@@ -7,14 +7,13 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_014'),
+    version = cms.untracked.string('Mit_017'),
     annotation = cms.untracked.string('RECOSIMStartup'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -29,17 +28,14 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    #'file:/data/blue/peveraer/FAF65B97-5490-DF11-8168-0030487FA4CD.root',
-    'file:/server/02a/bendavid/ttbarSpring10/F65B25B3-AA4E-DF11-AD8A-001E0B5FC422.root'
-    )
+    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392gensimreco/1488362D-A8E9-DF11-A016-00261894380D.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 
 #special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START38_V12::All'
+process.GlobalTag.globaltag = 'START39_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 

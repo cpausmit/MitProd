@@ -7,14 +7,13 @@ process = cms.Process('FILLER')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_014'),
+    version = cms.untracked.string('Mit_017'),
     annotation = cms.untracked.string('RECOSIM'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -30,12 +29,12 @@ process.options = cms.untracked.PSet(
 # input source
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0016/62FDDFEB-391E-DF11-890A-001731A28BE1.root')
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_6_1_patch1/RelValTTbar/GEN-SIM-RECO/MC_36Y_V8-v1/0000/664A5B9D-F462-DF11-ADE5-0030487CF41E.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_9_0_pre6/RelValQCD_Pt_120_170/GEN-SIM-RECO/MC_39Y_V1_without_gflash_special-v1/0033/FC543722-BDCF-DF11-8127-001A92971B32.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_38Y_V12::All'
+process.GlobalTag.globaltag = 'MC_39Y_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 

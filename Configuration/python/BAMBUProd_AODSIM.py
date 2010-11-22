@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.17 2010/09/19 23:48:44 bendavid Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.18 2010/10/18 01:35:26 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_014'),
+    version = cms.untracked.string('Mit_017'),
     annotation = cms.untracked.string('AODSIM'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/server/02a/bendavid/fastsim/MinBias_TuneCW900A_7TeV/F4F949C4-F748-DF11-A419-003048678B72.root')
+    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392gensimreco/1488362D-A8E9-DF11-A016-00261894380D.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START38_V12::All'
+process.GlobalTag.globaltag = 'START39_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 

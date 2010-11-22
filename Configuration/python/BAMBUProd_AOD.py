@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.21 2010/09/19 23:48:44 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.22 2010/10/18 01:35:26 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,12 +8,12 @@ process = cms.Process('FILLER')
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_014'),
+    version = cms.untracked.string('Mit_017'),
     annotation = cms.untracked.string('AOD'),
     name = cms.untracked.string('BambuProduction')
 )
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2010B/CommissioningNoBeam/AOD/PromptReco-v2/000/146/112/92F4C217-27C3-DF11-9ABB-001617C3B69C.root')
+    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392reco/EC3F5F82-2EEC-DF11-8A34-0026189437E8.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR10_P_V11::All'
+process.GlobalTag.globaltag = 'GR10_P_V12::All'
 
 process.add_(cms.Service("ObjectService"))
 
