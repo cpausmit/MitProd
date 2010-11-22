@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.34 2010/10/18 01:35:10 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.35 2010/10/20 20:34:41 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,22 +21,9 @@ from MitProd.TreeFiller.conversionProducer_cff import *
 addConversionFiller(MitTreeFiller)
 
 # For JetPlusTracks
-from RecoJets.Configuration.RecoJPTJets_cff import *
 
 MitTreeFiller.IC5JetPlusTrack.active = True
 MitTreeFiller.AK5JetPlusTrack.active = True
-
-# Produce jet vertex association information
-from MitProd.TreeFiller.JetVertexAssociation_cfi import *
-
-# Enable Jet Vertex association for Reco Jet collections
-MitTreeFiller.ItrCone5Jets.jetToVertexActive = True
-MitTreeFiller.SisCone5Jets.jetToVertexActive = True
-MitTreeFiller.SisCone7Jets.jetToVertexActive = True
-MitTreeFiller.Kt4Jets.jetToVertexActive      = True
-MitTreeFiller.Kt6Jets.jetToVertexActive      = True
-MitTreeFiller.AKt5Jets.jetToVertexActive     = True
-MitTreeFiller.AKt7Jets.jetToVertexActive     = True
 
 # Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
@@ -44,21 +31,21 @@ MitTreeFiller.TrackAssociatorParameters = cms.untracked.PSet(TrackAssociatorPara
 
 # Enable Track-Ecal assocation in fillers
 #MitTreeFiller.GeneralTracks.ecalAssocActive                      = True
-MitTreeFiller.StandaloneMuonTracks.ecalAssocActive               = True
-MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive = True
-MitTreeFiller.GlobalMuonTracks.ecalAssocActive                   = True
-MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
-MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
-MitTreeFiller.GsfTracks.ecalAssocActive                          = True
+#MitTreeFiller.StandaloneMuonTracks.ecalAssocActive               = True
+#MitTreeFiller.StandaloneMuonTracksWVtxConstraint.ecalAssocActive = True
+#MitTreeFiller.GlobalMuonTracks.ecalAssocActive                   = True
+#MitTreeFiller.ConversionInOutTracks.ecalAssocActive              = True
+#MitTreeFiller.ConversionOutInTracks.ecalAssocActive              = True
+#MitTreeFiller.GsfTracks.ecalAssocActive                          = True
 
 #electron likelihood-based id
 from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import *
 MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
 
 #corrected nexpectedhitsinner information for electrons and muons
-from MitProd.TreeFiller.correctedExpectedHits_cff import *
-MitTreeFiller.Electrons.expectedHitsName = 'expectedHitsEle'
-MitTreeFiller.Muons.expectedHitsName = 'expectedHitsMu'
+#from MitProd.TreeFiller.correctedExpectedHits_cff import *
+#MitTreeFiller.Electrons.expectedHitsName = 'expectedHitsEle'
+#MitTreeFiller.Muons.expectedHitsName = 'expectedHitsMu'
 
 # Produce pixel hit information
 #from MitEdm.Producers.pixelRecHits_cfi import *
@@ -84,10 +71,10 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  kShProducer*
                                  conversionProducer*
                                  #JetPlusTrackCorrectionsIcone5*
-                                 JetPlusTrackCorrectionsAntiKt5*
-                                 jetvertexAssociationSequence*
-                                 eidLikelihoodExt*
-                                 correctedExpectedHits)
+                                 #JetPlusTrackCorrectionsAntiKt5*
+                                 #jetvertexAssociationSequence*
+                                 eidLikelihoodExt
+                                 )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
 
