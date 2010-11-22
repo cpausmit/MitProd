@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.48 2010/06/24 13:04:04 peveraer Exp $
+// $Id: FillerElectrons.cc,v 1.49 2010/10/18 01:34:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -140,12 +140,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   event.getByLabel("mvfConversionRemoval", hConversions);
   
   mitedm::ConversionMatcher convMatcher;
-  
-  edm::Handle<edm::ValueMap<int> > vmEl;
-  if(!expectedHitsName_.empty()) {  
-    event.getByLabel("expectedHitsEle",vmEl);
-  }
-    
+     
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
@@ -153,9 +148,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GsfVertexTrackCompatibilityEstimator gsfEstimator;
 
   //Get Magnetic Field from event setup, taking value at (0,0,0)
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+//   edm::ESHandle<MagneticField> magneticField;
+//   setup.get<IdealMagneticFieldRecord>().get(magneticField);
+//   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
   // loop over electrons
@@ -296,72 +291,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetIp3dPVBS(-99.0);
       }
 
-      //compute compatibility with PV using full GSF state mixture (but skip in AOD)
-      if (iM->gsfTrack()->gsfExtra().isAvailable()) {
-  
-        const std::pair<bool,double> &pvGsfCompat = gsfEstimator.estimate(pvCol->at(0),tt);
-        if (pvGsfCompat.first) {
-          outElectron->SetGsfPVCompatibility(pvGsfCompat.second);
-        }
-        else {
-          outElectron->SetGsfPVCompatibility(-99.0);
-        }
-
-  
-        const std::pair<bool,double> &pvbsGsfCompat = gsfEstimator.estimate(pvBSCol->at(0),tt);
-        if (pvbsGsfCompat.first) {
-          outElectron->SetGsfPVBSCompatibility(pvbsGsfCompat.second);
-        }
-        else {
-          outElectron->SetGsfPVBSCompatibility(-99.0);
-        }
-
-        //compute signal vertex compatibility with full GSF state mixture excluding matching ckf track
-        //from vertex
-        if (iM->closestCtfTrackRef().isNonnull() && iM->closestCtfTrackRef()->extra().isAvailable()) {
-          const reco::TransientTrack &ttCkf = transientTrackBuilder->build(iM->closestCtfTrackRef()); 
-  
-          const std::pair<bool,double> &pvGsfCompatMatched = gsfEstimator.estimate(pvCol->at(0),tt, ttCkf);
-          if (pvGsfCompatMatched.first) {
-            outElectron->SetGsfPVCompatibilityMatched(pvGsfCompatMatched.second);
-          }
-          else {
-            outElectron->SetGsfPVCompatibilityMatched(-99.0);
-          }
-
-    
-          const std::pair<bool,double> &pvbsGsfCompatMatched = gsfEstimator.estimate(pvBSCol->at(0),tt, ttCkf);
-          if (pvbsGsfCompatMatched.first) {
-            outElectron->SetGsfPVBSCompatibilityMatched(pvbsGsfCompatMatched.second);
-          }
-          else {
-            outElectron->SetGsfPVBSCompatibilityMatched(-99.0);
-          }
-  
-          if (verbose_>1) {
-            printf("gsf compat         = %5f\n", pvGsfCompat.second);
-            printf("gsf compat matched = %5f\n", pvGsfCompatMatched.second);
-          }
-        }
-        else {
-          //no matching ckf track, so copy existing values
-          if (pvGsfCompat.first) {
-            outElectron->SetGsfPVCompatibilityMatched(pvGsfCompat.second);
-          }
-          else {
-            outElectron->SetGsfPVCompatibilityMatched(-99.0);
-          }
-
-          if (pvbsGsfCompat.first) {
-            outElectron->SetGsfPVBSCompatibilityMatched(pvbsGsfCompat.second);
-          }
-          else {
-            outElectron->SetGsfPVBSCompatibilityMatched(-99.0);
-          }
-        }
-
-      }
-
+     
       if (verbose_>1) {
         printf("gsf track      pt = %5f\n",iM->gsfTrack()->pt());
         printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
@@ -374,16 +304,20 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
 
     //fill conversion partner track info
-    ConversionFinder convFinder;
-    ConversionInfo convInfo = convFinder.getConversionInfo(*iM, hGeneralTracks, bfield);
-    outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
-    outElectron->SetConvPartnerDist(convInfo.dist());
-    outElectron->SetConvPartnerRadius(convInfo.radiusOfConversion());
-    outElectron->SetConversionXYZ(convInfo.pointOfConversion().x(),convInfo.pointOfConversion().y(),convInfo.pointOfConversion().z());
-    reco::TrackRef convTrackRef = convInfo.conversionPartnerTk();
-    if (trackerTrackMap_ && convTrackRef.isNonnull()) {
-        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(refToPtr(convTrackRef)));
+    outElectron->SetConvPartnerDCotTheta(iM->convDcot());
+    outElectron->SetConvPartnerDist(iM->convDist());
+    outElectron->SetConvPartnerRadius(iM->convRadius());
+    reco::TrackBaseRef convTrackRef = iM->convPartner();
+    if (convTrackRef.isNonnull()) {
+      if ( dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_  ) {
+        outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+      }
+      else if (trackerTrackMap_) {
+        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+      }
     }
+
+
 
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
@@ -393,8 +327,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
     
     // fill corrected expected inner hits
-    if(!expectedHitsName_.empty()) {
-      outElectron->SetCorrectedNExpectedHitsInner((*vmEl)[eRef]);
+    if(iM->gsfTrack().isNonnull()) {
+      outElectron->SetCorrectedNExpectedHitsInner(iM->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
     }
     
     //fill additional conversion flag

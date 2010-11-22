@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.77 2010/09/22 08:38:15 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.78 2010/10/18 01:34:48 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -42,6 +42,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ConversionOutInElectronsStable',
                                     'GsfElectronsStable',
                                     'MergedElectronsStable',
+                                    'MergedConversions',
                                     'Conversions',
                                     'Photons',
                                     'PFCandidates',
@@ -470,7 +471,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         gsfTrackAssocName                = cms.untracked.string(''),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
-                   
+    
+    MergedConversions = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('MergedConversions'),
+        edmName             = cms.untracked.string('trackerOnlyConversions'),
+        stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
+                                                    'ConversionInOutElectronsStableTrackMapName',
+                                                    'ConversionOutInElectronsStableTrackMapName',
+                                                    'ElectronsStableGsfTrackMapName'),
+        conversionMapName   = cms.untracked.string('MergedConversionsMapName'),
+        fillerType          = cms.untracked.string('FillerConversionsDecay')
+    ),      
+      
     Conversions = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('Conversions'),
@@ -1143,6 +1156,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       edmName       = cms.untracked.string('gsfElectronsStable'),
       trackMapNames = cms.untracked.vstring('GsfTracksMapName'),
       basePartMap   = cms.untracked.string('ElectronsStableGsfMapName'),
+      trackPartMap  = cms.untracked.string('ElectronsStableGsfTrackMapName'),      
       fillerType    = cms.untracked.string('FillerStableParts')
     ),
 

@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.34 2010/10/29 18:15:30 pharris Exp $
+// $Id: FillerMuons.cc,v 1.35 2010/10/30 16:22:38 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -106,11 +106,6 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   edm::Handle<reco::VertexCollection> hVertexBS;
   event.getByLabel(pvBSEdmName_, hVertexBS);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
-
-  edm::Handle<edm::ValueMap<int> > vmMu;
-  if  (!expectedHitsName_.empty()) {
-    event.getByLabel("expectedHitsMu",vmMu);  
-  }
   
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
@@ -301,10 +296,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
     reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
     // fill corrected expected inner hits
-    if(!expectedHitsName_.empty()) {
-      outMuon->SetCorrectedNExpectedHitsInner((*vmMu)[theRef]);
+    if (iM->innerTrack().isNonnull()) {
+      outMuon->SetCorrectedNExpectedHitsInner(iM->innerTrack()->trackerExpectedHitsInner().numberOfHits());
     }
-    
+
     // add muon to map
     edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
     muonMap_->Add(thePtr, outMuon);
