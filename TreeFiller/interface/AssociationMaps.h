@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.24 2010/05/04 11:56:43 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.25 2010/06/25 15:18:38 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -52,6 +52,7 @@
 #include "MitAna/DataTree/interface/JPTJetFwd.h"
 #include "MitAna/DataTree/interface/PFJetFwd.h"
 #include "MitAna/DataTree/interface/TrackJetFwd.h"
+#include "MitAna/DataTree/interface/DecayParticleFwd.h"
 
 namespace mithep
 {
@@ -67,6 +68,7 @@ namespace mithep
   typedef AssociationMap<const TrackingParticleRef,         mithep::MCParticle*>   TrackingParticleMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Electron*>     ConversionElectronMap;
   typedef AssociationMap<const reco::ConversionRef,         mithep::Conversion*>   ConversionMap;
+  typedef AssociationMap<const reco::ConversionRef,         mithep::DecayParticle*> ConversionDecayMap;  
   typedef AssociationMap<const mitedm::BasePartPtr,         mithep::Particle*>     BasePartMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Particle*>     TrackPartMap;
   typedef AssociationMap<const CaloTowerDetId,              mithep::CaloTower*>    CaloTowerMap;
