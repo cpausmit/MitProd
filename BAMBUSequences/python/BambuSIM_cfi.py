@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.12 2010/05/10 20:08:42 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.14 2010/05/30 15:28:59 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -15,7 +15,6 @@ from PhysicsTools.HepMCCandAlgos.flavorHistoryFilter_cfi import *
 from MitProd.TreeFiller.JetsMCFlavourMatching_cfi import *
 
 BambuGenSequence = cms.Sequence(
-    antiktGenJets*
     bFlavorHistoryProducer*
     cFlavorHistoryProducer*
     flavorHistoryFilter*
@@ -41,7 +40,7 @@ def enableSIM(filler):
   filler.MCParticles.active = True
   filler.MCEventInfo.active = True
   filler.MCVertexes.active  = True
-  filler.IC5GenJets.active  = True
+#  filler.IC5GenJets.active  = True
   filler.KT4GenJets.active  = True
   filler.KT6GenJets.active  = True
   filler.GenMet.active      = True
@@ -54,7 +53,7 @@ def enableSIM(filler):
   filler.MCEventInfo.flavorHistoryActive = True
   
   # Enable Flavor matching for Reco Jets and GenJets
-  filler.ItrCone5Jets.flavorMatchingActive   = True
+  #filler.ItrCone5Jets.flavorMatchingActive   = True
   filler.Kt4Jets.flavorMatchingActive        = True
   filler.Kt6Jets.flavorMatchingActive        = True
   filler.AKt5Jets.flavorMatchingActive       = True
@@ -64,7 +63,7 @@ def enableSIM(filler):
   filler.Kt6PFJets.flavorMatchingActive      = True
   filler.AKt5PFJets.flavorMatchingActive     = True
   filler.AKt7PFJets.flavorMatchingActive     = True
-  filler.IC5GenJets.flavorMatchingActive     = True
+# filler.IC5GenJets.flavorMatchingActive     = True
   filler.KT4GenJets.flavorMatchingActive     = True
   filler.KT6GenJets.flavorMatchingActive     = True
   filler.AKT5GenJets.flavorMatchingActive    = True
