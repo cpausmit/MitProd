@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.18 2010/10/18 01:35:26 bendavid Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.19 2010/11/22 16:56:25 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392gensimreco/1488362D-A8E9-DF11-A016-00261894380D.root')
+    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392aodsim/62FE6208-38E8-DF11-A912-0018F3D09648.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
