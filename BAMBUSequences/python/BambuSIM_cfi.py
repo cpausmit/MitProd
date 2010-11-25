@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.14 2010/05/30 15:28:59 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.15 2010/11/23 22:23:12 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -58,7 +58,7 @@ def enableSIM(filler):
   filler.Kt6Jets.flavorMatchingActive        = True
   filler.AKt5Jets.flavorMatchingActive       = True
   filler.AKt7Jets.flavorMatchingActive       = True
-  filler.ItrCone5PFJets.flavorMatchingActive = True
+# filler.ItrCone5PFJets.flavorMatchingActive = True
   filler.Kt4PFJets.flavorMatchingActive      = True
   filler.Kt6PFJets.flavorMatchingActive      = True
   filler.AKt5PFJets.flavorMatchingActive     = True
