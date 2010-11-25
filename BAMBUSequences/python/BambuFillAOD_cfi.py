@@ -1,4 +1,4 @@
-# $Id: BambuFillAOD_cfi.py,v 1.7 2010/11/22 16:56:12 bendavid Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.8 2010/11/23 22:23:33 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,12 +25,6 @@ try:
   BambuRecoSequence.remove(conversionProducer)
 except:
   pass
-try:
-  BambuRecoSequence.remove(eidLikelihoodExt)
-except:
-  pass
-
-MitTreeFiller.Electrons.eIDLikelihoodName = ''
 
 
 MitTreeFiller.IC5JetPlusTrack.active = False
