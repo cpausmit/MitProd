@@ -87,7 +87,7 @@ foreach file ($LIST)
 
     cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = (MACHINE != "svfnal29.cern.ch") && ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
@@ -100,6 +100,7 @@ Error                   = $catalogDir/condor/$book/$dataset/$file.err
 Log                     = $logFile
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
++AccountingGroup = "catalog.cmsprod"
 Queue
 EOF
 

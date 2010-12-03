@@ -102,7 +102,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 mitCfg     = 'filefi'
-version    = '014'
+version    = '016'
 cmssw      = ''
 pattern    = ''
 cmsswCfg   = 'cmssw.cfg'
