@@ -7,7 +7,8 @@
 import os,sys,getopt,re,string
 
 def findStartedDatasets(path):
-    print " Collecting information over started samples"
+    if debug == 1:
+        print " Collecting information over started samples"
     datasetList = []
 
     cmd = 'list ' + path
@@ -24,7 +25,8 @@ def findStartedDatasets(path):
     return datasetList
 
 def findOngoingDatasets(path):
-    print " Collecting information over ongoing samples"
+    if debug == 1:
+        print " Collecting information over ongoing samples"
     datasetList = []
 
     cmd = 'cat crab_[0-9]_[0-9]*_[0-9]*/share/crab.cfg |grep ^user_remote_dir'
@@ -42,7 +44,8 @@ def findOngoingDatasets(path):
     return datasetList
 
 def findCompletedDatasets(path):
-    print " Collecting information over completed samples"
+    if debug == 1:
+        print " Collecting information over completed samples"
     datasetList = []
 
     cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Completed  2> /dev/null'
@@ -63,7 +66,8 @@ def inList(file,list):
     return False
 
 def cleanupCompletedList(ongoingDsetList,completedDsetList):
-    print " Update completed list with ongoing list"
+    if debug == 1:
+        print " Update completed list with ongoing list"
 
     for dataset in ongoingDsetList:
         if inList(dataset,completedDsetList):
@@ -81,6 +85,8 @@ usage += "                      --version=<version>\n"
 usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
 usage += "                      --download=<int: -1,0,1>\n"
+usage += "                      --status=<int: -1,0,1>\n"
+usage += "                      --useExistingLfns\n"
 usage += "                      --exe\n"
 usage += "                      --noInfo\n"
 usage += "                      --forceCopy\n"
@@ -88,8 +94,8 @@ usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','pattern=','download=', \
-         'help','exe','complete','noInfo','forceCopy','debug']
+valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=', \
+         'help','exe','useExistingLfns','complete','noInfo','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -101,17 +107,19 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
-mitCfg     = 'filefi'
-version    = '016'
-cmssw      = ''
-pattern    = ''
-cmsswCfg   = 'cmssw.cfg'
-exe        = 0
-complete   = 0
-noInfo     = False
-download   = -1
-forceCopy  = False
-debug      = False
+mitCfg          = 'filefi'
+version         = '016'
+cmssw           = ''
+pattern         = ''
+cmsswCfg        = 'cmssw.cfg'
+exe             = 0
+useExistingLfns = False
+complete        = 0
+noInfo          = False
+download        = -1
+status          = -1
+forceCopy       = False
+debug           = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -119,25 +127,29 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--mitCfg":
-        mitCfg     = arg
+        mitCfg          = arg
     if opt == "--version":
-        version    = arg
+        version         = arg
     if opt == "--cmssw":
-        cmssw      = arg
+        cmssw           = arg
     if opt == "--pattern":
-        pattern    = arg
+        pattern         = arg
     if opt == "--exe":
-        exe        = 1
+        exe             = 1
+    if opt == "--useExistingLfns":
+        useExistingLfns = True
     if opt == "--download":
-        download   = arg
+        download        = int(arg)
+    if opt == "--status":
+        status          = int(arg)
     if opt == "--complete":
-        complete   = 1
+        complete        = 1
     if opt == "--noInfo":
-        noInfo     = True
+        noInfo          = True
     if opt == "--forceCopy":
-        forceCopy  = True
+        forceCopy       = True
     if opt == "--debug":
-        debug      = True
+        debug           = True
 
 # Read parameters needed
 crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
@@ -177,6 +189,11 @@ if cmssw != '':
 
 
 print ''
+
+if status == 1:
+    print 'BOOK           SAMPLE                           All    Done   ToDo'
+    print '------------------------------------------------------------------'
+
 join       = 0
 mitDataset = ""
 fullLine   = ""
@@ -222,11 +239,13 @@ for line in os.popen(cmd).readlines():  # run command
             continue
 
         # make sure we want to consider submission
-        if download != 1:
+        if download != 1 and status != 1:
             cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
                   ' --version=' + version + ' --noTestJob'
             if cmssw != '':
                 cmd = cmd + " --cmssw=" + cmssw
+            if useExistingLfns:
+                cmd = cmd + " --useExistingLfns"
     
             # check for errors (to be done)
     
@@ -239,7 +258,8 @@ for line in os.popen(cmd).readlines():  # run command
     
             elif     inList(mitDataset,ongoingDsetList):
                 #print ' sub: ' + mitDataset
-                print ' handled by jobSitter -- ' + mitDataset
+                if download != 1 and status != 1:
+                    print ' handled by jobSitter -- ' + mitDataset
     
             elif     inList(mitDataset,completedDsetList):
                 if not noInfo:
@@ -253,6 +273,14 @@ for line in os.popen(cmd).readlines():  # run command
                         os.system(cmd)
 
         # test download request
+        if status != -1:
+            cmd = 'status.sh ' + mitCfg + '/' + version + ' ' + mitDataset
+            if exe == 1:
+                rc = os.system(cmd)
+            else:
+                print " " + cmd
+
+        # test download request
         if local != "-" and download != -1:
             localPath  = local
             cmd = 'downloadSample.py --cmsDataset=' + cmsDataset + ' --mitCfg=' + mitCfg + \
@@ -263,7 +291,7 @@ for line in os.popen(cmd).readlines():  # run command
                 cmd += ' --forceCopy'
             print " " + cmd
             if exe == 1:
-                status = os.system(cmd)
+                rc = os.system(cmd)
             
 if mitDataset == "":
     print "ERROR - dataset not defined."

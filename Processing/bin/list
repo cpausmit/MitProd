@@ -8,11 +8,12 @@
 import os,sys,getopt,re
 #import string
 
+
 def list(dir,pattern,debug):
     if   re.search('/castor/cern.ch/',    dir):
         if debug != 0:
             print ' identified a castor directory'
-        cmd = 'rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
+        cmd = 'ssh paus@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
     elif re.search('/pnfs/cmsaf.mit.edu/',dir):
         if debug != 0:
             print ' identified a tier-2 directory'
@@ -24,8 +25,9 @@ def list(dir,pattern,debug):
         if debug != 0:
             print ' identified a normal directory'
         #cmd = 'find ' + dir + ' -maxdepth 1 -printf "%s %p\\n"'
-        cmd = 'ls -1s --block-size=1 ' + dir \
-              + '| sed \'s/^ *//\' | grep -v ^total  '
+        cmd = 'ls -1s --block-size=1 ' + dir + '| sed \'s/^ *//\' | grep -v ^total  '
+        if simple:
+            cmd = 'ls -l ' + dir + '| sed \'s/^ *//\' | grep -v ^total | cut -d \' \' -f 5,9 '
 
     if pattern != "":
         cmd = cmd + ' | grep ' + pattern
@@ -39,11 +41,12 @@ def list(dir,pattern,debug):
 #===================================================================================================
 # Define string to explain usage of the script
 usage =  "Usage: list --pattern=<name>\n"
+usage += "            --sinple\n"
 usage += "            --debug\n"
 usage += "            --help\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['pattern=','debug','help']
+valid = ['pattern=','simple','debug','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -57,7 +60,7 @@ except getopt.GetoptError, ex:
 # Set defaults for each option
 pattern = ''
 debug   = 0
-
+simple  = False
 # Read new values from the command line
 for opt, arg in opts:
     if opt == '--help':
@@ -65,6 +68,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == '--pattern':
         pattern = arg
+    if opt == '--simple':
+        simple  = True
     if opt == '--debug':
         debug   = 1
 

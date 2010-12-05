@@ -39,7 +39,7 @@ set LIST=`list $dataDir/$book/$dataset | grep ^0 | grep root | cut -d' ' -f2`
 # Indicate zero-length files
 foreach file ($LIST)
   echo "  # Zero length file not considered: $file"
-  echo "  castorRmRf.py --exe --pattern=$file $dataDir/$book/$dataset"
+  echo "  remove --exe $dataDir/$book/$dataset/$file"
 end
 
 # Create a list of the files we need to catalog

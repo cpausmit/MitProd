@@ -26,6 +26,8 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
 
+dCacheDoor = 't2srv0012.cmsaf.mit.edu'
+
 def Seconds():
     for secs in os.popen('date +%s').readlines():
         secs = int(secs[:-1])
@@ -129,11 +131,11 @@ def CacheStagedFileList(cacheFile,storagePath,stagedFileList):
         fileOutput.write(line)
     fileOutput.close()
 
-def CopyFile(storageEle,storagePath,storageUrl,file,localDir):
+def CopyFile(storageEle,storagePath,storageUrl,file,localDir,fromCern):
     deltaT = 0
     print '     working on file: ' + file + ' to ' + localDir + \
           '  (size: %d MB) '%(int(size)/1024/1024)
-    if    storageEle == 'srm-cms.cern.ch':
+    if    storageEle == 'srm-cms.cern.ch' and not fromCern:
         f = storagePath.split("=");
         rfPath = f[-1]
         cpy  = 'rfcp ' + rfPath + '/' + file + ' ' + localPath + '/' \
@@ -145,7 +147,7 @@ def CopyFile(storageEle,storagePath,storageUrl,file,localDir):
         rfPath = f[-1]
         #cpy  = 'scp paus@cgate.mit.edu:' + rfPath + '/' + file + ' ' + localPath + '/' \
         #       + mitCfg + '/' + version + '/' + mitDataset + '/' + file
-        cpy  = 'dccp dcap://t2srv0005.cmsaf.mit.edu/' \
+        cpy  = 'dccp dcap://' + dCacheDoor + '/' \
                + rfPath + '/' + file + ' ' + localPath + '/' \
                + mitCfg + '/' + version + '/' + mitDataset + '/' + file
         #print '     using rfcp.... ' + cpy
@@ -169,9 +171,49 @@ def CopyFile(storageEle,storagePath,storageUrl,file,localDir):
     
     return deltaT    
 
+def RecoverFile(storageEle,storagePath,storageUrl,file,localDir):
+    deltaT = 0
+    print '     working on file: ' + file + ' from ' + localDir + \
+          '  (size: %d MB) '%(int(size)/1024/1024)
+    if    storageEle == 'srm-cms.cern.ch':
+        f = storagePath.split("=");
+        rfPath = f[-1]
+        cpy  = 'rfcp ' + localPath + '/' + mitCfg + '/' + version + '/' + mitDataset + '/' + file \
+               + ' ' + rfPath + '/' + file
+        #print '     using rfcp.... ' + cpy
+        #sys.exit(0)
+    elif storageEle == 'se01.cmsaf.mit.edu':
+        f = storagePath.split("=");
+        rfPath = f[-1]
+        #cpy  = 'scp paus@cgate.mit.edu:' + rfPath + '/' + file + ' ' + localPath + '/' \
+        #       + mitCfg + '/' + version + '/' + mitDataset + '/' + file
+        cpy  = 'dccp ' + localPath + '/' \
+               + mitCfg + '/' + version + '/' + mitDataset + '/' + file \
+               + ' dcap://' + dCacheDoor + '/' + rfPath + '/' + file
+        print '     using dccp.... ' + cpy
+        #sys.exit(0)
+    else:
+        #storageUrl = 'srm://' + storageEle + ':8443' + storagePath
+        cpy  = 'lcg-cp ' + 'file:////' + localPath + '/' + mitCfg + '/' + version + '/' \
+               + mitDataset + '/' + file + ' ' + storageUrl + '/' + file
+
+    # Check whether the file size make sense (zero length files are probably not yet ready to
+    # copy and will not be transfered
+    if size < 1:
+        print ' WARNING - file size is <1b. Probably this file is not yet ready. Stop recovery.'
+    else:
+        if debug == 1:
+            print ' Debug:: copy: ' + cpy
+        start = Seconds()
+        status = os.system(cpy)
+        end = Seconds()
+        deltaT = end - start
+    
+    return deltaT    
+
 def StageFile(storagePath,storageUrl,file):
     print '     staging in file: ' + file
-    if storageEle == 'srm-cms.cern.ch':
+    if storageEle == 'srm-cms.cern.ch' and not fromCern:
         f = storagePath.split("=");
         rfPath = f[-1]
         stg  = 'stager_get -M ' + rfPath + '/' + file
@@ -195,15 +237,19 @@ usage += "                         --cmssw=<name>\n"
 usage += "                         --localStorageUrl=<name>\n"
 usage += "                         --localPath=<dir>\n"
 usage += "                         --skip=<file list>\n"
+usage += "                         --fromCern\n"
+usage += "                         --forceCopy\n"
 usage += "                         --backward\n"
+usage += "                         --stopOnError\n"
 usage += "                         --debug\n"
+usage += "                         --test\n"
 usage += "                         --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['cmsDataset=','mitDataset=','mitCfg=','version=','cmssw=','pattern=','localStorageUrl=',
          'localPath=','noCache','skip=',
-         'forceCopy','backward',
-         'debug','help']
+         'fromCern','forceCopy','backward','stopOnError',
+         'debug','test','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -228,8 +274,11 @@ localPath       = '/server/02b/mitprod'
 pattern         = ''
 noCache         = 0
 backward        = ''
+fromCern        = False
+stopOnError     = False
 forceCopy       = False
 debug           = 0
+test            = 0
 cmsswCfg        = 'cmssw.cfg'
 
 # Read new values from the command line
@@ -259,12 +308,20 @@ for opt, arg in opts:
         skipList        = skip.split(',')
     if opt == '--noCache':
         noCache         = 1
+    if opt == '--stopOnError':
+        stopOnError     = True
     if opt == '--backward':
         backward        = ' -r '
+    if opt == '--fromCern':
+        fromCern        = True
+    if opt == '--forceCopy':
+        forceCopy       = True
     if opt == '--forceCopy':
         forceCopy       = True
     if opt == '--debug':
         debug           = 1
+    if opt == '--test':
+        test            = 1
 
 # Deal with obvious problems
 if cmsDataset == None and mitDataset == None:
@@ -378,6 +435,15 @@ for file in os.popen(cmd).readlines():   # run command
     names       = names[1:]
     storagePath = "=".join(names)
     storagePath = re.sub("\s", "",storagePath)
+
+##storage_element        = srm-cms.cern.ch
+##storage_path           = /srm/managerv2?SFN=/castor/cern.ch
+
+## Hardwire
+if fromCern:
+    storageEle  = 'srm-cms.cern.ch'
+    storagePath = '/srm/managerv2?SFN=/castor/cern.ch'
+
 storageUrl = 'srm://' + storageEle + ':8443' + storagePath 
 
 cmd = 'grep ^user_remote_dir ' + crabFile
@@ -392,6 +458,10 @@ for file in os.popen(cmd).readlines():   # run command
     userRemoteDir = "=".join(names)
     userRemoteDir = re.sub("\s","",userRemoteDir)
     userRemoteDir = re.sub("/XX-CRABID-XX","",userRemoteDir)
+
+## Hardwire
+if fromCern:
+    userRemoteDir = "/user/p/paus/" + mitCfg + "/" + version + "/" + mitDataset
 
 if userRemoteDir != '':
     storagePath += userRemoteDir
@@ -434,12 +504,13 @@ cmd = ''
 f    = storagePath.split('=')
 path = f.pop()
 cmd  = 'list ' + path + ' | grep root | sort ' + backward
+if fromCern:
+    cmd  = 'srmls ' + storageUrl + '|grep root|sort ' + backward + '|tr -s \' \'|cut -d\' \' -f 2-3'
 
 ##if storageEle == 'srm.cern.ch' or storageEle == 'srm-cms.cern.ch':
 ##    cmd  = 'rfdir ' + path + ' | grep root | tr -s \' \' | sort ' + backward
 ##else:
 ##    cmd  = 'list ' + path + ' | grep root | sort ' + backward
-##    #cmd  = 'srmls ' + storageUrl + ' | grep root | sort ' + backward
 
 if pattern != "":
     cmd += ' | grep ' + pattern
@@ -491,10 +562,21 @@ for file, size in doneFileList.iteritems():
         if allFileList[file] != size:
             print ' ERROR - file sizes did not match: ' + file + \
                   ' [ local: %10d, remote: %10d ]'%(size,allFileList[file])
-            sys.exit(1)
+            if stopOnError:
+                sys.exit(1)
+            continue
     else:
         print ' ERROR - file from done list is not in the all files list. File: ' + file
-        sys.exit(1)
+        print ' RECOVER - File: ' + file
+        sizeMb = size/1024./1024.
+        deltaT = RecoverFile(storageEle,storagePath,storageUrl,file,localDir)
+        if deltaT > 0:
+            print '     time required [sec]: %7d rate [MB/sec]: %9.3f'%\
+                  (deltaT,sizeMb/deltaT)
+        else:
+            print '     time required [sec]: %7d rate [MB/sec]: ?'%(deltaT)
+        
+        #sys.exit(1)
 
 totalSizeMb = 0.
 totalTimeSc = 0.
@@ -510,10 +592,11 @@ for file, size in allFileList.iteritems():
         if not InSkipList(file,skipList):
             print ' --> copying file:     %10d - %s (castor stat: %s)'% \
                   (size,file,stagedFileList[file])
-            if stagedFileList[file] == "STAGED" or forceCopy:
-
+            if test == 1:
+                print '     testing only.'
+            elif stagedFileList[file] == "STAGED" or forceCopy:
                 sizeMb = size/1024./1024.
-                deltaT = CopyFile(storageEle,storagePath,storageUrl,file,localDir)
+                deltaT = CopyFile(storageEle,storagePath,storageUrl,file,localDir,fromCern)
                 if deltaT > 0:
                     print '     time required [sec]: %7d rate [MB/sec]: %9.3f'%\
                           (deltaT,sizeMb/deltaT)
@@ -523,7 +606,7 @@ for file, size in allFileList.iteritems():
                 totalSizeMb += sizeMb
             else:
                 print '     skipping file:    %s'%(stagedFileList[file])
-                StageFile(storagePath,storageUrl,file)
+                StageFile(storagePath,storageUrl,file,fromCern)
 
         else:
             print ' --> skipping file:    %10d - %s'%(size,file)

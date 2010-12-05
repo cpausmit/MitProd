@@ -3,37 +3,35 @@
 # Rename an existing sample (so far all potentially exisiting catalog info will have to be redone)
 #---------------------------------------------------------------------------------------------------
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
-LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/filefi/014"
+LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+BOOK="filefi/016"
+LOCAL_LOCATION="/mnt/hadoop/cmsprod"
+CATALOG="/home/cmsprod/catalog"
 #SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
 #LOCATION="/castor/cern.ch/user/p/paus/filefi/014"
 
 SOURCE="$1"
 TARGET="$2"
 
-sourceExists=`srmls ${SERVER}${LOCATION} | grep $SOURCE`
+sourceExists=`srmls ${SERVER}${LOCATION}/${BOOK} | grep $SOURCE`
 echo " Existing - source: $sourceExists"
-targetExists=`srmls ${SERVER}${LOCATION} | grep $TARGET`
+targetExists=`srmls ${SERVER}${LOCATION}/${BOOK} | grep $TARGET`
 echo " Existing - target: $targetExists"
 
+# first the original files
 if [ ".$sourceExists" != "." ] && [ ".$targetExists" == "." ]
 then
-
-  #echo \
-  move ${LOCATION}/$SOURCE \
-       ${LOCATION}/$TARGET
-
-  ##for file in `list ${SERVER}${LOCATION}/$TARGET | grep '   ' | tr -s ' ' | cut -d ' ' -f 3`
-  ##do
-  ##
-  ##  file=`basename $file | cut -d '_' -f2-3`
-  ##  echo \
-  ##    move ${SERVER}${LOCATION}/$TARGET/${SOURCE}_$file \
-  ##         ${SERVER}${LOCATION}/$TARGET/${TARGET}_$file
-  ##
-  ##done
+  move ${LOCATION}/${BOOK}/$SOURCE       ${LOCATION}/${BOOK}/$TARGET
 fi
 
-cd     ~/catalog/t2mit/filefi/014
+# now the local files
+if [ -d "${LOCAL_LOCATION}/${BOOK}/$SOURCE" ] && ! [ -d "${LOCAL_LOCATION}/${BOOK}/$TARGET" ]
+then
+  move ${LOCAL_LOCATION}/${BOOK}/$SOURCE ${LOCAL_LOCATION}/${BOOK}/$TARGET
+fi
+
+# next are the catalogs
+cd     $CATALOG/t2mit/$BOOK
 if [ -d $SOURCE ]
 then
   mv     $SOURCE $TARGET
@@ -41,7 +39,7 @@ then
   ~paus/bin/repstr $SOURCE $TARGET Filesets RawFiles.??
 fi
 
-cd     ~/catalog/local/filefi/014
+cd     $CATALOG/local/$BOOK
 if [ -d $SOURCE ]
 then
   mv     $SOURCE $TARGET

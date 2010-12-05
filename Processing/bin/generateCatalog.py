@@ -30,10 +30,11 @@ import files
 usage  = "\n"
 usage += " Usage: generateCatalog.py --rawFile=<name>\n"
 usage += "                           --nFilesPerSet=<name>\n"
+usage += "                           --debug\n\n"
 usage += "                           --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['rawFiles=','nFilesPerSet=','help']
+valid = ['rawFiles=','nFilesPerSet=','debug','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -46,6 +47,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 dir          = None
+debug        = int(0)
 nFilesPerSet = 5
 
 # Read new values from the command line
@@ -55,6 +57,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == "--rawFiles":
         dir          = arg
+    if opt == "--debug":
+        debug        = int(1)
     if opt == "--nFilesPerSet":
         nFilesPerSet = int(arg)
 
@@ -98,20 +102,24 @@ for line in os.popen(cmd).readlines():  # run command
     if (fileset.nFiles()<nFilesPerSet):
         fileset.addFile(file)
     else:
-        print '\nFileset: ' + fileset.name
-        fileset.showShort(filesetsOut)
-        print 'Files contained: '
-        fileset.showShortFiles(filesOut)
+        if debug > 0:
+            print '\nFileset (debug - %d): '%debug + fileset.name
+        fileset.showShort(filesetsOut,debug)
+        if debug > 0:
+            print 'Files contained (debug - %d):'%debug
+        fileset.showShortFiles(filesOut,debug)
         iFileset = iFileset + 1
         name     = '%04d'%iFileset
         fileset.reset(name,dataDir)
         fileset.addFile(file)
         
 if init:
-    print '\nFileset: ' + fileset.name
-    fileset.showShort(filesetsOut)
-    print 'Files contained: '
-    fileset.showShortFiles(filesOut)
+    if debug > 0:
+        print '\nFileset (debug - %d): '%debug + fileset.name
+    fileset.showShort(filesetsOut,debug)
+    if debug > 0:
+        print 'Files contained (debug - %d):'%debug
+    fileset.showShortFiles(filesOut,debug)
 
 filesOut.close()
 filesetsOut.close()

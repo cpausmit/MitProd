@@ -249,7 +249,7 @@ for crabTask in crabTasks:
           + '\n       -> ' + storageEle \
           + '\n       -> ' + storagePath
     print '------------------------------------------------------------------------------\n'
-    print '  --> ' + cmd
+    #print '  --> ' + cmd
 
     if catalog != 0:
             os.system(cmd)

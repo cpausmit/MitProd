@@ -202,7 +202,7 @@ usage += "                 --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['cmsDataset=','mitDataset=','cmssw=','mitCfg=','version=','dbs=','sched=','blacklist=',
-         'nSubmit=','skipEvents=','complete','testJob','noTestJob','test','help']
+         'nSubmit=','skipEvents=','complete','useExistingLfns','testJob','noTestJob','test','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -213,28 +213,29 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
-# Set defaults for each option
-cmsDataset = None
-mitDataset = None
+# crab id
 cmd = "date +crab_0_%y%m%d_%H%M%S"
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     crabId = line
 print "\n This job will be CrabId: " + crabId + "\n"
-
-cmssw      = "cmssw"
-mitCfg     = "filefi"
-version    = "014"
-#dbs        = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
-dbs        = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
-sched      = "glite"
-blacklist  = ""
-nSubmit    = -1
-skpEvts    = ''
-complete   = 0
-noTestJob  = 0
-testJob    = 0
-test       = 0
+# Set defaults for each option
+cmsDataset      = None
+mitDataset      = None
+cmssw           = "cmssw"
+mitCfg          = "filefi"
+version         = "014"
+#dbs             = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
+dbs             = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
+sched           = "glite"
+blacklist       = ""
+nSubmit         = -1
+skpEvts         = ''
+complete        = 0
+useExistingLfns = False
+noTestJob       = 0
+testJob         = 0
+test            = 0
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -242,35 +243,37 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--cmsDataset":
-        cmsDataset = arg
+        cmsDataset      = arg
     if opt == "--mitDataset":
-        mitDataset = arg
+        mitDataset      = arg
     if opt == "--cmssw":
-        cmssw      = arg
+        cmssw           = arg
     if opt == "--mitCfg":
-        mitCfg     = arg
+        mitCfg          = arg
     if opt == "--version":
-        version    = arg
+        version         = arg
     if opt == "--dbs":
-        dbs        = arg
+        dbs             = arg
     if opt == "--sched":
-        sched      = arg
+        sched           = arg
     if opt == "--blacklist":
-        blacklist  = arg
+        blacklist       = arg
     if opt == "--nSubmit":
-        nSubmit    = arg
+        nSubmit         = arg
     if opt == "--skipEvents":
-        skpEvts    = arg
+        skpEvts         = arg
     if opt == "--complete":
-        complete   = 1
+        complete        = 1
+    if opt == "--useExistingLfns":
+        useExistingLfns = True
     if opt == "--noTestJob":
-        noTestJob  = 1
-        testJob    = 0
+        noTestJob       = 1
+        testJob         = 0
     if opt == "--testJob":
-        testJob    = 1
-        noTestJob  = 0
+        testJob         = 1
+        noTestJob       = 0
     if opt == "--test":
-        test       = 1
+        test            = 1
 
 # Make sure we have the right 'database' and the right config file
 database = 'Productions'
@@ -357,13 +360,15 @@ os.system(cmd)
 lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
 if os.path.exists(lfnFile):
     print "\n INFO -- Lfn file found: %s. This means someone already worked on this dataset.\n" % lfnFile
-    cmd = 'rm ' + lfnFile
-    os.system(cmd)
+    if not useExistingLfns:
+        cmd = 'rm ' + lfnFile
+        os.system(cmd)
 
-# always recreate, because the relvant copy still exists and is never touched
-cmd = 'input.py --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
-print ' Input: ' + cmd + '\n'
-os.system(cmd)
+# recreate if requested or not existing
+if not useExistingLfns or not os.path.exists(lfnFile):
+    cmd = 'input.py --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
+    print ' Input: ' + cmd + '\n'
+    os.system(cmd)
 
 # Create the corresponding crab task
 crabTask             = task.Task(crabId,cmsDataset,mitCfg,version)

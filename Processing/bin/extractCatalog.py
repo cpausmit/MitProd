@@ -22,15 +22,15 @@ import os,sys,getopt,re,string
 
 def move(srcFile,source,target):
     # make an entry to be executed
-    if not re.search('castor/cern.ch',source):
-        mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
-                +            "/".join(target.split('/')[3:]) + " >> " + srcFile
-        os.system(mvCmd)
+    mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
+            +            "/".join(target.split('/')[3:]) + " >> " + srcFile
+    os.system(mvCmd)
 
     cmd = 'move ' + source + '  ' + target
+    ## print ' Moving: ' + cmd
     print cmd
-    if test == 0 and re.search('castor/cern.ch',source):
-        status = os.system(cmd)
+    #if test == 0:
+    #    status = os.system(cmd)
 
     return status
 
@@ -105,15 +105,13 @@ for opt, arg in opts:
     if opt == "--retest":
         retest     = 1
 
+# --------------------------------------------------------------------------------------------------
+# Initialize the job according to the parameters
+# --------------------------------------------------------------------------------------------------
 # Deal with obvious problems
 if dataset == None:
     cmd = "--dataset option not provided. This is required."
     raise RuntimeError, cmd
-
-# Are we dealing with a dataset residing at MIT
-atMit = 0
-if re.search('catalog/t2mit',catalogDir):
-    atMit = 1
 
 # See whether we are dealing with an official production request
 if re.search('crab_0',dataset):
@@ -180,7 +178,11 @@ else:
     print " Directory for the requested dataset does not exist. -> EXIT"
     sys.exit(1)
 
-# Reset the extraction for the entire dataset and exit
+# --------------------------------------------------------------------------------------------------
+# Here we start doing things
+# --------------------------------------------------------------------------------------------------
+
+# Option '--retest': Reset the extraction for the entire dataset and exit
 if retest == 1:
     print '\n Move all logs back to unprocessed area. \n'
     cmd = 'cd ' + logDir + '/done/; mv *.err ../'
@@ -194,15 +196,16 @@ if retest == 1:
         sys.exit(1)
     sys.exit(0)
 
-# Compactify the RawFile.?? into one sorted file
+# Option '--compact': Compactify the RawFiles.?? into one sorted file
 if compact == 1:
-    # Consolidate the existing RawFiles.?? into just one
+    # Consolidate the existing RawFiles.?? into just one and exit
     print '\n Consolidating the raw files into one. \n'
-    cmd = 'cat ' + rawDir + '/RawFiles.?? | sort -u > /tmp/RawFiles.00; cat /tmp/RawFiles.00;'
+    cmd  = 'cat ' + rawDir + '/RawFiles.?? | grep root | sort -u > /tmp/RawFiles.00;'
+    if debug == 1:
+        cmd += 'cat /tmp/RawFiles.00'
     status = os.system(cmd)
     if os.path.exists(rawDir + '/old'):
         cmd = 'rm -rf ' + rawDir + '/old'
-        #print 'CMD: ' + cmd
         status = os.system(cmd)
     cmd = 'mkdir ' + rawDir + '/old; mv ' + rawDir + '/RawFiles.?? ' + rawDir + '/old'
     status = os.system(cmd)
@@ -241,7 +244,7 @@ for line in os.popen(cmd).readlines():  # run command
     # compactify line
     line = " ".join(str(line).split()).strip()
     f = line.split(" ");
-    rm0 = "rm           " + f[1]
+    rm0 = "rm -f        " + f[1]
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm         " + f[1]
     #rm3 = "srmrm        " + server + f[1]
@@ -250,7 +253,8 @@ for line in os.popen(cmd).readlines():  # run command
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
 
-    machine = "fgrep cern.ch " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
+    #machine = "fgrep cern.ch " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
+    machine = "fgrep mit.edu " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
     os.system(machine)
 
     if   re.search("/castor/cern.ch",f[1]):
@@ -300,9 +304,9 @@ print 'Raw file identified (in %s): \n     %s'%(rawDir,rawFile)
 # --------------------------------------------------------------------------------------------------
 
 # Create the moving file from this extract task
-srcFile = "EMPTY.bak"
-if official == 1 and atMit == 1:
+if official == 1:
     cmd = "date +Extracting_%y%m%d_%H%M%S.src"
+    srcFile = "EMPTY.bak"
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]
         srcFile = line
@@ -353,17 +357,16 @@ for line in os.popen(cmd).readlines():  # run command
 if test == 0:
     fileOutput.close()
 
-if atMit == 1:
-    # Moving all files
+# Moving all files
+if official == 1:
     cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
     print ' CMD: ' + cmd
     status = os.system(cmd)
     cmd = "ssh paus@cgate.mit.edu source " + srcFile
     print ' CMD: ' + cmd
     status = os.system(cmd)
-    
     # Removing the source file once we are done
-    cmd = "rm " + srcFile + "; ssh paus@cgate rm " + srcFile
+    cmd = "rm " + srcFile
     print ' CMD: ' + cmd
     status = os.system(cmd)
 

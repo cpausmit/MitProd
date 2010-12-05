@@ -3,6 +3,8 @@
 # Perform a number of cataloging action on a bunch of datasets
 #---------------------------------------------------------------------------------------------------
 H=`basename $0`
+timeOut=400
+
 catalog=0
 extract=0
 generate=0
@@ -23,10 +25,6 @@ do case "$o" in
 done
 let "shiftIdx = $OPTIND - 1"
 shift $shiftIdx
-
-#echo " >>  C: $catalog  E: $extract  G: $generate  T: $test  M: $mitCfg"
-#echo " >> $shiftIdx <<  Rest: $@"
-#exit 0
 
 MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
@@ -57,38 +55,57 @@ then
 fi
 
 # Conclude what needs to be done
-echo ""
+#echo ""
 if [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
    [ "`echo $LOCATION | grep /pnfs/cmsaf.mit.edu/`" == "" ] && \
    [ "$LOCATION" != "" ]
 then
+if [ "`echo $LOCATION | grep /cmsprod/skim/`" == "" ]
+then
   CATALOG=$CATALOG/local
-  echo " Identified a local sample request. Using ls on $LOCATION"
+  #echo " Identified a local sample request. Using ls on ($LOCATION,$CATALOG)"
+else
+  CATALOG=$CATALOG/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
+  #echo " Identified a local skimming sample request. Using ls on ($LOCATION,$CATALOG)"
+fi
 elif [ ".`echo $HOSTNAME | grep cern.ch`" != "." ]
 then
   LOCATION=$CERN_LOCATION
   CATALOG=$CATALOG/cern
-  echo " Identified a castor sample request ($LOCATION,$CATALOG)"
+  #echo " Identified a castor sample request ($LOCATION,$CATALOG)"
 elif [ ".`echo $HOSTNAME | grep mit.edu`" != "." ]
 then
   LOCATION=$MIT_LOCATION
   CATALOG=$CATALOG/t2mit
-  echo " Identified a tier-2 sample request ($LOCATION,$CATALOG)"
+  #echo " Identified a tier-2 sample request ($LOCATION,$CATALOG)"
 fi
 
 # Create a list of the datsets we need to catalog
-echo ""
+#echo ""
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`
 if [ "`echo $PATTERN | grep crab_0_`" != ""  ]
 then
-  echo " Official dataset with a crab subdir: $PATTERN"
+  #echo " Official dataset with a crab subdir: $PATTERN"
   LIST="${LOCATION}/$mitCfg/$VERSION/$PATTERN"
 fi
 
 #---------------------------------------------------------------------------------------------------
+# In the following we are looking at data files in
+#
+#   $LOCATION/$mitCfg/$VERSION/*$PATTERN*                         (defaults are at Tier-2 or castor)
+#
+# They are going to be cataloged and entries are created at
+#
+#   $CATALOG (location of the catalog)
+#   in book:                         $mitCfg/$VERSION
+#   in dataset matching the pattern: $PATTERN
+#
+#
+# /mnt/hadoop/cmsprod/skim/skim-dilepton-v1/t2mit/
+#   filefi/014/p10-wjets-mg-v26/skim-dilepton-v1_p10-wjets-mg-v26_noskim_00
+#---------------------------------------------------------------------------------------------------
 # Loop through the list and catalog --> ACTION STARTS BELOW HERE
 #---------------------------------------------------------------------------------------------------
-startTime=$(date +%s)
 for dataset in $LIST
 do
   dir=`dirname $dataset`
@@ -108,7 +125,8 @@ do
     nCata=`list $dir         | grep root | wc -l`
     nTota=`cat $lfnFile                  | wc -l`
 
-    echo " Cataloging status: $nCata (done)  $nProc (to catalog) / $nTota (total: $lfnFile)"
+    #echo " "
+    echo " CATALOG - Lfns: $nCata (done)  $nProc (to catalog) / $nTota (total: $mitCfg/$VERSION/${dataset}.lfns_$crabId)"
     echo " "
 
     if [ "$nProc" == 0 ] && [ "$catalog" == 1 ]
@@ -130,14 +148,23 @@ do
 
   if [ "$PATTERN" == "empty" ] || [ "`echo $extDataset | grep $PATTERN`" != "" ]
   then
-
+    #-----------------------------------------------------------------------------------------------
+    # Test and potentially cleanup the dataset information
+    #-----------------------------------------------------------------------------------------------
+    extractCatalog.py --compact --catalog=$CATALOG --mitCfg=$mitCfg --version=$VERSION \
+                      --dataset=$extDataset
+    
+    #-----------------------------------------------------------------------------------------------
     # Submit the cataloging jobs
+    #-----------------------------------------------------------------------------------------------
     if   [ "$catalog" == 1 ]
     then
-      #echo \
       catalogFiles.csh   $LOCATION $CATALOG $mitCfg/$VERSION $extDataset
       echo ""
     fi
+
+    # start waiting time now
+    startTime=$(date +%s)
 
     # Figure out whether there are new files to consider
     newFiles=0
@@ -145,39 +172,39 @@ do
     then
       newFiles=1
     fi
-    #echo " New files: $newFiles ($extract, $catalog)"
 
+    #-----------------------------------------------------------------------------------------------
     # Extract the catalog metadata
+    #-----------------------------------------------------------------------------------------------
     if [ "$extract" == 1 ] && ( [ "$newFiles" == 1 ] || [ "$catalog" != 1 ] )
     then
-
-      #echo " Extracting new files: $newFiles ($extract, $catalog)"
-      #condor_q
       nowTime=$(date +%s)
       duration=$(($nowTime - $startTime))
-      ## echo " -> condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l"
-      jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
+      jobs=`condor_q -global cmsprod -l | egrep '^Args.*root' | grep $extDataset | wc -l`
       while [ "$jobs" != "0" ]
       do
 	echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"
 	sleep 10
 	echo ""
-	jobs=`condor_q -global cmsprod -l | grep ^Args | grep $extDataset | wc -l`
+	jobs=`condor_q -global cmsprod -l | egrep '^Args.*root' | grep $extDataset | wc -l`
         nowTime=$(date +%s)
         duration=$(($nowTime - $startTime))
+        if [ $duration -gt $timeOut ]
+        then
+          killCondorTask.sh catalog $extDataset $timeOut exec
+        fi
       done
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
-
-      #echo \
       extractCatalog.py $OPTION \
                         --catalog=$CATALOG --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset
     fi
 
+    #-----------------------------------------------------------------------------------------------
     # Generate the catalog entries
+    #-----------------------------------------------------------------------------------------------
     if [ "$generate" == 1 ] && ( [ "$newFiles" == 1 ] || [ "$catalog" != 1 ] )
     then
-      #echo \
       generateCatalog.py --nFilesPerSet=$nFilesPerSet --rawFile=$CATALOG/$mitCfg/$VERSION/$dataset
     fi
 
