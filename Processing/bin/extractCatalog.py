@@ -20,17 +20,25 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
 
-def move(srcFile,source,target):
-    # make an entry to be executed
-    mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
-            +            "/".join(target.split('/')[3:]) + " >> " + srcFile
-    os.system(mvCmd)
+# global (are we working at the Tier-2)
+tier2 = False
 
+def move(srcFile,source,target):
+    # determine whether we are at MIT
+    tier2 = re.search('cmsaf.mit.edu',target) 
+
+    # create the command and show it
     cmd = 'move ' + source + '  ' + target
-    ## print ' Moving: ' + cmd
     print cmd
-    #if test == 0:
-    #    status = os.system(cmd)
+
+    # at CERN execute right away for Tier-2 make an entry in the queue to be executed later at once
+    status = 0
+    if tier2:
+        mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
+                +            "/".join(target.split('/')[3:]) + " >> " + srcFile
+        os.system(mvCmd)
+    else:
+        status = os.system(cmd)
 
     return status
 
@@ -119,31 +127,18 @@ if re.search('crab_0',dataset):
     f = dataset.split('/')
     offDataset = f[0]
     crabId     = f[1]
-##    if os.path.exists(os.environ['HOME']+ \
-##                      '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId):
     fileInput = open(os.environ['HOME']+ \
                      '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId,'r')
-##    else:
-##        print ' WARNING WARNING ---- LFN FILE << OLD PRODUCTION OR DANGER FOR DATA MATCHING >>'
-##        fileInput = open(os.environ['HOME']+ \
-##                         '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns','r')
     index = 1
     files = {}
     nevts = {}
     for line in fileInput:
         f = line.split(" ")
         g = f[1].split("/")
-##        if len(f) == 2:
-##            print '\n\nOLD SCHEME\n\n'
-##            g = f[0].split("/")
         originalFile = offDataset + '_000_%d_1.root'%index
         if debug == 1:
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[1]))
         files[originalFile] = g[-1] 
-##        if len(f) == 2:
-##            print '\n\nOLD SCHEME\n\n'
-##            nevts[originalFile] = int(f[1])
-##        else:
         nevts[originalFile] = int(f[2])
         index += 1
     fileInput.close()
@@ -246,15 +241,18 @@ for line in os.popen(cmd).readlines():  # run command
     f = line.split(" ");
     rm0 = "rm -f        " + f[1]
     rm1 = "stager_rm -M " + f[1]
-    rm2 = "nsrm         " + f[1]
+    rm2 = "nsrm -f      " + f[1]
     #rm3 = "srmrm        " + server + f[1]
     rm3 = "ssh paus@cgate.mit.edu rm " + f[1]
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
 
-    #machine = "fgrep cern.ch " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
-    machine = "fgrep mit.edu " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
+    hostname = os.environ['HOSTNAME']
+    if re.search('cern.ch',hostname):
+        machine = "fgrep cern.ch " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
+    else:
+        machine = "fgrep mit.edu " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
     os.system(machine)
 
     if   re.search("/castor/cern.ch",f[1]):
@@ -304,9 +302,9 @@ print 'Raw file identified (in %s): \n     %s'%(rawDir,rawFile)
 # --------------------------------------------------------------------------------------------------
 
 # Create the moving file from this extract task
+srcFile = "EMPTY.bak"
 if official == 1:
     cmd = "date +Extracting_%y%m%d_%H%M%S.src"
-    srcFile = "EMPTY.bak"
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]
         srcFile = line
@@ -321,7 +319,6 @@ print '  For the catalog:'
 if test == 0:
     fileOutput = open(rawDir + '/' + rawFile,'w')
 for line in os.popen(cmd).readlines():  # run command
-    #print 'LINE: ' + line
     line = line[:-1]
     # compactify line
     line = " ".join(str(line).split()).strip()
@@ -359,12 +356,13 @@ if test == 0:
 
 # Moving all files
 if official == 1:
-    cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
-    print ' CMD: ' + cmd
-    status = os.system(cmd)
-    cmd = "ssh paus@cgate.mit.edu source " + srcFile
-    print ' CMD: ' + cmd
-    status = os.system(cmd)
+    if tier2:
+        cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
+        print ' CMD: ' + cmd
+        status = os.system(cmd)
+        cmd = "ssh paus@cgate.mit.edu source " + srcFile
+        print ' CMD: ' + cmd
+        status = os.system(cmd)
     # Removing the source file once we are done
     cmd = "rm " + srcFile
     print ' CMD: ' + cmd

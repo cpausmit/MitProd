@@ -53,7 +53,8 @@ do
   dataset=`echo $line | tr -s ' ' | cut -d ' ' -f 3`
 
   #echo " downloadSample.sh $line"
-  mkdir -p /mnt/hadoop/cmsprod/$book/$dataset
+  #mkdir -p /mnt/hadoop/cmsprod/$book/$dataset
+  mkdir -p /data/blue/cmsprod/$book/$dataset
   downloadSample.sh $line
   
   nowTime=$(date +%s); duration=$(($nowTime - $startTime))

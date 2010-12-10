@@ -38,6 +38,7 @@ then
   #srmls $storageUrl | grep root | tr -s ' ' | cut -d' ' -f 2-3 2> /dev/null 1> \
   #  $condorOutput/$book/$dataset/fileList-all.txt-bak
   list $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak
+  stageSample.py --dataDir=$dataDir/$book/$dataset
 else
   storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/managerv2?SFN='

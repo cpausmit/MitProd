@@ -6,14 +6,14 @@
 # Author: C.Paus                                                                 (February 11, 2010)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re
-#import string
 
+user = os.environ['TICKET_HOLDER']
 
 def list(dir,pattern,debug):
     if   re.search('/castor/cern.ch/',    dir):
         if debug != 0:
             print ' identified a castor directory'
-        cmd = 'ssh paus@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
+        cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
     elif re.search('/pnfs/cmsaf.mit.edu/',dir):
         if debug != 0:
             print ' identified a tier-2 directory'

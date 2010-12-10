@@ -21,12 +21,13 @@ echo " Process dataset: $dataset  of book: $book"
 echo "   in directory : $dataDir"
 echo "   to target    : $target"
 echo "   condor output: $condorOutput"
+echo "   file range   : $first  -- $last"
 
 mkdir -p $condorOutput/$book/$dataset
 script=`which downloadFile.sh`
 
 # make sure the request is good
-nFiles=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f`
+nFiles=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f 1`
 if [ $first -gt $nFiles ] ||  [ $last -gt $nFiles ]
 then
   echo "Request makes no sense: nFiles=$nFile but first=$first and last=$last"
@@ -36,6 +37,9 @@ fi
 # see how many we do in this job
 nFilesPerJob=$(($last - $first + 1))
 fList=`head -$last $condorOutput/$book/$dataset/fileList.txt | tail -$nFilesPerJob | cut -d' ' -f 2`
+
+echo LIST $fList
+#exit 0
 
 # spread the jobs out by a bit
 sleep $first

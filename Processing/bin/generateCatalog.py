@@ -75,7 +75,7 @@ if not os.path.exists(dir):
 #dir     = '/'.join(f[:-1])
 #print " Directory: " + dir
 
-cmd = 'cat ' + dir + '/RawFiles.?? | grep root'
+cmd = 'cat ' + dir + '/RawFiles.?? | grep root | sort -u'
 print 'Execute:  ' + cmd
 
 iFileset    = 0

@@ -8,8 +8,8 @@ echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pw
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
 klist
-cp /home/cmsprod/.krb5/x509up_u5410 /tmp/
-cp /home/cmsprod/.krb5/ticket       /tmp/krb5cc_5410
+cp $HOME/.krb5/x509up_u5410 /tmp/
+cp $HOME/.krb5/ticket       /tmp/krb5cc_5410
 ls -lhrt /tmp/krb5cc_5410
 export KRB5CCNAME=FILE:/tmp/krb5cc_5410
 klist
@@ -29,7 +29,8 @@ pwd=`pwd`
 export SCRAM_ARCH=slc5_ia32_gcc434
 export VO_CMS_SW_DIR=~cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     $HOME/cms/cmssw/016/CMSSW_3_8_6_patch1/src
+#cd     $HOME/cms/cmssw/016/CMSSW_3_8_6_patch1/src
+cd     $HOME/cms/cmssw/016/CMSSW_3_8_6/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
@@ -46,7 +47,8 @@ then
   storageUrl="srm://${storageEle}:8443${storagePath}$dataFile"
   echo " "; echo " Staging all file into castor ...."; echo " "
   echo "lcg-cp $storageUrl $target"
-  lcg-cp $storageUrl $target
+  #lcg-cp $storageUrl $target
+  rfcp $dataFile $target
 elif [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" != "" ]
 then
   #storageEle="se01.cmsaf.mit.edu"

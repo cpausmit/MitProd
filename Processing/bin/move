@@ -22,13 +22,13 @@ def clean(file):
 def exists(target):
     if   re.search('/castor/cern.ch/',target):
         debugPrint(' Identified a castor directory: ' + target)
-        cmd = 'rfdir ' + target
+        cmd = 'rfdir ' + target + '>& /dev/null'
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh paus@cgate.mit.edu ls -1 ' + target + '\>\& /dev/null'
+        cmd = 'ssh paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory: ' + target)
-        cmd = 'ls -1 ' + target + '>& /dev/null'
+        cmd = 'ls -1 ' + target + '>\& /dev/null'
             
     status = os.system(cmd)
     debugPrint(' Status: %d' % status)
@@ -38,7 +38,7 @@ def exists(target):
 def move(source,target):
     if   re.search('/castor/cern.ch/',source) and re.search('/castor/cern.ch/',target):
         debugPrint(' Identified two castor directories')
-        cmd = 'rfrename ' + source + ' ' + target
+        cmd = 'nsrename ' + source + ' ' + target
     elif re.search('/pnfs/cmsaf.mit.edu/',source) and re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified two tier-2 directories')
         cmd = 'ssh paus@cgate.mit.edu mv ' + source + ' ' + target
