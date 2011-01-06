@@ -13,6 +13,9 @@ dataset=$1;      shift
 target=$1;       shift
 nCopyProcs=$1;   shift
 condorOutput=$1; shift
+onlyMissing=$1;  shift
+
+DN=`grid-proxy-info -subject`
 
 # Prepare environment
 echo " "
@@ -21,34 +24,30 @@ echo "   in directory : $dataDir"
 echo "   to target    : $target"
 echo "   n copy procs : $nCopyProcs"
 echo "   condor output: $condorOutput"
+echo "   only missing : $onlyMissing"
 
 mkdir -p $condorOutput/$book/$dataset
-mkdir -p $target/$book/$dataset
+mkdir -p       $target/$book/$dataset
+chmod a+w      $target/$book/$dataset
 script=`which downloadFiles.sh`
 
-# cleanup our lists
+# cleanup our lists and remake a clean one
 rm -f $condorOutput/$book/$dataset/fileList*.txt*
 
-var=`echo $dataDir | grep /castor/cern.ch`
-if [ "$var" != "" ]
+# make list of all local files
+if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || [ "`echo $target | grep /castor/cern.ch`" != "" ] )
 then
-  storageEle="srm-cms.cern.ch"
-  storagePath='/srm/managerv2?SFN='
-  storageUrl="srm://${storageEle}:8443${storagePath}$dataDir/$book/$dataset"
-  #srmls $storageUrl | grep root | tr -s ' ' | cut -d' ' -f 2-3 2> /dev/null 1> \
-  #  $condorOutput/$book/$dataset/fileList-all.txt-bak
-  list $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak
-  stageSample.py --dataDir=$dataDir/$book/$dataset
+  opt="--simple"
 else
-  storageEle="se01.cmsaf.mit.edu"
-  storagePath='/srm/managerv2?SFN='
-  storageUrl="srm://${storageEle}:8443${storagePath}$dataDir/$book/$dataset"
-  #echo "list $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak"
-  list $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak
+  opt=""
 fi
 
+#echo "list $opt $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak"
+list $opt $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak
+
 # Make sure there is a kerberos ticket available
-cp /tmp/x509up_u5410 ~/.krb5/
+id=`id -u`
+cp /tmp/x509up_u${id} ~/.krb5/
 KRB5CCNAME=`klist -5 | grep 'Ticket cache:' | cut -d' ' -f 3`
 if ! [ -z $KRB5CCNAME ]
 then
@@ -79,11 +78,13 @@ do
 done
 
 # make list of all local files
-opt=''
-if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && [ "`echo $dataDir | grep /castor/cern.ch`" != "" ]
+if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || [ "`echo $target | grep /castor/cern.ch`" != "" ] )
 then
-  opt='--simple'
+  opt="--simple"
+else
+  opt=""
 fi
+
 #echo "list $opt $target/$book/$dataset | grep root > $condorOutput/$book/$dataset/fileList-done.txt"
 list $opt $target/$book/$dataset | grep root > $condorOutput/$book/$dataset/fileList-done.txt
 
@@ -95,13 +96,24 @@ while read line
 do
   size=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   file=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
-  exists=`grep "$size $file" $condorOutput/$book/$dataset/fileList-done.txt`
+  exists=`grep "$file" $condorOutput/$book/$dataset/fileList-done.txt`
   if [ "$exists" == "" ]
   then
-    echo "   -missing- $file with $size bytes"
+    echo "   -missing-- $file with $size bytes"
     echo "$size $file" >> $condorOutput/$book/$dataset/fileList.txt
   # else
-  #   echo "   -exists-- $file with $size bytes - exists"
+  #   echo "   -exists--- $file with $size bytes - exists"
+  else
+    # now check that size matches
+    test=`grep "$size $file" $condorOutput/$book/$dataset/fileList-done.txt`
+    if [ "$test" == "" ]
+    then
+      if [ "$onlyMissing" == "" ]
+      then
+        echo "   -fileSize- $exists (remote: $size)"
+        echo "$size $file" >> $condorOutput/$book/$dataset/fileList.txt
+      fi
+    fi
   fi
 done
 
@@ -124,6 +136,14 @@ i=1
 next=1
 last=$nFilesPerJob
 
+# make sure condor is properly setup for us
+if ! [ -z $CONDOR_LOCATION ]
+then
+  unset  CONDOR_LOCATION
+  export CONDOR_CONFIG=/usr/local/condor/etc/condor_config
+fi
+
+# loop over the condor jobs and submit them
 while [ $i -le $nCopyProcs ]
 do
   if [ $i == $nCopyProcs ]
@@ -154,8 +174,13 @@ Error                   = $condorOutput/$book/$dataset/${next}-${last}.err
 Log                     = $logFile
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
+
++AccountingGroup        = "group_cmsuser.cmsu0284"
+
 Queue
 EOF
+
+#+x509userproxysubject   = $DN
 
   # submit the jobs
   condor_submit submit_$$.cmd >& /dev/null #>& lastSub

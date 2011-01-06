@@ -17,9 +17,11 @@ def list(dir,pattern,debug):
     elif re.search('/pnfs/cmsaf.mit.edu/',dir):
         if debug != 0:
             print ' identified a tier-2 directory'
-        ##cmd = 'ssh paus@cgate.mit.edu \"find ' + dir + ' -maxdepth 1 -printf "%s %p\\n"\"'
         cmd = 'ssh paus@cgate.mit.edu ls -1s --block-size=1 ' + dir \
               + '| sed \'s/^ *//\' | grep -v ^total  '
+        if simple:
+            # does not work for files yet....
+            cmd = 'ssh paus@cgate.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
     else:
         # First case is the simple local directory
         if debug != 0:

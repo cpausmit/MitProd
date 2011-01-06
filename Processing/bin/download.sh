@@ -24,14 +24,14 @@ echo ""
 # check that queues are really empty
 startTime=$(date +%s)
 nowTime=$(date +%s); duration=$(($nowTime - $startTime))
-jobs=`condor_q -global cmsprod | grep downloadFiles.sh | wc -l`
-while [ "$jobs" != "0" ]
+jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
+while [ $jobs -gt 15 ]
 do
   echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"; sleep 60; echo ""
-  jobs=`condor_q -global cmsprod | grep downloadFiles.sh | wc -l`
+  jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
   nowTime=$(date +%s); duration=$(($nowTime - $startTime))
 done
-echo " Queues are empty ($jobs) Let's get started."
+echo " Queues are close to empty ($jobs) -- Let's get started."
 echo ""
 
 # all right, ready to download
@@ -48,21 +48,28 @@ do
   fi
 
   # define some quantities
+  baseDir=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   book=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
   version=`basename $book`
   dataset=`echo $line | tr -s ' ' | cut -d ' ' -f 3`
 
-  #echo " downloadSample.sh $line"
-  #mkdir -p /mnt/hadoop/cmsprod/$book/$dataset
-  mkdir -p /data/blue/cmsprod/$book/$dataset
+  # stagein the sample if it is at CERN
+  if [ "`echo $baseDir | grep /castor/cern.ch`" != "" ]
+  then
+    ssh paus@lxplus.cern.ch ./stageSample.py --dataDir=$baseDir/$book/$dataset
+  fi
+
+  # download the sample
+  echo " downloadSample.sh $line"
   downloadSample.sh $line
   
+  # go into waiting loop
   nowTime=$(date +%s); duration=$(($nowTime - $startTime))
-  jobs=`condor_q -global cmsprod | grep downloadFiles.sh | wc -l`
-  while [ "$jobs" != "0" ]
+  jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
+  while [ $jobs -gt 15 ]
   do
     echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"; sleep 60; echo ""
-    jobs=`condor_q -global cmsprod | grep downloadFiles.sh | wc -l`
+    jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
     nowTime=$(date +%s); duration=$(($nowTime - $startTime))
   done
   echo " Queues are empty ($jobs) --> cleaning up and making catalogs."
@@ -73,7 +80,7 @@ do
   removeZeroLengthFiles.sh /mnt/hadoop/cmsprod/$book/$dataset
   
   # finally make the corresponding catalog
-  #echo "catalog.sh -ceg $version $dataset --retry /mnt/hadoop/cmsprod"
+  echo "catalog.sh -ceg $version $dataset --retry /mnt/hadoop/cmsprod"
   catalog.sh -ceg $version $dataset --retry /mnt/hadoop/cmsprod
 
   i=$(( $i+1 ))

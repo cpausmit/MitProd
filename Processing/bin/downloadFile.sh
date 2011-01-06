@@ -8,17 +8,16 @@ echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pw
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
 klist
-cp $HOME/.krb5/x509up_u5410 /tmp/
-cp $HOME/.krb5/ticket       /tmp/krb5cc_5410
-ls -lhrt /tmp/krb5cc_5410
-export KRB5CCNAME=FILE:/tmp/krb5cc_5410
+id=`id -u`
+cp ~/.krb5/x509up_u${id} /tmp/
+cp ~/.krb5/ticket        /tmp/krb5cc_${id}
+ls -lhrt /tmp/krb5cc_${id}
+export KRB5CCNAME=FILE:/tmp/krb5cc_${id}
 klist
 
 dataFile=$1
 target=$2
 procId=$$
-logFile=`echo $dataDir/$dataFile | tr '/' '+'`
-logFile=/tmp/$logFile
 
 echo " DataFile: $dataFile  to: $target"
 
@@ -27,42 +26,43 @@ pwd
 pwd=`pwd`
 
 export SCRAM_ARCH=slc5_ia32_gcc434
-export VO_CMS_SW_DIR=~cmsprod/cmssoft
+export VO_CMS_SW_DIR=/osg/app/cmssoft/cms
 source $VO_CMS_SW_DIR/cmsset_default.sh
-#cd     $HOME/cms/cmssw/016/CMSSW_3_8_6_patch1/src
-cd     $HOME/cms/cmssw/016/CMSSW_3_8_6/src
+cd     $HOME/cms/cmssw/017/CMSSW_3_9_5_patch1/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
-#list $dataDir
 
-# Get ready to run
-rm -f $logFile
+# make storage Urls for target and source
 
-echo " "; echo "Starting download now"; echo " "
-if   [ "`echo $dataFile | grep /castor/cern.ch`" != "" ]
+targetUrl=$target
+if   [ "`echo $target | grep /pnfs/cmsaf.mit.edu`" != "" ]
+then
+  storageEle="se01.cmsaf.mit.edu"
+  storagePath='/srm/managerv2?SFN='
+  targetUrl="srm://${storageEle}:8443${storagePath}$target"
+elif [ "`echo $target | grep /castor/cern.ch`" != "" ]
 then
   storageEle='srm-cms.cern.ch'
   storagePath='/srm/managerv2?SFN='
-  storageUrl="srm://${storageEle}:8443${storagePath}$dataFile"
-  echo " "; echo " Staging all file into castor ...."; echo " "
-  echo "lcg-cp $storageUrl $target"
-  #lcg-cp $storageUrl $target
-  rfcp $dataFile $target
-elif [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" != "" ]
-then
-  #storageEle="se01.cmsaf.mit.edu"
-  storageEle="t2srv0012.cmsaf.mit.edu"
-  storagePath=''
-  storageUrl="dcap://${storageEle}/$dataFile"
-  echo "dccp $storageUrl $target"
-  dccp $storageUrl $target
-else
-  echo ' Copy mechanism not known.'
-  exit 1
+  targetUrl="srm://${storageEle}:8443${storagePath}$target"
 fi
 
+sourceUrl=$dataFile
+if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" != "" ]
+then
+  storageEle="se01.cmsaf.mit.edu"
+  storagePath='/srm/managerv2?SFN='
+  sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
+elif [ "`echo $dataFile | grep /castor/cern.ch`" != "" ]
+then
+  storageEle='srm-cms.cern.ch'
+  storagePath='/srm/managerv2?SFN='
+  sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
+fi
 
-rm -f $logFile
+echo " "; echo "Starting download now"; echo " "
+echo "srm-copy $sourceUrl $targetUrl"
+srm-copy $sourceUrl $targetUrl
 
 exit 0

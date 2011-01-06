@@ -39,7 +39,6 @@ nFilesPerJob=$(($last - $first + 1))
 fList=`head -$last $condorOutput/$book/$dataset/fileList.txt | tail -$nFilesPerJob | cut -d' ' -f 2`
 
 echo LIST $fList
-#exit 0
 
 # spread the jobs out by a bit
 sleep $first
