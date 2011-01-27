@@ -1,9 +1,10 @@
-// $Id: FillerPFTaus.cc,v 1.4 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerPFTaus.cc,v 1.5 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFTauCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -15,8 +16,15 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
+  hpsActive_(Conf().getUntrackedParameter<bool>("hpsActive", false)),
   edmName_(Conf().getUntrackedParameter<string>("edmName","")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFTauBrn)), 
+  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFTauBrn)),
+  discriminationAgainstElectronName_(Conf().getUntrackedParameter<string>("discriminationAgainstElectronName", "hpsPFTauDiscriminationAgainstElectron")),
+  discriminationAgainstMuonName_(Conf().getUntrackedParameter<string>("discriminationAgainstMuonName", "hpsPFTauDiscriminationAgainstMuon")),
+  discriminationByDecayModeFindingName_(Conf().getUntrackedParameter<string>("discriminationByDecayModeFindingName", "hpsPFTauDiscriminationByDecayModeFinding")),
+  discriminationByLooseIsolationName_(Conf().getUntrackedParameter<string>("discriminationByLooseIsolationName", "hpsPFTauDiscriminationByLooseIsolation")),
+  discriminationByMediumIsolationName_(Conf().getUntrackedParameter<string>("discriminationByMediumIsolationName", "hpsPFTauDiscriminationByMediumIsolation")),
+  discriminationByTightIsolationName_(Conf().getUntrackedParameter<string>("discriminationByTightIsolationName", "hpsPFTauDiscriminationByTightIsolation")), 
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
@@ -75,6 +83,24 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauCollection> hTauProduct;
   GetProduct(edmName_, hTauProduct, event);
   
+  // Handles for HPS discriminants
+  Handle<reco::PFTauDiscriminator> hDiscriminationAgainstElectron;
+  Handle<reco::PFTauDiscriminator> hDiscriminationAgainstMuon;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByDecayModeFinding;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByLooseIsolation;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByMediumIsolation;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByTightIsolation;
+  
+  if(hpsActive_)
+  {
+    GetProduct(discriminationAgainstElectronName_, hDiscriminationAgainstElectron, event);
+    GetProduct(discriminationAgainstMuonName_, hDiscriminationAgainstMuon, event);
+    GetProduct(discriminationByDecayModeFindingName_, hDiscriminationByDecayModeFinding, event);
+    GetProduct(discriminationByLooseIsolationName_, hDiscriminationByLooseIsolation, event);
+    GetProduct(discriminationByMediumIsolationName_, hDiscriminationByMediumIsolation, event);
+    GetProduct(discriminationByTightIsolationName_, hDiscriminationByTightIsolation, event);
+  }
+
   const reco::PFTauCollection inTaus = *(hTauProduct.product());  
   // loop through all taus
   for (reco::PFTauCollection::const_iterator inTau = inTaus.begin(); 
@@ -110,6 +136,17 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     tau->SetMuonDecision(inTau->muonDecision());
     tau->SetSegmentCompatibility(inTau->segComp());
     
+    // fill HPS discriminants
+    if(hpsActive_)
+    {
+      tau->SetDiscriminationAgainstElectron((*(hDiscriminationAgainstElectron.product()))[tauRef]);
+      tau->SetDiscriminationAgainstMuon((*(hDiscriminationAgainstMuon.product()))[tauRef]);
+      tau->SetDiscriminationByDecayModeFinding((*(hDiscriminationByDecayModeFinding.product()))[tauRef]);
+      tau->SetDiscriminationByLooseIsolation((*(hDiscriminationByLooseIsolation.product()))[tauRef]);
+      tau->SetDiscriminationByMediumIsolation((*(hDiscriminationByMediumIsolation.product()))[tauRef]);
+      tau->SetDiscriminationByTightIsolation((*(hDiscriminationByTightIsolation.product()))[tauRef]);
+    }
+
     // add track references
     if (trackMap_) {
       // electron preid track reference

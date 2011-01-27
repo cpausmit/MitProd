@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.4 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerPFTaus.h,v 1.5 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerPFTaus
 //
@@ -27,8 +27,15 @@ namespace mithep
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
+      bool                           hpsActive_;      //=true if HPS discriminants are filled
       std::string                    edmName_;        //edm name of jets collection
       std::string                    mitName_;        //mit name of jets collection
+      std::string                    discriminationAgainstElectronName_;    // HPS discriminant
+      std::string                    discriminationAgainstMuonName_;        // HPS discriminant
+      std::string                    discriminationByDecayModeFindingName_; // HPS discriminant
+      std::string                    discriminationByLooseIsolationName_;   // HPS discriminant
+      std::string                    discriminationByMediumIsolationName_;  // HPS discriminant
+      std::string                    discriminationByTightIsolationName_;   // HPS discriminant
       std::string                    trackMapName_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap
@@ -36,6 +43,8 @@ namespace mithep
       const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
       const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
       mithep::PFTauArr              *taus_;           //array of taus
+      
+
   };
 }
 #endif
