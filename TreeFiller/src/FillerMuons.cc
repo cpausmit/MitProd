@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.35 2010/10/30 16:22:38 pharris Exp $
+// $Id: FillerMuons.cc,v 1.36 2010/11/22 16:55:51 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -15,6 +15,11 @@
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 
 using namespace std;
 using namespace edm;
@@ -112,6 +117,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
 
   KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
+
+  LinearizedTrackStateFactory lTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
+  KalmanVertexUpdator<5> updator;
 
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
     mithep::Muon* outMuon = muons_->AddNew();
@@ -213,36 +222,77 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     if (iM->track().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
 
-      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,pvCol->at(0));
+      reco::Vertex thevtx = pvCol->at(0);
+      reco::Vertex thevtxbs = pvBSCol->at(0);
+
+      if (find(thevtx.tracks_begin(), thevtx.tracks_end(), tt.trackBaseRef()) != thevtx.tracks_end()) {
+          GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
+          KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
+          GlobalError err(thevtx.covariance());
+          VertexState vState(linP, err);
+          KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+      
+          std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+          CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
+          const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+          if (newCachingVertex.isValid()) {
+            const TransientVertex &tvtx = newCachingVertex;
+            thevtx = tvtx;
+          }
+      }
+
+      if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), tt.trackBaseRef()) != thevtxbs.tracks_end()) {
+          GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
+          KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
+          GlobalError err(thevtxbs.covariance());
+          VertexState vState(linP, err);
+          KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+      
+          std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+          CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
+          const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+          if (newCachingVertex.isValid()) {
+            const TransientVertex &tvtx = newCachingVertex;
+            thevtxbs = tvtx;
+          }
+      }
+
+      //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
+      const double thesign   = ( (-iM->track()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
+      const double thesignbs = ( (-iM->track()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
+
+      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
       if (d0pv.first) {
-        outMuon->SetD0PV(d0pv.second.value());
+        outMuon->SetD0PV(thesign*d0pv.second.value());
         outMuon->SetD0PVErr(d0pv.second.error());
       }
       else {
         outMuon->SetD0PV(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
+      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,thevtx);
       if (ip3dpv.first) {
-        outMuon->SetIp3dPV(ip3dpv.second.value());
+        outMuon->SetIp3dPV(thesign*ip3dpv.second.value());
         outMuon->SetIp3dPVErr(ip3dpv.second.error());
       }
       else {
         outMuon->SetIp3dPV(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
+      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
       if (d0pvbs.first) {
-        outMuon->SetD0PVBS(d0pvbs.second.value());
+        outMuon->SetD0PVBS(thesignbs*d0pvbs.second.value());
         outMuon->SetD0PVBSErr(d0pvbs.second.error());
       }
       else {
         outMuon->SetD0PVBS(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
+      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,thevtxbs);
       if (ip3dpvbs.first) {
-        outMuon->SetIp3dPVBS(ip3dpvbs.second.value());
+        outMuon->SetIp3dPVBS(thesignbs*ip3dpvbs.second.value());
         outMuon->SetIp3dPVBSErr(ip3dpvbs.second.error());
       }
       else {
