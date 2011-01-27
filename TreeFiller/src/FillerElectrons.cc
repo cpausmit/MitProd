@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.49 2010/10/18 01:34:48 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.50 2010/11/22 16:55:51 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -31,6 +31,11 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/ConversionRejection/interface/ConversionMatcher.h"
+#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
+#include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 
 using namespace std;
 using namespace edm;
@@ -147,6 +152,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   
   GsfVertexTrackCompatibilityEstimator gsfEstimator;
 
+  LinearizedTrackStateFactory lTrackFactory;
+  VertexTrackFactory<5> vTrackFactory;
+  KalmanVertexUpdator<5> updator;
+
   //Get Magnetic Field from event setup, taking value at (0,0,0)
 //   edm::ESHandle<MagneticField> magneticField;
 //   setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -253,45 +262,143 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //compute impact parameter with respect to PV
     if (iM->gsfTrack().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->gsfTrack()); 
+
+      reco::TransientTrack ttckf;
+
+      reco::Vertex thevtx = pvCol->at(0);
+      reco::Vertex thevtxbs = pvBSCol->at(0);
+
+      //check if closest ctf track is included in PV and if so, remove it before computing impact parameters and uncertainties
+      if (iM->closestCtfTrackRef().isNonnull()) {
+        ttckf = transientTrackBuilder->build(iM->closestCtfTrackRef());
+
+        if (find(thevtx.tracks_begin(), thevtx.tracks_end(), ttckf.trackBaseRef()) != thevtx.tracks_end()) {
+           GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
+           KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
+           GlobalError err(thevtx.covariance());
+           VertexState vState(linP, err);
+           KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+        
+           std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+           CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
+           const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+           if (newCachingVertex.isValid()) {
+             const TransientVertex &tvtx = newCachingVertex;
+             thevtx = tvtx;
+           }
+        }
+
+        if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), ttckf.trackBaseRef()) != thevtxbs.tracks_end()) {
+           GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
+           KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
+           GlobalError err(thevtxbs.covariance());
+           VertexState vState(linP, err);
+           KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+        
+           std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+           CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
+           const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+           if (newCachingVertex.isValid()) {
+             const TransientVertex &tvtx = newCachingVertex;
+             thevtxbs = tvtx;
+           }
+        }
+
+      }
       
-      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,pvCol->at(0));
+      //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
+      const double gsfsign   = ( (-iM->gsfTrack()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
+      const double gsfsignbs = ( (-iM->gsfTrack()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
+
+      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
       if (d0pv.first) {
-        outElectron->SetD0PV(d0pv.second.value());
+        outElectron->SetD0PV(gsfsign*d0pv.second.value());
         outElectron->SetD0PVErr(d0pv.second.error());
       }
       else {
-        outElectron->SetD0PV(-99.0);
+        outElectron->SetD0PV(-999.0);
       }
 
 
-      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,pvCol->at(0));
+      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,thevtx);
       if (ip3dpv.first) {
-        outElectron->SetIp3dPV(ip3dpv.second.value());
+        outElectron->SetIp3dPV(gsfsign*ip3dpv.second.value());
         outElectron->SetIp3dPVErr(ip3dpv.second.error());
       }
       else {
-        outElectron->SetIp3dPV(-99.0);
+        outElectron->SetIp3dPV(-999.0);
       }
 
-      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,pvBSCol->at(0));
+      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
       if (d0pvbs.first) {
-        outElectron->SetD0PVBS(d0pvbs.second.value());
+        outElectron->SetD0PVBS(gsfsignbs*d0pvbs.second.value());
         outElectron->SetD0PVBSErr(d0pvbs.second.error());
       }
       else {
-        outElectron->SetD0PVBS(-99.0);
+        outElectron->SetD0PVBS(-999.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,pvBSCol->at(0));
+      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,thevtxbs);
       if (ip3dpvbs.first) {
-        outElectron->SetIp3dPVBS(ip3dpvbs.second.value());
+        outElectron->SetIp3dPVBS(gsfsignbs*ip3dpvbs.second.value());
         outElectron->SetIp3dPVBSErr(ip3dpvbs.second.error());
       }
       else {
-        outElectron->SetIp3dPVBS(-99.0);
+        outElectron->SetIp3dPVBS(-999.0);
       }
 
-     
+      if (iM->closestCtfTrackRef().isNonnull()) {
+
+        const double ckfsign   = ( (-iM->closestCtfTrackRef()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
+        const double ckfsignbs = ( (-iM->closestCtfTrackRef()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
+
+        const std::pair<bool,Measurement1D> &d0pvckf =  IPTools::absoluteTransverseImpactParameter(ttckf,thevtx);
+        if (d0pvckf.first) {
+          outElectron->SetD0PVCkf(ckfsign*d0pvckf.second.value());
+          outElectron->SetD0PVCkfErr(d0pvckf.second.error());
+        }
+        else {
+          outElectron->SetD0PVCkf(-999.0);
+        }
+  
+  
+        const std::pair<bool,Measurement1D> &ip3dpvckf =  IPTools::absoluteImpactParameter3D(ttckf,thevtx);
+        if (ip3dpvckf.first) {
+          outElectron->SetIp3dPVCkf(ckfsign*ip3dpvckf.second.value());
+          outElectron->SetIp3dPVCkfErr(ip3dpvckf.second.error());
+        }
+        else {
+          outElectron->SetIp3dPVCkf(-999.0);
+        }
+  
+        const std::pair<bool,Measurement1D> &d0pvbsckf =  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxbs);
+        if (d0pvbsckf.first) {
+          outElectron->SetD0PVBSCkf(ckfsignbs*d0pvbsckf.second.value());
+          outElectron->SetD0PVBSCkfErr(d0pvbsckf.second.error());
+        }
+        else {
+          outElectron->SetD0PVBSCkf(-999.0);
+        }
+  
+        const std::pair<bool,Measurement1D> &ip3dpvbsckf =  IPTools::absoluteImpactParameter3D(ttckf,thevtxbs);
+        if (ip3dpvbsckf.first) {
+          outElectron->SetIp3dPVBSCkf(ckfsignbs*ip3dpvbsckf.second.value());
+          outElectron->SetIp3dPVBSCkfErr(ip3dpvbsckf.second.error());
+        }
+        else {
+          outElectron->SetIp3dPVBSCkf(-999.0);
+        }
+      }
+      else {
+        outElectron->SetD0PVCkf(-999.0);
+        outElectron->SetIp3dPVCkf(-999.0);
+        outElectron->SetD0PVBSCkf(-999.0);
+        outElectron->SetIp3dPVBSCkf(-999.0);
+      }
+
+
       if (verbose_>1) {
         printf("gsf track      pt = %5f\n",iM->gsfTrack()->pt());
         printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
