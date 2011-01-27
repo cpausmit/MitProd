@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.78 2010/10/18 01:34:48 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.79 2010/11/22 16:55:51 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -83,6 +83,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'CaloTaus',
                                     'PFTaus',
                                     'ShrinkingConePFTaus',
+				    'HPSTaus',
                                     'StableParts',
                                     'DecayParts',),
 
@@ -1092,6 +1093,23 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType      = cms.untracked.string('FillerPFTaus')
     ),    
           
+    HPSTaus = cms.untracked.PSet(
+	active = cms.untracked.bool(True),
+	hpsActive = cms.untracked.bool(True),
+	mitName = cms.untracked.string('HPSTaus'),
+	edmName = cms.untracked.string('hpsPFTauProducer'),
+	discriminationAgainstElectronName = cms.untracked.string('hpsPFTauDiscriminationAgainstElectron'),
+	discriminationAgainstMuonName = cms.untracked.string('hpsPFTauDiscriminationAgainstMuon'),
+	discriminationByDecayModeFindingName = cms.untracked.string('hpsPFTauDiscriminationByDecayModeFinding'),
+	discriminationByLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByLooseIsolation'),
+	discriminationByMediumIsolationName = cms.untracked.string('hpsPFTauDiscriminationByMediumIsolation'),
+	discriminationByTightIsolationName = cms.untracked.string('hpsPFTauDiscriminationByTightIsolation'),
+	trackMapName = cms.untracked.string('TracksMapName'),
+	jetMapName = cms.untracked.string(''),
+	pfCandMapName = cms.untracked.string('PFCandMapName'),
+	fillerType = cms.untracked.string('FillerPFTaus')
+    ),
+    
     StableParts = cms.untracked.PSet(
         active       = cms.untracked.bool(False),
         mitName      = cms.untracked.string('MuonsStable'),
