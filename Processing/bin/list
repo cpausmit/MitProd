@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------------------------
 # Script to list a directory. The format is the filesize in the first column and the full filename
-# in the second column. This is to avoid castore, tier-2 or local directory differences.
+# in the second column. This is to avoid castor, tier-2 or local directory differences.
 #
 # Author: C.Paus                                                                 (February 11, 2010)
 #---------------------------------------------------------------------------------------------------
