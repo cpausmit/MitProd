@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.35 2010/10/20 20:34:41 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.36 2010/11/22 16:56:12 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -63,6 +63,10 @@ MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
 #from MitEdm.Producers.evtSelData_cfi import *
 #MitTreeFiller.EvtSelData.active = True
 
+# Load FastJet L1 corrections
+from MitProd.TreeFiller.FastJetCorrection_cff import *
+MitTreeFiller.AKt5PFJetsL1.active = True
+
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
                                  #clusterVertices*
@@ -73,7 +77,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #JetPlusTrackCorrectionsIcone5*
                                  #JetPlusTrackCorrectionsAntiKt5*
                                  #jetvertexAssociationSequence*
-                                 eidLikelihoodExt
+                                 eidLikelihoodExt*
+                                 l1FastJetCorrection
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
