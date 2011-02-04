@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.79 2010/11/22 16:55:51 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.80 2011/01/27 12:39:09 mhchan Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,6 +64,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'Kt4PFJets',
                                     'Kt6PFJets',
                                     'AKt5PFJets',
+                                    'AKt5PFJetsL1',
                                     'AKt7PFJets',
                                     'GenMet',
                                     'CorMuonMet',
@@ -937,6 +938,26 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         jetMapName                    = cms.untracked.string('AKT5PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
+                               
+    AKt5PFJetsL1 = cms.untracked.PSet(
+        active                        = cms.untracked.bool(False),
+        flavorMatchingActive          = cms.untracked.bool(False),
+        bTaggingActive                = cms.untracked.bool(False),
+        jetToVertexActive             = cms.untracked.bool(False),
+        jetCorrectionsActive          = cms.untracked.bool(False),
+        mitName                       = cms.untracked.string('AKt5PFJetsL1'),
+        edmName                       = cms.untracked.string('ak5PFJetsL1'),
+        jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaAKT5PF:Var'),
+        jetToVertexBetaName           = cms.untracked.string('jetVertexBetaAKT5PF:Var'),
+        L2JetCorrectorName            = cms.untracked.string('L2RelativeJetCorrectorAKT5PF'),
+        L3JetCorrectorName            = cms.untracked.string('L3AbsoluteJetCorrectorAKT5PF'),
+        flavorMatchingByReferenceName = cms.untracked.string('AKT5PFbyRef'),
+        flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        jetMapName                    = cms.untracked.string('AKT5PFJetL1Map'),
+        fillerType                    = cms.untracked.string('FillerPFJets')
+    ),
+
 
     AKt7PFJets = cms.untracked.PSet(
         active                        = cms.untracked.bool(True),
