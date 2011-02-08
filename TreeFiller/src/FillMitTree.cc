@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.57 2010/05/04 11:56:43 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.58 2010/11/22 16:53:31 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,6 +32,7 @@
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
+#include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
@@ -133,10 +134,9 @@ void FillMitTree::analyze(const edm::Event      &event,
       acfnumber_ = tws_->GetFileNumber();
     }
   }
-  
+
   //tree writer end of event actions
   tws_->EndEvent(kTRUE);
-  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,6 +314,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerPixelHits *fillerPixelHits =  
         new FillerPixelHits(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPixelHits);
+      continue;
+    }  
+
+    if (ftype.compare("FillerPileupInfo")==0) {
+      FillerPileupInfo *fillerPileupInfo =  
+        new FillerPileupInfo(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPileupInfo);
       continue;
     }  
 
