@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.80 2011/01/27 12:39:09 mhchan Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.81 2011/02/04 16:35:27 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,6 +9,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MCParticles',
                                     'MCEventInfo',
                                     'MCVertexes',
+                                    'PileupInfo',
                                     'EvtSelData',
                                     'BeamSpot',
                                     'CaloTowers',
@@ -267,6 +268,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         superClusterIdMapName = cms.untracked.string('endcapSuperClusterIdMap'),
         caloTowerName         = cms.untracked.string('towerMaker'),  
         fillerType            = cms.untracked.string('FillerSuperClusters')
+    ),
+
+    PileupInfo = cms.untracked.PSet(
+        active                = cms.untracked.bool(False),
+        mitName               = cms.untracked.string('PileupInfo'),                     
+        edmName               = cms.untracked.string('addPileupInfo'),
+        fillerType            = cms.untracked.string('FillerPileupInfo')
     ),
 
     PixelHits = cms.untracked.PSet(
