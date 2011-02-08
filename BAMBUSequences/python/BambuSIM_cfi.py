@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.15 2010/11/23 22:23:12 bendavid Exp $
+# $Id: BambuSIM_cfi.py,v 1.16 2010/11/25 21:30:12 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -51,6 +51,9 @@ def enableSIM(filler):
   
   # Enable Flavor history filling
   filler.MCEventInfo.flavorHistoryActive = True
+
+  # Enable the pileup information
+  filler.PileupInfo.active = True
   
   # Enable Flavor matching for Reco Jets and GenJets
   #filler.ItrCone5Jets.flavorMatchingActive   = True
