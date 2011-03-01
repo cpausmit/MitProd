@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.58 2010/11/22 16:53:31 bendavid Exp $
+// $Id: FillMitTree.cc,v 1.59 2011/02/08 14:59:52 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,6 +33,7 @@
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
+#include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
@@ -321,6 +322,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerPileupInfo *fillerPileupInfo =  
         new FillerPileupInfo(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPileupInfo);
+      continue;
+    }  
+
+    if (ftype.compare("FillerPileupEnergyDensity")==0) {
+      FillerPileupEnergyDensity *fillerPileupEnergyDensity =  
+        new FillerPileupEnergyDensity(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPileupEnergyDensity);
       continue;
     }  
 
