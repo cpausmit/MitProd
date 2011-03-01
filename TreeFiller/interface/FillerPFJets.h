@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFJets.h,v 1.6 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerPFJets.h,v 1.7 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerPFJets
 //
@@ -31,10 +31,12 @@ namespace mithep
       bool            bTaggingActive_;                  //=true if bTagging info is filled
       bool            jetToVertexActive_;               //=true if jet to vertex info is done
       bool            jetCorrectionsActive_;            //=true if jet corrections are done
+      bool            fastJetCorrectionsActive_;        //=true if fastjet corrections are done
       std::string     edmName_;                         //edm name of jets collection
       std::string     mitName_;                         //mit name of jets collection
       std::string     jetToVertexAlphaName_;            //edm name of jet to vertex alpha coll
       std::string     jetToVertexBetaName_;             //edm name of jet to vertex beta coll
+      std::string     rhoName_;                         //edm name of Energy per unit area
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
       std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service
       std::string     flavorMatchingByReferenceName_;   //source of flavor matching
