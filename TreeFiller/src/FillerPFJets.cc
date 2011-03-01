@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.11 2010/03/26 14:19:00 sixie Exp $
+// $Id: FillerPFJets.cc,v 1.12 2011/03/01 14:43:45 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -26,14 +26,14 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
   bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
   jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),
   jetCorrectionsActive_(Conf().getUntrackedParameter<bool>("jetCorrectionsActive",true)),
-  fastJetCorrectionsActive_(Conf().getUntrackedParameter<bool>("fastJetCorrectionsActive",true)),
+  fastJetCorrectionsActive_(Conf().getUntrackedParameter<bool>("fastJetCorrectionsActive",false)),
   edmName_(Conf().getUntrackedParameter<string>("edmName","recoPFJets:iterativeCone5PFJets")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","ItrCone5PFJets")), 
   jetToVertexAlphaName_(Conf().getUntrackedParameter<string>
                         ("jetToVertexAlphaName","jetToVertexAlpha")),
   jetToVertexBetaName_(Conf().getUntrackedParameter<string>
                        ("jetToVertexBetaName","jetToVertexBetaName")),
-  rhoName_(Conf().getUntrackedParameter<string> ("rhoName","kt6PFJets")),
+  rhoName_(Conf().getUntrackedParameter<edm::InputTag> ("rhoName")),
   L2JetCorrectorName_(Conf().getUntrackedParameter<string>
                       ("L2JetCorrectorName","L2JetCorrectorName")),
   L3JetCorrectorName_(Conf().getUntrackedParameter<string>
@@ -116,8 +116,11 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFJetCollection> hJetProduct;
   GetProduct(edmName_, hJetProduct, event);
 
+//   Handle<double> rho;
+//   GetProduct(rhoName_, rho, event);
+
   Handle<double> rho;
-  GetProduct(rhoName_, rho, event);
+  event.getByLabel(rhoName_,rho);
 
   // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
@@ -216,7 +219,9 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     //Jet Corrections
     if (fastJetCorrectionsActive_) {
       jet->SetJetArea(inJet->jetArea());
-      jet->SetL1OffsetCorrectionScale((inJet->pt() - inJet->jetArea()*(*rho))/inJet->pt() );
+      double l1Scale = (inJet->pt() - (*rho)*inJet->jetArea())/inJet->pt();
+      l1Scale = (l1Scale>0) ? l1Scale : 0.0;
+      jet->SetL1OffsetCorrectionScale( l1Scale);
       jet->EnableCorrection(mithep::PFJet::L1);
     }
     if (jetCorrectionsActive_) {

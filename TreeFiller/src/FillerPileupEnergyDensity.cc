@@ -1,4 +1,4 @@
-// $Id: FillerPileupEnergyDensity.cc,v 1.1 2011/02/08 14:54:13 mzanetti Exp $
+// $Id: FillerPileupEnergyDensity.cc,v 1.1 2011/03/01 14:26:30 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +14,8 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","kt6PFJets")),
+  //edmName_(Conf().getUntrackedParameter<string>("edmName","kt6PFJets")),
+  edmName_(Conf().getUntrackedParameter<edm::InputTag>("edmName")),  
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPileupEnergyDensityBrn)),
   rhos_(new mithep::PileupEnergyDensityArr)
 {
@@ -45,8 +46,11 @@ void FillerPileupEnergyDensity::FillDataBlock(const edm::Event      &event,
 
   rhos_->Delete();
 
+//   Handle<double> hRho;
+//   GetProduct(edmName_, hRho, event);
+
   Handle<double> hRho;
-  GetProduct(edmName_, hRho, event);
+  event.getByLabel(edmName_,hRho);
 
   mithep::PileupEnergyDensity *rho = rhos_->AddNew();
 
