@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.37 2011/02/04 16:32:45 mzanetti Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.38 2011/03/01 17:29:59 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -74,6 +74,8 @@ MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True
 # alternatively one can add a new collection
 #MitTreeFiller.AKt5PFJetsL1.active = True
 
+from MitProd.TreeFiller.DAPrimaryVertex_cff import *
+
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
                                  #clusterVertices*
@@ -85,7 +87,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #JetPlusTrackCorrectionsAntiKt5*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
-                                 l1FastJetCorrection
+                                 l1FastJetCorrection *
+                                 daPrimaryVertexSequence
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)

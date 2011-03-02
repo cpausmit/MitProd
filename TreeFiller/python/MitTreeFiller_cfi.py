@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.82 2011/02/08 14:55:00 mzanetti Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.83 2011/03/01 17:28:20 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -33,6 +33,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'GsfTracks',
                                     'PFGsfTracks',
                                     'PrimaryVertexes',
+                                    'DAPrimaryVertexes',
                                     'PrimaryVertexesBS',
                                     'PixelVertexes',
                                     'TrackletVertexes',
@@ -187,6 +188,16 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         trackMapName  = cms.untracked.string('TracksMapName'),
         fillerType    = cms.untracked.string('FillerVertexes')
     ),
+
+    DAPrimaryVertexes = cms.untracked.PSet(
+        active        = cms.untracked.bool(True),
+        mitName       = cms.untracked.string('DAPrimaryVertexes'),
+        edmName       = cms.untracked.string('offlinePrimaryVerticesDA'),    
+        vertexMapName = cms.untracked.string('PrimaryVertexDAMap'),
+        trackMapName  = cms.untracked.string('TracksMapName'),
+        fillerType    = cms.untracked.string('FillerVertexes')
+    ),
+
     
     PrimaryVertexesBS = cms.untracked.PSet(
         active        = cms.untracked.bool(True),
