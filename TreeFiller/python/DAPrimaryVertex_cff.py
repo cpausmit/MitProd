@@ -1,4 +1,4 @@
-# $Id: FastJetCorrection_cff.py,v 1.1 2011/02/04 16:31:53 mzanetti Exp $
+# $Id: DAPrimaryVertex_cff.py,v 1.1 2011/03/02 10:26:31 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,8 +25,8 @@ offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
     TkClusParameters = cms.PSet(
         algorithm   = cms.string("DA"),
         TkDAClusParameters = cms.PSet( 
-            coolingFactor = cms.double(0.8),  #  rather slow annealing for now
-            Tmin = cms.double(9.),            #  end of annealing
+            coolingFactor = cms.double(0.6),  #  rather slow annealing for now
+            Tmin = cms.double(4.),            #  end of annealing
             vertexSize = cms.double(0.01)     #  100 um !!
         )
     )
