@@ -78,6 +78,9 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 
 from MitProd.TreeFiller.DAPrimaryVertex_cff import *
 
+from MitProd.TreeFiller.newbtagging_cff import *
+MitTreeFiller.AKt5PFJets.bTaggingActive = True
+
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
                                  #clusterVertices*
@@ -90,7 +93,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
 #                                 l1FastJetCorrection *
-                                 daPrimaryVertexSequence
+                                 daPrimaryVertexSequence *
+                                 newBtaggingAll
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
