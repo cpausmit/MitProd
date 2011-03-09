@@ -1,0 +1,12 @@
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="MitCommon/OptIO"/>
+<use   name="MitAna/DataTree"/>
+<use   name="MitAna/DataUtil"/>
+<use   name="root"/>
+<export>
+  <lib   name="1"/>
+</export>
