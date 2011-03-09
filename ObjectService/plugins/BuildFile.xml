@@ -1,0 +1,6 @@
+<library   name="MitProdObjectService_plugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="MitProd/ObjectService"/>
+</library>
