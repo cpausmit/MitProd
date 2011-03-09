@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.5 2010/03/18 20:21:01 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.6 2011/01/27 12:37:17 mhchan Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -154,12 +154,10 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
         tau->SetElectronTrack(trackMap_->GetMit(refToPtr(inTau->electronPreIDTrack())));
     }
 
-    const reco::PFTauTagInfo *tagInfo = inTau->pfTauTagInfoRef().get();
-
-    // add source calojet reference
-    if (jetMap_) {
-      tau->SetPFJet(jetMap_->GetMit(refToPtr(tagInfo->pfjetRef())));
-    }
+     // add source pfjet reference ( only filled since cmssw 311x )
+     if (jetMap_) {
+       tau->SetPFJet(jetMap_->GetMit(refToPtr(inTau->jetRef())));
+     }
 
     // add pf candidate references
     if (pfCandMap_) {
