@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.38 2011/03/01 17:29:59 mzanetti Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.39 2011/03/02 10:30:12 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -67,10 +67,12 @@ MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
 from MitProd.TreeFiller.FastJetCorrection_cff import *
 
 # Load the pileup energy density computed by fastjet 
-MitTreeFiller.PileupEnergyDensity.active = True
+#MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True        
+#MitTreeFiller.AKt5PFJets.Kt4PFJets.active = True
+#MitTreeFiller.AKt5PFJets.Kt6PFJets.active = True
+#MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True        
 # alternatively one can add a new collection
 #MitTreeFiller.AKt5PFJetsL1.active = True
 
@@ -87,7 +89,7 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #JetPlusTrackCorrectionsAntiKt5*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
-                                 l1FastJetCorrection *
+#                                 l1FastJetCorrection *
                                  daPrimaryVertexSequence
                                  )
 
