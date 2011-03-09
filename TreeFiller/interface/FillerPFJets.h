@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFJets.h,v 1.8 2011/03/01 14:43:45 mzanetti Exp $
+// $Id: FillerPFJets.h,v 1.9 2011/03/01 17:27:22 mzanetti Exp $
 //
 // FillerPFJets
 //
@@ -45,8 +45,11 @@ namespace mithep
       std::string     jetProbabilityBJetTagsName_;             //bjet algo discriminant
       std::string     jetBProbabilityBJetTagsName_;            //bjet algo discriminant
       std::string     simpleSecondaryVertexBJetTagsName_;      //bjet algo discriminant
+      std::string     simpleSecondaryVertexHighEffBJetTagsName_;      //bjet algo discriminant
+      std::string     simpleSecondaryVertexHighPurBJetTagsName_;      //bjet algo discriminant
       std::string     combinedSecondaryVertexBJetTagsName_;    //bjet algo discriminant
       std::string     combinedSecondaryVertexMVABJetTagsName_; //bjet algo discriminant
+      std::string     ghostTrackBJetTagsName_;                 //bjet algo discriminant      
       std::string     trackCountingHighEffBJetTagsName_;       //bjet algo discriminant
       std::string     trackCountingHighPurBJetTagsName_;       //bjet algo discriminant
       std::string     softMuonBJetTagsName_;                   //bjet algo discriminant        

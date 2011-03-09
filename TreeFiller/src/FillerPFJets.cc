@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.12 2011/03/01 14:43:45 mzanetti Exp $
+// $Id: FillerPFJets.cc,v 1.13 2011/03/01 17:27:22 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -48,10 +48,16 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
                    ("JetBProbabilityBJetTagsName","jetBProbabilityBJetTags")),   
   simpleSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("SimpleSecondaryVertexBJetTagsName","simpleSecondaryVertexBJetTags")),
+  simpleSecondaryVertexHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
+                   ("SimpleSecondaryVertexHighEffBJetTagsName","simpleSecondaryVertexHighEffBJetTags")),                   
+  simpleSecondaryVertexHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
+                   ("SimpleSecondaryVertexHighPurBJetTagsName","simpleSecondaryVertexHighPurBJetTags")),                   
   combinedSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("CombinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
   combinedSecondaryVertexMVABJetTagsName_(Conf().getUntrackedParameter<string>
                    ("CombinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
+  ghostTrackBJetTagsName_(Conf().getUntrackedParameter<string>
+                   ("GhostTrackBJetTagsName","ghostTrackBJetTags")),                                                         
   trackCountingHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("TrackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
   trackCountingHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
@@ -130,6 +136,8 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetTagCollection> hJetProbabilityBJetTags;
   Handle<reco::JetTagCollection> hJetBProbabilityBJetTags;
   Handle<reco::JetTagCollection> hSimpleSecondaryVertexBJetTags;
+  Handle<reco::JetTagCollection> hSimpleSecondaryVertexHighEffBJetTags;
+  Handle<reco::JetTagCollection> hSimpleSecondaryVertexHighPurBJetTags;
   Handle<reco::JetTagCollection> hCombinedSecondaryVertexBJetTags;
   Handle<reco::JetTagCollection> hCombinedSecondaryVertexMVABJetTags;
   Handle<reco::JetTagCollection> hTrackCountingHighEffBJetTags;
@@ -139,11 +147,14 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetTagCollection> hSoftMuonByPtBJetTags;
   Handle<reco::JetTagCollection> hSoftElectronByIP3dBJetTags;
   Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
+  Handle<reco::JetTagCollection> hGhostTrackBJetTags;
 
   if (bTaggingActive_) {
     GetProduct(jetProbabilityBJetTagsName_, hJetProbabilityBJetTags, event);    
-    GetProduct(jetBProbabilityBJetTagsName_, hJetBProbabilityBJetTags, event);    
-    GetProduct(simpleSecondaryVertexBJetTagsName_, hSimpleSecondaryVertexBJetTags, event);    
+    GetProduct(jetBProbabilityBJetTagsName_, hJetBProbabilityBJetTags, event);        
+    event.getByLabel(simpleSecondaryVertexBJetTagsName_,hSimpleSecondaryVertexBJetTags);
+    event.getByLabel(simpleSecondaryVertexHighEffBJetTagsName_,hSimpleSecondaryVertexHighEffBJetTags);
+    event.getByLabel(simpleSecondaryVertexHighPurBJetTagsName_,hSimpleSecondaryVertexHighPurBJetTags);
     GetProduct(combinedSecondaryVertexBJetTagsName_, hCombinedSecondaryVertexBJetTags, event);    
     GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
     GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
@@ -153,6 +164,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     GetProduct(softMuonByPtBJetTagsName_, hSoftMuonByPtBJetTags, event);   
     GetProduct(softElectronByIP3dBJetTagsName_, hSoftElectronByIP3dBJetTags, event);
     GetProduct(softElectronByPtBJetTagsName_, hSoftElectronByPtBJetTags, event);    
+    event.getByLabel(ghostTrackBJetTagsName_,hGhostTrackBJetTags);
   }
   
   const reco::PFJetCollection inJets = *(hJetProduct.product());  
@@ -236,8 +248,9 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     if (bTaggingActive_) {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
-      jet->SetSimpleSecondaryVertexBJetTagsDisc(
-        (*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
+//      jet->SetSimpleSecondaryVertexBJetTagsDisc((*(hSimpleSecondaryVertexBJetTags.product()))[jetBaseRef]);       
+      jet->SetSimpleSecondaryVertexHighEffBJetTagsDisc((*(hSimpleSecondaryVertexHighEffBJetTags.product()))[jetBaseRef]);       
+      jet->SetSimpleSecondaryVertexHighPurBJetTagsDisc((*(hSimpleSecondaryVertexHighPurBJetTags.product()))[jetBaseRef]);       
       jet->SetCombinedSecondaryVertexBJetTagsDisc(
         (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
       jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
@@ -251,6 +264,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       jet->SetSoftMuonByPtBJetTagsDisc((*(hSoftMuonByPtBJetTags.product()))[jetBaseRef]); 
       jet->SetSoftElectronByIP3dBJetTagsDisc((*(hSoftElectronByIP3dBJetTags.product()))[jetBaseRef]);
       jet->SetSoftElectronByPtBJetTagsDisc((*(hSoftElectronByPtBJetTags.product()))[jetBaseRef]); 
+//      jet->SetGhostTrackBJetTagsDisc((*(hGhostTrackBJetTags.product()))[jetBaseRef]);       
     }
 
     // get the Monte Carlo flavour matching information
