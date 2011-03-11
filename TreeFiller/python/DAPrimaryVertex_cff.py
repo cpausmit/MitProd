@@ -1,4 +1,4 @@
-# $Id: DAPrimaryVertex_cff.py,v 1.1 2011/03/02 10:26:31 mzanetti Exp $
+# $Id: DAPrimaryVertex_cff.py,v 1.2 2011/03/07 11:29:30 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -32,4 +32,6 @@ offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
     )
 )
 
-daPrimaryVertexSequence = cms.Sequence( offlinePrimaryVerticesDA )
+offlinePrimaryVerticesDABS = offlinePrimaryVerticesDA.clone(useBeamConstraint = True)
+
+daPrimaryVertexSequence = cms.Sequence( offlinePrimaryVerticesDA * offlinePrimaryVerticesDABS)
