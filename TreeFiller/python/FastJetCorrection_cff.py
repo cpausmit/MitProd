@@ -1,4 +1,4 @@
-# $Id: FastJetCorrection_cff.py,v 1.1 2011/02/04 16:31:53 mzanetti Exp $
+# $Id: FastJetCorrection_cff.py,v 1.2 2011/03/09 14:36:14 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,11 +8,13 @@ ak5PFJets.Rho_EtaMax = cms.double(4.5)
 from RecoJets.JetProducers.kt4PFJets_cfi import *
 kt6PFJets = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True ) 
 kt6PFJets.Rho_EtaMax = cms.double(4.5)
-from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
-#L1Fastjet.algorithm = cms.string('AK5Calo') #DUMMY needs to read an existing file 
-#L1Fastjet.era = cms.string('Spring10')      #DUMMY needs to read an existing file 
-#L1Fastjet.level = cms.string('L2Relative')  #DUMMY needs to read an existing file 
-#L1Fastjet.useCondDB = cms.untracked.bool(False) 
-#L1Fastjet.srcMedianPt = cms.InputTag('kt6PFJets','rho') 
 
-l1FastJetCorrection = cms.Sequence( ak5PFJets * kt6PFJets * ak5PFJetsL1 )
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+ak5PFJetsL1 = cms.EDProducer(
+    'PFJetCorrectionProducer',
+    src        = cms.InputTag('ak5PFJets'),
+    correctors = cms.vstring('ak5PFL1Fastjet')
+    )
+
+l1FastJetCorrectionSequence = cms.Sequence( ak5PFJets * kt6PFJets * ak5PFJetsL1 )
+
