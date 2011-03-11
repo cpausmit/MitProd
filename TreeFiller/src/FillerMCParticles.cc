@@ -1,4 +1,4 @@
-// $Id: FillerMCParticles.cc,v 1.20 2010/01/07 11:04:32 bendavid Exp $
+// $Id: FillerMCParticles.cc,v 1.21 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -285,7 +285,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         
         if (verbose_>1) {
 	  printf("trackId = %i\n",theSimTrack.trackId());
-          printf("Tracking particle has %i SimTracks\n",iM->g4Tracks().size());
+          printf("Tracking particle has %i SimTracks\n",(int)iM->g4Tracks().size());
           if (iM->g4Tracks().size()>1) {
             for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
                  iST != iM->g4Tracks().end(); ++iST) {

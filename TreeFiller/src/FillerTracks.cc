@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.39 2010/05/10 15:14:19 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.40 2010/06/25 15:17:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -111,7 +111,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     GetProduct(edmSimAssocName_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
     if (verbose_>1)
-      printf("SimAssociation Map Size = %i\n",simAssociation.size());
+      printf("SimAssociation Map Size = %i\n",(int)simAssociation.size());
   }
   
   // set up associator for Track-Ecal associations
