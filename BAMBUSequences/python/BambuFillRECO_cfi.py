@@ -70,7 +70,7 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-#MitTreeFiller.Kt4PFJets.active = True
+MitTreeFiller.Kt4PFJets.active = True
 MitTreeFiller.Kt6PFJets.active = True
 MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True        
 # alternatively one can add a new collection
