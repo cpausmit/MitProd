@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.41 2011/03/09 18:13:36 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.42 2011/03/11 17:15:59 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -71,12 +71,19 @@ MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
 #MitTreeFiller.Kt4PFJets.active = True
-#MitTreeFiller.Kt6PFJets.active = True
+MitTreeFiller.Kt6PFJets.active = True
 MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True        
 # alternatively one can add a new collection
 #MitTreeFiller.AKt5PFJetsL1.active = True
 
 from MitProd.TreeFiller.DAPrimaryVertex_cff import *
+MitTreeFiller.DAPrimaryVertexes.active = True
+MitTreeFiller.DAPrimaryVertexesBS.active = True
+MitTreeFiller.Electrons.pvEdmName = 'offlinePrimaryVerticesDA'
+MitTreeFiller.Electrons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
+MitTreeFiller.Muons.pvEdmName = 'offlinePrimaryVerticesDA'
+MitTreeFiller.Muons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
+
 
 from MitProd.TreeFiller.newbtagging_cff import *
 MitTreeFiller.AKt5PFJets.bTaggingActive = True

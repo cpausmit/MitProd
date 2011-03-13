@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.87 2011/03/09 18:13:36 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.88 2011/03/11 18:47:10 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -191,7 +191,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     DAPrimaryVertexes = cms.untracked.PSet(
-        active        = cms.untracked.bool(True),
+        active        = cms.untracked.bool(False),
         mitName       = cms.untracked.string('DAPrimaryVertexes'),
         edmName       = cms.untracked.string('offlinePrimaryVerticesDA'),    
         vertexMapName = cms.untracked.string('PrimaryVertexDAMap'),
@@ -200,7 +200,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     DAPrimaryVertexesBS = cms.untracked.PSet(
-        active        = cms.untracked.bool(True),
+        active        = cms.untracked.bool(False),
         mitName       = cms.untracked.string('DAPrimaryVertexesBS'),
         edmName       = cms.untracked.string('offlinePrimaryVerticesDABS'),    
         vertexMapName = cms.untracked.string('PrimaryVertexDABSMap'),
@@ -479,6 +479,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         staVtxTrackMapName  = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
         trackerTrackMapName = cms.untracked.string('TracksMapName'),
         muonMapName         = cms.untracked.string('MuonMapName'),
+        pvEdmName           = cms.untracked.string('PrimaryVertexes'),
+        pvBSEdmName         = cms.untracked.string('PrimaryVertexesBS'),        
         fillerType          = cms.untracked.string('FillerMuons')
     ),
                    
@@ -507,6 +509,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         HcalJurassicIsolationName        = cms.untracked.string('eleIsoFromDepsHcalFromHits'),
         TrackerIsolationName             = cms.untracked.string('eleIsoFromDepsTk'),
         gsfTrackAssocName                = cms.untracked.string(''),
+        pvEdmName                        = cms.untracked.string('PrimaryVertexes'),
+        pvBSEdmName                      = cms.untracked.string('PrimaryVertexesBS'),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
     
