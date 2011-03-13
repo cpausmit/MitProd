@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.50 2010/11/22 16:55:51 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.51 2011/01/27 21:58:02 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -56,7 +56,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVerticesWithBS")),  
+  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -265,45 +265,69 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
       reco::TransientTrack ttckf;
 
-      reco::Vertex thevtx = pvCol->at(0);
-      reco::Vertex thevtxbs = pvBSCol->at(0);
+      reco::Vertex thevtx;// = pvCol->at(0);
+      reco::Vertex thevtxbs;// = pvBSCol->at(0);
+
+      double mindzvtx = 9999.;
+      for (uint ivtx = 0; ivtx<pvCol->size(); ++ivtx) {
+        reco::Vertex avtx = pvCol->at(ivtx);
+        double dzvtx = std::abs(iM->gsfTrack()->dz(avtx.position()));
+        if (dzvtx<mindzvtx) {
+          mindzvtx = dzvtx;
+          thevtx = avtx;
+        }
+      }
+
+      double mindzvtxbs = 9999.;
+      for (uint ivtxbs = 0; ivtxbs<pvCol->size(); ++ivtxbs) {
+        reco::Vertex avtxbs = pvBSCol->at(ivtxbs);
+        double dzvtxbs = std::abs(iM->gsfTrack()->dz(avtxbs.position()));
+        if (dzvtxbs<mindzvtxbs) {
+          mindzvtxbs = dzvtxbs;
+          thevtxbs = avtxbs;
+        }
+      }
+
 
       //check if closest ctf track is included in PV and if so, remove it before computing impact parameters and uncertainties
       if (iM->closestCtfTrackRef().isNonnull()) {
         ttckf = transientTrackBuilder->build(iM->closestCtfTrackRef());
 
-        if (find(thevtx.tracks_begin(), thevtx.tracks_end(), ttckf.trackBaseRef()) != thevtx.tracks_end()) {
-           GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
-           KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
-           GlobalError err(thevtx.covariance());
-           VertexState vState(linP, err);
-           KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-        
-           std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-           CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
-           const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+        if (0) { //don't refit vertex for now
+      
+          if (find(thevtx.tracks_begin(), thevtx.tracks_end(), ttckf.trackBaseRef()) != thevtx.tracks_end()) {
+            GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
+            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
+            GlobalError err(thevtx.covariance());
+            VertexState vState(linP, err);
+            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+          
+            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
+            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
 
-           if (newCachingVertex.isValid()) {
-             const TransientVertex &tvtx = newCachingVertex;
-             thevtx = tvtx;
-           }
-        }
+            if (newCachingVertex.isValid()) {
+              const TransientVertex &tvtx = newCachingVertex;
+              thevtx = tvtx;
+            }
+          }
 
-        if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), ttckf.trackBaseRef()) != thevtxbs.tracks_end()) {
-           GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
-           KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
-           GlobalError err(thevtxbs.covariance());
-           VertexState vState(linP, err);
-           KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-        
-           std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-           CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
-           const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+          if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), ttckf.trackBaseRef()) != thevtxbs.tracks_end()) {
+            GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
+            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
+            GlobalError err(thevtxbs.covariance());
+            VertexState vState(linP, err);
+            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+          
+            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
+            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
 
-           if (newCachingVertex.isValid()) {
-             const TransientVertex &tvtx = newCachingVertex;
-             thevtxbs = tvtx;
-           }
+            if (newCachingVertex.isValid()) {
+              const TransientVertex &tvtx = newCachingVertex;
+              thevtxbs = tvtx;
+            }
+          }
         }
 
       }

@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.36 2010/11/22 16:55:51 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.37 2011/01/27 21:57:50 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -37,7 +37,7 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVerticesWithBS")),
+  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),
   globalTrackMap_(0),
   standaloneTrackMap_(0),
   standaloneVtxTrackMap_(0),
@@ -222,41 +222,65 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     if (iM->track().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
 
-      reco::Vertex thevtx = pvCol->at(0);
-      reco::Vertex thevtxbs = pvBSCol->at(0);
+      reco::Vertex thevtx;// = pvCol->at(0);
+      reco::Vertex thevtxbs;// = pvBSCol->at(0);
 
-      if (find(thevtx.tracks_begin(), thevtx.tracks_end(), tt.trackBaseRef()) != thevtx.tracks_end()) {
-          GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
-          KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
-          GlobalError err(thevtx.covariance());
-          VertexState vState(linP, err);
-          KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-      
-          std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-          CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
-          const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
-
-          if (newCachingVertex.isValid()) {
-            const TransientVertex &tvtx = newCachingVertex;
-            thevtx = tvtx;
-          }
+      double mindzvtx = 9999.;
+      for (uint ivtx = 0; ivtx<pvCol->size(); ++ivtx) {
+        reco::Vertex avtx = pvCol->at(ivtx);
+        double dzvtx = std::abs(iM->track()->dz(avtx.position()));
+        if (dzvtx<mindzvtx) {
+          mindzvtx = dzvtx;
+          thevtx = avtx;
+        }
       }
 
-      if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), tt.trackBaseRef()) != thevtxbs.tracks_end()) {
-          GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
-          KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
-          GlobalError err(thevtxbs.covariance());
-          VertexState vState(linP, err);
-          KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-      
-          std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-          CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
-          const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+      double mindzvtxbs = 9999.;
+      for (uint ivtxbs = 0; ivtxbs<pvCol->size(); ++ivtxbs) {
+        reco::Vertex avtxbs = pvBSCol->at(ivtxbs);
+        double dzvtxbs = std::abs(iM->track()->dz(avtxbs.position()));
+        if (dzvtxbs<mindzvtxbs) {
+          mindzvtxbs = dzvtxbs;
+          thevtxbs = avtxbs;
+        }
+      }
 
-          if (newCachingVertex.isValid()) {
-            const TransientVertex &tvtx = newCachingVertex;
-            thevtxbs = tvtx;
-          }
+      if (0) { //don't refit vertex for now
+      
+        if (find(thevtx.tracks_begin(), thevtx.tracks_end(), tt.trackBaseRef()) != thevtx.tracks_end()) {
+            GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
+            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
+            GlobalError err(thevtx.covariance());
+            VertexState vState(linP, err);
+            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+        
+            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
+            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+            if (newCachingVertex.isValid()) {
+              const TransientVertex &tvtx = newCachingVertex;
+              thevtx = tvtx;
+            }
+        }
+
+        if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), tt.trackBaseRef()) != thevtxbs.tracks_end()) {
+            GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
+            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
+            GlobalError err(thevtxbs.covariance());
+            VertexState vState(linP, err);
+            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+        
+            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
+            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
+            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
+
+            if (newCachingVertex.isValid()) {
+              const TransientVertex &tvtx = newCachingVertex;
+              thevtxbs = tvtx;
+            }
+        }
+      
       }
 
       //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
