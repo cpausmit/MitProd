@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.20 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerConversionsDecay.cc,v 1.1 2010/11/22 16:53:31 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -8,6 +8,15 @@
 #include "MitAna/DataTree/interface/DecayParticleCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
 using namespace std;
 using namespace edm;
@@ -78,6 +87,16 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
   stableData_->Delete();
   conversionMap_->Reset();
 
+  //get beamspot
+  edm::Handle<reco::BeamSpot> bsHandle;
+  event.getByLabel("offlineBeamSpot", bsHandle);
+  const reco::BeamSpot &thebs = *bsHandle.product();
+
+  //transient track producer
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+
   Handle<reco::ConversionCollection> hConversionProduct;
   GetProduct(edmName_, hConversionProduct, event);
 
@@ -132,6 +151,22 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
         const reco::TrackBaseRef &trackRef = trackRefs.at(i);
         const reco::Track &refittedTrack = refittedTracks.at(i);
         
+        //fill dzError at beamline (take from refitted first track)
+        if (i==0) {
+          const reco::TransientTrack &tt = transientTrackBuilder->build(refittedTrack); 
+          AnalyticalImpactPointExtrapolator extrapolator(tt.field());
+          const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(thebs.position()));
+          double zbeamline = bsstate.globalPosition().z();
+          double zbeamlineerr = sqrt((bsstate.cartesianError().matrix())(2,2));
+
+          outConversion->SetDzBeamlineError(zbeamlineerr);
+
+          if (0) {
+            printf("zbeamline = %5f, zbeamlineerr = %5f\n",zbeamline,zbeamlineerr);
+          }
+        }
+        
+
         const mithep::Particle *daughter = GetMitParticle(mitedm::refToBaseToPtr(trackRef));
         
         mithep::StableData *outStable = stableData_->Allocate();
