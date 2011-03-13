@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.20 2010/06/25 15:16:35 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.21 2010/09/19 23:47:15 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -142,6 +142,9 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
     outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
+    //calo position
+    outPhoton->SetCaloPosXYZ(iP->caloPosition().x(),iP->caloPosition().y(),iP->caloPosition().z());
+    
     // make links to conversions
     if (iP->hasConversionTracks() && conversionMap_) {
       reco::ConversionRefVector conversionRefs = iP->conversions();
