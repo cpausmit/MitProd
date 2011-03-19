@@ -337,7 +337,7 @@ for line in os.popen(cmd).readlines():  # run command
                   %(database,cmsswPy,fullLine)
             if len(names) == 6:
                 dbs = names[5]
-                dbs = 'https://cmsdbsprod.cern.ch:8443/cms_dbs_' + dbs + '/servlet/DBSServlet'
+                dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + '/servlet/DBSServlet'
                 print '   dbs: ' + dbs + '\n'
             else:
                 print ''
@@ -366,7 +366,7 @@ if os.path.exists(lfnFile):
 
 # recreate if requested or not existing
 if not useExistingLfns or not os.path.exists(lfnFile):
-    cmd = 'input.py --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
+    cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
     print ' Input: ' + cmd + '\n'
     os.system(cmd)
 

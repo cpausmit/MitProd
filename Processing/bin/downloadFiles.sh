@@ -41,7 +41,7 @@ fList=`head -$last $condorOutput/$book/$dataset/fileList.txt | tail -$nFilesPerJ
 echo LIST $fList
 
 # spread the jobs out by a bit
-sleep $first
+#sleep $first
 
 # loop through our list now
 for file in $fList

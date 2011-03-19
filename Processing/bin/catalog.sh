@@ -3,7 +3,7 @@
 # Perform a number of cataloging action on a bunch of datasets
 #---------------------------------------------------------------------------------------------------
 H=`basename $0`
-timeOut=40000
+timeOut=400
 
 catalog=0
 extract=0

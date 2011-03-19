@@ -27,15 +27,17 @@ echo "   condor output: $condorOutput"
 echo "   only missing : $onlyMissing"
 
 mkdir -p $condorOutput/$book/$dataset
-mkdir -p       $target/$book/$dataset
-chmod a+w      $target/$book/$dataset
+makedir --exe  $target/$book/$dataset
 script=`which downloadFiles.sh`
 
 # cleanup our lists and remake a clean one
+#echo "rm -f $condorOutput/$book/$dataset/fileList*.txt*"
 rm -f $condorOutput/$book/$dataset/fileList*.txt*
 
 # make list of all local files
-if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || [ "`echo $target | grep /castor/cern.ch`" != "" ] )
+if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && \
+ ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || \
+   [ "`echo $target | grep /castor/cern.ch`" != "" ] )
 then
   opt="--simple"
 else
@@ -128,7 +130,17 @@ elif [ $nFiles -lt $nCopyProcs ]
 then
   nCopyProcs=$nFiles
 fi
+# how many files per job?
 nFilesPerJob=$(( $nFiles/$nCopyProcs ))
+nFilesTmp=$(( $nFilesPerJob*$nCopyProcs ))
+if [ $nFilesPerJob == 1 ] && [ $nFiles -gt $nCopyProcs ]
+then
+  nFilesPerJob=2
+elif [ $nFilesTmp -lt $nFiles ]
+then
+  nFilesPerJob=$(( $nFilesPerJob+1 ))
+fi
+
 echo "   n files all  : $nFiles"
 echo "   n files/proc : $nFilesPerJob"
 
@@ -144,7 +156,7 @@ then
 fi
 
 # loop over the condor jobs and submit them
-while [ $i -le $nCopyProcs ]
+while [ $i -le $nCopyProcs ] && [ $last -le $nFiles ]
 do
   if [ $i == $nCopyProcs ]
   then

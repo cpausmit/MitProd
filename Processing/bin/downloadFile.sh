@@ -26,7 +26,8 @@ pwd
 pwd=`pwd`
 
 export SCRAM_ARCH=slc5_ia32_gcc434
-export VO_CMS_SW_DIR=/osg/app/cmssoft/cms
+#export VO_CMS_SW_DIR=/osg/app/cmssoft/cms
+export VO_CMS_SW_DIR=~cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
 cd     $HOME/cms/cmssw/017/CMSSW_3_9_5_patch1/src
 eval   `scram runtime -sh`
@@ -35,7 +36,7 @@ cd $pwd
 
 # make storage Urls for target and source
 
-targetUrl=$target
+targetUrl="file:///$target"
 if   [ "`echo $target | grep /pnfs/cmsaf.mit.edu`" != "" ]
 then
   storageEle="se01.cmsaf.mit.edu"
@@ -46,9 +47,11 @@ then
   storageEle='srm-cms.cern.ch'
   storagePath='/srm/managerv2?SFN='
   targetUrl="srm://${storageEle}:8443${storagePath}$target"
+else
+  targetUrl=""
 fi
 
-sourceUrl=$dataFile
+sourceUrl="file:///$dataFile"
 if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" != "" ]
 then
   storageEle="se01.cmsaf.mit.edu"
@@ -62,7 +65,13 @@ then
 fi
 
 echo " "; echo "Starting download now"; echo " "
-echo "srm-copy $sourceUrl $targetUrl"
-srm-copy $sourceUrl $targetUrl
+if   [ "$targetUrl" != "" ]
+then
+  echo "srmcp -srm_protocol_version=2 $sourceUrl $targetUrl"
+  srmcp -srm_protocol_version=2 $sourceUrl $targetUrl
+else
+  echo "dccp dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target"
+  dccp dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target
+fi
 
 exit 0

@@ -30,6 +30,8 @@ while read line
 do
   id=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   runTime=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
+  dir=`echo $line | tr -s ' ' | cut -d ' ' -f 4`
+  file=`echo $line | tr -s ' ' | cut -d ' ' -f 5`
   echo "$id $runTime --> $line"
   if [ $runTime -gt $TIMEOUT ]
   then
@@ -37,6 +39,7 @@ do
     if [ "$EXEC" == "exec" ]
     then
       condor_rm $id
+      echo "remove --exe $dir/$file"
     fi
   fi
 done

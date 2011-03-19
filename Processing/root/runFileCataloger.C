@@ -1,4 +1,4 @@
-// $Id: runFileCataloger.C,v 1.1.2.1 2010/06/05 01:49:22 paus Exp $
+// $Id: runFileCataloger.C,v 1.2 2010/06/05 02:36:28 paus Exp $
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <TROOT.h>
@@ -11,7 +11,8 @@
 #endif
 
 using namespace mithep;
-const TString slash = "/";
+const TString slash      = "/";
+const TString dCacheDoor = "dcap://t2srv0012.cmsaf.mit.edu/";
 
 void catalogFile(const char *dir, const char *file);
 void reset();
@@ -50,7 +51,7 @@ void catalogFile(const char *dir, const char *file)
   if (fileName.Index("castor/cern.ch") != -1)
     fileName = TString("castor:") + fileName;
   if (fileName.Index("pnfs/cmsaf.mit.edu") != -1) {
-    fileName = TString("dcap://t2srv0005.cmsaf.mit.edu/") + fileName;
+    fileName = dCacheDoor + fileName;
     gMod->SetMetaDataString(fileName.Data());
   }
   

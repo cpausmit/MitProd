@@ -7,6 +7,7 @@ import os,sys,types,string,getopt
 # Define string to explain usage of the script
 usage =  "Usage: input.py --dataset=<name>\n"
 usage += "                --option=[ lfn, xml ]\n"
+usage += "                [ --dbs= ]\n"
 usage += "                --help\n"
 
 def printLine(option,nEvents,block,lfn,iJob):
@@ -18,7 +19,7 @@ def printLine(option,nEvents,block,lfn,iJob):
 
     
 # Define the valid options which can be specified and check out the command line
-valid = ['db=','dataset=','option=','help']
+valid = ['db=','dbs=','dataset=','option=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -31,6 +32,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 db      = None
+dbs     = None
 dataset = None
 option  = 'lfn'
 
@@ -41,6 +43,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == "--db":
         db      = arg
+    if opt == "--dbs":
+        dbs     = arg
     if opt == "--dataset":
         dataset = arg
     if opt == "--option":
@@ -56,8 +60,13 @@ if dataset == None:
 #---------------------------------------------------------------------------------------------------
 if not db:
     # find relevant blocks
-    cmd  = "dbs search --query=\"find block where dataset=" + dataset + "\""
+    if dbs != '':
+        cmd = "dbs search --url=" + dbs + " --query=\"find block where dataset=" + dataset + "\""
+    else:
+        cmd = "dbs search --query=\"find block where dataset=" + dataset + "\""
     cmd += "| grep \# | sort"
+    # never print #print "cmd: " + cmd
+
     blocks = []
     iJob = 1
     if option == 'xml':
@@ -66,7 +75,11 @@ if not db:
         line = line[:-1]
         blocks.append(line)
     for block in blocks:
-        cmd  = "dbs search --query=\"find file,file.numevents where block=" + block + "\""
+        if dbs != '':
+            cmd = "dbs search --url=" + dbs + \
+            " --query=\"find file,file.numevents where block=" + block + "\""
+        else:
+            cmd = "dbs search --query=\"find file,file.numevents where block=" + block + "\""
         cmd += "| grep store | sort"
         for line in os.popen(cmd).readlines():
             line = line[:-1]

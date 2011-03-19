@@ -190,14 +190,11 @@ if cmssw != '':
 
 print ''
 
-if status == 1:
-    print 'BOOK           SAMPLE                           All    Done   ToDo'
-    print '------------------------------------------------------------------'
-
 join       = 0
 mitDataset = ""
 fullLine   = ""
 bSlash     = "\\";
+printOpt = "-header"
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     #print 'Line: "' + line + '"'
@@ -274,11 +271,12 @@ for line in os.popen(cmd).readlines():  # run command
 
         # test download request
         if status != -1:
-            cmd = 'status.sh ' + mitCfg + '/' + version + ' ' + mitDataset
+            cmd = 'status.sh ' + mitCfg + '/' + version + ' ' + mitDataset + ' ' + printOpt
             if exe == 1:
                 rc = os.system(cmd)
             else:
                 print " " + cmd
+            printOpt = ""
 
         # test download request
         if local != "-" and download != -1:

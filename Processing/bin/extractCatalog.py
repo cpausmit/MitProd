@@ -20,9 +20,6 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
 
-# global (are we working at the Tier-2)
-tier2 = False
-
 def move(srcFile,source,target):
     # determine whether we are at MIT
     tier2 = re.search('cmsaf.mit.edu',target) 
@@ -40,7 +37,7 @@ def move(srcFile,source,target):
     else:
         status = os.system(cmd)
 
-    return status
+    return tier2
 
   
 #===================================================================================================
@@ -69,6 +66,9 @@ except getopt.GetoptError, ex:
     print usage
     print str(ex)
     sys.exit(1)
+
+# global (are we working at the Tier-2)
+tier2 = False
 
 # --------------------------------------------------------------------------------------------------
 # Get all parameters for the production
@@ -137,7 +137,7 @@ if re.search('crab_0',dataset):
         g = f[1].split("/")
         originalFile = offDataset + '_000_%d_1.root'%index
         if debug == 1:
-            print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[1]))
+            print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[2]))
         files[originalFile] = g[-1] 
         nevts[originalFile] = int(f[2])
         index += 1
@@ -338,7 +338,7 @@ for line in os.popen(cmd).readlines():  # run command
         dir      = "/".join(g)
         if nProc == nevts[file]:
             ##print ' complete: ' + file + '  -->  ' + files[file] + '  %d /%d' %(nProc,nevts[file])
-            move(srcFile,fullFile,dir + '/' + files[file])
+            tier2 = move(srcFile,fullFile,dir + '/' + files[file])
             # modify the catalog entry accordingly
             f[0] = dir + '/' + files[file]
         else:
@@ -354,6 +354,9 @@ for line in os.popen(cmd).readlines():  # run command
 if test == 0:
     fileOutput.close()
 
+# offical production and tier2?
+if debug:
+    print " Official %d   tier2: %d"%(official,tier2)
 # Moving all files
 if official == 1:
     if tier2:
