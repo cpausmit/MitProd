@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.88 2011/03/11 18:47:10 mzanetti Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.89 2011/03/13 22:16:37 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -918,7 +918,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     Kt4PFJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(False),
+        active                        = cms.untracked.bool(True),
         flavorMatchingActive          = cms.untracked.bool(False),
         bTaggingActive                = cms.untracked.bool(False),
         jetToVertexActive             = cms.untracked.bool(False),
@@ -939,7 +939,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     Kt6PFJets = cms.untracked.PSet(
-        active                        = cms.untracked.bool(False),
+        active                        = cms.untracked.bool(True),
         flavorMatchingActive          = cms.untracked.bool(False),
         bTaggingActive                = cms.untracked.bool(False),
         jetToVertexActive             = cms.untracked.bool(False),
