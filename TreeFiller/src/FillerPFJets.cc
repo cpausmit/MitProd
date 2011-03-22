@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.13 2011/03/01 17:27:22 mzanetti Exp $
+// $Id: FillerPFJets.cc,v 1.14 2011/03/09 17:32:53 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -228,9 +228,11 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       jet->SetBeta((*it_jv_beta));      
     }
 
+    // fill the area anyway 
+    jet->SetJetArea(inJet->jetArea());
+
     //Jet Corrections
     if (fastJetCorrectionsActive_) {
-      jet->SetJetArea(inJet->jetArea());
       double l1Scale = (inJet->pt() - (*rho)*inJet->jetArea())/inJet->pt();
       l1Scale = (l1Scale>0) ? l1Scale : 0.0;
       jet->SetL1OffsetCorrectionScale( l1Scale);
