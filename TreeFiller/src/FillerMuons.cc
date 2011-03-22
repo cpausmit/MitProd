@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.37 2011/01/27 21:57:50 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.38 2011/03/13 22:16:08 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -236,7 +236,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       }
 
       double mindzvtxbs = 9999.;
-      for (uint ivtxbs = 0; ivtxbs<pvCol->size(); ++ivtxbs) {
+      for (uint ivtxbs = 0; ivtxbs<pvBSCol->size(); ++ivtxbs) {
         reco::Vertex avtxbs = pvBSCol->at(ivtxbs);
         double dzvtxbs = std::abs(iM->track()->dz(avtxbs.position()));
         if (dzvtxbs<mindzvtxbs) {
@@ -345,7 +345,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       }
 
     }
-    
+
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
     outMuon->SetNMatches   (iM->numberOfMatches());
