@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.1 2010/11/22 16:53:31 bendavid Exp $
+// $Id: FillerConversionsDecay.cc,v 1.2 2011/03/13 22:15:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -17,6 +17,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+
 
 using namespace std;
 using namespace edm;
@@ -104,6 +106,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
         
   const reco::ConversionCollection inConversions = *(hConversionProduct.product());  
   
+
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {
     
@@ -117,6 +120,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
   
     const reco::Vertex &vtx = inConversion->conversionVertex();
     ThreeVector vtxPos(vtx.x(),vtx.y(),vtx.z());
+    GlobalPoint vtxPoint(vtx.x(),vtx.y(),vtx.z());
     
     double dlz = vtxPos.z()*TMath::Abs(p4Fitted.Pz())/p4Fitted.Pz();
     ThreeVector momPerp(p4Fitted.Px(),p4Fitted.Py(),0);
@@ -145,24 +149,37 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     }
     
     //fill daughters
+    double zbeamlineerr = -99.;
     if (stablePartMaps_.size() && trackRefs.size()==2 && refittedTracks.size()==2) {
       for (uint i=0; i<trackRefs.size(); ++i) {
         
         const reco::TrackBaseRef &trackRef = trackRefs.at(i);
         const reco::Track &refittedTrack = refittedTracks.at(i);
         
-        //fill dzError at beamline (take from refitted first track)
-        if (i==0) {
-          const reco::TransientTrack &tt = transientTrackBuilder->build(refittedTrack); 
-          AnalyticalImpactPointExtrapolator extrapolator(tt.field());
-          const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(tt.impactPointState(), RecoVertex::convertPos(thebs.position()));
-          double zbeamline = bsstate.globalPosition().z();
-          double zbeamlineerr = sqrt((bsstate.cartesianError().matrix())(2,2));
+        //fill dzError at beamline (take from refitted first track normally)
+        if (zbeamlineerr<0.) {
+          const reco::TransientTrack &tt = transientTrackBuilder->build(refittedTrack);
+          //null b-field
+          const UniformMagneticField nullField(0.0); 
+          TransverseImpactPointExtrapolator extrapolator(&nullField);
 
-          outConversion->SetDzBeamlineError(zbeamlineerr);
+          //const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(tt.stateOnSurface(vtxPoint), RecoVertex::convertPos(thebs.position()));
+          const FreeTrajectoryState &initialfts = tt.initialFreeState();
+          const GlobalTrajectoryParameters trackgtp(initialfts.position(),initialfts.momentum(),initialfts.charge(),&nullField);
+          const FreeTrajectoryState trackfts(trackgtp,initialfts.cartesianError(),initialfts.curvilinearError());
+          const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(trackfts, RecoVertex::convertPos(thebs.position()));
 
-          if (0) {
-            printf("zbeamline = %5f, zbeamlineerr = %5f\n",zbeamline,zbeamlineerr);
+          if (bsstate.isValid()) {
+            double zbeamline = bsstate.globalPosition().z();
+            zbeamlineerr = sqrt((bsstate.cartesianError().matrix())(2,2));
+            if (0) {
+              math::XYZVector mom = inConversion->refittedPairMomentum();
+              double zbeamlineconv = (vtx.z()) - ((vtx.x()-thebs.position().x())*mom.x()+(vtx.y()-thebs.position().y())*mom.y())/mom.rho() * mom.z()/mom.rho();
+
+              double zbeamlinetrk = (refittedTrack.vertex().z()) - ((refittedTrack.vertex().x()-thebs.position().x())*refittedTrack.momentum().x()+(refittedTrack.vertex().y()-thebs.position().y())*refittedTrack.momentum().y())/refittedTrack.momentum().rho() * refittedTrack.momentum().z()/refittedTrack.momentum().rho();
+
+              printf("zbeamlineconv = %5f, zbeamlinetrk = %5f, zbeamline = %5f, zbeamlineerr = %5f\n",zbeamlineconv,zbeamlinetrk,zbeamline,zbeamlineerr);
+            }
           }
         }
         
@@ -184,6 +201,8 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
         outConversion->AddDaughterData(outStable);
       }
     }
+
+    outConversion->SetDzBeamlineError(zbeamlineerr);
     
     reco::ConversionRef theRef(hConversionProduct, inConversion-inConversions.begin());
     conversionMap_->Add(theRef, outConversion);

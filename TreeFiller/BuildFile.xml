@@ -28,6 +28,7 @@
 <use   name="RecoVertex/GaussianSumVertexFit"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoEgamma/EgammaTools"/>
+<use   name="MagneticField/UniformEngine"/>
 <use   name="root"/>
 <use   name="MitCommon/MathTools"/>
 <use   name="MitCommon/OptIO"/>
