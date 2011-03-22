@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.45 2011/03/22 16:52:37 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.46 2011/03/22 19:11:06 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -70,7 +70,6 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-MitTreeFiller.Kt4PFJets.active = True
 MitTreeFiller.Kt4PFJetsL1.active = True
 MitTreeFiller.AKt5PFJetsL1.active = True
 
