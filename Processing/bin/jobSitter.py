@@ -197,7 +197,7 @@ for line in os.popen(cmd).readlines():  # run command
 
 # Process the crab tasks determined to be relevant in the last query
 print '\n=============================================================================='
-print ' Process crab task list (please wait, crab commands are first fully parsed)\n'
+print ' Process crab task list\n'
 i = 0
 for crabTask in crabTasks:
 
@@ -262,7 +262,7 @@ for crabTask in crabTasks:
     if extend == 1:
 	cmd = 'crab -extend -c ' + crabTask.tag
         print '\n------------------------------------------------------------------------------'
-        print '  --> EXTEND ' + crabTask.tag + ' -- wait crab commands first fully parsed -- ' \
+        print '  --> EXTEND ' + crabTask.tag + ' -- ' \
               + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
               + '\n       -> ' + storageEle \
               + '\n       -> ' + storagePath
@@ -271,7 +271,7 @@ for crabTask in crabTasks:
         os.system(cmd)
 
     print '\n------------------------------------------------------------------------------'
-    print '  --> STATUS ' + crabTask.tag + ' -- wait crab commands first fully parsed -- ' \
+    print '  --> STATUS ' + crabTask.tag + ' -- ' \
           + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
           + '\n       -> ' + storageEle \
           + '\n       -> ' + storagePath
@@ -347,7 +347,7 @@ for crabTask in crabTasks:
 
     cmd = 'crab -getoutput -continue ' + crabTask.tag
     print '\n------------------------------------------------------------------------------'
-    print '  --> GETOUTPUT ' + crabTask.tag + ' -- wait crab commands first fully parsed -- ' \
+    print '  --> GETOUTPUT ' + crabTask.tag + ' -- ' \
           + '\n       -> ' + dataset \
           + '\n       -> ' + storageEle \
           + '\n       -> ' + storagePath

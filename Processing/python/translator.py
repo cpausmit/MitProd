@@ -90,11 +90,18 @@ class Translator:
         return newString
 
     def selectPreferred(self):
-        if re.search('T2_US_MIT',self.allSites):
-            self.preferredSites = 'T2_US_MIT'
+        preferredSiteList = ['T2_US_MIT','T2_US_UCSD']
+        self.preferredSites = ''
+        for site in preferredSiteList:
+            if re.search(site,self.allSites):
+                if self.preferredSites != '':
+                    self.preferredSites = self.preferredSites + ','
+                self.preferredSites = self.preferredSites + site
+     
+        if self.preferredSites != '':
             print ' '
             print '         ' + self.allSites
-            print ' INFO -- found a preferred site in the list. Reducing to preferred sites.'
+            print ' INFO -- ' + self.preferredSites + ' found a preferred site (reducing).'
             print ' '
         else:
             #print ' ' 

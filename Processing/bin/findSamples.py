@@ -81,7 +81,7 @@ def cleanupCompletedList(ongoingDsetList,completedDsetList):
 #===================================================================================================
 # Define string to explain usage of the script
 usage  = "\nUsage: findSamples.py --mitCfg=<name>\n"
-usage += "                      --version=<version>\n"
+usage += "                      --version=<version> [ default: MIT_VERS ]\n"
 usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
 usage += "                      --download=<int: -1,0,1>\n"
@@ -108,7 +108,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 mitCfg          = 'filefi'
-version         = '018'
+version         = os.environ['MIT_VERS']
 cmssw           = ''
 pattern         = ''
 cmsswCfg        = 'cmssw.cfg'

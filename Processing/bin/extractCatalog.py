@@ -135,7 +135,7 @@ if re.search('crab_0',dataset):
     for line in fileInput:
         f = line.split(" ")
         g = f[1].split("/")
-        originalFile = offDataset + '_000_%d_1.root'%index
+        originalFile = offDataset + '_000_%d'%index
         if debug == 1:
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[2]))
         files[originalFile] = g[-1] 
@@ -336,6 +336,12 @@ for line in os.popen(cmd).readlines():  # run command
         file     = g[-1]
         g        = g[:-2]
         dir      = "/".join(g)
+
+        # determine lookup key
+        g        = file.split("_");
+        file     = "_".join(g[0:-2])
+
+        #print " nProc: %d  nevts[file]  %d"%(nProc,nevts[file])
         if nProc == nevts[file]:
             ##print ' complete: ' + file + '  -->  ' + files[file] + '  %d /%d' %(nProc,nevts[file])
             tier2 = move(srcFile,fullFile,dir + '/' + files[file])
@@ -364,6 +370,9 @@ if official == 1:
         print ' CMD: ' + cmd
         status = os.system(cmd)
         cmd = "ssh paus@cgate.mit.edu source " + srcFile
+        print ' CMD: ' + cmd
+        status = os.system(cmd)
+        cmd = "ssh paus@cgate.mit.edu rm " + srcFile
         print ' CMD: ' + cmd
         status = os.system(cmd)
     # Removing the source file once we are done

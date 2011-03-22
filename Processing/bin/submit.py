@@ -566,7 +566,7 @@ for subTask in crabTask.subTasks:
             sites = line
 
         sites = translator.translateSes(sites)
-        #sites = translator.selectPreferred()
+        sites = translator.selectPreferred()
 
         print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
               ' at\n        > ' + sites

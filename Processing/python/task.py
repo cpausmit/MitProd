@@ -364,6 +364,11 @@ class Task:
             line   = line[:-1]                    # strip '\n'
             f      = line.split("_")
             number = f.pop()
+
+            # new crab (2_7_7 from 2_7_2) pop two more :-)
+            number = f.pop()
+            number = f.pop()
+
             f      = number.split(".")
             number = int(f[0])
             # update the job status
@@ -415,17 +420,30 @@ class Task:
             #>>                 status.exitStatus = int(f[4])
 
             # fixed column read
-##ID     STATUS             E_HOST                               EXE_EXIT_CODE JOB_EXIT_STATUS 
+## # CRAB_2_7_2
+## ##ID     STATUS             E_HOST                               EXE_EXIT_CODE JOB_EXIT_STATUS 
+##                 #lastChar          = len(line)
+##                 #print 'Last Char: %d'%lastChar
+##                 iJob              = int(line[0:5].strip())
+##                 sJob              = line[7:24].strip()
+##                 status            = JobStatus(iJob,sJob)
+##                 status.ce         = line[26:61].strip()
+##                 tmp               = line[63:75].strip()
+
+# CRAB_2_7_7
+##ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+##25    N   Running           SubSuccess                           llrcream.in2p3.fr
                 #lastChar          = len(line)
                 #print 'Last Char: %d'%lastChar
                 iJob              = int(line[0:5].strip())
-                sJob              = line[7:24].strip()
+                sJob              = line[10:27].strip()
                 status            = JobStatus(iJob,sJob)
-                status.ce         = line[26:61].strip()
-                tmp               = line[63:75].strip()
+                status.ce         = line[65:].strip()
+                tmp               = line[41:52].strip()
+
                 if tmp != '':
                     status.exitCode   = int(tmp)
-                tmp               = line[77:91].strip()
+                tmp               = line[53:64].strip()
                 if tmp != '':
                     status.exitStatus = int(tmp)
 
