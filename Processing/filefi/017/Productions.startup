@@ -12,20 +12,20 @@
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
 #---------------------------------------------------------------------------------------------------
 
-/MinBias_TuneZ2_7TeV-pythia6/Winter10-START39_V8-v1/AODSIM                                                           w10-minb-v8            1 new -
+/MinBias_TuneZ2_7TeV-pythia6/Winter10-START39_V8-v1/AODSIM                                                           w10-minb-v8               1 new -
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------
-/WprimeToENue_M-600_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp600e-v8-pu       1 new -
-/WprimeToENue_M-700_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp700e-v8-pu       1 new -
-/WprimeToENue_M-800_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp800e-v8-pu       1 new -
-/WprimeToENue_M-900_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp900e-v8-pu       1 new -
-/WprimeToENue_M-1000_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1000e-v8-pu      1 new -
-/WprimeToENue_M-1100_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1100e-v8-pu      1 new -
-/WprimeToENue_M-1200_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1200e-v8-pu      1 new -
-/WprimeToENue_M-1300_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1300e-v8-pu      1 new -
-/WprimeToENue_M-1400_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1400e-v8-pu      1 new -
-/WprimeToENue_M-1500_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1500e-v8-pu      1 new -
-/WprimeToENue_M-2000_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp2000e-v8-pu      1 new -
+/WprimeToENue_M-600_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp600e-v8-pu          1 new -
+/WprimeToENue_M-700_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp700e-v8-pu          1 new -
+/WprimeToENue_M-800_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp800e-v8-pu          1 new -
+/WprimeToENue_M-900_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                         w10-wp900e-v8-pu          1 new -
+/WprimeToENue_M-1000_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1000e-v8-pu         1 new -
+/WprimeToENue_M-1100_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1100e-v8-pu         1 new -
+/WprimeToENue_M-1200_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1200e-v8-pu         1 new -
+/WprimeToENue_M-1300_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1300e-v8-pu         1 new -
+/WprimeToENue_M-1400_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1400e-v8-pu         1 new -
+/WprimeToENue_M-1500_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp1500e-v8-pu         1 new -
+/WprimeToENue_M-2000_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM                        w10-wp2000e-v8-pu         1 new -
 #------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /VBF_HToGG_M-90_7TeV-powheg-pythia6/Winter10-E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/AODSIM                      w10-h90gg-vbf-v8-puf      1 new -
@@ -213,15 +213,3 @@
 ## /G1Jet_Pt-20to60_TuneZ2_7TeV-alpgen/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM
 ## /G1Jet_Pt-180to240_TuneZ2_7TeV-alpgen/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM
 ## /G1Jet_Pt-120to180_TuneZ2_7TeV-alpgen/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM
-
-#
-## Trigger study
-#
-#/GluGluToHToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_4_BX175_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER u10-gghgg120-pu4-bx175  1 new - ph_analysis_02
-#/GluGluToHToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_8_BX78_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER  u10-gghgg120-pu8-bx78   1 new - ph_analysis_02
-#/GluGluToHToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_14_BX59_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER u10-gghgg120-pu14-bx59  1 new - ph_analysis_02
-#/GluGluToHToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_18_BX50_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER u10-gghgg120-pu18-bx50  1 new - ph_analysis_02
-#/VBF_HToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_4_BX175_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER     u10-vbfhgg120-pu4-bx175 1 new - ph_analysis_02
-#/VBF_HToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_8_BX78_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER      u10-vbfhgg120-pu8-bx78  1 new - ph_analysis_02
-#/VBF_HToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_14_BX59_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER     u10-vbfhgg120-pu14-bx59 1 new - ph_analysis_02
-#/VBF_HToGG_M-120_7TeV-powheg-pythia6/higgs-RAWRECOMixingE7TeV_AVE_18_BX50_PU-9dcbc7660bd857ad5f131c1dbfc2763a/USER     u10-vbfhgg120-pu18-bx50 1 new - ph_analysis_02
