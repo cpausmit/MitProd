@@ -11,3 +11,10 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
 #---------------------------------------------------------------------------------------------------
+# getting started
+/WWTo2L2Nu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                         p11-ww2l-v1g1-pu   1 new -
+/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      p11-zeem20-v1g1-pu 1 new -
+/DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      p11-zmmm20-v1g1-pu 1 new -
+/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM p11-zttm20-v1g1-pu 1 new -
+/TTJets_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		      p11-ttj-v1g1-pu    1 new -
+/PhotonVJets_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                             p11-pj-v1g1-pu     1 new -
