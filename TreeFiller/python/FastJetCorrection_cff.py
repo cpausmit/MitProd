@@ -1,18 +1,18 @@
-# $Id: FastJetCorrection_cff.py,v 1.4 2011/03/11 18:46:43 mzanetti Exp $
+# $Id: FastJetCorrection_cff.py,v 1.5 2011/03/22 19:11:22 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 # rereco ak5PFJets (computing area)
 from RecoJets.JetProducers.ak5PFJets_cfi import *
 ak5PFJetsForL1Correction = ak5PFJets.clone(doAreaFastjet = True)
-ak5PFJetsForL1Correction.Rho_EtaMax = cms.double(2.5)
-ak5PFJetsForL1Correction.Ghost_EtaMax = 2.5
+ak5PFJetsForL1Correction.Rho_EtaMax = cms.double(5.0)
+ak5PFJetsForL1Correction.Ghost_EtaMax = 5.0
 
 # rereco kt4PFJets (computing area)
 from RecoJets.JetProducers.kt4PFJets_cfi import *
 kt4PFJetsForL1Correction = kt4PFJets.clone(doAreaFastjet = True) 
-kt4PFJetsForL1Correction.Rho_EtaMax = cms.double(2.5)
-kt4PFJetsForL1Correction.Ghost_EtaMax = 2.5
+kt4PFJetsForL1Correction.Rho_EtaMax = cms.double(5.0)
+kt4PFJetsForL1Correction.Ghost_EtaMax = 5.0
 
 # compute energy density up to 2.5 for L1 fastjet correction (common to kt4 and atk5)
 from RecoJets.JetProducers.kt4PFJets_cfi import *
@@ -54,8 +54,11 @@ kt4PFJetsL1 = cms.EDProducer(
 
 # the fastjet correction sequence
 l1FastJetAKt5PFCorrectionSequence = cms.Sequence( ak5PFJetsForL1Correction * kt6PFJetsForRhoComputation * ak5PFJetsL1 * kt6PFJetsForRhoComputationHighEta ) 
-l1FastJetAKt5PFCorrectionSequence = cms.Sequence( kt4PFJetsForL1Correction * kt6PFJetsForRhoComputation * kt4PFJetsL1 * kt6PFJetsForRhoComputationHighEta ) 
+l1FastJetKt4PFCorrectionSequence  = cms.Sequence( kt4PFJetsForL1Correction * kt6PFJetsForRhoComputation * kt4PFJetsL1 * kt6PFJetsForRhoComputationHighEta ) 
 l1FastJetCorrectionSequence =       cms.Sequence( ak5PFJetsForL1Correction * kt6PFJetsForRhoComputation * ak5PFJetsL1 *
                                                   kt4PFJetsForL1Correction * kt6PFJetsForRhoComputation * kt4PFJetsL1 * 
                                                   kt6PFJetsForRhoComputationHighEta )
-
+# sequences to compute jet areas
+l1FastJetAreaComputationSequence  = cms.Sequence( ak5PFJetsForL1Correction * kt4PFJetsForL1Correction *
+                                                  kt6PFJetsForRhoComputation * kt6PFJetsForRhoComputationHighEta)
+                                                    

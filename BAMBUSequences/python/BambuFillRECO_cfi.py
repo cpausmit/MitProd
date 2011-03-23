@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.46 2011/03/22 19:11:06 mzanetti Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.47 2011/03/22 19:24:52 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -70,12 +70,12 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-MitTreeFiller.Kt4PFJetsL1.active = True
-MitTreeFiller.AKt5PFJetsL1.active = True
+MitTreeFiller.Kt4PFJetsNoArea.active = True
+MitTreeFiller.AKt5PFJetsNoArea.active = True
 
-# confusing..
-#MitTreeFiller.AKt5PFJets.fastJetCorrectionsActive = True
-#MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsL1'
+MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
+MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
+
 
 from MitProd.TreeFiller.DAPrimaryVertex_cff import *
 MitTreeFiller.DAPrimaryVertexes.active = True
@@ -87,6 +87,9 @@ MitTreeFiller.Muons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
 
 
 from MitProd.TreeFiller.newbtagging_cff import *
+newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
+newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
+newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
 
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
@@ -100,7 +103,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #JetPlusTrackCorrectionsAntiKt5*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
-                                 l1FastJetCorrectionSequence *
+                                 #l1FastJetCorrectionSequence *
+                                 l1FastJetAreaComputationSequence *
                                  daPrimaryVertexSequence *
                                  newBtaggingAll
                                  )

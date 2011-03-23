@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.90 2011/03/22 16:52:37 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.91 2011/03/22 19:24:52 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -66,10 +66,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'Kt4TrackJets',
                                     'ItrCone5PFJets',
                                     'Kt4PFJets',
-                                    'Kt4PFJetsL1',
+                                    'Kt4PFJetsNoArea',
                                     'Kt6PFJets',
                                     'AKt5PFJets',
-                                    'AKt5PFJetsL1',
+                                    'AKt5PFJetsNoArea',
                                     'AKt7PFJets',
                                     'GenMet',
                                     'CorMuonMet',
@@ -303,6 +303,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('Rho'),                     
         edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
+        edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputationHighEta','rho'),
         fillerType            = cms.untracked.string('FillerPileupEnergyDensity')
     ),
 
@@ -939,15 +940,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
-    Kt4PFJetsL1 = cms.untracked.PSet(
+    Kt4PFJetsNoArea = cms.untracked.PSet(
         active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         bTaggingActive                = cms.untracked.bool(False),
         jetToVertexActive             = cms.untracked.bool(False),
         jetCorrectionsActive          = cms.untracked.bool(False),
         fastJetCorrectionsActive      = cms.untracked.bool(False),        
-        mitName                       = cms.untracked.string('Kt4PFJetsL1'),
-        edmName                       = cms.untracked.string('kt4PFJetsL1'),
+        mitName                       = cms.untracked.string('Kt4PFJetsNoArea'),
+        edmName                       = cms.untracked.string('kt4PFJets'),
         rhoName                       = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
         jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaKT4PF:Var'),
         jetToVertexBetaName           = cms.untracked.string('jetVertexBetaKT4PF:Var'),
@@ -956,7 +957,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('KT4PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
-        jetMapName                    = cms.untracked.string('KT4PFJetL1Map'),
+        jetMapName                    = cms.untracked.string('KT4PFJetNoAreaMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
@@ -1017,15 +1018,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
-    AKt5PFJetsL1 = cms.untracked.PSet( 
+    AKt5PFJetsNoArea = cms.untracked.PSet( 
         active                        = cms.untracked.bool(False),
         flavorMatchingActive          = cms.untracked.bool(False),
         bTaggingActive                = cms.untracked.bool(False),
         jetToVertexActive             = cms.untracked.bool(False),
         jetCorrectionsActive          = cms.untracked.bool(False),
         fastJetCorrectionsActive      = cms.untracked.bool(False), 
-        mitName                       = cms.untracked.string('AKt5PFJetsL1'),
-        edmName                       = cms.untracked.string('ak5PFJetsL1'),
+        mitName                       = cms.untracked.string('AKt5PFJetsNoArea'),
+        edmName                       = cms.untracked.string('ak5PFJets'),
         rhoName                       = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'), 
         jetToVertexAlphaName          = cms.untracked.string('jetVertexAlphaAKT5PF:Var'),
         jetToVertexBetaName           = cms.untracked.string('jetVertexBetaAKT5PF:Var'),
@@ -1034,7 +1035,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         flavorMatchingByReferenceName = cms.untracked.string('AKT5PFbyRef'),
         flavorMatchingDefinition      = cms.untracked.string('Algorithmic'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
-        jetMapName                    = cms.untracked.string('AKT5PFJetL1Map'),
+        jetMapName                    = cms.untracked.string('AKT5PFJetNoAreaMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
 
