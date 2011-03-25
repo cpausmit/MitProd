@@ -1,4 +1,4 @@
-// $Id: FillerPileupInfo.cc,v 1.1 2011/02/08 14:54:13 mzanetti Exp $
+// $Id: FillerPileupInfo.cc,v 1.2 2011/03/25 15:40:54 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,11 +46,20 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
   puInfos_->Delete();
 
+  std::vector<PileupSummaryInfo> inInfos;
+
   Handle<std::vector< PileupSummaryInfo > >  hPileupInfoProduct;
   event.getByLabel(edmName_, hPileupInfoProduct);
+  if (hPileupInfoProduct.isValid()) {
+    inInfos = *hPileupInfoProduct.product();
+  }
+  else {
+    Handle<PileupSummaryInfo>  hSinglePileupInfoProduct;
+    event.getByLabel(edmName_, hSinglePileupInfoProduct);
+    inInfos.push_back(*hSinglePileupInfoProduct.product());
+  }
 
-  std::vector<PileupSummaryInfo>::const_iterator edmPUInfo = hPileupInfoProduct->begin();
-  for (; edmPUInfo != hPileupInfoProduct->end(); ++edmPUInfo) {
+  for (std::vector<PileupSummaryInfo>::const_iterator edmPUInfo = inInfos.begin(); edmPUInfo != inInfos.end(); ++edmPUInfo) {
 
     mithep::PileupInfo *puInfo = puInfos_->AddNew();
 

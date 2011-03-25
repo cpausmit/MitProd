@@ -21,6 +21,7 @@
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackingTools/TransientTrack"/>
