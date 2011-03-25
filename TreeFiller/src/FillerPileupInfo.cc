@@ -1,4 +1,4 @@
-// $Id: FillerPileupInfo.cc,v 1.5 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerPileupInfo.cc,v 1.1 2011/02/08 14:54:13 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,19 +46,24 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
   puInfos_->Delete();
 
-  Handle<PileupSummaryInfo> hPileupInfoProduct;
-  GetProduct(edmName_, hPileupInfoProduct, event);
+  Handle<std::vector< PileupSummaryInfo > >  hPileupInfoProduct;
+  event.getByLabel(edmName_, hPileupInfoProduct);
 
-  mithep::PileupInfo *puInfo = puInfos_->AddNew();
+  std::vector<PileupSummaryInfo>::const_iterator edmPUInfo = hPileupInfoProduct->begin();
+  for (; edmPUInfo != hPileupInfoProduct->end(); ++edmPUInfo) {
 
-  puInfo->SetPU_NumInteractions(hPileupInfoProduct->getPU_NumInteractions());
+    mithep::PileupInfo *puInfo = puInfos_->AddNew();
 
-  for(int i=0; i<hPileupInfoProduct->getPU_NumInteractions(); i++){
-    puInfo->PushPU_zPositions(Double32_t(hPileupInfoProduct->getPU_zpositions()[i]));
-    puInfo->PushPU_sumpT_lowpT(Double32_t(hPileupInfoProduct->getPU_sumpT_lowpT()[i]));   
-    puInfo->PushPU_sumpT_highpT(Double32_t(hPileupInfoProduct->getPU_sumpT_highpT()[i]));  
-    puInfo->PushPU_ntrks_lowpT(Double32_t(hPileupInfoProduct->getPU_ntrks_lowpT()[i]));   
-    puInfo->PushPU_ntrks_highpT(Double32_t(hPileupInfoProduct->getPU_ntrks_highpT()[i]));  
+    puInfo->SetBunchCrossing(edmPUInfo->getBunchCrossing());
+    puInfo->SetPU_NumInteractions(edmPUInfo->getPU_NumInteractions());
+    for(int i=0; i<edmPUInfo->getPU_NumInteractions(); i++){
+      puInfo->PushPU_zPositions(Double32_t(edmPUInfo->getPU_zpositions()[i]));
+      puInfo->PushPU_sumpT_lowpT(Double32_t(edmPUInfo->getPU_sumpT_lowpT()[i]));   
+      puInfo->PushPU_sumpT_highpT(Double32_t(edmPUInfo->getPU_sumpT_highpT()[i]));  
+      puInfo->PushPU_ntrks_lowpT(Double32_t(edmPUInfo->getPU_ntrks_lowpT()[i]));   
+      puInfo->PushPU_ntrks_highpT(Double32_t(edmPUInfo->getPU_ntrks_highpT()[i]));  
+    }
   }
+
   puInfos_->Trim();
 }
