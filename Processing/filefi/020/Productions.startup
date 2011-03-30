@@ -13,12 +13,26 @@
 #---------------------------------------------------------------------------------------------------------------------------------
 # getting started
 #---------------------------------------------------------------------------------------------------------------------------------
-/WWTo2L2Nu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                            p11-ww2l-v1g1-pu          1 new -
-/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	         p11-zeem20-v1g1-pu        1 new -
-/DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	         p11-zmmm20-v1g1-pu        1 new -
-/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM    p11-zttm20-v1g1-pu        1 new -
-/TTJets_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		         p11-ttj-v1g1-pu           1 new -
-/PhotonVJets_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                                p11-pj-v1g1-pu            1 new -
+/WWTo2L2Nu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                         	 p11-ww2l-v1g1-pu     	   1 new -
+/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      	 p11-zeem20-v1g1-pu   	   1 new -
+/DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      	 p11-zmmm20-v1g1-pu   	   1 new -
+/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM 	 p11-zttm20-v1g1-pu   	   1 new -
+/DYToEE_M-10To20_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-zee1020-v1g1-pu  	   1 new -
+/DYToMuMu_M-10To20_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM			 p11-zmm1020-v1g1-pu  	   1 new -
+/DYToTauTau_M-10To20_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-ztt1020-v1g1-pu  	   1 new -
+/TTJets_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		      	 p11-ttj-v1g1-pu      	   1 new -
+/PhotonVJets_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                             	 p11-pj-v1g1-pu       	   1 new -
+/GluGluToWWTo4L_TuneZ2_7TeV-gg2ww-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM              	 p11-ggww-v1g1-pu     	   1 new -
+/WZtoAnything_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM 	      	 p11-wz-v1g1-pu       	   1 new -
+/ZZtoAnything_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM 	      	 p11-zz-v1g1-pu       	   1 new -
+/TToBLNu_TuneZ2_s-channel_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                	 p11-stop-v1g1-pu     	   1 new -
+/TToBLNu_TuneZ2_t-channel_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM		      	 p11-ttop-v1g1-pu     	   1 new -
+/TToBLNu_TuneZ2_tW-channel_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM               	 p11-wtop-v1g1-pu     	   1 new -
+/WToENu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM			      	 p11-we-v1g1-pu       	   1 new -
+/WToMuNu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                           	 p11-wm-v1g1-pu       	   1 new -
+/WToTauNu_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		      	 p11-wt-v1g1-pu       	   1 new -
+/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM                   p11-wjetsl-v1g1-pu   	   1 new -
+/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM              p11-zll50-v1g1-pu    	   1 new -
 
 #---------------------------------------------------------------------------------------------------------------------------------
 # Hgg
