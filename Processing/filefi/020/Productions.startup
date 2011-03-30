@@ -1,20 +1,89 @@
-#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
 # Configuration for the productions with this configuration
 #
 # XX-MITCFG-XX     = filefi
 # XX-MITVERSION-XX = 020
 #
 # crontab          = 1
-#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
 # Production Parameters
 # Ex:
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
-#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
 # getting started
-/WWTo2L2Nu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                         p11-ww2l-v1g1-pu   1 new -
-/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      p11-zeem20-v1g1-pu 1 new -
-/DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	      p11-zmmm20-v1g1-pu 1 new -
-/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM p11-zttm20-v1g1-pu 1 new -
-/TTJets_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		      p11-ttj-v1g1-pu    1 new -
-/PhotonVJets_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                             p11-pj-v1g1-pu     1 new -
+#---------------------------------------------------------------------------------------------------------------------------------
+/WWTo2L2Nu_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                            p11-ww2l-v1g1-pu          1 new -
+/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	         p11-zeem20-v1g1-pu        1 new -
+/DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Spring11-PU_S1_START311_V1G1-v1/AODSIM	         p11-zmmm20-v1g1-pu        1 new -
+/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM    p11-zttm20-v1g1-pu        1 new -
+/TTJets_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM		         p11-ttj-v1g1-pu           1 new -
+/PhotonVJets_7TeV-madgraph/Spring11-PU_S1_START311_V1G1-v1/AODSIM                                p11-pj-v1g1-pu            1 new -
+
+#---------------------------------------------------------------------------------------------------------------------------------
+# Hgg
+#---------------------------------------------------------------------------------------------------------------------------------
+# signal
+/GluGluToHToGG_M-90_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                   p11-h90gg-gf-v1g1-pu      1 new -
+/GluGluToHToGG_M-95_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                   p11-h95gg-gf-v1g1-pu      1 new -
+/GluGluToHToGG_M-100_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h100gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-105_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h105gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-110_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h110gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-115_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h115gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-120_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h120gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h130gg-gf-v1g1-pu     1 new -
+/GluGluToHToGG_M-140_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                  p11-h140gg-gf-v1g1-pu     1 new -
+
+/VBF_HToGG_M-90_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-h90gg-vbf-v1g1-pu     1 new -
+/VBF_HToGG_M-95_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-h95gg-vbf-v1g1-pu     1 new -
+/VBF_HToGG_M-100_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h100gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-105_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h105gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-110_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h110gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-115_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h115gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-120_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h120gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h130gg-vbf-v1g1-pu    1 new -
+/VBF_HToGG_M-140_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-h140gg-vbf-v1g1-pu    1 new -
+
+#---------------------------------------------------------------------------------------------------------------------------------
+# diphoton background
+#---------------------------------------------------------------------------------------------------------------------------------
+/DiPhotonBorn_Pt10to25_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM     p11-2pibo10_25-v1g1-pu    1 new -
+/DiPhotonBorn_Pt25to250_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-2pibo25_250-v1g1-pu   1 new -
+/DiPhotonBorn_Pt250toinf_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-2pibo250_inf-v1g1-pu  1 new -
+/DiPhotonBox_Pt10to25_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-2pibx10_25-v1g1-pu    1 new -
+/DiPhotonBox_Pt25to250_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-2pibx25_250-v1g1-pu   1 new -
+/DiPhotonBox_Pt250toinf_TrackingParticles_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-2pibx250_inf-v1g1-pu  1 new -
+
+#---------------------------------------------------------------------------------------------------------------------------------
+# QCD Background
+#---------------------------------------------------------------------------------------------------------------------------------
+/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM       p11-qcd2em30_40-v1g1-pu   1 new -
+
+#---------------------------------------------------------------------------------------------------------------------------------
+# G+Jet Background
+#---------------------------------------------------------------------------------------------------------------------------------
+/GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM          p11-pj2em20-v1g1-pu       1 new -
+
+#---------------------------------------------------------------------------------------------------------------------------------
+# Hww
+#---------------------------------------------------------------------------------------------------------------------------------
+/GluGluToHToWWTo2L2Nu_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM           p11-h130ww2l-gf-v1g1-pu   1 new -
+/GluGluToHToWWTo2L2Nu_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h160ww2l-gf-v1g1-pu   1 new -
+/GluGluToHToWWTo2L2Nu_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h200ww2l-gf-v1g1-pu   1 new -
+/GluGluToHToWWTo2Tau2Nu_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h130ww2t-gf-v1g1-pu   1 new -
+/GluGluToHToWWTo2Tau2Nu_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h160ww2t-gf-v1g1-pu   1 new -
+/GluGluToHToWWTo2Tau2Nu_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h200ww2t-gf-v1g1-pu   1 new -
+/GluGluToHToWWToLNuTauNu_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h130wwlt-gf-v1g1-pu   1 new -
+/GluGluToHToWWToLNuTauNu_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h160wwlt-gf-v1g1-pu   1 new -
+/GluGluToHToWWToLNuTauNu_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM	 p11-h200wwlt-gf-v1g1-pu   1 new -
+
+/VBF_HToWWTo2L2Nu_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM               p11-h130ww2l-vbf-v1g1-pu  1 new -
+/VBF_HToWWTo2L2Nu_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h160ww2l-vbf-v1g1-pu  1 new -
+/VBF_HToWWTo2L2Nu_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h200ww2l-vbf-v1g1-pu  1 new -
+/VBF_HToWWTo2Tau2Nu_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h130ww2t-vbf-v1g1-pu  1 new -
+/VBF_HToWWTo2Tau2Nu_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h160ww2t-vbf-v1g1-pu  1 new -
+/VBF_HToWWTo2Tau2Nu_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM		 p11-h200ww2t-vbf-v1g1-pu  1 new -
+
+/WH_ZH_TTH_HToWW_M-130_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-h130ww2l-vtth-v1g1-pu 1 new -
+/WH_ZH_TTH_HToWW_M-160_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-h160ww2l-vtth-v1g1-pu 1 new -
+/WH_ZH_TTH_HToWW_M-200_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-h200ww2l-vtth-v1g1-pu 1 new -

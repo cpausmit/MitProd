@@ -22,10 +22,10 @@
 /ElectronHad/Run2011A-PromptReco-v1/AOD		r11a-elh-pr-v1  1 new -
 /PhotonHad/Run2011A-PromptReco-v1/AOD		r11a-phoh-pr-v1 1 new -
 /TauPlusX/Run2011A-PromptReco-v1/AOD            r11a-tpx-pr-v1  1 new -
-/MultiJet/Run2011A-PromptReco-v1/AOD		r11a-mjet-pr-v1 1 new -
+#/MultiJet/Run2011A-PromptReco-v1/AOD		r11a-mjet-pr-v1 1 new -
 /MuOnia/Run2011A-PromptReco-v1/AOD		r11a-muo-pr-v1  1 new -
 /MinimumBias/Run2011A-PromptReco-v1/AOD		r11a-minb-pr-v1 1 new -
-/METBTag/Run2011A-PromptReco-v1/AOD		r11a-mbt-pr-v1  1 new -
+#/METBTag/Run2011A-PromptReco-v1/AOD		r11a-mbt-pr-v1  1 new -
 /Jet/Run2011A-PromptReco-v1/AOD			r11a-jet-pr-v1  1 new -
-/HT/Run2011A-PromptReco-v1/AOD			r11a-ht-pr-v1   1 new -
-/ForwardTriggers/Run2011A-PromptReco-v1/AOD	r11a-ft-pr-v1   1 new -
+#/HT/Run2011A-PromptReco-v1/AOD			r11a-ht-pr-v1   1 new -
+#/ForwardTriggers/Run2011A-PromptReco-v1/AOD	r11a-ft-pr-v1   1 new -
