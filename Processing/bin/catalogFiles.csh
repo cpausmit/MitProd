@@ -87,7 +87,7 @@ foreach file ($LIST)
 
     cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = (MACHINE != "dtfnal01.cern.ch") && ( (Arch == "X86_64") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = (MACHINE != "dtfnal01.cern.ch") && ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script

@@ -23,10 +23,10 @@ echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 set pwd=`pwd`
 
-setenv SCRAM_ARCH    slc5_ia32_gcc434
-setenv VO_CMS_SW_DIR /server/02a/cmsprod/cmssoft
-source $VO_CMS_SW_DIR/cmsset_default.csh
-cd     $HOME/cms/cmssw/014/CMSSW_3_6_1_patch4/src
+export SCRAM_ARCH='slc5_ia32_gcc434'
+export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
+source $VO_CMS_SW_DIR/cmsset_default.sh
+cd     $HOME/cms/cmssw/019/CMSSW_3_9_7/src
 eval   `scram runtime -csh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.csh
 cd $pwd

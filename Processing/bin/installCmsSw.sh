@@ -2,7 +2,7 @@
 #---------------------------------------------------------------------------------------------------
 # Install a given version of the CMSSW software locally at MIT.
 #
-#   ex.  installCmsSw.sh <version>, _ex._  installCmsSw 3_6_1
+#   ex.  installCmsSw.sh <version>, _ex._  installCmsSw 5_1_5
 #
 # Author: C.Paus                                                                      (June 4, 2010)
 #---------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ then
   echo "Please specify the desired software version."
   echo
   echo "  usage: installCmsSw.sh <version>"
-  echo "     ex. installCmsSw.sh 3_6_1"
+  echo "     ex. installCmsSw.sh 5_1_5"
   echo
   exit 1
 fi
