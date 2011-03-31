@@ -29,10 +29,10 @@ echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 pwd=`pwd`
 
-export SCRAM_ARCH=slc5_ia32_gcc434
-export VO_CMS_SW_DIR=~cmsprod/cmssoft
+export SCRAM_ARCH=slc5_amd64_gcc434
+export VO_CMS_SW_DIR=/server/01a/cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     $HOME/cms/cmssw/017/CMSSW_3_9_5_patch1/src
+cd     $HOME/cms/cmssw/020/CMSSW_4_1_3_patch2/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
