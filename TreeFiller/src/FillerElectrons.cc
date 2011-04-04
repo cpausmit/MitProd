@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.52 2011/03/13 22:16:08 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.53 2011/03/22 00:22:51 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -57,6 +57,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
   pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
+  recomputeConversionInfo_(Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -132,7 +133,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
   const reco::VertexCollection *pvCol = hVertex.product();
-
+  
   edm::Handle<reco::VertexCollection> hVertexBS;
   event.getByLabel(pvBSEdmName_, hVertexBS);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
@@ -141,6 +142,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   event.getByLabel("generalTracks", hGeneralTracks);
   //const reco::VertexCollection *trackCol = hGeneralTracks.product();
   
+  edm::Handle<reco::GsfTrackCollection> hGsfTracks;
+  event.getByLabel("electronGsfTracks", hGsfTracks);
+
   edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
   event.getByLabel("mvfConversionRemoval", hConversions);
   
@@ -157,9 +161,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   KalmanVertexUpdator<5> updator;
 
   //Get Magnetic Field from event setup, taking value at (0,0,0)
-//   edm::ESHandle<MagneticField> magneticField;
-//   setup.get<IdealMagneticFieldRecord>().get(magneticField);
-//   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  edm::ESHandle<MagneticField> magneticField;
+  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
   // loop over electrons
@@ -436,16 +440,38 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
 
     //fill conversion partner track info
-    outElectron->SetConvPartnerDCotTheta(iM->convDcot());
-    outElectron->SetConvPartnerDist(iM->convDist());
-    outElectron->SetConvPartnerRadius(iM->convRadius());
-    reco::TrackBaseRef convTrackRef = iM->convPartner();
-    if (convTrackRef.isNonnull()) {
-      if ( dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_  ) {
-        outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+    if (recomputeConversionInfo_) {
+      ConversionFinder convFinder;         outElectron->SetConvPartnerDCotTheta(iM->convDcot());
+      ConversionInfo convInfo = convFinder.getConversionInfo(*iM, hGeneralTracks, hGsfTracks, bfield);
+  
+      outElectron->SetConvFlag(convInfo.flag());
+      outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
+      outElectron->SetConvPartnerDist(convInfo.dist());
+      outElectron->SetConvPartnerRadius(convInfo.radiusOfConversion());
+      reco::TrackRef ckfconvTrackRef = convInfo.conversionPartnerCtfTk();
+      reco::GsfTrackRef gsfconvTrackRef = convInfo.conversionPartnerGsfTk();
+  
+  
+      if ( gsfconvTrackRef.isNonnull() && gsfTrackMap_  ) {
+        outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));
       }
-      else if (trackerTrackMap_) {
-        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+      else if (ckfconvTrackRef.isNonnull() && trackerTrackMap_) {
+        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef)));
+      }
+    }
+    else {
+      outElectron->SetConvFlag(iM->convFlags());
+      outElectron->SetConvPartnerDCotTheta(iM->convDcot());
+      outElectron->SetConvPartnerDist(iM->convDist());
+      outElectron->SetConvPartnerRadius(iM->convRadius());
+      reco::TrackBaseRef convTrackRef = iM->convPartner();
+      if (convTrackRef.isNonnull()) {
+        if ( dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_  ) {
+          outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+        }
+        else if (trackerTrackMap_) {
+          outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+        }
       }
     }
 
