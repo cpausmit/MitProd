@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.91 2011/03/22 19:24:52 mzanetti Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.92 2011/03/23 19:02:51 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -481,8 +481,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         staVtxTrackMapName  = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
         trackerTrackMapName = cms.untracked.string('TracksMapName'),
         muonMapName         = cms.untracked.string('MuonMapName'),
-        pvEdmName           = cms.untracked.string('PrimaryVertexes'),
-        pvBSEdmName         = cms.untracked.string('PrimaryVertexesBS'),        
+        pvEdmName           = cms.untracked.string('offlinePrimaryVertices'),
+        pvBSEdmName         = cms.untracked.string('offlinePrimaryVerticesWithBS'),        
         fillerType          = cms.untracked.string('FillerMuons')
     ),
                    
@@ -511,8 +511,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         HcalJurassicIsolationName        = cms.untracked.string('eleIsoFromDepsHcalFromHits'),
         TrackerIsolationName             = cms.untracked.string('eleIsoFromDepsTk'),
         gsfTrackAssocName                = cms.untracked.string(''),
-        pvEdmName                        = cms.untracked.string('PrimaryVertexes'),
-        pvBSEdmName                      = cms.untracked.string('PrimaryVertexesBS'),
+        pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
+        pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
+        recomputeConversionInfo          = cms.untracked.bool(True),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
     
