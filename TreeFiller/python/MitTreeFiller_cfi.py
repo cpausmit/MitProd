@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.92 2011/03/23 19:02:51 mzanetti Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.93 2011/04/04 23:39:54 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -302,8 +302,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PileupEnergyDensity = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('Rho'),                     
-        edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
-        edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputationHighEta','rho'),
+        #edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
+        #edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputationHighEta','rho'),
+        edmName               = cms.untracked.InputTag('kt6PFJets','rho'),
+        edmNameHighEta               = cms.untracked.InputTag('kt6PFJets','rho'),        
         fillerType            = cms.untracked.string('FillerPileupEnergyDensity')
     ),
 
@@ -520,7 +522,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     MergedConversions = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('MergedConversions'),
-        edmName             = cms.untracked.string('trackerOnlyConversions'),
+        edmName             = cms.untracked.string('allConversions'),
         stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
                                                     'ConversionInOutElectronsStableTrackMapName',
                                                     'ConversionOutInElectronsStableTrackMapName',

@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.47 2011/03/22 19:24:52 mzanetti Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.48 2011/03/23 19:02:51 mzanetti Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,33 +64,36 @@ MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
 #MitTreeFiller.EvtSelData.active = True
 
 # Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import *
+#from MitProd.TreeFiller.FastJetCorrection_cff import *
 
 # Load the pileup energy density computed by fastjet 
 MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-MitTreeFiller.Kt4PFJetsNoArea.active = True
-MitTreeFiller.AKt5PFJetsNoArea.active = True
+#MitTreeFiller.Kt4PFJetsNoArea.active = True
+#MitTreeFiller.AKt5PFJetsNoArea.active = True
 
-MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
-MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
+#MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
+#MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
 
 
-from MitProd.TreeFiller.DAPrimaryVertex_cff import *
-MitTreeFiller.DAPrimaryVertexes.active = True
-MitTreeFiller.DAPrimaryVertexesBS.active = True
-MitTreeFiller.Electrons.pvEdmName = 'offlinePrimaryVerticesDA'
-MitTreeFiller.Electrons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
-MitTreeFiller.Muons.pvEdmName = 'offlinePrimaryVerticesDA'
-MitTreeFiller.Muons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
+#from MitProd.TreeFiller.DAPrimaryVertex_cff import *
+#MitTreeFiller.DAPrimaryVertexes.active = True
+#MitTreeFiller.DAPrimaryVertexesBS.active = True
+#MitTreeFiller.Electrons.pvEdmName = 'offlinePrimaryVerticesDA'
+#MitTreeFiller.Electrons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
+#MitTreeFiller.Muons.pvEdmName = 'offlinePrimaryVerticesDA'
+#MitTreeFiller.Muons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
 
 
 from MitProd.TreeFiller.newbtagging_cff import *
-newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
-newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
-newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
+#newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
+#newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
+#newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
+
+#temporarily disable HPSTaus for 42x
+MitTreeFiller.HPSTaus.active = False
 
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
@@ -104,8 +107,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
                                  #l1FastJetCorrectionSequence *
-                                 l1FastJetAreaComputationSequence *
-                                 daPrimaryVertexSequence *
+                                 #l1FastJetAreaComputationSequence *
+                                 #daPrimaryVertexSequence *
                                  newBtaggingAll
                                  )
 

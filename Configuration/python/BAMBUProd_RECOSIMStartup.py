@@ -28,7 +28,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('file:/data/blue/bendavid/392gensimreco/1488362D-A8E9-DF11-A016-00261894380D.root')
+  fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_2_1/RelValProdTTbar/GEN-SIM-RECO/MC_42_V10-v1/0026/3044239A-DA66-E011-A21B-001A928116C0.root')
 #    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_11_1/RelValZEE/GEN-SIM-RECO/START311_V1_64bit-v1/0089/6E2A6DB2-EA34-E011-B663-0018F34D0D62.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
@@ -36,7 +36,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 # other statements
 
 #special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START311_V2::All'
+process.GlobalTag.globaltag = 'START42_V11::All'
 
 process.add_(cms.Service("ObjectService"))
 

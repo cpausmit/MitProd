@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_FASTSIM.py,v 1.5 2010/09/19 23:48:44 bendavid Exp $
+# $Id: BAMBUProd_FASTSIM.py,v 1.6 2011/03/09 14:37:24 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START311_V2::All'
+process.GlobalTag.globaltag = 'START42_V11::All'
 
 process.add_(cms.Service("ObjectService"))
 
