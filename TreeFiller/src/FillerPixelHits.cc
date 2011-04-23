@@ -1,4 +1,4 @@
-// $Id: FillerPixelHits.cc,v 1.6 2009/12/01 15:55:05 edwenger Exp $
+// $Id: FillerPixelHits.cc,v 1.7 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -8,7 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

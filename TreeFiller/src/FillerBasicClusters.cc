@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.13 2010/06/25 13:57:01 peveraer Exp $
+// $Id: FillerBasicClusters.cc,v 1.14 2010/06/25 14:01:31 peveraer Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -136,7 +136,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
                 }
         }
 	
-   outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
+   //outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
 
 
     // add basic clusters to the map

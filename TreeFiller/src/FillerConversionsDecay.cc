@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.2 2011/03/13 22:15:01 bendavid Exp $
+// $Id: FillerConversionsDecay.cc,v 1.3 2011/03/22 00:23:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -113,7 +113,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     mithep::DecayParticle *outConversion = decays_->Allocate();    
     new (outConversion) mithep::DecayParticle(22);
 
-    math::XYZTLorentzVectorD convP4 = inConversion->refittedPair4Momentum();
+    math::XYZTLorentzVectorD convP4(inConversion->refittedPair4Momentum());
     FourVector p4Fitted(convP4.px(),convP4.py(),convP4.pz(),convP4.energy());
   
     outConversion->SetMom(p4Fitted);
@@ -173,7 +173,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
             double zbeamline = bsstate.globalPosition().z();
             zbeamlineerr = sqrt((bsstate.cartesianError().matrix())(2,2));
             if (0) {
-              math::XYZVector mom = inConversion->refittedPairMomentum();
+              math::XYZVector mom(inConversion->refittedPairMomentum());
               double zbeamlineconv = (vtx.z()) - ((vtx.x()-thebs.position().x())*mom.x()+(vtx.y()-thebs.position().y())*mom.y())/mom.rho() * mom.z()/mom.rho();
 
               double zbeamlinetrk = (refittedTrack.vertex().z()) - ((refittedTrack.vertex().x()-thebs.position().x())*refittedTrack.momentum().x()+(refittedTrack.vertex().y()-thebs.position().y())*refittedTrack.momentum().y())/refittedTrack.momentum().rho() * refittedTrack.momentum().z()/refittedTrack.momentum().rho();

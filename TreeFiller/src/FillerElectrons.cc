@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.53 2011/03/22 00:22:51 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.54 2011/04/04 23:39:21 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -190,7 +190,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx());
     outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo());
     outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
-    outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
+    //outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
     outElectron->SetNumberOfClusters(iM->basicClustersSize());
     outElectron->SetClassification(iM->classification());
     outElectron->SetFBrem(iM->fbrem());
