@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------------------------------
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
 LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
-BOOK="filefi/018"
+BOOK="filefi/020"
 LOCAL_LOCATION="/mnt/hadoop/cmsprod"
 CATALOG="/home/cmsprod/catalog"
 #SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="

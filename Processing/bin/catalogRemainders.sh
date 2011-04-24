@@ -2,12 +2,14 @@
 
 MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
+LOCATION=$MIT_LOCATION
+
 BOOK=$1
 FLAG=$2
 version=`basename $BOOK`
 first=1
 
-for line in `list $CERN_LOCATION/$BOOK/\*/crab_0_\*`
+for line in `list $LOCATION/$BOOK/\*/crab_0_\*`
 do
   if [ "`echo $line | grep :`" != "" ]
   then

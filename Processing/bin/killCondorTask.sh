@@ -28,6 +28,7 @@ condor_q -format "%d " ClusterId -format "%d " ServerTime-JobStartDate -format "
   grep $TASK | grep $SAMPLE | \
 while read line
 do
+  echo "Line: $line"
   id=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   runTime=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
   dir=`echo $line | tr -s ' ' | cut -d ' ' -f 4`

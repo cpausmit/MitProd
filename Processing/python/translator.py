@@ -90,7 +90,7 @@ class Translator:
         return newString
 
     def selectPreferred(self):
-        preferredSiteList = ['T2_US_MIT','T2_US_UCSD']
+        preferredSiteList = ['T2_US_MIT','T2_US_Wisconsin']
         self.preferredSites = ''
         for site in preferredSiteList:
             if re.search(site,self.allSites):
