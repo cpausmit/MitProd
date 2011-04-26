@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.93 2011/04/04 23:39:54 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.94 2011/04/23 19:33:13 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1205,9 +1205,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 	hpsActive = cms.untracked.bool(True),
 	mitName = cms.untracked.string('HPSTaus'),
 	edmName = cms.untracked.string('hpsPFTauProducer'),
-	discriminationAgainstElectronName = cms.untracked.string('hpsPFTauDiscriminationAgainstElectron'),
-	discriminationAgainstMuonName = cms.untracked.string('hpsPFTauDiscriminationAgainstMuon'),
+	discriminationByLooseElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseElectronRejection'),
+	discriminationByMediumElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMediumElectronRejection'),
+	discriminationByTightElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightElectronRejection'),
+	discriminationByLooseMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseMuonRejection'),
+	discriminationByTightMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightMuonRejection'),
 	discriminationByDecayModeFindingName = cms.untracked.string('hpsPFTauDiscriminationByDecayModeFinding'),
+	discriminationByVLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByVLooseIsolation'),
 	discriminationByLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByLooseIsolation'),
 	discriminationByMediumIsolationName = cms.untracked.string('hpsPFTauDiscriminationByMediumIsolation'),
 	discriminationByTightIsolationName = cms.untracked.string('hpsPFTauDiscriminationByTightIsolation'),
