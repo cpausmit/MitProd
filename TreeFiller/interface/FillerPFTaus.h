@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.5 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerPFTaus.h,v 1.6 2011/01/27 12:36:46 mhchan Exp $
 //
 // FillerPFTaus
 //
@@ -30,9 +30,13 @@ namespace mithep
       bool                           hpsActive_;      //=true if HPS discriminants are filled
       std::string                    edmName_;        //edm name of jets collection
       std::string                    mitName_;        //mit name of jets collection
-      std::string                    discriminationAgainstElectronName_;    // HPS discriminant
-      std::string                    discriminationAgainstMuonName_;        // HPS discriminant
+      std::string                    discriminationByLooseElectronRejectionName_; // HPS discriminant
+      std::string                    discriminationByMediumElectronRejectionName_; // HPS discriminant
+      std::string                    discriminationByTightElectronRejectionName_; // HPS discriminant
+      std::string                    discriminationByLooseMuonRejectionName_; // HPS discriminant
+      std::string                    discriminationByTightMuonRejectionName_; // HPS discriminant
       std::string                    discriminationByDecayModeFindingName_; // HPS discriminant
+      std::string                    discriminationByVLooseIsolationName_;   // HPS discriminant
       std::string                    discriminationByLooseIsolationName_;   // HPS discriminant
       std::string                    discriminationByMediumIsolationName_;  // HPS discriminant
       std::string                    discriminationByTightIsolationName_;   // HPS discriminant
