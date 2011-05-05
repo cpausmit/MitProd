@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.48 2011/03/23 19:02:51 mzanetti Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.49 2011/04/23 19:33:13 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,6 +19,11 @@ addKshFiller(MitTreeFiller)
 # Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
 addConversionFiller(MitTreeFiller)
+
+# Load NSVFit sequences
+from MitProd.TreeFiller.nSVFitSetup_cff import *
+from MitProd.TreeFiller.nSVFitResults_cff import *
+addNSVFitResults(MitTreeFiller)
 
 # For JetPlusTracks
 
@@ -109,7 +114,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #l1FastJetCorrectionSequence *
                                  #l1FastJetAreaComputationSequence *
                                  #daPrimaryVertexSequence *
-                                 newBtaggingAll
+                                 newBtaggingAll *
+                                 nSVFitSetup
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
