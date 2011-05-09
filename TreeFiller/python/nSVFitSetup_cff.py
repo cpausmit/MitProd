@@ -45,8 +45,8 @@ patMuons.addGenMatch = False
 patElectrons.addGenMatch = False
 
 preselectedTaus  = selectedPatTaus.clone(cut = 'pt > 15. & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5 & tauID("againstMuonLoose") > 0.5 & tauID("againstElectronLoose") > 0.5')
-preselectedMuons = selectedPatMuons.clone(cut = 'isGlobalMuon & isTrackerMuon & pt > 10. & abs(eta) < 2.1 & abs(dB)<0.02 & (trackIso+caloIso)/pt <  0.2')
-preselectedElecs = selectedPatElectrons.clone(cut = 'electronID(\"eidRobustTight\") > 0.99 & et > 20. & abs(eta) < 2.5 & abs(dB)<0.02 & (trackIso+caloIso)/et <  0.15')
+preselectedMuons = selectedPatMuons.clone(cut = 'isGlobalMuon & isTrackerMuon & pt > 10. & abs(eta) < 2.1 & (trackIso+caloIso)/pt <  0.2')
+preselectedElecs = selectedPatElectrons.clone(cut = 'et > 15. & abs(eta) < 2.5 & (trackIso+caloIso)/et <  0.15')
 
 # run the nSVfit algorithm
 from TauAnalysis.CandidateTools.nSVfitAlgorithmDiTau_cfi import *
