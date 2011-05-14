@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.49 2011/04/23 19:33:13 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.50 2011/05/05 12:43:17 rwolf Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -98,7 +98,8 @@ from MitProd.TreeFiller.newbtagging_cff import *
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
 
 #temporarily disable HPSTaus for 42x
-MitTreeFiller.HPSTaus.active = False
+#MitTreeFiller.HPSTaus.active = False
+from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
@@ -114,7 +115,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #l1FastJetCorrectionSequence *
                                  #l1FastJetAreaComputationSequence *
                                  #daPrimaryVertexSequence *
-                                 newBtaggingAll *
+                                 newBtaggingAll*
+				 PFTau
                                  nSVFitSetup
                                  )
 
