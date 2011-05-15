@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.6 2011/01/27 12:36:46 mhchan Exp $
+// $Id: FillerPFTaus.h,v 1.7 2011/04/29 14:18:23 mhchan Exp $
 //
 // FillerPFTaus
 //
@@ -12,6 +12,7 @@
 #define MITPROD_TREEFILLER_FILLERPFTAUS_H
 
 #include "MitAna/DataTree/interface/PFTauFwd.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
@@ -27,6 +28,8 @@ namespace mithep
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
+      //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
+      
       bool                           hpsActive_;      //=true if HPS discriminants are filled
       std::string                    edmName_;        //edm name of jets collection
       std::string                    mitName_;        //mit name of jets collection
@@ -47,7 +50,12 @@ namespace mithep
       const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
       const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
       mithep::PFTauArr              *taus_;           //array of taus
-      
+          
+      template <typename C>
+      edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<C, typename C::value_type, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
+        typedef typename C::value_type T;
+        return edm::Ptr<T>(ref.id(), ref.get(), ref.key());
+      }      
 
   };
 }

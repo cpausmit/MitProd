@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.7 2011/03/09 14:28:52 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.8 2011/04/26 12:14:24 mhchan Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -167,35 +167,35 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     if (trackMap_) {
       // electron preid track reference
       if (inTau->electronPreIDTrack().isNonnull())
-        tau->SetElectronTrack(trackMap_->GetMit(refToPtr(inTau->electronPreIDTrack())));
+        tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
     }
 
      // add source pfjet reference ( only filled since cmssw 311x )
      if (jetMap_) {
-       tau->SetPFJet(jetMap_->GetMit(refToPtr(inTau->jetRef())));
+       tau->SetPFJet(jetMap_->GetMit(refToPtrHack(inTau->jetRef())));
      }
 
     // add pf candidate references
     if (pfCandMap_) {
       if (inTau->leadPFCand().isNonnull())
-        tau->SetLeadPFCand(pfCandMap_->GetMit(refToPtr(inTau->leadPFCand())));
+        tau->SetLeadPFCand(pfCandMap_->GetMit(refToPtrHack(inTau->leadPFCand())));
         
       if (inTau->leadPFChargedHadrCand().isNonnull()) {
         const mithep::PFCandidate *pfc = 
-          pfCandMap_->GetMit(refToPtr(inTau->leadPFChargedHadrCand()));
+          pfCandMap_->GetMit(refToPtrHack(inTau->leadPFChargedHadrCand()));
         tau->SetLeadChargedHadronPFCand(pfc);
       }
         
       if (inTau->leadPFNeutralCand().isNonnull())
-        tau->SetLeadNeutralPFCand(pfCandMap_->GetMit(refToPtr(inTau->leadPFNeutralCand())));
+        tau->SetLeadNeutralPFCand(pfCandMap_->GetMit(refToPtrHack(inTau->leadPFNeutralCand())));
         
       for (uint i=0; i<inTau->signalPFCands().size(); ++i) {
-        const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtr(inTau->signalPFCands().at(i)));
+        const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFCands().at(i)));
         tau->AddSignalPFCand(signalCand);
       }
       
       for (uint i=0; i<inTau->isolationPFCands().size(); ++i) {
-        const PFCandidate *isoCand = pfCandMap_->GetMit(refToPtr(inTau->isolationPFCands().at(i)));
+        const PFCandidate *isoCand = pfCandMap_->GetMit(refToPtrHack(inTau->isolationPFCands().at(i)));
         tau->AddIsoPFCand(isoCand);
       }
     }
