@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.59 2010/05/29 12:58:57 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.60 2010/08/06 03:59:39 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -345,8 +345,8 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   }
   
 
-  // check size of menu... < 256
-  if (hltConfig_.size()>hltBits_->Size()) {
+  // check size of menu... < 1024
+  if (hltConfig_.size()>hltBits_->MaxSize()) {
     edm::LogError("FillerMetaInfos") << "HLT config contains too many paths "
                                      << hltConfig_.size() << " > " 
                                      << hltBits_->Size() << std::endl;
@@ -513,7 +513,7 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
     assert(triggerResultsHLT->size()==hltConfig_.size());
 
   // new bitmask
-  BitMask256 maskhlt;
+  BitMask1024 maskhlt;
 
   // loop over trigger objects and fill them
   const trigger::TriggerObjectCollection &toc(triggerEventHLT->getObjects());
@@ -689,6 +689,22 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   BitMask128 l1abmask;
   BitMask128 l1tbmask;
 
+  //check size of l1 menu
+  if ( gtMenuLite->gtTriggerMaskAlgoTrig().size() > l1amask.Size() ) {
+    edm::LogError("FillerMetaInfos") << "L1 config contains too many algos "
+                                     << gtMenuLite->gtTriggerMaskAlgoTrig().size() << " > " 
+                                     << l1amask.Size() << std::endl;
+    return;
+  }
+  //check size of l1 menu
+  if ( gtMenuLite->gtTriggerMaskTechTrig().size() > l1tmask.Size() ) {
+    edm::LogError("FillerMetaInfos") << "L1 config contains too many tech triggers "
+                                     << gtMenuLite->gtTriggerMaskTechTrig().size() << " > " 
+                                     << l1tmask.Size() << std::endl;
+    return;
+  }  
+  
+  
   int algoError,techError;
   bool algo, tech, algoBeforeMask, techBeforeMask;
   int algoPrescale,techPrescale,algoMask,techMask;
