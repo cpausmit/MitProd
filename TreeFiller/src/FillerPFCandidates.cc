@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.8 2010/03/29 09:34:05 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.9 2010/03/30 05:32:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -115,7 +115,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     outPfCand->SetMvaNeutralH(iP->mva_nothing_nh());
     outPfCand->SetMvaGammaNeutralH(iP->mva_gamma_nh());
     outPfCand->SetEtaECal(iP->positionAtECALEntrance().eta());
-    outPfCand->SetPhiECal(iP->positionAtECALEntrance().eta());
+    outPfCand->SetPhiECal(iP->positionAtECALEntrance().phi());
 
     // fill source vertex
     outPfCand->SetVertex(iP->vertex().x(),iP->vertex().y(),iP->vertex().z());
