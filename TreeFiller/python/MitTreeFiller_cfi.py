@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.94 2011/04/23 19:33:13 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.95 2011/04/26 12:16:06 mhchan Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -302,10 +302,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PileupEnergyDensity = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('Rho'),                     
-        #edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
-        #edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputationHighEta','rho'),
-        edmName               = cms.untracked.InputTag('kt6PFJets','rho'),
-        edmNameHighEta               = cms.untracked.InputTag('kt6PFJets','rho'),        
+        edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
+        edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),        
         fillerType            = cms.untracked.string('FillerPileupEnergyDensity')
     ),
 
@@ -515,7 +513,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         gsfTrackAssocName                = cms.untracked.string(''),
         pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
-        recomputeConversionInfo          = cms.untracked.bool(True),
+        recomputeConversionInfo          = cms.untracked.bool(False),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
     
@@ -783,7 +781,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     IC5JetPlusTrack = cms.untracked.PSet(
-        active               = cms.untracked.bool(False),
+        active               = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive       = cms.untracked.bool(False),
         jetToVertexActive    = cms.untracked.bool(False),
@@ -813,7 +811,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
     
     AK5JetPlusTrack = cms.untracked.PSet(
-        active               = cms.untracked.bool(False),
+        active               = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive       = cms.untracked.bool(False),
         jetToVertexActive    = cms.untracked.bool(False),

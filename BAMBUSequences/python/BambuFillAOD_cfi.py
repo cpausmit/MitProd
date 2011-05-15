@@ -1,4 +1,4 @@
-# $Id: BambuFillAOD_cfi.py,v 1.8 2010/11/23 22:23:33 bendavid Exp $
+# $Id: BambuFillAOD_cfi.py,v 1.9 2010/11/25 15:49:37 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -38,13 +38,30 @@ MitTreeFiller.PFTaus.active = False
 #MitTreeFiller.ConversionInOutElectronsStable.active = False
 #MitTreeFiller.ConversionOutInElectronsStable.active = False
 #MitTreeFiller.GsfElectronsStable.active = False
-MitTreeFiller.MergedElectronsStable.active = False
-
-MitTreeFiller.PisStable.active = False
-MitTreeFiller.Ksh2PiPi.active = False
-MitTreeFiller.MvfConversions.active = False
-MitTreeFiller.MvfTrackerConversions.active = False
-MitTreeFiller.MvfConversionRemoval.active = False
+try:
+  MitTreeFiller.MergedElectronsStable.active = False
+except:
+  pass 
+try:
+  MitTreeFiller.PisStable.active = False
+except:
+  pass
+try:
+  MitTreeFiller.Ksh2PiPi.active = False
+except:
+  pass
+try:
+  MitTreeFiller.MvfConversions.active = False
+except:
+  pass
+try:
+  MitTreeFiller.MvfTrackerConversions.active = False
+except:
+  pass
+try:
+  MitTreeFiller.MvfConversionRemoval.active = False
+except:
+  pass
 
 
 #Disable duplicate removal in StableParticle merging for conversions,
