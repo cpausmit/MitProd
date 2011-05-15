@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.21 2010/09/19 23:47:15 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.22 2011/03/13 22:15:09 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -131,6 +131,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetSolidConeNTrkDr04(iP->nTrkSolidConeDR04());
     outPhoton->SetHollowConeNTrkDr04(iP->nTrkHollowConeDR04());
 
+    //pflow isolation
+    outPhoton->SetPFChargedHadronIso(iP->chargedHadronIso());
+    outPhoton->SetPFChargedHadronIso(iP->neutralHadronIso());
+    outPhoton->SetPFChargedHadronIso(iP->photonIso());    
+    
     //fiducial and quality flags
     outPhoton->SetIsEB(iP->isEB());
     outPhoton->SetIsEE(iP->isEE());

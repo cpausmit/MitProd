@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.54 2011/04/04 23:39:21 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.55 2011/04/23 19:13:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -221,6 +221,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHcalDepth2TowerSumEtDr03(iM->dr03HcalDepth2TowerSumEt());
     outElectron->SetTrackIsolationDr03(iM->dr03TkSumPt());
      
+    //pflow isolation
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().chargedHadronIso);
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().neutralHadronIso);
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().photonIso);
+    
     // fiducial flags
     outElectron->SetIsEB(iM->isEB());
     outElectron->SetIsEE(iM->isEE());
