@@ -1,35 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
-# load what is need to get the NSVFit stuff run
+# load what is needed to get the nSVfit stuff run
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import *
 patMETs.metSource = "pfMet"
-patMETs.addMuonCorrections = False
 patMETs.addGenMET = False
+patMETs.addMuonCorrections = False
 
-from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import *
+from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 
-tauIsoDepositPFCandidates.src = "hpsPFTauProducer"
-tauIsoDepositPFCandidates.ExtractorPSet.tauSource = "hpsPFTauProducer"
+tauIsoDepositPFCandidates.src     = "hpsPFTauProducer"
+tauIsoDepositPFCandidates.ExtractorPSet.tauSource     = "hpsPFTauProducer"
 tauIsoDepositPFChargedHadrons.src = "hpsPFTauProducer"
 tauIsoDepositPFChargedHadrons.ExtractorPSet.tauSource = "hpsPFTauProducer"
 tauIsoDepositPFNeutralHadrons.src = "hpsPFTauProducer"
 tauIsoDepositPFNeutralHadrons.ExtractorPSet.tauSource = "hpsPFTauProducer"
-tauIsoDepositPFGammas.src = "hpsPFTauProducer"
-tauIsoDepositPFGammas.ExtractorPSet.tauSource = "hpsPFTauProducer"
+tauIsoDepositPFGammas.src         = "hpsPFTauProducer"
+tauIsoDepositPFGammas.ExtractorPSet.tauSource         = "hpsPFTauProducer"
 
 patTaus.tauSource = "hpsPFTauProducer"
-patTaus.tauIDSources = cms.PSet(
-    decayModeFinding = cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+patTaus.tauIDSources  = cms.PSet(
+    decayModeFinding  = cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
     byVLooseIsolation = cms.InputTag("hpsPFTauDiscriminationByVLooseIsolation"),
-    byLooseIsolation = cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),
+    byLooseIsolation  = cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),
     byMediumIsolation = cms.InputTag("hpsPFTauDiscriminationByMediumIsolation"),
-    byTightIsolation = cms.InputTag("hpsPFTauDiscriminationByTightIsolation"),
-    againstElectronLoose = cms.InputTag("hpsPFTauDiscriminationByLooseElectronRejection"),
+    byTightIsolation  = cms.InputTag("hpsPFTauDiscriminationByTightIsolation"),
+    againstElectronLoose  = cms.InputTag("hpsPFTauDiscriminationByLooseElectronRejection"),
     againstElectronMedium = cms.InputTag("hpsPFTauDiscriminationByMediumElectronRejection"),
-    againstElectronTight = cms.InputTag("hpsPFTauDiscriminationByTightElectronRejection"),
+    againstElectronTight  = cms.InputTag("hpsPFTauDiscriminationByTightElectronRejection"),
     againstMuonLoose = cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection"),
     againstMuonTight = cms.InputTag("hpsPFTauDiscriminationByTightMuonRejection")
 )
@@ -39,9 +39,9 @@ from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import *
 
-patTaus.addGenMatch = False
-patTaus.addGenJetMatch = False
-patMuons.addGenMatch = False
+patTaus.addGenMatch      = False
+patTaus.addGenJetMatch   = False
+patMuons.addGenMatch     = False
 patElectrons.addGenMatch = False
 
 preselectedTaus  = selectedPatTaus.clone(cut = 'pt > 15. & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5 & tauID("againstMuonLoose") > 0.5 & tauID("againstElectronLoose") > 0.5')
@@ -58,7 +58,10 @@ nSVfitConfigMuTau.event.resonances.A.daughters.leg1.src = "preselectedMuons"
 nSVfitConfigMuTau.event.resonances.A.daughters.leg2.src = "preselectedTaus"
 nSVfitConfigMuTau.event.srcMEt = "patMETs"
 nSVfitProducerMuTau.config = nSVfitConfigMuTau
-nSVfitProducerMuTau.algorithm.parameters.mass_A.max = 500.
+nSVfitProducerMuTau.algorithm.parameters.mass_A.min      =   10.
+nSVfitProducerMuTau.algorithm.parameters.mass_A.max      =  400.
+nSVfitProducerMuTau.algorithm.parameters.mass_A.stepSize =   10.
+nSVfitProducerMuTau.algorithm.vegasOptions.numCalls      = 5000
 
 ## e-tau version
 nSVfitConfigETau   = nSVfitConfig.clone()
@@ -71,7 +74,10 @@ nSVfitConfigETau.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPS
 nSVfitConfigETau.event.resonances.A.daughters.leg2.builder = nSVfitTauToHadBuilder
 nSVfitConfigETau.event.srcMEt = "patMETs"
 nSVfitProducerETau.config = nSVfitConfigETau
-nSVfitProducerETau.algorithm.parameters.mass_A.max = 500.
+nSVfitProducerETau.algorithm.parameters.mass_A.min       =   10.
+nSVfitProducerETau.algorithm.parameters.mass_A.max       =  400.
+nSVfitProducerETau.algorithm.parameters.mass_A.stepSize  =   10.
+nSVfitProducerETau.algorithm.vegasOptions.numCalls       = 5000
 
 ##e-mu version
 nSVfitConfigEMu   = nSVfitConfig.clone()
@@ -84,7 +90,10 @@ nSVfitConfigEMu.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPSe
 nSVfitConfigEMu.event.resonances.A.daughters.leg2.builder = nSVfitTauToElecBuilder
 nSVfitConfigEMu.event.srcMEt = "patMETs"
 nSVfitProducerEMu.config = nSVfitConfigEMu
-nSVfitProducerEMu.algorithm.parameters.mass_A.max = 500.
+nSVfitProducerEMu.algorithm.parameters.mass_A.min        =   10.
+nSVfitProducerEMu.algorithm.parameters.mass_A.max        =  400.
+nSVfitProducerEMu.algorithm.parameters.mass_A.stepSize   =   10.
+nSVfitProducerEMu.algorithm.vegasOptions.numCalls        = 5000
 
 nSVFitSetup = cms.Sequence(
     patMETs
