@@ -58,10 +58,10 @@ nSVfitConfigMuTau.event.resonances.A.daughters.leg1.src = "preselectedMuons"
 nSVfitConfigMuTau.event.resonances.A.daughters.leg2.src = "preselectedTaus"
 nSVfitConfigMuTau.event.srcMEt = "patMETs"
 nSVfitProducerMuTau.config = nSVfitConfigMuTau
-nSVfitProducerMuTau.algorithm.parameters.mass_A.min      =   10.
-nSVfitProducerMuTau.algorithm.parameters.mass_A.max      =  400.
-nSVfitProducerMuTau.algorithm.parameters.mass_A.stepSize =   10.
-nSVfitProducerMuTau.algorithm.vegasOptions.numCalls      = 5000
+nSVfitProducerMuTau.algorithm.parameters.mass_A.min      =   15.
+nSVfitProducerMuTau.algorithm.parameters.mass_A.max      =  390.
+nSVfitProducerMuTau.algorithm.parameters.mass_A.stepSize =   15.
+nSVfitProducerMuTau.algorithm.vegasOptions.numCalls      = 1000
 
 ## e-tau version
 nSVfitConfigETau   = nSVfitConfig.clone()
@@ -74,10 +74,10 @@ nSVfitConfigETau.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPS
 nSVfitConfigETau.event.resonances.A.daughters.leg2.builder = nSVfitTauToHadBuilder
 nSVfitConfigETau.event.srcMEt = "patMETs"
 nSVfitProducerETau.config = nSVfitConfigETau
-nSVfitProducerETau.algorithm.parameters.mass_A.min       =   10.
-nSVfitProducerETau.algorithm.parameters.mass_A.max       =  400.
-nSVfitProducerETau.algorithm.parameters.mass_A.stepSize  =   10.
-nSVfitProducerETau.algorithm.vegasOptions.numCalls       = 5000
+nSVfitProducerETau.algorithm.parameters.mass_A.min       =   15.
+nSVfitProducerETau.algorithm.parameters.mass_A.max       =  390.
+nSVfitProducerETau.algorithm.parameters.mass_A.stepSize  =   15.
+nSVfitProducerETau.algorithm.vegasOptions.numCalls       = 1000
 
 ##e-mu version
 nSVfitConfigEMu   = nSVfitConfig.clone()
@@ -90,10 +90,10 @@ nSVfitConfigEMu.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPSe
 nSVfitConfigEMu.event.resonances.A.daughters.leg2.builder = nSVfitTauToElecBuilder
 nSVfitConfigEMu.event.srcMEt = "patMETs"
 nSVfitProducerEMu.config = nSVfitConfigEMu
-nSVfitProducerEMu.algorithm.parameters.mass_A.min        =   10.
-nSVfitProducerEMu.algorithm.parameters.mass_A.max        =  400.
-nSVfitProducerEMu.algorithm.parameters.mass_A.stepSize   =   10.
-nSVfitProducerEMu.algorithm.vegasOptions.numCalls        = 5000
+nSVfitProducerEMu.algorithm.parameters.mass_A.min        =   15.
+nSVfitProducerEMu.algorithm.parameters.mass_A.max        =  390.
+nSVfitProducerEMu.algorithm.parameters.mass_A.stepSize   =   15.
+nSVfitProducerEMu.algorithm.vegasOptions.numCalls        = 1000
 
 nSVFitSetup = cms.Sequence(
     patMETs
