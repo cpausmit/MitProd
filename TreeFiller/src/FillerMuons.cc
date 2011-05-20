@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.38 2011/03/13 22:16:08 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.39 2011/03/22 00:22:51 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -20,6 +20,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
+#include "MitEdm/Tools/interface/VertexReProducer.h"
 
 using namespace std;
 using namespace edm;
@@ -282,6 +283,42 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         }
       
       }
+
+      reco::TrackCollection newTkCollection;
+      bool foundMatch = false;
+      for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end(); itk++) {
+        if(itk->get() == &*(iM->innerTrack())) { 
+          foundMatch = true;
+          continue;
+        }
+        newTkCollection.push_back(*itk->get());
+      }
+
+      if(foundMatch) {       
+        edm::Handle<reco::BeamSpot> bs;
+        event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
+      
+        VertexReProducer revertex(hVertex,event);
+        edm::Handle<reco::BeamSpot> pvbeamspot;
+        event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
+        vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
+//        if(pvs.empty()) {
+//          thevtx = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
+//        } else {
+//          thevtx = pvs.front();      // take the first in the list
+//        }
+        
+        VertexReProducer revertexbs(hVertexBS,event);
+        edm::Handle<reco::BeamSpot> pvbsbeamspot;
+        event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
+        vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
+//        if(pvbss.empty()) {
+//          thevtxbs = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
+//        } else {
+//          thevtxbs = pvbss.front();  // take the first in the list
+//        }
+      }
+
 
       //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
       const double thesign   = ( (-iM->track()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;

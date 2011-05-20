@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.55 2011/04/23 19:13:14 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.56 2011/05/15 14:11:47 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -36,6 +36,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
+#include "MitEdm/Tools/interface/VertexReProducer.h"
 
 using namespace std;
 using namespace edm;
@@ -338,9 +339,51 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
             }
           }
         }
+	
+	
+        //check if closest ctf track is included in PV and if so, remove it from the collection of 
+        //tracks associated with the PV and perform a refit before computing impact parameters and uncertainties
+        reco::TrackCollection newTkCollection;
+        bool foundMatch = false;
+        for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end(); itk++) {
+          if(iM->closestCtfTrack().ctfTrack.isNonnull()) {
+            bool refMatching = (itk->get() == &*(iM->closestCtfTrack().ctfTrack));
+            float shFraction = iM->closestCtfTrack().shFracInnerHits;
+            if(refMatching && shFraction > 0.5) {
+              foundMatch = true;
+              continue;
+            }
+          }       
+          newTkCollection.push_back(*itk->get());
+        }
 
-      }
+        if(foundMatch) {
+          edm::Handle<reco::BeamSpot> bs;
+          event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
       
+          VertexReProducer revertex(hVertex,event);
+          edm::Handle<reco::BeamSpot> pvbeamspot;
+          event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
+          vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
+//          if(pvs.empty()) {
+//            thevtx = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
+//          } else {
+//            thevtx = pvs.front();      // take the first in the list
+//          }
+        
+          VertexReProducer revertexbs(hVertexBS,event);
+          edm::Handle<reco::BeamSpot> pvbsbeamspot;
+          event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
+          vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
+//          if(pvbss.empty()) {
+//            thevtxbs = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
+//          } else {
+//            thevtxbs = pvbss.front();  // take the first in the list
+//          }
+        }
+      }
+
+    
       //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
       const double gsfsign   = ( (-iM->gsfTrack()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
       const double gsfsignbs = ( (-iM->gsfTrack()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;

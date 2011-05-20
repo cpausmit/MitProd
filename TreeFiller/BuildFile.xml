@@ -39,6 +39,7 @@
 <use   name="MitEdm/DataFormats"/>
 <use   name="MitEdm/ConversionRejection"/>
 <use   name="MitProd/ObjectService"/>
+<use   name="MitEdm/Tools"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
