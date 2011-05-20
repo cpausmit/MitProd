@@ -1,4 +1,4 @@
-# $Id: BambuFillFASTSIM_cfi.py,v 1.1 2010/04/27 14:29:40 bendavid Exp $
+# $Id: BambuFillFASTSIM_cfi.py,v 1.2 2010/05/30 15:28:58 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,6 +14,9 @@ MitTreeFiller.MCParticles.simActive = False
 
 #disable filling of L1 trigger info (not consistantly available in fastsim)
 MitTreeFiller.MetaInfos.l1Active = False
+
+#disable pileup info filling
+MitTreeFiller.PileupInfo.active = False
 
 #replace conversion sequence with fastsim friendly sequence omitting ecal-seeded tracks
 BambuRecoSequence.replace(electronsStable,electronsStableFastSim)

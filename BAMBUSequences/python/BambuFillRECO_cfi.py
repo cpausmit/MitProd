@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.51 2011/05/14 18:07:52 mhchan Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.52 2011/05/15 20:41:22 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,17 +14,17 @@ MitTreeFiller.MergedElectronsStable.active          = True
 
 #ctvmft stuff temporarily disabled pending debugging
 # Load Mit vProducer
-#from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
+from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
 #addKshFiller(MitTreeFiller)
 
 ## Load Mit Mvf Conversion producer
-#from MitProd.TreeFiller.conversionProducer_cff import *
+from MitProd.TreeFiller.conversionProducer_cff import *
 #addConversionFiller(MitTreeFiller)
 
-# Load NSVFit sequences (disabled temporarily for performance issues)
-#from MitProd.TreeFiller.nSVFitSetup_cff import *
-#from MitProd.TreeFiller.nSVFitResults_cff import *
-#addNSVFitResults(MitTreeFiller)
+#Load NSVFit sequences (disabled temporarily for performance issues)
+from MitProd.TreeFiller.nSVFitSetup_cff import *
+from MitProd.TreeFiller.nSVFitResults_cff import *
+addNSVFitResults(MitTreeFiller)
 
 
 # Load track detector associator for Track-ECal association
@@ -81,8 +81,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
                                  newBtaggingAll*
-				 PFTau
-                                 #nSVFitSetup
+				 PFTau*
+                                 nSVFitSetup
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
