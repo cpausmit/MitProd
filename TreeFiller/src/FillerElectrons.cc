@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.56 2011/05/15 14:11:47 bendavid Exp $
+// $Id: FillerElectrons.cc,v 1.57 2011/05/20 16:19:31 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -275,71 +275,16 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
       reco::TransientTrack ttckf;
 
-      reco::Vertex thevtx;// = pvCol->at(0);
-      reco::Vertex thevtxbs;// = pvBSCol->at(0);
+      reco::Vertex thevtx = pvCol->at(0);
+      reco::Vertex thevtxbs = pvBSCol->at(0);
 
-      double mindzvtx = 9999.;
-      for (uint ivtx = 0; ivtx<pvCol->size(); ++ivtx) {
-        reco::Vertex avtx = pvCol->at(ivtx);
-        double dzvtx = std::abs(iM->gsfTrack()->dz(avtx.position()));
-        if (dzvtx<mindzvtx) {
-          mindzvtx = dzvtx;
-          thevtx = avtx;
-        }
-      }
-
-      double mindzvtxbs = 9999.;
-      for (uint ivtxbs = 0; ivtxbs<pvBSCol->size(); ++ivtxbs) {
-        reco::Vertex avtxbs = pvBSCol->at(ivtxbs);
-        double dzvtxbs = std::abs(iM->gsfTrack()->dz(avtxbs.position()));
-        if (dzvtxbs<mindzvtxbs) {
-          mindzvtxbs = dzvtxbs;
-          thevtxbs = avtxbs;
-        }
-      }
+      reco::Vertex thevtxub = pvCol->at(0);
+      reco::Vertex thevtxubbs = pvBSCol->at(0);
 
 
       //check if closest ctf track is included in PV and if so, remove it before computing impact parameters and uncertainties
       if (iM->closestCtfTrackRef().isNonnull()) {
         ttckf = transientTrackBuilder->build(iM->closestCtfTrackRef());
-
-        if (0) { //don't refit vertex for now
-      
-          if (find(thevtx.tracks_begin(), thevtx.tracks_end(), ttckf.trackBaseRef()) != thevtx.tracks_end()) {
-            GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
-            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
-            GlobalError err(thevtx.covariance());
-            VertexState vState(linP, err);
-            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-          
-            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
-            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
-
-            if (newCachingVertex.isValid()) {
-              const TransientVertex &tvtx = newCachingVertex;
-              thevtx = tvtx;
-            }
-          }
-
-          if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), ttckf.trackBaseRef()) != thevtxbs.tracks_end()) {
-            GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
-            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, ttckf);
-            GlobalError err(thevtxbs.covariance());
-            VertexState vState(linP, err);
-            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-          
-            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
-            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
-
-            if (newCachingVertex.isValid()) {
-              const TransientVertex &tvtx = newCachingVertex;
-              thevtxbs = tvtx;
-            }
-          }
-        }
-	
 	
         //check if closest ctf track is included in PV and if so, remove it from the collection of 
         //tracks associated with the PV and perform a refit before computing impact parameters and uncertainties
@@ -365,21 +310,17 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
           edm::Handle<reco::BeamSpot> pvbeamspot;
           event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
           vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-//          if(pvs.empty()) {
-//            thevtx = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
-//          } else {
-//            thevtx = pvs.front();      // take the first in the list
-//          }
-        
+          if(pvs.size()>0) {
+            thevtxub = pvs.front();      // take the first in the list
+          }
+
           VertexReProducer revertexbs(hVertexBS,event);
           edm::Handle<reco::BeamSpot> pvbsbeamspot;
           event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
           vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-//          if(pvbss.empty()) {
-//            thevtxbs = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
-//          } else {
-//            thevtxbs = pvbss.front();  // take the first in the list
-//          }
+          if(pvbss.size()>0) {
+            thevtxubbs = pvbss.front();  // take the first in the list
+          }
         }
       }
 
@@ -425,6 +366,43 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetIp3dPVBS(-999.0);
       }
 
+      const std::pair<bool,Measurement1D> &d0pvub =  IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
+      if (d0pvub.first) {
+        outElectron->SetD0PVUB(gsfsign*d0pvub.second.value());
+        outElectron->SetD0PVUBErr(d0pvub.second.error());
+      }
+      else {
+        outElectron->SetD0PVUB(-999.0);
+      }
+
+
+      const std::pair<bool,Measurement1D> &ip3dpvub =  IPTools::absoluteImpactParameter3D(tt,thevtxub);
+      if (ip3dpvub.first) {
+        outElectron->SetIp3dPVUB(gsfsign*ip3dpvub.second.value());
+        outElectron->SetIp3dPVUBErr(ip3dpvub.second.error());
+      }
+      else {
+        outElectron->SetIp3dPVUB(-999.0);
+      }
+
+      const std::pair<bool,Measurement1D> &d0pvubbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
+      if (d0pvubbs.first) {
+        outElectron->SetD0PVUBBS(gsfsignbs*d0pvubbs.second.value());
+        outElectron->SetD0PVUBBSErr(d0pvubbs.second.error());
+      }
+      else {
+        outElectron->SetD0PVUBBS(-999.0);
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpvubbs =  IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
+      if (ip3dpvubbs.first) {
+        outElectron->SetIp3dPVUBBS(gsfsignbs*ip3dpvubbs.second.value());
+        outElectron->SetIp3dPVUBBSErr(ip3dpvubbs.second.error());
+      }
+      else {
+        outElectron->SetIp3dPVUBBS(-999.0);
+      }
+
       if (iM->closestCtfTrackRef().isNonnull()) {
 
         const double ckfsign   = ( (-iM->closestCtfTrackRef()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
@@ -466,12 +444,56 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         else {
           outElectron->SetIp3dPVBSCkf(-999.0);
         }
+//////////////
+
+        const std::pair<bool,Measurement1D> &d0pvubckf =  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxub);
+        if (d0pvubckf.first) {
+          outElectron->SetD0PVUBCkf(ckfsign*d0pvubckf.second.value());
+          outElectron->SetD0PVUBCkfErr(d0pvubckf.second.error());
+        }
+        else {
+          outElectron->SetD0PVUBCkf(-999.0);
+        }
+  
+  
+        const std::pair<bool,Measurement1D> &ip3dpvubckf =  IPTools::absoluteImpactParameter3D(ttckf,thevtxub);
+        if (ip3dpvubckf.first) {
+          outElectron->SetIp3dPVUBCkf(ckfsign*ip3dpvubckf.second.value());
+          outElectron->SetIp3dPVUBCkfErr(ip3dpvubckf.second.error());
+        }
+        else {
+          outElectron->SetIp3dPVUBCkf(-999.0);
+        }
+  
+        const std::pair<bool,Measurement1D> &d0pvubbsckf =  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxubbs);
+        if (d0pvubbsckf.first) {
+          outElectron->SetD0PVUBBSCkf(ckfsignbs*d0pvubbsckf.second.value());
+          outElectron->SetD0PVUBBSCkfErr(d0pvubbsckf.second.error());
+        }
+        else {
+          outElectron->SetD0PVUBBSCkf(-999.0);
+        }
+  
+        const std::pair<bool,Measurement1D> &ip3dpvubbsckf =  IPTools::absoluteImpactParameter3D(ttckf,thevtxubbs);
+        if (ip3dpvubbsckf.first) {
+          outElectron->SetIp3dPVUBBSCkf(ckfsignbs*ip3dpvubbsckf.second.value());
+          outElectron->SetIp3dPVUBBSCkfErr(ip3dpvubbsckf.second.error());
+        }
+        else {
+          outElectron->SetIp3dPVUBBSCkf(-999.0);
+        }
+
       }
       else {
         outElectron->SetD0PVCkf(-999.0);
         outElectron->SetIp3dPVCkf(-999.0);
         outElectron->SetD0PVBSCkf(-999.0);
         outElectron->SetIp3dPVBSCkf(-999.0);
+
+        outElectron->SetD0PVUBCkf(-999.0);
+        outElectron->SetIp3dPVUBCkf(-999.0);
+        outElectron->SetD0PVUBBSCkf(-999.0);
+        outElectron->SetIp3dPVUBBSCkf(-999.0);
       }
 
 

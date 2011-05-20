@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.39 2011/03/22 00:22:51 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.40 2011/05/20 16:19:24 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -152,6 +152,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
     outMuon->SetIsCaloMuon(iM->isCaloMuon());
 
+    //kink algorithm
+    outMuon->SetTrkKink(iM->combinedQuality().trkKink);
+    outMuon->SetGlbKink(iM->combinedQuality().glbKink);
+
     //save results from the muon selector in the MuonQuality bitmask
     outMuon->Quality().SetQuality(MuonQuality::All);
     if (muon::isGoodMuon(*iM,muon::AllGlobalMuons))
@@ -223,66 +227,11 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     if (iM->track().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
 
-      reco::Vertex thevtx;// = pvCol->at(0);
-      reco::Vertex thevtxbs;// = pvBSCol->at(0);
+      reco::Vertex thevtx = pvCol->at(0);
+      reco::Vertex thevtxbs = pvBSCol->at(0);
 
-      double mindzvtx = 9999.;
-      for (uint ivtx = 0; ivtx<pvCol->size(); ++ivtx) {
-        reco::Vertex avtx = pvCol->at(ivtx);
-        double dzvtx = std::abs(iM->track()->dz(avtx.position()));
-        if (dzvtx<mindzvtx) {
-          mindzvtx = dzvtx;
-          thevtx = avtx;
-        }
-      }
-
-      double mindzvtxbs = 9999.;
-      for (uint ivtxbs = 0; ivtxbs<pvBSCol->size(); ++ivtxbs) {
-        reco::Vertex avtxbs = pvBSCol->at(ivtxbs);
-        double dzvtxbs = std::abs(iM->track()->dz(avtxbs.position()));
-        if (dzvtxbs<mindzvtxbs) {
-          mindzvtxbs = dzvtxbs;
-          thevtxbs = avtxbs;
-        }
-      }
-
-      if (0) { //don't refit vertex for now
-      
-        if (find(thevtx.tracks_begin(), thevtx.tracks_end(), tt.trackBaseRef()) != thevtx.tracks_end()) {
-            GlobalPoint linP(Basic3DVector<float> (thevtx.position()));
-            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
-            GlobalError err(thevtx.covariance());
-            VertexState vState(linP, err);
-            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-        
-            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtx.chi2());
-            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
-
-            if (newCachingVertex.isValid()) {
-              const TransientVertex &tvtx = newCachingVertex;
-              thevtx = tvtx;
-            }
-        }
-
-        if (find(thevtxbs.tracks_begin(), thevtxbs.tracks_end(), tt.trackBaseRef()) != thevtxbs.tracks_end()) {
-            GlobalPoint linP(Basic3DVector<float> (thevtxbs.position()));
-            KalmanVertexUpdator<5>::RefCountedLinearizedTrackState linTrack = lTrackFactory.linearizedTrackState(linP, tt);
-            GlobalError err(thevtxbs.covariance());
-            VertexState vState(linP, err);
-            KalmanVertexUpdator<5>::RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-        
-            std::vector<KalmanVertexUpdator<5>::RefCountedVertexTrack> initialTracks(1, vertexTrack);
-            CachingVertex<5> cachingVertex(linP, err, initialTracks, thevtxbs.chi2());
-            const CachingVertex<5> &newCachingVertex = updator.remove(cachingVertex,vertexTrack);
-
-            if (newCachingVertex.isValid()) {
-              const TransientVertex &tvtx = newCachingVertex;
-              thevtxbs = tvtx;
-            }
-        }
-      
-      }
+      reco::Vertex thevtxub = pvCol->at(0);
+      reco::Vertex thevtxubbs = pvBSCol->at(0);
 
       reco::TrackCollection newTkCollection;
       bool foundMatch = false;
@@ -302,21 +251,17 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         edm::Handle<reco::BeamSpot> pvbeamspot;
         event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
         vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-//        if(pvs.empty()) {
-//          thevtx = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
-//        } else {
-//          thevtx = pvs.front();      // take the first in the list
-//        }
+        if(pvs.size()>0) {
+          thevtxub = pvs.front();      // take the first in the list
+        }
         
         VertexReProducer revertexbs(hVertexBS,event);
         edm::Handle<reco::BeamSpot> pvbsbeamspot;
         event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
         vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-//        if(pvbss.empty()) {
-//          thevtxbs = reco::Vertex(reco::Vertex::Point(bs->position().x(),bs->position().y(),bs->position().z()),reco::Vertex::Error());
-//        } else {
-//          thevtxbs = pvbss.front();  // take the first in the list
-//        }
+        if(pvbss.size()>0) {
+          thevtxubbs = pvbss.front();  // take the first in the list
+        }
       }
 
 
@@ -358,6 +303,42 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       }
       else {
         outMuon->SetIp3dPVBS(-99.0);
+      }
+
+      const std::pair<bool,Measurement1D> &d0pvub =  IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
+      if (d0pvub.first) {
+        outMuon->SetD0PVUB(thesign*d0pvub.second.value());
+        outMuon->SetD0PVUBErr(d0pvub.second.error());
+      }
+      else {
+        outMuon->SetD0PVUB(-99.0);
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpvub =  IPTools::absoluteImpactParameter3D(tt,thevtxub);
+      if (ip3dpvub.first) {
+        outMuon->SetIp3dPVUB(thesign*ip3dpvub.second.value());
+        outMuon->SetIp3dPVUBErr(ip3dpvub.second.error());
+      }
+      else {
+        outMuon->SetIp3dPVUB(-99.0);
+      }
+
+      const std::pair<bool,Measurement1D> &d0pvubbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
+      if (d0pvubbs.first) {
+        outMuon->SetD0PVUBBS(thesignbs*d0pvubbs.second.value());
+        outMuon->SetD0PVUBBSErr(d0pvubbs.second.error());
+      }
+      else {
+        outMuon->SetD0PVUBBS(-99.0);
+      }
+
+      const std::pair<bool,Measurement1D> &ip3dpvubbs =  IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
+      if (ip3dpvubbs.first) {
+        outMuon->SetIp3dPVUBBS(thesignbs*ip3dpvubbs.second.value());
+        outMuon->SetIp3dPVUBBSErr(ip3dpvubbs.second.error());
+      }
+      else {
+        outMuon->SetIp3dPVUBBS(-99.0);
       }
 
       //compute compatibility with PV using taking into account also the case where muon track
