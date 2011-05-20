@@ -11,15 +11,24 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation [ DbsInstance ]
 #---------------------------------------------------------------------------------------------------
-#
-/Photon/StoreResults-rereco414p3_laserV5_DiPhotonSD_Run2011A_v1-c8f23c7e0bbfe6771c7ce08f804ff4db-DiPhoton/USER \
-                                                r10a-dpho-v1prv 1 new -
-/Photon/StoreResults-rereco414p3_laserV5_DiPhotonSD_Run2011A_v2-c8f23c7e0bbfe6771c7ce08f804ff4db-DiPhoton/USER \
-                                                r10a-dpho-v2prv 1 new -
 # some selected 2010 data d22
-/EG/Run2010A-Dec22ReReco_v1/AOD                 r10a-eg-d22     1 new -
+/EG/Run2010A-Dec22ReReco_v1/AOD                 r10a-eg-d22     1 new /mnt/hadoop/cmsprod
 /Photon/Run2010B-Dec22ReReco_v1/AOD             r10b-pho-d22    1 new -
 /Electron/Run2010B-Dec22ReReco_v1/AOD           r10b-el-d22     1 new -
+# private 2011 re-reco
+/Photon/StoreResults-rereco414p3_laserV5_DiPhotonSD_Run2011A_v1-c8f23c7e0bbfe6771c7ce08f804ff4db-DiPhoton/USER \
+                                                r11a-dpho-sd-v1 1 new -
+/Photon/StoreResults-rereco414p3_laserV5_DiPhotonSD_Run2011A_v2-c8f23c7e0bbfe6771c7ce08f804ff4db-DiPhoton/USER \
+                                                r11a-dpho-sd-v2 1 new -
+/Photon/StoreResults-rereco414p3_laserV5_DiPhotonSD_Run2011A_v1_ESFixed-af05ab8fcc6e4c27eb4bfa8e09170a5e-DiPhoton/USER \
+                                                r11a-dpho-fx-v1 1 new -
+# official May07 rereco 
+/DoubleElectron/Run2011A-May7ReReco-v1/AOD      r11a-del-m07-v2 1 new -
+/Photon/Run2011A-May7ReReco-v1/AOD              r11a-pho-m07-v2 1 new -
+# official April 22 rereco 
+/Photon/Run2011A-Apr22ReReco-v2/AOD             r11a-pho-a22-v2 1 new -
+/DoubleElectron/Run2011A-Apr22ReReco-v2/AOD     r11a-del-a22-v2 1 new -
+/SingleElectron/Run2011A-Apr22ReReco-v3/AOD     r11a-sel-a22-v3 1 new -
 # 2011 data v1
 /DoubleMu/Run2011A-PromptReco-v1/AOD		r11a-dmu-pr-v1  1 new -
 /DoubleElectron/Run2011A-PromptReco-v1/AOD      r11a-del-pr-v1  1 new -
