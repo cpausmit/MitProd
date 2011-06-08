@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.95 2011/04/26 12:16:06 mhchan Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.96 2011/05/15 20:41:09 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -301,9 +301,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     PileupEnergyDensity = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
-        mitName               = cms.untracked.string('Rho'),                     
+        mitName               = cms.untracked.string('Rho'),
         edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
-        edmNameHighEta               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),        
+        edmNameHighEta        = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
         fillerType            = cms.untracked.string('FillerPileupEnergyDensity')
     ),
 
@@ -513,14 +513,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         gsfTrackAssocName                = cms.untracked.string(''),
         pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
-        recomputeConversionInfo          = cms.untracked.bool(False),
+        recomputeConversionInfo          = cms.untracked.bool(True),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
     
     MergedConversions = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('MergedConversions'),
-        edmName             = cms.untracked.string('allConversions'),
+        edmName             = cms.untracked.string('trackerOnlyConversions'),
         stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
                                                     'ConversionInOutElectronsStableTrackMapName',
                                                     'ConversionOutInElectronsStableTrackMapName',
@@ -781,7 +781,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     IC5JetPlusTrack = cms.untracked.PSet(
-        active               = cms.untracked.bool(True),
+        active               = cms.untracked.bool(False),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive       = cms.untracked.bool(False),
         jetToVertexActive    = cms.untracked.bool(False),
@@ -811,7 +811,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
     
     AK5JetPlusTrack = cms.untracked.PSet(
-        active               = cms.untracked.bool(True),
+        active               = cms.untracked.bool(False),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive       = cms.untracked.bool(False),
         jetToVertexActive    = cms.untracked.bool(False),
@@ -1203,13 +1203,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 	hpsActive = cms.untracked.bool(True),
 	mitName = cms.untracked.string('HPSTaus'),
 	edmName = cms.untracked.string('hpsPFTauProducer'),
-	discriminationByLooseElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseElectronRejection'),
-	discriminationByMediumElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMediumElectronRejection'),
-	discriminationByTightElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightElectronRejection'),
-	discriminationByLooseMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseMuonRejection'),
-	discriminationByTightMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightMuonRejection'),
+	discriminationAgainstElectronName = cms.untracked.string('hpsPFTauDiscriminationAgainstElectron'),
+	discriminationAgainstMuonName = cms.untracked.string('hpsPFTauDiscriminationAgainstMuon'),
 	discriminationByDecayModeFindingName = cms.untracked.string('hpsPFTauDiscriminationByDecayModeFinding'),
-	discriminationByVLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByVLooseIsolation'),
 	discriminationByLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByLooseIsolation'),
 	discriminationByMediumIsolationName = cms.untracked.string('hpsPFTauDiscriminationByMediumIsolation'),
 	discriminationByTightIsolationName = cms.untracked.string('hpsPFTauDiscriminationByTightIsolation'),
