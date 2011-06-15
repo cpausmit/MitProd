@@ -12,18 +12,20 @@ MitTreeFiller.ConversionOutInElectronsStable.active = True
 MitTreeFiller.GsfElectronsStable.active             = True
 MitTreeFiller.MergedElectronsStable.active          = True
 
+#ctvmft stuff temporarily disabled pending debugging
 # Load Mit vProducer
 from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addKshFiller
-addKshFiller(MitTreeFiller)
+#addKshFiller(MitTreeFiller)
 
-# Load Mit Mvf Conversion producer
+## Load Mit Mvf Conversion producer
 from MitProd.TreeFiller.conversionProducer_cff import *
-addConversionFiller(MitTreeFiller)
+#addConversionFiller(MitTreeFiller)
 
-# For JetPlusTracks
+#Load NSVFit sequences (disabled temporarily for performance issues)
+from MitProd.TreeFiller.nSVFitSetup_cff import *
+from MitProd.TreeFiller.nSVFitResults_cff import *
+addNSVFitResults(MitTreeFiller)
 
-MitTreeFiller.IC5JetPlusTrack.active = True
-MitTreeFiller.AK5JetPlusTrack.active = True
 
 # Load track detector associator for Track-ECal association
 from MitProd.TreeFiller.TrackEcalAssociation_cfi import *
@@ -57,35 +59,30 @@ MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
 MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
 
 
-from MitProd.TreeFiller.DAPrimaryVertex_cff import *
-MitTreeFiller.DAPrimaryVertexes.active = True
-MitTreeFiller.DAPrimaryVertexesBS.active = True
-MitTreeFiller.Electrons.pvEdmName = 'offlinePrimaryVerticesDA'
-MitTreeFiller.Electrons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
-MitTreeFiller.Muons.pvEdmName = 'offlinePrimaryVerticesDA'
-MitTreeFiller.Muons.pvBSEdmName = 'offlinePrimaryVerticesDABS'
-
-
 from MitProd.TreeFiller.newbtagging_cff import *
 newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
 newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
 newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
 
+#to re-run pftau reco/id (since final tags never made it into the 42x release)
+from RecoTauTag.Configuration.RecoPFTauTag_cff import *
+
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
                                  #clusterVertices*
                                  #evtSelData*
                                  electronsStable*
-                                 kShProducer*
-                                 conversionProducer*
+                                 #kShProducer*
+                                 #conversionProducer*
                                  #JetPlusTrackCorrectionsIcone5*
                                  #JetPlusTrackCorrectionsAntiKt5*
                                  #jetvertexAssociationSequence*
                                  eidLikelihoodExt*
-                                 l1FastJetSequence *
-                                 daPrimaryVertexSequence *
-                                 newBtaggingAll
+                                 l1FastJetSequence*
+                                 newBtaggingAll*
+				 PFTau*
+                                 nSVFitSetup
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
