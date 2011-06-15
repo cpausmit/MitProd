@@ -1,4 +1,4 @@
-// $Id: FillerPileupEnergyDensity.cc,v 1.2 2011/03/01 17:27:22 mzanetti Exp $
+// $Id: FillerPileupEnergyDensity.cc,v 1.3 2011/03/23 19:03:46 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,7 +16,9 @@ FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, co
   BaseFiller(cfg,name,active),
   //edmName_(Conf().getUntrackedParameter<string>("edmName","kt6PFJets")),
   edmName_(Conf().getUntrackedParameter<edm::InputTag>("edmName")),  
-  edmNameHighEta_(Conf().getUntrackedParameter<edm::InputTag>("edmNameHighEta")),  
+  edmNameLowEta_(Conf().getUntrackedParameter<edm::InputTag>("edmNameLowEta")),
+  edmNameRandom_(Conf().getUntrackedParameter<edm::InputTag>("edmNameRandom")),
+  edmNameRandomLowEta_(Conf().getUntrackedParameter<edm::InputTag>("edmNameRandomLowEta")),  
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPileupEnergyDensityBrn)),
   rhos_(new mithep::PileupEnergyDensityArr)
 {
@@ -53,13 +55,21 @@ void FillerPileupEnergyDensity::FillDataBlock(const edm::Event      &event,
   Handle<double> hRho;
   event.getByLabel(edmName_,hRho);
 
-  Handle<double> hRhoHighEta;
-  event.getByLabel(edmNameHighEta_,hRhoHighEta);
+  Handle<double> hRhoLowEta;
+  event.getByLabel(edmNameLowEta_,hRhoLowEta);
+
+  Handle<double> hRhoRandom;
+  event.getByLabel(edmNameRandom_,hRhoRandom);
+
+  Handle<double> hRhoRandomLowEta;
+  event.getByLabel(edmNameRandomLowEta_,hRhoRandomLowEta);
 
   mithep::PileupEnergyDensity *rho = rhos_->AddNew();
 
   rho->SetRho(*hRho);
-  rho->SetRhoHighEta(*hRhoHighEta);
+  rho->SetRhoLowEta(*hRhoLowEta);
+  rho->SetRhoRandom(*hRhoRandom);
+  rho->SetRhoRandomLowEta(*hRhoRandomLowEta);
 
   rhos_->Trim();
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPileupEnergyDensity.h,v 1.2 2011/03/01 17:27:22 mzanetti Exp $
+// $Id: FillerPileupEnergyDensity.h,v 1.3 2011/03/23 19:03:46 mzanetti Exp $
 //
 // FillerMet
 //
@@ -28,7 +28,9 @@ namespace mithep
   
     private:
       edm::InputTag               edmName_;    //edm name of rho collection
-      edm::InputTag               edmNameHighEta_;    //edm name of high eta rho collection
+      edm::InputTag               edmNameLowEta_;    //edm name of high eta rho collection
+      edm::InputTag               edmNameRandom_;    //edm name of high eta rho collection
+      edm::InputTag               edmNameRandomLowEta_;    //edm name of high eta rho collection
     //std::string                 edmName_;    //edm name of met collection
       std::string                 mitName_;    //mit name of PileupEnergyDensitys
 
