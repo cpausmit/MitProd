@@ -1,11 +1,15 @@
-// $Id: FillerNSVFit.cc,v 1.8 2011/04/26 12:14:24 mhchan Exp $
+// $Id: FillerNSVFit.cc,v 1.1 2011/05/05 12:43:25 rwolf Exp $
 
-#include "MitAna/DataTree/interface/Names.h" //?
-#include "MitProd/ObjectService/interface/ObjectService.h" //?
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 
 #include "MitAna/DataTree/interface/NSVFitCol.h"
 #include "MitProd/TreeFiller/interface/FillerNSVFit.h"
-#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisFwd.h"
+
+#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBase.h"
+#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBaseFwd.h"
+#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitResonanceHypothesis.h"
+#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitSingleParticleHypothesis.h"
 
 using namespace std;
 using namespace edm;
@@ -47,30 +51,37 @@ void FillerNSVFit::FillDataBlock(const edm::Event      &event,
   hypotheses_->Delete();
 
   // handle for the NSVFit info collection
-  Handle<NSVfitEventHypothesisCollection> nSVfit;
+  Handle<edm::View<NSVfitEventHypothesisBase> > nSVfit;
   GetProduct(edmName_, nSVfit, event);
   
-  for(NSVfitEventHypothesisCollection::const_iterator hyp = nSVfit->begin(); hyp != nSVfit->end(); ++hyp){
-    for(edm::OwnVector<NSVfitResonanceHypothesis>::const_iterator res = hyp->resonances().begin(); res != hyp->resonances().end(); ++res){
-      mithep::NSVFit *hypothesis = hypotheses_->Allocate();
-      new (hypothesis) mithep::NSVFit();
-      
-      // fill info whether fit converged or not
-      hypothesis->SetIsValid(res->isValidSolution());
-      
-      // fill masses
-      hypothesis->SetMass(res->mass());	
-      hypothesis->SetMassErrUp(res->massErrUp());	
-      hypothesis->SetMassErrDown(res->massErrDown());	
-      
-      hypothesis->SetMassMean(res->mass_mean());	
-      hypothesis->SetMassMedian(res->mass_median());	
-      hypothesis->SetMassMaximum(res->mass_maximum());	
-      hypothesis->SetMassMaxInterpol(res->mass_maxInterpol());	
-      
-      // fill p4 of input particles, which are the daughters of the resonance
-      for(edm::OwnVector<NSVfitSingleParticleHypothesisBase>::const_iterator daughter = res->daughters().begin(); daughter != res->daughters().end(); ++daughter){
-	hypothesis->AddDaughter(daughter->p4().pt(), daughter->p4().eta(), daughter->p4().phi(), daughter->p4().mass());
+  for(edm::View<NSVfitEventHypothesisBase>::const_iterator evtHyp = nSVfit->begin(); evtHyp != nSVfit->end(); ++evtHyp){
+    for(unsigned int ires=0; ires<evtHyp->numResonances(); ++ires){
+      const NSVfitResonanceHypothesis* resHyp = dynamic_cast<const NSVfitResonanceHypothesis*> (evtHyp->resonance(ires));
+      if( resHyp ){
+	// fill the MIT structures
+	mithep::NSVFit* hypothesis = hypotheses_->Allocate();
+	new (hypothesis) mithep::NSVFit();
+	
+	// fill info whether fit converged or not
+	hypothesis->SetIsValid(resHyp->isValidSolution());
+	
+	// fill masses
+	hypothesis->SetMass(resHyp->mass());	
+	hypothesis->SetMassErrUp(resHyp->massErrUp());	
+	hypothesis->SetMassErrDown(resHyp->massErrDown());	
+	
+	hypothesis->SetMassMean(resHyp->mass_mean());	
+	hypothesis->SetMassMedian(resHyp->mass_median());	
+	hypothesis->SetMassMaximum(resHyp->mass_maximum());	
+	hypothesis->SetMassMaxInterpol(resHyp->mass_maxInterpol());	
+	
+	// fill p4 of input particles, which are the daughters of the resonance
+	for(unsigned int idaug=0; idaug<resHyp->numDaughters(); ++idaug){
+	  const NSVfitSingleParticleHypothesis* part = dynamic_cast<const NSVfitSingleParticleHypothesis*> (resHyp->daughter(idaug));
+	  if( part ){
+	    hypothesis->AddDaughter(part->p4().pt(), part->p4().eta(), part->p4().phi(), part->p4().mass());
+	  }
+	}
       }
     }
   }      
