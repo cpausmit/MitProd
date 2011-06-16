@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.53 2011/05/20 16:53:39 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.55 2011/06/15 17:13:55 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,7 +21,7 @@ from MitProd.TreeFiller.vProducer_cff import PisStable,Ksh2PiPi,kShProducer,addK
 from MitProd.TreeFiller.conversionProducer_cff import *
 #addConversionFiller(MitTreeFiller)
 
-#Load NSVFit sequences (disabled temporarily for performance issues)
+#Load NSVFit sequences
 from MitProd.TreeFiller.nSVFitSetup_cff import *
 from MitProd.TreeFiller.nSVFitResults_cff import *
 addNSVFitResults(MitTreeFiller)
