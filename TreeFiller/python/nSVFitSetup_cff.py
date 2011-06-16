@@ -52,20 +52,16 @@ preselectedElecs = selectedPatElectrons.clone(cut = 'et > 15. & abs(eta) < 2.5 &
 from TauAnalysis.CandidateTools.nSVfitAlgorithmDiTau_cfi import *
 
 ## mu-tau version
-nSVfitConfigMuTau   = nSVfitConfig.clone()
-nSVfitProducerMuTau = nSVfitProducer.clone()
+nSVfitConfigMuTau   = nSVfitConfig_template.clone()
 nSVfitConfigMuTau.event.resonances.A.daughters.leg1.src = "preselectedMuons"
 nSVfitConfigMuTau.event.resonances.A.daughters.leg2.src = "preselectedTaus"
 nSVfitConfigMuTau.event.srcMEt = "patMETs"
+nSVfitProducerMuTau = nSVfitProducerByLikelihoodMaximization.clone()
 nSVfitProducerMuTau.config = nSVfitConfigMuTau
-nSVfitProducerMuTau.algorithm.parameters.mass_A.min      =   15.
-nSVfitProducerMuTau.algorithm.parameters.mass_A.max      =  390.
-nSVfitProducerMuTau.algorithm.parameters.mass_A.stepSize =   15.
-nSVfitProducerMuTau.algorithm.vegasOptions.numCalls      = 1000
+#nSVfitProducerMuTau.algorithm.maxObjFunctionCalls = 1000.
 
 ## e-tau version
-nSVfitConfigETau   = nSVfitConfig.clone()
-nSVfitProducerETau = nSVfitProducer.clone()
+nSVfitConfigETau   = nSVfitConfig_template.clone()
 nSVfitConfigETau.event.resonances.A.daughters.leg1.src = "preselectedElecs"
 nSVfitConfigETau.event.resonances.A.daughters.leg1.likelihoodFunctions = cms.VPSet(nSVfitElectronLikelihoodPhaseSpace)
 nSVfitConfigETau.event.resonances.A.daughters.leg1.builder = nSVfitTauToElecBuilder
@@ -73,15 +69,12 @@ nSVfitConfigETau.event.resonances.A.daughters.leg2.src = "preselectedTaus"
 nSVfitConfigETau.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPSet(nSVfitTauLikelihoodPhaseSpace)
 nSVfitConfigETau.event.resonances.A.daughters.leg2.builder = nSVfitTauToHadBuilder
 nSVfitConfigETau.event.srcMEt = "patMETs"
+nSVfitProducerETau = nSVfitProducerByLikelihoodMaximization.clone()
 nSVfitProducerETau.config = nSVfitConfigETau
-nSVfitProducerETau.algorithm.parameters.mass_A.min       =   15.
-nSVfitProducerETau.algorithm.parameters.mass_A.max       =  390.
-nSVfitProducerETau.algorithm.parameters.mass_A.stepSize  =   15.
-nSVfitProducerETau.algorithm.vegasOptions.numCalls       = 1000
+#nSVfitProducerETau.algorithm.maxObjFunctionCalls = 1000.
 
 ##e-mu version
-nSVfitConfigEMu   = nSVfitConfig.clone()
-nSVfitProducerEMu = nSVfitProducer.clone()
+nSVfitConfigEMu   = nSVfitConfig_template.clone()
 nSVfitConfigEMu.event.resonances.A.daughters.leg1.src = "preselectedMuons"
 nSVfitConfigEMu.event.resonances.A.daughters.leg1.likelihoodFunctions = cms.VPSet(nSVfitMuonLikelihoodPhaseSpace)
 nSVfitConfigEMu.event.resonances.A.daughters.leg1.builder = nSVfitTauToMuBuilder
@@ -89,11 +82,10 @@ nSVfitConfigEMu.event.resonances.A.daughters.leg2.src = "preselectedElecs"
 nSVfitConfigEMu.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPSet(nSVfitElectronLikelihoodPhaseSpace)
 nSVfitConfigEMu.event.resonances.A.daughters.leg2.builder = nSVfitTauToElecBuilder
 nSVfitConfigEMu.event.srcMEt = "patMETs"
+nSVfitProducerEMu = nSVfitProducerByLikelihoodMaximization.clone()
 nSVfitProducerEMu.config = nSVfitConfigEMu
-nSVfitProducerEMu.algorithm.parameters.mass_A.min        =   15.
-nSVfitProducerEMu.algorithm.parameters.mass_A.max        =  390.
-nSVfitProducerEMu.algorithm.parameters.mass_A.stepSize   =   15.
-nSVfitProducerEMu.algorithm.vegasOptions.numCalls        = 1000
+#nSVfitProducerEMu.algorithm.maxObjFunctionCalls = 1000.
+
 
 nSVFitSetup = cms.Sequence(
     patMETs
