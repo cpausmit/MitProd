@@ -1,15 +1,18 @@
 ---+ Tasks to be completed
 
-   * implement a suite of basic file management tools to
-     work with at CERN or at MIT
-     - move, remove, list, copy
-   * adjust catalog.sh to perform bunch completion of move or copy tasks
-   * remove srm commands as long as we have an alternative
+   * run.sh, writeCfg.py should not be copied locally but picked up at their proper location
+   * cataloger needs to be revised to avoid taking ambiguous files in /tmp
+   * improve basic file management tools: move, remove, list, copy, makedir
    * implement a way to process several files per job
-   * cleanup the submit script, it is really messy by now
 
 ---+ Completed Tasks
 
+   * implement a suite of basic file management tools to
+     work with at CERN or at MIT
+     - move, remove, list, copy
+   * remove srm commands as long as we have an alternative
+   * cleanup the submit script, it is really messy by now
+   * adjust catalog.sh to perform bunch completion of move or copy tasks
    * commit a fully functioning setup into CVS
    * put filefi setup into the repository environment
    * remove CMS dataset input to the crab cfg file

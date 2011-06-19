@@ -30,9 +30,11 @@ pwd
 pwd=`pwd`
 
 export SCRAM_ARCH='slc5_ia32_gcc434'
-export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
+export VO_CMS_SW_DIR=~cmsprod/cmssoft
+#export VO_CMS_SW_DIR=/server/02a/cmsprod/cmssoft
+#export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     $HOME/cms/cmssw/019/CMSSW_3_9_7/src
+cd     $HOME/cms/cmssw/018/CMSSW_3_9_7/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd

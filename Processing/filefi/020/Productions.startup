@@ -93,12 +93,15 @@
 /QCD_Pt-20_MuEnrichedPt-15_TuneZ2_7TeV-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM            p11-qcdmu15-v1g1-pu       1 new -
 # general QCD
 /QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                 p11-qcd15_3000-v1g1-pu    1 new -
+/QCD_Pt_0to5_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                          p11-qcd0_5-v1g1-pu        1 new -
+/QCD_Pt_5to15_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                         p11-qcd5_15-v1g1-pu       1 new -
 /QCD_Pt_15to30_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                        p11-qcd15_30-v1g1-pu      1 new -
 /QCD_Pt_30to50_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                        p11-qcd30_50-v1g1-pu      1 new -
 /QCD_Pt_50to80_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                        p11-qcd50_80-v1g1-pu      1 new -
 /QCD_Pt_80to120_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                       p11-qcd80_120-v1g1-pu     1 new -
 /QCD_Pt_120to170_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-qcd120_170-v1g1-pu    1 new -
 /QCD_Pt_170to300_TuneZ2_7TeV_pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM                      p11-qcd170_300-v1g1-pu    1 new -
+
 #---------------------------------------------------------------------------------------------------------------------------------
 # G+Jet Background
 #---------------------------------------------------------------------------------------------------------------------------------

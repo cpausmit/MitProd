@@ -26,8 +26,8 @@ echo "   n copy procs : $nCopyProcs"
 echo "   condor output: $condorOutput"
 echo "   only missing : $onlyMissing"
 
-mkdir -p $condorOutput/$book/$dataset
-makedir --exe  $target/$book/$dataset
+mkdir -p         $condorOutput/$book/$dataset
+makedir --exe --debug  $target/$book/$dataset
 script=`which downloadFiles.sh`
 
 # cleanup our lists and remake a clean one
@@ -173,7 +173,7 @@ do
   # prepare the condor_submit files
   cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = ( (Arch == "X86_64") && (OpSys == "LINUX" || Arch == "INTEL") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = ( (Arch == "INTEL") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script

@@ -351,15 +351,19 @@ runFile  =  os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'r
 if not os.path.exists(runFile):
     cmd = "Run file not found: %s" % runFile
     raise RuntimeError, cmd
-cmd = 'cp ' + runFile + ' ./'
+cmd = 'cp ' + runFile + ' ./' + mitCfg + '/' + version + '/'
 os.system(cmd)
 writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'writeCfg.py'
-cmd = 'cp ' + writeCfgFile + ' ./'
+if not os.path.exists(writeCfgFile):
+    cmd = "Write cfg file not found: %s" % writeCfgFile
+    raise RuntimeError, cmd
+cmd = 'cp ' + writeCfgFile + ' ./' + mitCfg + '/' + version + '/'
 os.system(cmd)
 
 lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
 if os.path.exists(lfnFile):
-    print "\n INFO -- Lfn file found: %s. This means someone already worked on this dataset.\n" % lfnFile
+    print "\n INFO -- Lfn file found: %s. This means someone already worked on this dataset.\n" \
+          % lfnFile
     if not useExistingLfns:
         cmd = 'rm ' + lfnFile
         os.system(cmd)
@@ -566,7 +570,7 @@ for subTask in crabTask.subTasks:
             sites = line
 
         sites = translator.translateSes(sites)
-        sites = translator.selectPreferred()
+        #sites = translator.selectPreferred()
 
         print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
               ' at\n        > ' + sites
@@ -608,10 +612,14 @@ for subTask in crabTask.subTasks:
             nSubmit = '%d,%d'%(mergedMinIdxs[idx],100000000)
         cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
         print '  ' + cmd + '\n'
-        status = os.system(cmd)
-        while status != 0:
-            print ' Submission failed  (%s) --> retry'%(cmd)
+
+        if mergedSites[idx] != '':
             status = os.system(cmd)
+            while status != 0:
+                print ' Submission failed  (%s) --> retry'%(cmd)
+                status = os.system(cmd)
+        else:
+            print ' submission aborted, no valid site found\n --> %s\n\n'%(cmd)
 
         # last action in the loop: increment the merged blocks
         idx += 1
@@ -620,7 +628,7 @@ for subTask in crabTask.subTasks:
 
 # and cleanup the temporary file for the task
 cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " \
-      + cmsswPy + ' ' + cmsswPy + 'c' + ' writeCfg.py run.sh'
+      + cmsswPy + ' ' + cmsswPy + 'c'
 os.system(cmd)
 
 print ' Done... keep watching it...'
