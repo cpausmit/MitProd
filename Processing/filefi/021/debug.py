@@ -1,8 +1,8 @@
-# $Id: cmssw.py,v 1.1.2.1 2011/04/24 05:03:32 paus Exp $
+# $Id: debug.py,v 1.2 2011/06/19 01:44:01 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILEFI')
+process = cms.Process('FILLER')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,8 +13,8 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_014e'),
-    annotation = cms.untracked.string('RECOSIM'),
+    version    = cms.untracked.string('Mit_014a'),
+    annotation = cms.untracked.string('RECODEBUG'),
     name       = cms.untracked.string('BambuProduction')
 )
 
@@ -23,31 +23,30 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow  = cms.untracked.vstring('ProductNotFound'),
+   Rethrow = cms.untracked.vstring('ProductNotFound'),
    fileMode = cms.untracked.string('NOMERGE')
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-   'file:/build/bendavid/RECOSIMSummer09/TTbar_Summer09-MC_3XY_V25_preproduction-v1/969AE5D9-DA2B-DF11-931D-001CC4C10E02.root'
-   )
+    fileNames = cms.untracked.vstring('file:/build/bendavid/RECODEBUG/Zee7TeVTrackingParticles/D87A5BD6-40A0-DE11-A3A9-00E08178C0B1.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'START38_V12::All'
 
-# load MitTreeFiller 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillRECOSIM_cfi")
+process.load("MitProd.BAMBUSequences.BambuFillRECODEBUG_cfi")
 
-# set the name for the output file
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 process.MitTreeFiller.TreeWriter.maxSize  = cms.untracked.uint32(1790)
 
-process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
+#hack pixelLess tracking back (present in special startup MC samples)
+#process.MitTreeFiller.PixelLessTracks.active          = True
+    
+process.bambu_step  = cms.Path(process.BambuFillRECODEBUG)
 
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)

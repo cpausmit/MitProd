@@ -4,8 +4,8 @@
 Re-write config file and optionally convert to python
 """
 
-__revision__ = "$Id: writeCfg.py,v 1.1.2.1 2011/04/24 05:03:33 paus Exp $"
-__version__ = "$Revision: 1.1.2.1 $"
+__revision__ = "$Id: writeCfg.py,v 1.2 2011/06/19 01:44:01 paus Exp $"
+__version__ = "$Revision: 1.2 $"
 
 import getopt
 import imp

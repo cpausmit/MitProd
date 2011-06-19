@@ -1,4 +1,4 @@
-# $Id: debug.py,v 1.1 2010/06/18 21:41:15 paus Exp $
+# $Id: debug.py,v 1.1.2.1 2011/04/24 05:03:32 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 

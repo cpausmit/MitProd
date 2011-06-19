@@ -1,4 +1,4 @@
-# $Id: cmssw.py,v 1.1.2.1 2011/04/24 05:03:32 paus Exp $
+# $Id: cmssw.py,v 1.2 2011/06/19 01:44:01 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 

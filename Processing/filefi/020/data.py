@@ -1,4 +1,4 @@
-# $Id: data.py,v 1.1 2011/03/22 02:43:52 paus Exp $
+# $Id: data.py,v 1.1.2.1 2011/04/24 05:03:32 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_020'),
+    version    = cms.untracked.string('Mit_021'),
     annotation = cms.untracked.string('AOD'),
     name       = cms.untracked.string('BambuProduction')
 )
@@ -29,12 +29,12 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/blue/bendavid/395aod/72317619-2C00-E011-B788-001A92810AC4.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_2_1/Electron/RECO/GR_R_42_V10_RelVal_wzEG2010B-v1/0025/5AEB7EAE-C666-E011-8471-00261894390E.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_P_V14::All'
+process.GlobalTag.globaltag = 'GR_P_V20::All'
 
 process.add_(cms.Service("ObjectService"))
 
