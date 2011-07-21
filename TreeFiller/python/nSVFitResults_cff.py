@@ -1,10 +1,11 @@
-# $Id: conversionProducer_cff.py,v 1.5 2010/06/23 13:14:15 bendavid Exp $
+# $Id: nSVFitResults_cff.py,v 1.1 2011/05/05 12:43:19 rwolf Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 def addNSVFitResults(filler):
 
     filler.fillers.extend(('NSVFitResultsEMu',
+                           'NSVFitResultsMuMu',
                            'NSVFitResultsETau',
                            'NSVFitResultsMuTau'))
 
@@ -12,6 +13,13 @@ def addNSVFitResults(filler):
 	active = cms.untracked.bool(True),
 	mitName = cms.untracked.string('NSVFitResultsEMu'),
 	edmName = cms.untracked.string('nSVfitProducerEMu'),
+        fillerType   = cms.untracked.string('FillerNSVFit')
+    )                               
+
+    filler.NSVFitResultsMuMu = cms.untracked.PSet(
+	active = cms.untracked.bool(True),
+	mitName = cms.untracked.string('NSVFitResultsMuMuu'),
+	edmName = cms.untracked.string('nSVfitProducerMuMu'),
         fillerType   = cms.untracked.string('FillerNSVFit')
     )                               
 
@@ -28,5 +36,6 @@ def addNSVFitResults(filler):
 	edmName = cms.untracked.string('nSVfitProducerMuTau'),
         fillerType   = cms.untracked.string('FillerNSVFit')
     )                               
+
 
     

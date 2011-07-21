@@ -86,6 +86,19 @@ nSVfitProducerEMu = nSVfitProducerByLikelihoodMaximization.clone()
 nSVfitProducerEMu.config = nSVfitConfigEMu
 #nSVfitProducerEMu.algorithm.maxObjFunctionCalls = 1000.
 
+##mu-mu version
+nSVfitConfigMuMu   = nSVfitConfig_template.clone()
+nSVfitConfigMuMu.event.resonances.A.daughters.leg1.src = "preselectedMuons"
+nSVfitConfigMuMu.event.resonances.A.daughters.leg1.likelihoodFunctions = cms.VPSet(nSVfitMuonLikelihoodPhaseSpace)
+nSVfitConfigMuMu.event.resonances.A.daughters.leg1.builder = nSVfitTauToMuBuilder
+nSVfitConfigMuMu.event.resonances.A.daughters.leg2.src = "preselectedMuons"
+nSVfitConfigMuMu.event.resonances.A.daughters.leg2.likelihoodFunctions = cms.VPSet(nSVfitMuonLikelihoodPhaseSpace)
+nSVfitConfigMuMu.event.resonances.A.daughters.leg2.builder = nSVfitTauToMuBuilder
+nSVfitConfigMuMu.event.srcMEt = "patMETs"
+nSVfitProducerMuMu = nSVfitProducerByLikelihoodMaximization.clone()
+nSVfitProducerMuMu.config = nSVfitConfigMuMu
+#nSVfitProducerMuMu.algorithm.maxObjFunctionCalls = 1000.
+
 
 nSVFitSetup = cms.Sequence(
     patMETs
@@ -100,4 +113,5 @@ nSVFitSetup = cms.Sequence(
   * nSVfitProducerMuTau
   * nSVfitProducerETau
   * nSVfitProducerEMu
+  * nSVfitProducerMuMu
 )
