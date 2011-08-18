@@ -1,4 +1,4 @@
-// $Id: FillerCaloTowers.cc,v 1.17 2010/06/25 15:18:38 bendavid Exp $
+// $Id: FillerCaloTowers.cc,v 1.18 2010/08/18 01:36:11 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -83,7 +83,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
        
     double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
        
-    if ( deltaE > 1e-3)
+    if ( 0 )
       throw edm::Exception(edm::errors::Configuration, "FillerCaloTowers::FillDataBlock()\n")
         << "Error! reco::CaloTower default energy does not exclude HO " 
         << "as assumed by mithep::CaloTower, deltaE = " << deltaE << std::endl;
