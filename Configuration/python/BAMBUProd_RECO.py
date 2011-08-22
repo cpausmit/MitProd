@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.33 2011/04/23 19:33:13 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.34 2011/05/15 20:41:34 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_P_V20::All'
+process.GlobalTag.globaltag = 'GR_P_V22::All'
 
 process.add_(cms.Service("ObjectService"))
 
