@@ -1,4 +1,4 @@
-// $Id: FillerPFMet.cc,v 1.4 2009/09/25 08:42:51 loizides Exp $
+// $Id: FillerPFMet.cc,v 1.5 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "DataFormats/METReco/interface/PFMET.h"
@@ -68,6 +68,7 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
     }
     
     // fill PFMet class data
+    pfMet->SetPFMetSig(inPFMet->significance());
     pfMet->SetNeutralEMFraction(inPFMet->NeutralEMFraction());
     pfMet->SetNeutralHadFraction(inPFMet->NeutralHadFraction());
     pfMet->SetChargedEMFraction(inPFMet->ChargedEMFraction());
