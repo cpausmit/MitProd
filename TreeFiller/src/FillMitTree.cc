@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.60 2011/03/01 14:44:22 mzanetti Exp $
+// $Id: FillMitTree.cc,v 1.61 2011/05/05 12:43:25 rwolf Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -117,11 +117,13 @@ void FillMitTree::analyze(const edm::Event      &event,
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    //printf("%s FillDataBlock\n",(*iF)->Name().c_str());
     (*iF)->FillDataBlock(event,setup);
   }
 
   // second step: Loop over the link resolution of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
+    //printf("%s ResolveLinks\n",(*iF)->Name().c_str());
     (*iF)->ResolveLinks(event,setup);
   }
 

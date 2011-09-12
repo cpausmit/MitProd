@@ -1,4 +1,4 @@
-# $Id: FastJetCorrection_cff.py,v 1.7 2011/05/15 20:41:09 bendavid Exp $
+# $Id: FastJetCorrection_cff.py,v 1.8 2011/06/15 20:04:14 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,5 +11,5 @@ ak5PFJetsForL1Correction = ak5PFJets.clone(doAreaFastjet = True)
 kt4PFJetsForL1Correction = kt4PFJets.clone(doAreaFastjet = True) 
 
 # sequences to compute jet areas and rho
-l1FastJetSequence  = cms.Sequence( kt6PFJetsForRhoComputation * kt6PFJetsForRhoComputation25 * kt6PFJetsForRhoComputationRandom * kt6PFJetsForRhoComputationRandom25 * ak5PFJetsForL1Correction * kt4PFJetsForL1Correction)
+l1FastJetSequence  = cms.Sequence(kt6PFJetsForRhoComputation25 * kt6PFJetsForRhoComputationRandom * kt6PFJetsForRhoComputationRandom25)
                                                     

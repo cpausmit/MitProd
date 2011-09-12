@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.9 2010/03/30 05:32:38 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.10 2011/05/15 14:12:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -211,11 +211,11 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
 
     // fill mother-daughter links
     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
-    const reco::PFCandidatePtr motherPtr(motherCandPtr); 
-    if (motherCandPtr.isNonnull()) {
-      mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
-      outPfCand->SetMother(mother);
-      mother->AddDaughter(outPfCand);
-    }
+    //const reco::PFCandidatePtr motherPtr(motherCandPtr); 
+//     if (motherCandPtr.isNonnull()) {
+//       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
+//       outPfCand->SetMother(mother);
+//       mother->AddDaughter(outPfCand);
+//     }
   }
 }

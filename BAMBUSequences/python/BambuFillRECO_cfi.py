@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.55 2011/06/15 17:13:55 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.56 2011/06/16 11:43:03 rwolf Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -52,17 +52,17 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 MitTreeFiller.PileupEnergyDensity.active = True
 
 # Enable the pileup energy density correction by fastjet 
-MitTreeFiller.Kt4PFJetsNoArea.active = True
-MitTreeFiller.AKt5PFJetsNoArea.active = True
+#MitTreeFiller.Kt4PFJetsNoArea.active = True
+#MitTreeFiller.AKt5PFJetsNoArea.active = True
 
-MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
-MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
+#MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
+#MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
 
 
 from MitProd.TreeFiller.newbtagging_cff import *
-newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
-newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
-newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
+#newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
+#newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
+#newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
 
 #to re-run pftau reco/id (since final tags never made it into the 42x release)

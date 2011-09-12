@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.99 2011/06/15 20:04:14 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.100 2011/08/18 19:49:37 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -274,7 +274,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     EndcapBasicClusters = cms.untracked.PSet(
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('EndcapBasicClusters'),
-        edmName             = cms.untracked.string('multi5x5BasicClusters:multi5x5EndcapBasicClusters'),  
+        edmName             = cms.untracked.string('multi5x5SuperClusters:multi5x5EndcapBasicClusters'),  
         barrelEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEB'),
         endcapEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEE'),
         basicClusterMapName = cms.untracked.string('endcapBasicClusterMap'),
@@ -302,7 +302,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PileupEnergyDensity = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('Rho'),                     
-        edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
+        edmName               = cms.untracked.InputTag('kt6PFJets','rho'),
         edmNameLowEta         = cms.untracked.InputTag('kt6PFJetsForRhoComputation25','rho'),
         edmNameRandom         = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom','rho'),
         edmNameRandomLowEta   = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom25','rho'),        
