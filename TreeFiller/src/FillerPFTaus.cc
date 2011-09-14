@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.8 2011/04/26 12:14:24 mhchan Exp $
+// $Id: FillerPFTaus.cc,v 1.9 2011/05/15 14:12:42 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -32,6 +32,7 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
   trackMap_(0),
   jetMap_(0),
   pfCandMap_(0),
@@ -166,8 +167,11 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     // add track references
     if (trackMap_) {
       // electron preid track reference
-      if (inTau->electronPreIDTrack().isNonnull())
-        tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
+      if (inTau->electronPreIDTrack().isNonnull() && inTau->electronPreIDTrack().id().processIndex()==4) {
+        if (!allowMissingTrackRef_ || trackMap_->HasMit(refToPtrHack(inTau->electronPreIDTrack()))) {
+          tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
+        }
+      }
     }
 
      // add source pfjet reference ( only filled since cmssw 311x )

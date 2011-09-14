@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.10 2011/05/15 14:12:28 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.11 2011/09/12 15:21:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -28,6 +28,7 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
   trackerTrackMap_(0),
   gsfTrackMap_(0),
   muonMap_(0),
@@ -175,8 +176,12 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
                        iP->flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
 
     // fill references to other branches
-    if (trackerTrackMap_ && iP->trackRef().isNonnull()) 
-      outPfCand->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iP->trackRef())));    
+    if (trackerTrackMap_ && iP->trackRef().isNonnull()) {
+      //printf("process = %i, product = %i\n",iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex());
+      if (!allowMissingTrackRef_ || trackerTrackMap_->HasMit(refToPtr(iP->trackRef()))) {
+        outPfCand->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iP->trackRef())));
+      }
+    }    
     if (gsfTrackMap_ && iP->gsfTrackRef().isNonnull()) 
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iP->gsfTrackRef())));
     if (muonMap_ && iP->muonRef().isNonnull()) 
@@ -211,11 +216,11 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
 
     // fill mother-daughter links
     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
-    //const reco::PFCandidatePtr motherPtr(motherCandPtr); 
-//     if (motherCandPtr.isNonnull()) {
-//       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
-//       outPfCand->SetMother(mother);
-//       mother->AddDaughter(outPfCand);
-//     }
+    const reco::PFCandidatePtr motherPtr(motherCandPtr); 
+    if (motherCandPtr.isNonnull()) {
+      mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
+      outPfCand->SetMother(mother);
+      mother->AddDaughter(outPfCand);
+    }
   }
 }

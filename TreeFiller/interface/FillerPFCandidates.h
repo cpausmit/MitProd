@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.5 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerPFCandidates.h,v 1.6 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerPFCandidates
 //
@@ -38,6 +38,7 @@ namespace mithep
       std::string                  muonMapName_;          //name of imported map wrt muons
       std::string                  conversionMapName_;    //name of imported map wrt conversions
       std::string                  pfCandMapName_;        //name of exported pf candidate map
+      bool                         allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
       const mithep::TrackMap      *trackerTrackMap_;      //map wrt tracker tracks
       const mithep::TrackMap      *gsfTrackMap_;          //map wrt pf gsf tracks
       const mithep::MuonMap       *muonMap_;              //map wrt muons

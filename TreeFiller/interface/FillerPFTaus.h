@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.7 2011/04/29 14:18:23 mhchan Exp $
+// $Id: FillerPFTaus.h,v 1.8 2011/05/15 14:12:42 bendavid Exp $
 //
 // FillerPFTaus
 //
@@ -46,6 +46,7 @@ namespace mithep
       std::string                    trackMapName_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap
+      bool                           allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
       const mithep::TrackMap        *trackMap_;       //map wrt Tracks
       const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
       const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
