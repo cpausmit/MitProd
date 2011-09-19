@@ -159,7 +159,7 @@ do
     #-----------------------------------------------------------------------------------------------
     if   [ "$catalog" == 1 ]
     then
-      catalogFiles.csh   $LOCATION $CATALOG $mitCfg/$VERSION $extDataset
+      catalogFiles.sh   $LOCATION $CATALOG $mitCfg/$VERSION $extDataset
       echo ""
     fi
 

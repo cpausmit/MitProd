@@ -16,14 +16,77 @@ import os,sys,getopt,re,string
 import task,translator
 
 #===================================================================================================
-def searchReplace(line,mitCfg,version,mitDataset, \
+def domain():
+    d = os.uname()[1]
+    f = d.split('.')
+    return '.'.join(f[1:])
+
+def storage(seFile):
+    # decide on the forseen default storage place (where are we running?)
+    storageTag = 'T2_US_MIT'
+    dom = domain()
+    if   re.search('mit.edu',dom):
+        storageTag = 'T2_US_MIT'
+    elif re.search('cern.ch',dom):
+        storageTag = 'T0_CH_CERN'
+    cmd = 'grep ^' + storageTag + ' ' + seFile
+    for line in os.popen(cmd).readlines():   # run command
+        #print ' LINE: ' + line
+        line = line[:-1]                     # strip '\n'
+        line = line.replace(' ','')
+        f = line.split(':')
+        storageEle    = f[1] 
+        storagePath   = f[2] 
+        userRemoteDir = f[3] 
+    return storageEle + ':' + storagePath + ':' + userRemoteDir
+
+#===================================================================================================
+def getFiles(mitCfg,version):
+    # Prepare file based processing input
+    runFile  =  os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'run.sh'
+    if not os.path.exists(runFile):
+        cmd = "Run file not found: %s" % runFile
+        raise RuntimeError, cmd
+    cmd = 'cp ' + runFile + ' ./'
+    os.system(cmd)
+    writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'writeCfg.py'
+    cmd = 'cp ' + writeCfgFile + ' ./'
+    if not os.path.exists(writeCfgFile):
+        cmd = "Write Cfg file not found: %s" % writeCfgFile
+        raise RuntimeError, cmd
+    os.system(cmd)
+
+#===================================================================================================
+def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
+    lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
+    if os.path.exists(lfnFile):
+        print "\n INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
+        if not useExistingLfns:
+            cmd = 'rm ' + lfnFile
+            os.system(cmd)
+    
+    # recreate if requested or not existing
+    if not useExistingLfns or not os.path.exists(lfnFile):
+        cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
+        print ' Input: ' + cmd + '\n'
+        os.system(cmd)
+
+    return lfnFile
+
+#===================================================================================================
+def searchReplace(line,mitCfg,version,mitDataset,storage, \
                   cmsDataset='X',cmsswPy='X',dbs='X',sched='X',blacklist='X',skpEvts='X'):
+    # decode storage variable
+    st = storage.split(':')
     # compile search and replacement sequences
     pCmsDset   = re.compile('XX-CMSDATASET-XX')
     pMitDset   = re.compile('XX-MITDATASET-XX')
     pCmsswPy   = re.compile('XX-CMSSWPY-XX')
     pMitCfg    = re.compile('XX-MITCFG-XX')
     pMitVers   = re.compile('XX-MITVERSION-XX')
+    pMitSe     = re.compile('XX-MITSE-XX')
+    pMitSPath  = re.compile('XX-MITSPATH-XX')
+    pMitRDir   = re.compile('XX-MITRDIR-XX')
     pDbs       = re.compile('XX-DBS-XX')
     pSched     = re.compile('XX-SCHED-XX')
     pBlacklist = re.compile('XX-BLACKLIST-XX')
@@ -34,6 +97,9 @@ def searchReplace(line,mitCfg,version,mitDataset, \
     line = pCmsswPy  .sub(cmsswPy,     line);
     line = pMitCfg   .sub(mitCfg,      line);
     line = pMitVers  .sub(version,     line);
+    line = pMitSe    .sub(st[0],       line);
+    line = pMitSPath .sub(st[1],       line);
+    line = pMitRDir  .sub(st[2],       line);
     line = pDbs      .sub(dbs,         line);
     line = pSched    .sub(sched,       line);
     line = pBlacklist.sub(blacklist,   line);
@@ -50,13 +116,13 @@ def adjustCfg(line,nevents,crabId):
     return line
 
 #===================================================================================================
-def findStoragePath(mitCfg,version,mitDataset):
+def findStoragePath(mitCfg,version,mitDataset,seFile):
     # find the forseen storage place
     cmd = 'grep ^storage_path ' + os.environ['MIT_PROD_DIR'] \
           + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
-        line         = searchReplace(line,mitCfg,version,mitDataset);
+        line         = searchReplace(line,mitCfg,version,mitDataset,storage(seFile));
         # decode the storage directory name
         names        = line.split("=")
         names        = names[1:]
@@ -66,7 +132,7 @@ def findStoragePath(mitCfg,version,mitDataset):
           + '/' + mitCfg + '/' + version + '/crab.cfg'
     for file in os.popen(cmd).readlines():
         line         = file[:-1]
-        line         = searchReplace(line,mitCfg,version,mitDataset);
+        line         = searchReplace(line,mitCfg,version,mitDataset,storage(seFile));
         # decode the storage directory name
         names        = line.split(" ")
         storagePath += names[-1]
@@ -195,6 +261,7 @@ usage += "                 --sched=<name>\n"
 usage += "                 --blacklist=<name>\n"
 usage += "                 --nSubmit=<submittedJobs>\n"
 usage += "                 --skipEvents=<'nRunX:nEventY','nRunXX:nEventYY',...>\n"
+usage += "                 --fixSites=<siteList>\n"
 usage += "                 --complete\n"
 usage += "                 --testJob\n"
 usage += "                 --noTestJob\n"
@@ -202,7 +269,8 @@ usage += "                 --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['cmsDataset=','mitDataset=','cmssw=','mitCfg=','version=','dbs=','sched=','blacklist=',
-         'nSubmit=','skipEvents=','complete','useExistingLfns','testJob','noTestJob','test','help']
+         'nSubmit=','skipEvents=','fixSites=','complete','useExistingLfns','testJob','noTestJob',
+         'test','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -231,6 +299,7 @@ sched           = "glite"
 blacklist       = ""
 nSubmit         = -1
 skpEvts         = ''
+fixSites        = ''
 complete        = 0
 useExistingLfns = False
 noTestJob       = 0
@@ -262,6 +331,8 @@ for opt, arg in opts:
         nSubmit         = arg
     if opt == "--skipEvents":
         skpEvts         = arg
+    if opt == "--fixSites":
+        fixSites        = arg
     if opt == "--complete":
         complete        = 1
     if opt == "--useExistingLfns":
@@ -285,7 +356,10 @@ if cmssw != 'cmssw':
 if cmsDataset == None and mitDataset == None:
     cmd = "--cmsDataset | --mitDataset  options not provided. One of them is required."
     raise RuntimeError, cmd
-
+seFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/'+ version + '/seTable'
+if not os.path.exists(seFile):
+    cmd = "Storage element table not found: %s" % seFile
+    raise RuntimeError, cmd
 crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
 if not os.path.exists(crabFile):
     cmd = "Crab file not found: %s" % crabFile
@@ -298,85 +372,64 @@ if not os.path.exists(cmsswFile):
 
 
 # Prepare the ce/se translator
-translator = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/ceTable',
-                                   os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/seTable')
+trans = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/ceTable',
+                              os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/seTable',
+                              os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/preferredSites')
 
-# Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + database
-
-join       = 0
-fullLine   = ""
-bSlash     = "\\";
-for line in os.popen(cmd).readlines():  # run command
-    line = line[:-1]
-    # get ride of empty or commented lines
-    if line == '' or line[0] == '#':
-        continue
-
-    # join lines
-    if join == 1:
-        fullLine += line
-    else:
-        fullLine  = line
-
-    # determine if finished or more is coming
-    if fullLine[-1] == bSlash:
-        join = 1
-        fullLine = fullLine[:-1]
-    else:
-        join = 0
-        # test whether there is a directory   
-        names      = fullLine.split()           # splitting every blank
-        if names[0] == cmsDataset or names[1] == mitDataset:
-            cmsDataset = names[0]               # CMS name of the dataset
-            mitDataset = names[1]               # equivalent MIT name of the dataset
-            nevents    = int(names[2])          # number of events to be used in the production
-            if names[4] != "-":
-                localPath  = names[4]
-            print "\n Sample info from database  %s  for CMSSW config  %s\n   %s"\
-                  %(database,cmsswPy,fullLine)
-            if len(names) == 6:
-                dbs = names[5]
-                dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + '/servlet/DBSServlet'
-                print '   dbs: ' + dbs + '\n'
-            else:
-                print ''
-
-if mitDataset == None or cmsDataset == None:
-    print "ERROR - dataset not defined."
-    sys.exit(1)
-
-# Prepare file based processing input
-runFile  =  os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'run.sh'
-if not os.path.exists(runFile):
-    cmd = "Run file not found: %s" % runFile
-    raise RuntimeError, cmd
-cmd = 'cp ' + runFile + ' ./' + mitCfg + '/' + version + '/'
-os.system(cmd)
-writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'writeCfg.py'
-if not os.path.exists(writeCfgFile):
-    cmd = "Write cfg file not found: %s" % writeCfgFile
-    raise RuntimeError, cmd
-cmd = 'cp ' + writeCfgFile + ' ./' + mitCfg + '/' + version + '/'
-os.system(cmd)
-
-lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
-if os.path.exists(lfnFile):
-    print "\n INFO -- Lfn file found: %s. This means someone already worked on this dataset.\n" \
-          % lfnFile
-    if not useExistingLfns:
-        cmd = 'rm ' + lfnFile
-        os.system(cmd)
-
-# recreate if requested or not existing
-if not useExistingLfns or not os.path.exists(lfnFile):
-    cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
-    print ' Input: ' + cmd + '\n'
-    os.system(cmd)
+## Resolve the other mitCfg parameters from the configuration file
+#cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + database
+#join       = 0
+#fullLine   = ""
+#bSlash     = "\\";
+#for line in os.popen(cmd).readlines():  # run command
+#    line = line[:-1]
+#    # get ride of empty or commented lines
+#    if line == '' or line[0] == '#':
+#        continue
+#
+#    # join lines
+#    if join == 1:
+#        fullLine += line
+#    else:
+#        fullLine  = line
+#
+#    # determine if finished or more is coming
+#    if fullLine[-1] == bSlash:
+#        join = 1
+#        fullLine = fullLine[:-1]
+#    else:
+#        join = 0
+#        # test whether there is a directory   
+#        names      = fullLine.split()           # splitting every blank
+#        if names[0] == cmsDataset or names[1] == mitDataset:
+#            cmsDataset = names[0]               # CMS name of the dataset
+#            mitDataset = names[1]               # equivalent MIT name of the dataset
+#            nevents    = int(names[2])          # number of events to be used in the production
+#            if names[4] != "-":
+#                localPath  = names[4]
+#            print "\n Sample info from database  %s  for CMSSW config  %s\n   %s"\
+#                  %(database,cmsswPy,fullLine)
+#            if len(names) == 6:
+#                dbs = names[5]
+#                dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + '/servlet/DBSServlet'
+#                print '   dbs: ' + dbs + '\n'
+#            else:
+#                print ''
 
 # Create the corresponding crab task
-crabTask             = task.Task(crabId,cmsDataset,mitCfg,version)
-crabTask.storagePath = findStoragePath(mitCfg,version,mitDataset)
+crabTask             = task.Task(crabId,cmsDataset,mitDataset,mitCfg,version,cmssw)
+if crabTask.mitDataset == 'undefined' or crabTask.cmsDataset == 'undefined':
+    print "ERROR - dataset not defined."
+    sys.exit(1)
+else:
+    mitDataset = crabTask.mitDataset
+    cmsDataset = crabTask.cmsDataset
+    dbs        = crabTask.dbs
+
+getFiles(mitCfg,version)
+lfnFile = makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns)
+
+crabTask.storagePath = findStoragePath(mitCfg,version,mitDataset,seFile)
 crabTask.loadAllLfns(lfnFile)
 crabTask.loadCompletedLfns()
 crabTask.createMissingLfns(lfnFile,lfnFile + '_' + crabTask.tag)
@@ -401,13 +454,15 @@ print ' Preparing dataset: ' + cmsDataset + ' [MIT: ' + mitDataset + ' with ' + 
 cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " + cmsswPy
 os.system(cmd)
 
+# Storage
+
 # Parse template input and write the crab configuration file
 fileInput  = open(crabFile,'r')
 fileOutput = open("crab_" + crabTask.tag + ".cfg-Template",'w')
 line = fileInput.readline()
 while (line != ''):
     if line[0] != '#':
-        line = searchReplace(line,mitCfg,version,mitDataset, \
+        line = searchReplace(line,mitCfg,version,mitDataset,storage(seFile), \
                              cmsDataset,cmsswPy,dbs,sched,blacklist,skpEvts)
     fileOutput.write(line)
     line = fileInput.readline()
@@ -420,7 +475,7 @@ fileOutput = open(cmsswPy,'w')
 line = fileInput.readline()
 while (line != ''):
     if line[0] != '#':
-        line = searchReplace(line,mitCfg,version,mitDataset, \
+        line = searchReplace(line,mitCfg,version,mitDataset,storage(seFile), \
                              cmsDataset,cmsswPy,dbs,sched,blacklist,skpEvts)
     fileOutput.write(line)
     line = fileInput.readline()
@@ -564,13 +619,19 @@ for subTask in crabTask.subTasks:
     mergedMaxIdxs = []
     print '\n Show the unmerged blocks:'
     for block in blocks:
-        cmd  = "sites.py --block=" + block
-        for line in os.popen(cmd).readlines():   # run command
-            line = line[:-1]
-            sites = line
 
-        sites = translator.translateSes(sites)
-        #sites = translator.selectPreferred()
+        
+        if fixSites != '':
+            sites = fixSites
+        else:
+            cmd  = "sites.py --block=" + block
+            cmd += " --dbs=" + dbs
+            for line in os.popen(cmd).readlines():   # run command
+                line = line[:-1]
+                sites = line
+
+                sites = trans.translateSes(sites)
+                sites = trans.selectPreferred()
 
         print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
               ' at\n        > ' + sites
@@ -612,14 +673,10 @@ for subTask in crabTask.subTasks:
             nSubmit = '%d,%d'%(mergedMinIdxs[idx],100000000)
         cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
         print '  ' + cmd + '\n'
-
-        if mergedSites[idx] != '':
+        status = os.system(cmd)
+        while status != 0:
+            print ' Submission failed  (%s) --> retry'%(cmd)
             status = os.system(cmd)
-            while status != 0:
-                print ' Submission failed  (%s) --> retry'%(cmd)
-                status = os.system(cmd)
-        else:
-            print ' submission aborted, no valid site found\n --> %s\n\n'%(cmd)
 
         # last action in the loop: increment the merged blocks
         idx += 1

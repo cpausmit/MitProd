@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------------------------
-# Script to move a file from one place to another. Restrictions to application of course apply :-)
+# Script to remove a file.
 #
 # Author: C.Paus                                                                      (May 06, 2010)
 #---------------------------------------------------------------------------------------------------

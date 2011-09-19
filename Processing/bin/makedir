@@ -30,6 +30,12 @@ def exists(target):
         storageEle = 'se01.cmsaf.mit.edu'
         storageUrl = 'srm://' + storageEle + ':8443' + storagePath + target
         cmd = 'srmls ' + storageUrl + ' >& /dev/null'
+    elif re.search('/mnt/hadoop/cms/store/',target):
+        debugPrint(' Identified tier-2 hadoop file')
+        storagePath = '/srm/v2/server?SFN='
+        storageEle = 'se02.cmsaf.mit.edu'
+        storageUrl = 'srm://' + storageEle + ':8443' + storagePath + target
+        cmd = 'srmls ' + storageUrl + ' >& /dev/null'
     else:
         debugPrint(' Identified a normal directory')
         cmd = 'ls -1 ' + target + ' >& /dev/null'
@@ -50,6 +56,13 @@ def makeDir(target):
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified tier-2 file')
         storageEle = 'se01.cmsaf.mit.edu'
+        storageUrl = 'srm://' + storageEle + ':8443' + storagePath + target
+        cmd = 'srmmkdir ' + storageUrl + ' >& /dev/null' + \
+              '; srm-set-permissions -type=ADD -owner=RWX -group=RWX -other=RWX ' + storageUrl
+    elif re.search('/mnt/hadoop/cms/store/',target):
+        debugPrint(' Identified tier-2 hadoop file')
+        storagePath = '/srm/v2/server?SFN='
+        storageEle = 'se02.cmsaf.mit.edu'
         storageUrl = 'srm://' + storageEle + ':8443' + storagePath + target
         cmd = 'srmmkdir ' + storageUrl + ' >& /dev/null' + \
               '; srm-set-permissions -type=ADD -owner=RWX -group=RWX -other=RWX ' + storageUrl

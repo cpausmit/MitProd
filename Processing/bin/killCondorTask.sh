@@ -24,13 +24,15 @@ echo ""
 
 # loop through jobs matching the requirements
 export idxs=""
-condor_q -format "%d " ClusterId -format "%d " ServerTime-JobStartDate -format "%s " Cmd -format "%s\n " Args | \
+condor_q -format "%d " ClusterId -format "%d " ServerTime -format "%d " JobStartDate -format "%s " Cmd -format "%s\n " Args | \
   grep $TASK | grep $SAMPLE | \
 while read line
 do
   echo "Line: $line"
   id=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   runTime=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
+  tmp=`echo $line | tr -s ' ' | cut -d ' ' -f 3`
+  runTime=$(( $runTime + $tmp ))
   dir=`echo $line | tr -s ' ' | cut -d ' ' -f 4`
   file=`echo $line | tr -s ' ' | cut -d ' ' -f 5`
   echo "$id $runTime --> $line"

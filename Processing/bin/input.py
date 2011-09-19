@@ -60,10 +60,13 @@ if dataset == None:
 #---------------------------------------------------------------------------------------------------
 if not db:
     # find relevant blocks
-    if dbs != '':
-        cmd = "dbs search --url=" + dbs + " --query=\"find block where dataset=" + dataset + "\""
+    if   dbs == 'none':
+        cmd = 'dascli.py --query="block=' + dataset + '*" --limit=999999 --format=blocks'
+    elif dbs == '':
+        cmd = 'dbs search --query=\"find block where dataset=' + dataset + '\"'
     else:
-        cmd = "dbs search --query=\"find block where dataset=" + dataset + "\""
+        cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=' + dataset + '"'
+    #print "CMD " + cmd
     cmd += "| grep \# | sort"
     # never print #print "cmd: " + cmd
 
@@ -75,11 +78,14 @@ if not db:
         line = line[:-1]
         blocks.append(line)
     for block in blocks:
-        if dbs != '':
-            cmd = "dbs search --url=" + dbs + \
-            " --query=\"find file,file.numevents where block=" + block + "\""
+        if   dbs == 'none':
+            cmd = 'dascli.py --query="file block=' + block + '" --limit=999999 --format=files'
+        elif dbs == '':
+            cmd = 'dbs search --query="find file,file.numevents where block=' + block + '"'
         else:
-            cmd = "dbs search --query=\"find file,file.numevents where block=" + block + "\""
+            cmd = 'dbs search --url=' + dbs + \
+                  ' --query="find file,file.numevents where block=' + block + '"'
+        #print "CMD " + cmd
         cmd += "| grep store | sort"
         for line in os.popen(cmd).readlines():
             line = line[:-1]

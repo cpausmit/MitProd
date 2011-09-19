@@ -1,8 +1,5 @@
 #!/bin/bash
-#===================================================================================================
-# Remove leftover directories from older productions, trying to recover the files and possibly
-# deleting them.
-#===================================================================================================
+
 MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
 LOCATION=$MIT_LOCATION
@@ -19,7 +16,6 @@ do
     dir=`echo $line | tr -d :`
     obsDir=$dir
     remove="0"
-    delete="0"
 
     #echo $line
     crabId=`basename $dir`
@@ -41,13 +37,6 @@ do
     echo "removing: $obsDir"
     ssh paus@cgate.mit.edu rmdir $obsDir
     remove="1"
-  fi
-
-  if [ "$delete" == "0" ] && [ "$FLAG" == "delete" ]
-  then
-    echo "deleting: $obsDir"
-    ssh paus@cgate.mit.edu rm -rf $obsDir
-    delete="1"
   fi
 
 done

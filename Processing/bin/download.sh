@@ -28,12 +28,13 @@ echo ""
 dataset="XXX"
 startTime=$(date +%s)
 nowTime=$(date +%s); duration=$(($nowTime - $startTime))
-jobs=`condor_q -global $USER -format "%d " ClusterId -format "%s " Cmd -format "%s \n" Args | grep $dataset | grep downloadFiles.sh | wc -l`
+format='-format "%d " ClusterId -format "%s " Cmd -format "%s \n" Args'
+jobs=`condor_q -global $USER $format | grep $dataset | grep downloadFiles.sh | wc -l`
 #jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
 while [ $jobs -gt $remainingMax ]
 do
   echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"; sleep 60; echo ""
-  jobs=`condor_q -global $USER -format "%d " ClusterId -format "%s " Cmd -format "%s \n" Args | grep $dataset | grep downloadFiles.sh | wc -l`
+  jobs=`condor_q -global $USER $format | grep $dataset | grep downloadFiles.sh | wc -l`
   #jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
   nowTime=$(date +%s); duration=$(($nowTime - $startTime))
 done
@@ -45,6 +46,7 @@ nSamples=`cat $SAMPLE_LIST | wc -l | cut -d ' ' -f1`
 i=1
 while [ $i -le $nSamples ]
 do
+  startTime=$(date +%s)
 
   line=`head -$i $SAMPLE_LIST | tail -1`
   if [ "`echo $line | grep ^#`" != "" ]
@@ -74,12 +76,12 @@ do
   # go into waiting loop
   nowTime=$(date +%s); duration=$(($nowTime - $startTime))
   #jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
-  jobs=`condor_q -global $USER -format "%d " ClusterId -format "%s " Cmd -format "%s \n" Args | grep $dataset | grep downloadFiles.sh | wc -l`
+  jobs=`condor_q -global $USER $format | grep $dataset | grep downloadFiles.sh | wc -l`
   while [ $jobs -gt $remainingMax ]
   do
     echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"; sleep 60; echo ""
     #jobs=`condor_q -global $USER | grep downloadFiles.sh | wc -l`
-    jobs=`condor_q -global $USER -format "%d " ClusterId -format "%s " Cmd -format "%s \n" Args | grep $dataset | grep downloadFiles.sh | wc -l`
+    jobs=`condor_q -global $USER $format | grep $dataset | grep downloadFiles.sh | wc -l`
     nowTime=$(date +%s); duration=$(($nowTime - $startTime))
   done
   echo " Queues are empty ($jobs) --> cleaning up and making catalogs."

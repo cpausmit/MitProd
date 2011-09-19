@@ -22,7 +22,7 @@ DIR=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/$BOOK
 T3DIR=/mnt/hadoop/cmsprod/$BOOK
 if [ "`list $DIR | grep $DATASET`" != "" ]
 then
-  nAll=`wc -l $BOOK/$DATASET.lfns | cut -d ' ' -f 1`
+  nAll=`wc -l $BOOK/$DATASET.lfns 2> /dev/null | cut -d ' ' -f 1`
   # how many are done on the Tier-2
   nDone=`list $DIR/$DATASET 2> /dev/null | grep root | wc -l`
   # how many are done on the Tier-2
@@ -40,10 +40,22 @@ then
     nMissingT3=$(( ${nDone}-${nDoneT3} ))
   fi
   # event number, sample and event sizes
-  nEvents=`cat $BOOK/$DATASET.lfns | awk '{n=n+$3} END {print n}'`
-  size=`list $DIR/$DATASET 2> /dev/null | grep root | awk '{s=s+$1} END {print s/1024./1024./1024.}'`
-  sizePerEvent=`echo $nEvents $size | awk '{print $2*1024*1024/$1}'` 
+  nEvents=`cat $BOOK/$DATASET.lfns 2> /dev/null | awk '{n=n+$3} END {print n}'`
+  size=0
+  if [ "$nEvents" != "" ] && [ "`list $DIR/$DATASET 2> /dev/null`" != ""  ]
+  then
+    size=`list $DIR/$DATASET 2> /dev/null | grep root | awk '{s=s+$1} END {print s/1024./1024./1024.}'`
+  fi
+  sizePerEvent=0
+  if [ "$nEvents" != "" ] && [ $nEvents -gt 0 ]
+  then
+    sizePerEvent=`echo $nEvents $size | awk '{print $2*1024*1024/$1}'` 
+  fi
+
   # print the result
+  #echo " ECHO -- " \
+  #  $BOOK $DATASET \
+  #  $nAll $nDone $nCata $nMissing $nDoneT3 $nCataT3 $nMissingT3 $nEvents $size $sizePerEvent
   printf "%-11s %-28s %6d %6d(%6d) %6d - %6d(%6d) %6d %12d ev, %8.2f GB, %5.1f kB/ev\n" \
     $BOOK $DATASET \
     $nAll $nDone $nCata $nMissing $nDoneT3 $nCataT3 $nMissingT3 $nEvents $size $sizePerEvent

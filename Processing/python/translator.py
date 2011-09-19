@@ -14,18 +14,21 @@ Each SubTask in CRAB can be described through this class
 class Translator:
     "Translator for the storage and computing elements to the "
     # variable to be determined
-    ceTable        = 'undefined' # compute elements translation table
-    seTable        = 'undefined' # storage elements translation table
-    allSites       = 'undefined' # comma separated list of all sites
-    preferredSites = 'undefined' # comma separated list of preferred sites
-    ces = {}
-    ses = {}
+    ceTable            = 'undefined' # compute elements translation table
+    seTable            = 'undefined' # storage elements translation table
+    allSites           = 'undefined' # comma separated list of all sites
+    prefSitesTable     = 'undefined' # comma separated list of preferred sites
+    ces                = {}
+    ses                = {}
+    preferredSitesList = []
+    preferredSites     = []
     #-----------------------------------------------------------------------------------------------
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,ceTable,seTable):
-        self.ceTable  = ceTable
-        self.seTable  = seTable
+    def __init__(self,ceTable,seTable,prefSitesTable):
+        self.ceTable        = ceTable
+        self.seTable        = seTable
+        self.prefSitesTable = prefSitesTable
         if os.path.exists(self.seTable):
             self.ses = self.readTable(self.seTable)
         else:
@@ -34,8 +37,24 @@ class Translator:
             self.ces = self.readTable(self.ceTable)
         else:
             print ' WARNING -- CE table file not found.'
+        if os.path.exists(self.prefSitesTable):
+            self.preferredSitesList = self.readList(self.prefSitesTable)
+        else:
+            print ' WARNING -- prefSites list file not found.'
 
         #self.show()
+
+    def readList(self,file):
+        list = []
+        cmd = 'grep -v ^# ' + file + ' | tr -d \' \''
+        print ' Loading list: ' + cmd
+        for line in os.popen(cmd).readlines():
+            line  = line[:-1]
+            # decode the storage directory name
+            names = line.split(" ")
+            list.append(names[0])
+
+        return list
 
     def readTable(self,file):
         table = {}
@@ -90,9 +109,9 @@ class Translator:
         return newString
 
     def selectPreferred(self):
-        preferredSiteList = ['T2_US_MIT','T2_US_Wisconsin','T2_US_UCSD','T1_US_FNAL']
+        #preferredSitesList = ['T2_US_MIT','T2_US_Wisconsin']
         self.preferredSites = ''
-        for site in preferredSiteList:
+        for site in self.preferredSitesList:
             if re.search(site,self.allSites):
                 if self.preferredSites != '':
                     self.preferredSites = self.preferredSites + ','

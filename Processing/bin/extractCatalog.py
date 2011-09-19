@@ -31,8 +31,9 @@ def move(srcFile,source,target):
     # at CERN execute right away for Tier-2 make an entry in the queue to be executed later at once
     status = 0
     if tier2:
-        mvCmd = "echo mv " + "/".join(source.split('/')[3:]) + ' ' \
-                +            "/".join(target.split('/')[3:]) + " >> " + srcFile
+        mvCmd = "echo \"mv    " + "/".join(source.split('/')[3:]) + ' ' \
+                +               "/".join(target.split('/')[3:]) \
+                +  "; rm -f " + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
         os.system(mvCmd)
     else:
         status = os.system(cmd)
@@ -78,7 +79,7 @@ server     = "srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
 catalogDir = "/home/cmsprod/catalog/t2mit"
 dataset    = None
 mitCfg     = "filefi"
-version    = "014"
+version    = "023"
 lRetry     = 0
 lRemove    = 0
 compact    = 0
@@ -127,8 +128,16 @@ if re.search('crab_0',dataset):
     f = dataset.split('/')
     offDataset = f[0]
     crabId     = f[1]
-    fileInput = open(os.environ['HOME']+ \
-                     '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId,'r')
+    try:
+        fileInput = open(os.environ['HOME']+ \
+                         '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId,'r')
+    except IOError:
+        print ' Could not open database for filename conversion -- FATAL \n   ' + \
+              os.environ['HOME']+ '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId
+        print ' Remove this directory and data therein ' + \
+              ' remove --exe ...\n'
+        sys.exit(1)
+
     index = 1
     files = {}
     nevts = {}
@@ -176,6 +185,8 @@ else:
 # --------------------------------------------------------------------------------------------------
 # Here we start doing things
 # --------------------------------------------------------------------------------------------------
+# determine pid of this process
+pid = str(os.getpid())
 
 # Option '--retest': Reset the extraction for the entire dataset and exit
 if retest == 1:
@@ -185,7 +196,7 @@ if retest == 1:
     cmd = 'cd ' + logDir + '/done/; mv *.out ../'
     status2 = os.system(cmd)
     if status1 != 0 or status2 != 0:
-        print " Could not move files to unproc status (comand line, too long maybe?). -> EXIT"
+        print " Could not move files to unproc status (command line, too long maybe?). -> EXIT"
         print '   logDir : ' + logDir
         print '   procDir: ' + procDir
         sys.exit(1)
@@ -195,16 +206,16 @@ if retest == 1:
 if compact == 1:
     # Consolidate the existing RawFiles.?? into just one and exit
     print '\n Consolidating the raw files into one. \n'
-    cmd  = 'cat ' + rawDir + '/RawFiles.?? | grep root | sort -u > /tmp/RawFiles.00;'
+    cmd  = 'cat ' + rawDir + '/RawFiles.?? | grep root | sort -u > /tmp/RawFiles.00.' + pid + ";"
     if debug == 1:
-        cmd += 'cat /tmp/RawFiles.00'
+        cmd += 'cat /tmp/RawFiles.00.' + pid 
     status = os.system(cmd)
     if os.path.exists(rawDir + '/old'):
         cmd = 'rm -rf ' + rawDir + '/old'
         status = os.system(cmd)
     cmd = 'mkdir ' + rawDir + '/old; mv ' + rawDir + '/RawFiles.?? ' + rawDir + '/old'
     status = os.system(cmd)
-    cmd = 'mv /tmp/RawFiles.00 ' + rawDir
+    cmd = 'mv /tmp/RawFiles.00.' + pid + ' ' + rawDir + '/RawFiles.00'
     status = os.system(cmd)
     sys.exit(0)
 
@@ -212,7 +223,7 @@ if compact == 1:
 cmd = 'cd ' + logDir + '; ls *.out *.err >& /dev/null'
 status = os.system(cmd)
 if status != 0:
-    print " Could not find files or comand line is too long maybe. -> EXIT"
+    print " Could not find files or command line is too long maybe. -> EXIT"
     print '   logDir : ' + logDir
     print '   procDir: ' + procDir
     sys.exit(1)
@@ -223,7 +234,7 @@ status1 = os.system(cmd)
 cmd = 'cd ' + logDir + '; mv *.out proc/'
 status2 = os.system(cmd)
 if status1 != 0 or status2 != 0:
-    print " Could not move files to proc status (comand line, too long maybe?). -> EXIT"
+    print " Could not move files to proc status (command line, too long maybe?). -> EXIT"
     print '   logDir : ' + logDir
     print '   procDir: ' + procDir
     sys.exit(1)
@@ -396,7 +407,7 @@ if test != 0:
 status2 = os.system(cmd)
 
 if status1 != 0 or status2 != 0:
-    print " Could not move files from proc to done status (comand line, too long maybe?). -> EXIT"
+    print " Could not move files from proc to done status (command line, too long maybe?). -> EXIT"
     print '   procDir: ' + procDir
     print '   doneDir: ' + doneDir
     sys.exit(1)

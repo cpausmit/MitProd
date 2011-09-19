@@ -5,6 +5,7 @@
 # Author: C.Paus                                                                (September 23, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
+import task
 
 def findStartedDatasets(path):
     if debug == 1:
@@ -86,6 +87,7 @@ usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
 usage += "                      --download=<int: -1,0,1>\n"
 usage += "                      --status=<int: -1,0,1>\n"
+usage += "                      --show=<int: 0,1>\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --exe\n"
 usage += "                      --noInfo\n"
@@ -94,7 +96,7 @@ usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=', \
+valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','show=', \
          'help','exe','useExistingLfns','complete','noInfo','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -118,6 +120,7 @@ complete        = 0
 noInfo          = False
 download        = -1
 status          = -1
+show            = 0
 forceCopy       = False
 debug           = False
 
@@ -142,6 +145,8 @@ for opt, arg in opts:
         download        = int(arg)
     if opt == "--status":
         status          = int(arg)
+    if opt == "--show":
+        show            = int(arg)
     if opt == "--complete":
         complete        = 1
     if opt == "--noInfo":
@@ -173,10 +178,6 @@ for line in os.popen(cmd).readlines():
     path = '/castor/cern.ch/user/p/paus/' + mitCfg + '/' + version
 
 startedDsetList = findStartedDatasets(path)
-#print " Dataset list: "
-#for dataset in startedDsetList:
-#    print ' -> ' + dataset
-
 ongoingDsetList = findOngoingDatasets(path)
 completedDsetList = findCompletedDatasets(path)
 cleanupCompletedList(ongoingDsetList,completedDsetList)
@@ -194,7 +195,8 @@ join       = 0
 mitDataset = ""
 fullLine   = ""
 bSlash     = "\\";
-printOpt = "-header"
+printOpt   = "-header"
+samples    = []
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     #print 'Line: "' + line + '"'
@@ -235,8 +237,12 @@ for line in os.popen(cmd).readlines():  # run command
         if pattern != '' and not re.search(pattern,mitDataset):
             continue
 
+        # this is a dataset (equivalent to a line) that we will consider
+        sample = task.Sample(cmsDataset,mitDataset,str(nevents),procStatus,local)
+        samples.append(sample)
+
         # make sure we want to consider submission
-        if download != 1 and status != 1:
+        if download != 1 and status != 1  and show != 1:
             cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
                   ' --version=' + version + ' --noTestJob'
             if cmssw != '':
@@ -291,6 +297,25 @@ for line in os.popen(cmd).readlines():  # run command
             if exe == 1:
                 rc = os.system(cmd)
             
+
+if show != 0:
+    lCmsDataset = 0
+    lMitDataset = 0
+    lNEvents    = 0
+    lStatus     = 0
+    lLocalPath  = 0
+    lDbs        = 0
+    for sample in samples:
+        lCmsDataset = max(lCmsDataset,len(sample.cmsDataset))
+        lMitDataset = max(lMitDataset,len(sample.mitDataset))
+        lNEvents    = max(lNEvents   ,len(sample.nEvents   ))
+        lStatus     = max(lStatus    ,len(sample.status    ))
+        lLocalPath  = max(lLocalPath ,len(sample.localPath ))
+        lDbs        = max(lDbs       ,len(sample.dbs       ))
+
+    for sample in samples:
+        sample.showFormat(lCmsDataset+2,lMitDataset+2,lNEvents+1,lStatus+1,lLocalPath+1,lDbs)
+
 if mitDataset == "":
     print "ERROR - dataset not defined."
     sys.exit(0)

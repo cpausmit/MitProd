@@ -5,6 +5,55 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
 
+def Domain():
+    domain = os.uname()[1]
+    f = domain.split('.')
+    return '.'.join(f[1:])
+
+#---------------------------------------------------------------------------------------------------
+"""
+Class:  Sample(cmsDataset='undefined',mitDataset='undefined',
+               localpath='undefined',status='undefined')
+Each sample can be described through this class
+"""
+#---------------------------------------------------------------------------------------------------
+class Sample:
+    "Description of a datasample to be produced using CRAB"
+    cmsDataset     = 'undefined'
+    mitDataset     = 'undefined'
+    nEvents        = 'undefined'
+    status         = 'undefined'
+    localPath      = 'undefined'
+    dbs            = 'undefined'
+    #-----------------------------------------------------------------------------------------------
+    # constructor to connect with existing setup
+    #-----------------------------------------------------------------------------------------------
+    def __init__(self,cmsDataset='undefined',mitDataset='undefined',
+                 nEvents='undefined',status='undefined',localPath='undefined',dbs='undefined'):
+        self.cmsDataset = cmsDataset
+        self.mitDataset = mitDataset
+        self.nEvents    = nEvents
+        self.status     = status
+        self.localPath  = localPath
+        self.dbs        = dbs
+
+    #-----------------------------------------------------------------------------------------------
+    # present the current samples
+    #-----------------------------------------------------------------------------------------------
+    def show(self):
+        print ' Dataset  : ' + self.cmsDataset + ' (' + self.mitDataset + ')'
+        print ' NEvents  : ' + self.nEvents
+        print ' Status   : ' + self.status
+        print ' LocalPath: ' + self.localPath
+        print ' Dbs      : ' + self.dbs
+
+    def showFormat(self,f1,f2,f3,f4,f5,f6):
+        dbs = ''
+        if self.dbs != 'undefined':
+            dbs +=' ' + self.dbs
+        print self.cmsDataset.ljust(f1),self.mitDataset.ljust(f2),self.nEvents.ljust(f3),\
+              self.status.ljust(f4),self.localPath.ljust(f5),dbs.ljust(f6)
+
 #---------------------------------------------------------------------------------------------------
 """
 Class:  SubTask(tag,)
@@ -57,7 +106,9 @@ class Task:
     mitCfg         = 'undefined'
     mitVersion     = 'undefined'
     mitDataset     = 'undefined'
+    cmssw          = 'undefined'
     localPath      = 'undefined'
+    dbs            = 'undefined'
     # status of task as a whole and each individual job
     status         = 'undefined'           # 'undefined', ....
     #
@@ -77,36 +128,16 @@ class Task:
     #-----------------------------------------------------------------------------------------------
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,tag,cmsDataset='undefined',mitCfg='undefined',mitVersion='undefined'):
-        self.tag = tag
+    def __init__(self,tag,cmsDataset='undefined',
+                 mitDataset='undefined',mitCfg='undefined',mitVersion='undefined',
+                 cmssw='undefined'):
+        self.tag    = tag
         self.status = 'undefined'
+
         if tag == 'new':
-            self.new(cmsDataset,mitCfg,mitVersion)
+            self.new(cmsDataset,mitDataset,mitCfg,mitVersion,cmssw)
         elif not os.path.exists(tag):
-            self.new(cmsDataset,mitCfg,mitVersion)
-            if os.path.exists('crab.cfg'):
-                print ' Loading configuration from local crab.cfg'
-                cmd = 'cat crab.cfg | grep ^dataset| cut -d= -f2| tr -d \' \''
-                for line in os.popen(cmd).readlines():  # run command
-                    self.cmsDataset  = line[:-1]        # strip '\n'
-                cmd = 'cat crab.cfg | grep ^storage_element| cut -d= -f2| tr -d \' \''
-                for line in os.popen(cmd).readlines():  # run command
-                    self.storageEle  = line[:-1]        # strip '\n'
-                cmd = 'cat crab.cfg | grep ^storage_path| cut -d= -f2-3| tr -d \' \''
-                for line in os.popen(cmd).readlines():  # run command
-                    self.storagePath = line[:-1]        # strip '\n'
-                cmd = 'cat crab.cfg | grep ^user_remote_dir| cut -d= -f2-3| tr -d \' \''
-                for line in os.popen(cmd).readlines():  # run command
-                    self.storagePath += line[:-1]       # strip '\n'
-                f = (self.storagePath).split('/')
-                if re.search('crab_0_',f[-1]):
-                    self.mitDataset = f[-2]
-                    self.mitVersion = f[-3]
-                    self.mitCfg     = f[-4]
-                else:
-                    self.mitDataset = f[-1]
-                    self.mitVersion = f[-2]
-                    self.mitCfg     = f[-3]
+            self.new(cmsDataset,mitDataset,mitCfg,mitVersion,cmssw)
         else:
             cmd = 'cat ' + tag + '/share/crab.cfg | grep ^dataset| cut -d= -f2| tr -d \' \''
             for line in os.popen(cmd).readlines():  # run command
@@ -133,31 +164,23 @@ class Task:
     #-----------------------------------------------------------------------------------------------
     # constructor for new creation
     #-----------------------------------------------------------------------------------------------
-    def new(self,cmsDataset,mitCfg,mitVersion):
+    def new(self,cmsDataset,mitDataset,mitCfg,mitVersion,cmssw):
         self.cmsDataset = cmsDataset
+        self.mitDataset = mitDataset
         self.mitCfg     = mitCfg
         self.mitVersion = mitVersion
+        self.cmssw      = cmssw
         self.status     = 'undefined'
+
         # derive the missing parameters
-        cmsswCfg = 'cmssw.cfg'
-        crabFile  = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + 'crab.cfg'
-        if not os.path.exists(crabFile):
-            cmd = "Crab file not found: %s" % crabFile
+        seFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/'+ mitVersion + '/seTable'
+        if not os.path.exists(seFile):
+            cmd = "Storage element file not found: %s" % seFile
             raise RuntimeError, cmd
-        cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + cmsswCfg
-        if not os.path.exists(cmsswFile):
-            cmd = "Cmssw file not found: %s" % cmsswFile
-            cmsswCfg = 'cmssw.py'
-            cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + mitVersion + '/' + cmsswCfg
-            if not os.path.exists(cmsswFile):
-                cmd = "Cmssw file not found: %s" % cmsswFile
-                cmd = " XXXX ERROR no valid configuration found XXXX"
-                raise RuntimeError, cmd
         # resolve the other mitCfg parameters from the configuration file
         cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + \
-              mitCfg + '/' + mitVersion + '/' + 'Productions'
+              mitCfg + '/' + mitVersion + '/' + 'Productions' + '.' + self.cmssw
         join       = 0
-        mitDataset = ""
         fullLine   = ""
         bSlash     = "\\";
         for line in os.popen(cmd).readlines():  # run command
@@ -178,38 +201,45 @@ class Task:
                 join = 0
                 # test whether there is a directory   
                 names      = fullLine.split()       # splitting every blank
-                if names[0] == self.cmsDataset:
+                if names[0] == self.cmsDataset or names[1] == self.mitDataset:
+                    self.cmsDataset = names[0]      #                CMS name of the dataset
                     self.mitDataset = names[1]      # the equivalent MIT name of the dataset
                     self.nEvents    = int(names[2]) # number of events to be used in the production
                     if names[4] != "-":
                         self.localPath  = names[4]
                     print "\n Sample Info: " + fullLine + "\n"
-        # find the forseen storage place
-        cmd = 'grep ^storage_element ' + crabFile
-        for file in os.popen(cmd).readlines():   # run command
-            line        = file[:-1]              # strip '\n'
-            # decode the storage element name
-            names       = line.split("=")        # splitting every '='
-            self.storageEle  = names.pop()
-            self.storageEle  = re.sub("\s", "",self.storageEle)
-        cmd = 'grep ^storage_path ' + crabFile
+                    print "\n Sample info from database  Productions.%s\n   %s"%(cmssw,fullLine)
+                    if len(names) == 6:
+                        dbs = names[5]
+                        self.dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs \
+                                   + '/servlet/DBSServlet'
+                        print '   dbs: ' + self.dbs + '\n'
+                    else:
+                        self.dbs = \
+                                 "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
+                        print ''
+
+        # decide on the forseen default storage place (where are we running?)
+        storageTag = 'T2_US_MIT'
+        domain = Domain()
+        if   re.search('mit.edu',domain):
+            storageTag = 'T2_US_MIT'
+        elif re.search('cern.ch',domain):
+            storageTag = 'T0_CH_CERN'
+        print ' Loading storage from local seTable: ' + storageTag
+        cmd = 'grep ^' + storageTag + ' ' + seFile
         for line in os.popen(cmd).readlines():   # run command
-            line        = line[:-1]              # strip '\n'
-            # decode the storage directory name
-            names       = line.split("=")        # splitting every '='
-            names       = names[1:]
-            self.storagePath = "=".join(names)
-            names       = self.storagePath.split('/')
-            names.pop();               names.pop();                   names.pop();
-            names.append(self.mitCfg); names.append(self.mitVersion); names.append(self.mitDataset)
-            self.storagePath = '/'.join(names)
-            self.storagePath = re.sub("\s","",self.storagePath)
-        cmd = 'grep ^user_remote_dir ' + crabFile
-        for line in os.popen(cmd).readlines():   # run command
-            line        = line[:-1]              # strip '\n'
-            # decode the storage directory name
-            names        = line.split(" ")       # splitting every ' '
-            self.storagePath += names[-1]
+            #print ' LINE: ' + line
+            line = line[:-1]                     # strip '\n'
+            line = line.replace(' ','')
+            f = line.split(':')
+            self.storageEle  = f[1] 
+            self.storagePath = f[2] 
+            userRemoteDir    = f[3] 
+        print ' Storage -- Ele: ' + self.storageEle \
+              + '  Path: ' + self.storagePath + '  UserDir: ' + userRemoteDir
+        self.storagePath += userRemoteDir \
+                       + '/' + self.mitCfg + '/' + self.mitVersion + '/' + self.mitDataset
 
     #-----------------------------------------------------------------------------------------------
     # present the current crab task

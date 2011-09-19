@@ -7,6 +7,16 @@
 echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pwd
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
+export SCRAM_ARCH='slc5_ia32_gcc434'
+export VO_CMS_SW_DIR=~cmssoft/cmssoft
+source $VO_CMS_SW_DIR/cmsset_default.sh
+cd     $HOME/cms/cmssw/018/CMSSW_3_9_7/src
+eval   `scram runtime -sh`
+source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
+cd $pwd
+#list $dataDir
+
+
 klist
 cp ~cmsprod/.krb5/ticket /tmp/
 export KRB5CCNAME=FILE:/tmp/ticket
@@ -28,17 +38,6 @@ fi
 echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 pwd=`pwd`
-
-export SCRAM_ARCH='slc5_ia32_gcc434'
-export VO_CMS_SW_DIR=~cmsprod/cmssoft
-#export VO_CMS_SW_DIR=/server/02a/cmsprod/cmssoft
-#export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
-source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     $HOME/cms/cmssw/018/CMSSW_3_9_7/src
-eval   `scram runtime -sh`
-source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
-cd $pwd
-#list $dataDir
 
 # Get ready to run
 rm -f $logFile

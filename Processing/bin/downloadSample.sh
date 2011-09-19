@@ -26,8 +26,8 @@ echo "   n copy procs : $nCopyProcs"
 echo "   condor output: $condorOutput"
 echo "   only missing : $onlyMissing"
 
-mkdir -p         $condorOutput/$book/$dataset
-makedir --exe --debug  $target/$book/$dataset
+mkdir -p $condorOutput/$book/$dataset
+makedir --exe  $target/$book/$dataset
 script=`which downloadFiles.sh`
 
 # cleanup our lists and remake a clean one

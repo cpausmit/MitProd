@@ -28,6 +28,11 @@ import os,sys,getopt,re,string
 
 dCacheDoor = 't2srv0012.cmsaf.mit.edu'
 
+def Domain():
+    domain = os.uname()[1]
+    f = domain.split('.')
+    return '.'.join(f[1:])
+    
 def Seconds():
     for secs in os.popen('date +%s').readlines():
         secs = int(secs[:-1])
@@ -266,11 +271,11 @@ mitDataset      = None
 skip            = ''
 skipList        = []
 mitCfg          = 'filefi'
-version         = '014'
+version         = '023'
 cmssw           = ''
 blockLocal      = 0
 localStorageUrl = ''
-localPath       = '/server/02b/mitprod'
+localPath       = '/mnt/hadoop/cmsprod'
 pattern         = ''
 noCache         = 0
 backward        = ''
@@ -328,9 +333,9 @@ if cmsDataset == None and mitDataset == None:
     cmd = '--cmsDataset option not provided. This is required.'
     raise RuntimeError, cmd
 
-crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
-if not os.path.exists(crabFile):
-    cmd = 'Crab file not found: %s' % crabFile
+seFile   = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'seTable'
+if not os.path.exists(seFile):
+    cmd = 'Storage element file not found: %s' % seFile
     raise RuntimeError, cmd
 cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
 if not os.path.exists(cmsswFile):
@@ -414,55 +419,34 @@ print '\n Preparing dataset for transfer: ' + cmsDataset + ' [MIT: ' + mitDatase
 pMitDset = re.compile('XX-MITDATASET-XX')
 pMitCfg  = re.compile('XX-MITCFG-XX')
 pMitVers = re.compile('XX-MITVERSION-XX')
-# find the forseen storage place
-crabFile  = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'crab.cfg'
-cmd = 'grep ^storage_element ' + crabFile
-for file in os.popen(cmd).readlines():   # run command
-    line        = file[:-1]              # strip '\n'
-    # decode the storage element name
-    names       = line.split("=")        # splitting every '='
-    storageEle  = names.pop()
-    storageEle  = re.sub("\s", "",storageEle)
-# Compile search and replacement sequences just for the path
-cmd = 'grep ^storage_path ' + crabFile
-for file in os.popen(cmd).readlines():   # run command
-    line        = file[:-1]              # strip '\n'
-    line        = pMitDset.sub(mitDataset,line);
-    line        = pMitCfg .sub(mitCfg,    line);
-    line        = pMitVers.sub(version,   line);
-    # decode the storage directory name
-    names       = line.split("=")        # splitting every '='
-    names       = names[1:]
-    storagePath = "=".join(names)
-    storagePath = re.sub("\s", "",storagePath)
+# decide on the forseen default storage place (where are we running)
+storageTag = 'T2_US_MIT'
+domain = Domain()
+if   re.search('mit.edu',domain):
+    storageTag = 'T2_US_MIT'
+elif re.search('cern.ch',domain):
+    storageTag = 'T0_CH_CERN'
 
-##storage_element        = srm-cms.cern.ch
-##storage_path           = /srm/managerv2?SFN=/castor/cern.ch
+cmd = 'grep ^' + storageTag + ' ' + seFile
+for line in os.popen(cmd).readlines():   # run command
+    print ' LINE: ' + line
+    line = line[:-1]                     # strip '\n'
+    line = line.replace(' ','')
+    f = line.split(':')
+    storageEle    = f[1] 
+    storagePath   = f[2] 
+    userRemoteDir = f[3] 
+    print ' Storage -- Ele: ' + storageEle \
+          + '  Path: ' + storagePath + '  UserDir: ' + userRemoteDir
 
-## Hardwire
+# Hardwire
 if fromCern:
-    storageEle  = 'srm-cms.cern.ch'
-    storagePath = '/srm/managerv2?SFN=/castor/cern.ch'
-
-storageUrl = 'srm://' + storageEle + ':8443' + storagePath 
-
-cmd = 'grep ^user_remote_dir ' + crabFile
-for file in os.popen(cmd).readlines():   # run command
-    line        = file[:-1]              # strip '\n'
-    line        = pMitDset.sub(mitDataset,line);
-    line        = pMitCfg .sub(mitCfg,    line);
-    line        = pMitVers.sub(version,   line);
-    # decode the storage directory name
-    names       = line.split("=")        # splitting every '='
-    names       = names[1:]
-    userRemoteDir = "=".join(names)
-    userRemoteDir = re.sub("\s","",userRemoteDir)
-    userRemoteDir = re.sub("/XX-CRABID-XX","",userRemoteDir)
-
-## Hardwire
-if fromCern:
+    storageEle    = 'srm-cms.cern.ch'
+    storagePath   = '/srm/managerv2?SFN=/castor/cern.ch'
     userRemoteDir = "/user/p/paus/" + mitCfg + "/" + version + "/" + mitDataset
 
+# determine the storage URL
+storageUrl = 'srm://' + storageEle + ':8443' + storagePath 
 if userRemoteDir != '':
     storagePath += userRemoteDir
     storageUrl  += userRemoteDir

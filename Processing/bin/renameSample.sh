@@ -1,18 +1,27 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------
-# Rename an existing sample (so far only works (tested) at MIT)
+# Rename an existing sample (so far all potentially exisiting catalog info will have to be redone)
 #---------------------------------------------------------------------------------------------------
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
 LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
-BOOK="filefi/$MIT_VERS"
+BOOK="filefi/${MIT_VERS}"
 LOCAL_LOCATION="/mnt/hadoop/cmsprod"
 CATALOG="/home/cmsprod/catalog"
 #SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
 #LOCATION="/castor/cern.ch/user/p/paus/filefi/014"
-kinit -f
+klist -s
+if [ $? != 0 ]; then
+  kinit -f
+fi
 
 SOURCE="$1"
 TARGET="$2"
+
+echo ""
+echo "Trying to rename sample: $SOURCE to $TARGET"
+echo "                     in: $SERVER/$LOCATION/$BOOK"
+echo ""
+echo ""
 
 sourceExists=`srmls -recursion_depth=0 ${SERVER}${LOCATION}/${BOOK}/$SOURCE 2> /dev/null`
 echo " Existing - source: $sourceExists"

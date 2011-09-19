@@ -22,6 +22,13 @@ def list(dir,pattern,debug):
         if simple:
             # does not work for files yet....
             cmd = 'ssh paus@cgate.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
+    elif re.search('/mnt/hadoop/cms/store',dir):
+        if debug != 0:
+            print ' identified a tier-2 hadoop directory'
+        storagePath = '/srm/v2/server?SFN='
+        storageEle = 'se02.cmsaf.mit.edu'
+        storageUrl = 'srm://' + storageEle + ':8443' + storagePath + dir
+        cmd = 'srmls ' + storageUrl + ' 2> /dev/null'
     else:
         # First case is the simple local directory
         if debug != 0:
