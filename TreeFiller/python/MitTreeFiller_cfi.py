@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.100 2011/08/18 19:49:37 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.101 2011/09/12 15:21:38 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1215,6 +1215,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 	discriminationByLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByLooseIsolation'),
 	discriminationByMediumIsolationName = cms.untracked.string('hpsPFTauDiscriminationByMediumIsolation'),
 	discriminationByTightIsolationName = cms.untracked.string('hpsPFTauDiscriminationByTightIsolation'),
+        discriminationByVLooseCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr'),
+        discriminationByLooseCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr'),
+        discriminationByMediumCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr'),
+        discriminationByTightCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr'),
 	trackMapName = cms.untracked.string('TracksMapName'),
 	jetMapName = cms.untracked.string(''),
 	pfCandMapName = cms.untracked.string('PFCandMapName'),
