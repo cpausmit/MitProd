@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.9 2011/05/15 14:12:42 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.10 2011/09/14 15:26:53 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -28,7 +28,11 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   discriminationByVLooseIsolationName_(Conf().getUntrackedParameter<string>("discriminationByVLooseIsolationName", "hpsPFTauDiscriminationByVLooseIsolation")),
   discriminationByLooseIsolationName_(Conf().getUntrackedParameter<string>("discriminationByLooseIsolationName", "hpsPFTauDiscriminationByLooseIsolation")),
   discriminationByMediumIsolationName_(Conf().getUntrackedParameter<string>("discriminationByMediumIsolationName", "hpsPFTauDiscriminationByMediumIsolation")),
-  discriminationByTightIsolationName_(Conf().getUntrackedParameter<string>("discriminationByTightIsolationName", "hpsPFTauDiscriminationByTightIsolation")), 
+  discriminationByTightIsolationName_(Conf().getUntrackedParameter<string>("discriminationByTightIsolationName", "hpsPFTauDiscriminationByTightIsolation")),
+  discriminationByVLooseCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByVLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr")),
+  discriminationByLooseCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr")),
+  discriminationByMediumCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByMediumCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr")),
+  discriminationByTightCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByTightCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
@@ -99,6 +103,10 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauDiscriminator> hDiscriminationByLooseIsolation;
   Handle<reco::PFTauDiscriminator> hDiscriminationByMediumIsolation;
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightIsolation;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByVLooseCombinedIsolationDBSumPtCorr;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByLooseCombinedIsolationDBSumPtCorr;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByMediumCombinedIsolationDBSumPtCorr;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByTightCombinedIsolationDBSumPtCorr;
   
   if(hpsActive_)
   {
@@ -112,6 +120,10 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     GetProduct(discriminationByLooseIsolationName_, hDiscriminationByLooseIsolation, event);
     GetProduct(discriminationByMediumIsolationName_, hDiscriminationByMediumIsolation, event);
     GetProduct(discriminationByTightIsolationName_, hDiscriminationByTightIsolation, event);
+    GetProduct(discriminationByVLooseCombinedIsolationDBSumPtCorrName_, hDiscriminationByVLooseCombinedIsolationDBSumPtCorr, event);
+    GetProduct(discriminationByLooseCombinedIsolationDBSumPtCorrName_, hDiscriminationByLooseCombinedIsolationDBSumPtCorr, event);
+    GetProduct(discriminationByMediumCombinedIsolationDBSumPtCorrName_, hDiscriminationByMediumCombinedIsolationDBSumPtCorr, event);
+    GetProduct(discriminationByTightCombinedIsolationDBSumPtCorrName_, hDiscriminationByTightCombinedIsolationDBSumPtCorr, event);
   }
 
   const reco::PFTauCollection inTaus = *(hTauProduct.product());  
@@ -133,6 +145,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
                    inTau->alternatLorentzVect().e());
 
     // fill pftau-specific quantities
+    tau->SetCharge(inTau->charge());
     tau->SetBremRecoveryEOverP(inTau->bremsRecoveryEOverPLead());
     tau->SetCaloCompatibility(inTau->caloComp());
     tau->SetECalStripSumEOverP(inTau->ecalStripSumEOverPLead());
@@ -162,6 +175,10 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByLooseIsolation((*(hDiscriminationByLooseIsolation.product()))[tauRef]);
       tau->SetDiscriminationByMediumIsolation((*(hDiscriminationByMediumIsolation.product()))[tauRef]);
       tau->SetDiscriminationByTightIsolation((*(hDiscriminationByTightIsolation.product()))[tauRef]);
+      tau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr((*(hDiscriminationByVLooseCombinedIsolationDBSumPtCorr.product()))[tauRef]);
+      tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr((*(hDiscriminationByLooseCombinedIsolationDBSumPtCorr.product()))[tauRef]);
+      tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr((*(hDiscriminationByMediumCombinedIsolationDBSumPtCorr.product()))[tauRef]);
+      tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr((*(hDiscriminationByTightCombinedIsolationDBSumPtCorr.product()))[tauRef]);
     }
 
     // add track references
@@ -196,6 +213,21 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       for (uint i=0; i<inTau->signalPFCands().size(); ++i) {
         const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFCands().at(i)));
         tau->AddSignalPFCand(signalCand);
+      }
+
+      for (uint i=0; i<inTau->signalPFChargedHadrCands().size(); ++i) {
+	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFChargedHadrCands().at(i)));
+	tau->AddSignalPFChargedHadrCand(signalCand);
+      }
+
+      for (uint i=0; i<inTau->signalPFNeutrHadrCands().size(); ++i) {
+	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFNeutrHadrCands().at(i)));
+	tau->AddSignalPFNeutrHadrCand(signalCand);
+      }
+
+      for (uint i=0; i<inTau->signalPFGammaCands().size(); ++i) {
+	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFGammaCands().at(i)));
+	tau->AddSignalPFGammaCand(signalCand);
       }
       
       for (uint i=0; i<inTau->isolationPFCands().size(); ++i) {
