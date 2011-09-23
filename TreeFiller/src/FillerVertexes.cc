@@ -1,4 +1,4 @@
-// $Id: FillerVertexes.cc,v 1.9 2010/03/18 20:21:01 bendavid Exp $
+// $Id: FillerVertexes.cc,v 1.10 2010/10/20 20:34:27 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -83,7 +83,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
     //fill tracks associated to the vertex
     if (trackMap_) {
       for (reco::Vertex::trackRef_iterator iTrack = inV->tracks_begin(); iTrack!=inV->tracks_end(); ++iTrack) {
-        outVertex->AddTrack(trackMap_->GetMit(mitedm::refToBaseToPtr(*iTrack)));
+        outVertex->AddTrack(trackMap_->GetMit(mitedm::refToBaseToPtr(*iTrack)), inV->trackWeight(*iTrack));
       }
     }
 
