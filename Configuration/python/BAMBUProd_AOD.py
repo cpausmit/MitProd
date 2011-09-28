@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.28 2011/08/22 13:24:39 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.29 2011/09/12 15:21:38 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,13 +30,13 @@ process.options = cms.untracked.PSet(
 # input source
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/data/Run2011A/Interfill/AOD/PromptReco-v3/000/164/393/EA56AD49-A07C-E011-B1A5-003048F1C836.root')
-    fileNames = cms.untracked.vstring('/store/data/Run2011A/DoubleElectron/AOD/PromptReco-v6/000/172/791/563E92E9-4BC1-E011-87F1-E0CB4E4408E7.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_0/Electron/RECO/GR_R_44_V5_RelVal_wzEG2010B-v2/0045/1652C5A5-0EE6-E011-94F2-0018F3D0963C.root'),
     #skipEvents=cms.untracked.uint32(30888),
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_44_V4::All'
+process.GlobalTag.globaltag = 'GR_R_44_V5::All'
 
 process.add_(cms.Service("ObjectService"))
 

@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.40 2010/06/25 15:17:48 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.41 2011/03/11 04:03:55 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -98,6 +98,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   Handle<View<reco::Track> > hTrackProduct;
   GetProduct(edmName_, hTrackProduct, event);  
 	
+  //printf("edmName = %s, product id = %i\n",edmName_.c_str(),hTrackProduct.id().id());
+  
   trackMap_->SetEdmProductId(hTrackProduct.id().id());
   const View<reco::Track> inTracks = *(hTrackProduct.product());  
   

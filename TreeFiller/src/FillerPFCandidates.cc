@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.11 2011/09/12 15:21:38 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.12 2011/09/14 15:26:53 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -23,13 +23,15 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","particleFlow")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
-  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
+  trackerTrackMapNames_(Conf().exists("trackerTrackMapNames") ? 
+                    Conf().getUntrackedParameter<vector<string> >("trackerTrackMapNames") : 
+                    vector<string>()),
   gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
   allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
-  trackerTrackMap_(0),
+  trackerTrackMaps_(0),
   gsfTrackMap_(0),
   muonMap_(0),
   conversionMap_(0),
@@ -56,11 +58,23 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_,&pfCands_);
   OS()->add<mithep::PFCandidateArr>(pfCands_,mitName_);
 
-  if (!trackerTrackMapName_.empty()) {
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-    if (trackerTrackMap_)
-      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+//   if (!trackerTrackMapName_.empty()) {
+//     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+//     if (trackerTrackMap_)
+//       AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+//   }
+
+  for (std::vector<std::string>::const_iterator bmapName = trackerTrackMapNames_.begin();
+        bmapName!=trackerTrackMapNames_.end(); ++bmapName) {
+    if (!bmapName->empty()) {
+      const TrackMap *map = OS()->get<TrackMap>(*bmapName);
+      if (map) {
+        trackerTrackMaps_.push_back(map);
+        AddBranchDep(mitName_,map->GetBrName());
+      }
+    }
   }
+
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
     if (gsfTrackMap_)
@@ -175,12 +189,13 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
                        iP->flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
 
+    //printf("pf type = %i\n",iP->particleId());
+                       
     // fill references to other branches
-    if (trackerTrackMap_ && iP->trackRef().isNonnull()) {
-      //printf("process = %i, product = %i\n",iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex());
-      if (!allowMissingTrackRef_ || trackerTrackMap_->HasMit(refToPtr(iP->trackRef()))) {
-        outPfCand->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iP->trackRef())));
-      }
+    if (iP->trackRef().isNonnull()) {
+      //printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
+      const mithep::Track *thetrack = getMitTrack(refToPtr(iP->trackRef()),allowMissingTrackRef_);
+      outPfCand->SetTrackerTrk(thetrack);
     }    
     if (gsfTrackMap_ && iP->gsfTrackRef().isNonnull()) 
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iP->gsfTrackRef())));
@@ -215,12 +230,35 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
     mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
 
     // fill mother-daughter links
-    const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
-    const reco::PFCandidatePtr motherPtr(motherCandPtr); 
-    if (motherCandPtr.isNonnull()) {
-      mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
-      outPfCand->SetMother(mother);
-      mother->AddDaughter(outPfCand);
+//     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
+//     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
+//     if (motherCandPtr.isNonnull()) {
+//       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
+//       outPfCand->SetMother(mother);
+//       mother->AddDaughter(outPfCand);
+//     }
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+const mithep::Track *FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const
+{
+  // Return our particle referenced by the edm pointer.
+
+  mithep::Track *mitPart = 0;
+  for (std::vector<const mithep::TrackMap*>::const_iterator bmap = trackerTrackMaps_.begin();
+        bmap!=trackerTrackMaps_.end(); ++bmap) {
+    const mithep::TrackMap *theMap = *bmap;
+    if (theMap->HasMit(ptr)) {
+      mitPart = theMap->GetMit(ptr);
+      return mitPart;
     }
   }
+  
+  if (!mitPart && !allowmissing)
+    throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
+    << "Error! MITHEP Object " 
+    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+    
+  return mitPart;
 }

@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.56 2011/06/16 11:43:03 rwolf Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.57 2011/09/12 15:21:37 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,6 +10,7 @@ MitTreeFiller.ElectronsStable.active                = True
 MitTreeFiller.ConversionInOutElectronsStable.active = True
 MitTreeFiller.ConversionOutInElectronsStable.active = True
 MitTreeFiller.GsfElectronsStable.active             = True
+MitTreeFiller.ConversionStepElectronsStable.active  = True
 MitTreeFiller.MergedElectronsStable.active          = True
 
 #ctvmft stuff temporarily disabled pending debugging

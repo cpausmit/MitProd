@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.101 2011/09/12 15:21:38 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.102 2011/09/23 15:56:59 mhchan Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,6 +23,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'PFBasicClusters',
                                     'PFSuperClusters',
                                     'GeneralTracks',
+                                    'ConversionStepTracks',
                                     'PixelTracks',
                                     'PixelLessTracks',
                                     'StandaloneMuonTracks',
@@ -45,6 +46,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ConversionInOutElectronsStable',
                                     'ConversionOutInElectronsStable',
                                     'GsfElectronsStable',
+                                    'ConversionStepElectronsStable',
                                     'MergedElectronsStable',
                                     'MergedConversions',
                                     'Conversions',
@@ -356,6 +358,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType                = cms.untracked.string('FillerTracks')
     ),
 
+    ConversionStepTracks  = cms.untracked.PSet(
+        active                    = cms.untracked.bool(True),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('ConversionStepTracks'),
+        edmName                   = cms.untracked.string('conversionStepTracks'),
+        trackingMapName           = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('ConversionTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
+
     PixelTracks  = cms.untracked.PSet(
         active                    = cms.untracked.bool(False),
         ecalAssocActive           = cms.untracked.bool(False),
@@ -526,7 +541,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
                                                     'ConversionInOutElectronsStableTrackMapName',
                                                     'ConversionOutInElectronsStableTrackMapName',
-                                                    'ElectronsStableGsfTrackMapName'),
+                                                    'ElectronsStableGsfTrackMapName',
+                                                    'ElectronsStableConvStepTrackMapName'),
         conversionMapName   = cms.untracked.string('MergedConversionsMapName'),
         fillerType          = cms.untracked.string('FillerConversionsDecay')
     ),      
@@ -557,7 +573,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active              = cms.untracked.bool(True),
         mitName             = cms.untracked.string('PFCandidates'),
         edmName             = cms.untracked.string('particleFlow'),
-        trackerTrackMapName = cms.untracked.string('TracksMapName'),
+        trackerTrackMapNames = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
         gsfTrackMapName     = cms.untracked.string('GsfTracksMapName'),
         muonMapName         = cms.untracked.string('MuonMapName'),
         conversionMapName   = cms.untracked.string('ConversionsMapName'),
@@ -1290,6 +1306,16 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       trackMapNames = cms.untracked.vstring('GsfTracksMapName'),
       basePartMap   = cms.untracked.string('ElectronsStableGsfMapName'),
       trackPartMap  = cms.untracked.string('ElectronsStableGsfTrackMapName'),      
+      fillerType    = cms.untracked.string('FillerStableParts')
+    ),
+
+    ConversionStepElectronsStable = cms.untracked.PSet(
+      active        = cms.untracked.bool(False),
+      mitName       = cms.untracked.string('ConversionStepElectronsStable'),
+      edmName       = cms.untracked.string('conversionStepElectronsStable'),
+      trackMapNames = cms.untracked.vstring('ConversionTracksMapName'),
+      basePartMap   = cms.untracked.string('ElectronsStableConvStepMapName'),
+      trackPartMap  = cms.untracked.string('ElectronsStableConvStepTrackMapName'),      
       fillerType    = cms.untracked.string('FillerStableParts')
     ),
 

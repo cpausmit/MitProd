@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.6 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerPFCandidates.h,v 1.7 2011/09/14 15:26:53 bendavid Exp $
 //
 // FillerPFCandidates
 //
@@ -28,18 +28,21 @@ namespace mithep
       void                         ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
+
+      const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
+
       std::string                  edmName_;              //edm name of PFCandidates collection
       std::string                  mitName_;              //name of PFCandidate branch in BAMBU
       std::string                  globalTrackMapName_;   //name of imported map wrt global muons
       std::string                  staTrackMapName_;      //name of imported map wrt sta muons
       std::string                  staVtxTrackMapName_;   //name of imported map wrt sta vtx muons
-      std::string                  trackerTrackMapName_;  //name of imported map wrt general tracks
+      std::vector<std::string>     trackerTrackMapNames_;  //name of imported map wrt general tracks
       std::string                  gsfTrackMapName_;      //name of imported map wrt pf gsf tracks
       std::string                  muonMapName_;          //name of imported map wrt muons
       std::string                  conversionMapName_;    //name of imported map wrt conversions
       std::string                  pfCandMapName_;        //name of exported pf candidate map
       bool                         allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
-      const mithep::TrackMap      *trackerTrackMap_;      //map wrt tracker tracks
+      std::vector<const mithep::TrackMap*> trackerTrackMaps_; //maps wrt tracker tracks
       const mithep::TrackMap      *gsfTrackMap_;          //map wrt pf gsf tracks
       const mithep::MuonMap       *muonMap_;              //map wrt muons
       const mithep::ConversionMap *conversionMap_;        //map wrt conversions
