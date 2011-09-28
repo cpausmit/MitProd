@@ -5,6 +5,7 @@
 # Author: C.Paus                                                                (September 23, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
+from subprocess import call
 import task
 
 def findStartedDatasets(path):
@@ -124,6 +125,8 @@ show            = 0
 forceCopy       = False
 debug           = False
 
+webServer       = 'http://t3serv001.mit.edu/~cmsprod'
+
 # Read new values from the command line
 for opt, arg in opts:
     if opt == "--help":
@@ -161,6 +164,35 @@ crabFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'cr
 if not os.path.exists(crabFile):
     cmd = "Crab file not found: %s" % crabFile
     raise RuntimeError, cmd
+
+# Download up to date database file for productions
+cmd  = 'wget ' + webServer + '/' + mitCfg + '/' + version + '/Productions.' + cmssw \
+       + ' -O /tmp/Productions.' + cmssw
+rc = call(cmd.split(' '))
+if rc == 0:
+    print " Download of central database file worked (rc=%d)."%(rc)
+else:
+    print " Download of central database file failed."
+
+# Check whether something has changed
+cmd  = 'diff /tmp/Productions.' + cmssw + ' ' \
+       + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' + cmssw
+rc = call(cmd.split(' '))
+if rc == 0:
+    print " No difference in the local and central database files (rc=%d)."%(rc)
+else:
+    print " Differences in central and local file found (rc=%d)."%(rc)
+    answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
+    # Check whether something has changed
+    if answer == 'y' or answer == 'Y':
+        cmd  = 'mv /tmp/Productions.' + cmssw + ' ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg \
+               + '/' + version + '/Productions.' + cmssw
+        rc = call(cmd.split(' '))
+        print ' Local database was overwritten.'
+    else:
+        print ' Local database not overwritten. Exit here.'
+        sys.exit(0)
+
 cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
 if not os.path.exists(cmsswFile):
     cmd = "Cmssw file not found: %s" % cmsswFile
@@ -196,7 +228,7 @@ mitDataset = ""
 fullLine   = ""
 bSlash     = "\\";
 printOpt   = "-header"
-samples    = []
+samples    = {}
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     #print 'Line: "' + line + '"'
@@ -239,7 +271,14 @@ for line in os.popen(cmd).readlines():  # run command
 
         # this is a dataset (equivalent to a line) that we will consider
         sample = task.Sample(cmsDataset,mitDataset,str(nevents),procStatus,local)
-        samples.append(sample)
+        # is it already in our list or is it new?
+        if sample.cmsDataset in samples:
+            if mitDataset != samples[sample.cmsDataset].mitDataset:
+                print " renameSample.sh ",
+                print " " + mitDataset + " " + samples[sample.cmsDataset].mitDataset
+                samples[sample.cmsDataset].mitDataset += " " + mitDataset
+        else:
+            samples[sample.cmsDataset] = sample
 
         # make sure we want to consider submission
         if download != 1 and status != 1  and show != 1:
@@ -305,7 +344,10 @@ if show != 0:
     lStatus     = 0
     lLocalPath  = 0
     lDbs        = 0
-    for sample in samples:
+
+    for dataset in sorted(samples.iterkeys()):
+    #for sample in samples:
+        sample = samples[dataset]
         lCmsDataset = max(lCmsDataset,len(sample.cmsDataset))
         lMitDataset = max(lMitDataset,len(sample.mitDataset))
         lNEvents    = max(lNEvents   ,len(sample.nEvents   ))
@@ -313,7 +355,9 @@ if show != 0:
         lLocalPath  = max(lLocalPath ,len(sample.localPath ))
         lDbs        = max(lDbs       ,len(sample.dbs       ))
 
-    for sample in samples:
+    for dataset in sorted(samples.iterkeys()):
+    #for sample in samples:
+        sample = samples[dataset]
         sample.showFormat(lCmsDataset+2,lMitDataset+2,lNEvents+1,lStatus+1,lLocalPath+1,lDbs)
 
 if mitDataset == "":

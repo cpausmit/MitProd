@@ -346,12 +346,6 @@ for opt, arg in opts:
     if opt == "--test":
         test            = 1
 
-# Make sure we have the right 'database' and the right config file
-database = 'Productions'
-cmsswPy  = cmssw + '_' + crabId + '.py'
-if cmssw != 'cmssw':
-    database += '.' + cmssw
-
 # Deal with obvious problems
 if cmsDataset == None and mitDataset == None:
     cmd = "--cmsDataset | --mitDataset  options not provided. One of them is required."
@@ -369,52 +363,13 @@ if not os.path.exists(cmsswFile):
     cmd = "Cmssw file not found: %s" % cmsswFile
     cmd = " XXXX ERROR no valid configuration found XXXX"
     raise RuntimeError, cmd
+cmsswPy  = cmssw + '_' + crabId + '.py'
 
 
 # Prepare the ce/se translator
 trans = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/ceTable',
                               os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/seTable',
                               os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/preferredSites')
-
-## Resolve the other mitCfg parameters from the configuration file
-#cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + database
-#join       = 0
-#fullLine   = ""
-#bSlash     = "\\";
-#for line in os.popen(cmd).readlines():  # run command
-#    line = line[:-1]
-#    # get ride of empty or commented lines
-#    if line == '' or line[0] == '#':
-#        continue
-#
-#    # join lines
-#    if join == 1:
-#        fullLine += line
-#    else:
-#        fullLine  = line
-#
-#    # determine if finished or more is coming
-#    if fullLine[-1] == bSlash:
-#        join = 1
-#        fullLine = fullLine[:-1]
-#    else:
-#        join = 0
-#        # test whether there is a directory   
-#        names      = fullLine.split()           # splitting every blank
-#        if names[0] == cmsDataset or names[1] == mitDataset:
-#            cmsDataset = names[0]               # CMS name of the dataset
-#            mitDataset = names[1]               # equivalent MIT name of the dataset
-#            nevents    = int(names[2])          # number of events to be used in the production
-#            if names[4] != "-":
-#                localPath  = names[4]
-#            print "\n Sample info from database  %s  for CMSSW config  %s\n   %s"\
-#                  %(database,cmsswPy,fullLine)
-#            if len(names) == 6:
-#                dbs = names[5]
-#                dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + '/servlet/DBSServlet'
-#                print '   dbs: ' + dbs + '\n'
-#            else:
-#                print ''
 
 # Create the corresponding crab task
 crabTask             = task.Task(crabId,cmsDataset,mitDataset,mitCfg,version,cmssw)

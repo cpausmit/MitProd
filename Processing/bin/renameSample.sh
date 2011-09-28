@@ -2,13 +2,22 @@
 #---------------------------------------------------------------------------------------------------
 # Rename an existing sample (so far all potentially exisiting catalog info will have to be redone)
 #---------------------------------------------------------------------------------------------------
-SERVER="srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
-LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+domain=`echo $HOSTNAME | cut -d'.' -f2-100`
+CATALOG="~cmsprod/catalog"
 BOOK="filefi/${MIT_VERS}"
-LOCAL_LOCATION="/mnt/hadoop/cmsprod"
-CATALOG="/home/cmsprod/catalog"
-#SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
-#LOCATION="/castor/cern.ch/user/p/paus/filefi/014"
+if [ "$domain" == "mit.edu" ]
+then
+  # For MIT
+  SERVER="srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
+  LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+  LOCAL_LOCATION="/mnt/hadoop/cmsprod"
+else
+  # For CERN
+  SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
+  LOCATION="/castor/cern.ch/user/p/paus"
+  LOCAL_LOCATION="/data/hadoop/cmsprod"
+fi
+
 klist -s
 if [ $? != 0 ]; then
   kinit -f
@@ -32,6 +41,7 @@ echo " Existing - target: $targetExists"
 if [ ".$sourceExists" != "." ] && [ ".$targetExists" == "." ]
 then
   move ${LOCATION}/${BOOK}/$SOURCE       ${LOCATION}/${BOOK}/$TARGET
+  ~paus/bin/repstr $SOURCE $TARGET       $MIT_RPOD_DIR/$BOOK/Productions.*
 fi
 
 # now the local files
