@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFMet.h,v 1.5 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerPFMet.h,v 1.6 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerPFMet
 //
@@ -27,7 +27,7 @@ namespace mithep
       void                  FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string           edmName_;    //edm name of met collection
+      edm::InputTag         edmName_;    //edm name of met collection
       std::string           mitName_;    //mit name of met collection
       mithep::PFMetArr     *pfMets_;     //array of Mets
   };
