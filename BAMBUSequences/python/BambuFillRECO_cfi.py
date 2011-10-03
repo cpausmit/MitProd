@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.57 2011/09/12 15:21:37 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.58 2011/09/28 16:50:06 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -69,6 +69,14 @@ MitTreeFiller.AKt5PFJets.bTaggingActive = True
 #to re-run pftau reco/id (since final tags never made it into the 42x release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
+# Load Clustered PF-MET producer
+from CommonTools.ClusteredPFMetProducer.ClusteredPFMetProducer_cfi import *
+MitTreeFiller.AssocPFMet.active         = True
+MitTreeFiller.TrkPFMet.active           = True
+MitTreeFiller.AssocOtherVtxPFMet.active = True
+MitTreeFiller.CentralPFMet.active       = True
+MitTreeFiller.CleanPFMet.active         = True
+
 BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  #trackletVertices* 
                                  #clusterVertices*
@@ -83,7 +91,8 @@ BambuRecoSequence = cms.Sequence(#siPixelRecHits*
                                  l1FastJetSequence*
                                  newBtaggingAll*
 				 PFTau*
-                                 nSVFitSetup
+                                 nSVFitSetup*
+				 ClusteredPFMetProducer
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
