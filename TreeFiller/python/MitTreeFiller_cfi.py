@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.102 2011/09/23 15:56:59 mhchan Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.103 2011/09/28 16:50:06 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -88,7 +88,12 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 #                                    'Kt4Mht',
 #                                    'Kt6Mht',
 #                                    'IC5JPTMht',
-                                    'CaloTaus',
+                                    'AssocPFMet',
+				    'TrkPFMet',
+				    'AssocOtherVtxPFMet',
+				    'CentralPFMet',
+				    'CleanPFMet',
+				    'CaloTaus',
                                     'PFTaus',
                                     'ShrinkingConePFTaus',
 				    'HPSTaus',
@@ -1132,7 +1137,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PFMet = cms.untracked.PSet(
         active     = cms.untracked.bool(True),
         mitName    = cms.untracked.string('PFMet'),
-        edmName    = cms.untracked.string('pfMet'),
+        edmName    = cms.untracked.InputTag('pfMet'),
         fillerType = cms.untracked.string('FillerPFMet')
     ),      
         
@@ -1184,7 +1189,43 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName    = cms.untracked.string('htMetIC5JPT'),
         fillerType = cms.untracked.string('FillerMet')
     ),
-          
+
+
+    AssocPFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(False),
+        mitName    = cms.untracked.string('AssocPFMet'),
+        edmName    = cms.untracked.InputTag('ClusteredPFMetProducer','assocPfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ),
+    
+    TrkPFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(False),
+        mitName    = cms.untracked.string('TrkPFMet'),
+        edmName    = cms.untracked.InputTag('ClusteredPFMetProducer','trkPfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ),   
+
+    AssocOtherVtxPFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(False),
+        mitName    = cms.untracked.string('AssocOtherVtxPFMet'),
+        edmName    = cms.untracked.InputTag('ClusteredPFMetProducer','assocOtherVtxPfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ),
+    
+    CentralPFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(False),
+        mitName    = cms.untracked.string('CentralPFMet'),
+        edmName    = cms.untracked.InputTag('ClusteredPFMetProducer','centralPfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ),
+    
+    CleanPFMet = cms.untracked.PSet(
+        active     = cms.untracked.bool(False),
+        mitName    = cms.untracked.string('CleanPFMet'),
+        edmName    = cms.untracked.InputTag('ClusteredPFMetProducer','cleanPfMet'),
+        fillerType = cms.untracked.string('FillerPFMet')
+    ), 
+              
     CaloTaus = cms.untracked.PSet(
         active          = cms.untracked.bool(True),
         mitName         = cms.untracked.string('CaloTaus'),
