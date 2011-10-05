@@ -190,7 +190,7 @@ else:
         rc = call(cmd.split(' '))
         print ' Local database was overwritten.'
     else:
-        print ' Local database not overwritten. Exit here.'
+        print ' Local database *not* overwritten. Exit here.'
         sys.exit(0)
 
 cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
@@ -199,8 +199,8 @@ if not os.path.exists(cmsswFile):
     cmsswCfg = 'cmssw.py'
     cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
     if not os.path.exists(cmsswFile):
-        cmd = "Cmssw file not found: %s" % cmsswFile
-        cmd = " XXXX ERROR no valid configuration found XXXX"
+        cmd  = " Cmssw file not found: %s\n" % cmsswFile
+        cmd += " XXXX ERROR no valid configuration found XXXX"
         raise RuntimeError, cmd
 
 # Find all started samples
@@ -346,7 +346,6 @@ if show != 0:
     lDbs        = 0
 
     for dataset in sorted(samples.iterkeys()):
-    #for sample in samples:
         sample = samples[dataset]
         lCmsDataset = max(lCmsDataset,len(sample.cmsDataset))
         lMitDataset = max(lMitDataset,len(sample.mitDataset))
@@ -356,7 +355,6 @@ if show != 0:
         lDbs        = max(lDbs       ,len(sample.dbs       ))
 
     for dataset in sorted(samples.iterkeys()):
-    #for sample in samples:
         sample = samples[dataset]
         sample.showFormat(lCmsDataset+2,lMitDataset+2,lNEvents+1,lStatus+1,lLocalPath+1,lDbs)
 
