@@ -41,6 +41,7 @@
 <use   name="MitEdm/ConversionRejection"/>
 <use   name="MitProd/ObjectService"/>
 <use   name="MitEdm/Tools"/>
+<use   name="HiggsAnalysis/HiggsToGammaGamma"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

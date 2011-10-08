@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.14 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerPhotons.h,v 1.15 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerPhotons
 //
@@ -15,6 +15,7 @@
 #include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
 namespace mithep 
 {
@@ -39,6 +40,7 @@ namespace mithep
       const mithep::ConversionMap   *conversionMap_;      //imported map wrt conversion electrons
       const mithep::SuperClusterMap *barrelSuperClusterMap_;  //map wrt barrel super clusters
       const mithep::SuperClusterMap *endcapSuperClusterMap_;  //map wrt endcap super clusters 
+      EGEnergyCorrector       ecorr_;
   };
 }
 #endif

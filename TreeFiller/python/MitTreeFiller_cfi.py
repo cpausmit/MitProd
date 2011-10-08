@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.103 2011/09/28 16:50:06 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.104 2011/10/03 16:07:43 ksung Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -309,9 +309,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PileupEnergyDensity = cms.untracked.PSet(
         active                = cms.untracked.bool(False),
         mitName               = cms.untracked.string('Rho'),                     
-        edmName               = cms.untracked.InputTag('kt6PFJets','rho'),
-        edmNameLowEta         = cms.untracked.InputTag('kt6PFJetsForRhoComputation25','rho'),
-        edmNameRandom         = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom','rho'),
+        edmName               = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoi','rho'),
+        edmNameLowEta         = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoi25','rho'),
+        edmNameRandom         = cms.untracked.InputTag('kt6PFJets','rho'),
         edmNameRandomLowEta   = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom25','rho'),        
         fillerType            = cms.untracked.string('FillerPileupEnergyDensity')
     ),

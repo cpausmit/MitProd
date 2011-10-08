@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.22 2011/03/13 22:15:09 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.23 2011/05/15 14:11:47 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,6 +10,7 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "TSystem.h"
 
 using namespace std;
 using namespace edm;
@@ -73,6 +74,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                                   const edm::EventSetup &setup)
 {
   // Fill photon array.
+
+  if (!ecorr_.IsInitialized()) ecorr_.Initialize(setup,std::string(gSystem->Getenv("CMSSW_BASE") + TString("/src/MitPhysics/data/gbrph.root")));
 
   photons_->Delete();
 
@@ -167,6 +170,12 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
       }
     }
+    
+    //regression energy corrections
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
+    outPhoton->SetEnergyRegr(cor.first);
+    outPhoton->SetEnergyErrRegr(cor.second);
+    
   }
   photons_->Trim();
 }
