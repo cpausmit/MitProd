@@ -1,4 +1,4 @@
-// $Id: FillerNSVFit.cc,v 1.1 2011/05/05 12:43:25 rwolf Exp $
+// $Id: FillerNSVFit.cc,v 1.2 2011/06/16 11:40:20 rwolf Exp $
 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -6,10 +6,10 @@
 #include "MitAna/DataTree/interface/NSVFitCol.h"
 #include "MitProd/TreeFiller/interface/FillerNSVFit.h"
 
-#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBase.h"
-#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBaseFwd.h"
-#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitResonanceHypothesis.h"
-#include "AnalysisDataFormats/TauAnalysis/interface/NSVfitSingleParticleHypothesis.h"
+// #include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBase.h"
+// #include "AnalysisDataFormats/TauAnalysis/interface/NSVfitEventHypothesisBaseFwd.h"
+// #include "AnalysisDataFormats/TauAnalysis/interface/NSVfitResonanceHypothesis.h"
+// #include "AnalysisDataFormats/TauAnalysis/interface/NSVfitSingleParticleHypothesis.h"
 
 using namespace std;
 using namespace edm;
@@ -51,10 +51,10 @@ void FillerNSVFit::FillDataBlock(const edm::Event      &event,
   hypotheses_->Delete();
 
   // handle for the NSVFit info collection
-  Handle<edm::View<NSVfitEventHypothesisBase> > nSVfit;
-  GetProduct(edmName_, nSVfit, event);
+//   Handle<edm::View<NSVfitEventHypothesisBase> > nSVfit;
+//   GetProduct(edmName_, nSVfit, event);
   
-  for(edm::View<NSVfitEventHypothesisBase>::const_iterator evtHyp = nSVfit->begin(); evtHyp != nSVfit->end(); ++evtHyp){
+/*  for(edm::View<NSVfitEventHypothesisBase>::const_iterator evtHyp = nSVfit->begin(); evtHyp != nSVfit->end(); ++evtHyp){
     for(unsigned int ires=0; ires<evtHyp->numResonances(); ++ires){
       const NSVfitResonanceHypothesis* resHyp = dynamic_cast<const NSVfitResonanceHypothesis*> (evtHyp->resonance(ires));
       if( resHyp ){
@@ -84,6 +84,6 @@ void FillerNSVFit::FillDataBlock(const edm::Event      &event,
 	}
       }
     }
-  }      
+  }   */   
   hypotheses_->Trim();
 }
