@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.15 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerPhotons.h,v 1.16 2011/10/08 18:54:47 bendavid Exp $
 //
 // FillerPhotons
 //
@@ -36,6 +36,7 @@ namespace mithep
       std::string             endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus 
       std::string             phIDCutBasedTightName_;     //name of tight cut phID algo
       std::string             phIDCutBasedLooseName_;     //name of loose cut phID algo
+      bool                    enablePhotonFix_;           //do photonfix energy corrections
       mithep::PhotonArr             *photons_;            //array of Photons
       const mithep::ConversionMap   *conversionMap_;      //imported map wrt conversion electrons
       const mithep::SuperClusterMap *barrelSuperClusterMap_;  //map wrt barrel super clusters

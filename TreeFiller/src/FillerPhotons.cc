@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.23 2011/05/15 14:11:47 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.24 2011/10/08 18:54:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,6 +10,7 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "TSystem.h"
 
 using namespace std;
@@ -28,12 +29,17 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
                                                               "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
                                                               "PhotonIDProd:PhotonCutBasedIDLoose")),
+  enablePhotonFix_(Conf().getUntrackedParameter<bool>("enablePhotonFix")),                                                           
   photons_(new mithep::PhotonArr(16)), 
   conversionMap_(0),
   barrelSuperClusterMap_(0),
   endcapSuperClusterMap_(0)
 {
   // Constructor.
+  if (enablePhotonFix_) {
+    PhotonFix::initialiseParameters(Conf());
+  }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +82,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   // Fill photon array.
 
   if (!ecorr_.IsInitialized()) ecorr_.Initialize(setup,std::string(gSystem->Getenv("CMSSW_BASE") + TString("/src/MitPhysics/data/gbrph.root")));
-
+  if (enablePhotonFix_) PhotonFix::initialiseGeometry(setup);
+  
   photons_->Delete();
 
   // get photon collection
@@ -175,6 +182,14 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
     outPhoton->SetEnergyRegr(cor.first);
     outPhoton->SetEnergyErrRegr(cor.second);
+    
+    //photonfix energy corrections
+    if (enablePhotonFix_) {
+      PhotonFix pfix(*iP);
+      outPhoton->SetEnergyPhoFix(pfix.fixedEnergy());
+      outPhoton->SetEnergyErrPhoFix(pfix.sigmaEnergy());
+    }
+    
     
   }
   photons_->Trim();

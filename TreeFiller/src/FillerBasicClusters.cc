@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.14 2010/06/25 14:01:31 peveraer Exp $
+// $Id: FillerBasicClusters.cc,v 1.15 2011/04/23 19:13:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -9,6 +9,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EcalClusterLocal.h"
 
 using namespace std;
 using namespace edm;
@@ -66,10 +67,18 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
   const reco::CaloClusterCollection inBasicClusters = *(hBasicClusterProduct.product());  
 
-
+//   edm::Handle< EcalRecHitCollection > pEBRecHits;
+//   event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
+//   const EcalRecHitCollection * ebRecHits_ = pEBRecHits.product();
+//   edm::Handle< EcalRecHitCollection > pEERecHits;
+//   event.getByLabel( endcapEcalRecHitName_, pEERecHits );
+//   const EcalRecHitCollection * eeRecHits_ = pEERecHits.product();
+  
   EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
                                  edm::InputTag(endcapEcalRecHitName_));
 
+  EcalClusterLocal local;                                 
+                                 
   // loop through all basic clusters
   for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
        inBC != inBasicClusters.end(); ++inBC) {
@@ -111,30 +120,45 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetZernike20(lazyTools.zernike20(*inBC));
     outBasicCluster->SetZernike42(lazyTools.zernike42(*inBC));
 
-    edm::Handle< EcalRecHitCollection > pEBRecHits;
-    event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
-    const EcalRecHitCollection * ebRecHits_ = pEBRecHits.product();
-    edm::Handle< EcalRecHitCollection > pEERecHits;
-    event.getByLabel( endcapEcalRecHitName_, pEERecHits );
-    const EcalRecHitCollection * eeRecHits_ = pEERecHits.product();
+    //local coordinates
+    if (std::abs(inBC->eta())<1.48) {
+      float etacry, phicry;
+      int ieta, iphi;
+      local.localCoordsEB(*inBC,setup,etacry,phicry,ieta,iphi);
+      outBasicCluster->SetEtaCry(etacry);
+      outBasicCluster->SetPhiCry(phicry);
+      outBasicCluster->SetIEta(ieta);
+      outBasicCluster->SetIPhi(iphi);
+    }
+    else {
+      float xcry, ycry;
+      int ix, iy;
+      local.localCoordsEE(*inBC,setup,xcry,ycry,ix,iy);
+      outBasicCluster->SetXCry(xcry);
+      outBasicCluster->SetYCry(ycry);
+      outBasicCluster->SetIX(ix);
+      outBasicCluster->SetIY(iy);      
+    }
+    
 
-    DetId id = ((*inBC).hitsAndFractions()[0]).first;
-    const EcalRecHitCollection *recHits = 0;
-    if (  id.subdetId() == EcalBarrel  ) {
-                recHits = ebRecHits_;
-        } else if ( id.subdetId() == EcalEndcap  ) {
-                recHits = eeRecHits_;
-        }
-    float max = 0;
-    DetId idmax(0);
-        for ( size_t i = 0; i < (*inBC).hitsAndFractions().size(); ++i ) {
-          float energy=0;
-          if ((*inBC).hitsAndFractions()[i].first!=DetId(0)) energy= (*(recHits->find( (*inBC).hitsAndFractions()[i].first))).energy() * (((*inBC).hitsAndFractions())[i].second);
-                if ( energy > max ) {
-                        max = energy;
-                        idmax = ((*inBC).hitsAndFractions())[i].first;
-                }
-        }
+// 
+//     DetId id = ((*inBC).hitsAndFractions()[0]).first;
+//     const EcalRecHitCollection *recHits = 0;
+//     if (  id.subdetId() == EcalBarrel  ) {
+//                 recHits = ebRecHits_;
+//         } else if ( id.subdetId() == EcalEndcap  ) {
+//                 recHits = eeRecHits_;
+//         }
+//     float max = 0;
+//     DetId idmax(0);
+//         for ( size_t i = 0; i < (*inBC).hitsAndFractions().size(); ++i ) {
+//           float energy=0;
+//           if ((*inBC).hitsAndFractions()[i].first!=DetId(0)) energy= (*(recHits->find( (*inBC).hitsAndFractions()[i].first))).energy() * (((*inBC).hitsAndFractions())[i].second);
+//                 if ( energy > max ) {
+//                         max = energy;
+//                         idmax = ((*inBC).hitsAndFractions())[i].first;
+//                 }
+//         }
 	
    //outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
 

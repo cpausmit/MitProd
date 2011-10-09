@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.59 2011/10/03 16:16:56 ksung Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.60 2011/10/09 14:15:04 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -40,6 +40,11 @@ MitTreeFiller.TrkPFMet.active           = True
 MitTreeFiller.AssocOtherVtxPFMet.active = True
 MitTreeFiller.CentralPFMet.active       = True
 MitTreeFiller.CleanPFMet.active         = True
+
+#photonfix parameters
+from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
+MitTreeFiller.Photons.PFParameters = PhotonFixParameters
+MitTreeFiller.Photons.enablePhotonFix = True
 
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
