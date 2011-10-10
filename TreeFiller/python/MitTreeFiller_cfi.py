@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.105 2011/10/08 18:54:48 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.106 2011/10/09 23:28:48 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1242,7 +1242,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active          = cms.untracked.bool(False),
         mitName         = cms.untracked.string('PFTaus'),
         edmName         = cms.untracked.string('fixedConePFTauProducer'),
-        trackMapName    = cms.untracked.string('TracksMapName'),
+        trackMapNames   = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
         jetMapName      = cms.untracked.string(''),
         pfCandMapName   = cms.untracked.string('PFCandMapName'),
         fillerType      = cms.untracked.string('FillerPFTaus')
@@ -1252,7 +1252,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active          = cms.untracked.bool(True),
         mitName         = cms.untracked.string('ShrinkingConePFTaus'),
         edmName         = cms.untracked.string('shrinkingConePFTauProducer'),
-        trackMapName    = cms.untracked.string('TracksMapName'),
+        trackMapNames   = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
         jetMapName      = cms.untracked.string(''),
         pfCandMapName   = cms.untracked.string('PFCandMapName'),
         fillerType      = cms.untracked.string('FillerPFTaus')
@@ -1277,7 +1277,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         discriminationByLooseCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr'),
         discriminationByMediumCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr'),
         discriminationByTightCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr'),
-	trackMapName = cms.untracked.string('TracksMapName'),
+	trackMapNames = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
 	jetMapName = cms.untracked.string(''),
 	pfCandMapName = cms.untracked.string('PFCandMapName'),
 	fillerType = cms.untracked.string('FillerPFTaus')

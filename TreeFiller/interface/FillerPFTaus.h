@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.9 2011/09/14 15:26:53 bendavid Exp $
+// $Id: FillerPFTaus.h,v 1.10 2011/09/23 15:43:14 mhchan Exp $
 //
 // FillerPFTaus
 //
@@ -30,6 +30,9 @@ namespace mithep
     private:
       //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
       
+      const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
+
+
       bool                           hpsActive_;      //=true if HPS discriminants are filled
       std::string                    edmName_;        //edm name of jets collection
       std::string                    mitName_;        //mit name of jets collection
@@ -47,11 +50,11 @@ namespace mithep
       std::string                    discriminationByLooseCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
       std::string                    discriminationByMediumCombinedIsolationDBSumPtCorrName_; // HPS discriminant
       std::string                    discriminationByTightCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
-      std::string                    trackMapName_;   //name of imported TrackMap
+      std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap
       bool                           allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
-      const mithep::TrackMap        *trackMap_;       //map wrt Tracks
+      std::vector<const mithep::TrackMap*> trackMaps_;       //map wrt Tracks
       const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
       const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
       mithep::PFTauArr              *taus_;           //array of taus

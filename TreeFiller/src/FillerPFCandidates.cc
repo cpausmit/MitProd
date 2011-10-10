@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.12 2011/09/14 15:26:53 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.13 2011/09/28 16:50:07 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -31,7 +31,6 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
   allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
-  trackerTrackMaps_(0),
   gsfTrackMap_(0),
   muonMap_(0),
   conversionMap_(0),

@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.10 2011/09/14 15:26:53 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.11 2011/09/23 15:50:38 mhchan Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -33,11 +33,12 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   discriminationByLooseCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr")),
   discriminationByMediumCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByMediumCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr")),
   discriminationByTightCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByTightCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr")),
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
+  trackMapNames_(Conf().exists("trackMapNames") ? 
+                    Conf().getUntrackedParameter<vector<string> >("trackMapNames") : 
+                    vector<string>()),
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
   allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
-  trackMap_(0),
   jetMap_(0),
   pfCandMap_(0),
   taus_(new mithep::PFTauArr(16))
@@ -61,10 +62,15 @@ void FillerPFTaus::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_,&taus_);
   OS()->add<mithep::PFTauArr>(taus_,mitName_);
 
-  if (!trackMapName_.empty()) {
-    trackMap_ = OS()->get<TrackMap>(trackMapName_);
-    if (trackMap_)
-      AddBranchDep(mitName_, trackMap_->GetBrName());
+  for (std::vector<std::string>::const_iterator bmapName = trackMapNames_.begin();
+        bmapName!=trackMapNames_.end(); ++bmapName) {
+    if (!bmapName->empty()) {
+      const TrackMap *map = OS()->get<TrackMap>(*bmapName);
+      if (map) {
+        trackMaps_.push_back(map);
+        AddBranchDep(mitName_,map->GetBrName());
+      }
+    }
   }
 
   if (!jetMapName_.empty()) {
@@ -182,14 +188,19 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     }
 
     // add track references
-    if (trackMap_) {
-      // electron preid track reference
-      if (inTau->electronPreIDTrack().isNonnull() && inTau->electronPreIDTrack().id().processIndex()==4) {
-        if (!allowMissingTrackRef_ || trackMap_->HasMit(refToPtrHack(inTau->electronPreIDTrack()))) {
-          tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
-        }
-      }
-    }
+//     if (trackMap_) {
+//       // electron preid track reference
+//       if (inTau->electronPreIDTrack().isNonnull()) {
+//         if (!allowMissingTrackRef_ || trackMap_->HasMit(refToPtrHack(inTau->electronPreIDTrack()))) {
+//           tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
+//         }
+//       }
+//     }
+
+     if (inTau->electronPreIDTrack().isNonnull()) {
+       const mithep::Track *theTrack = getMitTrack(refToPtrHack(inTau->electronPreIDTrack()),allowMissingTrackRef_);
+       tau->SetElectronTrack(theTrack);
+     }
 
      // add source pfjet reference ( only filled since cmssw 311x )
      if (jetMap_) {
@@ -237,4 +248,27 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     }
   }      
   taus_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+const mithep::Track *FillerPFTaus::getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const
+{
+  // Return our particle referenced by the edm pointer.
+
+  mithep::Track *mitPart = 0;
+  for (std::vector<const mithep::TrackMap*>::const_iterator bmap = trackMaps_.begin();
+        bmap!=trackMaps_.end(); ++bmap) {
+    const mithep::TrackMap *theMap = *bmap;
+    if (theMap->HasMit(ptr)) {
+      mitPart = theMap->GetMit(ptr);
+      return mitPart;
+    }
+  }
+  
+  if (!mitPart && !allowmissing)
+    throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
+    << "Error! MITHEP Object " 
+    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+    
+  return mitPart;
 }
