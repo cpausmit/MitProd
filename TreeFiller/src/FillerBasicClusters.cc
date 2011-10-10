@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.15 2011/04/23 19:13:14 bendavid Exp $
+// $Id: FillerBasicClusters.cc,v 1.16 2011/10/09 23:28:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -122,47 +122,28 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 
     //local coordinates
     if (std::abs(inBC->eta())<1.48) {
-      float etacry, phicry;
+      float etacry, phicry, thetatilt, phitilt;
       int ieta, iphi;
-      local.localCoordsEB(*inBC,setup,etacry,phicry,ieta,iphi);
+      local.localCoordsEB(*inBC,setup,etacry,phicry,ieta,iphi,thetatilt,phitilt);
       outBasicCluster->SetEtaCry(etacry);
       outBasicCluster->SetPhiCry(phicry);
       outBasicCluster->SetIEta(ieta);
       outBasicCluster->SetIPhi(iphi);
+      outBasicCluster->SetThetaAxis(thetatilt);
+      outBasicCluster->SetPhiAxis(phitilt);
     }
     else {
-      float xcry, ycry;
+      float xcry, ycry, thetatilt, phitilt;
       int ix, iy;
-      local.localCoordsEE(*inBC,setup,xcry,ycry,ix,iy);
+      local.localCoordsEE(*inBC,setup,xcry,ycry,ix,iy,thetatilt,phitilt);
       outBasicCluster->SetXCry(xcry);
       outBasicCluster->SetYCry(ycry);
       outBasicCluster->SetIX(ix);
-      outBasicCluster->SetIY(iy);      
+      outBasicCluster->SetIY(iy);
+      outBasicCluster->SetThetaAxis(thetatilt);
+      outBasicCluster->SetPhiAxis(phitilt);      
     }
     
-
-// 
-//     DetId id = ((*inBC).hitsAndFractions()[0]).first;
-//     const EcalRecHitCollection *recHits = 0;
-//     if (  id.subdetId() == EcalBarrel  ) {
-//                 recHits = ebRecHits_;
-//         } else if ( id.subdetId() == EcalEndcap  ) {
-//                 recHits = eeRecHits_;
-//         }
-//     float max = 0;
-//     DetId idmax(0);
-//         for ( size_t i = 0; i < (*inBC).hitsAndFractions().size(); ++i ) {
-//           float energy=0;
-//           if ((*inBC).hitsAndFractions()[i].first!=DetId(0)) energy= (*(recHits->find( (*inBC).hitsAndFractions()[i].first))).energy() * (((*inBC).hitsAndFractions())[i].second);
-//                 if ( energy > max ) {
-//                         max = energy;
-//                         idmax = ((*inBC).hitsAndFractions())[i].first;
-//                 }
-//         }
-	
-   //outBasicCluster->SetSwissCross(EcalSeverityLevelAlgo::swissCross(idmax,*recHits,0.));
-
-
     // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(thePtr, outBasicCluster);
