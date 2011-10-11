@@ -235,7 +235,7 @@ def createDirGeneral(storageEle,storagePath):
             print ' '
 
     print ' Check permissions with:  srmls -l -count=1 ' + storageUrl + '\n'
-    cmd = 'srmls -l -count=1 ' + storageUrl + ' | grep GroupPermission | grep RWX'
+    cmd = 'srmls -l -count=1 ' + storageUrl + ' | grep UserPermission | grep RWX'
     status = -1
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]

@@ -204,13 +204,14 @@ if not os.path.exists(cmsswFile):
         raise RuntimeError, cmd
 
 # Find all started samples
+# !!!! # careful need to update this to the proper storage element/path
 path = '/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/' + mitCfg + '/' + version
 cmd  = 'grep ^storage_element ' + crabFile + '| grep cern.ch'
 for line in os.popen(cmd).readlines():
     path = '/castor/cern.ch/user/p/paus/' + mitCfg + '/' + version
 
-startedDsetList = findStartedDatasets(path)
-ongoingDsetList = findOngoingDatasets(path)
+startedDsetList   = findStartedDatasets(path)
+ongoingDsetList   = findOngoingDatasets(path)
 completedDsetList = findCompletedDatasets(path)
 cleanupCompletedList(ongoingDsetList,completedDsetList)
 completedDsetList = findCompletedDatasets(path)

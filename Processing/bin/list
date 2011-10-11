@@ -29,6 +29,9 @@ def list(dir,pattern,debug):
         storageEle = 'se02.cmsaf.mit.edu'
         storageUrl = 'srm://' + storageEle + ':8443' + storagePath + dir
         cmd = 'srmls ' + storageUrl + ' 2> /dev/null'
+        # faster
+        #cmd = 'ssh paus@se02.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
+        #      + '| sed \'s/^ *//\' | grep -v ^total  '
     else:
         # First case is the simple local directory
         if debug != 0:

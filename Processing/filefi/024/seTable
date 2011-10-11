@@ -28,7 +28,8 @@ T2_RU_ITEP : se3.itep.ru
 # T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk
 T2_US_Caltech : cit-se.ultralight.org
 T2_US_Florida : srm.ihepa.ufl.edu
-T2_US_MIT : se01.cmsaf.mit.edu : /srm/managerv2?SFN=/pnfs/cmsaf.mit.edu/t2bat/cms/store : /user/paus
+T2_US_MIT : se02.cmsaf.mit.edu : /srm/v2/server?SFN=/mnt/hadoop/cms/store : /user/paus
+#T2_US_MIT : se01.cmsaf.mit.edu : /srm/managerv2?SFN=/pnfs/cmsaf.mit.edu/t2bat/cms/store : /user/paus
 T2_US_Nebraska : srm.unl.edu
 T2_US_Purdue : srm-dcache.rcac.purdue.edu
 T2_US_UCSD : bsrm-1.t2.ucsd.edu
