@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.24 2011/10/08 18:54:48 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.25 2011/10/09 23:28:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -81,7 +81,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 {
   // Fill photon array.
 
-  if (!ecorr_.IsInitialized()) ecorr_.Initialize(setup,std::string(gSystem->Getenv("CMSSW_BASE") + TString("/src/MitPhysics/data/gbrph.root")));
+  if (!ecorr_.IsInitialized()) ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
   if (enablePhotonFix_) PhotonFix::initialiseGeometry(setup);
   
   photons_->Delete();
