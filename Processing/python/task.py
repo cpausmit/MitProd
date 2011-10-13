@@ -200,6 +200,7 @@ class Task:
             else:
                 join = 0
                 # test whether there is a directory   
+                #-print ' Full line: ' + fullLine
                 names      = fullLine.split()       # splitting every blank
                 if names[0] == self.cmsDataset or names[1] == self.mitDataset:
                     self.cmsDataset = names[0]      #                CMS name of the dataset
