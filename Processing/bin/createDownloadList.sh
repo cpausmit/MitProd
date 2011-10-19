@@ -5,18 +5,43 @@
 #
 #                                                                             Ch.Paus, Aug 30, 2011
 #===================================================================================================
-MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+MIT1_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+MIT2_LOCATION="/mnt/hadoop/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
-LOCATION=$MIT_LOCATION
 
 BOOK=$1
-FLAG=$2
+PATTERN=$2
 version=`basename $BOOK`
-first=1
 
-for line in `list $LOCATION/$BOOK/`
+LOCATION="$MIT1_LOCATION/$BOOK $MIT2_LOCATION/$BOOK"
+
+echo "list $MIT1_LOCATION/$BOOK"
+list $MIT1_LOCATION/$BOOK > /tmp/datasets-1-$$
+echo "list $MIT2_LOCATION/$BOOK"
+list $MIT1_LOCATION/$BOOK > /tmp/datasets-2-$$
+
+while read line
 do
-  echo LINE: $line
+  if [ "`echo $line | grep $PATTERN`" != "" ]
+  then
+    dset=`echo $line | cut -d' ' -f2`
+    printf "/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus filefi/023 %30s /mnt/hadoop/cmsprod 80 /home/cmsprod/download\n" $dset
+  fi
+
+done < /tmp/datasets-1-$$
+
+while read line
+do
+  if [ "`echo $line | grep $PATTERN`" != "" ]
+  then
+    dset=`echo $line | cut -d' ' -f2`
+    printf "/mnt/hadoop/cms/store/user/paus               filefi/023 %30s /mnt/hadoop/cmsprod 80 /home/cmsprod/download\n" $dset
+  fi
+
+done < /tmp/datasets-1-$$
+
+#/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus filefi/023    r11b-dmu-pr-v1 /mnt/hadoop/cmsprod 80 /home/cmsprod/download
+
 
   #if [ "`echo $line | grep :`" != "" ]
   #then
@@ -46,4 +71,4 @@ do
   #  remove="1"
   #fi
 
-done
+#done

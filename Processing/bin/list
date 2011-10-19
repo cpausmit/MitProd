@@ -23,15 +23,22 @@ def list(dir,pattern,debug):
             # does not work for files yet....
             cmd = 'ssh paus@cgate.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
     elif re.search('/mnt/hadoop/cms/store',dir):
+        #if debug != 0:
+        #    print ' identified a tier-2 hadoop directory'
+        #storagePath = '/srm/v2/server?SFN='
+        #storageEle = 'se01.cmsaf.mit.edu'
+        #storageUrl = 'srm://' + storageEle + ':8443' + storagePath + dir
+        #cmd = 'srmls ' + storageUrl + \
+        #      '| grep -v :|grep \'      \'|sed \'s#^      /#0 /#\'|sed \'s#/$##\' ' + \
+        #      '| sed \'s#^      ##\' | sed \'s#/.*/##\' 2> /dev/null'
+
         if debug != 0:
             print ' identified a tier-2 hadoop directory'
-        storagePath = '/srm/v2/server?SFN='
-        storageEle = 'se02.cmsaf.mit.edu'
-        storageUrl = 'srm://' + storageEle + ':8443' + storagePath + dir
-        cmd = 'srmls ' + storageUrl + ' 2> /dev/null'
-        # faster
-        #cmd = 'ssh paus@se02.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
-        #      + '| sed \'s/^ *//\' | grep -v ^total  '
+        cmd = 'ssh paus@se01.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
+              + '| sed \'s/^ *//\' | grep -v ^total  '
+        if simple:
+            # does not work for files yet....
+            cmd = 'ssh paus@se01.cmsaf.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
     else:
         # First case is the simple local directory
         if debug != 0:

@@ -50,12 +50,13 @@ echo ""
 LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
 ## echo LIST :::: $LIST ::::
 
-# Make sure there is a kerberos ticket available
+# Make sure there is a kerberos and globus tickets available
+mkdir    -p  ~/.krb5/
+chmod 0      ~/.krb5
+chmod u=rwx  ~/.krb5
+cp /tmp/x509up_u`id -u` ~/.krb5/
 if ! [ -z $KRB5CCNAME ]
 then
-  mkdir    -p  ~/.krb5/
-  chmod 0      ~/.krb5
-  chmod u=rwx  ~/.krb5
   file=`echo $KRB5CCNAME | cut -d: -f2`
   if [ -e "$file" ]
   then

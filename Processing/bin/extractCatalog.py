@@ -31,10 +31,13 @@ def move(srcFile,source,target):
     # at CERN execute right away for Tier-2 make an entry in the queue to be executed later at once
     status = 0
     if tier2:
-        mvCmd = "echo \"mv    " + "/".join(source.split('/')[3:]) + ' ' \
+        mvCmd = "echo \"mv  /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) \
+                +         ' /mnt/hadoop/cms' \
                 +               "/".join(target.split('/')[3:]) \
-                +  "; rm -f " + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
+                +  "; #rm -f /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
         os.system(mvCmd)
+
+        #status = os.system(cmd)
     else:
         status = os.system(cmd)
 
@@ -319,7 +322,7 @@ if official == 1:
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]
         srcFile = line
-    cmd = "rm -f " + srcFile + "; touch " + srcFile
+    cmd = "rm -f " + srcFile + "; echo \"#!/bin/bash\" > " + srcFile
     os.system(cmd)
 
 
@@ -377,15 +380,25 @@ if debug:
 # Moving all files
 if official == 1:
     if tier2:
-        cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
+        cmd = "glexec " + srcFile
         print ' CMD: ' + cmd
         status = os.system(cmd)
-        cmd = "ssh paus@cgate.mit.edu source " + srcFile
-        print ' CMD: ' + cmd
-        status = os.system(cmd)
-        cmd = "ssh paus@cgate.mit.edu rm " + srcFile
-        print ' CMD: ' + cmd
-        status = os.system(cmd)
+
+        ## cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
+        ## print ' CMD: ' + cmd
+        ## status = os.system(cmd)
+        ## cmd = "ssh paus@cgate.mit.edu source " + srcFile
+        ## print ' CMD: ' + cmd
+        ## status = os.system(cmd)
+        ## cmd = "ssh paus@cgate.mit.edu rm " + srcFile
+        ## print ' CMD: ' + cmd
+        ## status = os.system(cmd)
+
+    ## Temporary debugging
+    #cmd = "cat " + srcFile
+    #print ' CMD: ' + cmd
+    #status = os.system(cmd)
+
     # Removing the source file once we are done
     cmd = "rm " + srcFile
     print ' CMD: ' + cmd

@@ -13,7 +13,7 @@ def convertToUrl(dir,debug):
         storageEle  = 'se01.cmsaf.mit.edu'
         storagePath = '/srm/managerv2?SFN='
     elif re.search('/mnt/hadoop/cms/store',dir):
-        storageEle  = 'se02.cmsaf.mit.edu'
+        storageEle  = 'se01.cmsaf.mit.edu'
         storagePath = '/srm/v2/server?SFN='
     else:
         storageEle  = ''

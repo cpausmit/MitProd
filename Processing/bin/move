@@ -5,6 +5,7 @@
 # Author: C.Paus                                                                      (May 06, 2010)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re
+import srm
 
 def debugPrint(text):
     if debug ==1:
@@ -14,6 +15,10 @@ def clean(file):
     if   re.search('dcap:',file):
         g = file.split('/')
         file = '/'.join(g[3:])
+    if   re.search('root:',file):
+        g = file.split('/')
+        file = '/'.join(g[3:])
+        file = '/mnt/hadoop/cms' + file
     debugPrint(' Cleaned: ' + file)
 
     return file
@@ -26,6 +31,9 @@ def exists(target):
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
         cmd = 'ssh paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+    elif re.search('/mnt/hadoop/cms/store',target):
+        debugPrint(' Identified a tier-2 directory: ' + target)
+        cmd = 'ssh paus@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory: ' + target)
         cmd = 'ls -1 ' + target + '>\& /dev/null'
@@ -42,6 +50,13 @@ def move(source,target):
     elif re.search('/pnfs/cmsaf.mit.edu/',source) and re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified two tier-2 directories')
         cmd = 'ssh paus@cgate.mit.edu mv ' + source + ' ' + target
+    elif re.search('/mnt/hadoop/cms/store',target):
+        urlSource = srm.convertToUrl(source,False)
+        urlTarget = srm.convertToUrl(target,False)
+        cmd = 'srmmv ' + urlSource + ' ' + urlTarget + ' >& /dev/null'
+        cmd = 'glexec mv ' + source + ' ' + target ## + ' >& /dev/null'
+        #debugPrint(' Identified a tier-2 directory: ' + target)
+        #cmd = 'ssh paus@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory')
         cmd = 'mv ' + source + ' ' + target

@@ -26,7 +26,8 @@ done
 let "shiftIdx = $OPTIND - 1"
 shift $shiftIdx
 
-MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+#MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+MIT_LOCATION="/mnt/hadoop/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
 CATALOG=$HOME/catalog
 # Health checks
@@ -55,37 +56,31 @@ then
 fi
 
 # Conclude what needs to be done
-#echo ""
 if [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
    [ "`echo $LOCATION | grep /pnfs/cmsaf.mit.edu/`" == "" ] && \
+   [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
    [ "$LOCATION" != "" ]
 then
-if [ "`echo $LOCATION | grep /cmsprod/skim/`" == "" ]
-then
-  CATALOG=$CATALOG/local
-  #echo " Identified a local sample request. Using ls on ($LOCATION,$CATALOG)"
-else
-  CATALOG=$CATALOG/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
-  #echo " Identified a local skimming sample request. Using ls on ($LOCATION,$CATALOG)"
-fi
+  if [ "`echo $LOCATION | grep /cmsprod/skim/`" == "" ]
+  then
+    CATALOG=$CATALOG/local
+  else
+    CATALOG=$CATALOG/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
+  fi
 elif [ ".`echo $HOSTNAME | grep cern.ch`" != "." ]
 then
   LOCATION=$CERN_LOCATION
   CATALOG=$CATALOG/cern
-  #echo " Identified a castor sample request ($LOCATION,$CATALOG)"
 elif [ ".`echo $HOSTNAME | grep mit.edu`" != "." ]
 then
   LOCATION=$MIT_LOCATION
   CATALOG=$CATALOG/t2mit
-  #echo " Identified a tier-2 sample request ($LOCATION,$CATALOG)"
 fi
 
 # Create a list of the datsets we need to catalog
-#echo ""
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`
 if [ "`echo $PATTERN | grep crab_0_`" != ""  ]
 then
-  #echo " Official dataset with a crab subdir: $PATTERN"
   LIST="${LOCATION}/$mitCfg/$VERSION/$PATTERN"
 fi
 

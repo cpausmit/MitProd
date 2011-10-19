@@ -18,13 +18,14 @@ then
     '---------------------------------------------------------------------------------------------'
 fi
 
-DIR=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/$BOOK
+DIR1=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/$BOOK
+DIR2=/mnt/hadoop/cms/store/user/paus/$BOOK
 T3DIR=/mnt/hadoop/cmsprod/$BOOK
-if [ "`list $DIR | grep $DATASET`" != "" ]
+if [ "`list $DIR1 $DIR2 | grep $DATASET`" != "" ]
 then
   nAll=`wc -l $BOOK/$DATASET.lfns 2> /dev/null | cut -d ' ' -f 1`
   # how many are done on the Tier-2
-  nDone=`list $DIR/$DATASET 2> /dev/null | grep root | wc -l`
+  nDone=`list $DIR1/$DATASET $DIR2/$DATASET 2> /dev/null | grep root | wc -l`
   # how many are done on the Tier-2
   nCata=`cat $CATALOG/t2mit/$BOOK/$DATASET/Files 2> /dev/null | grep -v ^# | wc -l`
   # how many are missing on the Tier-2
@@ -42,9 +43,9 @@ then
   # event number, sample and event sizes
   nEvents=`cat $BOOK/$DATASET.lfns 2> /dev/null | awk '{n=n+$3} END {print n}'`
   size=0
-  if [ "$nEvents" != "" ] && [ "`list $DIR/$DATASET 2> /dev/null`" != ""  ]
+  if [ "$nEvents" != "" ] && [ "`list $DIR1/$DATASET DIR2/$DATASET 2> /dev/null`" != ""  ]
   then
-    size=`list $DIR/$DATASET 2> /dev/null | grep root | awk '{s=s+$1} END {print s/1024./1024./1024.}'`
+    size=`list $DIR1/$DATASET $DIR2/$DATASET 2> /dev/null | grep root | awk '{s=s+$1} END {print s/1024./1024./1024.}'`
   fi
   sizePerEvent=0
   if [ "$nEvents" != "" ] && [ $nEvents -gt 0 ]

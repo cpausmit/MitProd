@@ -13,25 +13,25 @@
 #---------------------------------------------------------------------------------------------------
 # 2011 B - prompt v1
 /DoubleMu/Run2011B-PromptReco-v1/AOD          r11b-dmu-pr-v1   1 new -
-/DoubleElectron/Run2011B-PromptReco-v1/AOD    r11b-del-pr-v1   1 new - 
-/MuEG/Run2011B-PromptReco-v1/AOD	      r11b-mueg-pr-v1  1 new - 
-/SingleMu/Run2011B-PromptReco-v1/AOD	      r11b-smu-pr-v1   1 new - 
-/SingleElectron/Run2011B-PromptReco-v1/AOD    r11b-sel-pr-v1   1 new - 
-/Photon/Run2011B-PromptReco-v1/AOD	      r11b-pho-pr-v1   1 new - 
-/Tau/Run2011B-PromptReco-v1/AOD		      r11b-t-pr-v1     1 new - 
-/TauPlusX/Run2011B-PromptReco-v1/AOD	      r11b-tpx-pr-v1   1 new - 
-/PhotonHad/Run2011B-PromptReco-v1/AOD	      r11b-phoh-pr-v1  1 new - 
-/MET/Run2011B-PromptReco-v1/AOD		      r11b-met-pr-v1   1 new - 
-#/BTag/Run2011B-PromptReco-v1/AOD	       r11b-btg-pr-v1   1 new - 
+/DoubleElectron/Run2011B-PromptReco-v1/AOD    r11b-del-pr-v1   1 new -
+/MuEG/Run2011B-PromptReco-v1/AOD              r11b-mueg-pr-v1  1 new -
+/SingleMu/Run2011B-PromptReco-v1/AOD          r11b-smu-pr-v1   1 new -
+/SingleElectron/Run2011B-PromptReco-v1/AOD    r11b-sel-pr-v1   1 new -
+/Photon/Run2011B-PromptReco-v1/AOD            r11b-pho-pr-v1   1 new -
+/Tau/Run2011B-PromptReco-v1/AOD               r11b-t-pr-v1     1 new -
+/TauPlusX/Run2011B-PromptReco-v1/AOD          r11b-tpx-pr-v1   1 new -
+/PhotonHad/Run2011B-PromptReco-v1/AOD         r11b-phoh-pr-v1  1 new -
+/MET/Run2011B-PromptReco-v1/AOD               r11b-met-pr-v1   1 new -
+#/BTag/Run2011B-PromptReco-v1/AOD              r11b-btg-pr-v1   1 new -
 #/ElectronHad/Run2011B-PromptReco-v1/AOD       r11b-elh-pr-v1   1 new -
 #/ForwardTriggers/Run2011B-PromptReco-v1/AOD   r11b-ft-pr-v1    1 new -
-#/HT/Run2011B-PromptReco-v1/AOD		       r11b-ht-pr-v1    1 new -
-#/Interfill/Run2011B-PromptReco-v1/AOD	       r11b-if-pr-v1    1 new -
-#/Jet/Run2011B-PromptReco-v1/AOD	       r11b-jet-pr-v1   1 new -
+#/HT/Run2011B-PromptReco-v1/AOD                r11b-ht-pr-v1    1 new -
+#/Interfill/Run2011B-PromptReco-v1/AOD         r11b-if-pr-v1    1 new -
+#/Jet/Run2011B-PromptReco-v1/AOD               r11b-jet-pr-v1   1 new -
 #/MinimumBias/Run2011B-PromptReco-v1/AOD       r11b-mnb-pr-v1   1 new -
-#/MuHad/Run2011B-PromptReco-v1/AOD	       r11b-muh-pr-v1   1 new -
-#/MultiJet/Run2011B-PromptReco-v1/AOD	       r11b-mjt-pr-v1   1 new -
-#/MuOnia/Run2011B-PromptReco-v1/AOD	       r11b-muo-pr-v1   1 new -
+#/MuHad/Run2011B-PromptReco-v1/AOD             r11b-muh-pr-v1   1 new -
+#/MultiJet/Run2011B-PromptReco-v1/AOD          r11b-mjt-pr-v1   1 new -
+#/MuOnia/Run2011B-PromptReco-v1/AOD            r11b-muo-pr-v1   1 new -
 ## - skims
 #/DoubleElectron/Run2011B-HWW-PromptSkim-v1/AOD
 #/DoubleElectron/Run2011B-HZZ-PromptSkim-v1/AOD
@@ -44,6 +44,17 @@
 #/SingleElectron/Run2011B-HZZ-PromptSkim-v1/AOD
 #/SingleMu/Run2011B-HWW-PromptSkim-v1/AOD
 #/SingleMu/Run2011B-HZZ-PromptSkim-v1/AOD
+
+#  2011 A - rereco for photons (post LP sample, replaces v6)
+/DoubleMu/Run2011A-03Oct2011-v1/AOD             r11a-dmu-o03-v1  1 new -
+/DoubleElectron/Run2011A-03Oct2011-v1/AOD       r11a-del-o03-v1  1 new -
+/MuEG/Run2011A-03Oct2011-v1/AOD                 r11a-mueg-o03-v1 1 new -
+/SingleMu/Run2011A-03Oct2011-v1/AOD             r11a-smu-o03-v1  1 new -
+/SingleElectron/Run2011A-03Oct2011-v1/AOD       r11a-sel-o03-v1  1 new -
+/Photon/Run2011A-03Oct2011-v1/AOD               r11a-pho-o03-v1  1 new -
+#                                               r11a-t-o03-v1    1 new -
+/TauPlusX/Run2011A-03Oct2011-v1/AOD             r11a-tpx-o03-v1  1 new -
+#                                               r11a-phoh-o03-v1 1 new -
 
 # 2011 A - prompt v6
 /DoubleMu/Run2011A-PromptReco-v6/AOD            r11a-dmu-pr-v6   1 new -

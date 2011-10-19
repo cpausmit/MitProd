@@ -4,8 +4,6 @@
 #---------------------------------------------------------------------------------------------------
 H=`basename $0`
 SAMPLE_LIST=$1
-MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
-CERN_LOCATION="/castor/cern.ch/user/p/paus"
 
 # start next request
 remainingMax=0

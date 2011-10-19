@@ -203,13 +203,22 @@ if not os.path.exists(cmsswFile):
         cmd += " XXXX ERROR no valid configuration found XXXX"
         raise RuntimeError, cmd
 
-# Find all started samples
-# !!!! # careful need to update this to the proper storage element/path
-path = '/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/' + mitCfg + '/' + version
-cmd  = 'grep ^storage_element ' + crabFile + '| grep cern.ch'
+# Where is our storage?
+storageTag = 'T2_US_MIT'
+domain = task.Domain()
+if   re.search('mit.edu',domain):
+    storageTag = 'T2_US_MIT'
+elif re.search('cern.ch',domain):
+    storageTag = 'T0_CH_CERN'
+seTable = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'seTable'
+if not os.path.exists(crabFile):
+    cmd = "seTable file not found: %s" % seTable
+    raise RuntimeError, cmd
+cmd = 'grep ^' + storageTag + ' ' + seTable + ' | cut -d = -f2 | sed \'s# : ##\''
 for line in os.popen(cmd).readlines():
-    path = '/castor/cern.ch/user/p/paus/' + mitCfg + '/' + version
+    path = line[:-1] +  '/' + mitCfg + '/' + version
 
+# Find all started samples
 startedDsetList   = findStartedDatasets(path)
 ongoingDsetList   = findOngoingDatasets(path)
 completedDsetList = findCompletedDatasets(path)

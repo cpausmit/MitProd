@@ -55,6 +55,13 @@ def getFiles(mitCfg,version):
         cmd = "Write Cfg file not found: %s" % writeCfgFile
         raise RuntimeError, cmd
     os.system(cmd)
+    storageFile  =  os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' \
+                   + 'storageTarget'
+    if not os.path.exists(storageFile):
+        cmd = "Storage file not found: %s" % storageFile
+        raise RuntimeError, cmd
+    cmd = 'cp ' + storageFile + ' ./'
+    os.system(cmd)
 
 #===================================================================================================
 def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
@@ -169,9 +176,6 @@ def create(path):
     if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
         f    = path.split('=')
         path = f[-1]
-        #f    = path.split('/')
-        #path1 = "/".join(f[:-1])
-        #cmd = 'ssh paus@cgate mkdir -p  ' + path1
         cmd = 'ssh paus@cgate mkdir -p  ' + path
         status = os.system(cmd)
         cmd = 'ssh paus@cgate chmod 777 ' + path
@@ -381,6 +385,12 @@ else:
     cmsDataset = crabTask.cmsDataset
     dbs        = crabTask.dbs
 
+# Deal with obvious problems
+if cmsDataset == None or mitDataset == None:
+    cmd = "--cmsDataset & --mitDataset  " + \
+          "Have to be defined now (do you have the right database (Productions.<cmssw>)?"
+    raise RuntimeError, cmd
+
 getFiles(mitCfg,version)
 lfnFile = makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns)
 
@@ -528,6 +538,17 @@ for subTask in crabTask.subTasks:
     # and cleanup the temporary file for the subtask
     cmd = "rm -f " + mitDataset + ".lfns_" + tag
     os.system(cmd)
+
+    # test something useful is going to happen
+    if int(nJobsTotal) > 0:
+        print ' More then zero jobs got created, go ahead and submit (%s).\n'%(crabId)
+    else:
+        print ' Zero or less jobs got created: cleanup and EXIT.'
+        cmd = 'rm -rf `echo *' + crabId + '*`'
+        print ' Cleanup: ' + cmd + '\n'
+        #os.system(cmd)
+        sys.exit(0)
+        
     
     # adjust arguments
     cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
@@ -803,32 +824,3 @@ if noTestJob == 0:
 if testJob == 1:
     print '\n Test job finished, stopping now.\n'
     sys.exit(0)
-
-    
-## # are we just completing an existing production? and is there something to complete?
-## if complete == 1:
-##     f = storagePath.split('=')
-##     rfDir = f[-1]
-##     #cmd = 'castorInventory.py --nJobs=%s %s | grep Missing'%(nJobsTotal,rfDir)
-##     cmd = 'castorInventory.py --nJobs=%s %s | grep Missing'%(nJobsTotal,storageUrl)
-##     #print ' CMD: ' + cmd
-##     for line in os.popen(cmd).readlines():   # run command
-##         line = line[:-1]                     # strip '\n'
-##         f = line.split(':')
-##         nSubmit = f[1].strip()
-##         f = nSubmit.split(',')
-##         if      len(f) == 0 or nSubmit == '':
-##             print ' No more jobs left it seems, nSubmit=' + nSubmit
-##             cmd = 'rm -rf ' + crabId
-##             print ' Cleanup: ' + cmd + '\n\n'
-##             status = os.system(cmd)
-##             sys.exit(0)
-##         elif len(f) == 1:
-##             nInvalid = str(int(nJobsTotal) + 1000)
-##             print ' One more jobs left, careful, adjusted, nSubmit=' + nSubmit
-##             nSubmit = nSubmit + ',' + nInvalid
-## 
-##         ### nSubmit = ",".join(f[:-1])
-##     print ' Missing jobs are: ' + nSubmit
-## 
-## sys.exit(0)

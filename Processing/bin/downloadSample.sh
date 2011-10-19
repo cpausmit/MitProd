@@ -27,6 +27,8 @@ echo "   condor output: $condorOutput"
 echo "   only missing : $onlyMissing"
 
 mkdir -p $condorOutput/$book/$dataset
+makedir --exe  $target
+makedir --exe  $target/$book
 makedir --exe  $target/$book/$dataset
 script=`which downloadFiles.sh`
 
@@ -80,7 +82,9 @@ do
 done
 
 # make list of all local files
-if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || [ "`echo $target | grep /castor/cern.ch`" != "" ] )
+if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && \
+    ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || \
+      [ "`echo $target | grep /castor/cern.ch`" != "" ] )
 then
   opt="--simple"
 else

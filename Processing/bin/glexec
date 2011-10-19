@@ -1,0 +1,39 @@
+#!/bin/bash
+#===================================================================================================
+# Interface to execute a script on the server as globus ticket mapped user.
+#===================================================================================================
+TICKET=/tmp/x509up_u`id -u`
+SCRIPT=$1
+
+if [ ".$2" != "." ]
+then
+  #echo " Generating script: sc.$$"
+  echo "#!/bin/bash"  > sc.$$
+  #echo "whoami"      >> sc.$$
+  #echo "echo $*"     >> sc.$$
+  echo "$*"          >> sc.$$
+  SCRIPT=sc.$$
+fi
+
+# Make sure it is executable
+chmod 755   $SCRIPT
+
+# Copy ticket and script
+scp $TICKET paus@se01.cmsaf.mit.edu:/tmp/x509up_uTmp 2> /dev/null
+scp $SCRIPT paus@se01.cmsaf.mit.edu:/tmp/            2> /dev/null
+
+# Execute the script
+ssh paus@se01.cmsaf.mit.edu \
+  "export GLEXEC_CLIENT_CERT=/tmp/x509up_uTmp; /osg/grid/glexec-osg/sbin/glexec /tmp/$SCRIPT"
+
+# Cleanup remotely
+ssh paus@se01.cmsaf.mit.edu \
+  "rm /tmp/$SCRIPT /tmp/x509up_uTmp"
+
+# Cleanup locally
+if [ -e sc.$$ ]
+then
+  rm sc.$$
+fi
+
+exit 0

@@ -8,6 +8,7 @@ echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pw
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
 DCCP='/afs/cern.ch/project/gd/LCG-share/3.1.44-0/d-cache/dcap/bin/dccp'
+LCGCP='lcg-cp'
 
 klist
 id=`id -u`
@@ -45,7 +46,7 @@ then
   targetUrl="srm://${storageEle}:8443${storagePath}$target"
 elif [ "`echo $target | grep /mnt/hadoop/cms/store`" != "" ]
 then
-  storageEle="se02.cmsaf.mit.edu"
+  storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/v2/server?SFN='
   targetUrl="srm://${storageEle}:8443${storagePath}$target"
 elif [ "`echo $target | grep /castor/cern.ch`" != "" ]
@@ -65,7 +66,7 @@ then
   sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
 elif [ "`echo $dataFile | grep /mnt/hadoop/cms/store`" != "" ]
 then
-  storageEle="se02.cmsaf.mit.edu"
+  storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/v2/server?SFN='
   sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
 elif [ "`echo $dataFile | grep /castor/cern.ch`" != "" ]
@@ -78,8 +79,8 @@ fi
 echo " "; echo "Starting download now"; echo " "
 if   [ "$targetUrl" != "" ]
 then
-  echo "srmcp -srm_protocol_version=2 $sourceUrl $targetUrl"
-  srmcp -srm_protocol_version=2 $sourceUrl $targetUrl
+  echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
+  $LCGCP -D srmv2 -b  $sourceUrl $targetUrl
 else
   echo "$DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target"
   $DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target
