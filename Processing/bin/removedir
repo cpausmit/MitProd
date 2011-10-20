@@ -49,13 +49,13 @@ def remove(source):
     elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         debugPrint(' Identified a tier-2 hadoop directory: ' + source)
         source = srm.convertToUrl(source,debug)
-        cmd = 'srmrm ' + source + ' >& /dev/null'
+        cmd = 'srmrmdir ' + source + ' >& /dev/null'
     else:
         debugPrint(' Identified a normal directory')
         cmd = 'rm -rf ' + source
 
     # ready to perform the requested operation
-    debugPrint('  -> removing with: ' + cmd)
+    debugPrint('  -> removing directory with: ' + cmd)
     status = 0
     if exe == 1:
         status = os.system(cmd)
@@ -68,10 +68,10 @@ def remove(source):
 # Main starts here
 #===================================================================================================
 # Define string to explain usage of the script
-usage =  "Usage: remove  <source>"
-usage += "               --exe\n"
-usage += "               --debug\n"
-usage += "               --help\n"
+usage =  "\n Usage: removedir  <source>"
+usage += "                  --exe\n"
+usage += "                  --debug\n"
+usage += "                  --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['exe','debug','help']
@@ -116,4 +116,4 @@ if   exists(source):
     debugPrint("\n Removing: " + source)
     remove(source)
 elif not exists(source):
-    print ' ERROR: the source ('+source+') does not exist.'
+    print ' ERROR: the source (' + source + ') does not exist.'

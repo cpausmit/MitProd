@@ -6,7 +6,7 @@ DIR=$1
 if [ ".$1" == "." ]
 then
   echo "";
-  echo "usage: $H  <sampleList>";
+  echo "usage: $H  <directory-list>";
   echo ""
   exit 1
 fi
