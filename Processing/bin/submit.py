@@ -667,35 +667,6 @@ os.system(cmd)
 print ' Done... keep watching it...'
 sys.exit(0)
 
-   
-## if nSubmit != -1:
-##     cmd = 'crab -continue %s -submit %s'%(crabId,nSubmit)
-##     print 'SUBMIT.PY: ' + cmd
-##     status = os.system(cmd)
-##     if status == 0:
-##         print '  --> job submitted\n'
-## else:
-##     leftOver   = int(nJobsTotal)
-##     nSubmitted = 0
-##     nSubBatch  = 80
-##     while (nSubmitted < int(nJobsTotal)):
-##         if leftOver < nSubBatch:
-##             nSubBatch = leftOver
-##         
-##         cmd = 'crab -continue %s -submit %d'%(crabId,nSubBatch)
-##         print 'SUBMIT.PY: ' + cmd
-##         status = os.system(cmd)
-##         if status == 0:
-##             print '  --> %d job submitted\n'%(nSubBatch)
-##         leftOver   = leftOver   - nSubBatch
-##         nSubmitted = nSubmitted + nSubBatch
-## 
-## #print 'SUBMIT.PY: ' + cmd
-## #status = os.system(cmd)
-## #if status == 0:
-## #    print '  --> job submitted\n'
-## 
-
 # --------------------------------------------------------------------------------------------------
 # Run a test job to test the configuration and measure the expected output size
 # --------------------------------------------------------------------------------------------------

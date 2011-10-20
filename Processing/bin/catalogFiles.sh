@@ -45,10 +45,19 @@ do
   echo "  remove --exe $dataDir/$book/$dataset/$file"
 done
 
+# Check files with zero length
+ZERO_LIST=`list $dataDir/$book/$dataset|grep ^0 |grep root|cut -d' ' -f2`
+if [ "$ZERO_LIST" != "" ]
+then
+  echo ""
+  echo "list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2"
+  echo ZERO_LIST :::: $ZERO_LIST ::::
+fi
+
 # Create a list of the files we need to catalog
 echo ""
 LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
-## echo LIST :::: $LIST ::::
+#echo LIST :::: $LIST ::::
 
 # Make sure there is a kerberos and globus tickets available
 mkdir    -p  ~/.krb5/

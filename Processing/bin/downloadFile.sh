@@ -28,6 +28,9 @@ echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 pwd=`pwd`
 
+# legacy but works on 32 bit machines
+source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
+
 #export SCRAM_ARCH='slc5_ia32_gcc434'
 #export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
 #source $VO_CMS_SW_DIR/cmsset_default.sh

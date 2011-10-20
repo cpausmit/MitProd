@@ -1,6 +1,7 @@
 #!/bin/bash
 
-MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+#MIT_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
+MIT_LOCATION="/mnt/hadoop/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
 LOCATION=$MIT_LOCATION
 

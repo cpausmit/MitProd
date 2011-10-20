@@ -349,6 +349,22 @@ class Task:
                 print ' ERROR -- found completed lfn not in list of all lfns?! ->' + file + '<-'
                 self.lfns[file] = 2
             self.nLfnDone += 1
+
+        # account for files already done in old storage location
+        if re.match('/mnt/hadoop',path):
+            oldpath = path.replace('/mnt/hadoop','/pnfs/cmsaf.mit.edu/t2bat')
+            cmd = 'list ' + oldpath + ' | grep root 2> /dev/null'
+            for line in os.popen(cmd).readlines():  # run command
+                f    = line.split()
+                file = f[1]
+                if file in self.lfns.keys():
+                    self.lfns[file] = 1
+                else:
+                    print ' ERROR -- found completed lfn not in list of all lfns?! ->' + file + '<-'
+                    self.lfns[file] = 2
+                self.nLfnDone += 1
+        # end of old storage location accounting #
+
         print ' DONE    - Lfns: %6d'%(self.nLfnDone)
 
     #-----------------------------------------------------------------------------------------------
@@ -540,7 +556,7 @@ class Task:
     # print the line to remove the task and do it if requested
     #-----------------------------------------------------------------------------------------------
     def remove(self,clean=0):
-        cmd = ' cleanupLog.py --crabId ' + self.tag + \
+        cmd = ' cleanupLog.py --crabId=' + self.tag + \
               '; mkdir -p ./completed; mv ' + self.tag + ' ./completed/'
         print ' -> ' + cmd
         if clean == 1:
@@ -550,11 +566,13 @@ class Task:
     # print the line to remove the task and do it if requested
     #-----------------------------------------------------------------------------------------------
     def killAndRemove(self,clean=0):
-        cmd = 'crab -kill all -continue ' +self.tag + '; cleanupLog.py --crabId=' + self.tag \
-              + '; mkdir -p ./completed; mv ' + self.tag + ' ./completed/'
+        # kill the remaining jobs
+        cmd = 'crab -kill all -continue ' +self.tag
         print ' -> ' + cmd
         if clean == 1:
             os.system(cmd)
+        # now remove the remainders
+        remove(clean)
         
 #---------------------------------------------------------------------------------------------------
 """

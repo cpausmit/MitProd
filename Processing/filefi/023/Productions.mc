@@ -11,6 +11,9 @@
 # CDF_Dataset_name \
 #  MIT_Dataset_name  nEvtsPreJob  ProductionStatus  StorageLocation  LocalLocation
 #---------------------------------------------------------------------------------------------------------------------------------
+/WGstarToLNu2Mu_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM                s11-wglmm-v11-pu             1  new  -
+/WGstarToLNu2E_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM                 s11-wglee-v11-pu             1  new  -
+/WGstarToLNu2Tau_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM               s11-wgltt-v11-pu             1  new  -
 /DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM               s11-zjets-v11-pu             1  new  -
 /DYJetsToNuNu_PtZ-100_TuneZ2_7TeV-madgraph/Summer11-PU_S4_START42_V11-v1/AODSIM                 s11-znn100-v11-pu            1  new  -
 /DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM                s11-zeem20-powheg-v11-pu     1  new  -
@@ -459,6 +462,8 @@
 /WZ_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM                             s11-wz-v11-pu                1  new  -
 /WminusToENu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM           s11-wmem20-v11-pu            1  new  -
 /WplusToENu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM            s11-wpem20-v11-pu            1  new  -
+/ZbbToLL_M-40_PtB1-15_TuneZ2_7TeV-madgraph-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM         s11-zbb2lm40-1_15-pu         1  new  -
+/ZccToLL_M-40_PtB1-15_TuneZ2_7TeV-madgraph-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM         s11-zcc2lm40-1_15-pu         1  new  -
 /ZH_ZToLL_HToBB_M-115_7TeV-powheg-herwigpp/Summer11-PU_S4_START42_V11-v1/AODSIM                 s11-h115bb-zhnn-v11-pu       1  new  -
 /ZH_ZToNuNu_HToBB_M-115_7TeV-powheg-herwigpp/Summer11-PU_S4_START42_V11-v1/AODSIM               s11-h115bb-zhll-v11-pu       1  new  -
 /ZZTo2L2Nu_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM                      s11-zz2l-v11-pu              1  new  -

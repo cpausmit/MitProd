@@ -119,11 +119,13 @@ def removeJobRemainders(storageEle,storagePath,mitDataset,index,exe):
 #===================================================================================================
 # Define string to explain usage of the script
 usage = \
-      "\nUsage: jobSitter.py [ --pattern= --blacklist=" + \
-      "                        --status  --help --backward --clean --extend --one --exe ]\n"
+      "\nUsage: jobSitter.py [ --pattern= --apattern= --blacklist=" \
+      +                      "  --status --kill --remove --help --backward --clean --extend --one" \
+      +                      " --exe ]\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['pattern=','blacklist=','catalog=','help','backward','kill','clean','exe','extend','one']
+valid = ['pattern=','apattern=','blacklist=','catalog=',
+	 'help','backward','kill','remove','clean','exe','extend','one']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -136,10 +138,12 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults
 pattern   = ''
+apattern  = ''
 blacklist = ''
 catalog   = 0
 clean     = 0
 kill      = 0
+remove    = 0
 exe       = 0
 extend    = 0
 one       = 0
@@ -152,6 +156,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == "--pattern":
         pattern   = arg
+    if opt == "--apattern":
+        apattern  = arg
     if opt == "--blacklist":
         blacklist = arg
     if opt == "--catalog":
@@ -168,6 +174,8 @@ for opt, arg in opts:
         backward  = ' -r '
     if opt == "--kill":
         kill      = 1
+    if opt == "--remove":
+        remove    = 1
 
 # --------------------------------------------------------------------------------------------------
 # Here is where the real action starts -------------------------------------------------------------
@@ -188,6 +196,8 @@ for line in os.popen(cmd).readlines():  # run command
     crabTask   = task.Task(tag)
 
     #print 'Pattern: ' + pattern + '  tag: ' + crabTask.mitDataset
+    if apattern != '' and re.search(apattern,crabTask.mitDataset):
+        print '\n Skipping: ' + crabTask.mitDataset + '\n\n'
     if re.search(pattern,crabTask.mitDataset):
         crabTasks.append(crabTask)
         crabTask.show()
@@ -212,6 +222,10 @@ for crabTask in crabTasks:
 
     if kill == 1:
             crabTask.killAndRemove(1)
+	    continue
+
+    if remove == 1:
+            crabTask.remove(1)
 	    continue
 
     crabTask.loadAllLfns(crabTask.mitCfg + '/' + crabTask.mitVersion + '/' + \

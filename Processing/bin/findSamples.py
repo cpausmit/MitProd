@@ -165,6 +165,12 @@ if not os.path.exists(crabFile):
     cmd = "Crab file not found: %s" % crabFile
     raise RuntimeError, cmd
 
+# Does the local environment exist?
+dir = mitCfg + '/' + version
+if not os.path.exists(dir):
+    cmd = "\n Local work directory does not exist: %s\n" % dir
+    raise RuntimeError, cmd
+
 # Download up to date database file for productions
 cmd  = 'wget ' + webServer + '/' + mitCfg + '/' + version + '/Productions.' + cmssw \
        + ' -O /tmp/Productions.' + cmssw
