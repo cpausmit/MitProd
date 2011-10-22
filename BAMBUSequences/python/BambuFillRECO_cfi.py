@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.60 2011/10/09 14:15:04 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.61 2011/10/09 23:28:48 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,11 +46,15 @@ from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 MitTreeFiller.Photons.PFParameters = PhotonFixParameters
 MitTreeFiller.Photons.enablePhotonFix = True
 
+#to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
+from RecoTauTag.Configuration.RecoPFTauTag_cff import *
+
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
                                  newBtaggingAll*
-				 ClusteredPFMetProducer
+				 ClusteredPFMetProducer*
+				 PFTau
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)

@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.59 2011/10/03 16:16:56 ksung Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.1 2011/10/09 14:15:04 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,10 +9,6 @@ from MitProd.TreeFiller.FastJetCorrection_cff import *
 
 #old collection name for endcap basic clusters
 MitTreeFiller.EndcapBasicClusters.edmName = 'multi5x5BasicClusters:multi5x5EndcapBasicClusters'
-
-
-#to re-run pftau reco/id (since final tags never made it into the 42x release)
-from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
 from MitEdm.Producers.dummytrack_cfi import *
 
@@ -33,21 +29,3 @@ newSoftMuonTagInfos.jets = "ak5PFJetsForL1Correction"
 
 #produce empty conversionStepTracks (not present in 42x)
 BambuRecoSequence.insert(0,conversionStepTracks)
-
-##re-run tau reconstruction on 42x samples
-BambuRecoSequence *= PFTau
-
-
-
-#BambuRecoSequence = cms.Sequence(electronsStable*
-                                 #eidLikelihoodExt*
-                                 #l1FastJetSequence*
-                                 #newBtaggingAll*
-                                 #ClusteredPFMetProducer*
-                                 #PFTau*
-                                 #conversionStepTracks
-                                 #)
-
-#BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
-
-#BambuFillRECO = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)
