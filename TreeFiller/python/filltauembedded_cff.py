@@ -1,4 +1,4 @@
-# $Id: nSVFitResults_cff.py,v 1.2 2011/07/21 16:28:12 rwolf Exp $
+# $Id: filltauembedded_cff.py,v 1.1 2011/09/14 15:24:42 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,11 +8,11 @@ def filltauembedded(filler):
 
     filler.PrimaryVertexes.trackMapName = 'tmfTracksMapName'
     filler.PrimaryVertexesBS.trackMapName = 'tmfTracksMapName'
-    filler.PFCandidates.trackerTrackMapName = 'tmfTracksMapName'
+    filler.PFCandidates.trackerTrackMapNames = cms.untracked.vstring('tmfTracksMapName')
     filler.PFCandidates.gsfTrackMapName = ''        
     filler.PFCandidates.muonMapName = ''        
-    filler.ShrinkingConePFTaus.trackMapName = 'tmfTracksMapName'    
-    filler.HPSTaus.trackMapName = 'tmfTracksMapName'    
+    filler.ShrinkingConePFTaus.trackMapNames = cms.untracked.vstring('tmfTracksMapName')
+    filler.HPSTaus.trackMapNames = cms.untracked.vstring('tmfTracksMapName')
     
     filler.PFCandidates.allowMissingTrackRef = cms.untracked.bool(True)
     filler.ShrinkingConePFTaus.allowMissingTrackRef = cms.untracked.bool(True)    
