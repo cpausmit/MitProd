@@ -2,7 +2,7 @@
 #---------------------------------------------------------------------------------------------------
 # Simple interface to command line DBS to prepare my crabTask input files.
 #---------------------------------------------------------------------------------------------------
-import os,sys,types,string,getopt
+import os,sys,types,string,re,getopt
 
 # Define string to explain usage of the script
 usage =  "Usage: input.py --dataset=<name>\n"
@@ -64,8 +64,11 @@ if not db:
         cmd = 'dascli.py --query="block=' + dataset + '*" --limit=999999 --format=blocks'
     elif dbs == '':
         cmd = 'dbs search --query=\"find block where dataset=' + dataset + '\"'
-    else:
+    elif re.search('http://',dbs):
         cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=' + dataset + '"'
+    else:
+        cmd = 'echo ' + dataset + '#00000000-0000-0000-0000-000000000000'
+
     #print "CMD " + cmd
     cmd += "| grep \# | sort"
     # never print #print "cmd: " + cmd
@@ -78,16 +81,23 @@ if not db:
         line = line[:-1]
         blocks.append(line)
     for block in blocks:
+        #print ' BLOCK: ' + block
+
         if   dbs == 'none':
             cmd = 'dascli.py --query="file block=' + block + '" --limit=999999 --format=files'
         elif dbs == '':
             cmd = 'dbs search --query="find file,file.numevents where block=' + block + '"'
-        else:
+        elif re.search('http://',dbs):
             cmd = 'dbs search --url=' + dbs + \
                   ' --query="find file,file.numevents where block=' + block + '"'
+        else:
+            cmd = 'cat /home/cmsprod/catalog/t2mit/private/' + dbs + dataset \
+                  + '/Files | sed \'s@XX-CATALOG-XX@@\' | sed \'s@root://xrootd1.cmsaf.mit.edu/@@\''
+            
         #print "CMD " + cmd
         cmd += "| grep store | sort"
         for line in os.popen(cmd).readlines():
+            #print "LINE >" + line
             line = line[:-1]
             f       = line.split()
             lfn     = f[0]

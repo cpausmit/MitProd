@@ -122,6 +122,15 @@ do
     fi
   fi
 done
+nAll=`wc -l $condorOutput/$book/$dataset/fileList-all.txt | cut -d ' ' -f1`
+nMissing=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f1`
+nDone=`wc -l $condorOutput/$book/$dataset/fileList-done.txt | cut -d ' ' -f1`
+echo ""
+echo " Download Summary "
+echo "   All       $nAll"
+echo "   Done      $nDone"
+echo "   Missing   $nMissing"
+echo ""
 
 # construct our job
 nFiles=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f1`
@@ -145,8 +154,8 @@ then
   nFilesPerJob=$(( $nFilesPerJob+1 ))
 fi
 
-echo "   n files all  : $nFiles"
-echo "   n files/proc : $nFilesPerJob"
+echo "   n files to copy: $nFiles"
+echo "   n files/proc   : $nFilesPerJob"
 
 i=1
 next=1

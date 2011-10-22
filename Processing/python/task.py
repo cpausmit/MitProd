@@ -212,8 +212,14 @@ class Task:
                     print "\n Sample info from database  Productions.%s\n   %s"%(cmssw,fullLine)
                     if len(names) == 6:
                         dbs = names[5]
-                        self.dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs \
-                                   + '/servlet/DBSServlet'
+                        testDbs  = 'wget http://cmsdbsprod.cern.ch/cms_dbs_' + dbs \
+                                   + '/servlet/DBSServlet >& /dev/null'
+                        status   = os.system(testDbs)
+                        if status == 0:
+                            self.dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs \
+                                       + '/servlet/DBSServlet'
+                        else:
+                            self.dbs = dbs
                         print '   dbs: ' + self.dbs + '\n'
                     else:
                         self.dbs = \
@@ -315,7 +321,6 @@ class Task:
             if file in self.lfns.keys():
                 self.lfns[file] = 1
             else:
-                #print ' Add: >' + file + '<'
                 self.lfns[file] = 0
 
             if not self.blocks.get(block):
@@ -381,7 +386,6 @@ class Task:
                 # add this lfn to the file
                 self.nLfnMissing += 1
                 cmd = 'grep ' + lfn + ' ' + lfnFile + ' >> ' + restLfnFile
-                #print ' CMD ' + cmd
                 os.system(cmd)
             else:
                 self.status = 'undefined'

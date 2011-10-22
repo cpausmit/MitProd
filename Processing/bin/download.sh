@@ -58,13 +58,14 @@ do
   dataset=`echo $line | tr -s ' ' | cut -d ' ' -f 3`
   targetDir=`echo $line | tr -s ' ' | cut -d ' ' -f 4`
 
+  
   # stagein the sample if it is at CERN
   if [ "`echo $baseDir | grep /castor/cern.ch`" != "" ]
   then
     echo "  ssh paus@lxplus.cern.ch ./stageSample.py --dataDir=$baseDir/$book/$dataset"
     ssh paus@lxplus.cern.ch ./stageSample.py --dataDir=$baseDir/$book/$dataset
   fi
-
+  
   # download the sample
   echo " downloadSample.sh $line"
   downloadSample.sh $line
@@ -86,8 +87,26 @@ do
   removeZeroLengthFiles.sh $targetDir/$book/$dataset
   
   # finally make the corresponding catalog
-  echo "catalog.sh -ceg $version $dataset --retry $targetDir"
-  catalog.sh -ceg $version $dataset --retry $targetDir
+  if [ ${#version} == 3 ]
+  then
+    echo "catalog.sh -ceg $version $dataset --retry $targetDir"
+    catalog.sh -ceg $version $dataset --retry $targetDir
+  else
+    echo "This is not a normal dataset, make a simple catalog."
+    echo ""
+    list $targetDir/$book/$dataset > /tmp/list.$$
+    mkdir -p ~/catalog/t2mit/private/$book/$dataset
+    rm -f    ~/catalog/t2mit/private/$book/$dataset/Files
+    touch    ~/catalog/t2mit/private/$book/$dataset/Files
+    while read line
+    do
+      size=`echo $line | cut -d ' ' -f1`
+      file=`echo $line | cut -d ' ' -f2`
+      root -l -b -q $MIT_PROD_DIR/root/runSimpleFileCataloger.C\(\"$targetDir/$book/$dataset\",\"$file\"\) \
+	  2> /dev/null | grep CATALOG >> ~/catalog/t2mit/private/$book/$dataset/Files
+    done < /tmp/list.$$
+    rm -f /tmp/list.$$
+  fi
 
   i=$(( $i+1 ))
 

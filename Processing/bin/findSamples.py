@@ -245,6 +245,7 @@ fullLine   = ""
 bSlash     = "\\";
 printOpt   = "-header"
 samples    = {}
+dbs        = ""
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     #print 'Line: "' + line + '"'
@@ -281,6 +282,9 @@ for line in os.popen(cmd).readlines():  # run command
         nevents    = int(names[2])          # number of events to be used in the production
         procStatus = names[3]
         local      = names[4]
+        # check whether dbs is given
+        if len(names) > 5:
+            dbs = names[5]
         
         if pattern != '' and not re.search(pattern,mitDataset):
             continue
@@ -304,6 +308,8 @@ for line in os.popen(cmd).readlines():  # run command
                 cmd = cmd + " --cmssw=" + cmssw
             if useExistingLfns:
                 cmd = cmd + " --useExistingLfns"
+            if dbs != "":
+                cmd = cmd + " --fixSites=T2_US_MIT"
     
             # check for errors (to be done)
     
