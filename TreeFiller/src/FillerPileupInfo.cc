@@ -1,4 +1,4 @@
-// $Id: FillerPileupInfo.cc,v 1.3 2011/03/25 16:52:16 bendavid Exp $
+// $Id: FillerPileupInfo.cc,v 1.4 2011/06/15 20:01:55 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -67,6 +67,7 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
     puInfo->SetBunchCrossing(edmPUInfo->getBunchCrossing());
     puInfo->SetPU_NumInteractions(edmPUInfo->getPU_NumInteractions());
+    puInfo->SetPU_NumMean(edmPUInfo->getTrueNumInteractions());    
     for(int i=0; i<edmPUInfo->getPU_NumInteractions(); i++){
       //printf("filling interaction %i\n",i);
       if (uint(i)<edmPUInfo->getPU_zpositions().size()) puInfo->PushPU_zPositions(Double32_t(edmPUInfo->getPU_zpositions()[i])); else puInfo->PushPU_zPositions(-99);
