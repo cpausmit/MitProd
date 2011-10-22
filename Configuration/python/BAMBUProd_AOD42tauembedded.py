@@ -36,11 +36,11 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_44_V6A::All'
+process.GlobalTag.globaltag = 'GR_R_44_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
+process.load("MitProd.BAMBUSequences42.BambuFillAOD_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 

@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODtauembedded.py,v 1.1 2011/09/14 15:36:06 bendavid Exp $
+# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.1 2011/09/14 15:36:06 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,7 +14,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('Mit_017'),
-    annotation = cms.untracked.string('AOD'),
+    annotation = cms.untracked.string('AODSIM'),
     name = cms.untracked.string('BambuProduction')
 )
 
@@ -29,25 +29,23 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/data/Run2011A/Interfill/AOD/PromptReco-v3/000/164/393/EA56AD49-A07C-E011-B1A5-003048F1C836.root')
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/z/zeise/embedding/4_2_4p1/pfembTauTau_data_SingleMu_2011A_Aug05thRR_v1_1_116_pt0_2680_embedded.root'),
-    #skipEvents=cms.untracked.uint32(30888),
+  fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/z/zeise/embedding/4_2_4p1/pfembTauTau_data_SingleMu_2011A_Aug05thRR_v1_1_116_pt0_2680_embedded.root'),
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_44_V6A::All'
+process.GlobalTag.globaltag = 'START44_V6::All'
 
 process.add_(cms.Service("ObjectService"))
 
-process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
+process.load("MitProd.BAMBUSequences42.BambuFillAODSIM_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 from MitProd.TreeFiller.filltauembedded_cff import *
-filltauembedded(process.MitTreeFiller)
-
-process.bambu_step  = cms.Path(process.BambuFillAOD)
+filltauembedded(process.MitTreeFiller)    
+    
+process.bambu_step  = cms.Path(process.BambuFillAODSIM)
 
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
