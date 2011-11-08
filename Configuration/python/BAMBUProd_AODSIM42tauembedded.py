@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.1 2011/09/14 15:36:06 bendavid Exp $
+# $Id: BAMBUProd_AODSIM42tauembedded.py,v 1.1 2011/10/22 15:07:33 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -44,7 +44,8 @@ process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 from MitProd.TreeFiller.filltauembedded_cff import *
 filltauembedded(process.MitTreeFiller)    
-    
+process.newJetTracksAssociatorAtVertex.tracks = "tmfTracks"
+
 process.bambu_step  = cms.Path(process.BambuFillAODSIM)
 
 # schedule definition
