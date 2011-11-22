@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.1 2011/10/09 14:15:04 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.2 2011/10/22 15:06:48 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,6 +22,9 @@ MitTreeFiller.AKt5PFJetsNoArea.active = True
 
 MitTreeFiller.Kt4PFJets.edmName = 'kt4PFJetsForL1Correction'
 MitTreeFiller.AKt5PFJets.edmName = 'ak5PFJetsForL1Correction'
+
+MitTreeFiller.Kt4PFJets.flavorMatchingActive      = False
+MitTreeFiller.AKt5PFJets.flavorMatchingActive     = False
 
 newJetTracksAssociatorAtVertex.jets = "ak5PFJetsForL1Correction"
 newSoftElectronTagInfos.jets = "ak5PFJetsForL1Correction"
