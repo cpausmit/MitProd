@@ -1,23 +1,30 @@
-# $Id: filltauembedded_cff.py,v 1.1 2011/09/14 15:24:42 bendavid Exp $
+# $Id: filltauembedded_cff.py,v 1.2 2011/10/22 15:05:39 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
 def filltauembedded(filler):
 
     filler.fillers.insert(filler.fillers.index('GeneralTracks'),'MergedEmbeddedTracks')
-
-    filler.PrimaryVertexes.trackMapName = 'tmfTracksMapName'
-    filler.PrimaryVertexesBS.trackMapName = 'tmfTracksMapName'
-    filler.PFCandidates.trackerTrackMapNames = cms.untracked.vstring('tmfTracksMapName')
-    filler.PFCandidates.gsfTrackMapName = ''        
-    filler.PFCandidates.muonMapName = ''        
+    
+    filler.PrimaryVertexes.trackMapName        = 'tmfTracksMapName'
+    filler.PrimaryVertexesBS.trackMapName      = 'tmfTracksMapName'
+    filler.Electrons.trackerTrackMapName       = ''
+    #filler.Electrons.gsfTrackMapName           = ''
+    filler.Electrons.requireClusterAndGsfMap   = False
+    filler.PFCandidates.trackerTrackMapNames   = cms.untracked.vstring('tmfTracksMapName')
+    filler.PFCandidates.gsfTrackMapName        = ''        
+    filler.PFCandidates.muonMapName            = ''        
     filler.ShrinkingConePFTaus.trackMapNames = cms.untracked.vstring('tmfTracksMapName')
-    filler.HPSTaus.trackMapNames = cms.untracked.vstring('tmfTracksMapName')
+    filler.HPSTaus.trackMapNames             = cms.untracked.vstring('tmfTracksMapName')
     
-    filler.PFCandidates.allowMissingTrackRef = cms.untracked.bool(True)
+    filler.PFCandidates.allowMissingTrackRef        = cms.untracked.bool(True)
     filler.ShrinkingConePFTaus.allowMissingTrackRef = cms.untracked.bool(True)    
-    filler.HPSTaus.allowMissingTrackRef = cms.untracked.bool(True)        
-    
+    filler.HPSTaus.allowMissingTrackRef             = cms.untracked.bool(True)        
+    filler.EmbedWeight.active                       = cms.untracked.bool(True)
+    filler.PFMet.active                             = cms.untracked.bool(True)
+    filler.MCParticles.active    =  cms.untracked.bool(True)
+    filler.MCParticles.simActive =  cms.untracked.bool(False)
+
     filler.GeneralTracks.mitName = 'EmbeddedTracks'
 
     filler.MergedEmbeddedTracks  = cms.untracked.PSet(

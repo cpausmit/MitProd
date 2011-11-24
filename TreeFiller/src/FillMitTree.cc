@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.61 2011/05/05 12:43:25 rwolf Exp $
+// $Id: FillMitTree.cc,v 1.62 2011/09/12 15:21:38 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,6 +15,7 @@
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
+#include "MitProd/TreeFiller/interface/FillerEmbedWeight.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
@@ -347,19 +348,16 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerTracks);
       continue;
     }  
-
     if (ftype.compare("FillerMuons")==0) {
       FillerMuons *fillerMuons = new FillerMuons(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMuons);
       continue;
     }  
-
     if (ftype.compare("FillerElectrons")==0) {
       FillerElectrons *fillerElectrons = new FillerElectrons(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerElectrons);
       continue;
     }  
-
     if (ftype.compare("FillerConversions")==0) {
       FillerConversions *fillerConversions = new FillerConversions(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerConversions);
@@ -395,13 +393,11 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerPFCands);
       continue;
     }  
-
     if (ftype.compare("FillerPFJets")==0) {
       FillerPFJets *fillerPFJets = new FillerPFJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
       continue;
     }  
-
     if (ftype.compare("FillerJPTJets")==0) {
       FillerJPTJets *fillerJPTJets = new FillerJPTJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerJPTJets);
@@ -429,6 +425,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerTrackJets")==0) {
       FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerTrackJets);
+      continue;
+    }
+
+    if (ftype.compare("FillerEmbedWeight")==0) {
+      FillerEmbedWeight *fillerEmbedWeight = new FillerEmbedWeight(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerEmbedWeight);
       continue;
     }
     

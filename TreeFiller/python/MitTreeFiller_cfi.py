@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.106 2011/10/09 23:28:48 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.107 2011/10/10 20:57:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -98,7 +98,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'ShrinkingConePFTaus',
 				    'HPSTaus',
                                     'StableParts',
-                                    'DecayParts',),
+                                    'DecayParts',
+                                    'EmbedWeight'),
 
     TreeWriter = cms.untracked.PSet(
         fileName  = cms.untracked.string('XX-MITDATASET-XX'),
@@ -523,6 +524,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         endcapSuperClusterName           = cms.untracked.string('multi5x5SuperClusters:multi5x5EndcapSuperClusters'),
         barrelSuperClusterMapName        = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName        = cms.untracked.string('endcapSuperClusterMap'),
+        requireClusterAndGsfMap          = cms.untracked.bool(True),
         pfSuperClusterMapName            = cms.untracked.string('PFSuperClusterMap'),
         eIDCutBasedLooseName             = cms.untracked.string('eidLoose'),
         eIDCutBasedTightName             = cms.untracked.string('eidTight'),
@@ -1094,7 +1096,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
     
     CorMuonMet = cms.untracked.PSet(
-        active     = cms.untracked.bool(True),
+        active     = cms.untracked.bool(False),
         mitName    = cms.untracked.string('CorMuonMet'),
         edmName    = cms.untracked.string('corMetGlobalMuons'),
         fillerType = cms.untracked.string('FillerCaloMet')
@@ -1373,4 +1375,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       trackPartMap  = cms.untracked.string('MergedElectronsStableTrackMapName'),
       fillerType    = cms.untracked.string('FillerStableParts')
     ),  
+    EmbedWeight = cms.untracked.PSet(
+       active        = cms.untracked.bool(False),
+       mitName       = cms.untracked.string('EmbedWeight'),
+       edmName       = cms.untracked.string('generator'),
+       fillerType    = cms.untracked.string('FillerEmbedWeight')
+     ),   
 )

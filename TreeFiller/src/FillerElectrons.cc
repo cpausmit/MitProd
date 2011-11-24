@@ -1,5 +1,5 @@
-// $Id: FillerElectrons.cc,v 1.57 2011/05/20 16:19:31 ksung Exp $
-
+// $Id: FillerElectrons.cc,v 1.58 2011/05/20 16:52:37 bendavid Exp $
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -52,6 +52,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
+  checkClusterActive_(Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
   pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
@@ -83,7 +84,6 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_,&electrons_);
   OS()->add<mithep::ElectronArr>(electrons_,mitName_);
-
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
     if (gsfTrackMap_)
@@ -241,12 +241,20 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
     // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) {
-      outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
+      try{outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));}
+      catch(...) { 
+	if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	  << "Error! GSF track unmapped collection " << edmName_ << endl;
+      }
     }
     // make links to ambigous gsf tracks
     if (gsfTrackMap_) {
       for (reco::GsfTrackRefVector::const_iterator agsfi = iM->ambiguousGsfTracksBegin(); agsfi != iM->ambiguousGsfTracksEnd(); ++agsfi) {
-        outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));
+        try{outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));}
+	catch(...) { 
+	  if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	    << "Error! GSF track unmapped collection " << edmName_ << endl;
+	}
       }
     }
     
@@ -265,8 +273,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       else if (pfSuperClusterMap_->HasMit(iM->superCluster())) {
         outElectron->SetSuperCluster(pfSuperClusterMap_->GetMit(iM->superCluster()));  
       }
-      else throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+      else if(checkClusterActive_) {
+	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
              << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+      }
     }
 
     //compute impact parameter with respect to PV
@@ -280,7 +290,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
       reco::Vertex thevtxub = pvCol->at(0);
       reco::Vertex thevtxubbs = pvBSCol->at(0);
-
 
       //check if closest ctf track is included in PV and if so, remove it before computing impact parameters and uncertainties
       if (iM->closestCtfTrackRef().isNonnull()) {
@@ -324,7 +333,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         }
       }
 
-    
       //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
       const double gsfsign   = ( (-iM->gsfTrack()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
       const double gsfsignbs = ( (-iM->gsfTrack()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
@@ -496,7 +504,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetIp3dPVUBBSCkf(-999.0);
       }
 
-
       if (verbose_>1) {
         printf("gsf track      pt = %5f\n",iM->gsfTrack()->pt());
         printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
@@ -523,7 +530,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   
   
       if ( gsfconvTrackRef.isNonnull() && gsfTrackMap_  ) {
-        outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));
+        try {outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));}
+	  catch(...) { 
+	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+	  }
+	
       }
       else if (ckfconvTrackRef.isNonnull() && trackerTrackMap_) {
         outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef)));
@@ -537,14 +549,18 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       reco::TrackBaseRef convTrackRef = iM->convPartner();
       if (convTrackRef.isNonnull()) {
         if ( dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_  ) {
-          outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+          try{outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));}
+	  catch(...) { 
+	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+	  }
         }
         else if (trackerTrackMap_) {
           outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
         }
       }
     }
-
+    
 
 
     // fill Electron ID information
@@ -553,12 +569,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (!eIDLikelihoodName_.empty()) {
       outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
     }
-    
     // fill corrected expected inner hits
     if(iM->gsfTrack().isNonnull()) {
       outElectron->SetCorrectedNExpectedHitsInner(iM->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
     }
-    
     //fill additional conversion flag
     outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
     
@@ -570,6 +584,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
              iM->pt(), iM->eta(), iM->phi(), iM->energy(), iM->p(), recomass);  
     }
-  }  
+  } 
   electrons_->Trim();
 }

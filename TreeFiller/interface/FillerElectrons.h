@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.23 2010/10/18 01:34:47 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.24 2011/04/04 23:39:20 bendavid Exp $
 //
 // FillerElectrons
 //
@@ -35,6 +35,7 @@ namespace mithep
       std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
       std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
       std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
+      bool                           checkClusterActive_;
       std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
