@@ -1,4 +1,3 @@
-// $Id: FillerElectrons.cc,v 1.58 2011/05/20 16:52:37 bendavid Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"

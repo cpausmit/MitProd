@@ -1,4 +1,4 @@
-// $Id: FillerPFMet.cc,v 1.6 2011/09/12 13:48:16 ksung Exp $
+// $Id: FillerPFMet.cc,v 1.7 2011/10/03 16:15:50 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "DataFormats/METReco/interface/PFMET.h"
@@ -58,7 +58,6 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
     event.getByLabel(edmName_, hSingleMetProduct);
     inPFMets.push_back(*hSingleMetProduct.product());
   }
-
   // loop through all mets
   for (reco::PFMETCollection::const_iterator inPFMet = inPFMets.begin(); 
        inPFMet != inPFMets.end(); ++inPFMet) {
@@ -74,7 +73,6 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
       pfMet->PushCorrectionY(inPFMet->mEtCorr()[i].mey);
       pfMet->PushCorrectionSumEt(inPFMet->mEtCorr()[i].sumet);
     }
-    
     // fill PFMet class data
     pfMet->SetPFMetSig(inPFMet->significance());
     pfMet->SetNeutralEMFraction(inPFMet->NeutralEMFraction());
