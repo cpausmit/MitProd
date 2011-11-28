@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.14 2011/03/09 17:32:53 bendavid Exp $
+// $Id: FillerPFJets.cc,v 1.15 2011/03/22 19:12:34 mzanetti Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -273,6 +273,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     if (flavorMatchingActive_) {
       unsigned int iJet = inJet - inJets.begin();
       const reco::JetMatchedPartonsCollection *matchedPartons = hPartonMatchingProduct.product();
+      assert(matchedPartons->size()==inJets.size());
       reco::MatchedPartons matchedParton = (*matchedPartons)[matchedPartons->key(iJet)];
       int flavorPhysDef = (matchedParton.physicsDefinitionParton().isNonnull())?
         matchedParton.physicsDefinitionParton()->pdgId():0;
