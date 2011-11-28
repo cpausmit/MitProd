@@ -1,4 +1,4 @@
-// $Id: FillerCaloMet.cc,v 1.14 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerCaloMet.cc,v 1.14 2010/03/18 20:21:00 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerEmbedWeight.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -41,7 +41,7 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
 				      const edm::EventSetup &setup)  
 {
   // Fill missing energy from edm collection into our collection.
-
+  embedWeight_->Delete();
   Handle<double> hEmbedWeight;
   //GetProduct(edmName_, hEmbedWeight, event);
   event.getByLabel(edm::InputTag(edmName_,"weight","EmbeddedRECO"),hEmbedWeight);
