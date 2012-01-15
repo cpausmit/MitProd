@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.24 2011/04/04 23:39:20 bendavid Exp $
+// $Id: FillerElectrons.h,v 1.25 2011/11/24 11:40:39 pharris Exp $
 //
 // FillerElectrons
 //
@@ -40,9 +40,10 @@ namespace mithep
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
       std::string                    eIDLikelihoodName_;         //name of likelihood cut eID algo
-      std::string                 pvEdmName_;             //name of primary vertex collection
-      std::string                 pvBSEdmName_;           //name of bs-constrained pv collection
+      std::string                    pvEdmName_;                 //name of primary vertex collection
+      std::string                    pvBSEdmName_;               //name of bs-constrained pv collection
       bool                           recomputeConversionInfo_;   //recompute conversion info
+      bool                           fitUnbiasedVertex_;         //recompute vertex position without electron 
       mithep::ElectronArr           *electrons_;                 //array of Electrons
       const mithep::TrackMap        *gsfTrackMap_;               //map wrt gsf tracks
       const mithep::TrackMap        *trackerTrackMap_;           //map wrt tracker tracks

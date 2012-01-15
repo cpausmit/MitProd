@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.107 2011/10/10 20:57:40 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.108 2011/11/24 11:40:39 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -506,6 +506,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         muonMapName         = cms.untracked.string('MuonMapName'),
         pvEdmName           = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName         = cms.untracked.string('offlinePrimaryVerticesWithBS'),        
+        fitUnbiasedVertex   = cms.untracked.bool(False),
         fillerType          = cms.untracked.string('FillerMuons')
     ),
                    
@@ -537,6 +538,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         gsfTrackAssocName                = cms.untracked.string(''),
         pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
+        fitUnbiasedVertex                = cms.untracked.bool(False),
         recomputeConversionInfo          = cms.untracked.bool(False),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),

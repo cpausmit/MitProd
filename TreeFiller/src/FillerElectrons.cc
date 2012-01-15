@@ -59,6 +59,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
   pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
   recomputeConversionInfo_(Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
+  fitUnbiasedVertex_(Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -133,11 +134,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
   const reco::VertexCollection *pvCol = hVertex.product();
-  
   edm::Handle<reco::VertexCollection> hVertexBS;
   event.getByLabel(pvBSEdmName_, hVertexBS);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
-
   edm::Handle<reco::TrackCollection> hGeneralTracks;
   event.getByLabel("generalTracks", hGeneralTracks);
   //const reco::VertexCollection *trackCol = hGeneralTracks.product();
@@ -160,7 +159,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   VertexTrackFactory<5> vTrackFactory;
   KalmanVertexUpdator<5> updator;
 
-  //Get Magnetic Field from event setup, taking value at (0,0,0)
+   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
@@ -180,8 +179,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
          
     outElectron->SetCharge(iM->charge());
     outElectron->SetScPixCharge(iM->scPixCharge());
-    
-    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
+      outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
     outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
     outElectron->SetPIn(iM->trackMomentumAtVtx().R());
     outElectron->SetPOut(iM->trackMomentumOut().R());
@@ -261,6 +259,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
         outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
     }
+   
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
         pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
       if(barrelSuperClusterMap_->HasMit(iM->superCluster())) {
@@ -277,7 +276,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
              << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
       }
     }
-
+  
     //compute impact parameter with respect to PV
     if (iM->gsfTrack().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->gsfTrack()); 
@@ -289,7 +288,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
       reco::Vertex thevtxub = pvCol->at(0);
       reco::Vertex thevtxubbs = pvBSCol->at(0);
-
+     
       //check if closest ctf track is included in PV and if so, remove it before computing impact parameters and uncertainties
       if (iM->closestCtfTrackRef().isNonnull()) {
         ttckf = transientTrackBuilder->build(iM->closestCtfTrackRef());
@@ -303,39 +302,37 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
             bool refMatching = (itk->get() == &*(iM->closestCtfTrack().ctfTrack));
             float shFraction = iM->closestCtfTrack().shFracInnerHits;
             if(refMatching && shFraction > 0.5) {
-              foundMatch = true;
-              continue;
+              foundMatch = true; 
+	      continue;
             }
           }       
           newTkCollection.push_back(*itk->get());
         }
 
-        if(foundMatch) {
+        if(foundMatch && fitUnbiasedVertex_) {
           edm::Handle<reco::BeamSpot> bs;
           event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
-      
-          VertexReProducer revertex(hVertex,event);
-          edm::Handle<reco::BeamSpot> pvbeamspot;
+	  
+	  VertexReProducer revertex(hVertex,event); //Needs to be fixed
+
+	  edm::Handle<reco::BeamSpot> pvbeamspot;
           event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
-          vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-          if(pvs.size()>0) {
+	  vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
+	  if(pvs.size()>0) {
             thevtxub = pvs.front();      // take the first in the list
           }
-
           VertexReProducer revertexbs(hVertexBS,event);
           edm::Handle<reco::BeamSpot> pvbsbeamspot;
           event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
           vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-          if(pvbss.size()>0) {
+	  if(pvbss.size()>0) {
             thevtxubbs = pvbss.front();  // take the first in the list
           }
         }
       }
-
       //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
       const double gsfsign   = ( (-iM->gsfTrack()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
       const double gsfsignbs = ( (-iM->gsfTrack()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
-
       const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
       if (d0pv.first) {
         outElectron->SetD0PV(gsfsign*d0pv.second.value());
@@ -344,7 +341,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       else {
         outElectron->SetD0PV(-999.0);
       }
-
 
       const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,thevtx);
       if (ip3dpv.first) {
@@ -511,9 +507,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         printf("ip3dpv reduced chisquared = %5f, probability = %5f\n", ip3dpv.second.value()/ip3dpv.second.error(), TMath::Prob(ip3dpv.second.value()/ip3dpv.second.error(),1));
         //printf("gsf    reduced chisquared = %5f, probability = %5f\n", pvGsfCompat.second/2, TMath::Prob(pvGsfCompat.second,2));
       }
-
     }
-
+    
 
     //fill conversion partner track info
     if (recomputeConversionInfo_) {

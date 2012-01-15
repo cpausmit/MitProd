@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.40 2011/05/20 16:19:24 ksung Exp $
+// $Id: FillerMuons.cc,v 1.41 2011/05/20 16:52:37 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -39,6 +39,7 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
   pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
   pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),
+  fitUnbiasedVertex_(Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
   globalTrackMap_(0),
   standaloneTrackMap_(0),
   standaloneVtxTrackMap_(0),
@@ -243,7 +244,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         newTkCollection.push_back(*itk->get());
       }
 
-      if(foundMatch) {       
+      if(foundMatch && fitUnbiasedVertex_) {       
         edm::Handle<reco::BeamSpot> bs;
         event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
       
