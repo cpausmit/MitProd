@@ -13,8 +13,19 @@ BOOK=$1
 PATTERN=$2
 version=`basename $BOOK`
 
-list="list $MIT1_LOCATION/$BOOK/ $MIT2_LOCATION"
-#list="list $CERN_LOCATION/$BOOK/"
+SOURCE="T0_CH_CERN"
+
+if [ "$SOURCE" == "T0_CH_CERN" ]
+then
+  list="list $CERN_LOCATION/$BOOK/"
+else
+  list="list $MIT1_LOCATION/$BOOK/ $MIT2_LOCATION"
+fi
+if [ "$PATTERN" != "" ]
+then
+  list="$list | grep $PATTERN"
+fi
+
 echo " List: $list"
 
 $list > /tmp/fileList.$$.tmp
@@ -42,9 +53,15 @@ while read line ; do
 
   size=`echo $line | cut -d' ' -f1`
   dset=`echo $line | cut -d' ' -f2`
-  printf "%s %s %${max}s %s %2d %s %1d\n" \
-         $CERN_LOCATION $BOOK $dset /mnt/hadoop/cmsprod 80 /home/cmsprod/download 1
-#         $MIT1_LOCATION $BOOK $dset /mnt/hadoop/cmsprod 80 /home/cmsprod/download 1
+
+  if [ "$SOURCE" == "T0_CH_CERN" ]
+  then
+    printf "%s %s %${max}s %s %2d %s %1d\n" \
+           $CERN_LOCATION $BOOK $dset /mnt/hadoop/cms/store/user/paus 80 /home/cmsprod/download 1
+  else
+    printf "%s %s %${max}s %s %2d %s %1d\n" \
+           $MIT1_LOCATION $BOOK $dset /mnt/hadoop/cmsprod 80 /home/cmsprod/download 1
+  fi
 
 done < /tmp/fileList.$$.tmp
 

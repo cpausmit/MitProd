@@ -88,6 +88,7 @@ usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
 usage += "                      --download=<int: -1,0,1>\n"
 usage += "                      --status=<int: -1,0,1>\n"
+usage += "                      --remakeLfns=<int: -1,0,1>\n"
 usage += "                      --show=<int: 0,1>\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --exe\n"
@@ -97,7 +98,7 @@ usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','show=', \
+valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','remakeLfns=','show=', \
          'help','exe','useExistingLfns','complete','noInfo','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -121,6 +122,7 @@ complete        = 0
 noInfo          = False
 download        = -1
 status          = -1
+remakeLfns      = -1
 show            = 0
 forceCopy       = False
 debug           = False
@@ -148,6 +150,8 @@ for opt, arg in opts:
         download        = int(arg)
     if opt == "--status":
         status          = int(arg)
+    if opt == "--remakeLfns":
+        remakeLfns      = int(arg)
     if opt == "--show":
         show            = int(arg)
     if opt == "--complete":
@@ -283,8 +287,12 @@ for line in os.popen(cmd).readlines():  # run command
         procStatus = names[3]
         local      = names[4]
         # check whether dbs is given
+        dbs=""
         if len(names) > 5:
             dbs = names[5]
+        fixSites=""
+        if len(names) > 6:
+            fixSites = names[6]
         
         if pattern != '' and not re.search(pattern,mitDataset):
             continue
@@ -301,27 +309,28 @@ for line in os.popen(cmd).readlines():  # run command
             samples[sample.cmsDataset] = sample
 
         # make sure we want to consider submission
-        if download != 1 and status != 1  and show != 1:
+        if download != 1 and status != 1  and show != 1 and remakeLfns != 1:
             cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
                   ' --version=' + version + ' --noTestJob'
             if cmssw != '':
                 cmd = cmd + " --cmssw=" + cmssw
             if useExistingLfns:
                 cmd = cmd + " --useExistingLfns"
-            if dbs != "":
-                cmd = cmd + " --fixSites=T2_US_MIT"
+            if dbs == "none":
+                if fixSites == '':
+                    cmd = cmd + " --fixSites=T1_US_FNAL"
+                else:
+                    cmd = cmd + " --fixSites=" + fixSites
     
             # check for errors (to be done)
     
             # check for the logical combinations
             if   not inList(mitDataset,startedDsetList):
-                #print ' new: ' + mitDataset
                 print ' submitting: ' + cmd
                 if exe == 1:
                     os.system(cmd)
     
             elif     inList(mitDataset,ongoingDsetList):
-                #print ' sub: ' + mitDataset
                 if download != 1 and status != 1:
                     print ' handled by jobSitter -- ' + mitDataset
     
@@ -331,12 +340,11 @@ for line in os.popen(cmd).readlines():  # run command
             else:
                 if complete == 1:
                     cmd = cmd + ' --complete'
-                    #print ' toc: ' + mitDataset
                     print ' completing: ' + cmd
                     if exe == 1:
                         os.system(cmd)
 
-        # test download request
+        # test status request
         if status != -1:
             cmd = 'status.sh ' + mitCfg + '/' + version + ' ' + mitDataset + ' ' + printOpt
             if exe == 1:
@@ -344,6 +352,15 @@ for line in os.popen(cmd).readlines():  # run command
             else:
                 print " " + cmd
             printOpt = ""
+
+        # test remake lfns request
+        if remakeLfns != -1:
+            lfnFile = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
+            cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' \
+                  + lfnFile
+            print ' input: ' + cmd + '\n'
+            if exe == 1:
+                rc = os.system(cmd)
 
         # test download request
         if local != "-" and download != -1:

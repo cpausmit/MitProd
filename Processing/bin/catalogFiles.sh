@@ -5,20 +5,27 @@
 
 # Read the arguments
 echo " "
-echo "catalogFiles.sh  $*"
+echo " catalogFiles.sh  $*"
 dataDir=$1
 catalogDir=$2
 book=$3
 dataset=$4
 condorOutput=$5
 
+# Is it a skim?
+skim=""
+if [ "`echo $dataDir | grep cmsprod/skim`" != "" ]
+then
+  skim=`basename $dataDir`/
+fi
+
 # Prepare environment
 echo " "
-echo " Process dataset: $dataset  of book: $book"
+echo " Process dataset: $dataset  of book: $book [skim: $skim]"
 echo "   in directory : $dataDir"
 echo "   catalog in   : $catalogDir"
 
-mkdir -p $catalogDir/condor/$book/$dataset
+mkdir -p $catalogDir/condor/$book/$dataset/$skim
 script=`which catalogFile.sh`
 
 var=`echo $dataDir | grep castor/cern.ch`
@@ -79,18 +86,19 @@ fi
 for file in $LIST
 do
   file=`basename $file`  #;echo $file
-  logFile=`echo $book/$dataset/$file | tr '/' '+'`
+  logFile=`echo $book/$dataset/${skim}$file | tr '/' '+'`
   logFile=/tmp/$logFile
   rm -f $logFile
 
   exists=""
   if [ "$condorOutput" != "" ]
   then
-    exists=`find $catalogDir/condor/$book/$dataset -name $file.out`
+    exists=`find $catalogDir/condor/$book/$dataset/$skim -name $file.out`
   else
-    if [ -d "$catalogDir/$book/$dataset" ] && [ -f $catalogDir/$book/$dataset/RawFiles.00 ]
+    if [ -d "$catalogDir/$book/$dataset/$skim" ] && \
+       [ -f $catalogDir/$book/$dataset/${skim}RawFiles.00 ]
     then
-      exists=`cat $catalogDir/$book/$dataset/RawFiles.?? | grep $file`
+      exists=`cat $catalogDir/$book/$dataset/${skim}RawFiles.?? | grep $file`
     fi
   fi
 
@@ -99,9 +107,11 @@ do
   if [ ".$exists" == "." ]
   then
     echo "  $script $dataDir/$book/$dataset $file"
+    mkdir -p $catalogDir/condor/$book/$dataset/${skim}
     cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = (MACHINE != "dtfnal01.cern.ch") && ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+#Requirements            = (MACHINE != "t3btch090.mit.edu") && ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
@@ -109,8 +119,8 @@ Arguments               = $dataDir/$book/$dataset $file
 Rank                    = Mips
 GetEnv                  = True
 Input                   = /dev/null
-Output                  = $catalogDir/condor/$book/$dataset/$file.out
-Error                   = $catalogDir/condor/$book/$dataset/$file.err
+Output                  = $catalogDir/condor/$book/$dataset/${skim}$file.out
+Error                   = $catalogDir/condor/$book/$dataset/${skim}$file.err
 Log                     = $logFile
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT

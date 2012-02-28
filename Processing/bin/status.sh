@@ -21,12 +21,21 @@ fi
 DIR1=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/$BOOK
 DIR2=/mnt/hadoop/cms/store/user/paus/$BOOK
 T3DIR=/mnt/hadoop/cmsprod/$BOOK
-if [ "`list $DIR1 $DIR2 | grep $DATASET`" != "" ]
+if [ "`list $DIR1 $DIR2 2> /dev/null | grep $DATASET`" != "" ]
 then
+  #echo wc -l $BOOK/$DATASET.lfns '2> /dev/null | cut -d ' ' -f 1'
+  if ! [ -e "$BOOK/$DATASET.lfns" ]
+  then
+    echo " Warning: complete file list not available. Creating it now."
+    echo " -> findSamples.py --cmssw=mc --pattern=$DATASET --remakeLfns=1 --complete --exe"
+    findSamples.py --cmssw=mc --pattern=$DATASET --remakeLfns=1 --complete --exe >& /dev/null
+  fi
   nAll=`wc -l $BOOK/$DATASET.lfns 2> /dev/null | cut -d ' ' -f 1`
   # how many are done on the Tier-2
+  #echo list $DIR1/$DATASET $DIR2/$DATASET '2> /dev/null | grep root | wc -l'
   nDone=`list $DIR1/$DATASET $DIR2/$DATASET 2> /dev/null | grep root | wc -l`
   # how many are done on the Tier-2
+  #echo cat $CATALOG/t2mit/$BOOK/$DATASET/Files '2> /dev/null | grep -v ^# | wc -l'
   nCata=`cat $CATALOG/t2mit/$BOOK/$DATASET/Files 2> /dev/null | grep -v ^# | wc -l`
   # how many are missing on the Tier-2
   nMissing=$(( ${nAll}-${nDone} ))

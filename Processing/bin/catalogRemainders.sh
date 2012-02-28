@@ -36,7 +36,7 @@ do
   if [ "$remove" == "0" ] && [ "$FLAG" == "remove" ]
   then
     echo "removing: $obsDir"
-    ssh paus@cgate.mit.edu rmdir $obsDir
+    glexec rmdir $obsDir
     remove="1"
   fi
 

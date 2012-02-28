@@ -38,10 +38,11 @@ do
   echo "$id $runTime --> $line"
   if [ $runTime -gt $TIMEOUT ]
   then
-    echo " -> removing: condor_rm $id"
+    echo " -> removing: condor_rm $id;  condor_rm -forcex $id; "
     if [ "$EXEC" == "exec" ]
     then
       condor_rm $id
+      condor_rm -forcex $id
       echo "remove --exe $dir/$file"
     fi
   fi

@@ -1,11 +1,13 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------
 # Produce a catalog entry for the requested file.
+#
+# checkCatalog.sh /mnt/hadoop/cms/store/user/paus /home/cmsprod/catalog/t2mit \
+#                 filefi/025 r11b-mueg-pr-v
 #---------------------------------------------------------------------------------------------------
-
 # Read the arguments
-#echo " "
-#echo "checkCatalog.sh  $*"
+echo " "
+echo " checkCatalog.sh  $*"
 dataDir=$1
 catalogDir=$2
 book=$3

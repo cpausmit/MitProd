@@ -213,7 +213,9 @@ for crabTask in crabTasks:
 
     print '\n------------------------------------------------------------------------------'
     print '  --> PREPPING ' + crabTask.tag \
-          + '\n       -> ' + crabTask.mitDataset
+          + '\n       -> ' + crabTask.cmsDataset + '  (' + crabTask.mitDataset + ')'\
+          + '\n       -> ' + crabTask.storageEle \
+          + '\n       -> ' + crabTask.storagePath
     print '------------------------------------------------------------------------------\n'
 
     dataset     = crabTask.cmsDataset
@@ -256,15 +258,9 @@ for crabTask in crabTasks:
             cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
                    ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
 
-
-    print '\n------------------------------------------------------------------------------'
-    print '  --> CATALOG ' + crabTask.tag \
-          + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
-          + '\n       -> ' + storageEle \
-          + '\n       -> ' + storagePath
-    print '------------------------------------------------------------------------------\n'
-    #print '  --> ' + cmd
-
+    #print '\n  --> CATALOG '
+    #print '      ' + cmd + '\n'
+    
     if catalog != 0:
             os.system(cmd)
 
@@ -284,12 +280,13 @@ for crabTask in crabTasks:
 	print '  --> ' + cmd
         os.system(cmd)
 
-    print '\n------------------------------------------------------------------------------'
-    print '  --> STATUS ' + crabTask.tag + ' -- ' \
-          + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
-          + '\n       -> ' + storageEle \
-          + '\n       -> ' + storagePath
-    print '------------------------------------------------------------------------------\n'
+    #print '\n------------------------------------------------------------------------------'
+    #print '  --> STATUS ' + crabTask.tag + ' -- ' \
+    #      + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
+    #      + '\n       -> ' + storageEle \
+    #      + '\n       -> ' + storagePath
+    #print '------------------------------------------------------------------------------\n'
+    print '\n  --> STATUS ' + crabTask.tag + ' -- ' + crabTask.mitDataset
 
     # interact with crab to get the job status
     crabTask.getJobStati()
@@ -360,12 +357,13 @@ for crabTask in crabTasks:
 
 
     cmd = 'crab -getoutput -continue ' + crabTask.tag
-    print '\n------------------------------------------------------------------------------'
-    print '  --> GETOUTPUT ' + crabTask.tag + ' -- ' \
-          + '\n       -> ' + dataset \
-          + '\n       -> ' + storageEle \
-          + '\n       -> ' + storagePath
-    print '------------------------------------------------------------------------------\n'
+    #print '\n------------------------------------------------------------------------------'
+    #print '  --> GETOUTPUT ' + crabTask.tag + ' -- ' \
+    #      + '\n       -> ' + dataset \
+    #      + '\n       -> ' + storageEle \
+    #      + '\n       -> ' + storagePath
+    #print '------------------------------------------------------------------------------\n'
+    print '\n  --> GETOUTPUT ' + crabTask.tag + ' -- ' + crabTask.mitDataset
     print '  --> ' + cmd
     status = os.system(cmd)
 

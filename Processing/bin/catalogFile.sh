@@ -14,8 +14,6 @@ cd     $HOME/cms/cmssw/018/CMSSW_3_9_7/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
-#list $dataDir
-
 
 klist
 cp ~cmsprod/.krb5/ticket /tmp/

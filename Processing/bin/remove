@@ -10,6 +10,12 @@ def debugPrint(text):
     if debug:
         print ' DEBUG: ' + text
 
+def execute(cmd,debug):
+    if debug:
+        print ' DEBUG: ' + cmd
+    else:
+        os.system(cmd)
+
 def clean(file):
     if   re.search('dcap:',file):
         g = file.split('/')
@@ -25,7 +31,7 @@ def exists(target):
         cmd = 'rfdir ' + target
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+        cmd = 'ssh -x paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     elif re.search('/mnt/hadoop/cms/store',target):
         debugPrint(' Identified a tier-2 hadoop directory: ' + target)
         target = srm.convertToUrl(target,debug)
@@ -45,7 +51,7 @@ def remove(source):
         cmd = "stager_rm -M " + source + "; nsrm " + source
     elif re.search('/pnfs/cmsaf.mit.edu/',source):
         debugPrint(' Identified tier-2 file')
-        cmd = 'ssh paus@cgate.mit.edu rm -rf ' + source
+        cmd = 'ssh -x paus@cgate.mit.edu rm -rf ' + source
     elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         debugPrint(' Identified a tier-2 hadoop directory: ' + source)
         source = srm.convertToUrl(source,debug)
@@ -64,17 +70,50 @@ def remove(source):
 
     return status
 
+def removeCatalog(source,debug):
+    tmp = os.getpid()
+    pid = "%d"%tmp
+    # which catalog is this one in?
+    catalogDir = '/home/cmsprod/catalog/local'
+    if   re.search('/castor/cern.ch/',source):
+        catalogDir = '/home/cmsprod/catalog/cern'
+    elif re.search('/pnfs/cmsaf.mit.edu/',source) or \
+         re.search('/mnt/hadoop/cms/store/user/paus',source):
+        catalogDir = '/home/cmsprod/catalog/t2mit'
+    # now get the dataset and the book
+    f       = source.split('/')
+    file    = f[-1]
+    dataset = f[-2]
+    book    = f[-4] + '/' + f[-3]
+
+    dir     = catalogDir + '/' + book + '/' + dataset
+
+    # now remove the particular file from the record
+    cmd = 'cat ' + dir + '/RawFiles.?? | sort -u | grep -v ' + file + ' > /tmp/RawFiles.00.' + pid
+    execute(cmd,debug)
+    cmd = 'rm ' + dir + '/RawFiles.??'
+    execute(cmd,debug)
+    cmd = 'mv /tmp/RawFiles.00.' + pid + ' ' + dir + '/RawFiles.00'
+    execute(cmd,debug)
+    cmd = 'cat ' + dir + '/Files | grep -v ' + file + ' > /tmp/Files.' + pid
+    execute(cmd,debug)
+    cmd = 'mv /tmp/Files.' + pid + ' ' + dir + '/Files'
+    execute(cmd,debug)
+
+    return
+
 #===================================================================================================
 # Main starts here
 #===================================================================================================
 # Define string to explain usage of the script
 usage =  "Usage: remove  <source>"
 usage += "               --exe\n"
+usage += "               --catalog\n"
 usage += "               --debug\n"
 usage += "               --help\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['exe','debug','help']
+valid = ['exe','catalog','debug','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -86,8 +125,9 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
-debug = False
-exe   = 0
+catalog = False
+debug   = False
+exe     = 0
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -96,9 +136,11 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     elif opt == '--debug':
-        debug = True
+        debug   = True
+    elif opt == '--catalog':
+        catalog = True
     elif opt == '--exe':
-        exe   = 1
+        exe     = 1
 
 newArgv = []
 for arg in sys.argv[1:]:
@@ -117,3 +159,7 @@ if   exists(source):
     remove(source)
 elif not exists(source):
     print ' ERROR: the source ('+source+') does not exist.'
+
+# Remove also the catalog entry
+if catalog:
+    removeCatalog(source,debug)

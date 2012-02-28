@@ -5,7 +5,7 @@
 
 # Read the arguments
 echo ""
-echo "downloadSample.sh  $*"
+echo " downloadSample.sh  $*"
 echo ""
 dataDir=$1;      shift
 book=$1;         shift
@@ -33,8 +33,8 @@ makedir --exe  $target/$book/$dataset
 script=`which downloadFiles.sh`
 
 # cleanup our lists and remake a clean one
-#echo "rm -f $condorOutput/$book/$dataset/fileList*.txt*"
-rm -f $condorOutput/$book/$dataset/fileList*.txt*
+#echo "rm -f $condorOutput/$book/$dataset/fileList*.$$.txt*"
+rm -f $condorOutput/$book/$dataset/fileList*.$$.txt*
 
 # make list of all local files
 if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && \
@@ -46,16 +46,15 @@ else
   opt=""
 fi
 
-#echo "list $opt $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak"
-list $opt $dataDir/$book/$dataset > $condorOutput/$book/$dataset/fileList-all.txt-bak
+list $opt $dataDir/$book/$dataset | sort > $condorOutput/$book/$dataset/fileList-all.$$.txt-bak
 
-# Make sure there is a kerberos ticket available
+# Make sure there are kerberos and globus tickets available
 id=`id -u`
+mkdir             -p  ~/.krb5/
 cp /tmp/x509up_u${id} ~/.krb5/
 KRB5CCNAME=`klist -5 | grep 'Ticket cache:' | cut -d' ' -f 3`
 if ! [ -z $KRB5CCNAME ]
 then
-  mkdir    -p  ~/.krb5/
   chmod 0      ~/.krb5
   chmod u=rwx  ~/.krb5
   file=`echo $KRB5CCNAME | cut -d: -f2`
@@ -71,14 +70,16 @@ else
 fi
 
 # make list of all remote files
-#echo " converting all entries"
-cat $condorOutput/$book/$dataset/fileList-all.txt-bak | grep root | \
+rm -f $condorOutput/$book/$dataset/fileList-all.$$.txt
+touch $condorOutput/$book/$dataset/fileList-all.$$.txt
+
+cat   $condorOutput/$book/$dataset/fileList-all.$$.txt-bak | grep root | sort | \
 while read line
 do
   size=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   file=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
   file=`basename $file`
-  echo "$size $file" >> $condorOutput/$book/$dataset/fileList-all.txt
+  echo "$size $file" >> $condorOutput/$book/$dataset/fileList-all.$$.txt
 done
 
 # make list of all local files
@@ -91,40 +92,57 @@ else
   opt=""
 fi
 
-#echo "list $opt $target/$book/$dataset | grep root > $condorOutput/$book/$dataset/fileList-done.txt"
-list $opt $target/$book/$dataset | grep root > $condorOutput/$book/$dataset/fileList-done.txt
+dcache=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus
+list $opt $dcache/$book/$dataset $target/$book/$dataset | grep root | sort \
+     > $condorOutput/$book/$dataset/fileList-done.$$.txt
+
+diff -y $condorOutput/$book/$dataset/fileList-all.$$.txt  \
+        $condorOutput/$book/$dataset/fileList-done.$$.txt > diff.$$
+echo ""
+echo " Files different in size: "
+grep \| diff.$$
+echo ""
+echo " Files available in all and not done: "
+grep \< diff.$$
+echo ""
+echo " Files done but not listed in all available: "
+grep \> diff.$$
+echo ""
+rm      diff.$$
 
 # make list of missing files
-rm -f $condorOutput/$book/$dataset/fileList.txt
-touch $condorOutput/$book/$dataset/fileList.txt
-cat   $condorOutput/$book/$dataset/fileList-all.txt | grep root | \
+rm -f $condorOutput/$book/$dataset/fileList.$$.txt
+touch $condorOutput/$book/$dataset/fileList.$$.txt
+
+cat   $condorOutput/$book/$dataset/fileList-all.$$.txt | grep root | \
 while read line
 do
   size=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   file=`echo $line | tr -s ' ' | cut -d ' ' -f 2`
-  exists=`grep "$file" $condorOutput/$book/$dataset/fileList-done.txt`
+  exists=`grep "$file" $condorOutput/$book/$dataset/fileList-done.$$.txt`
   if [ "$exists" == "" ]
   then
     echo "   -missing-- $file with $size bytes"
-    echo "$size $file" >> $condorOutput/$book/$dataset/fileList.txt
+    echo "$size $file" >> $condorOutput/$book/$dataset/fileList.$$.txt
   # else
   #   echo "   -exists--- $file with $size bytes - exists"
   else
     # now check that size matches
-    test=`grep "$size $file" $condorOutput/$book/$dataset/fileList-done.txt`
+    test=`grep "$size $file" $condorOutput/$book/$dataset/fileList-done.$$.txt`
     if [ "$test" == "" ]
     then
       if [ "$onlyMissing" == "" ]
       then
         echo "   -fileSize- $exists (remote: $size)"
-        echo "$size $file" >> $condorOutput/$book/$dataset/fileList.txt
+        echo "$size $file" >> $condorOutput/$book/$dataset/fileList.$$.txt
       fi
     fi
   fi
 done
-nAll=`wc -l $condorOutput/$book/$dataset/fileList-all.txt | cut -d ' ' -f1`
-nMissing=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f1`
-nDone=`wc -l $condorOutput/$book/$dataset/fileList-done.txt | cut -d ' ' -f1`
+
+nAll=`wc -l $condorOutput/$book/$dataset/fileList-all.$$.txt | cut -d ' ' -f1`
+nMissing=`wc -l $condorOutput/$book/$dataset/fileList.$$.txt | cut -d ' ' -f1`
+nDone=`wc -l $condorOutput/$book/$dataset/fileList-done.$$.txt | cut -d ' ' -f1`
 echo ""
 echo " Download Summary "
 echo "   All       $nAll"
@@ -133,7 +151,7 @@ echo "   Missing   $nMissing"
 echo ""
 
 # construct our job
-nFiles=`wc -l $condorOutput/$book/$dataset/fileList.txt | cut -d ' ' -f1`
+nFiles=`wc -l $condorOutput/$book/$dataset/fileList.$$.txt | cut -d ' ' -f1`
 if   [ "$nFiles" == "" ] || [ "$nFiles" == "0" ]
 then
   echo " "
@@ -177,7 +195,7 @@ do
   fi
 
   # say what we are going to submit
-  echo "   downloadFiles.sh $dataDir $book $dataset $target $condorOutput $next $last"
+  echo "   downloadFiles.sh $dataDir $book $dataset $target $condorOutput $$ $next $last"
 
   logFile=`echo download:$book/$dataset/${next}-${last}.txt | tr '/' '+'`
   logFile=/tmp/$logFile
@@ -190,7 +208,7 @@ Requirements            = ( (Arch == "INTEL") && (Disk >= DiskUsage) && ((Memory
 Notify_user             = paus@mit.edu
 Notification            = Error
 Executable              = $script
-Arguments               = $dataDir $book $dataset $target $condorOutput $next $last
+Arguments               = $dataDir $book $dataset $target $condorOutput $$ $next $last
 Rank                    = Mips
 GetEnv                  = True
 Input                   = /dev/null

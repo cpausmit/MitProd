@@ -24,6 +24,9 @@ def move(srcFile,source,target):
     # determine whether we are at MIT
     tier2 = re.search('cmsaf.mit.edu',target) 
 
+    if not tier2:
+        tier2 = re.search('/mnt/hadoop/cms/store',target) 
+
     # create the command and show it
     cmd = 'move ' + source + '  ' + target
     print cmd
@@ -34,7 +37,7 @@ def move(srcFile,source,target):
         mvCmd = "echo \"mv  /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) \
                 +         ' /mnt/hadoop/cms' \
                 +               "/".join(target.split('/')[3:]) \
-                +  "; #rm -f /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
+                +  "; rm -f /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
         os.system(mvCmd)
 
         #status = os.system(cmd)
@@ -257,7 +260,7 @@ for line in os.popen(cmd).readlines():  # run command
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm -f      " + f[1]
     #rm3 = "srmrm        " + server + f[1]
-    rm3 = "ssh paus@cgate.mit.edu rm " + f[1]
+    rm3 = "glexec rm " + f[1]
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
@@ -272,7 +275,7 @@ for line in os.popen(cmd).readlines():  # run command
     if   re.search("/castor/cern.ch",f[1]):
         cmd = rm1 + '; ' + rm2 + '; ' + rm4
         print '  ' + rm1 + '\n  ' + rm2 + '\n  ' + rm4
-    elif re.search("cmsaf.mit.edu",f[1]):
+    elif re.search("cmsaf.mit.edu",f[1]) or re.search("/mnt/hadoop/cms/store",f[1]):
         cmd = rm3 + '; ' + rm4
         print '  ' + rm3 + '\n  ' + rm4
     else:
@@ -387,10 +390,10 @@ if official == 1:
         ## cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
         ## print ' CMD: ' + cmd
         ## status = os.system(cmd)
-        ## cmd = "ssh paus@cgate.mit.edu source " + srcFile
+        ## cmd = "ssh -x paus@cgate.mit.edu source " + srcFile
         ## print ' CMD: ' + cmd
         ## status = os.system(cmd)
-        ## cmd = "ssh paus@cgate.mit.edu rm " + srcFile
+        ## cmd = "ssh -x paus@cgate.mit.edu rm " + srcFile
         ## print ' CMD: ' + cmd
         ## status = os.system(cmd)
 

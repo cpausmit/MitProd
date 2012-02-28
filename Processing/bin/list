@@ -13,15 +13,15 @@ def list(dir,pattern,debug):
     if   re.search('/castor/cern.ch/',    dir):
         if debug != 0:
             print ' identified a castor directory'
-        cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
+        cmd = 'ssh -x ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
     elif re.search('/pnfs/cmsaf.mit.edu/',dir):
         if debug != 0:
             print ' identified a tier-2 directory'
-        cmd = 'ssh paus@cgate.mit.edu ls -1s --block-size=1 ' + dir \
+        cmd = 'ssh -x paus@cgate.mit.edu ls -1s --block-size=1 ' + dir \
               + '| sed \'s/^ *//\' | grep -v ^total  '
         if simple:
             # does not work for files yet....
-            cmd = 'ssh paus@cgate.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
+            cmd = 'ssh -x paus@cgate.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
     elif re.search('/mnt/hadoop/cms/store',dir):
         #if debug != 0:
         #    print ' identified a tier-2 hadoop directory'
@@ -34,11 +34,11 @@ def list(dir,pattern,debug):
 
         if debug != 0:
             print ' identified a tier-2 hadoop directory'
-        cmd = 'ssh paus@se01.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
+        cmd = 'ssh -x paus@se01.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
               + '| sed \'s/^ *//\' | grep -v ^total  '
         if simple:
             # does not work for files yet....
-            cmd = 'ssh paus@se01.cmsaf.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
+            cmd = 'ssh -x paus@se01.cmsaf.mit.edu find ' + dir + ' -maxdepth 1 -printf \\"%s %f\\\\n\\"' 
     else:
         # First case is the simple local directory
         if debug != 0:

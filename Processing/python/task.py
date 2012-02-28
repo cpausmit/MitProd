@@ -25,17 +25,20 @@ class Sample:
     status         = 'undefined'
     localPath      = 'undefined'
     dbs            = 'undefined'
+    fixSites       = 'undefined'
     #-----------------------------------------------------------------------------------------------
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
     def __init__(self,cmsDataset='undefined',mitDataset='undefined',
-                 nEvents='undefined',status='undefined',localPath='undefined',dbs='undefined'):
+                 nEvents='undefined',status='undefined',localPath='undefined',dbs='undefined',
+                 fixSites='undefined'):
         self.cmsDataset = cmsDataset
         self.mitDataset = mitDataset
         self.nEvents    = nEvents
         self.status     = status
         self.localPath  = localPath
         self.dbs        = dbs
+        self.fixSites   = fixSites
 
     #-----------------------------------------------------------------------------------------------
     # present the current samples
@@ -46,13 +49,17 @@ class Sample:
         print ' Status   : ' + self.status
         print ' LocalPath: ' + self.localPath
         print ' Dbs      : ' + self.dbs
+        print ' FixSites : ' + self.fixSites
 
-    def showFormat(self,f1,f2,f3,f4,f5,f6):
+    def showFormat(self,f1,f2,f3,f4,f5,f6,f7):
         dbs = ''
         if self.dbs != 'undefined':
-            dbs +=' ' + self.dbs
+            dbs += ' ' + self.dbs
+        fixSites = ''
+        if self.fixSites != 'undefined':
+            fixSites += ' ' + self.fixSites
         print self.cmsDataset.ljust(f1),self.mitDataset.ljust(f2),self.nEvents.ljust(f3),\
-              self.status.ljust(f4),self.localPath.ljust(f5),dbs.ljust(f6)
+              self.status.ljust(f4),self.localPath.ljust(f5),dbs.ljust(f6),fixSites.ljust(f7)
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -109,6 +116,7 @@ class Task:
     cmssw          = 'undefined'
     localPath      = 'undefined'
     dbs            = 'undefined'
+    fixSites       = 'undefined'
     # status of task as a whole and each individual job
     status         = 'undefined'           # 'undefined', ....
     #
@@ -210,7 +218,7 @@ class Task:
                         self.localPath  = names[4]
                     print "\n Sample Info: " + fullLine + "\n"
                     print "\n Sample info from database  Productions.%s\n   %s"%(cmssw,fullLine)
-                    if len(names) == 6:
+                    if len(names) >= 6:
                         dbs = names[5]
                         testDbs  = 'wget http://cmsdbsprod.cern.ch/cms_dbs_' + dbs \
                                    + '/servlet/DBSServlet >& /dev/null'
@@ -221,6 +229,8 @@ class Task:
                         else:
                             self.dbs = dbs
                         print '   dbs: ' + self.dbs + '\n'
+                        if len(names) >= 7:
+                            self.fixSites = names[6]
                     else:
                         self.dbs = \
                                  "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
@@ -576,7 +586,7 @@ class Task:
         if clean == 1:
             os.system(cmd)
         # now remove the remainders
-        remove(clean)
+        self.remove(clean)
         
 #---------------------------------------------------------------------------------------------------
 """

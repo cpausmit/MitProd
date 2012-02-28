@@ -74,11 +74,29 @@ def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
     
     # recreate if requested or not existing
     if not useExistingLfns or not os.path.exists(lfnFile):
-        cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' + lfnFile
+        cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset \
+              + ' | sort -u > ' + lfnFile
         print ' Input: ' + cmd + '\n'
         os.system(cmd)
 
     return lfnFile
+
+#===================================================================================================
+def makeSiteFile(mitCfg,version,mitDataset,dbs,useExistingSites):
+    siteFile  = mitCfg + '/' + version + '/' + mitDataset + '.sites'
+    if os.path.exists(siteFile):
+        print "\n INFO -- Site file found: %s. Someone already worked on this dataset.\n" % siteFile
+        if not useExistingSites:
+            cmd = 'rm ' + siteFile
+            os.system(cmd)
+    
+    # recreate if requested or not existing
+    if not useExistingSites or not os.path.exists(siteFile):
+        cmd = 'sitesList.py --dbs=' + dbs + ' --dataset=' + cmsDataset + ' > ' + siteFile
+        print ' Sites: ' + cmd + '\n'
+        os.system(cmd)
+
+    return siteFile
 
 #===================================================================================================
 def searchReplace(line,mitCfg,version,mitDataset,storage, \
@@ -176,14 +194,14 @@ def create(path):
     if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
         f    = path.split('=')
         path = f[-1]
-        cmd = 'ssh paus@cgate mkdir -p  ' + path
+        cmd = 'ssh -x paus@cgate mkdir -p  ' + path
         status = os.system(cmd)
-        cmd = 'ssh paus@cgate chmod 777 ' + path
+        cmd = 'ssh -x paus@cgate chmod 777 ' + path
         status = os.system(cmd)
     return status
 
 #===================================================================================================
-def createDirGeneral(storageEle,storagePath):
+def createDirGeneral(storageEle,storagePath,fastCreate):
     # create all relevant subdirectories
     f = storagePath.split('/')                    # splitting every '/'
     storagePath2 = "/".join(f[:-1])
@@ -209,18 +227,21 @@ def createDirGeneral(storageEle,storagePath):
 
     else:
         # create all relevant directories
-        cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath0 + ' >& /dev/null'
-        print '  srmmkdir: ' + cmd
-        status = os.system(cmd)
-        print '  srmmkdir: status %d'%(status)
-        cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath1 + ' >& /dev/null'
-        print '  srmmkdir: ' + cmd
-        status = os.system(cmd)
-        print '  srmmkdir: status %d'%(status)
-        cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath2 + ' >& /dev/null'
-        print '  srmmkdir: ' + cmd
-        status = os.system(cmd)
-        print '  srmmkdir: status %d'%(status)
+        if fastCreate == 0:
+            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath0 + ' >& /dev/null'
+            print '  srmmkdir: ' + cmd
+            status = os.system(cmd)
+            print '  srmmkdir: status %d'%(status)
+            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath1 + ' >& /dev/null'
+            print '  srmmkdir: ' + cmd
+            status = os.system(cmd)
+            print '  srmmkdir: status %d'%(status)
+            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath2 + ' >& /dev/null'
+            print '  srmmkdir: ' + cmd
+            status = os.system(cmd)
+            print '  srmmkdir: status %d'%(status)
+        else:
+            print ' Fast create activated. '
     
         # create the main storage directory
         cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath  + ' >& /dev/null'
@@ -273,8 +294,8 @@ usage += "                 --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['cmsDataset=','mitDataset=','cmssw=','mitCfg=','version=','dbs=','sched=','blacklist=',
-         'nSubmit=','skipEvents=','fixSites=','complete','useExistingLfns','testJob','noTestJob',
-         'test','help']
+         'nSubmit=','skipEvents=','fixSites=','complete','useExistingLfns','useExistingSites',
+         'testJob','noTestJob','test','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -291,24 +312,27 @@ for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     crabId = line
 print "\n This job will be CrabId: " + crabId + "\n"
-# Set defaults for each option
-cmsDataset      = None
-mitDataset      = None
-cmssw           = "cmssw"
-mitCfg          = "filefi"
-version         = "014"
-#dbs             = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
-dbs             = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
-sched           = "glite"
-blacklist       = ""
-nSubmit         = -1
-skpEvts         = ''
-fixSites        = ''
-complete        = 0
-useExistingLfns = False
-noTestJob       = 0
-testJob         = 0
-test            = 0
+# other non command line parameters
+fastCreate       = 0
+# Set defaults for each command line parameter/option
+cmsDataset       = None
+mitDataset       = None
+cmssw            = "cmssw"
+mitCfg           = "filefi"
+version          = os.environ['MIT_VERS']
+#dbs              = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
+dbs              = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
+sched            = "glite"
+blacklist        = ""
+nSubmit          = -1
+skpEvts          = ''
+fixSites         = ''
+complete         = 0
+useExistingLfns  = False
+useExistingSites = False
+noTestJob        = 0
+testJob          = 0
+test             = 0
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -316,39 +340,41 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--cmsDataset":
-        cmsDataset      = arg
+        cmsDataset       = arg
     if opt == "--mitDataset":
-        mitDataset      = arg
+        mitDataset       = arg
     if opt == "--cmssw":
-        cmssw           = arg
+        cmssw            = arg
     if opt == "--mitCfg":
-        mitCfg          = arg
+        mitCfg           = arg
     if opt == "--version":
-        version         = arg
+        version          = arg
     if opt == "--dbs":
-        dbs             = arg
+        dbs              = arg
     if opt == "--sched":
-        sched           = arg
+        sched            = arg
     if opt == "--blacklist":
-        blacklist       = arg
+        blacklist        = arg
     if opt == "--nSubmit":
-        nSubmit         = arg
+        nSubmit          = arg
     if opt == "--skipEvents":
-        skpEvts         = arg
+        skpEvts          = arg
     if opt == "--fixSites":
-        fixSites        = arg
+        fixSites         = arg
     if opt == "--complete":
-        complete        = 1
+        complete         = 1
     if opt == "--useExistingLfns":
-        useExistingLfns = True
+        useExistingLfns  = True
+    if opt == "--useExistingSites":
+        useExistingSites = True
     if opt == "--noTestJob":
-        noTestJob       = 1
-        testJob         = 0
+        noTestJob        = 1
+        testJob          = 0
     if opt == "--testJob":
-        testJob         = 1
-        noTestJob       = 0
+        testJob          = 1
+        noTestJob        = 0
     if opt == "--test":
-        test            = 1
+        test             = 1
 
 # Deal with obvious problems
 if cmsDataset == None and mitDataset == None:
@@ -368,7 +394,6 @@ if not os.path.exists(cmsswFile):
     cmd = " XXXX ERROR no valid configuration found XXXX"
     raise RuntimeError, cmd
 cmsswPy  = cmssw + '_' + crabId + '.py'
-
 
 # Prepare the ce/se translator
 trans = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+'/ceTable',
@@ -392,15 +417,22 @@ if cmsDataset == None or mitDataset == None:
     raise RuntimeError, cmd
 
 getFiles(mitCfg,version)
-lfnFile = makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns)
+lfnFile  = makeLfnFile (mitCfg,version,mitDataset,dbs,useExistingLfns)
 
 crabTask.storagePath = findStoragePath(mitCfg,version,mitDataset,seFile)
 crabTask.loadAllLfns(lfnFile)
 crabTask.loadCompletedLfns()
 crabTask.createMissingLfns(lfnFile,lfnFile + '_' + crabTask.tag)
+# decide whether there are more jobs (lfns=files) to be submitted
 if crabTask.nLfnMissing == 0:
     print ' All requested LFNs are available. EXIT now.'
     sys.exit()
+# decide whether we always need to create the full directory tree
+if crabTask.nLfnDone != 0:
+    fastCreate = 1
+
+# ok, looks like we will be submitting
+siteFile = makeSiteFile(mitCfg,version,mitDataset,dbs,useExistingSites)
 
 crabTask.createSubTasks(lfnFile + '_' + crabTask.tag)
 cmd = 'cp ' + lfnFile +  '_' + crabTask.tag + '_*' + ' ./'
@@ -514,7 +546,7 @@ for subTask in crabTask.subTasks:
         if (storageEle == 'srm.cern.ch'): 
             createDirCern(storagePath)
         else:
-            createDirGeneral(storageEle,storagePath)
+            createDirGeneral(storageEle,storagePath,fastCreate)
 
 #    cmd  = "crab -create -debug 3 -USER.ui_working_dir=" + tag + " | tee forDaniele "
     cmd  = "crab -create -cfg crab_" + crabTask.tag + ".cfg -USER.ui_working_dir=" + tag
@@ -541,7 +573,7 @@ for subTask in crabTask.subTasks:
 
     # test something useful is going to happen
     if int(nJobsTotal) > 0:
-        print ' More then zero jobs got created, go ahead and submit (%s).\n'%(crabId)
+        print ' More than zero (%d) jobs got created, go ahead and submit (%s).\n'%(int(nJobsTotal),crabId)
     else:
         print ' Zero or less jobs got created: cleanup and EXIT.'
         cmd = 'rm -rf `echo *' + crabId + '*`'
@@ -600,8 +632,11 @@ for subTask in crabTask.subTasks:
         if fixSites != '':
             sites = fixSites
         else:
-            cmd  = "sites.py --block=" + block
-            cmd += " --dbs=" + dbs
+            if not os.path.exists(siteFile):
+                cmd  = "sites.py --block=" + block + " --dbs=" + dbs
+            else:
+                cmd  = "cat " + siteFile + "| grep " + block + " | cut -d ':' -f2 | tr -d ' '"
+                print 'CMD: ' + cmd
             for line in os.popen(cmd).readlines():   # run command
                 line = line[:-1]
                 sites = line
@@ -609,8 +644,11 @@ for subTask in crabTask.subTasks:
                 sites = trans.translateSes(sites)
                 sites = trans.selectPreferred()
 
-        print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
-              ' at\n        > ' + sites
+        if sites == '':
+            print ' ERROR - no sites for this data block, do not submit.'
+        else:
+            print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
+                  ' at\n        > ' + sites
         # block with different sites found
         if sites != lastSites:
             mergedSites  .append(sites)
@@ -650,8 +688,10 @@ for subTask in crabTask.subTasks:
         cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
         print '  ' + cmd + '\n'
         status = os.system(cmd)
-        while status != 0:
-            print ' Submission failed  (%s) --> retry'%(cmd)
+        retry = False
+        while status != 0 and not retry:
+            retry = True
+            print ' Submission failed  (%s) --> retry once!'%(cmd)
             status = os.system(cmd)
 
         # last action in the loop: increment the merged blocks

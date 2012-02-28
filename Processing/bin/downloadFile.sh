@@ -9,14 +9,15 @@ echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
 DCCP='/afs/cern.ch/project/gd/LCG-share/3.1.44-0/d-cache/dcap/bin/dccp'
 LCGCP='lcg-cp'
+SRMCP='srmcp'
 
-klist
+#klist
 id=`id -u`
 cp ~/.krb5/x509up_u${id} /tmp/
 cp ~/.krb5/ticket        /tmp/krb5cc_${id}
 ls -lhrt /tmp/krb5cc_${id}
 export KRB5CCNAME=FILE:/tmp/krb5cc_${id}
-klist
+#klist
 
 dataFile=$1
 target=$2
@@ -29,7 +30,10 @@ pwd
 pwd=`pwd`
 
 # legacy but works on 32 bit machines
-source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
+if [ "`uname -p`" != "x86_64" ]
+then
+  source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
+fi
 
 #export SCRAM_ARCH='slc5_ia32_gcc434'
 #export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
@@ -58,7 +62,8 @@ then
   storagePath='/srm/managerv2?SFN='
   targetUrl="srm://${storageEle}:8443${storagePath}$target"
 else
-  targetUrl=""
+  targetUrl="file:///$target"
+  #targetUrl=""
 fi
 
 sourceUrl="file:///$dataFile"
@@ -80,10 +85,15 @@ then
 fi
 
 echo " "; echo "Starting download now"; echo " "
-if   [ "$targetUrl" != "" ]
+if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" == "" ]
 then
+
   echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
   $LCGCP -D srmv2 -b  $sourceUrl $targetUrl
+
+  #echo "$SRMCP -2 $sourceUrl $targetUrl"
+  #$SRMCP -2 $sourceUrl $targetUrl
+
 else
   echo "$DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target"
   $DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target
