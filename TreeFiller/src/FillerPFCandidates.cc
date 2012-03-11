@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.13 2011/09/28 16:50:07 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.14 2011/10/10 20:57:40 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -22,6 +22,7 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
                                        const char *name, bool active) :
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","particleFlow")),
+  edmPfNoPileupName_(Conf().getUntrackedParameter<string>("edmName","pfNoElectrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_(Conf().exists("trackerTrackMapNames") ? 
                     Conf().getUntrackedParameter<vector<string> >("trackerTrackMapNames") : 
@@ -30,11 +31,14 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
   conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  pfNoPileupCandMapName_(Conf().getUntrackedParameter<string>("pfNoPileupMapName","")),
   allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
+  fillPfNoPileup_(Conf().getUntrackedParameter<bool>("fillPfNoPileup",true)),
   gsfTrackMap_(0),
   muonMap_(0),
   conversionMap_(0),
   pfCandMap_(new mithep::PFCandidateMap),
+  pfNoPileupCandMap_(new mithep::PFCandidateMap),
   pfCands_(new mithep::PFCandidateArr(16))
 {
   // Constructor.
@@ -47,6 +51,7 @@ FillerPFCandidates::~FillerPFCandidates()
 
   delete pfCands_;
   delete pfCandMap_;
+  delete pfNoPileupCandMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,6 +98,10 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
     pfCandMap_->SetBrName(mitName_);
     OS()->add<PFCandidateMap>(pfCandMap_,pfCandMapName_);
   }
+  if (!pfNoPileupCandMapName_.empty()) {
+    pfNoPileupCandMap_->SetBrName(mitName_);
+    OS()->add<PFCandidateMap>(pfNoPileupCandMap_,pfNoPileupCandMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,11 +112,15 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
 
   pfCands_->Delete();
   pfCandMap_->Reset();
-  
+  pfNoPileupCandMap_->Reset();
+
   Handle<reco::PFCandidateCollection> hPfCandProduct;
   GetProduct(edmName_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
+  Handle<reco::PFCandidateCollection> hPfNoPileupCandProduct;
+  GetProduct(edmPfNoPileupName_, hPfNoPileupCandProduct, event);  
+  const reco::PFCandidateCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
   for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
        iP != inPfCands.end(); ++iP) {
     mithep::PFCandidate *outPfCand = pfCands_->Allocate();
@@ -207,6 +220,23 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
     pfCandMap_->Add(thePtr, outPfCand);
     
+    //add pf No Pileup map
+    //===> Do I do a loop?
+    bool found = false;
+    if(fillPfNoPileup_) { 
+      outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,false);
+      for (reco::PFCandidateCollection::const_iterator iNoPileupP = inPfNoPileupCands.begin();
+	   iNoPileupP != inPfNoPileupCands.end(); ++iNoPileupP) {
+	if(iP->px() == iNoPileupP->px() && iP->py() == iNoPileupP->py() && iNoPileupP->pz() == iP->pz()) { 
+	  reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct, iNoPileupP - inPfNoPileupCands.begin());
+	  pfNoPileupCandMap_->Add(theNoPileupPtr, outPfCand);
+	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
+	  if(found) edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+	    << "Error! PF No Pileup double linked " << endl;
+	  found = true;
+	}
+      }
+    }
   }
   pfCands_->Trim();
 }

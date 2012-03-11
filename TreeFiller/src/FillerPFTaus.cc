@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.11 2011/09/23 15:50:38 mhchan Exp $
+// $Id: FillerPFTaus.cc,v 1.12 2011/10/10 20:57:40 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -38,9 +38,11 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
                     vector<string>()),
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  tauMapName_(Conf().getUntrackedParameter<string>("tauMapName","")),
   allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
   jetMap_(0),
   pfCandMap_(0),
+  tauMap_(new mithep::PFTauMap),
   taus_(new mithep::PFTauArr(16))
 {
   // Constructor.
@@ -50,8 +52,8 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
 FillerPFTaus::~FillerPFTaus()
 {
   // Destructor.
-
   delete taus_;
+  delete tauMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +86,10 @@ void FillerPFTaus::BookDataBlock(TreeWriter &tws)
     if (pfCandMap_)
       AddBranchDep(mitName_, pfCandMap_->GetBrName());
   }
+  if (!tauMapName_.empty()) {
+    tauMap_->SetBrName(mitName_);
+    OS()->add<PFTauMap>(tauMap_,tauMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +98,8 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
 {
   // Fill taus from edm collection into our collection.
 
-  taus_->Delete();
+  taus_  ->Delete();
+  tauMap_->Reset();
 
   // handle for the tau collection
   Handle<reco::PFTauCollection> hTauProduct;
@@ -246,7 +253,11 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
         tau->AddIsoPFCand(isoCand);
       }
     }
+    // add Tau to map
+    edm::Ptr<reco::PFTau> thePtr(hTauProduct, inTau - inTaus.begin());
+    tauMap_->Add(thePtr, tau);
   }      
+  
   taus_->Trim();
 }
 

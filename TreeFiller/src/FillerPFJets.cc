@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.15 2011/03/22 19:12:34 mzanetti Exp $
+// $Id: FillerPFJets.cc,v 1.16 2011/11/28 20:33:30 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -295,7 +295,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
         const reco::CandidatePtr candPtr = inJet->daughterPtr(i);
         const reco::PFCandidatePtr pfPtr(candPtr);
         const mithep::PFCandidate *constituent = pfCandMap_->GetMit(pfPtr);
-        jet->AddPFCand(constituent);
+	jet->AddPFCand(constituent);
       }
     }
     if (jetToVertexActive_) {

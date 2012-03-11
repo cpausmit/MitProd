@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.7 2011/09/14 15:26:53 bendavid Exp $
+// $Id: FillerPFCandidates.h,v 1.8 2011/09/28 16:50:06 bendavid Exp $
 //
 // FillerPFCandidates
 //
@@ -32,6 +32,7 @@ namespace mithep
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
       std::string                  edmName_;              //edm name of PFCandidates collection
+      std::string                  edmPfNoPileupName_;    //edm name of PFNoPileup  collection
       std::string                  mitName_;              //name of PFCandidate branch in BAMBU
       std::string                  globalTrackMapName_;   //name of imported map wrt global muons
       std::string                  staTrackMapName_;      //name of imported map wrt sta muons
@@ -41,12 +42,15 @@ namespace mithep
       std::string                  muonMapName_;          //name of imported map wrt muons
       std::string                  conversionMapName_;    //name of imported map wrt conversions
       std::string                  pfCandMapName_;        //name of exported pf candidate map
+      std::string                  pfNoPileupCandMapName_; //name of exported pf no pileup candidate map
       bool                         allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
+      bool                         fillPfNoPileup_;
       std::vector<const mithep::TrackMap*> trackerTrackMaps_; //maps wrt tracker tracks
       const mithep::TrackMap      *gsfTrackMap_;          //map wrt pf gsf tracks
       const mithep::MuonMap       *muonMap_;              //map wrt muons
       const mithep::ConversionMap *conversionMap_;        //map wrt conversions
       mithep::PFCandidateMap      *pfCandMap_;            //exported map
+      mithep::PFCandidateMap      *pfNoPileupCandMap_;    //exported map for pf no pileup
       mithep::PFCandidateArr      *pfCands_;              //array of PFCandidates
   };
 }

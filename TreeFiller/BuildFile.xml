@@ -29,6 +29,7 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="RecoVertex/GaussianSumVertexFit"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="MagneticField/UniformEngine"/>
 <use   name="root"/>

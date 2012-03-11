@@ -53,6 +53,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
   checkClusterActive_(Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
   pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
+  electronMapName_(Conf().getUntrackedParameter<string>("electronMapName","")),
   eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
   eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
@@ -60,6 +61,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
   recomputeConversionInfo_(Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
   fitUnbiasedVertex_(Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
+  electronMap_(new mithep::ElectronMap),
   electrons_(new mithep::ElectronArr(16)),
   gsfTrackMap_(0),
   trackerTrackMap_(0),
@@ -75,6 +77,7 @@ FillerElectrons::~FillerElectrons()
   // Destructor.
 
   delete electrons_;
+  delete electronMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +112,10 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (pfSuperClusterMap_)
       AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
   }
+  if (!electronMapName_.empty()) {
+    electronMap_->SetBrName(mitName_);
+    OS()->add<ElectronMap>(electronMap_,electronMapName_);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,8 +123,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 {
   // Fill electrons from edm collection into our collection.
 
-  electrons_->Delete();
-  
+  electrons_  ->Delete();
+  electronMap_->Reset();
+
   Handle<reco::GsfElectronCollection> hElectronProduct;
   GetProduct(edmName_, hElectronProduct, event);
   
@@ -179,7 +187,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
          
     outElectron->SetCharge(iM->charge());
     outElectron->SetScPixCharge(iM->scPixCharge());
-      outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
+    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
     outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
     outElectron->SetPIn(iM->trackMomentumAtVtx().R());
     outElectron->SetPOut(iM->trackMomentumOut().R());
@@ -570,6 +578,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //fill additional conversion flag
     outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
     
+    // add electron to map
+    edm::Ptr<reco::GsfElectron> thePtr(hElectronProduct, iM - inElectrons.begin());
+    electronMap_->Add(thePtr, outElectron);
+ 
     if (verbose_>1) {
       double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());
       printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",

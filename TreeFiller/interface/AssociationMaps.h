@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.25 2010/06/25 15:18:38 bendavid Exp $
+// $Id: AssociationMaps.h,v 1.26 2010/11/22 16:55:08 bendavid Exp $
 //
 // AssociationMaps
 //
@@ -23,8 +23,10 @@
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -44,6 +46,7 @@
 #include "MitAna/DataTree/interface/CaloTowerFwd.h"
 #include "MitAna/DataTree/interface/ElectronFwd.h"
 #include "MitAna/DataTree/interface/MuonFwd.h"
+#include "MitAna/DataTree/interface/PFTauFwd.h"
 #include "MitAna/DataTree/interface/ConversionFwd.h"
 #include "MitAna/DataTree/interface/ParticleFwd.h"
 #include "MitAna/DataTree/interface/VertexFwd.h"
@@ -76,6 +79,8 @@ namespace mithep
   typedef AssociationMap<const mitedm::VertexPtr,           mithep::Vertex*>       VertexMap;
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*> SuperClusterIdMap;
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>         MuonMap;
+  typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Electron*>     ElectronMap;
+  typedef AssociationMap<const edm::Ptr<reco::PFTau>,       mithep::PFTau*>        PFTauMap;
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>  PFCandidateMap;
   typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>      CaloJetMap;
   typedef AssociationMap<const edm::Ptr<reco::JPTJet>,      mithep::JPTJet*>       JPTJetMap;

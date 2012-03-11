@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.63 2011/11/24 11:40:40 pharris Exp $
+// $Id: FillMitTree.cc,v 1.64 2012/01/31 15:46:27 rwolf Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,6 +15,7 @@
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
+#include "MitProd/TreeFiller/interface/FillerDCASig.h"
 #include "MitProd/TreeFiller/interface/FillerEmbedWeight.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
@@ -424,6 +425,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerEmbedWeight")==0) {
       FillerEmbedWeight *fillerEmbedWeight = new FillerEmbedWeight(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerEmbedWeight);
+      continue;
+    }
+
+    if (ftype.compare("FillerDCASig")==0) {
+      FillerDCASig *fillerDCASig = new FillerDCASig(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerDCASig);
       continue;
     }
     
