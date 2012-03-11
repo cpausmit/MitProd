@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.61 2011/10/09 23:28:48 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.62 2011/10/22 15:06:48 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -49,12 +49,47 @@ MitTreeFiller.Photons.enablePhotonFix = True
 #to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
+from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+goodOfflinePrimaryVertices = cms.EDFilter(
+    "PrimaryVertexObjectFilter",
+    filterParams = pvSelector.clone( minNdof = cms.double(4.0),maxZ = cms.double(24.0) ),
+    src=cms.InputTag('offlinePrimaryVertices')
+    )
+
+from CommonTools.ParticleFlow.pfNoPileUp_cff          import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff import *
+from CommonTools.ParticleFlow.pfPhotons_cff           import *
+from CommonTools.ParticleFlow.pfElectrons_cff         import *
+from CommonTools.ParticleFlow.pfMuons_cff             import *
+from CommonTools.ParticleFlow.pfJets_cff              import *
+from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi     import *
+from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
+from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi      import *
+pfPileUp.PFCandidates = 'particleFlow'
+pfNoPileUp.bottomCollection = 'particleFlow'
+pfPileUp.Enable = True
+pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
+pfPileUp.checkClosestZVertex = cms.bool(False)
+pfJets.doAreaFastjet = True
+pfJets.doRhoFastjet  = False
+
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
                                  newBtaggingAll*
 				 ClusteredPFMetProducer*
-				 PFTau
+				 PFTau*
+                                 goodOfflinePrimaryVertices*
+                                 pfNoPileUpSequence*
+                                 pfParticleSelectionSequence*
+                                 pfPhotonSequence*
+                                 pfMuonSequence*
+                                 pfNoMuon*
+                                 pfElectronSequence*
+                                 pfNoElectron*
+                                 pfJetSequence*
+                                 pfNoJet*
+                                 l1FastJetSequenceCHS
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)

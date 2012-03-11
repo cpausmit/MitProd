@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.3 2011/11/22 15:09:47 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.4 2011/11/28 20:33:51 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,7 +16,9 @@ conversionStepTracks = dummyTracks.clone()
 
 #42x variation of fastjet sequence
 BambuRecoSequence.replace(l1FastJetSequence,l1FastJetSequence42)
+BambuRecoSequence.replace(l1FastJetSequenceCHS,l1FastJetSequence42CHS)
 MitTreeFiller.PileupEnergyDensity.edmNameRandom = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom','rho')
+MitTreeFiller.PileupEnergyDensityCHS.edmNameRandom = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandomCHS','rho')
 MitTreeFiller.Kt4PFJetsNoArea.active = True
 MitTreeFiller.AKt5PFJetsNoArea.active = True
 

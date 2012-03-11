@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.17 2011/02/08 14:56:08 mzanetti Exp $
+# $Id: BambuSIM_cfi.py,v 1.18 2012/01/15 23:11:34 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,7 +46,7 @@ def enableSIM(filler):
 #  filler.GenMet.active      = True
   
   #Enable filling antikt gen jets
-#  filler.AKT5GenJets.active = True
+  filler.AKT5GenJets.active = True
 #  filler.AKT7GenJets.active = True
   
   # Enable Flavor history filling
