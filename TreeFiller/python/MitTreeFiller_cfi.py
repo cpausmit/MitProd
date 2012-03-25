@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.109 2012/01/15 23:23:42 pharris Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.110 2012/03/11 23:11:55 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1321,6 +1321,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 	discriminationByLooseElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseElectronRejection'),
 	discriminationByMediumElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMediumElectronRejection'),
 	discriminationByTightElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightElectronRejection'),
+        discriminationByMVAElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMVAElectronRejection'),
 	discriminationByLooseMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseMuonRejection'),
 	discriminationByTightMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightMuonRejection'),
 	discriminationByDecayModeFindingName = cms.untracked.string('hpsPFTauDiscriminationByDecayModeFinding'),
@@ -1332,6 +1333,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         discriminationByLooseCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr'),
         discriminationByMediumCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr'),
         discriminationByTightCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr'),
+        discriminationByRawCombinedIsolationDBSumPtCorr = cms.untracked.string('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr'),
 	trackMapNames = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
 	jetMapName    = cms.untracked.string(''),
 	pfCandMapName = cms.untracked.string('PFCandMapName'),
