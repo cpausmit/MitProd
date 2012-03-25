@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.11 2011/10/10 20:57:40 bendavid Exp $
+// $Id: FillerPFTaus.h,v 1.12 2012/03/11 23:11:55 pharris Exp $
 //
 // FillerPFTaus
 //
@@ -39,6 +39,7 @@ namespace mithep
       std::string                    discriminationByLooseElectronRejectionName_; // HPS discriminant
       std::string                    discriminationByMediumElectronRejectionName_; // HPS discriminant
       std::string                    discriminationByTightElectronRejectionName_; // HPS discriminant
+      std::string                    discriminationByMVAElectronRejectionName_; // HPS discriminant
       std::string                    discriminationByLooseMuonRejectionName_; // HPS discriminant
       std::string                    discriminationByTightMuonRejectionName_; // HPS discriminant
       std::string                    discriminationByDecayModeFindingName_; // HPS discriminant
@@ -50,6 +51,7 @@ namespace mithep
       std::string                    discriminationByLooseCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
       std::string                    discriminationByMediumCombinedIsolationDBSumPtCorrName_; // HPS discriminant
       std::string                    discriminationByTightCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
+      std::string                    discriminationByRawCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
       std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap

@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.12 2011/10/10 20:57:40 bendavid Exp $
+// $Id: FillerPFTaus.cc,v 1.13 2012/03/11 23:11:56 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -22,6 +22,7 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   discriminationByLooseElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByLooseElectronRejectionName", "hpsPFTauDiscriminationByLooseElecronRejection")),
   discriminationByMediumElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByMediumElectronRejectionName", "hpsPFTauDiscriminationByMediumElecronRejection")),
   discriminationByTightElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByTightElectronRejectionName", "hpsPFTauDiscriminationByTightElecronRejection")),
+  discriminationByMVAElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByMVAElectronRejectionName", "hpsPFTauDiscriminationByMVAElectronRejection")),
   discriminationByLooseMuonRejectionName_(Conf().getUntrackedParameter<string>("discriminationByLooseMuonRejectionName", "hpsPFTauDiscriminationByLooseMuonRejection")),
   discriminationByTightMuonRejectionName_(Conf().getUntrackedParameter<string>("discriminationByTightMuonRejectionName", "hpsPFTauDiscriminationByTightMuonRejection")),
   discriminationByDecayModeFindingName_(Conf().getUntrackedParameter<string>("discriminationByDecayModeFindingName", "hpsPFTauDiscriminationByDecayModeFinding")),
@@ -33,6 +34,8 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   discriminationByLooseCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr")),
   discriminationByMediumCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByMediumCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr")),
   discriminationByTightCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByTightCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr")),
+  discriminationByRawCombinedIsolationDBSumPtCorrName_(Conf().getUntrackedParameter<string>("discriminationByRawCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr")),
+
   trackMapNames_(Conf().exists("trackMapNames") ? 
                     Conf().getUntrackedParameter<vector<string> >("trackMapNames") : 
                     vector<string>()),
@@ -109,6 +112,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauDiscriminator> hDiscriminationByLooseElectronRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByMediumElectronRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightElectronRejection;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByMVAElectronRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByLooseMuonRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightMuonRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByDecayModeFinding;
@@ -120,12 +124,14 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauDiscriminator> hDiscriminationByLooseCombinedIsolationDBSumPtCorr;
   Handle<reco::PFTauDiscriminator> hDiscriminationByMediumCombinedIsolationDBSumPtCorr;
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightCombinedIsolationDBSumPtCorr;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByRawCombinedIsolationDBSumPtCorr;
   
   if(hpsActive_)
   {
     GetProduct(discriminationByLooseElectronRejectionName_, hDiscriminationByLooseElectronRejection, event);
     GetProduct(discriminationByMediumElectronRejectionName_, hDiscriminationByMediumElectronRejection, event);
     GetProduct(discriminationByTightElectronRejectionName_, hDiscriminationByTightElectronRejection, event);
+    GetProduct(discriminationByMVAElectronRejectionName_, hDiscriminationByMVAElectronRejection, event);
     GetProduct(discriminationByLooseMuonRejectionName_, hDiscriminationByLooseMuonRejection, event);
     GetProduct(discriminationByTightMuonRejectionName_, hDiscriminationByTightMuonRejection, event);
     GetProduct(discriminationByDecayModeFindingName_, hDiscriminationByDecayModeFinding, event);
@@ -137,6 +143,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     GetProduct(discriminationByLooseCombinedIsolationDBSumPtCorrName_, hDiscriminationByLooseCombinedIsolationDBSumPtCorr, event);
     GetProduct(discriminationByMediumCombinedIsolationDBSumPtCorrName_, hDiscriminationByMediumCombinedIsolationDBSumPtCorr, event);
     GetProduct(discriminationByTightCombinedIsolationDBSumPtCorrName_, hDiscriminationByTightCombinedIsolationDBSumPtCorr, event);
+    GetProduct(discriminationByRawCombinedIsolationDBSumPtCorrName_, hDiscriminationByRawCombinedIsolationDBSumPtCorr, event);
   }
 
   const reco::PFTauCollection inTaus = *(hTauProduct.product());  
@@ -181,6 +188,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByLooseElectronRejection((*(hDiscriminationByLooseElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByMediumElectronRejection((*(hDiscriminationByMediumElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByTightElectronRejection((*(hDiscriminationByTightElectronRejection.product()))[tauRef]);
+      tau->SetDiscriminationByMVAElectronRejection((*(hDiscriminationByMVAElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByLooseMuonRejection((*(hDiscriminationByLooseMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByTightMuonRejection((*(hDiscriminationByTightMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByDecayModeFinding((*(hDiscriminationByDecayModeFinding.product()))[tauRef]);
@@ -192,6 +200,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr((*(hDiscriminationByLooseCombinedIsolationDBSumPtCorr.product()))[tauRef]);
       tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr((*(hDiscriminationByMediumCombinedIsolationDBSumPtCorr.product()))[tauRef]);
       tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr((*(hDiscriminationByTightCombinedIsolationDBSumPtCorr.product()))[tauRef]);
+      tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr((*(hDiscriminationByRawCombinedIsolationDBSumPtCorr.product()))[tauRef]);
     }
 
     // add track references
