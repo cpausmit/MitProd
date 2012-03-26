@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.12 2012/03/11 23:11:55 pharris Exp $
+// $Id: FillerPFTaus.h,v 1.13 2012/03/25 17:11:14 mhchan Exp $
 //
 // FillerPFTaus
 //
@@ -41,6 +41,7 @@ namespace mithep
       std::string                    discriminationByTightElectronRejectionName_; // HPS discriminant
       std::string                    discriminationByMVAElectronRejectionName_; // HPS discriminant
       std::string                    discriminationByLooseMuonRejectionName_; // HPS discriminant
+      std::string                    discriminationByMediumMuonRejectionName_; // HPS discriminant
       std::string                    discriminationByTightMuonRejectionName_; // HPS discriminant
       std::string                    discriminationByDecayModeFindingName_; // HPS discriminant
       std::string                    discriminationByVLooseIsolationName_;   // HPS discriminant

@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.13 2012/03/11 23:11:56 pharris Exp $
+// $Id: FillerPFTaus.cc,v 1.14 2012/03/25 17:11:14 mhchan Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -24,6 +24,7 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   discriminationByTightElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByTightElectronRejectionName", "hpsPFTauDiscriminationByTightElecronRejection")),
   discriminationByMVAElectronRejectionName_(Conf().getUntrackedParameter<string>("discriminationByMVAElectronRejectionName", "hpsPFTauDiscriminationByMVAElectronRejection")),
   discriminationByLooseMuonRejectionName_(Conf().getUntrackedParameter<string>("discriminationByLooseMuonRejectionName", "hpsPFTauDiscriminationByLooseMuonRejection")),
+  discriminationByMediumMuonRejectionName_(Conf().getUntrackedParameter<string>("discriminationByMediumMuonRejectionName", "hpsPFTauDiscriminationByMediumMuonRejection")),
   discriminationByTightMuonRejectionName_(Conf().getUntrackedParameter<string>("discriminationByTightMuonRejectionName", "hpsPFTauDiscriminationByTightMuonRejection")),
   discriminationByDecayModeFindingName_(Conf().getUntrackedParameter<string>("discriminationByDecayModeFindingName", "hpsPFTauDiscriminationByDecayModeFinding")),
   discriminationByVLooseIsolationName_(Conf().getUntrackedParameter<string>("discriminationByVLooseIsolationName", "hpsPFTauDiscriminationByVLooseIsolation")),
@@ -114,6 +115,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightElectronRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByMVAElectronRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByLooseMuonRejection;
+  Handle<reco::PFTauDiscriminator> hDiscriminationByMediumMuonRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightMuonRejection;
   Handle<reco::PFTauDiscriminator> hDiscriminationByDecayModeFinding;
   Handle<reco::PFTauDiscriminator> hDiscriminationByVLooseIsolation;
@@ -133,6 +135,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     GetProduct(discriminationByTightElectronRejectionName_, hDiscriminationByTightElectronRejection, event);
     GetProduct(discriminationByMVAElectronRejectionName_, hDiscriminationByMVAElectronRejection, event);
     GetProduct(discriminationByLooseMuonRejectionName_, hDiscriminationByLooseMuonRejection, event);
+    GetProduct(discriminationByMediumMuonRejectionName_, hDiscriminationByMediumMuonRejection, event);
     GetProduct(discriminationByTightMuonRejectionName_, hDiscriminationByTightMuonRejection, event);
     GetProduct(discriminationByDecayModeFindingName_, hDiscriminationByDecayModeFinding, event);
     GetProduct(discriminationByVLooseIsolationName_, hDiscriminationByVLooseIsolation, event);
@@ -190,6 +193,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByTightElectronRejection((*(hDiscriminationByTightElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByMVAElectronRejection((*(hDiscriminationByMVAElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByLooseMuonRejection((*(hDiscriminationByLooseMuonRejection.product()))[tauRef]);
+      tau->SetDiscriminationByMediumMuonRejection((*(hDiscriminationByMediumMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByTightMuonRejection((*(hDiscriminationByTightMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByDecayModeFinding((*(hDiscriminationByDecayModeFinding.product()))[tauRef]);
       tau->SetDiscriminationByVLooseIsolation((*(hDiscriminationByVLooseIsolation.product()))[tauRef]);

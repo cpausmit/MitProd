@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.110 2012/03/11 23:11:55 pharris Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.111 2012/03/25 17:12:32 mhchan Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1323,6 +1323,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 	discriminationByTightElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightElectronRejection'),
         discriminationByMVAElectronRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMVAElectronRejection'),
 	discriminationByLooseMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByLooseMuonRejection'),
+        discriminationByMediumMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByMediumMuonRejection'),
 	discriminationByTightMuonRejectionName = cms.untracked.string('hpsPFTauDiscriminationByTightMuonRejection'),
 	discriminationByDecayModeFindingName = cms.untracked.string('hpsPFTauDiscriminationByDecayModeFinding'),
 	discriminationByVLooseIsolationName = cms.untracked.string('hpsPFTauDiscriminationByVLooseIsolation'),
