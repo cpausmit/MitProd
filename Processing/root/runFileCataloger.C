@@ -1,4 +1,4 @@
-// $Id: runFileCataloger.C,v 1.4 2011/10/19 10:43:12 paus Exp $
+// $Id: runFileCataloger.C,v 1.5 2012/02/28 11:54:37 paus Exp $
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <TROOT.h>
@@ -6,20 +6,20 @@
 #include "MitAna/DataUtil/interface/Debug.h"
 #include "MitAna/Catalog/interface/Catalog.h"
 #include "MitAna/Catalog/interface/Dataset.h"
+#include "MitAna/TreeMod/interface/HLTMod.h"
 #include "MitAna/TreeMod/interface/CatalogingMod.h"
 #include "MitAna/TreeMod/interface/Analysis.h"
 #endif
 
 using namespace mithep;
 const TString slash      = "/";
-const TString dCacheDoor = "dcap://t2srv0012.cmsaf.mit.edu/";
-//const TString dCacheDoor = "dcap://t2srv0005.cmsaf.mit.edu/";
 const TString hadoopDoor = "root://xrootd.cmsaf.mit.edu/";
 
 void catalogFile(const char *dir, const char *file);
 void reset();
 
 Analysis      *gAna(0);
+HLTMod        *hMod(0);
 CatalogingMod *gMod(0);
 
 //--------------------------------------------------------------------------------------------------
@@ -46,16 +46,13 @@ void catalogFile(const char *dir, const char *file)
   gMod->SetNFileSet      (0);
 
   // set up analysis
-  gAna->SetSuperModule(gMod);
+  hMod->Add(gMod);
+  gAna->SetSuperModule(hMod);
   
   TString fileName = TString(dir) + slash +  + TString(file);
-  printf("Index: %d\n",fileName.Index("castor/cern.ch"));
+  //printf("Index: %d\n",fileName.Index("castor/cern.ch"));
   if (fileName.Index("castor/cern.ch") != -1)
     fileName = TString("castor:") + fileName;
-  if (fileName.Index("pnfs/cmsaf.mit.edu") != -1) {
-    fileName = dCacheDoor + fileName;
-    gMod->SetMetaDataString(fileName.Data());
-  }
   if (fileName.Index("mnt/hadoop/cms/store") != -1) {
     fileName.Remove(0,15);
     fileName = hadoopDoor + fileName;
@@ -64,7 +61,7 @@ void catalogFile(const char *dir, const char *file)
   
   printf(" Adding: %s\n",fileName.Data());
   gAna->AddFile(fileName);
-  gAna->SetUseHLT(0);
+  gAna->SetUseHLT(1);
 
   // run the analysis after successful initialisation
   gAna->Run(false);
@@ -77,6 +74,11 @@ void reset()
   if (gAna)
     delete gAna;
   gAna = new Analysis();
+
+  if (hMod)
+    delete hMod;
+  hMod = new HLTMod();
+  //hMod->SetPrintTable(kTRUE);
 
   if (gMod)
     delete gMod;

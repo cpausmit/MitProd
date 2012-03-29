@@ -10,14 +10,14 @@ echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 export SCRAM_ARCH='slc5_ia32_gcc434'
 export VO_CMS_SW_DIR=~cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     $HOME/cms/cmssw/018/CMSSW_3_9_7/src
+cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
 
 klist
-cp ~cmsprod/.krb5/ticket /tmp/
-cp ~cmsprod/.krb5/x509up_u`id -u` /tmp/
+cp ~$USER/.krb5/ticket /tmp/
+cp ~$USER/.krb5/x509up_u`id -u` /tmp/
 export KRB5CCNAME=FILE:/tmp/ticket
 klist
 

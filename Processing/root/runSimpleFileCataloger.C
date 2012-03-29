@@ -1,4 +1,4 @@
-// $Id: runFileCataloger.C,v 1.4 2011/10/19 10:43:12 paus Exp $
+// $Id: runSimpleFileCataloger.C,v 1.1 2012/02/28 11:54:37 paus Exp $
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <TROOT.h>
@@ -40,9 +40,12 @@ void catalogFile(const char *dir, const char *file)
     fileName = hadoopDoor + fileName;
   }
   
-  TFile* f    = TFile::Open(fileName.Data());
-  TTree* tree = (TTree*) f->FindObjectAny("Events");
+  TFile* f       = TFile::Open(fileName.Data());
+  TTree* tree    = (TTree*) f->FindObjectAny("Events");
   printf("XX-CATALOG-XX %s %d\n",fileName.Data(),tree->GetEntries());
+
+  TTree* allTree = (TTree*) f->FindObjectAny("AllEvents");
+  printf("XX-CATALOG-XX %s %d %d\n",fileName.Data(),tree->GetEntries(),allTree->GetEntries());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,13 +53,12 @@ void reset()
 {
 }
 
-
-
-void runSimpleFileCataloger(TString dir = "root://xroot.cmsaf.mit.edu/store/user/paus/fabstoec/Summer11Private//TTH_HToGG_M-120_TuneZ2_7TeV-pythia6/Summer11-PU32_8CM_START42_V13C-v4/GEN-SIM-RECO",
-		 TString fileName="SUM11-HGGPRIV-0540-4890-0018.root") {
- 
-  TString fullName = dir+TString("/") +fileName;
-  TFile*  file     = TFile::Open(fullName.Data());
-  TTree*  tree     = (TTree*) file->FindObjectAny("Events");
-  std::cout << tree->GetEntries() << std::endl;
-}
+//// file from F.
+//void runSimpleFileCataloger(TString dir = "root://xroot.cmsaf.mit.edu/store/user/paus/fabstoec/Summer11Private//TTH_HToGG_M-120_TuneZ2_7TeV-pythia6/Summer11-PU32_8CM_START42_V13C-v4/GEN-SIM-RECO",
+//		 TString fileName="SUM11-HGGPRIV-0540-4890-0018.root") {
+// 
+//  TString fullName = dir+TString("/") +fileName;
+//  TFile*  file     = TFile::Open(fullName.Data());
+//  TTree*  tree     = (TTree*) file->FindObjectAny("Events");
+//  std::cout << tree->GetEntries() << std::endl;
+//}

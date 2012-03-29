@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.62 2011/10/22 15:06:48 bendavid Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.63 2012/03/11 23:16:01 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -43,7 +43,7 @@ MitTreeFiller.CleanPFMet.active         = True
 
 #photonfix parameters
 from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
-MitTreeFiller.Photons.PFParameters = PhotonFixParameters
+MitTreeFiller.Photons.PFParameters    = PhotonFixParameters
 MitTreeFiller.Photons.enablePhotonFix = True
 
 #to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
@@ -53,25 +53,26 @@ from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
     filterParams = pvSelector.clone( minNdof = cms.double(4.0),maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices')
+    src = cms.InputTag('offlinePrimaryVertices')
     )
 
-from CommonTools.ParticleFlow.pfNoPileUp_cff          import *
-from CommonTools.ParticleFlow.pfParticleSelection_cff import *
-from CommonTools.ParticleFlow.pfPhotons_cff           import *
-from CommonTools.ParticleFlow.pfElectrons_cff         import *
-from CommonTools.ParticleFlow.pfMuons_cff             import *
-from CommonTools.ParticleFlow.pfJets_cff              import *
+from CommonTools.ParticleFlow.pfNoPileUp_cff                 import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff        import *
+from CommonTools.ParticleFlow.pfPhotons_cff                  import *
+from CommonTools.ParticleFlow.pfElectrons_cff                import *
+from CommonTools.ParticleFlow.pfMuons_cff                    import *
+from CommonTools.ParticleFlow.pfJets_cff                     import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi     import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi      import *
-pfPileUp.PFCandidates = 'particleFlow'
-pfNoPileUp.bottomCollection = 'particleFlow'
-pfPileUp.Enable = True
-pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
+
+pfPileUp.PFCandidates        = 'particleFlow'
+pfNoPileUp.bottomCollection  = 'particleFlow'
+pfPileUp.Enable              = True
+pfPileUp.Vertices            = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
-pfJets.doAreaFastjet = True
-pfJets.doRhoFastjet  = False
+pfJets.doAreaFastjet         = True
+pfJets.doRhoFastjet          = False
 
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*

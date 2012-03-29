@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_AOD.py,v 1.31 2011/10/09 14:15:05 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.32 2012/03/11 23:16:02 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,9 +13,9 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_017'),
+    version    = cms.untracked.string('Mit_025'),
     annotation = cms.untracked.string('AOD'),
-    name = cms.untracked.string('BambuProduction')
+    name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(

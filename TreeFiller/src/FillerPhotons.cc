@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.25 2011/10/09 23:28:48 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.26 2011/10/12 13:26:58 ceballos Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -17,29 +17,27 @@ using namespace std;
 using namespace edm;
 using namespace mithep;
 
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active) :
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","photons")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
-  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
+  edmName_                  (Conf().getUntrackedParameter<string>("edmName","photons")),
+  mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
+  conversionMapName_        (Conf().getUntrackedParameter<string>("conversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  phIDCutBasedTightName_(Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
-                                                              "PhotonIDProd:PhotonCutBasedIDTight")),
-  phIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
-                                                              "PhotonIDProd:PhotonCutBasedIDLoose")),
-  enablePhotonFix_(Conf().getUntrackedParameter<bool>("enablePhotonFix")),                                                           
-  photons_(new mithep::PhotonArr(16)), 
-  conversionMap_(0),
-  barrelSuperClusterMap_(0),
-  endcapSuperClusterMap_(0)
+  phIDCutBasedTightName_    (Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
+								  "PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
+								  "PhotonIDProd:PhotonCutBasedIDLoose")),
+  enablePhotonFix_          (Conf().getUntrackedParameter<bool>("enablePhotonFix")),                                                           
+  photons_                  (new mithep::PhotonArr(16)),
+  conversionMap_            (0),
+  barrelSuperClusterMap_    (0),
+  endcapSuperClusterMap_    (0)
 {
   // Constructor.
-  if (enablePhotonFix_) {
+  if (enablePhotonFix_)
     PhotonFix::initialiseParameters(Conf());
-  }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,8 +79,10 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 {
   // Fill photon array.
 
-  if (!ecorr_.IsInitialized()) ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
-  if (enablePhotonFix_) PhotonFix::initialiseGeometry(setup);
+  if (!ecorr_.IsInitialized())
+    ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
+  if (enablePhotonFix_)
+    PhotonFix::initialiseGeometry(setup);
   
   photons_->Delete();
 
@@ -99,7 +99,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
-
+    
     int photonIndex = iP - inPhotons.begin();
     reco::PhotonRef phRef(hPhotonProduct, photonIndex);
 
@@ -171,11 +171,10 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 
     // make link to supercluster
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull()) {
-      if(barrelSuperClusterMap_->HasMit(iP->superCluster())) {
+      if (barrelSuperClusterMap_->HasMit(iP->superCluster()))
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
-      } else {
+      else
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
-      }
     }
     
     //regression energy corrections
@@ -189,8 +188,6 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
       outPhoton->SetEnergyPhoFix(pfix.fixedEnergy());
       outPhoton->SetEnergyErrPhoFix(pfix.sigmaEnergy());
     }
-    
-    
   }
   photons_->Trim();
 }

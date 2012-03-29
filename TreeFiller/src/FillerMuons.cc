@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.41 2011/05/20 16:52:37 bendavid Exp $
+// $Id: FillerMuons.cc,v 1.42 2012/01/15 23:23:42 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -28,24 +28,24 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","muons")),
-  expectedHitsName_(Conf().getUntrackedParameter<string>("expectedHitsName","")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
-  globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),
-  staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
-  staVtxTrackMapName_(Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
-  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
-  muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
-  pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),
-  fitUnbiasedVertex_(Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
-  globalTrackMap_(0),
-  standaloneTrackMap_(0),
+  BaseFiller            (cfg,name,active),
+  edmName_              (Conf().getUntrackedParameter<string>("edmName","muons")),
+  expectedHitsName_     (Conf().getUntrackedParameter<string>("expectedHitsName","")),
+  mitName_              (Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
+  globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName","")),
+  staTrackMapName_      (Conf().getUntrackedParameter<string>("staTrackMapName","")),
+  staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
+  trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
+  muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName","")),
+  pvEdmName_            (Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmName_          (Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),
+  fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
+  globalTrackMap_       (0),
+  standaloneTrackMap_   (0),
   standaloneVtxTrackMap_(0),
-  trackerTrackMap_(0),
-  muonMap_(new mithep::MuonMap),
-  muons_(new mithep::MuonArr(16))
+  trackerTrackMap_      (0),
+  muonMap_              (new mithep::MuonMap),
+  muons_                (new mithep::MuonArr(16))
 {
   // Constructor.
 }
@@ -99,7 +99,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 {
   // Fill muon information. 
 
-  muons_->Delete();
+  muons_  ->Delete();
   muonMap_->Reset();
   
   Handle<reco::MuonCollection> hMuonProduct;
@@ -127,36 +127,33 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
     mithep::Muon* outMuon = muons_->AddNew();
 
-    outMuon->SetPtEtaPhi(iM->pt(),iM->eta(),iM->phi());
-    outMuon->SetCharge(iM->charge());
-
-    outMuon->SetIsoR03SumPt(iM->isolationR03().sumPt);
-    outMuon->SetIsoR03EmEt(iM->isolationR03().emEt);
-    outMuon->SetIsoR03HadEt(iM->isolationR03().hadEt);
-    outMuon->SetIsoR03HoEt(iM->isolationR03().hoEt);
-    outMuon->SetIsoR03NTracks(iM->isolationR03().nTracks);
-    outMuon->SetIsoR03NJets(iM->isolationR03().nJets);
-    outMuon->SetIsoR05SumPt(iM->isolationR05().sumPt);
-    outMuon->SetIsoR05EmEt(iM->isolationR05().emEt);
-    outMuon->SetIsoR05HadEt(iM->isolationR05().hadEt);
-    outMuon->SetIsoR05HoEt(iM->isolationR05().hoEt);
-    outMuon->SetIsoR05NTracks(iM->isolationR05().nTracks);
-    outMuon->SetIsoR05NJets(iM->isolationR05().nJets);
-    outMuon->SetEmEnergy(iM->calEnergy().em);
-    outMuon->SetHadEnergy(iM->calEnergy().had);
-    outMuon->SetHoEnergy(iM->calEnergy().ho);
-    outMuon->SetEmS9Energy(iM->calEnergy().emS9);
-    outMuon->SetHadS9Energy(iM->calEnergy().hadS9);
-    outMuon->SetHoS9Energy(iM->calEnergy().hoS9);
-    outMuon->SetIsGlobalMuon(iM->isGlobalMuon());
-    outMuon->SetIsTrackerMuon(iM->isTrackerMuon());
+    outMuon->SetPtEtaPhi        (iM->pt(),iM->eta(),iM->phi());
+    outMuon->SetCharge          (iM->charge());
+    outMuon->SetIsoR03SumPt     (iM->isolationR03().sumPt);
+    outMuon->SetIsoR03EmEt      (iM->isolationR03().emEt);
+    outMuon->SetIsoR03HadEt     (iM->isolationR03().hadEt);
+    outMuon->SetIsoR03HoEt      (iM->isolationR03().hoEt);
+    outMuon->SetIsoR03NTracks   (iM->isolationR03().nTracks);
+    outMuon->SetIsoR03NJets     (iM->isolationR03().nJets);
+    outMuon->SetIsoR05SumPt     (iM->isolationR05().sumPt);
+    outMuon->SetIsoR05EmEt      (iM->isolationR05().emEt);
+    outMuon->SetIsoR05HadEt     (iM->isolationR05().hadEt);
+    outMuon->SetIsoR05HoEt      (iM->isolationR05().hoEt);
+    outMuon->SetIsoR05NTracks   (iM->isolationR05().nTracks);
+    outMuon->SetIsoR05NJets     (iM->isolationR05().nJets);
+    outMuon->SetEmEnergy        (iM->calEnergy().em);
+    outMuon->SetHadEnergy       (iM->calEnergy().had);
+    outMuon->SetHoEnergy        (iM->calEnergy().ho);
+    outMuon->SetEmS9Energy      (iM->calEnergy().emS9);
+    outMuon->SetHadS9Energy     (iM->calEnergy().hadS9);
+    outMuon->SetHoS9Energy      (iM->calEnergy().hoS9);
+    outMuon->SetIsGlobalMuon    (iM->isGlobalMuon());
+    outMuon->SetIsTrackerMuon   (iM->isTrackerMuon());
     outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
-    outMuon->SetIsCaloMuon(iM->isCaloMuon());
-
+    outMuon->SetIsCaloMuon      (iM->isCaloMuon());
     //kink algorithm
-    outMuon->SetTrkKink(iM->combinedQuality().trkKink);
-    outMuon->SetGlbKink(iM->combinedQuality().glbKink);
-
+    outMuon->SetTrkKink         (iM->combinedQuality().trkKink);
+    outMuon->SetGlbKink         (iM->combinedQuality().glbKink);
     //save results from the muon selector in the MuonQuality bitmask
     outMuon->Quality().SetQuality(MuonQuality::All);
     if (muon::isGoodMuon(*iM,muon::AllGlobalMuons))
@@ -205,11 +202,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtLoose);
     if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedBarrelLowPtTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
- 
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) {
-      outMuon->SetGlobalTrk(globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
-      outMuon->SetNValidHits (iM->globalTrack()->hitPattern().numberOfValidMuonHits());
+      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
+      outMuon->SetNValidHits(iM->globalTrack()->hitPattern().numberOfValidMuonHits());
     }
     if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
       Int_t refProductId = iM->standAloneMuon().id().id();
@@ -228,10 +224,10 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     if (iM->track().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
 
-      reco::Vertex thevtx = pvCol->at(0);
-      reco::Vertex thevtxbs = pvBSCol->at(0);
+      reco::Vertex thevtx     = pvCol  ->at(0);
+      reco::Vertex thevtxbs   = pvBSCol->at(0);
 
-      reco::Vertex thevtxub = pvCol->at(0);
+      reco::Vertex thevtxub   = pvCol  ->at(0);
       reco::Vertex thevtxubbs = pvBSCol->at(0);
 
       reco::TrackCollection newTkCollection;
@@ -244,7 +240,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         newTkCollection.push_back(*itk->get());
       }
 
-      if(foundMatch && fitUnbiasedVertex_) {       
+      if (foundMatch && fitUnbiasedVertex_) {       
         edm::Handle<reco::BeamSpot> bs;
         event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
       

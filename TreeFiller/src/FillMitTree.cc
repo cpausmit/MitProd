@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.64 2012/01/31 15:46:27 rwolf Exp $
+// $Id: FillMitTree.cc,v 1.65 2012/03/11 23:11:55 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -222,127 +222,107 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerMetaInfos);
       continue;
     }
-
     if (ftype.compare("FillerMCParticles")==0) {
       FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMCParticles);
       continue;
     }
-
     if (ftype.compare("FillerMCEventInfo")==0) {
       FillerMCEventInfo *fillerMCEventInfo = new FillerMCEventInfo(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMCEventInfo);
       continue;
     }
-
     if (ftype.compare("FillerMCVertexes")==0) {
       FillerMCVertexes *fillerMCVertexes = new FillerMCVertexes(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMCVertexes);
       continue;
     }  
-
     if (ftype.compare("FillerEvtSelData")==0) {
       FillerEvtSelData *fillerEvtSelData = new FillerEvtSelData(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerEvtSelData);
       continue;
     }
-
     if (ftype.compare("FillerBeamSpot")==0) {
       FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerBeamSpot);
       continue;
     }
-
     if (ftype.compare("FillerVertexes")==0) {
       FillerVertexes *fillerVertexes = new FillerVertexes(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerVertexes);
       continue;
     }  
-
     if (ftype.compare("FillerCaloTowers")==0) {
       FillerCaloTowers *fillerCaloTowers = new FillerCaloTowers(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerCaloTowers);
       continue;
     }  
-
     if (ftype.compare("FillerGenJets")==0) {
       FillerGenJets *fillerGenJets = new FillerGenJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerGenJets);
       continue;
     }  
-
     if (ftype.compare("FillerCaloJets")==0) {
       FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerCaloJets);
       continue;
     }  
-    
     if (ftype.compare("FillerMet")==0) {
       FillerMet *fillerMet = new FillerMet(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerMet);
       continue;
     }  
-    
     if (ftype.compare("FillerGenMet")==0) {
       FillerGenMet *fillerGenMet = new FillerGenMet(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerGenMet);
       continue;
     }  
-
     if (ftype.compare("FillerCaloMet")==0) {
       FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerCaloMet);
       continue;
     }
-    
     if (ftype.compare("FillerPFMet")==0) {
       FillerPFMet *fillerPFMet = new FillerPFMet(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFMet);
       continue;
     }  
-
     if (ftype.compare("FillerBasicClusters")==0) {
       FillerBasicClusters *fillerBasicClusters = 
         new FillerBasicClusters(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerBasicClusters);
       continue;
     }  
-
     if (ftype.compare("FillerSuperClusters")==0) {
       FillerSuperClusters *fillerSuperClusters =  
         new FillerSuperClusters(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerSuperClusters);
       continue;
     }  
-
     if (ftype.compare("FillerPixelHits")==0) {
       FillerPixelHits *fillerPixelHits =  
         new FillerPixelHits(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPixelHits);
       continue;
     }  
-
     if (ftype.compare("FillerPileupInfo")==0) {
       FillerPileupInfo *fillerPileupInfo =  
         new FillerPileupInfo(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPileupInfo);
       continue;
     }  
-
     if (ftype.compare("FillerPileupEnergyDensity")==0) {
       FillerPileupEnergyDensity *fillerPileupEnergyDensity =  
         new FillerPileupEnergyDensity(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPileupEnergyDensity);
       continue;
     }  
-
     if (ftype.compare("FillerStripHits")==0) {
       FillerStripHits *fillerStripHits =  
         new FillerStripHits(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerStripHits);
       continue;
     }  
-
     if (ftype.compare("FillerTracks")==0) {
       FillerTracks *fillerTracks = new FillerTracks(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerTracks);
@@ -363,31 +343,26 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerConversions);
       continue;
     } 
-    
     if (ftype.compare("FillerConversionsDecay")==0) {
       FillerConversionsDecay *fillerConversionsDecay = new FillerConversionsDecay(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerConversionsDecay);
       continue;
     }    
-
     if (ftype.compare("FillerPhotons")==0) { 
       FillerPhotons *fillerPhotons = new FillerPhotons(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPhotons);
       continue;
     }  
-
     if (ftype.compare("FillerStableParts")==0) {
       FillerStableParts *fillerStableParts = new FillerStableParts(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerStableParts);
       continue;
     }  
-
     if (ftype.compare("FillerDecayParts")==0) {
       FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerDecayParts);
       continue;
     }  
-    
     if (ftype.compare("FillerPFCandidates")==0) {
       FillerPFCandidates *fillerPFCands = new FillerPFCandidates(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFCands);
@@ -403,31 +378,26 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerJPTJets);
       continue;
     }  
-
     if (ftype.compare("FillerCaloTaus")==0) {
       FillerCaloTaus *fillerCaloTaus = new FillerCaloTaus(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerCaloTaus);
       continue;
     }
-    
     if (ftype.compare("FillerPFTaus")==0) {
       FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerPFTaus);
       continue;
     }  
-
     if (ftype.compare("FillerTrackJets")==0) {
       FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerTrackJets);
       continue;
     }
-
     if (ftype.compare("FillerEmbedWeight")==0) {
       FillerEmbedWeight *fillerEmbedWeight = new FillerEmbedWeight(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerEmbedWeight);
       continue;
     }
-
     if (ftype.compare("FillerDCASig")==0) {
       FillerDCASig *fillerDCASig = new FillerDCASig(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerDCASig);
@@ -448,26 +418,25 @@ bool FillMitTree::configureTreeWriter(const edm::ParameterSet &cfg)
 {
   // Configure tree writer with options from config file.
 
-  tws_->SetPrefix(cfg.getUntrackedParameter<string>("fileName","mit-test"));
-  tws_->SetBaseURL(cfg.getUntrackedParameter<string>("pathName","."));
-  tws_->SetMaxSize((Long64_t)cfg.getUntrackedParameter<unsigned>("maxSize",1024)*1024*1024);
+  tws_->SetPrefix       (cfg.getUntrackedParameter<string>("fileName","mit-test"));
+  tws_->SetBaseURL      (cfg.getUntrackedParameter<string>("pathName","."));
+  tws_->SetMaxSize      ((Long64_t)
+			 cfg.getUntrackedParameter<unsigned>("maxSize",1024)*1024*1024);
   tws_->SetCompressLevel(cfg.getUntrackedParameter<unsigned>("compLevel",9));
-  tws_->SetDefaultSL(cfg.getUntrackedParameter<unsigned>("splitLevel",99));
+  tws_->SetDefaultSL    (cfg.getUntrackedParameter<unsigned>("splitLevel",99));
   tws_->SetDefaultBrSize(cfg.getUntrackedParameter<unsigned>("brSize",16*1024));
   
   if (OptInt::IsActivated()) {
-    OptInt::SetZipMode(cfg.getUntrackedParameter<unsigned>("zipMode",99));
+    OptInt::SetZipMode     (cfg.getUntrackedParameter<unsigned>("zipMode",99));
     OptInt::SetGzipFraction(cfg.getUntrackedParameter<double>("gZipThres",1.0));
     OptInt::SetBzipFraction(cfg.getUntrackedParameter<double>("bZipThres",-1.0));
-    OptInt::SetLzoFraction(cfg.getUntrackedParameter<double>("lzoThres",-1.0));
+    OptInt::SetLzoFraction (cfg.getUntrackedParameter<double>("lzoThres",-1.0));
     OptInt::SetLzmaFraction(cfg.getUntrackedParameter<double>("lzmaThres",0.95));
-    OptInt::SetVerbose(cfg.getUntrackedParameter<unsigned>("optIOVerbose",0));
-
-  } else {
-
-    if (cfg.exists("zipMode")   || cfg.exists("bZipThres") ||
-        cfg.exists("gZipThres") || cfg.exists("lzoThres")  ||
-        cfg.exists("lzmaThres")) {
+    OptInt::SetVerbose     (cfg.getUntrackedParameter<unsigned>("optIOVerbose",0));
+  }
+  else {
+    if (cfg.exists("zipMode")   || cfg.exists("bZipThres") || cfg.exists("gZipThres") ||
+	cfg.exists("lzoThres")  || cfg.exists("lzmaThres")) {
       edm::LogError("FillMitTree") << 
         "OptIO interface not properly pre-loaded, ignoring given settings." << std::endl;
     }
@@ -484,7 +453,6 @@ void FillMitTree::endJob()
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     delete *iF;
   }
-
   tws_->Clear();
   
   edm::LogInfo("FillMitTree::endJob") << "Ending Job" << endl;

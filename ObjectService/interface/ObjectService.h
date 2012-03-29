@@ -1,12 +1,14 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.6 2009/03/13 20:32:25 loizides Exp $
+// $Id: ObjectService.h,v 1.7 2009/03/15 11:17:47 loizides Exp $
 //
 // ObjectService 
 //
-// This service can be used in the config files to provide a simple interface to 
-// exchange objects accross fillers and in principle also across modules. There
-// are two types of lifetimes: a) over the full run time b) per event. See 
-// functions add/addObjEvt and get/getObjEct.
+// This service can be used in the config files to provide a simple interface to exchange objects
+// accross fillers and in principle also across modules. There are two types of lifetimes:
+//  a) over the full run time
+//  b) per event
+//
+// See functions add/addObjEvt and get/getObjEvt.
 //
 // Usage in config files is:
 //   service = ObjectService { }

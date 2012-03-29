@@ -2,7 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,9 +13,9 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_017'),
+    version    = cms.untracked.string('Mit_025a'),
     annotation = cms.untracked.string('RECOSIM'),
-    name = cms.untracked.string('BambuProduction')
+    name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
