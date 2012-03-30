@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.26 2011/10/12 13:26:58 ceballos Exp $
+// $Id: FillerPhotons.cc,v 1.27 2012/03/29 23:41:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,7 +10,6 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "TSystem.h"
 
 using namespace std;
@@ -36,8 +35,6 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   endcapSuperClusterMap_    (0)
 {
   // Constructor.
-  if (enablePhotonFix_)
-    PhotonFix::initialiseParameters(Conf());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,10 +76,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 {
   // Fill photon array.
 
-  if (!ecorr_.IsInitialized())
-    ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
-  if (enablePhotonFix_)
-    PhotonFix::initialiseGeometry(setup);
+  //if (!ecorr_.IsInitialized())
+  //  ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
   
   photons_->Delete();
 
@@ -177,17 +172,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
     }
     
-    //regression energy corrections
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
-    outPhoton->SetEnergyRegr(cor.first);
-    outPhoton->SetEnergyErrRegr(cor.second);
+//    //regression energy corrections
+//    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
+//    outPhoton->SetEnergyRegr(cor.first);
+//    outPhoton->SetEnergyErrRegr(cor.second);
     
-    //photonfix energy corrections
-    if (enablePhotonFix_) {
-      PhotonFix pfix(*iP);
-      outPhoton->SetEnergyPhoFix(pfix.fixedEnergy());
-      outPhoton->SetEnergyErrPhoFix(pfix.sigmaEnergy());
-    }
   }
   photons_->Trim();
 }

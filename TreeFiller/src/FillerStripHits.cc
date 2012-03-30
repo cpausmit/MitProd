@@ -1,4 +1,4 @@
-// $Id: FillerStripHits.cc,v 1.1 2009/11/25 23:41:07 loizides Exp $
+// $Id: FillerStripHits.cc,v 1.2 2010/03/18 20:21:01 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -74,16 +74,14 @@ void FillerStripHits::FillDataBlock(const edm::Event      &event,
   for(SiStripMatchedRecHit2DCollection::DataContainer::const_iterator hit = hits->data().begin(), 
         end = hits->data().end(); hit != end; ++hit) {
 
-    const SiStripRecHit2D *shit = hit->stereoHit();
-    if (!shit)
-      continue;
+    const SiStripRecHit2D &shit = hit->stereoHit();
 
-    if (!shit->isValid())
+    if (!shit.isValid())
       continue;
 
     int type = 0;
     int gtyp = 0;
-    DetId id(shit->geographicalId());
+    DetId id(shit.geographicalId());
     if(id.subdetId() == int(StripSubdetector::TIB)) {
       type = 1;
     } else if (id.subdetId() == int(StripSubdetector::TID)) {
@@ -103,9 +101,9 @@ void FillerStripHits::FillDataBlock(const edm::Event      &event,
     const StripGeomDetUnit *tgdu = 
       static_cast<const StripGeomDetUnit*>(tgeo->idToDetUnit(id));
 
-    LocalPoint lpos = LocalPoint(shit->localPosition().x(),
-                                 shit->localPosition().y(),
-                                 shit->localPosition().z());
+    LocalPoint lpos = LocalPoint(shit.localPosition().x(),
+                                 shit.localPosition().y(),
+                                 shit.localPosition().z());
     GlobalPoint gpos = tgdu->toGlobal(lpos);
     mithep::StripHit *newhit = shits_->Allocate();
     new (newhit) mithep::StripHit(gpos.x(),gpos.y(),gpos.z());

@@ -1,4 +1,4 @@
-// $Id: FillerMCEventInfo.cc,v 1.15 2010/01/04 20:16:39 loizides Exp $
+// $Id: FillerMCEventInfo.cc,v 1.16 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -67,7 +67,7 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
       eventInfo_->SetProcessId(genEvt->signal_process_id());
       HepMC::WeightContainer wc = genEvt->weights();
       Double_t weight = 0;
-      for (int i = 0; i< wc.size(); ++i) 
+      for (unsigned int i = 0; i< wc.size(); ++i) 
         weight *= wc[i];
       eventInfo_->SetWeight(weight);
       const HepMC::PdfInfo *genPdfInfo = genEvt->pdf_info();

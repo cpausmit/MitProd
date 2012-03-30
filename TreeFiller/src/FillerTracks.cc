@@ -1,4 +1,4 @@
-// $Id: FillerTracks.cc,v 1.41 2011/03/11 04:03:55 bendavid Exp $
+// $Id: FillerTracks.cc,v 1.42 2011/09/28 16:50:07 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
@@ -246,8 +246,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       if (it->extra().isAvailable())
         matchInfo = trackAssociator.associate(event,setup,*it,assocParams_);
       else {
-        TrajectoryStateTransform tsTransform;
-        FreeTrajectoryState initialState = tsTransform.initialFreeState(*it,&*bField);
+	FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(*it,&*bField);
         matchInfo = trackAssociator.associate(event, setup, assocParams_, &initialState);
       }
        

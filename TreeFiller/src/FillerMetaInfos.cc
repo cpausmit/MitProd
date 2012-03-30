@@ -1,4 +1,4 @@
-// $Id: FillerMetaInfos.cc,v 1.60 2010/08/06 03:59:39 bendavid Exp $
+// $Id: FillerMetaInfos.cc,v 1.61 2011/05/15 20:40:53 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -682,7 +682,7 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   Handle<L1GtTriggerMenuLite> gtMenuLite;
   event.getRun().getByLabel(gtliteInputTag, gtMenuLite);
 
-  l1gtutils_.retrieveL1GtTriggerMenuLite(event, gtliteInputTag);
+  l1gtutils_.retrieveL1GtTriggerMenuLite(event.getRun(), gtliteInputTag);
 
   BitMask128 l1amask;
   BitMask128 l1tmask;

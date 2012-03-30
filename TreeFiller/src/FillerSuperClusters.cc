@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.13 2010/09/19 23:47:53 bendavid Exp $
+// $Id: FillerSuperClusters.cc,v 1.14 2011/10/09 23:28:48 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -8,7 +8,6 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 
 using namespace std;
 using namespace edm;
@@ -83,9 +82,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 {
   // Fill the collection.
 
-  //initialize photonfix
-  PhotonFix::initialiseGeometry(setup);
-
   superClusters_->Delete();
   superClusterMap_->Reset();
   superClusterIdMap_->Reset();
@@ -148,28 +144,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       }
       
       superClusterIdMap_->Add(ihit,outSC);
-    }
-
-    //fill photonfix local coordinates
-    PhotonFix pfix(inSC->eta(),inSC->phi());
-    
-    if (std::abs(inSC->eta())<1.48) {
-      outSC->SetEtaC(pfix.etaC());
-      outSC->SetEtaS(pfix.etaS());
-      outSC->SetEtaM(pfix.etaM());
-      outSC->SetPhiC(pfix.phiC());
-      outSC->SetPhiS(pfix.phiS());
-      outSC->SetPhiM(pfix.phiM());
-    }
-    else {
-      outSC->SetXC(pfix.xC());
-      outSC->SetXS(pfix.xS());
-      outSC->SetXM(pfix.xM());      
-      outSC->SetXZ(pfix.xZ());     
-      outSC->SetYC(pfix.yC());
-      outSC->SetYS(pfix.yS());
-      outSC->SetYM(pfix.yM());      
-      outSC->SetYZ(pfix.yZ());         
     }
 
     // add super cluster to the map

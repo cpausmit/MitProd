@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.33 2012/01/15 23:26:42 pharris Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.34 2012/03/11 23:16:02 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -14,9 +14,9 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('RecoVertex/PrimaryVertexProducer/OfflinePrimaryVertices_cfi')
  
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_017'),
+    version    = cms.untracked.string('Mit_026'),
     annotation = cms.untracked.string('AODSIM'),
-    name = cms.untracked.string('BambuProduction')
+    name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -39,12 +39,15 @@ process.source = cms.Source("PoolSource",
    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_0/RelValProdTTbar/AODSIM/START44_V5-v2/0046/74C825F5-ACE6-E011-8C0D-00261894391F.root'),
                            #fileNames = cms.untracked.vstring('file:/data/blue/bendavid/fall11test/AE775E4D-1DE8-E011-9EB7-E0CB4E553665.root'),
    #skipEvents = cms.untracked.uint32(1740),
-                            fileNames = cms.untracked.vstring('/store/mc/Fall11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_Chamonix12_START44_V10-v2/0000/FED1A710-ED33-E111-B889-003048FFCC1E.root')
-)
+                            #fileNames = cms.untracked.vstring('/store/mc/Fall11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_Chamonix12_START44_V10-v2/0000/FED1A710-ED33-E111-B889-003048FFCC1E.root')
+                            #fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_1_2/RelValProdTTbar/AODSIM/START50_V15A-v1/0240/44FB321E-1C61-E111-BEC0-001A92810AC8.root',)
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_2/RelValProdTTbar/GEN-SIM-RECO/START52_V4-v1/0004/DCA3A2E4-C973-E111-9839-003048F1183E.root')
+                            )
+
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START44_V6::All'
+process.GlobalTag.globaltag = 'START52_V4::All'
 
 process.add_(cms.Service("ObjectService"))
 

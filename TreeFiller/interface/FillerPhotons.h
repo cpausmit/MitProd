@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.16 2011/10/08 18:54:47 bendavid Exp $
+// $Id: FillerPhotons.h,v 1.17 2011/10/09 23:28:48 bendavid Exp $
 //
 // FillerPhotons
 //
@@ -15,7 +15,7 @@
 #include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 namespace mithep 
 {

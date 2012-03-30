@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.63 2012/03/11 23:16:01 pharris Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.64 2012/03/29 23:41:58 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,21 +30,13 @@ MitTreeFiller.PileupEnergyDensity.active = True
 from MitProd.TreeFiller.newbtagging_cff import *
 MitTreeFiller.AKt5PFJets.bTaggingActive = True
 
-#to re-run pftau reco/id (since final tags never made it into the 42x release)
-from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-
 # Load Clustered PF-MET producer
-from CommonTools.ClusteredPFMetProducer.ClusteredPFMetProducer_cfi import *
-MitTreeFiller.AssocPFMet.active         = True
-MitTreeFiller.TrkPFMet.active           = True
-MitTreeFiller.AssocOtherVtxPFMet.active = True
-MitTreeFiller.CentralPFMet.active       = True
-MitTreeFiller.CleanPFMet.active         = True
-
-#photonfix parameters
-from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
-MitTreeFiller.Photons.PFParameters    = PhotonFixParameters
-MitTreeFiller.Photons.enablePhotonFix = True
+#from CommonTools.ClusteredPFMetProducer.ClusteredPFMetProducer_cfi import *
+#MitTreeFiller.AssocPFMet.active         = True
+#MitTreeFiller.TrkPFMet.active           = True
+#MitTreeFiller.AssocOtherVtxPFMet.active = True
+#MitTreeFiller.CentralPFMet.active       = True
+#MitTreeFiller.CleanPFMet.active         = True
 
 #to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
@@ -66,20 +58,21 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi     import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi      import *
 
-pfPileUp.PFCandidates        = 'particleFlow'
-pfNoPileUp.bottomCollection  = 'particleFlow'
-pfPileUp.Enable              = True
-pfPileUp.Vertices            = 'goodOfflinePrimaryVertices'
-pfPileUp.checkClosestZVertex = cms.bool(False)
-pfJets.doAreaFastjet         = True
-pfJets.doRhoFastjet          = False
+pfPileUp.PFCandidates          = 'particleFlow'
+pfNoPileUp.bottomCollection    = 'particleFlow'
+pfPileUpIso.PFCandidates       = 'particleFlow'
+pfNoPileUpIso.bottomCollection = 'particleFlow'
+pfPileUp.Enable                = True
+pfPileUp.Vertices              = 'goodOfflinePrimaryVertices'
+pfPileUp.checkClosestZVertex   = cms.bool(False)
+pfJets.doAreaFastjet           = True
+pfJets.doRhoFastjet            = False
 
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
                                  newBtaggingAll*
-				 ClusteredPFMetProducer*
-				 PFTau*
+				 #ClusteredPFMetProducer*
                                  goodOfflinePrimaryVertices*
                                  pfNoPileUpSequence*
                                  pfParticleSelectionSequence*

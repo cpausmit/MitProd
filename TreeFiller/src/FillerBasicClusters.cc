@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.16 2011/10/09 23:28:48 bendavid Exp $
+// $Id: FillerBasicClusters.cc,v 1.17 2011/10/10 20:57:28 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -9,7 +9,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/EcalClusterLocal.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 using namespace std;
 using namespace edm;
