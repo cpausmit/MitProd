@@ -189,6 +189,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetScPixCharge(iM->scPixCharge());
     outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
     outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
+    outElectron->SetEEleClusterOverPout(iM->eEleClusterOverPout());
     outElectron->SetPIn(iM->trackMomentumAtVtx().R());
     outElectron->SetPOut(iM->trackMomentumOut().R());
     outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx());
@@ -285,6 +286,13 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
     }
   
+    //compute NLayersWithMeasurement for associated ctf track
+    if (iM->closestCtfTrackRef().isNonnull()) {
+      outElectron->SetCTFTrkNLayersWithMeasurement(iM->closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement());
+    } else {
+      outElectron->SetCTFTrkNLayersWithMeasurement(-1);
+    }
+
     //compute impact parameter with respect to PV
     if (iM->gsfTrack().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->gsfTrack()); 
