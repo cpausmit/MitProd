@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.112 2012/03/26 15:28:51 mhchan Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.113 2012/03/30 01:08:40 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -553,7 +553,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         gsfTrackAssocName                = cms.untracked.string(''),
         pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
-        fitUnbiasedVertex                = cms.untracked.bool(true),
+        fitUnbiasedVertex                = cms.untracked.bool(False),
         recomputeConversionInfo          = cms.untracked.bool(False),
         fillerType                       = cms.untracked.string('FillerElectrons')
     ),
