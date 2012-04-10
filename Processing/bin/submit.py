@@ -49,7 +49,7 @@ def getFiles(mitCfg,version):
         raise RuntimeError, cmd
     cmd = 'cp ' + runFile + ' ./'
     os.system(cmd)
-    writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'writeCfg.py'
+    writeCfgFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'wCfg.py'
     cmd = 'cp ' + writeCfgFile + ' ./'
     if not os.path.exists(writeCfgFile):
         cmd = "Write Cfg file not found: %s" % writeCfgFile
