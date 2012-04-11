@@ -1,4 +1,4 @@
-// $Id: FillerPFTaus.cc,v 1.14 2012/03/25 17:11:14 mhchan Exp $
+// $Id: FillerPFTaus.cc,v 1.15 2012/03/26 15:27:15 mhchan Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -128,14 +128,18 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::PFTauDiscriminator> hDiscriminationByTightCombinedIsolationDBSumPtCorr;
   Handle<reco::PFTauDiscriminator> hDiscriminationByRawCombinedIsolationDBSumPtCorr;
   
+  Bool_t hpsEleRejMVAValid = kFALSE;
+  Bool_t hpsMuonRejMediumValid = kFALSE;
+  Bool_t hpsIsoRawValid = kFALSE;
+
   if(hpsActive_)
   {
     GetProduct(discriminationByLooseElectronRejectionName_, hDiscriminationByLooseElectronRejection, event);
     GetProduct(discriminationByMediumElectronRejectionName_, hDiscriminationByMediumElectronRejection, event);
     GetProduct(discriminationByTightElectronRejectionName_, hDiscriminationByTightElectronRejection, event);
-    GetProduct(discriminationByMVAElectronRejectionName_, hDiscriminationByMVAElectronRejection, event);
+    hpsEleRejMVAValid = GetProductSafe(discriminationByMVAElectronRejectionName_, hDiscriminationByMVAElectronRejection, event);
     GetProduct(discriminationByLooseMuonRejectionName_, hDiscriminationByLooseMuonRejection, event);
-    GetProduct(discriminationByMediumMuonRejectionName_, hDiscriminationByMediumMuonRejection, event);
+    hpsMuonRejMediumValid = GetProductSafe(discriminationByMediumMuonRejectionName_, hDiscriminationByMediumMuonRejection, event);
     GetProduct(discriminationByTightMuonRejectionName_, hDiscriminationByTightMuonRejection, event);
     GetProduct(discriminationByDecayModeFindingName_, hDiscriminationByDecayModeFinding, event);
     GetProduct(discriminationByVLooseIsolationName_, hDiscriminationByVLooseIsolation, event);
@@ -146,7 +150,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     GetProduct(discriminationByLooseCombinedIsolationDBSumPtCorrName_, hDiscriminationByLooseCombinedIsolationDBSumPtCorr, event);
     GetProduct(discriminationByMediumCombinedIsolationDBSumPtCorrName_, hDiscriminationByMediumCombinedIsolationDBSumPtCorr, event);
     GetProduct(discriminationByTightCombinedIsolationDBSumPtCorrName_, hDiscriminationByTightCombinedIsolationDBSumPtCorr, event);
-    GetProduct(discriminationByRawCombinedIsolationDBSumPtCorrName_, hDiscriminationByRawCombinedIsolationDBSumPtCorr, event);
+    hpsIsoRawValid = GetProductSafe(discriminationByRawCombinedIsolationDBSumPtCorrName_, hDiscriminationByRawCombinedIsolationDBSumPtCorr, event);
   }
 
   const reco::PFTauCollection inTaus = *(hTauProduct.product());  
@@ -191,9 +195,10 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByLooseElectronRejection((*(hDiscriminationByLooseElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByMediumElectronRejection((*(hDiscriminationByMediumElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByTightElectronRejection((*(hDiscriminationByTightElectronRejection.product()))[tauRef]);
-      tau->SetDiscriminationByMVAElectronRejection((*(hDiscriminationByMVAElectronRejection.product()))[tauRef]);
+
+      if(hpsEleRejMVAValid) tau->SetDiscriminationByMVAElectronRejection((*(hDiscriminationByMVAElectronRejection.product()))[tauRef]);
       tau->SetDiscriminationByLooseMuonRejection((*(hDiscriminationByLooseMuonRejection.product()))[tauRef]);
-      tau->SetDiscriminationByMediumMuonRejection((*(hDiscriminationByMediumMuonRejection.product()))[tauRef]);
+      if(hpsMuonRejMediumValid) tau->SetDiscriminationByMediumMuonRejection((*(hDiscriminationByMediumMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByTightMuonRejection((*(hDiscriminationByTightMuonRejection.product()))[tauRef]);
       tau->SetDiscriminationByDecayModeFinding((*(hDiscriminationByDecayModeFinding.product()))[tauRef]);
       tau->SetDiscriminationByVLooseIsolation((*(hDiscriminationByVLooseIsolation.product()))[tauRef]);
@@ -204,7 +209,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr((*(hDiscriminationByLooseCombinedIsolationDBSumPtCorr.product()))[tauRef]);
       tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr((*(hDiscriminationByMediumCombinedIsolationDBSumPtCorr.product()))[tauRef]);
       tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr((*(hDiscriminationByTightCombinedIsolationDBSumPtCorr.product()))[tauRef]);
-      tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr((*(hDiscriminationByRawCombinedIsolationDBSumPtCorr.product()))[tauRef]);
+      if(hpsIsoRawValid) tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr((*(hDiscriminationByRawCombinedIsolationDBSumPtCorr.product()))[tauRef]);
     }
 
     // add track references
