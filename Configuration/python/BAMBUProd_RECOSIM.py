@@ -13,28 +13,29 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_025a'),
-    annotation = cms.untracked.string('RECOSIM'),
-    name       = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('RECOSIM'),
+  name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode =  cms.untracked.string('NOMERGE'),
+  Rethrow  = cms.untracked.vstring('ProductNotFound'),
+  fileMode =  cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0016/62FDDFEB-391E-DF11-890A-001731A28BE1.root')
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_2_3/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v2/0062/82A88DE4-FB7A-E011-B69E-001A928116CC.root')
+  fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_2_3/RelValProdTTbar/GEN-SIM-RECO/MC_42_V12-v2/0062/82A88DE4-FB7A-E011-B69E-001A928116CC.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'MC_44_V6::All'
+process.GlobalTag.globaltag = 'START52_V4::All'
 
 process.add_(cms.Service("ObjectService"))
 

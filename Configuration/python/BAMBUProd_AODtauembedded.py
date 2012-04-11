@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_AODtauembedded.py,v 1.1 2011/09/14 15:36:06 bendavid Exp $
+# $Id: BAMBUProd_AODtauembedded.py,v 1.2 2011/10/22 15:07:33 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,30 +13,30 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_017'),
-    annotation = cms.untracked.string('AOD'),
-    name = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('AOD'),
+  name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode = cms.untracked.string('NOMERGE'),
+  Rethrow = cms.untracked.vstring('ProductNotFound'),
+  fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/data/Run2011A/Interfill/AOD/PromptReco-v3/000/164/393/EA56AD49-A07C-E011-B1A5-003048F1C836.root')
     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/z/zeise/embedding/4_2_4p1/pfembTauTau_data_SingleMu_2011A_Aug05thRR_v1_1_116_pt0_2680_embedded.root'),
-    #skipEvents=cms.untracked.uint32(30888),
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_44_V6A::All'
+process.GlobalTag.globaltag = 'START52_V4::All'
 
 process.add_(cms.Service("ObjectService"))
 

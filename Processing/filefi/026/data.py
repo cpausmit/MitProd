@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD42.py,v 1.2 2011/10/10 20:57:59 bendavid Exp $
+# $Id: data.py,v 1.1 2012/03/30 17:46:34 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,28 +13,30 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_026'),
-    annotation = cms.untracked.string('AOD'),
-    name       = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('AOD'),
+  name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode = cms.untracked.string('NOMERGE'),
+  Rethrow = cms.untracked.vstring('ProductNotFound'),
+  fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_2/DoubleMu/RECO/GR_R_44_V7_RelVal_zMu2011A-v1/0059/FE6E5B28-0C02-E111-AE7E-0018F3D0961A.root')
+  fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_2/DoubleMu/RECO/GR_R_44_V7_RelVal_zMu2011A-v1/0059/FE6E5B28-0C02-E111-AE7E-0018F3D0961A.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V4::All'
+process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 process.add_(cms.Service("ObjectService"))
 

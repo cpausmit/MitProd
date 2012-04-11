@@ -16,10 +16,11 @@ source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
 
 klist
-cp ~$USER/.krb5/ticket /tmp/
-cp ~$USER/.krb5/x509up_u`id -u` /tmp/
+cp ~cmsprod/.krb5/ticket          /tmp/
+cp ~cmsprod/.krb5/x509up_u`id -u` /tmp/
 export KRB5CCNAME=FILE:/tmp/ticket
 klist
+voms-proxy-info -all
 
 dataDir=$1
 dataFile=$2

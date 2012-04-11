@@ -1,11 +1,6 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.149 
-# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptCollisionReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCA:SiStripCalZeroBias --datatier RECO --eventcontent RECO --conditions CRAFT09_R_V4::All --scenario pp --no_exec --data --magField AutoFromDBCurrent -n 100
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECO')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -24,25 +19,25 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_012h'),
-    annotation = cms.untracked.string('redigiReRecoNoPixels'),
-    name = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('redigiReRecoNoPixels'),
+  name       = cms.untracked.string('BambuProduction')
 )
-#process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(10)
-#)
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode =  cms.untracked.string('NOMERGE'),
+  Rethrow  = cms.untracked.vstring('ProductNotFound'),
+  fileMode =  cms.untracked.string('NOMERGE'),
 )
+
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/bendavid/RAW/MinBias900GeV334Startup/FA1C6DA5-0FD7-DE11-A2BC-00304867901A.root')
+  fileNames = cms.untracked.vstring('file:/build/bendavid/RAW/MinBias900GeV334Startup/FA1C6DA5-0FD7-DE11-A2BC-00304867901A.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # Other statements
-process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
+process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 #remove pixel detector at digi level
 process.DigiToRaw.remove(process.siPixelRawData)
@@ -60,13 +55,19 @@ process.mvfTrackerConversions.rhoMin = 0.1
 process.MitTreeFiller.PixelLessTracks.active          = True
 
 # Path and EndPath definitions
-process.digitisation_step = cms.Path(process.pdigi)
-process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.raw2digi_step = cms.Path(process.RawToDigi)
-process.L1Reco_step = cms.Path(process.L1Reco)
+process.digitisation_step   = cms.Path(process.pdigi)
+process.L1simulation_step   = cms.Path(process.SimL1Emulator)
+process.digi2raw_step       = cms.Path(process.DigiToRaw)
+process.raw2digi_step       = cms.Path(process.RawToDigi)
+process.L1Reco_step         = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_withPixellessTk)
-process.bambu_step  = cms.Path(process.BambuFillRECOSIM)
+process.bambu_step          = cms.Path(process.BambuFillRECOSIM)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.bambu_step)
+process.schedule = cms.Schedule(process.digitisation_step,
+                                process.L1simulation_step,
+                                process.digi2raw_step,
+                                process.raw2digi_step,
+                                process.L1Reco_step,
+                                process.reconstruction_step,
+                                process.bambu_step)

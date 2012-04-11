@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM42.py,v 1.1 2011/10/09 14:15:32 bendavid Exp $
+# $Id: mc.py,v 1.1 2012/03/30 17:46:34 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,25 +14,27 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('RecoVertex/PrimaryVertexProducer/OfflinePrimaryVertices_cfi')
  
 process.configurationMetadata = cms.untracked.PSet(
-    version    = cms.untracked.string('Mit_026'),
-    annotation = cms.untracked.string('AODSIM'),
-    name       = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('AODSIM'),
+  name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode = cms.untracked.string('NOMERGE'),
+  Rethrow  = cms.untracked.vstring('ProductNotFound'),
+  fileMode =  cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring('file:/store/relval/CMSSW_5_2_2/RelValProdTTbar/GEN-SIM-RECO/START52_V4-v1/0004/DCA3A2E4-C973-E111-9839-003048F1183E.root')
+  fileNames = cms.untracked.vstring('file:/store/relval/CMSSW_5_2_2/RelValProdTTbar/GEN-SIM-RECO/START52_V4-v1/0004/DCA3A2E4-C973-E111-9839-003048F1183E.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'START52_V4::All'
@@ -45,5 +47,5 @@ process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.bambu_step  = cms.Path(process.BambuFillAODSIM)
 
-1# schedule definition
+# schedule definition
 process.schedule = cms.Schedule(process.bambu_step)

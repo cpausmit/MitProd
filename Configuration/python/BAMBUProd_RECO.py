@@ -1,8 +1,8 @@
-# $Id: BAMBUProd_RECO.py,v 1.37 2011/09/28 16:50:06 bendavid Exp $
+# $Id: BAMBUProd_RECO.py,v 1.38 2011/10/09 14:15:05 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('FILLER')
+process = cms.Process('FILEFI')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,28 +13,30 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('Mit_017'),
-    annotation = cms.untracked.string('RECO'),
-    name = cms.untracked.string('BambuProduction')
+  version    = cms.untracked.string('Mit_026'),
+  annotation = cms.untracked.string('RECO'),
+  name       = cms.untracked.string('BambuProduction')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 process.options = cms.untracked.PSet(
-   Rethrow = cms.untracked.vstring('ProductNotFound'),
-   fileMode = cms.untracked.string('NOMERGE'),
+  Rethrow  = cms.untracked.vstring('ProductNotFound'),
+  fileMode = cms.untracked.string('NOMERGE'),
 )
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2011A/Interfill/RECO/PromptReco-v3/000/164/451/ECC1F168-AC7C-E011-862F-001D09F2441B.root')
+  fileNames = cms.untracked.vstring('/store/data/Run2011A/Interfill/RECO/PromptReco-v3/000/164/451/ECC1F168-AC7C-E011-862F-001D09F2441B.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *",
+                                                     "drop *_MEtoEDMConverter_*_*",
+                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_44_V6A::All'
+process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 process.add_(cms.Service("ObjectService"))
 
