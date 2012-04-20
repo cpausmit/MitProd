@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.115 2012/04/07 11:08:00 bendavid Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.116 2012/04/10 01:49:46 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,6 +23,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'StripHits',
                                     'PFBasicClusters',
                                     'PFSuperClusters',
+                                    'PFPhotonBasicClusters',
+                                    'PFPhotonSuperClusters',                                    
                                     'GeneralTracks',
                                     'ConversionStepTracks',
                                     'PixelTracks',
@@ -52,6 +54,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MergedConversions',
                                     'Conversions',
                                     'Photons',
+                                    'PFPhotons',                                    
                                     'PFCandidates',
 #                                   'PFCandidatesCHS',
                                     'IC5GenJets',
@@ -364,6 +367,26 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         superClusterIdMapName = cms.untracked.string('PFSuperClusterIdMap'),
         fillerType            = cms.untracked.string('FillerSuperClusters')
     ),
+    
+    PFPhotonBasicClusters = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('PFPhotonBasicClusters'),
+        edmName             = cms.untracked.string('pfPhotonTranslator:pfphot'),  
+        barrelEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEB'),
+        endcapEcalRecHitName = cms.untracked.string('reducedEcalRecHitsEE'),
+        basicClusterMapName = cms.untracked.string('PFPhotonBasicClusterMap'),
+        fillerType          = cms.untracked.string('FillerBasicClusters')
+    ),
+    
+    PFPhotonSuperClusters = cms.untracked.PSet(
+        active                = cms.untracked.bool(True),
+        mitName               = cms.untracked.string('PFPhotonSuperClusters'),                     
+        edmName               = cms.untracked.string('pfPhotonTranslator:pfphot'),
+        basicClusterMapName   = cms.untracked.string('PFPhotonBasicClusterMap'),
+        superClusterMapName   = cms.untracked.string('PFPhotonSuperClusterMap'),
+        superClusterIdMapName = cms.untracked.string('PFPhotonSuperClusterIdMap'),
+        fillerType            = cms.untracked.string('FillerSuperClusters')
+    ),    
 
     GeneralTracks  = cms.untracked.PSet(
         active                    = cms.untracked.bool(True),
@@ -586,13 +609,25 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                    = cms.untracked.bool(True),
         mitName                   = cms.untracked.string('Photons'),
         edmName                   = cms.untracked.string('photons'),
-        photonIDName              = cms.untracked.string('PhotonIDProd:PhotonAssociatedID'),
+        phIDCutBasedTightName     = cms.untracked.string('PhotonIDProd:PhotonCutBasedIDTight'),
+        phIDCutBasedLooseName     = cms.untracked.string('PhotonIDProd:PhotonCutBasedIDLoose'),
         conversionMapName         = cms.untracked.string('ConversionsMapName'),
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
-        enablePhotonFix           = cms.untracked.bool(False),
         fillerType                = cms.untracked.string('FillerPhotons')
     ),
+    
+    PFPhotons = cms.untracked.PSet(
+        active                    = cms.untracked.bool(True),
+        mitName                   = cms.untracked.string('PFPhotons'),
+        edmName                   = cms.untracked.string('pfPhotonTranslator:pfphot'),
+        phIDCutBasedTightName     = cms.untracked.string(''),
+        phIDCutBasedLooseName     = cms.untracked.string(''),
+        conversionMapName         = cms.untracked.string('ConversionsMapName'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        fillerType                = cms.untracked.string('FillerPhotons')
+    ),    
 
     PFCandidates = cms.untracked.PSet(
         active              = cms.untracked.bool(True),

@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.27 2012/03/29 23:41:59 paus Exp $
+// $Id: FillerPhotons.cc,v 1.28 2012/03/30 01:08:40 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -24,15 +24,16 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   conversionMapName_        (Conf().getUntrackedParameter<string>("conversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
+  pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   phIDCutBasedTightName_    (Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
 								  "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
 								  "PhotonIDProd:PhotonCutBasedIDLoose")),
-  enablePhotonFix_          (Conf().getUntrackedParameter<bool>("enablePhotonFix")),                                                           
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
   barrelSuperClusterMap_    (0),
-  endcapSuperClusterMap_    (0)
+  endcapSuperClusterMap_    (0),
+  pfSuperClusterMap_(0)
 {
   // Constructor.
 }
@@ -68,6 +69,11 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
     if (endcapSuperClusterMap_)
       AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
+  if (!pfSuperClusterMapName_.empty()) {
+    pfSuperClusterMap_ = OS()->get<SuperClusterMap>(pfSuperClusterMapName_);
+    if (pfSuperClusterMap_)
+      AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,9 +94,12 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   
   // handles to get the photon ID information
   Handle<edm::ValueMap<bool> > phidLooseMap;
-  GetProduct(phIDCutBasedLooseName_, phidLooseMap, event);
+  if (!phIDCutBasedLooseName_.empty())
+    GetProduct(phIDCutBasedLooseName_, phidLooseMap, event);
+
   Handle<edm::ValueMap<bool> > phidTightMap;
-  GetProduct(phIDCutBasedTightName_, phidTightMap, event);
+  if (!phIDCutBasedTightName_.empty())  
+    GetProduct(phIDCutBasedTightName_, phidTightMap, event);
   
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
@@ -115,6 +124,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetE55(iP->e5x5());
     outPhoton->SetCovEtaEta(iP->sigmaEtaEta());
     outPhoton->SetCoviEtaiEta(iP->sigmaIetaIeta());
+    outPhoton->SetHadOverEmTow(iP->hadTowOverEm());
 
     //isolation variables for dR=0.3
     outPhoton->SetEcalRecHitIsoDr03(iP->ecalRecHitSumEtConeDR03());
@@ -125,7 +135,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHollowConeTrkIsoDr03(iP->trkSumPtHollowConeDR03());
     outPhoton->SetSolidConeNTrkDr03(iP->nTrkSolidConeDR03());
     outPhoton->SetHollowConeNTrkDr03(iP->nTrkHollowConeDR03());
-    
+    outPhoton->SetHCalIsoTowDr03(iP->hcalTowerSumEtConeDR03() + (iP->hadronicOverEm() - iP->hadTowOverEm())*iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
+
     //isolation variables for dR=0.4
     outPhoton->SetEcalRecHitIsoDr04(iP->ecalRecHitSumEtConeDR04());
     outPhoton->SetHcalTowerSumEtDr04(iP->hcalTowerSumEtConeDR04());
@@ -135,6 +146,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHollowConeTrkIsoDr04(iP->trkSumPtHollowConeDR04());
     outPhoton->SetSolidConeNTrkDr04(iP->nTrkSolidConeDR04());
     outPhoton->SetHollowConeNTrkDr04(iP->nTrkHollowConeDR04());
+    outPhoton->SetHCalIsoTowDr04(iP->hcalTowerSumEtConeDR04() + (iP->hadronicOverEm() - iP->hadTowOverEm())*iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
+
 
     //pflow isolation
     outPhoton->SetPFChargedHadronIso(iP->chargedHadronIso());
@@ -149,12 +162,12 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsEBEEGap(iP->isEBEEGap());
     //deprecated, identical to supercluster preselection in 3_1_X, so set to true
     outPhoton->SetIsLooseEM(true); //deprecated
-    outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
-    outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
+    if (!phIDCutBasedLooseName_.empty()) outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
+    if (!phIDCutBasedTightName_.empty()) outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
     //calo position
     outPhoton->SetCaloPosXYZ(iP->caloPosition().x(),iP->caloPosition().y(),iP->caloPosition().z());
-    
+
     // make links to conversions
     if (iP->hasConversionTracks() && conversionMap_) {
       reco::ConversionRefVector conversionRefs = iP->conversions();
@@ -170,6 +183,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
       else
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
+    }
+
+    // make link to supercluster
+    if (pfSuperClusterMap_ && iP->pfSuperCluster().isNonnull()) {
+        outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
     }
     
 //    //regression energy corrections

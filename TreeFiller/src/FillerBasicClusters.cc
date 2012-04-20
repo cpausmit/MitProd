@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.17 2011/10/10 20:57:28 bendavid Exp $
+// $Id: FillerBasicClusters.cc,v 1.18 2012/03/30 01:08:40 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -67,18 +67,27 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
   const reco::CaloClusterCollection inBasicClusters = *(hBasicClusterProduct.product());  
 
-//   edm::Handle< EcalRecHitCollection > pEBRecHits;
-//   event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
-//   const EcalRecHitCollection * ebRecHits_ = pEBRecHits.product();
-//   edm::Handle< EcalRecHitCollection > pEERecHits;
-//   event.getByLabel( endcapEcalRecHitName_, pEERecHits );
-//   const EcalRecHitCollection * eeRecHits_ = pEERecHits.product();
+  edm::Handle< EcalRecHitCollection > pEBRecHits;
+  event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
+  edm::Handle< EcalRecHitCollection > pEERecHits;
+  event.getByLabel( endcapEcalRecHitName_, pEERecHits );
   
   EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
                                  edm::InputTag(endcapEcalRecHitName_));
 
   EcalClusterLocal local;                                 
                                  
+  //loop over rechits and make map of energy values
+  std::map<DetId,float> hitEnergies;
+
+  for (EcalRecHitCollection::const_iterator it = pEBRecHits->begin(); it!=pEBRecHits->end(); ++it) {
+    hitEnergies.insert(std::pair<DetId,float>(it->id(),it->energy()));
+  }
+
+  for (EcalRecHitCollection::const_iterator it = pEERecHits->begin(); it!=pEERecHits->end(); ++it) {
+    hitEnergies.insert(std::pair<DetId,float>(it->id(),it->energy()));
+  }
+
   // loop through all basic clusters
   for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
        inBC != inBasicClusters.end(); ++inBC) {
@@ -119,6 +128,15 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetCoviPhiiPhi(lazyTools.localCovariances(*inBC)[2]);
     outBasicCluster->SetZernike20(lazyTools.zernike20(*inBC));
     outBasicCluster->SetZernike42(lazyTools.zernike42(*inBC));
+
+    //raw rechit energy sum, since stored cluster energy is bogus for some PF Clusters
+    double esum = 0.0;
+    for (std::vector< std::pair<DetId, float> >::const_iterator it = inBC->hitsAndFractions().begin(); 
+              it != inBC->hitsAndFractions().end(); ++it) {
+
+      esum += hitEnergies[it->first]*it->second;
+    } 
+    outBasicCluster->SetSumRecHitEnergy(esum);
 
     //local coordinates
     if (std::abs(inBC->eta())<1.48) {
