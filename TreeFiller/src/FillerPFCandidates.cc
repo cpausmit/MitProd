@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.14 2011/10/10 20:57:40 bendavid Exp $
+// $Id: FillerPFCandidates.cc,v 1.15 2012/03/11 23:11:56 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -256,16 +256,16 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
        iP != inPfCands.end(); ++iP) {
     
     reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
-    mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
 
+    //mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
     // fill mother-daughter links
-//     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
-//     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
-//     if (motherCandPtr.isNonnull()) {
-//       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
-//       outPfCand->SetMother(mother);
-//       mother->AddDaughter(outPfCand);
-//     }
+    //     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
+    //     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
+    //     if (motherCandPtr.isNonnull()) {
+    //       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
+    //       outPfCand->SetMother(mother);
+    //       mother->AddDaughter(outPfCand);
+    //     }
   }
 }
 

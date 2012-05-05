@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.28 2012/03/30 01:08:40 paus Exp $
+// $Id: FillerPhotons.cc,v 1.29 2012/04/20 16:07:43 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -10,6 +10,14 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "TSystem.h"
 
 using namespace std;
@@ -18,22 +26,28 @@ using namespace mithep;
 
 //---------------------------------------------------------------------------------------------------
 FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
+  BaseFiller                (cfg,name,active),
   edmName_                  (Conf().getUntrackedParameter<string>("edmName","photons")),
   mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
   conversionMapName_        (Conf().getUntrackedParameter<string>("conversionMapName","")),
+  oneLegConversionMapName_  (Conf().getUntrackedParameter<string>("oneLegConversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
+  pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
+  pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),  
+  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName","")),  
   phIDCutBasedTightName_    (Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
 								  "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
 								  "PhotonIDProd:PhotonCutBasedIDLoose")),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
+  oneLegConversionMap_      (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
-  pfSuperClusterMap_(0)
+  pfSuperClusterMap_        (0),
+  pfClusterMap_             (0),
+  pfCandMap_                (0)
 {
   // Constructor.
 }
@@ -55,7 +69,7 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
   OS()->add<mithep::PhotonArr>(photons_,mitName_);
 
   if (!conversionMapName_.empty()) {
-    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
+    conversionMap_ = OS()->get<ConversionDecayMap>(conversionMapName_);
     if (conversionMap_)
       AddBranchDep(mitName_,conversionMap_->GetBrName());
   }
@@ -74,6 +88,16 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
     if (pfSuperClusterMap_)
       AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
   }
+  if (!pfClusterMapName_.empty()) {
+    pfClusterMap_ = OS()->get<BasicClusterMap>(pfClusterMapName_);
+    if (pfClusterMap_)
+      AddBranchDep(mitName_,pfClusterMap_->GetBrName());
+  }  
+  if (!pfCandMapName_.empty()) {
+    pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_);
+    if (pfCandMap_)
+      AddBranchDep(mitName_,pfCandMap_->GetBrName());
+  }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,6 +115,23 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   Handle<reco::PhotonCollection> hPhotonProduct;
   GetProduct(edmName_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
+  
+  //pf photon stuff 
+  edm::Handle<EcalRecHitCollection> pEBRecHits;
+  event.getByLabel("reducedEcalRecHitsEB", pEBRecHits );
+  edm::Handle<EcalRecHitCollection> pEERecHits;
+  event.getByLabel( "reducedEcalRecHitsEE", pEERecHits );  
+  
+  edm::ESHandle<CaloGeometry> pGeometry;
+  setup.get<CaloGeometryRecord>().get(pGeometry);
+ 
+  const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  
+  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
+  
+  Handle<reco::PFCandidateCollection> pPFCands;
+  event.getByLabel("particleFlow", pPFCands);
   
   // handles to get the photon ID information
   Handle<edm::ValueMap<bool> > phidLooseMap;
@@ -148,7 +189,6 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHollowConeNTrkDr04(iP->nTrkHollowConeDR04());
     outPhoton->SetHCalIsoTowDr04(iP->hcalTowerSumEtConeDR04() + (iP->hadronicOverEm() - iP->hadTowOverEm())*iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
 
-
     //pflow isolation
     outPhoton->SetPFChargedHadronIso(iP->chargedHadronIso());
     outPhoton->SetPFChargedHadronIso(iP->neutralHadronIso());
@@ -169,11 +209,20 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetCaloPosXYZ(iP->caloPosition().x(),iP->caloPosition().y(),iP->caloPosition().z());
 
     // make links to conversions
-    if (iP->hasConversionTracks() && conversionMap_) {
-      reco::ConversionRefVector conversionRefs = iP->conversions();
+    if (conversionMap_) {
+      const reco::ConversionRefVector &conversionRefs = iP->conversions();
       for (reco::ConversionRefVector::const_iterator conversionRef = 
              conversionRefs.begin(); conversionRef != conversionRefs.end(); ++conversionRef) {
-        outPhoton->AddConversion(conversionMap_->GetMit(*conversionRef));
+        outPhoton->AddConversionD(conversionMap_->GetMit(*conversionRef));
+      }
+    }
+
+    // make links to conversions (single leg)
+    if (oneLegConversionMap_) {
+      const reco::ConversionRefVector &conversionRefs = iP->conversionsOneLeg();
+      for (reco::ConversionRefVector::const_iterator conversionRef = 
+             conversionRefs.begin(); conversionRef != conversionRefs.end(); ++conversionRef) {
+        outPhoton->AddConversionS(oneLegConversionMap_->GetMit(*conversionRef));
       }
     }
 
@@ -185,16 +234,45 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
     }
 
-    // make link to supercluster
+    // make link to pf supercluster
     if (pfSuperClusterMap_ && iP->pfSuperCluster().isNonnull()) {
-        outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
+      outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
+      //horrible stuff: mark PF superclusters with fraction of energy that overlaps with egamma supercluster
+      if (pfClusterMap_ && iP->superCluster().isNonnull()) {
+	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
+	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
+	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster() );
+	  const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+	}
+      }	
     }
     
-//    //regression energy corrections
-//    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
-//    outPhoton->SetEnergyRegr(cor.first);
-//    outPhoton->SetEnergyErrRegr(cor.second);
+    //horrible stuff: make links to PFCandidates to try and recover pflow clustering when pflow id failed...
+    if (pfCandMap_ && iP->superCluster().isNonnull()) {
+      std::vector<PFCandidatePtr> inmust;
+      std::vector<PFCandidatePtr> outmust;
+      std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
+								      pEBRecHits,
+								      pEERecHits,
+								      geometryEB,
+								      geometryEE);
+      ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
+					 inmust, 
+				       	 outmust,
+					 pPFCands,
+					 scsize.first,
+					 scsize.second);
+      
+      for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
+	outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
+      for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
+	outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
+    }
     
+    ////regression energy corrections
+    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
+    //outPhoton->SetEnergyRegr(cor.first);
+    //outPhoton->SetEnergyErrRegr(cor.second);
   }
   photons_->Trim();
 }

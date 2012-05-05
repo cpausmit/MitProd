@@ -91,6 +91,7 @@ usage += "                      --status=<int: -1,0,1>\n"
 usage += "                      --remakeLfns=<int: -1,0,1>\n"
 usage += "                      --show=<int: 0,1>\n"
 usage += "                      --useExistingLfns\n"
+usage += "                      --useExistingSites\n"
 usage += "                      --exe\n"
 usage += "                      --noInfo\n"
 usage += "                      --forceCopy\n"
@@ -99,7 +100,7 @@ usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','remakeLfns=','show=', \
-         'help','exe','useExistingLfns','complete','noInfo','forceCopy','debug']
+         'help','exe','useExistingLfns','useExistingSites','complete','noInfo','forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -111,23 +112,24 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
-mitCfg          = 'filefi'
-version         = os.environ['MIT_VERS']
-cmssw           = ''
-pattern         = ''
-cmsswCfg        = 'cmssw.cfg'
-exe             = 0
-useExistingLfns = False
-complete        = 0
-noInfo          = False
-download        = -1
-status          = -1
-remakeLfns      = -1
-show            = 0
-forceCopy       = False
-debug           = False
+mitCfg           = 'filefi'
+version          = os.environ['MIT_VERS']
+cmssw            = ''
+pattern          = ''
+cmsswCfg         = 'cmssw.cfg'
+exe              = 0
+useExistingLfns  = False
+useExistingSites = False
+complete         = 0
+noInfo           = False
+download         = -1
+status           = -1
+remakeLfns       = -1
+show             = 0
+forceCopy        = False
+debug            = False
 
-webServer       = 'http://t3serv001.mit.edu/~cmsprod'
+webServer        = 'http://t3serv001.mit.edu/~cmsprod'
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -146,6 +148,8 @@ for opt, arg in opts:
         exe             = 1
     if opt == "--useExistingLfns":
         useExistingLfns = True
+    if opt == "--useExistingSites":
+        useExistingSites = True
     if opt == "--download":
         download        = int(arg)
     if opt == "--status":
@@ -316,6 +320,8 @@ for line in os.popen(cmd).readlines():  # run command
                 cmd = cmd + " --cmssw=" + cmssw
             if useExistingLfns:
                 cmd = cmd + " --useExistingLfns"
+            if useExistingSites:
+                cmd = cmd + " --useExistingSites"
             if dbs == "none":
                 if fixSites == '':
                     cmd = cmd + " --fixSites=T1_US_FNAL"

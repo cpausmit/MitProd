@@ -32,6 +32,8 @@
 <use   name="RecoVertex/KinematicFitPrimitives"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="MagneticField/UniformEngine"/>
+<use   name="RecoCaloTools/Navigation"/>
+<use   name="Geometry/EcalAlgo"/>
 <use   name="root"/>
 <use   name="MitCommon/MathTools"/>
 <use   name="MitCommon/OptIO"/>

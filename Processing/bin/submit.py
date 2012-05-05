@@ -194,9 +194,9 @@ def create(path):
     if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
         f    = path.split('=')
         path = f[-1]
-        cmd = 'ssh -x paus@cgate mkdir -p  ' + path
+        cmd = 'ssh -x paus@cgate.mit.edu mkdir -p  ' + path
         status = os.system(cmd)
-        cmd = 'ssh -x paus@cgate chmod 777 ' + path
+        cmd = 'ssh -x paus@cgate.mit.edu chmod 777 ' + path
         status = os.system(cmd)
     return status
 

@@ -1,3 +1,5 @@
+// $Id: $
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -36,6 +38,14 @@
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
+#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -43,30 +53,33 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
-  expectedHitsName_(Conf().getUntrackedParameter<string>("expectedHitsName","")),  
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
-  gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
-  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
+  BaseFiller                (cfg,name,active),
+  edmName_                  (Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
+  expectedHitsName_         (Conf().getUntrackedParameter<string>("expectedHitsName","")),  
+  mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
+  gsfTrackMapName_          (Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
+  trackerTrackMapName_      (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  checkClusterActive_(Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
-  pfSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
-  electronMapName_(Conf().getUntrackedParameter<string>("electronMapName","")),
-  eIDCutBasedTightName_(Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
-  eIDCutBasedLooseName_(Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
-  eIDLikelihoodName_(Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
-  pvEdmName_(Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_(Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
-  recomputeConversionInfo_(Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
-  fitUnbiasedVertex_(Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
-  electronMap_(new mithep::ElectronMap),
-  electrons_(new mithep::ElectronArr(16)),
-  gsfTrackMap_(0),
-  trackerTrackMap_(0),
-  barrelSuperClusterMap_(0),
-  endcapSuperClusterMap_(0)
+  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
+  pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
+  pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),
+  electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName","")),
+  eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
+  eIDCutBasedLooseName_     (Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
+  eIDLikelihoodName_        (Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
+  pvEdmName_                (Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmName_              (Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
+  recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
+  fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
+  electronMap_              (new mithep::ElectronMap),
+  electrons_                (new mithep::ElectronArr(16)),
+  gsfTrackMap_              (0),
+  trackerTrackMap_          (0),
+  barrelSuperClusterMap_    (0),
+  endcapSuperClusterMap_    (0),
+  pfSuperClusterMap_        (0),
+  pfClusterMap_             (0)
 {
   // Constructor.
 }
@@ -112,6 +125,11 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (pfSuperClusterMap_)
       AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
   }
+  if (!pfClusterMapName_.empty()) {
+    pfClusterMap_ = OS()->get<BasicClusterMap>(pfClusterMapName_);
+    if (pfClusterMap_)
+      AddBranchDep(mitName_,pfClusterMap_->GetBrName());
+  }    
   if (!electronMapName_.empty()) {
     electronMap_->SetBrName(mitName_);
     OS()->add<ElectronMap>(electronMap_,electronMapName_);
@@ -167,6 +185,20 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   VertexTrackFactory<5> vTrackFactory;
   KalmanVertexUpdator<5> updator;
 
+  //pf photon stuff 
+  edm::Handle< EcalRecHitCollection > pEBRecHits;
+  event.getByLabel("reducedEcalRecHitsEB", pEBRecHits );
+  edm::Handle< EcalRecHitCollection > pEERecHits;
+  event.getByLabel( "reducedEcalRecHitsEE", pEERecHits );  
+  
+  edm::ESHandle<CaloGeometry> pGeometry;
+  setup.get<CaloGeometryRecord>().get(pGeometry);
+ 
+  const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  
+  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);  
+  
    //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -290,6 +322,42 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
              << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
       }
     }
+    
+    if (pfSuperClusterMap_ && iM->pflowSuperCluster().isNonnull()) {
+      outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->pflowSuperCluster()));  
+    }
+    
+    //find matching egamma supercluster first by ref, or by geometric matching if only pfsupercluster is linked
+    const reco::SuperCluster *egammasc = 0;
+    double mindr = 999.;
+    if (iM->superCluster().isNonnull() && iM->superCluster() != iM->pflowSuperCluster()) {
+      egammasc = iM->superCluster().get();
+    }
+    else {
+      for (SuperClusterMap::fwdMapType::const_iterator scit = barrelSuperClusterMap_->FwdMap().begin(); scit != barrelSuperClusterMap_->FwdMap().end(); ++scit) {
+	double dr = reco::deltaR(*iM->pflowSuperCluster(),*scit->first);
+	if (dr<0.1 && dr<mindr) {
+	  egammasc = scit->first.get();
+	  mindr = dr;
+	}
+      }
+      for (SuperClusterMap::fwdMapType::const_iterator scit = endcapSuperClusterMap_->FwdMap().begin(); scit != endcapSuperClusterMap_->FwdMap().end(); ++scit) {
+	double dr = reco::deltaR(*iM->pflowSuperCluster(),*scit->first);
+	if (dr<0.1 && dr<mindr) {
+	  egammasc = scit->first.get();
+	  mindr = dr;
+	}
+      }      
+    }
+    
+    //tag overlapping energy of pflow clusters
+    if (pfClusterMap_ && iM->pflowSuperCluster().isNonnull() && egammasc) {
+      for (reco::CaloCluster_iterator pfcit = iM->pflowSuperCluster()->clustersBegin();
+	   pfcit!=iM->pflowSuperCluster()->clustersEnd(); ++pfcit) {
+	float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc );
+	const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+      }
+    }	
   
     //compute NLayersWithMeasurement for associated ctf track
     if (iM->closestCtfTrackRef().isNonnull()) {
@@ -468,7 +536,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         else {
           outElectron->SetIp3dPVBSCkf(-999.0);
         }
-//////////////
 
         const std::pair<bool,Measurement1D> &d0pvubckf =  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxub);
         if (d0pvubckf.first) {
@@ -529,7 +596,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         //printf("gsf    reduced chisquared = %5f, probability = %5f\n", pvGsfCompat.second/2, TMath::Prob(pvGsfCompat.second,2));
       }
     }
-    
 
     //fill conversion partner track info
     if (recomputeConversionInfo_) {
@@ -575,8 +641,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         }
       }
     }
-    
-
 
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);

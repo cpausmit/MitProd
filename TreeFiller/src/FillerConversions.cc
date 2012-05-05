@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.21 2010/10/22 00:05:38 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.22 2010/11/22 16:54:13 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -13,16 +13,16 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerConversions::FillerConversions(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
+  BaseFiller         (cfg,name,active),
+  edmName_           (Conf().getUntrackedParameter<string>("edmName","conversions")),
+  mitName_           (Conf().getUntrackedParameter<string>("mitName","Conversions")),
   stablePartMapNames_(Conf().exists("stablePartMaps") ? 
-                    Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
-                    vector<string>()),
-  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName",
-                                                          Form("%sMapName",mitName_.c_str()))),
-  conversions_(new mithep::ConversionArr(16)),
-  conversionMap_(new mithep::ConversionMap)
+		      Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
+		      vector<string>()),
+  conversionMapName_ (Conf().getUntrackedParameter<string>("conversionMapName",
+							   Form("%sMapName",mitName_.c_str()))),
+  conversions_       (new mithep::ConversionArr(16)),
+  conversionMap_     (new mithep::ConversionMap)
 {
   // Constructor.
 }
@@ -44,7 +44,7 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_,&conversions_);
   OS()->add<mithep::ConversionArr>(conversions_,mitName_);
 
-  if (!convElectronMapName_.empty()) {
+  if (!conversionMapName_.empty()) {
     conversionMap_->SetBrName(mitName_);
     OS()->add(conversionMap_,conversionMapName_);
   }
@@ -110,7 +110,6 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
     reco::ConversionRef theRef(hConversionProduct, inConversion-inConversions.begin());
     conversionMap_->Add(theRef, outConversion);
   }
-
   conversions_->Trim();
 }
 

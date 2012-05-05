@@ -1,4 +1,4 @@
-// $Id: FillerMuons.cc,v 1.42 2012/01/15 23:23:42 pharris Exp $
+// $Id: FillerMuons.cc,v 1.43 2012/03/29 23:41:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -10,7 +10,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h" 
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
@@ -51,7 +51,7 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::~FillerMuons() 
+FillerMuons::~FillerMuons()
 {
   // Destructor.
 
@@ -60,8 +60,8 @@ FillerMuons::~FillerMuons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::BookDataBlock(TreeWriter &tws) 
-{ 
+void FillerMuons::BookDataBlock(TreeWriter &tws)
+{
   // Add muons branch to tree and get pointers to maps.
 
   tws.AddBranch(mitName_,&muons_);
@@ -94,17 +94,17 @@ void FillerMuons::BookDataBlock(TreeWriter &tws)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::FillDataBlock(const edm::Event      &event, 
+void FillerMuons::FillDataBlock(const edm::Event      &event,
                                 const edm::EventSetup &setup)
 {
-  // Fill muon information. 
+  // Fill muon information.
 
   muons_  ->Delete();
   muonMap_->Reset();
-  
+
   Handle<reco::MuonCollection> hMuonProduct;
-  GetProduct(edmName_, hMuonProduct, event);  
-  const reco::MuonCollection inMuons = *(hMuonProduct.product());  
+  GetProduct(edmName_, hMuonProduct, event);
+  const reco::MuonCollection inMuons = *(hMuonProduct.product());
 
   edm::Handle<reco::VertexCollection> hVertex;
   event.getByLabel(pvEdmName_, hVertex);
@@ -113,7 +113,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   edm::Handle<reco::VertexCollection> hVertexBS;
   event.getByLabel(pvBSEdmName_, hVertexBS);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
-  
+
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
@@ -124,7 +124,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   VertexTrackFactory<5> vTrackFactory;
   KalmanVertexUpdator<5> updator;
 
-  for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {  
+  for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {
     mithep::Muon* outMuon = muons_->AddNew();
 
     outMuon->SetPtEtaPhi        (iM->pt(),iM->eta(),iM->phi());
@@ -150,6 +150,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetIsGlobalMuon    (iM->isGlobalMuon());
     outMuon->SetIsTrackerMuon   (iM->isTrackerMuon());
     outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
+    outMuon->SetIsPFMuon        (iM->isPFMuon());
     outMuon->SetIsCaloMuon      (iM->isCaloMuon());
     //kink algorithm
     outMuon->SetTrkKink         (iM->combinedQuality().trkKink);
@@ -204,15 +205,15 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
 
     if (globalTrackMap_ && iM->combinedMuon().isNonnull()) {
-      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));    
+      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));
       outMuon->SetNValidHits(iM->globalTrack()->hitPattern().numberOfValidMuonHits());
     }
-    if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) { 
+    if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) {
       Int_t refProductId = iM->standAloneMuon().id().id();
       if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-	outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
+        outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
       else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-	outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
+        outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
              << "Error! Track reference in unmapped collection " << edmName_ << endl;
     }
@@ -222,7 +223,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
     //compute impact parameter with respect to PV
     if (iM->track().isNonnull()) {
-      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track()); 
+      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track());
 
       reco::Vertex thevtx     = pvCol  ->at(0);
       reco::Vertex thevtxbs   = pvBSCol->at(0);
@@ -233,17 +234,17 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       reco::TrackCollection newTkCollection;
       bool foundMatch = false;
       for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end(); itk++) {
-        if(itk->get() == &*(iM->innerTrack())) { 
+        if(itk->get() == &*(iM->innerTrack())) {
           foundMatch = true;
           continue;
         }
         newTkCollection.push_back(*itk->get());
       }
 
-      if (foundMatch && fitUnbiasedVertex_) {       
+      if (foundMatch && fitUnbiasedVertex_) {
         edm::Handle<reco::BeamSpot> bs;
         event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
-      
+
         VertexReProducer revertex(hVertex,event);
         edm::Handle<reco::BeamSpot> pvbeamspot;
         event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
@@ -251,7 +252,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         if(pvs.size()>0) {
           thevtxub = pvs.front();      // take the first in the list
         }
-        
+
         VertexReProducer revertexbs(hVertexBS,event);
         edm::Handle<reco::BeamSpot> pvbsbeamspot;
         event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
@@ -341,7 +342,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       //compute compatibility with PV using taking into account also the case where muon track
       //was included in the vertex fit
       if (iM->track()->extra().isAvailable()) {
-  
+
         const std::pair<bool,double> &pvCompat = kalmanEstimator.estimate(pvCol->at(0),tt);
         if (pvCompat.first) {
           outMuon->SetPVCompatibility(pvCompat.second);
@@ -349,7 +350,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         else {
           outMuon->SetPVCompatibility(-99.0);
         }
-  
+
         const std::pair<bool,double> &pvbsCompat = kalmanEstimator.estimate(pvBSCol->at(0),tt);
         if (pvbsCompat.first) {
           outMuon->SetPVBSCompatibility(pvbsCompat.second);
@@ -386,17 +387,23 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
     // fill corrected expected inner hits
     if (iM->innerTrack().isNonnull()) {
-      outMuon->SetCorrectedNExpectedHitsInner(iM->innerTrack()->trackerExpectedHitsInner().numberOfHits());
+      outMuon->SetCorrectedNExpectedHitsInner (iM->innerTrack()->trackerExpectedHitsInner().numberOfHits());
+      outMuon->SetValidFraction               (iM->innerTrack()->validFraction());
+      outMuon->SetNTrkLayersHit               (iM->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+      outMuon->SetNTrkLayersNoHit             (iM->innerTrack()->hitPattern().trackerLayersWithoutMeasurement());
+      outMuon->SetNPxlLayersHit               (iM->innerTrack()->hitPattern().pixelLayersWithMeasurement());
+      outMuon->SetNTrkLostHitsIn              (iM->innerTrack()->trackerExpectedHitsInner().numberOfLostTrackerHits());
+      outMuon->SetNTrkLostHitsOut             (iM->innerTrack()->trackerExpectedHitsOuter().numberOfLostTrackerHits());
     }
 
     // add muon to map
     edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
     muonMap_->Add(thePtr, outMuon);
-    
+
     if (verbose_>1) {
       if (!outMuon->HasGlobalTrk() && !outMuon->HasStandaloneTrk()) {
         printf("mithep::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",outMuon->Pt(),outMuon->Eta(),outMuon->Phi(), outMuon->Mass());
-        printf("  reco::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->mass());  
+        printf("  reco::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->mass());
       }
     }
 
@@ -407,44 +414,43 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId, reco::Muon::ArbitrationType type ) {
   if(!iM->isMatchesValid()) return 0;
   int segments(0);
-  
+
   for( std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = iM->matches().begin();
        chamberMatch != iM->matches().end(); chamberMatch++ )
     {
       if(chamberMatch->segmentMatches.empty()) continue;
       if(!(chamberMatch->station()==station && chamberMatch->detector()==muonSubdetId)) continue;
       if(type == reco::Muon::NoArbitration) {
-	segments += chamberMatch->segmentMatches.size();
-	continue;
+        segments += chamberMatch->segmentMatches.size();
+        continue;
       }
       for( std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-	   segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
-	{
-	  if(type == reco::Muon::SegmentArbitration)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
-	      segments++;
-	      break;
-	    }
-	  if(type == reco::Muon::SegmentAndTrackArbitration)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
-	      segments++;
-	      break;
-	    }
-	  if(type == reco::Muon::SegmentAndTrackArbitrationCleaned)
-	    if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
-	       segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
-	      segments++;
-	      break;
-	    }
-	  if(type > 1<<7)
-	    if(segmentMatch->isMask(type)) {
-	      segments++;
-	      break;
-	    }
-	}
+           segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
+        {
+          if(type == reco::Muon::SegmentArbitration)
+            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
+              segments++;
+              break;
+            }
+          if(type == reco::Muon::SegmentAndTrackArbitration)
+            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
+              segments++;
+              break;
+            }
+          if(type == reco::Muon::SegmentAndTrackArbitrationCleaned)
+            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
+               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
+              segments++;
+              break;
+            }
+          if(type > 1<<7)
+            if(segmentMatch->isMask(type)) {
+              segments++;
+              break;
+            }
+        }
     }
   return segments;
 }
-

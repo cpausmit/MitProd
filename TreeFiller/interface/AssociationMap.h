@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.8 2009/03/14 06:04:59 loizides Exp $
+// $Id: AssociationMap.h,v 1.9 2009/03/15 11:20:40 loizides Exp $
 //
 // AssociationMap
 //
 // Wrapper for std::map, used to resolve links during tree filling.
 //
-// Authors: J.Bendavid, C.Loizides
+// Authors: C.Paus, J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_ASSOCIATIONMAP_H
@@ -19,30 +19,32 @@ namespace mithep
 {
   template <class EdmClass, class MitClass> class AssociationMap : public TObject
   { 
+  public:
     typedef std::map<EdmClass, MitClass> fwdMapType;
     typedef std::map<MitClass, EdmClass> revMapType;
     
-    public:
-      AssociationMap() : edmProductId_(0) {}
-      ~AssociationMap() {}
-      
-      void         Add(EdmClass edmObj, MitClass mitObj);
-      EdmClass     GetEdm(MitClass mitObj)    const;
-      Int_t        GetEdmProductId()          const { return edmProductId_;  }
-      Int_t        GetEntries()               const { return fwdMap_.size(); }
-      MitClass     GetMit(EdmClass edmObj)    const;
-      const char  *GetBrName()                const { return brname_.c_str();           }
-      bool         HasMit(EdmClass edmObj)    const;
-      void         Reset()                          { fwdMap_.clear(); revMap_.clear(); }
-      void         SetEdmProductId(Int_t id)        { edmProductId_ = id;               }
-      void         SetBrName(const std::string &n)  { brname_ = n;                      }
-      void         SetBrName(const char *n)         { brname_ = n;                      }
-
-    protected:
-      fwdMapType   fwdMap_;       //map between edm ref and mit ptr 
-      revMapType   revMap_;       //map between mit ptr and edm ref
-      Int_t        edmProductId_; //product id for consistency check
-      std::string  brname_;       //branch name of MIT objects 
+    AssociationMap() : edmProductId_(0) {}
+    ~AssociationMap() {}
+    
+    void              Add(EdmClass edmObj, MitClass mitObj);
+    EdmClass          GetEdm(MitClass mitObj)    const;
+    Int_t             GetEdmProductId()          const { return edmProductId_;  }
+    Int_t             GetEntries()               const { return fwdMap_.size(); }
+    MitClass          GetMit(EdmClass edmObj)    const;
+    const char       *GetBrName()                const { return brname_.c_str();           }
+    bool              HasMit(EdmClass edmObj)    const;
+    void              Reset()                          { fwdMap_.clear(); revMap_.clear(); }
+    void              SetEdmProductId(Int_t id)        { edmProductId_ = id;               }
+    void              SetBrName(const std::string &n)  { brname_ = n;                      }
+    void              SetBrName(const char *n)         { brname_ = n;                      }
+    const fwdMapType &FwdMap()                   const { return fwdMap_;                   }
+    const revMapType &RevMap()                   const { return revMap_;                   }
+    
+  protected:
+    fwdMapType   fwdMap_;       //map between edm ref and mit ptr 
+    revMapType   revMap_;       //map between mit ptr and edm ref
+    Int_t        edmProductId_; //product id for consistency check
+    std::string  brname_;       //branch name of MIT objects 
   };
 }
 

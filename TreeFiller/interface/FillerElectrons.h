@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.26 2012/01/15 23:23:34 pharris Exp $
+// $Id: FillerElectrons.h,v 1.27 2012/03/11 23:11:55 pharris Exp $
 //
 // FillerElectrons
 //
 // Implementation of a filler to fill EDM electrons into our mithep::Electron data structure.
 //
-// Authors: J.Bendavid, S.Xie
+// Authors: C.Paus, P.Harris, J.Bendavid, S.Xie
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERELECTRONS_H
@@ -15,21 +15,20 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
-namespace mithep 
+namespace mithep
 {
   class FillerElectrons : public BaseFiller
-  {  
+  {
     public:
       FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerElectrons();
 
       void                           BookDataBlock(TreeWriter &tws);
-      void                           FillDataBlock(const edm::Event &e, 
+      void                           FillDataBlock(const edm::Event &e,
                                                    const edm::EventSetup &es);
-  
     private:
       std::string                    edmName_;                   //edm name of electrons collection
-      std::string                    expectedHitsName_;          //edm name of corrected expected hits valuemap      
+      std::string                    expectedHitsName_;          //edm name of corrected expected hits valuemap
       std::string                    mitName_;                   //mit name of Electrons collection
       std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
       std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
@@ -37,6 +36,7 @@ namespace mithep
       std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
       bool                           checkClusterActive_;
       std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
+      std::string                    pfClusterMapName_;          //name of imp. map wrt pflow clus
       std::string                    electronMapName_;           //name of exported electron map
       std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
       std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
@@ -44,14 +44,15 @@ namespace mithep
       std::string                    pvEdmName_;                 //name of primary vertex collection
       std::string                    pvBSEdmName_;               //name of bs-constrained pv collection
       bool                           recomputeConversionInfo_;   //recompute conversion info
-      bool                           fitUnbiasedVertex_;         //recompute vertex position without electron 
+      bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
       mithep::ElectronMap           *electronMap_;               //exported electron map
       mithep::ElectronArr           *electrons_;                 //array of Electrons
       const mithep::TrackMap        *gsfTrackMap_;               //map wrt gsf tracks
       const mithep::TrackMap        *trackerTrackMap_;           //map wrt tracker tracks
       const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
       const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters
-      const mithep::SuperClusterMap *pfSuperClusterMap_;         //map wrt pflow super clusters 
+      const mithep::SuperClusterMap *pfSuperClusterMap_;         //map wrt pflow super clusters
+      const mithep::BasicClusterMap *pfClusterMap_;              //map wrt pflow basic clusters
   };
 }
 #endif

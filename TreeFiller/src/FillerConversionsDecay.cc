@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.3 2011/03/22 00:23:11 bendavid Exp $
+// $Id: FillerConversionsDecay.cc,v 1.4 2011/04/23 19:13:14 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -62,7 +62,7 @@ void FillerConversionsDecay::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(stableDataName_, &stableData_);
   OS()->add<mithep::StableDataArr>(stableData_,stableDataName_);
 
-  if (!convElectronMapName_.empty()) {
+  if (!conversionMapName_.empty()) {
     conversionMap_->SetBrName(mitName_);
     OS()->add(conversionMap_,conversionMapName_);
   }
@@ -150,15 +150,21 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     
     //fill daughters
     double zbeamlineerr = -99.;
-    if (stablePartMaps_.size() && trackRefs.size()==2 && refittedTracks.size()==2) {
+    if (stablePartMaps_.size()) {
       for (uint i=0; i<trackRefs.size(); ++i) {
         
         const reco::TrackBaseRef &trackRef = trackRefs.at(i);
-        const reco::Track &refittedTrack = refittedTracks.at(i);
+
+        const reco::Track *refittedTrack = 0;
+
+        if (refittedTracks.size()>i)
+          refittedTrack = &refittedTracks.at(i);
+        else 
+          refittedTrack = trackRef.get();
         
         //fill dzError at beamline (take from refitted first track normally)
         if (zbeamlineerr<0.) {
-          const reco::TransientTrack &tt = transientTrackBuilder->build(refittedTrack);
+          const reco::TransientTrack &tt = transientTrackBuilder->build(*refittedTrack);
           //null b-field
           const UniformMagneticField nullField(0.0); 
           TransverseImpactPointExtrapolator extrapolator(&nullField);
@@ -176,7 +182,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
               math::XYZVector mom(inConversion->refittedPairMomentum());
               double zbeamlineconv = (vtx.z()) - ((vtx.x()-thebs.position().x())*mom.x()+(vtx.y()-thebs.position().y())*mom.y())/mom.rho() * mom.z()/mom.rho();
 
-              double zbeamlinetrk = (refittedTrack.vertex().z()) - ((refittedTrack.vertex().x()-thebs.position().x())*refittedTrack.momentum().x()+(refittedTrack.vertex().y()-thebs.position().y())*refittedTrack.momentum().y())/refittedTrack.momentum().rho() * refittedTrack.momentum().z()/refittedTrack.momentum().rho();
+              double zbeamlinetrk = (refittedTrack->vertex().z()) - ((refittedTrack->vertex().x()-thebs.position().x())*refittedTrack->momentum().x()+(refittedTrack->vertex().y()-thebs.position().y())*refittedTrack->momentum().y())/refittedTrack->momentum().rho() * refittedTrack->momentum().z()/refittedTrack->momentum().rho();
 
               printf("zbeamlineconv = %5f, zbeamlinetrk = %5f, zbeamline = %5f, zbeamlineerr = %5f\n",zbeamlineconv,zbeamlinetrk,zbeamline,zbeamlineerr);
             }
@@ -188,7 +194,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
         
         mithep::StableData *outStable = stableData_->Allocate();
         new (outStable) mithep::StableData(daughter,
-                                           refittedTrack.px(),refittedTrack.py(),refittedTrack.pz());
+                                           refittedTrack->px(),refittedTrack->py(),refittedTrack->pz());
         
         if (nHitsBeforeVtx.size()>i) {
           outStable->SetNHitsBeforeVtx(nHitsBeforeVtx.at(i));

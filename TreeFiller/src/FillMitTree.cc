@@ -1,4 +1,4 @@
-// $Id: FillMitTree.cc,v 1.65 2012/03/11 23:11:55 pharris Exp $
+// $Id: FillMitTree.cc,v 1.66 2012/03/29 23:41:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,6 +37,7 @@
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
+#include "MitProd/TreeFiller/interface/FillerPsClusters.h"
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
@@ -291,6 +292,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerBasicClusters *fillerBasicClusters = 
         new FillerBasicClusters(cfg, name.c_str(), defactive_);
       addActiveFiller(fillerBasicClusters);
+      continue;
+    }  
+    if (ftype.compare("FillerPsClusters")==0) {
+      FillerPsClusters *fillerPsClusters = 
+        new FillerPsClusters(cfg, name.c_str(), defactive_);
+      addActiveFiller(fillerPsClusters);
       continue;
     }  
     if (ftype.compare("FillerSuperClusters")==0) {

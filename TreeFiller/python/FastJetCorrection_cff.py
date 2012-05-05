@@ -1,4 +1,4 @@
-# $Id: FastJetCorrection_cff.py,v 1.10 2011/10/08 18:54:48 bendavid Exp $
+# $Id: FastJetCorrection_cff.py,v 1.11 2012/03/11 23:11:55 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,7 +25,7 @@ kt4PFJetsForL1Correction = kt4PFJets.clone(doAreaFastjet = True)
 #kt6PFJetsForRhoComputationRandom equivalent is stored in aod in 44x
 
 # sequences to compute jet areas and rho
-l1FastJetSequence     = cms.Sequence(kt6PFJetsForRhoComputationVoronoi * kt6PFJetsForRhoComputationVoronoi25 * kt6PFJetsForRhoComputationRandom25)
+l1FastJetSequence     = cms.Sequence(kt6PFJetsForRhoComputationVoronoi * kt6PFJetsForRhoComputationVoronoi25 * kt6PFJetsForRhoComputationRandom * kt6PFJetsForRhoComputationRandom25)
 l1FastJetSequenceCHS  = cms.Sequence(kt6PFJetsForRhoComputationVoronoiCHS * kt6PFJetsForRhoComputationVoronoi25CHS * kt6PFJetsForRhoComputationRandom25CHS)
 
 #legacy sequence for 42x
