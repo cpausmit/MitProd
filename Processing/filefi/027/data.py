@@ -1,4 +1,4 @@
-# $Id: data.py,v 1.2 2012/04/11 20:20:04 paus Exp $
+# $Id: data.py,v 1.1 2012/05/05 16:53:24 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_4_2/DoubleMu/RECO/GR_R_44_V7_RelVal_zMu2011A-v1/0059/FE6E5B28-0C02-E111-AE7E-0018F3D0961A.root')
+  fileNames = cms.untracked.vstring('file:/tmp/5C6D1776-1286-E111-BE1D-001D09F2AF1E.root')
 )
 process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop *_MEtoEDMConverter_*_*",

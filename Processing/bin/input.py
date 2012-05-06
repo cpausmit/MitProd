@@ -63,9 +63,9 @@ if not db:
     if   dbs == 'none':
         cmd = 'dascli.py --query="block=' + dataset + '*" --limit=999999 --format=blocks'
     elif dbs == '':
-        cmd = 'dbs search --query=\"find block where dataset=' + dataset + '\"'
+        cmd = 'dbs search --query=\"find block where dataset=*' + dataset + '\"'
     elif re.search('http://',dbs):
-        cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=' + dataset + '"'
+        cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=*' + dataset + '"'
     else:
         cmd = 'echo ' + dataset + '#00000000-0000-0000-0000-000000000000'
 

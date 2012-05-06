@@ -47,7 +47,7 @@ if dataset == None:
 cmd  = "dbs search "
 if dbs != '':
     cmd += " --url=" + dbs
-cmd += " --query=\"find block,site where dataset=" + dataset + "\""
+cmd += " --query=\"find block,site where dataset=*" + dataset + "\""
 cmd += "| grep -v DBS | grep \\\. | tr -s ' ' | sort -u "
 
 # setup the variable

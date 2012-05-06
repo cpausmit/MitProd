@@ -1,4 +1,4 @@
-// $Id: FillerPileupEnergyDensity.cc,v 1.4 2011/06/15 20:04:14 bendavid Exp $
+// $Id: FillerPileupEnergyDensity.cc,v 1.5 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,8 +18,8 @@ FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, co
   edmNameLowEta_                       (Conf().getUntrackedParameter<edm::InputTag>("edmNameLowEta")),
   edmNameRandom_                       (Conf().getUntrackedParameter<edm::InputTag>("edmNameRandom")),
   edmNameRandomLowEta_                 (Conf().getUntrackedParameter<edm::InputTag>("edmNameRandomLowEta")),
-  edmNameFixedGridAll_                 (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridRhoAll")),
-  edmNameFixedGridFastjetAll_          (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridRhoFastjetAll")),
+  edmNameFixedGridAll_                 (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridAll")),
+  edmNameFixedGridFastjetAll_          (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridFastjetAll")),
   edmNameKt6CaloJets_                  (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6CaloJets")),
   edmNameKt6CaloJetsCentral_           (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6CaloJetsCentral")),
   edmNameKt6PFJets_                    (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6PFJets")),
