@@ -1,4 +1,4 @@
-# $Id: mc.py,v 1.2 2012/04/11 20:20:09 paus Exp $
+# $Id: mc.py,v 1.1 2012/05/05 16:53:24 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -37,7 +37,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V4::All'
+process.GlobalTag.globaltag = 'START52_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 

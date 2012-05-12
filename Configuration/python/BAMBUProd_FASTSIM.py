@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_FASTSIM.py,v 1.11 2011/10/09 14:15:05 bendavid Exp $
+# $Id: BAMBUProd_FASTSIM.py,v 1.12 2012/04/11 20:18:27 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,7 +36,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V4::All'
+process.GlobalTag.globaltag = 'START52_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 

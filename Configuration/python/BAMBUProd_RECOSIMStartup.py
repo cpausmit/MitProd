@@ -36,7 +36,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
 
 # other statements
 #special global tag for 900GeV startup beamspot conditions and startup (CRAFT-knowledge) alignment scenario
-process.GlobalTag.globaltag = 'START52_V4::All'
+process.GlobalTag.globaltag = 'START52_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 

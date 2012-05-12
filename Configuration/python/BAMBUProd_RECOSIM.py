@@ -35,7 +35,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V4::All'
+process.GlobalTag.globaltag = 'START52_V9::All'
 
 process.add_(cms.Service("ObjectService"))
 
