@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: FillerElectrons.cc,v 1.65 2012/05/05 16:49:59 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
@@ -233,6 +233,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetNumberOfClusters(iM->basicClustersSize());
     outElectron->SetClassification(iM->classification());
     outElectron->SetFBrem(iM->fbrem());
+    outElectron->SetEcalEnergy(iM->correctedEcalEnergy());
+    outElectron->SetEcalEnergyError(iM->correctedEcalEnergyError());
     
     // pflow electron stuff
     outElectron->SetIsEcalDriven(iM->ecalDrivenSeed());

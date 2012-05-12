@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.36 2012/04/11 20:18:27 paus Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.37 2012/05/12 13:31:17 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,7 +14,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('RecoVertex/PrimaryVertexProducer/OfflinePrimaryVertices_cfi')
  
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_026'),
+  version    = cms.untracked.string('Mit_028'),
   annotation = cms.untracked.string('AODSIM'),
   name       = cms.untracked.string('BambuProduction')
 )
