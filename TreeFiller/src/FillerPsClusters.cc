@@ -1,4 +1,4 @@
-// $Id: FillerPsClusters.cc,v 1.19 2012/04/20 16:07:43 bendavid Exp $
+// $Id: FillerPsClusters.cc,v 1.1 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPsClusters.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h" 
@@ -11,7 +11,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 using namespace std;
 using namespace edm;
@@ -19,13 +18,13 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPsClusters::FillerPsClusters(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","PsClusters")),
+  BaseFiller       (cfg,name,active),
+  edmName_         (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+  mitName_         (Conf().getUntrackedParameter<string>("mitName","PsClusters")),
   psClusterMapName_(Conf().getUntrackedParameter<string>("psClusterMapName",
 							 "PsClusterMap")),
-  psClusters_(new mithep::PsClusterArr(100)),
-  psClusterMap_(new mithep::PsClusterMap)
+  psClusters_      (new mithep::PsClusterArr(100)),
+  psClusterMap_    (new mithep::PsClusterMap)
 {
   // Constructor.
 }
