@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODtauembedded.py,v 1.3 2012/04/11 20:18:27 paus Exp $
+# $Id: BAMBUProd_AODtauembedded.py,v 1.4 2012/05/12 15:55:10 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,11 +29,11 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/z/zeise/embedding/4_2_4p1/pfembTauTau_data_SingleMu_2011A_Aug05thRR_v1_1_116_pt0_2680_embedded.root'),
+    fileNames = cms.untracked.vstring('file:/tmp/pharris/FED442F4-549F-E111-ABD5-00221988F96C.root')
 )
-process.source.inputCommands = cms.untracked.vstring("keep *",
-                                                     "drop *_MEtoEDMConverter_*_*",
-                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+#process.source.inputCommands = cms.untracked.vstring(#"keep *",
+#                                                     "drop *_MEtoEDMConverter_*_*",
+#                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'START52_V9::All'
@@ -44,8 +44,11 @@ process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
 
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
+
 from MitProd.TreeFiller.filltauembedded_cff import *
 filltauembedded(process.MitTreeFiller)
+
+process.MitTreeFiller.Electrons.requireClusterAndGsfMap          = cms.untracked.bool(False)
 
 process.bambu_step  = cms.Path(process.BambuFillAOD)
 
