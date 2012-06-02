@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.3 2012/04/11 20:18:27 paus Exp $
+# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.4 2012/05/12 15:55:10 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -31,9 +31,9 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/z/zeise/embedding/4_2_4p1/pfembTauTau_data_SingleMu_2011A_Aug05thRR_v1_1_116_pt0_2680_embedded.root'),
 )
-process.source.inputCommands = cms.untracked.vstring("keep *",
-                                                     "drop *_MEtoEDMConverter_*_*",
-                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+#process.source.inputCommands = cms.untracked.vstring("keep *",
+#                                                     "drop *_MEtoEDMConverter_*_*",
+#                                                     "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
 process.GlobalTag.globaltag = 'START52_V9::All'
