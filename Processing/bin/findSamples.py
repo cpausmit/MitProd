@@ -90,6 +90,7 @@ usage += "                      --download=<int: -1,0,1>\n"
 usage += "                      --status=<int: -1,0,1>\n"
 usage += "                      --remakeLfns=<int: -1,0,1>\n"
 usage += "                      --show=<int: 0,1>\n"
+usage += "                      --useCachedDb\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --useExistingSites\n"
 usage += "                      --exe\n"
@@ -100,7 +101,8 @@ usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','remakeLfns=','show=', \
-         'help','exe','useExistingLfns','useExistingSites','complete','noInfo','forceCopy','debug']
+         'help','exe','useCachedDb','useExistingLfns','useExistingSites','complete','noInfo',
+         'forceCopy','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -118,6 +120,7 @@ cmssw            = ''
 pattern          = ''
 cmsswCfg         = 'cmssw.cfg'
 exe              = 0
+useCachedDb      = False
 useExistingLfns  = False
 useExistingSites = False
 complete         = 0
@@ -146,6 +149,8 @@ for opt, arg in opts:
         pattern         = arg
     if opt == "--exe":
         exe             = 1
+    if opt == "--useCachedDb":
+        useCachedDb     = True
     if opt == "--useExistingLfns":
         useExistingLfns = True
     if opt == "--useExistingSites":
@@ -179,33 +184,39 @@ if not os.path.exists(dir):
     cmd = "\n Local work directory does not exist: %s\n" % dir
     raise RuntimeError, cmd
 
-# Download up to date database file for productions
-cmd  = 'wget ' + webServer + '/' + mitCfg + '/' + version + '/Productions.' + cmssw \
-       + ' -O /tmp/Productions.' + cmssw
-rc = call(cmd.split(' '))
-if rc == 0:
-    print " Download of central database file worked (rc=%d)."%(rc)
-else:
-    print " Download of central database file failed."
-
-# Check whether something has changed
-cmd  = 'diff /tmp/Productions.' + cmssw + ' ' \
-       + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' + cmssw
-rc = call(cmd.split(' '))
-if rc == 0:
-    print " No difference in the local and central database files (rc=%d)."%(rc)
-else:
-    print " Differences in central and local file found (rc=%d)."%(rc)
-    answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
-    # Check whether something has changed
-    if answer == 'y' or answer == 'Y':
-        cmd  = 'mv /tmp/Productions.' + cmssw + ' ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg \
-               + '/' + version + '/Productions.' + cmssw
-        rc = call(cmd.split(' '))
-        print ' Local database was overwritten.'
+if not useCachedDb:
+    # Download up to date database file for productions
+    cmd  = 'wget ' + webServer + '/' + mitCfg + '/' + version + '/Productions.' + cmssw \
+           + ' -O /tmp/Productions.' + cmssw
+    rc = call(cmd.split(' '))
+    if rc == 0:
+        print " Download of central database file worked (rc=%d)."%(rc)
     else:
-        print ' Local database *not* overwritten. Exit here.'
-        sys.exit(0)
+        print " Download of central database file failed."
+    
+    # Check whether something has changed
+    cmd  = 'diff /tmp/Productions.' + cmssw + ' ' \
+           + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' + cmssw
+    rc = call(cmd.split(' '))
+    if rc == 0:
+        print " No difference in the local and central database files (rc=%d)."%(rc)
+    else:
+        print " Differences in central and local file found (rc=%d)."%(rc)
+        answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
+        # Check whether something has changed
+        if answer == 'y' or answer == 'Y':
+            cmd  = 'mv /tmp/Productions.' + cmssw + ' ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg \
+                   + '/' + version + '/Productions.' + cmssw
+            rc = call(cmd.split(' '))
+            print ' Local database was overwritten.'
+        else:
+            print ' Local database *not* overwritten. Exit here.'
+            sys.exit(0)
+else:
+    print " Using cached version: "
+    cmd = 'ls -lhrt ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' \
+          + cmssw
+    rc = call(cmd.split(' '))
 
 cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmsswCfg
 if not os.path.exists(cmsswFile):

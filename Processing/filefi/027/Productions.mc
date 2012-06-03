@@ -22,6 +22,7 @@
 /ZZ_TuneZ2star_8TeV_pythia6_tauola/Summer12-PU_S8_START52_V9-v1/AODSIM                        s12-zz-v9-s8                 1  new  -
 /WminusToMuNu_CT10_TuneZ2star_8TeV-powheg-pythia6/Summer12-PU_S8_START52_V9-v2/AODSIM         s12-wmm-v9-s8                1  new  -
 /WplusToMuNu_CT10_TuneZ2star_8TeV-powheg-pythia6/Summer12-PU_S8_START52_V9-v2/AODSIM          s12-wpm-v9-s8                1  new  -
+/WminusToMuNu_CT10_TuneZ2star_8TeV-powheg-pythia6/Summer12-PU_S8_START52_V9-v2/AODSIM         s12-wme-v9-s8                1  new  -
 /WplusToENu_CT10_TuneZ2star_8TeV-powheg-pythia6/Summer12-PU_S8_START52_V9-v2/AODSIM           s12-wpe-v9-s8                1  new  -
 /WToTauNu_TuneZ2star_8TeV_pythia6_tauola_cff/Summer12-PU_S8_START52_V9-v2/AODSIM              s12-wt-v9-s8                 1  new  -
 /DYToMuMu_M-20_CT10_TuneZ2star_8TeV-powheg-pythia6/Summer12-PU_S8_START52_V9-v2/AODSIM        s12-zmm-v9-s8                1  new  -
@@ -104,7 +105,10 @@
 /GluGluToHToWWTo2LAndTau2Nu_M-900_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM     s12-h900ww2l-gf-v9           1  new  -
 /GluGluToHToWWTo2LAndTau2Nu_M-1000_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM    s12-h1000ww2l-gf-v9          1  new  -
 
+
+/VBF_HToWWTo2LAndTau2Nu_M-130_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM         s12-h130ww2l-vbf-v9          1  new  -
 /VBF_HToWWTo2LAndTau2Nu_M-150_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM         s12-h150ww2l-vbf-v9          1  new  -
+/VBF_HToWWTo2LAndTau2Nu_M-190_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM         s12-h190ww2l-vbf-v9          1  new  -
 /VBF_HToWWTo2LAndTau2Nu_M-600_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM         s12-h600ww2l-vbf-v9          1  new  -
 
 /GluGluToHToTauTau_M-110_8TeV-powheg-pythia6/Summer12-PU_S7_START52_V9-v1/AODSIM              s12-h110tt-gf-v9             1  new  -
