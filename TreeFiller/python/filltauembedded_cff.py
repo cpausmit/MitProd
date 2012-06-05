@@ -1,4 +1,4 @@
-# $Id: filltauembedded_cff.py,v 1.3 2011/11/24 11:40:39 pharris Exp $
+# $Id: filltauembedded_cff.py,v 1.4 2012/06/02 00:24:35 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,8 +14,8 @@ def filltauembedded(filler):
     filler.PrimaryVertexes.trackMapName        = 'tmfTracksMapName'
     filler.PrimaryVertexesBS.trackMapName      = 'tmfTracksMapName'
     filler.Electrons.trackerTrackMapName       = ''
-    #filler.Electrons.gsfTrackMapName           = ''
-    #filler.Electrons.requireClusterAndGsfMap   = False
+    filler.Electrons.gsfTrackMapName           = ''
+    filler.Electrons.requireClusterAndGsfMap   = False
     filler.PFCandidates.trackerTrackMapNames   = cms.untracked.vstring('tmfTracksMapName')
     filler.PFCandidates.gsfTrackMapName        = ''        
     filler.PFCandidates.muonMapName            = ''        
