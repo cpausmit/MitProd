@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.37 2012/05/12 13:31:17 paus Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.38 2012/05/12 15:55:10 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_2/RelValProdTTbar/GEN-SIM-RECO/START52_V4-v1/0004/DCA3A2E4-C973-E111-9839-003048F1183E.root')
+  fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_2-START53_V6/RelValProdTTbar/AODSIM/v2/0000/9A630BD7-C3B9-E111-BAB3-00304867918E.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *",
@@ -38,7 +38,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V9::All'
+process.GlobalTag.globaltag = 'START53_V7A::All'
 
 process.add_(cms.Service("ObjectService"))
 
