@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.19 2012/04/20 16:07:41 bendavid Exp $
+// $Id: FillerPhotons.h,v 1.20 2012/05/05 16:49:58 paus Exp $
 //
 // FillerPhotons
 //
@@ -28,20 +28,22 @@ namespace mithep
       void                             FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   			               
     private:		               
-      std::string                      edmName_;                   //edm name of photon collection
-      std::string                      mitName_;                   //mit name of photon collection
-      std::string                      conversionMapName_;         //name of imported map wrt conv electrons
-      std::string                      oneLegConversionMapName_;   //name of imported map wrt conv electrons
-      std::string                      barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
-      std::string                      endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
-      std::string                      pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus 
-      std::string                      pfClusterMapName_;          //name of imp. map wrt pflow clus       
-      std::string                      pfCandMapName_;             //name of imp. map wrt pfcandidates
-      std::string                      phIDCutBasedTightName_;     //name of tight cut phID algo
-      std::string                      phIDCutBasedLooseName_;     //name of loose cut phID algo
+      std::string                      edmName_;                   //edm name: photon collection
+      std::string                      mitName_;                   //mit name: photon collection
+      std::string                      conversionMapName_;         //name: imp. map wrt conv. elecs
+      std::string                      oneLegConversionMapName_;   //name: imp. map wrt conv. elecs
+      std::string                      barrelSuperClusterMapName_; //name: imp. map wrt barrel sclus
+      std::string                      endcapSuperClusterMapName_; //name: imp. map wrt endcap sclus
+      std::string                      pfSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
+      std::string                      pfClusterMapName_;          //name: imp. map wrt pflow clus       
+      std::string                      pfCandMapName_;             //name: imp. map wrt pfcandidates
+      std::string                      photonMapName_;             //name: exported photon map
+      std::string                      phIDCutBasedTightName_;     //name: tight cut phID algo
+      std::string                      phIDCutBasedLooseName_;     //name: loose cut phID algo
+      mithep::PhotonMap                *photonMap_;                //exported photon map
       mithep::PhotonArr                *photons_;                  //array of Photons
-      const mithep::ConversionDecayMap *conversionMap_;            //imported map wrt conversion electrons
-      const mithep::ConversionDecayMap *oneLegConversionMap_;      //imported map wrt conversion electrons
+      const mithep::ConversionDecayMap *conversionMap_;            //imp. map wrt conver. electrons
+      const mithep::ConversionDecayMap *oneLegConversionMap_;      //imp. map wrt conver. electrons
       const mithep::SuperClusterMap    *barrelSuperClusterMap_;    //map wrt barrel super clusters
       const mithep::SuperClusterMap    *endcapSuperClusterMap_;    //map wrt endcap super clusters
       const mithep::SuperClusterMap    *pfSuperClusterMap_;        //map wrt pflow super clusters  

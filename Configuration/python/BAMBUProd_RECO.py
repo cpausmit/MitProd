@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_RECO.py,v 1.39 2012/04/11 20:18:27 paus Exp $
+# $Id: BAMBUProd_RECO.py,v 1.40 2012/05/12 15:55:11 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_028'),
+  version    = cms.untracked.string('Mit_029'),
   annotation = cms.untracked.string('RECO'),
   name       = cms.untracked.string('BambuProduction')
 )
@@ -36,7 +36,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+process.GlobalTag.globaltag = 'GR_P_V40::All'
 
 process.add_(cms.Service("ObjectService"))
 

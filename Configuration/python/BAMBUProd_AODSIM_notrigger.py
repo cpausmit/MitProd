@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.38 2012/05/12 15:55:10 paus Exp $
+# $Id: BAMBUProd_AODSIM_notrigger.py,v 1.1 2012/06/17 01:33:03 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,7 +14,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('RecoVertex/PrimaryVertexProducer/OfflinePrimaryVertices_cfi')
  
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_028'),
+  version    = cms.untracked.string('Mit_029'),
   annotation = cms.untracked.string('AODSIM'),
   name       = cms.untracked.string('BambuProduction')
 )
@@ -38,7 +38,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V9::All'
+process.GlobalTag.globaltag = 'START53_V10::All'
 
 process.add_(cms.Service("ObjectService"))
 
@@ -48,7 +48,7 @@ process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 #disable hlt filling
 process.MitTreeFiller.MetaInfos.hltActive = False
-process.MitTreeFiller.MetaInfos.l1Active = False
+process.MitTreeFiller.MetaInfos.l1Active  = False
 
 #process.output = cms.OutputModule("PoolOutputModule",
 #                                  outputCommands = cms.untracked.vstring('keep *'),

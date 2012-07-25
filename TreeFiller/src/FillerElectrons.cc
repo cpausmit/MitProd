@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.65 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerElectrons.cc,v 1.66 2012/05/12 15:55:11 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
@@ -235,6 +235,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetFBrem(iM->fbrem());
     outElectron->SetEcalEnergy(iM->correctedEcalEnergy());
     outElectron->SetEcalEnergyError(iM->correctedEcalEnergyError());
+    outElectron->SetTrackMomentumError(iM->trackMomentumError());
     
     // pflow electron stuff
     outElectron->SetIsEcalDriven(iM->ecalDrivenSeed());
@@ -251,22 +252,20 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHcalDepth1OverEcal(iM->hcalDepth1OverEcal());
     outElectron->SetHcalDepth2OverEcal(iM->hcalDepth2OverEcal());
     outElectron->SetHadOverEmTow(iM->hcalOverEcalBc()); 
-  
 
     // fill isolation variables for both cone sizes
     outElectron->SetEcalRecHitIsoDr04(iM->dr04EcalRecHitSumEt());
     outElectron->SetHcalDepth1TowerSumEtDr04(iM->dr04HcalDepth1TowerSumEt());
     outElectron->SetHcalDepth2TowerSumEtDr04(iM->dr04HcalDepth2TowerSumEt());
     outElectron->SetTrackIsolationDr04(iM->dr04TkSumPt());
-    outElectron->SetHCalIsoTowDr04( iM->dr04HcalTowerSumEtBc() );
+    outElectron->SetHCalIsoTowDr04(iM->dr04HcalTowerSumEtBc());
     outElectron->SetEcalRecHitIsoDr03(iM->dr03EcalRecHitSumEt());
     outElectron->SetHcalTowerSumEtDr03(iM->dr03HcalTowerSumEt());
     outElectron->SetHcalDepth1TowerSumEtDr03(iM->dr03HcalDepth1TowerSumEt());
     outElectron->SetHcalDepth2TowerSumEtDr03(iM->dr03HcalDepth2TowerSumEt());
     outElectron->SetTrackIsolationDr03(iM->dr03TkSumPt());
-    outElectron->SetHCalIsoTowDr03( iM->dr03HcalTowerSumEtBc() );    
+    outElectron->SetHCalIsoTowDr03(iM->dr03HcalTowerSumEtBc());    
     
-
     //pflow isolation
     outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().chargedHadronIso);
     outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().neutralHadronIso);

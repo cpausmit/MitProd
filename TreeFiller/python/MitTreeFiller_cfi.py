@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.118 2012/05/05 16:49:59 paus Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.119 2012/05/06 12:45:05 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,10 +55,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'MergedConversions',
                                     'Conversions',
                                     'PFPhotonConversions',
+                                    'PFPhotons',                                    
                                     'PFCandidates',
 #                                   'PFCandidatesCHS',
                                     'Photons',
-                                    'PFPhotons',
                                     'IC5GenJets',
                                     'KT4GenJets',
                                     'KT6GenJets',
@@ -651,6 +651,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         pfCandMapName             = cms.untracked.string('PFCandMapName'),
+        photonMapName             = cms.untracked.string('PhotonMapName'),
         fillerType                = cms.untracked.string('FillerPhotons')
     ),
 
@@ -666,21 +667,28 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         pfSuperClusterMapName     = cms.untracked.string('PFPhotonSuperClusterMap'),
         pfClusterMapName          = cms.untracked.string('PFPhotonBasicClusterMap'),
+        photonMapName             = cms.untracked.string('PFPhotonMapName'),
         fillerType                = cms.untracked.string('FillerPhotons')
     ),
 
     PFCandidates = cms.untracked.PSet(
-        active                    = cms.untracked.bool(True),
-        mitName                   = cms.untracked.string('PFCandidates'),
-        edmName                   = cms.untracked.string('particleFlow'),
-        edmNoPileupName           = cms.untracked.string('pfNoElectron'),
-        trackerTrackMapNames      = cms.untracked.vstring('TracksMapName', 'ConversionTracksMapName'),
-        gsfTrackMapName           = cms.untracked.string('GsfTracksMapName'),
-        muonMapName               = cms.untracked.string('MuonMapName'),
-        conversionMapName         = cms.untracked.string('ConversionsMapName'),
-        pfCandMapName             = cms.untracked.string('PFCandMapName'),
-        pfNoPileupCandCandMapName = cms.untracked.string('PFNoPileupCandMapName'),
-        fillerType                = cms.untracked.string('FillerPFCandidates')
+        active                        = cms.untracked.bool(True),
+        mitName                       = cms.untracked.string('PFCandidates'),
+        edmName                       = cms.untracked.string('particleFlow'),
+        edmNoPileupName               = cms.untracked.string('pfNoElectron'),
+        trackerTrackMapNames          = cms.untracked.vstring('TracksMapName',
+                                                              'ConversionTracksMapName'),
+        gsfTrackMapName               = cms.untracked.string('GsfTracksMapName'),
+        muonMapName                   = cms.untracked.string('MuonMapName'),
+        conversionMapName             = cms.untracked.string('ConversionsMapName'),
+        barrelSuperClusterMapName     = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName     = cms.untracked.string('endcapSuperClusterMap'),
+        pfElectronSuperClusterMapName = cms.untracked.string('PFSuperClusterMap'),        
+        electronMapName               = cms.untracked.string('electronMap'),
+        photonMapName                 = cms.untracked.string('PFPhotonMapName'),
+        pfCandMapName                 = cms.untracked.string('PFCandMapName'),
+        pfNoPileupCandCandMapName     = cms.untracked.string('PFNoPileupCandMapName'),
+        fillerType                    = cms.untracked.string('FillerPFCandidates')
     ),
 
     IC5GenJets = cms.untracked.PSet(

@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_028'),
+  version    = cms.untracked.string('Mit_029'),
   annotation = cms.untracked.string('RECOSIM'),
   name       = cms.untracked.string('BambuProduction')
 )
@@ -35,7 +35,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START52_V9::All'
+process.GlobalTag.globaltag = 'START53_V10::All'
 
 process.add_(cms.Service("ObjectService"))
 

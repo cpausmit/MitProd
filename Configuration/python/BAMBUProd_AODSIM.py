@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.38 2012/05/12 15:55:10 paus Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.39 2012/07/16 13:13:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,7 +14,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('RecoVertex/PrimaryVertexProducer/OfflinePrimaryVertices_cfi')
  
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_028'),
+  version    = cms.untracked.string('Mit_029'),
   annotation = cms.untracked.string('AODSIM'),
   name       = cms.untracked.string('BambuProduction')
 )
@@ -38,7 +38,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'START53_V7A::All'
+process.GlobalTag.globaltag = 'START53_V10::All'
 
 process.add_(cms.Service("ObjectService"))
 

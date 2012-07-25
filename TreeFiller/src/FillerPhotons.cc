@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.29 2012/04/20 16:07:43 bendavid Exp $
+// $Id: FillerPhotons.cc,v 1.30 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,11 +35,13 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
   pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),  
-  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName","")),  
+  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  photonMapName_            (Conf().getUntrackedParameter<string>("photonMapName","")),  
   phIDCutBasedTightName_    (Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
 								  "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
 								  "PhotonIDProd:PhotonCutBasedIDLoose")),
+  photonMap_                (new mithep::PhotonMap),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
   oneLegConversionMap_      (0),
@@ -97,7 +99,11 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
     pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_);
     if (pfCandMap_)
       AddBranchDep(mitName_,pfCandMap_->GetBrName());
-  }    
+  }  
+  if (!photonMapName_.empty()) {
+    photonMap_->SetBrName(mitName_);
+    OS()->add<PhotonMap>(photonMap_,photonMapName_);
+  }  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +116,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   //  ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
   
   photons_->Delete();
+  photonMap_->Reset();
 
   // get photon collection
   Handle<reco::PhotonCollection> hPhotonProduct;
@@ -273,6 +280,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
     //outPhoton->SetEnergyRegr(cor.first);
     //outPhoton->SetEnergyErrRegr(cor.second);
+
+    // add electron to map
+    edm::Ptr<reco::Photon> thePtr(hPhotonProduct, iP - inPhotons.begin());
+    photonMap_->Add(thePtr, outPhoton);
+
   }
   photons_->Trim();
 }

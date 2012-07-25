@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.27 2012/03/11 23:11:55 pharris Exp $
+// $Id: AssociationMaps.h,v 1.28 2012/05/05 16:49:58 paus Exp $
 //
 // AssociationMaps
 //
@@ -52,6 +52,7 @@
 #include "MitAna/DataTree/interface/ParticleFwd.h"
 #include "MitAna/DataTree/interface/VertexFwd.h"
 #include "MitAna/DataTree/interface/PFCandidateFwd.h"
+#include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitAna/DataTree/interface/CaloJetFwd.h"
 #include "MitAna/DataTree/interface/JPTJetFwd.h"
 #include "MitAna/DataTree/interface/PFJetFwd.h"
@@ -82,6 +83,7 @@ namespace mithep
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*>  SuperClusterIdMap;
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>          MuonMap;
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Electron*>      ElectronMap;
+  typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::PFTau>,       mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>   PFCandidateMap;
   typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>       CaloJetMap;

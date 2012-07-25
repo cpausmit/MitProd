@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.15 2012/03/11 23:11:56 pharris Exp $
+// $Id: FillerPFCandidates.cc,v 1.16 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -6,6 +6,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -20,26 +22,36 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, 
                                        const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","particleFlow")),
-  edmPfNoPileupName_(Conf().getUntrackedParameter<string>("edmName","pfNoElectrons")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
-  trackerTrackMapNames_(Conf().exists("trackerTrackMapNames") ? 
-                    Conf().getUntrackedParameter<vector<string> >("trackerTrackMapNames") : 
-                    vector<string>()),
-  gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
-  muonMapName_(Conf().getUntrackedParameter<string>("muonMapName","")),
-  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName","")),
-  pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","")),
-  pfNoPileupCandMapName_(Conf().getUntrackedParameter<string>("pfNoPileupMapName","")),
-  allowMissingTrackRef_(Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
-  fillPfNoPileup_(Conf().getUntrackedParameter<bool>("fillPfNoPileup",true)),
-  gsfTrackMap_(0),
-  muonMap_(0),
-  conversionMap_(0),
-  pfCandMap_(new mithep::PFCandidateMap),
-  pfNoPileupCandMap_(new mithep::PFCandidateMap),
-  pfCands_(new mithep::PFCandidateArr(16))
+  BaseFiller                    (cfg,name,active),
+  edmName_                      (Conf().getUntrackedParameter<string>("edmName","particleFlow")),
+  edmPfNoPileupName_            (Conf().getUntrackedParameter<string>("edmName","pfNoElectrons")),
+  mitName_                      (Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
+  trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
+				 Conf().getUntrackedParameter<vector<string> >("trackerTrackMapNames") : 
+				 vector<string>()),
+  gsfTrackMapName_              (Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
+  muonMapName_                  (Conf().getUntrackedParameter<string>("muonMapName","")),
+  electronMapName_              (Conf().getUntrackedParameter<string>("electronMapName","")),
+  photonMapName_                (Conf().getUntrackedParameter<string>("photonMapName","")),
+  barrelSuperClusterMapName_    (Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
+  endcapSuperClusterMapName_    (Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
+  pfElectronSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfElectronSuperClusterMapName","")),
+  conversionMapName_            (Conf().getUntrackedParameter<string>("conversionMapName","")),
+  pfCandMapName_                (Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  pfNoPileupCandMapName_        (Conf().getUntrackedParameter<string>("pfNoPileupMapName","")),
+  allowMissingTrackRef_         (Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
+  fillPfNoPileup_               (Conf().getUntrackedParameter<bool>("fillPfNoPileup",true)),
+  gsfTrackMap_                  (0),
+  muonMap_                      (0),
+  electronMap_                  (0),
+  photonMap_                    (0),
+  barrelSuperClusterMap_        (0),
+  endcapSuperClusterMap_        (0),
+  pfElectronSuperClusterMap_    (0),
+  conversionMap_                (0),
+  pfCandMap_                    (new mithep::PFCandidateMap),
+  pfNoPileupCandMap_            (new mithep::PFCandidateMap),
+  pfCands_                      (new mithep::PFCandidateArr(16))
 {
   // Constructor.
 }
@@ -88,6 +100,31 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
     muonMap_ = OS()->get<MuonMap>(muonMapName_);
     if (muonMap_)
       AddBranchDep(mitName_,muonMap_->GetBrName());
+  }
+  if (!electronMapName_.empty()) {
+    electronMap_ = OS()->get<ElectronMap>(electronMapName_);
+    if (electronMap_)
+      AddBranchDep(mitName_,electronMap_->GetBrName());
+  }
+  if (!photonMapName_.empty()) {
+    photonMap_ = OS()->get<PhotonMap>(photonMapName_);
+    if (photonMap_)
+      AddBranchDep(mitName_,photonMap_->GetBrName());
+  }
+  if (!barrelSuperClusterMapName_.empty()) {
+    barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
+    if (barrelSuperClusterMap_)
+      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+  }
+  if (!endcapSuperClusterMapName_.empty()) {
+    endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
+    if (endcapSuperClusterMap_)
+      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+  }
+  if (!pfElectronSuperClusterMapName_.empty()) {
+    pfElectronSuperClusterMap_ = OS()->get<SuperClusterMap>(pfElectronSuperClusterMapName_);
+    if (pfElectronSuperClusterMap_)
+      AddBranchDep(mitName_,pfElectronSuperClusterMap_->GetBrName());
   }
   if (!conversionMapName_.empty()) {
     conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
@@ -205,7 +242,9 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
                        
     // fill references to other branches
     if (iP->trackRef().isNonnull()) {
-      //printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
+      //printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
+      //       iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),
+      //       iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
       const mithep::Track *thetrack = getMitTrack(refToPtr(iP->trackRef()),allowMissingTrackRef_);
       outPfCand->SetTrackerTrk(thetrack);
     }    
@@ -213,6 +252,18 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iP->gsfTrackRef())));
     if (muonMap_ && iP->muonRef().isNonnull()) 
       outPfCand->SetMuon(muonMap_->GetMit(refToPtr(iP->muonRef())));
+    if (electronMap_ && iP->gsfElectronRef().isNonnull()) 
+      outPfCand->SetElectron(electronMap_->GetMit(refToPtr(iP->gsfElectronRef())));
+    if (photonMap_ && iP->photonRef().isNonnull()) 
+      outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(iP->photonRef())));
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
+      if (barrelSuperClusterMap_->HasMit(iP->superClusterRef()))
+        outPfCand->SetSCluster(barrelSuperClusterMap_->GetMit(iP->superClusterRef()));
+      else if (endcapSuperClusterMap_->HasMit(iP->superClusterRef()))
+        outPfCand->SetSCluster(endcapSuperClusterMap_->GetMit(iP->superClusterRef()));
+      else
+        outPfCand->SetSCluster(pfElectronSuperClusterMap_->GetMit(iP->superClusterRef()));
+    }
     if (conversionMap_ && iP->conversionRef().isNonnull()) 
       outPfCand->SetConversion(conversionMap_->GetMit(iP->conversionRef()));
 
