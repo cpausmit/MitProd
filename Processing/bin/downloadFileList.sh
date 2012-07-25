@@ -15,7 +15,7 @@ do
   echo $file | sed "s#${CERN_LOC}#${MIT2_LOC}#"
   t2File=`echo $file | sed "s#${CERN_LOC}#${MIT2_LOC}#"`
 
-  ssh -x paus@lxplus.cern.ch ./stageFile.py --file=$file
+  ssh -x $TICKET_HOLDER@lxplus.cern.ch ./stageFile.py --file=$file
   echo "downloadFile.sh $file $t2File"
   downloadFile.sh $file $t2File
 

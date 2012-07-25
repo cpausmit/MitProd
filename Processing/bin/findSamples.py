@@ -196,7 +196,7 @@ if not useCachedDb:
     
     # Check whether something has changed
     cmd  = 'diff /tmp/Productions.' + cmssw + ' ' \
-           + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' + cmssw
+           + './' + mitCfg + '/' + version + '/Productions.' + cmssw
     rc = call(cmd.split(' '))
     if rc == 0:
         print " No difference in the local and central database files (rc=%d)."%(rc)
@@ -205,7 +205,7 @@ if not useCachedDb:
         answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
         # Check whether something has changed
         if answer == 'y' or answer == 'Y':
-            cmd  = 'mv /tmp/Productions.' + cmssw + ' ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg \
+            cmd  = 'mv /tmp/Productions.' + cmssw + ' ./' + mitCfg \
                    + '/' + version + '/Productions.' + cmssw
             rc = call(cmd.split(' '))
             print ' Local database was overwritten.'
@@ -214,7 +214,7 @@ if not useCachedDb:
             sys.exit(0)
 else:
     print " Using cached version: "
-    cmd = 'ls -lhrt ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Productions.' \
+    cmd = 'ls -lhrt ./' + mitCfg + '/' + version + '/Productions.' \
           + cmssw
     rc = call(cmd.split(' '))
 
@@ -251,7 +251,8 @@ cleanupCompletedList(ongoingDsetList,completedDsetList)
 completedDsetList = findCompletedDatasets(path)
 
 # Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat '+ os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
+cmd = 'cat ' + './' + mitCfg + '/' + version + '/' + 'Productions'
+#cmd = 'cat '+ os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
 if cmssw != '':
     cmd = cmd + '.' + cmssw
 
@@ -325,8 +326,7 @@ for line in os.popen(cmd).readlines():  # run command
 
         # make sure we want to consider submission
         if download != 1 and status != 1  and show != 1 and remakeLfns != 1:
-            cmd = 'submit.py --mitDataset=' + mitDataset + ' --mitCfg=' + mitCfg + \
-                  ' --version=' + version + ' --noTestJob'
+            cmd = 'submit.py --mitCfg=' + mitCfg + ' --version=' + version + ' --noTestJob'
             if cmssw != '':
                 cmd = cmd + " --cmssw=" + cmssw
             if useExistingLfns:
@@ -338,7 +338,10 @@ for line in os.popen(cmd).readlines():  # run command
                     cmd = cmd + " --fixSites=T1_US_FNAL"
                 else:
                     cmd = cmd + " --fixSites=" + fixSites
-    
+
+            # last thing to add is the dataset itself (nicer printing)
+            cmd = cmd + ' --mitDataset=' + mitDataset
+
             # check for errors (to be done)
     
             # check for the logical combinations

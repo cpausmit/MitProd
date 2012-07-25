@@ -19,8 +19,6 @@
 # Author: C.Paus                                                                 (November 08, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-myPath = os.environ['HOME'] + '/catalog/bin'
-sys.path.append(myPath)
 import files
   
 #===================================================================================================
@@ -120,6 +118,54 @@ if init:
     if debug > 0:
         print 'Files contained (debug - %d):'%debug
     fileset.showShortFiles(filesOut,debug)
+    iFileset = iFileset + 1
+
+#===================================================================================================
+# Now we add the additional files
+if os.path.exists(dir + '/AddFiles.00'):
+    cmd = 'cat ' + dir + '/AddFiles.00'
+    print 'Execute:  ' + cmd
+    init = False
+    for line in os.popen(cmd).readlines():  # run command
+        line = line[:-1]
+        # print ' LINE: ' + line
+        line = " ".join(str(line).split()).strip()
+        f = line.split(' ')
+        g = f[0].split('/')
+        dataDir  = '/'.join(g[:-1])
+        if not init:
+            name     = '%04d'%iFileset
+            #fileset  = files.Fileset(name,dataDir)
+            fileset.reset(name,dataDir)
+            init = True
+        fileName = g[-1]
+        if len(f) != 7: 
+            print ' Length is not six: %d'%len(f)
+            sys.exit(1)
+        file = files.File(int(f[1]),int(f[2]),int(f[3]),int(f[4]),int(f[5]),int(f[6]),fileName);
+        #file.show()
+    
+        if (fileset.nFiles()<nFilesPerSet):
+            fileset.addFile(file)
+        else:
+            if debug > 0:
+                print '\nFileset (debug - %d): '%debug + fileset.name
+            fileset.showShort(filesetsOut,debug)
+            if debug > 0:
+                print 'Files contained (debug - %d):'%debug
+            fileset.showShortFiles(filesOut,debug)
+            iFileset = iFileset + 1
+            name     = '%04d'%iFileset
+            fileset.reset(name,dataDir)
+            fileset.addFile(file)
+            
+    if init:
+        if debug > 0:
+            print '\nFileset (debug - %d): '%debug + fileset.name
+        fileset.showShort(filesetsOut,debug)
+        if debug > 0:
+            print 'Files contained (debug - %d):'%debug
+        fileset.showShortFiles(filesOut,debug)
 
 filesOut.close()
 filesetsOut.close()

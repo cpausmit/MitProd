@@ -16,7 +16,8 @@ condorOutput=$5
 skim=""
 if [ "`echo $dataDir | grep cmsprod/skim`" != "" ]
 then
-  skim=`basename $dataDir`/
+  skim=`dirname $dataDir`
+  skim=`basename $skim`/
 fi
 
 # Prepare environment
@@ -76,11 +77,14 @@ then
   file=`echo $KRB5CCNAME | cut -d: -f2`
   if [ -e "$file" ]
   then
-    cp $file ~/.krb5/ticket
+    cp $file ~/.krb5/krb5cc_`id -u`
   else
     echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
     exit 1
   fi
+else
+  #echo " INFO -- default kerberos ticket (krb5cc_`id -u`)."  
+  cp /tmp/krb5cc_`id -u` ~/.krb5/
 fi
 
 for file in $LIST
@@ -112,7 +116,7 @@ do
 Universe                = vanilla
 #Requirements            = (MACHINE != "t3btch090.mit.edu") && ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
 Requirements            = ( (Arch == "X86_64" || Arch == "INTEL") && (OpSys == "LINUX") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
-Notify_user             = paus@mit.edu
+Notify_user             = $TICKET_HOLDER@mit.edu
 Notification            = Error
 Executable              = $script
 Arguments               = $dataDir/$book/$dataset $file

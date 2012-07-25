@@ -38,8 +38,8 @@ rm -f $condorOutput/$book/$dataset/fileList*.$$.txt*
 
 # make list of all local files
 if [ "`echo $HOSTNAME | grep mit.edu`" != "" ] && \
- ( [ "`echo $dataDir | grep /castor/cern.ch`" != "" ] || \
-   [ "`echo $target | grep /castor/cern.ch`" != "" ] )
+ ( [ "`echo $dataDir  | grep /castor/cern.ch`" != "" ] || \
+   [ "`echo $target   | grep /castor/cern.ch`" != "" ] )
 then
   opt="--simple"
 else
@@ -55,6 +55,7 @@ cp /tmp/x509up_u${id} ~/.krb5/
 KRB5CCNAME=`klist -5 | grep 'Ticket cache:' | cut -d' ' -f 3`
 if ! [ -z $KRB5CCNAME ]
 then
+  mkdir    -p  ~/.krb5/
   chmod 0      ~/.krb5
   chmod u=rwx  ~/.krb5
   file=`echo $KRB5CCNAME | cut -d: -f2`
@@ -92,8 +93,9 @@ else
   opt=""
 fi
 
-dcache=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus
-list $opt $dcache/$book/$dataset $target/$book/$dataset | grep root | sort \
+#dcache=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus
+#list $opt $dcache/$book/$dataset $target/$book/$dataset | grep root | sort \
+list $opt $target/$book/$dataset | grep root | sort \
      > $condorOutput/$book/$dataset/fileList-done.$$.txt
 
 diff -y $condorOutput/$book/$dataset/fileList-all.$$.txt  \
@@ -186,6 +188,17 @@ then
   export CONDOR_CONFIG=/usr/local/condor/etc/condor_config
 fi
 
+# stage in the missing files if it is at CERN
+if [ "`echo $dataDir | grep /castor/cern.ch`" != "" ]
+then
+  echo "  scp $condorOutput/$book/$dataset/fileList.$$.txt  $TICKET_HOLDER@lxplus.cern.ch:"
+  scp $condorOutput/$book/$dataset/fileList.$$.txt  $TICKET_HOLDER@lxplus.cern.ch:
+  echo "  ssh $TICKET_HOLDER@lxplus.cern.ch ./stageSample.py --dataDir=$dataDir/$book/$dataset --fileList=fileList.$$.txt"
+  ssh $TICKET_HOLDER@lxplus.cern.ch ./stageSample.py --dataDir=$dataDir/$book/$dataset --fileList=fileList.$$.txt
+  echo "  ssh $TICKET_HOLDER@lxplus.cern.ch rm fileList.$$.txt"
+  ssh $TICKET_HOLDER@lxplus.cern.ch rm fileList.$$.txt
+fi
+
 # loop over the condor jobs and submit them
 while [ $i -le $nCopyProcs ] && [ $last -le $nFiles ]
 do
@@ -205,7 +218,7 @@ do
   cat > submit_$$.cmd <<EOF
 Universe                = vanilla
 Requirements            = ( (Arch == "INTEL") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
-Notify_user             = paus@mit.edu
+Notify_user             = $TICKET_HOLDER@mit.edu
 Notification            = Error
 Executable              = $script
 Arguments               = $dataDir $book $dataset $target $condorOutput $$ $next $last

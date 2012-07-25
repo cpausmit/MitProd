@@ -2,7 +2,7 @@
 #===================================================================================================
 # Interface to execute a script on the server as globus ticket mapped user.
 #===================================================================================================
-TICKET=/tmp/x509up_u`id -u`
+TICKET=$X509_USER_PROXY
 SCRIPT=$1
 
 if [ ".$2" != "." ]
@@ -17,19 +17,18 @@ fi
 
 # Make sure it is executable
 chmod 755   $SCRIPT
-#cat $SCRIPT
 
 # Copy ticket and script
-scp $TICKET paus@se01.cmsaf.mit.edu:/tmp/x509up_uTmp 2> /dev/null
-scp $SCRIPT paus@se01.cmsaf.mit.edu:/tmp/            2> /dev/null
+scp $TICKET $TIER2_USER@se01.cmsaf.mit.edu:$X509_USER_PROXY 2> /dev/null
+scp $SCRIPT $TIER2_USER@se01.cmsaf.mit.edu:/tmp/            2> /dev/null
 
 # Execute the script
-ssh -x paus@se01.cmsaf.mit.edu \
-  "export GLEXEC_CLIENT_CERT=/tmp/x509up_uTmp; /osg/grid/glexec-osg/sbin/glexec /tmp/$SCRIPT"
+ssh $TIER2_USER@se01.cmsaf.mit.edu \
+  "export GLEXEC_CLIENT_CERT=$X509_USER_PROXY; /osg/grid/glexec-osg/sbin/glexec /tmp/$SCRIPT"
 
 # Cleanup remotely
-ssh -x paus@se01.cmsaf.mit.edu \
-  "rm /tmp/$SCRIPT /tmp/x509up_uTmp"
+ssh $TIER2_USER@se01.cmsaf.mit.edu \
+  "rm /tmp/$SCRIPT $X509_USER_PROXY"
 
 # Cleanup locally
 if [ -e sc.$$ ]

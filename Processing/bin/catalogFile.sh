@@ -16,14 +16,20 @@ source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
 
 klist
-cp ~cmsprod/.krb5/ticket          /tmp/
-cp ~cmsprod/.krb5/x509up_u`id -u` /tmp/
-export KRB5CCNAME=FILE:/tmp/ticket
+cp ~/.krb5/krb5cc_`id -u`  /tmp/
+cp ~/.krb5/x509up_u`id -u` /tmp/
+export KRB5CCNAME=FILE:/tmp/krb5cc_`id -u`
 klist
 voms-proxy-info -all
 
 dataDir=$1
 dataFile=$2
+if [ ".$2" == "." ]
+then
+  dataFile=`basename $dataDir`
+  dataDir=`dirname $dataDir`
+fi
+
 procId=$$
 logFile=`echo $dataDir/$dataFile | tr '/' '+'`
 logFile=/tmp/$logFile

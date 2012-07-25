@@ -87,7 +87,6 @@ fi
 echo " "; echo "Starting download now"; echo " "
 if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" == "" ]
 then
-
   echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
   $LCGCP -D srmv2 -b  $sourceUrl $targetUrl
 

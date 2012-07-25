@@ -14,6 +14,7 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
 import task,translator
+t2user = os.environ['TIER2_USER']
 
 #===================================================================================================
 def domain():
@@ -194,9 +195,9 @@ def create(path):
     if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
         f    = path.split('=')
         path = f[-1]
-        cmd = 'ssh -x paus@cgate.mit.edu mkdir -p  ' + path
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu mkdir -p  ' + path
         status = os.system(cmd)
-        cmd = 'ssh -x paus@cgate.mit.edu chmod 777 ' + path
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu chmod 777 ' + path
         status = os.system(cmd)
     return status
 

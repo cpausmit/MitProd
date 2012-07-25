@@ -348,7 +348,8 @@ if not os.path.exists(cmsswFile):
         raise RuntimeError, cmd
 
 # Resolve the other mitCfg parameters from the configuration file
-cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
+#cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + 'Productions'
+cmd = 'cat ' + './' + mitCfg + '/' + version + '/' + 'Productions'
 if cmssw != '':
     cmd = cmd + '.' + cmssw
 

@@ -222,6 +222,14 @@ for crabTask in crabTasks:
     storageEle  = crabTask.storageEle
     storagePath = crabTask.storagePath
 
+    if True:
+	    f = storagePath.split("=")
+	    path1 = f[1]
+	    path0 = "/".join(path1.split("/")[:-1])
+	    cmd = ' glexec chmod a+w ' + path0 + ' ' + path1
+	    print ' Updating permissions - ' + cmd
+	    status = os.system(cmd)
+
     if kill == 1:
             crabTask.killAndRemove(1)
 	    continue

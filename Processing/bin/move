@@ -6,6 +6,8 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re
 import srm
+user = os.environ['TICKET_HOLDER']
+t2user = os.environ['TIER2_USER']
 
 def debugPrint(text):
     if debug ==1:
@@ -27,13 +29,13 @@ def clean(file):
 def exists(target):
     if   re.search('/castor/cern.ch/',target):
         debugPrint(' Identified a castor directory: ' + target)
-        cmd = 'ssh paus@lxplus.cern.ch rfdir ' + target + '>& /dev/null'
+        cmd = 'ssh ' + t2user + '@lxplus.cern.ch rfdir ' + target + '>& /dev/null'
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh -x paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     elif re.search('/mnt/hadoop/cms/store',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh -x paus@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+        cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory: ' + target)
         cmd = 'ls -1 ' + target + '>\& /dev/null'
@@ -46,17 +48,17 @@ def exists(target):
 def move(source,target):
     if   re.search('/castor/cern.ch/',source) and re.search('/castor/cern.ch/',target):
         debugPrint(' Identified two castor directories')
-        cmd = 'ssh paus@lxplus.cern.ch nsrename ' + source + ' ' + target
+        cmd = 'ssh ' + user + '@lxplus.cern.ch nsrename ' + source + ' ' + target
     elif re.search('/pnfs/cmsaf.mit.edu/',source) and re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified two tier-2 directories')
-        cmd = 'ssh -x paus@cgate.mit.edu mv ' + source + ' ' + target
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu mv ' + source + ' ' + target
     elif re.search('/mnt/hadoop/cms/store',target):
         urlSource = srm.convertToUrl(source,False)
         urlTarget = srm.convertToUrl(target,False)
         cmd = 'srmmv ' + urlSource + ' ' + urlTarget + ' >& /dev/null'
         cmd = 'glexec mv ' + source + ' ' + target ## + ' >& /dev/null'
         #debugPrint(' Identified a tier-2 directory: ' + target)
-        #cmd = 'ssh -x paus@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+        #cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     else:
         debugPrint(' Identified a normal directory')
         cmd = 'mv ' + source + ' ' + target

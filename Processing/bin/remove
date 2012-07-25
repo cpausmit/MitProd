@@ -5,6 +5,7 @@
 # Author: C.Paus                                                                      (May 06, 2010)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,srm
+t2user = os.environ['TIER2_USER']
 
 def debugPrint(text):
     if debug:
@@ -31,7 +32,7 @@ def exists(target):
         cmd = 'rfdir ' + target
     elif re.search('/pnfs/cmsaf.mit.edu/',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh -x paus@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     elif re.search('/mnt/hadoop/cms/store',target):
         debugPrint(' Identified a tier-2 hadoop directory: ' + target)
         target = srm.convertToUrl(target,debug)
@@ -51,7 +52,7 @@ def remove(source):
         cmd = "stager_rm -M " + source + "; nsrm " + source
     elif re.search('/pnfs/cmsaf.mit.edu/',source):
         debugPrint(' Identified tier-2 file')
-        cmd = 'ssh -x paus@cgate.mit.edu rm -rf ' + source
+        cmd = 'ssh ' + t2user + '@cgate.mit.edu rm -rf ' + source
     elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         debugPrint(' Identified a tier-2 hadoop directory: ' + source)
         source = srm.convertToUrl(source,debug)

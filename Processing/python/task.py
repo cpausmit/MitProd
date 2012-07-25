@@ -186,7 +186,9 @@ class Task:
             cmd = "Storage element file not found: %s" % seFile
             raise RuntimeError, cmd
         # resolve the other mitCfg parameters from the configuration file
-        cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + \
+        #cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + \
+        #      mitCfg + '/' + mitVersion + '/' + 'Productions' + '.' + self.cmssw
+        cmd = 'cat ' + './' + \
               mitCfg + '/' + mitVersion + '/' + 'Productions' + '.' + self.cmssw
         join       = 0
         fullLine   = ""

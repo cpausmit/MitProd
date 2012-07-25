@@ -10,16 +10,18 @@ extract=0
 generate=0
 nFilesPerSet=20
 test=0
+cataDir=$HOME/catalog
 mitCfg=filefi
-while getopts "cegtm:n:" o
+while getopts "cegtd:m:n:" o
 do case "$o" in
   c) catalog=1;;
   e) extract=1;;
   g) generate=1;;
   t) test=1;;
+  d) cataDir=$OPTARG;;
   m) mitCfg=$OPTARG;;
   n) nFilesPerSet=$OPTARG;;
-  [?]) echo "usage: $H [-cegt] [-m <mitcfg> ] [-n <nEvts> ] <version> [ <pattern> [ <location> ] ]"
+  [?]) echo "usage: $H [-cegt] [-d <catalogDir> ] [-m <mitcfg> ] [-n <nEvts> ] <version> [ <pattern> [ <location> ] ]"
        exit 1;;
   esac
 done
@@ -28,7 +30,6 @@ shift $shiftIdx
 
 MIT_LOCATION="/mnt/hadoop/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
-CATALOG=$HOME/catalog
 # Health checks
 if [ ".$1" == "." ]
 then
@@ -59,16 +60,16 @@ if [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
    [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
    [ "$LOCATION" != "" ]
 then
-  CATALOG=$CATALOG/local
-  #CATALOG=$CATALOG/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
+  cataDir=$cataDir/local
+  #cataDir=$cataDir/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
 elif [ ".`echo $HOSTNAME | grep cern.ch`" != "." ]
 then
   LOCATION=$CERN_LOCATION
-  CATALOG=$CATALOG/cern
+  cataDir=$cataDir/cern
 elif [ ".`echo $HOSTNAME | grep mit.edu`" != "." ]
 then
   LOCATION=$MIT_LOCATION
-  CATALOG=$CATALOG/t2mit
+  cataDir=$cataDir/t2mit
 fi
 
 # Is it a skim?
@@ -76,13 +77,14 @@ SKIM=""
 addSkim=""
 if [ "`echo $LOCATION | grep /cmsprod/skim/`" != "" ]
 then
-  SKIM=`basename $LOCATION`
+  SKIM=`dirname $LOCATION`
+  SKIM=`basename $SKIM`
   addSkim="/$SKIM"
 fi
 
 # Create a list of the datsets we need to catalog
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`
-if [ "`echo $PATTERN | grep crab_0_`" != ""  ]
+if   [ "`echo $PATTERN | grep crab_0_`" != ""  ]
 then
   LIST="${LOCATION}/$mitCfg/$VERSION/$PATTERN"
 fi
@@ -94,13 +96,13 @@ fi
 #
 # They are going to be cataloged and entries are created at
 #
-#   $CATALOG (location of the catalog)
+#   $cataDir (location of the catalog)
 #   in book:                         $mitCfg/$VERSION
 #   in dataset matching the pattern: $PATTERN
 #
 # For skims
 #
-#   $CATALOG (location of the catalog)
+#   $cataDir (location of the catalog)
 #   in book:                         $mitCfg/$VERSION/$DATASET/$SKIM
 #   in dataset matching the pattern: $PATTERN
 #---------------------------------------------------------------------------------------------------
@@ -149,7 +151,7 @@ do
     #-----------------------------------------------------------------------------------------------
     # Test and potentially cleanup the dataset information
     #-----------------------------------------------------------------------------------------------
-    extractCatalog.py --compact --catalog=$CATALOG --mitCfg=$mitCfg --version=$VERSION \
+    extractCatalog.py --compact --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION \
                       --dataset=$extDataset${addSkim}
    
     #-----------------------------------------------------------------------------------------------
@@ -157,7 +159,7 @@ do
     #-----------------------------------------------------------------------------------------------
     if   [ "$catalog" == 1 ]
     then
-      catalogFiles.sh   $LOCATION $CATALOG $mitCfg/$VERSION $extDataset
+      catalogFiles.sh   $LOCATION $cataDir $mitCfg/$VERSION $extDataset
       echo ""
     fi
 
@@ -166,7 +168,7 @@ do
 
     # Figure out whether there are new files to consider
     newFiles=0
-    if [ "`ls -1 $CATALOG/condor/$mitCfg/$VERSION/$extDataset${addSkim} | grep root`" != "" ]
+    if [ "`ls -1 $cataDir/condor/$mitCfg/$VERSION/$extDataset${addSkim} | grep root`" != "" ]
     then
       newFiles=1
     fi
@@ -195,7 +197,7 @@ do
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
       extractCatalog.py $OPTION \
-        --catalog=$CATALOG --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}
+        --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}
     fi
 
     #-----------------------------------------------------------------------------------------------
@@ -204,7 +206,7 @@ do
     if [ "$generate" == 1 ] && ( [ "$newFiles" == 1 ] || [ "$catalog" != 1 ] )
     then
       generateCatalog.py --nFilesPerSet=$nFilesPerSet \
-                         --rawFile=$CATALOG/$mitCfg/$VERSION/$dataset${addSkim}
+                         --rawFile=$cataDir/$mitCfg/$VERSION/$dataset${addSkim}
     fi
 
   fi

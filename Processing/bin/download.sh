@@ -56,14 +56,6 @@ do
   version=`basename $book`
   dataset=`echo $line | tr -s ' ' | cut -d ' ' -f 3`
   targetDir=`echo $line | tr -s ' ' | cut -d ' ' -f 4`
-
-  
-  # stagein the sample if it is at CERN
-  if [ "`echo $baseDir | grep /castor/cern.ch`" != "" ]
-  then
-    echo "  ssh -x paus@lxplus.cern.ch ./stageSample.py --dataDir=$baseDir/$book/$dataset"
-    ssh -x paus@lxplus.cern.ch ./stageSample.py --dataDir=$baseDir/$book/$dataset
-  fi
   
   # download the sample
   downloadSample.sh $line
