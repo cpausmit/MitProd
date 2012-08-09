@@ -45,7 +45,7 @@ if dataset == "":
 # --------------------------------------------------------------------------------------------------
 # Here is where the real action starts -------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
-dir = "/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/filefi/013/"
+dir = "/mnt/hadoop/cms/store/user/paus/filefi/013/"
 
 cmd = 'list ' + dir + dataset + ' | grep root | wc '
 os.system(cmd)

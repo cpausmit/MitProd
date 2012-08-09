@@ -9,9 +9,6 @@ def convertToUrl(dir,debug):
     if   re.search('/castor/cern.ch/',     dir):
         storageEle  = 'srm-cms.cern.ch'
         storagePath = '/srm/managerv2?SFN='
-    elif re.search('/pnfs/cmsaf.mit.edu/', dir):
-        storageEle  = 'se01.cmsaf.mit.edu'
-        storagePath = '/srm/managerv2?SFN='
     elif re.search('/mnt/hadoop/cms/store',dir):
         storageEle  = 'se01.cmsaf.mit.edu'
         storagePath = '/srm/v2/server?SFN='

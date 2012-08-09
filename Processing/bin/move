@@ -30,9 +30,6 @@ def exists(target):
     if   re.search('/castor/cern.ch/',target):
         debugPrint(' Identified a castor directory: ' + target)
         cmd = 'ssh ' + t2user + '@lxplus.cern.ch rfdir ' + target + '>& /dev/null'
-    elif re.search('/pnfs/cmsaf.mit.edu/',target):
-        debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     elif re.search('/mnt/hadoop/cms/store',target):
         debugPrint(' Identified a tier-2 directory: ' + target)
         cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu ls -1 ' + target + ' \>\& /dev/null'
@@ -49,9 +46,6 @@ def move(source,target):
     if   re.search('/castor/cern.ch/',source) and re.search('/castor/cern.ch/',target):
         debugPrint(' Identified two castor directories')
         cmd = 'ssh ' + user + '@lxplus.cern.ch nsrename ' + source + ' ' + target
-    elif re.search('/pnfs/cmsaf.mit.edu/',source) and re.search('/pnfs/cmsaf.mit.edu/',target):
-        debugPrint(' Identified two tier-2 directories')
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu mv ' + source + ' ' + target
     elif re.search('/mnt/hadoop/cms/store',target):
         urlSource = srm.convertToUrl(source,False)
         urlTarget = srm.convertToUrl(target,False)

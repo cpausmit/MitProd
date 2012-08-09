@@ -5,8 +5,7 @@
 #
 #                                                                             Ch.Paus, Aug 30, 2011
 #===================================================================================================
-MIT1_LOCATION="/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus"
-MIT2_LOCATION="/mnt/hadoop/cms/store/user/paus"
+MIT_LOCATION="/mnt/hadoop/cms/store/user/paus"
 CERN_LOCATION="/castor/cern.ch/user/p/paus"
 
 BOOK=$1
@@ -19,7 +18,7 @@ if [ "$SOURCE" == "T0_CH_CERN" ]
 then
   list="list $CERN_LOCATION/$BOOK/"
 else
-  list="list $MIT1_LOCATION/$BOOK/ $MIT2_LOCATION"
+  list="list $MIT_LOCATION"
 fi
 if [ "$PATTERN" != "" ]
 then
@@ -60,7 +59,7 @@ while read line ; do
            $CERN_LOCATION $BOOK $dset /mnt/hadoop/cms/store/user/paus 80 /home/cmsprod/download 1
   else
     printf "%s %s %${max}s %s %2d %s %1d\n" \
-           $MIT1_LOCATION $BOOK $dset /mnt/hadoop/cmsprod 80 /home/cmsprod/download 1
+           $MIT_LOCATION $BOOK $dset /mnt/hadoop/cmsprod 80 /home/cmsprod/download 1
   fi
 
 done < /tmp/fileList.$$.tmp

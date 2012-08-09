@@ -7,7 +7,6 @@
 echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pwd
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
-DCCP='/afs/cern.ch/project/gd/LCG-share/3.1.44-0/d-cache/dcap/bin/dccp'
 LCGCP='lcg-cp'
 SRMCP='srmcp'
 
@@ -46,12 +45,7 @@ fi
 # make storage Urls for target and source
 
 targetUrl="file:///$target"
-if   [ "`echo $target | grep /pnfs/cmsaf.mit.edu`" != "" ]
-then
-  storageEle="se01.cmsaf.mit.edu"
-  storagePath='/srm/managerv2?SFN='
-  targetUrl="srm://${storageEle}:8443${storagePath}$target"
-elif [ "`echo $target | grep /mnt/hadoop/cms/store`" != "" ]
+if [ "`echo $target | grep /mnt/hadoop/cms/store`" != "" ]
 then
   storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/v2/server?SFN='
@@ -67,12 +61,7 @@ else
 fi
 
 sourceUrl="file:///$dataFile"
-if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" != "" ]
-then
-  storageEle="se01.cmsaf.mit.edu"
-  storagePath='/srm/managerv2?SFN='
-  sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
-elif [ "`echo $dataFile | grep /mnt/hadoop/cms/store`" != "" ]
+if [ "`echo $dataFile | grep /mnt/hadoop/cms/store`" != "" ]
 then
   storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/v2/server?SFN='
@@ -85,17 +74,10 @@ then
 fi
 
 echo " "; echo "Starting download now"; echo " "
-if   [ "`echo $dataFile | grep /pnfs/cmsaf.mit.edu`" == "" ]
-then
-  echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
-  $LCGCP -D srmv2 -b  $sourceUrl $targetUrl
+echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
+$LCGCP -D srmv2 -b  $sourceUrl $targetUrl
 
-  #echo "$SRMCP -2 $sourceUrl $targetUrl"
-  #$SRMCP -2 $sourceUrl $targetUrl
-
-else
-  echo "$DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target"
-  $DCCP dcap://t2srv0005.cmsaf.mit.edu/$dataFile $target
-fi
+#echo "$SRMCP -2 $sourceUrl $targetUrl"
+#$SRMCP -2 $sourceUrl $targetUrl
 
 exit 0

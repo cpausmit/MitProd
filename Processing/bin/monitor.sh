@@ -4,7 +4,6 @@
 #---------------------------------------------------------------------------------------------------
 H=`basename $0`
 
-## DIR=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus/filefi/015
 DIR=$1
 PATTERN=$2
 

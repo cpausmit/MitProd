@@ -93,8 +93,6 @@ else
   opt=""
 fi
 
-#dcache=/pnfs/cmsaf.mit.edu/t2bat/cms/store/user/paus
-#list $opt $dcache/$book/$dataset $target/$book/$dataset | grep root | sort \
 list $opt $target/$book/$dataset | grep root | sort \
      > $condorOutput/$book/$dataset/fileList-done.$$.txt
 

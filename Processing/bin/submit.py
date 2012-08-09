@@ -190,29 +190,12 @@ def createDirCern(storagePath):
         sys.exit(1)
 
 #===================================================================================================
-def create(path):
-    status = -1
-    if re.search('/pnfs/cmsaf.mit.edu/t2bat',path):
-        f    = path.split('=')
-        path = f[-1]
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu mkdir -p  ' + path
-        status = os.system(cmd)
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu chmod 777 ' + path
-        status = os.system(cmd)
-    return status
-
-#===================================================================================================
 def createDirGeneral(storageEle,storagePath,fastCreate):
     # create all relevant subdirectories
     f = storagePath.split('/')                    # splitting every '/'
     storagePath2 = "/".join(f[:-1])
     storagePath1 = "/".join(f[:-2])
     storagePath0 = "/".join(f[:-3])
-
-    if create(storagePath) == 0:
-        print ' '
-        print ' Directory was created at MIT.\n'
-        return
 
     # set the storage URL
     storageUrl = 'srm://' + storageEle + ':8443' + storagePath

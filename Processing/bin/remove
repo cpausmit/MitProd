@@ -30,9 +30,6 @@ def exists(target):
     if   re.search('/castor/cern.ch/',target):
         debugPrint(' Identified a castor directory: ' + target)
         cmd = 'rfdir ' + target
-    elif re.search('/pnfs/cmsaf.mit.edu/',target):
-        debugPrint(' Identified a tier-2 directory: ' + target)
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu ls -1 ' + target + ' \>\& /dev/null'
     elif re.search('/mnt/hadoop/cms/store',target):
         debugPrint(' Identified a tier-2 hadoop directory: ' + target)
         target = srm.convertToUrl(target,debug)
@@ -50,9 +47,6 @@ def remove(source):
     if   re.search('/castor/cern.ch/',source):
         debugPrint(' Identified castor file')
         cmd = "stager_rm -M " + source + "; nsrm " + source
-    elif re.search('/pnfs/cmsaf.mit.edu/',source):
-        debugPrint(' Identified tier-2 file')
-        cmd = 'ssh ' + t2user + '@cgate.mit.edu rm -rf ' + source
     elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         debugPrint(' Identified a tier-2 hadoop directory: ' + source)
         source = srm.convertToUrl(source,debug)
@@ -78,8 +72,7 @@ def removeCatalog(source,debug):
     catalogDir = '/home/cmsprod/catalog/local'
     if   re.search('/castor/cern.ch/',source):
         catalogDir = '/home/cmsprod/catalog/cern'
-    elif re.search('/pnfs/cmsaf.mit.edu/',source) or \
-         re.search('/mnt/hadoop/cms/store/user/paus',source):
+    elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         catalogDir = '/home/cmsprod/catalog/t2mit'
     # now get the dataset and the book
     f       = source.split('/')

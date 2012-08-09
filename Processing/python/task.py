@@ -367,21 +367,6 @@ class Task:
                 self.lfns[file] = 2
             self.nLfnDone += 1
 
-        # account for files already done in old storage location
-        if re.match('/mnt/hadoop',path):
-            oldpath = path.replace('/mnt/hadoop','/pnfs/cmsaf.mit.edu/t2bat')
-            cmd = 'list ' + oldpath + ' | grep root 2> /dev/null'
-            for line in os.popen(cmd).readlines():  # run command
-                f    = line.split()
-                file = f[1]
-                if file in self.lfns.keys():
-                    self.lfns[file] = 1
-                else:
-                    print ' ERROR -- found completed lfn not in list of all lfns?! ->' + file + '<-'
-                    self.lfns[file] = 2
-                self.nLfnDone += 1
-        # end of old storage location accounting #
-
         print ' DONE    - Lfns: %6d'%(self.nLfnDone)
 
     #-----------------------------------------------------------------------------------------------

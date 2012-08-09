@@ -1,4 +1,4 @@
-// $Id: FillerBasicClusters.cc,v 1.20 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerBasicClusters.cc,v 1.21 2012/07/16 13:13:40 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -22,15 +22,15 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
+  edmName_             (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+  mitName_             (Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
   barrelEcalRecHitName_(Conf().getUntrackedParameter<string>("barrelEcalRecHitName","")),
   endcapEcalRecHitName_(Conf().getUntrackedParameter<string>("endcapEcalRecHitName","")),
-  basicClusterMapName_(Conf().getUntrackedParameter<string>("basicClusterMapName",
-                                                            "BasicClusterMap")),
-  pfClusters_(Conf().getUntrackedParameter<bool>("pfClusters",false)),
-  basicClusters_(new mithep::BasicClusterArr(100)),
-  basicClusterMap_(new mithep::BasicClusterMap)
+  basicClusterMapName_ (Conf().getUntrackedParameter<string>("basicClusterMapName",
+							     "BasicClusterMap")),
+  pfClusters_          (Conf().getUntrackedParameter<bool>("pfClusters",false)),
+  basicClusters_       (new mithep::BasicClusterArr(100)),
+  basicClusterMap_     (new mithep::BasicClusterMap)
 {
   // Constructor.
 }
@@ -64,7 +64,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 {
   // Fill the BasicCluster information into our structures.
 
-  basicClusters_->Delete();
+  basicClusters_  ->Delete();
   basicClusterMap_->Reset();
 
   Handle<reco::CaloClusterCollection> hBasicClusterProduct;
@@ -108,42 +108,40 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     mithep::BasicCluster *outBasicCluster = basicClusters_->Allocate();
     new (outBasicCluster) mithep::BasicCluster();
 
-    outBasicCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
+    outBasicCluster->SetXYZ   (inBC->x(),inBC->y(),inBC->z());
     outBasicCluster->SetEnergy(inBC->energy());   
-    outBasicCluster->SetNHits(inBC->size());
+    outBasicCluster->SetNHits (inBC->size());
 
-    outBasicCluster->SetCovEtaPhi(lazyTools.covariances(*inBC)[1]);
+    outBasicCluster->SetCovEtaPhi  (lazyTools.covariances(*inBC)[1]);
     outBasicCluster->SetCoviEtaiEta(lazyTools.localCovariances(*inBC)[0]);
     outBasicCluster->SetCoviEtaiPhi(lazyTools.localCovariances(*inBC)[1]);
     outBasicCluster->SetCoviPhiiPhi(lazyTools.localCovariances(*inBC)[2]);
-    outBasicCluster->SetZernike20(lazyTools.zernike20(*inBC));
-    outBasicCluster->SetZernike42(lazyTools.zernike42(*inBC));
-    outBasicCluster->SetEtaLat(lazyTools.lat(*inBC)[0]);
-    outBasicCluster->SetPhiLat(lazyTools.lat(*inBC)[1]);
-    outBasicCluster->SetLat(lazyTools.lat(*inBC)[2]);
-
-
-    outBasicCluster->SetE1x3(lazyTools.e1x3(*inBC));
-    outBasicCluster->SetE3x1(lazyTools.e3x1(*inBC));
-    outBasicCluster->SetE1x5(lazyTools.e1x5(*inBC));
-    outBasicCluster->SetE2x2(lazyTools.e2x2(*inBC));
-    outBasicCluster->SetE3x2(lazyTools.e3x2(*inBC));
-    outBasicCluster->SetE3x3(lazyTools.e3x3(*inBC));
-    outBasicCluster->SetE4x4(lazyTools.e4x4(*inBC));
-    outBasicCluster->SetE5x5(lazyTools.e5x5(*inBC));
-    outBasicCluster->SetE2x5Right(lazyTools.e2x5Right(*inBC));
-    outBasicCluster->SetE2x5Left(lazyTools.e2x5Left(*inBC));
-    outBasicCluster->SetE2x5Top(lazyTools.e2x5Top(*inBC));
-    outBasicCluster->SetE2x5Bottom(lazyTools.e2x5Bottom(*inBC));
-    outBasicCluster->SetE2x5Max(lazyTools.e2x5Max(*inBC));
-    outBasicCluster->SetELeft(lazyTools.eLeft(*inBC));
-    outBasicCluster->SetERight(lazyTools.eRight(*inBC));
-    outBasicCluster->SetETop(lazyTools.eTop(*inBC));
-    outBasicCluster->SetEBottom(lazyTools.eBottom(*inBC));
-    outBasicCluster->SetEMax(lazyTools.eMax(*inBC));
-    outBasicCluster->SetE2nd(lazyTools.e2nd(*inBC));
-    outBasicCluster->SetCovEtaEta(lazyTools.covariances(*inBC)[0]);
-    outBasicCluster->SetCovPhiPhi(lazyTools.covariances(*inBC)[2]);
+    outBasicCluster->SetZernike20  (lazyTools.zernike20(*inBC));
+    outBasicCluster->SetZernike42  (lazyTools.zernike42(*inBC));
+    outBasicCluster->SetEtaLat     (lazyTools.lat(*inBC)[0]);
+    outBasicCluster->SetPhiLat     (lazyTools.lat(*inBC)[1]);
+    outBasicCluster->SetLat        (lazyTools.lat(*inBC)[2]);
+    outBasicCluster->SetE1x3       (lazyTools.e1x3(*inBC));
+    outBasicCluster->SetE3x1       (lazyTools.e3x1(*inBC));
+    outBasicCluster->SetE1x5       (lazyTools.e1x5(*inBC));
+    outBasicCluster->SetE2x2       (lazyTools.e2x2(*inBC));
+    outBasicCluster->SetE3x2       (lazyTools.e3x2(*inBC));
+    outBasicCluster->SetE3x3       (lazyTools.e3x3(*inBC));
+    outBasicCluster->SetE4x4       (lazyTools.e4x4(*inBC));
+    outBasicCluster->SetE5x5       (lazyTools.e5x5(*inBC));
+    outBasicCluster->SetE2x5Right  (lazyTools.e2x5Right(*inBC));
+    outBasicCluster->SetE2x5Left   (lazyTools.e2x5Left(*inBC));
+    outBasicCluster->SetE2x5Top    (lazyTools.e2x5Top(*inBC));
+    outBasicCluster->SetE2x5Bottom (lazyTools.e2x5Bottom(*inBC));
+    outBasicCluster->SetE2x5Max    (lazyTools.e2x5Max(*inBC));
+    outBasicCluster->SetELeft      (lazyTools.eLeft(*inBC));
+    outBasicCluster->SetERight     (lazyTools.eRight(*inBC));
+    outBasicCluster->SetETop       (lazyTools.eTop(*inBC));
+    outBasicCluster->SetEBottom    (lazyTools.eBottom(*inBC));
+    outBasicCluster->SetEMax       (lazyTools.eMax(*inBC));
+    outBasicCluster->SetE2nd       (lazyTools.e2nd(*inBC));
+    outBasicCluster->SetCovEtaEta  (lazyTools.covariances(*inBC)[0]);
+    outBasicCluster->SetCovPhiPhi  (lazyTools.covariances(*inBC)[2]);
 
     //ecal timing information
     const reco::BasicCluster *inbcd = dynamic_cast<const reco::BasicCluster*>(&*inBC);
@@ -169,7 +167,6 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 
       outBasicCluster->SetSeedIEta(edet.ieta());
       outBasicCluster->SetSeedIPhi(edet.iphi());
-
     }
     else {
       float xcry, ycry, thetatilt, phitilt;
@@ -186,9 +183,8 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
 
       outBasicCluster->SetSeedIX(edet.ix());
       outBasicCluster->SetSeedIY(edet.iy());
-      
     }
-    
+
     // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(thePtr, outBasicCluster);
