@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.4 2011/04/23 19:13:14 bendavid Exp $
+// $Id: FillerConversionsDecay.cc,v 1.5 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -116,6 +116,11 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     math::XYZTLorentzVectorD convP4(inConversion->refittedPair4Momentum());
     FourVector p4Fitted(convP4.px(),convP4.py(),convP4.pz(),convP4.energy());
   
+    const std::vector<reco::TrackBaseRef> &trackRefs = inConversion->tracks();
+    if (trackRefs.size()==1 && p4Fitted.Pt()<1e-3) {
+      p4Fitted.SetXYZT(trackRefs.front()->px(),trackRefs.front()->py(),trackRefs.front()->pz(),trackRefs.front()->p());
+    }
+  
     outConversion->SetMom(p4Fitted);
   
     const reco::Vertex &vtx = inConversion->conversionVertex();
@@ -137,7 +142,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     
     outConversion->SetNSharedHits(inConversion->nSharedHits());
         
-    const std::vector<reco::TrackBaseRef> &trackRefs = inConversion->tracks();
+    
     const std::vector<reco::Track> &refittedTracks = vtx.refittedTracks();
     const std::vector<uint8_t> &nHitsBeforeVtx = inConversion->nHitsBeforeVtx();
     const std::vector<Measurement1DFloat> &dlClosestHitToVtx = inConversion->dlClosestHitToVtx();
