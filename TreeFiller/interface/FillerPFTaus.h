@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.13 2012/03/25 17:11:14 mhchan Exp $
+// $Id: FillerPFTaus.h,v 1.14 2012/03/26 15:27:15 mhchan Exp $
 //
 // FillerPFTaus
 //
@@ -13,46 +13,45 @@
 
 #include "MitAna/DataTree/interface/PFTauFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
-namespace mithep 
+namespace mithep
 {
   class FillerPFTaus : public BaseFiller
-  {  
+  {
     public:
+      struct PFTauDiscHandle
+      {
+          std::string name; // EDM name
+          edm::Handle<reco::PFTauDiscriminator> handle;
+
+          Double32_t value(reco::PFTauRef tauRef)
+          {
+            if(handle.isValid())
+              return (*handle)[tauRef];
+            else
+              return 0;
+          }
+      };
+
       FillerPFTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFTaus();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-  
+
     private:
       //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
-      
+
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
 
       bool                           hpsActive_;      //=true if HPS discriminants are filled
       std::string                    edmName_;        //edm name of jets collection
       std::string                    mitName_;        //mit name of jets collection
-      std::string                    discriminationByLooseElectronRejectionName_; // HPS discriminant
-      std::string                    discriminationByMediumElectronRejectionName_; // HPS discriminant
-      std::string                    discriminationByTightElectronRejectionName_; // HPS discriminant
-      std::string                    discriminationByMVAElectronRejectionName_; // HPS discriminant
-      std::string                    discriminationByLooseMuonRejectionName_; // HPS discriminant
-      std::string                    discriminationByMediumMuonRejectionName_; // HPS discriminant
-      std::string                    discriminationByTightMuonRejectionName_; // HPS discriminant
-      std::string                    discriminationByDecayModeFindingName_; // HPS discriminant
-      std::string                    discriminationByVLooseIsolationName_;   // HPS discriminant
-      std::string                    discriminationByLooseIsolationName_;   // HPS discriminant
-      std::string                    discriminationByMediumIsolationName_;  // HPS discriminant
-      std::string                    discriminationByTightIsolationName_;   // HPS discriminant
-      std::string                    discriminationByVLooseCombinedIsolationDBSumPtCorrName_; // HPS discriminant
-      std::string                    discriminationByLooseCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
-      std::string                    discriminationByMediumCombinedIsolationDBSumPtCorrName_; // HPS discriminant
-      std::string                    discriminationByTightCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
-      std::string                    discriminationByRawCombinedIsolationDBSumPtCorrName_;  // HPS discriminant
+      std::map<string, PFTauDiscHandle> hpsHandles_;     // handles for HPS discriminators
       std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap
@@ -63,12 +62,12 @@ namespace mithep
       const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
       mithep::PFTauMap              *tauMap_;         //exported PFTau map
       mithep::PFTauArr              *taus_;           //array of taus
-          
+
       template <typename C>
       edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<C, typename C::value_type, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
         typedef typename C::value_type T;
         return edm::Ptr<T>(ref.id(), ref.get(), ref.key());
-      }      
+      }
 
   };
 }
