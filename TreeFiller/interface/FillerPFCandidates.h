@@ -1,5 +1,6 @@
+
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.9 2012/03/11 23:11:55 pharris Exp $
+// $Id: FillerPFCandidates.h,v 1.10 2012/07/25 03:08:42 paus Exp $
 //
 // FillerPFCandidates
 //
@@ -49,6 +50,7 @@ namespace mithep
       std::string                    pfCandMapName_;            //name: expo. pf candidate map
       std::string                    pfNoPileupCandMapName_;    //name: expo. PFnoPU candidate map
       bool                           allowMissingTrackRef_;     //allow missing track ref (tau emb)
+      bool                           allowMissingPhotonRef_;     //allow missing photon ref (tau emb)
       bool                           fillPfNoPileup_;
       std::vector<const mithep::TrackMap*>
                                      trackerTrackMaps_;         //maps wrt tracker tracks

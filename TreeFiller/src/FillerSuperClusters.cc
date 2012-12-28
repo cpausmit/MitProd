@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.15 2012/03/30 01:08:41 paus Exp $
+// $Id: FillerSuperClusters.cc,v 1.16 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -109,9 +109,9 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
   Handle<reco::SuperClusterCollection> hSuperClusterProduct;
   GetProduct(edmName_, hSuperClusterProduct, event);
-
+  
   Handle<CaloTowerCollection> hCaloTowerProduct;
-  GetProduct(caloTowerName_, hCaloTowerProduct, event);
+  if(caloTowerName_.size() > 0) GetProduct(caloTowerName_, hCaloTowerProduct, event);
 
   superClusterMap_->SetEdmProductId(hSuperClusterProduct.id().id());
   const reco::SuperClusterCollection inSuperClusters = *(hSuperClusterProduct.product());  
@@ -163,10 +163,12 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     outSC->SetEtaWidth(inSC->etaWidth());
 
     //Compute Hadronic Energy behind the supercluster (within DR < 0.15)
-    EgammaTowerIsolation towerIsoDepth1(0.15,0.,0.,1,hCaloTowerProduct.product()) ;  
-    EgammaTowerIsolation towerIsoDepth2(0.15,0.,0.,2,hCaloTowerProduct.product()) ;  
-    outSC->SetHcalDepth1Energy(towerIsoDepth1.getTowerESum(&(*inSC)));
-    outSC->SetHcalDepth2Energy(towerIsoDepth2.getTowerESum(&(*inSC)));
+    if(caloTowerName_.size() > 0) { 
+      EgammaTowerIsolation towerIsoDepth1(0.15,0.,0.,1,hCaloTowerProduct.product()) ;  
+      EgammaTowerIsolation towerIsoDepth2(0.15,0.,0.,2,hCaloTowerProduct.product()) ;  
+      outSC->SetHcalDepth1Energy(towerIsoDepth1.getTowerESum(&(*inSC)));
+      outSC->SetHcalDepth2Energy(towerIsoDepth2.getTowerESum(&(*inSC)));
+    }
 
     //ecal timing information
     outSC->SetTime(lazyTools.SuperClusterTime(*inSC, event));

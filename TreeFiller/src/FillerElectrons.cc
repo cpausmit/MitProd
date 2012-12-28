@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.66 2012/05/12 15:55:11 paus Exp $
+// $Id: FillerElectrons.cc,v 1.67 2012/07/25 03:08:42 paus Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
@@ -306,7 +306,6 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
         outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
     }
-   
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
         pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
       if(barrelSuperClusterMap_->HasMit(iM->superCluster())) {
@@ -320,12 +319,17 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
       else if(checkClusterActive_) {
 	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-             << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
       }
     }
     
     if (pfSuperClusterMap_ && iM->pflowSuperCluster().isNonnull()) {
-      outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->pflowSuperCluster()));  
+      if(pfSuperClusterMap_->HasMit(iM->pflowSuperCluster()))  {
+	outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->pflowSuperCluster()));
+      } else if(checkClusterActive_) { 
+	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+      }
     }
     
     //find matching egamma supercluster first by ref, or by geometric matching if only pfsupercluster is linked
@@ -356,7 +360,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       for (reco::CaloCluster_iterator pfcit = iM->pflowSuperCluster()->clustersBegin();
 	   pfcit!=iM->pflowSuperCluster()->clustersEnd(); ++pfcit) {
 	float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc );
-	const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+	if(pfClusterMap_->HasMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
       }
     }	
   

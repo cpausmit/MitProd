@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.30 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerPhotons.cc,v 1.31 2012/07/25 03:08:42 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -237,19 +237,20 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iP->superCluster()))
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
-      else
+      else if(endcapSuperClusterMap_->HasMit(iP->superCluster())) 
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
     }
 
     // make link to pf supercluster
     if (pfSuperClusterMap_ && iP->pfSuperCluster().isNonnull()) {
-      outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
+      if(pfSuperClusterMap_->HasMit(iP->pfSuperCluster())) 
+	 outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
       //horrible stuff: mark PF superclusters with fraction of energy that overlaps with egamma supercluster
       if (pfClusterMap_ && iP->superCluster().isNonnull()) {
 	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
 	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
 	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster() );
-	  const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+	  if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
 	}
       }	
     }

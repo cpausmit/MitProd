@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversionsDecay.h,v 1.14 2010/03/18 20:21:00 bendavid Exp $
+// $Id: FillerConversionsDecay.h,v 1.1 2010/11/22 16:53:31 bendavid Exp $
 //
 // FillerConversionsDecay
 //
@@ -36,7 +36,8 @@ namespace mithep
     
       std::string                              edmName_;             //name of edm conversions
       std::string                              mitName_;             //mit name of Conversions
-      std::string                              stableDataName_;   //= mitName_ + "_StableDatas"  
+      bool                                     checkTrackRef_;       //Check to see if track collection is there
+      std::string                              stableDataName_;      //= mitName_ + "_StableDatas"  
       std::string                              convElectronMapName_; //name of imported electrons map
       std::vector<std::string>                 stablePartMapNames_;  //name imp maps wrt stable parts
       std::string                              conversionMapName_;   //name of exported conv map

@@ -1,4 +1,4 @@
-// $Id: FillerConversions.cc,v 1.22 2010/11/22 16:54:13 bendavid Exp $
+// $Id: FillerConversions.cc,v 1.23 2012/05/05 16:49:59 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -16,6 +16,7 @@ FillerConversions::FillerConversions(const ParameterSet &cfg, const char *name, 
   BaseFiller         (cfg,name,active),
   edmName_           (Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_           (Conf().getUntrackedParameter<string>("mitName","Conversions")),
+  checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
   stablePartMapNames_(Conf().exists("stablePartMaps") ? 
 		      Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
 		      vector<string>()),
@@ -103,7 +104,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
       std::vector<reco::TrackBaseRef> trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackBaseRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
-        outConversion->AddDaughter(GetMitParticle(mitedm::refToBaseToPtr(*trackRef)));
+        if(GetMitParticle(mitedm::refToBaseToPtr(*trackRef))) outConversion->AddDaughter(GetMitParticle(mitedm::refToBaseToPtr(*trackRef)));
       }
     }
     
@@ -128,10 +129,10 @@ mithep::Particle *FillerConversions::GetMitParticle(edm::Ptr<reco::Track> ptr) c
     }
   }
   
-  if (!mitPart)
+  if (!mitPart && checkTrackRef_ )
     throw edm::Exception(edm::errors::Configuration, "FillerConversions::FillDataBlock()\n")
-    << "Error! MITHEP Object " 
-    << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+      << "Error! MITHEP Object " 
+      << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
     
   return mitPart;
 }

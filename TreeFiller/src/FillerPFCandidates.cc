@@ -1,4 +1,4 @@
-// $Id: FillerPFCandidates.cc,v 1.16 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerPFCandidates.cc,v 1.17 2012/07/25 03:08:42 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -40,6 +40,7 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   pfCandMapName_                (Conf().getUntrackedParameter<string>("pfCandMapName","")),
   pfNoPileupCandMapName_        (Conf().getUntrackedParameter<string>("pfNoPileupMapName","")),
   allowMissingTrackRef_         (Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
+  allowMissingPhotonRef_        (Conf().getUntrackedParameter<bool>("allowMissingPhotonRef",false)),
   fillPfNoPileup_               (Conf().getUntrackedParameter<bool>("fillPfNoPileup",true)),
   gsfTrackMap_                  (0),
   muonMap_                      (0),
@@ -255,13 +256,19 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     if (electronMap_ && iP->gsfElectronRef().isNonnull()) 
       outPfCand->SetElectron(electronMap_->GetMit(refToPtr(iP->gsfElectronRef())));
     if (photonMap_ && iP->photonRef().isNonnull()) 
-      outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(iP->photonRef())));
+      try{outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(iP->photonRef())));} 
+      catch (...) { 
+	if(!allowMissingPhotonRef_) {
+	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
+	}
+      }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(barrelSuperClusterMap_->GetMit(iP->superClusterRef()));
       else if (endcapSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(endcapSuperClusterMap_->GetMit(iP->superClusterRef()));
-      else
+      else if ( pfElectronSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(pfElectronSuperClusterMap_->GetMit(iP->superClusterRef()));
     }
     if (conversionMap_ && iP->conversionRef().isNonnull()) 

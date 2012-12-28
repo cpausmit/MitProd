@@ -1,4 +1,4 @@
-// $Id: FillerConversionsDecay.cc,v 1.5 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerConversionsDecay.cc,v 1.6 2012/10/25 14:50:20 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerConversionsDecay.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -29,6 +29,7 @@ FillerConversionsDecay::FillerConversionsDecay(const ParameterSet &cfg, const ch
   BaseFiller(cfg,name,active),
   edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
+  checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
   stableDataName_(mitName_ + "_StableDatas"),  
   stablePartMapNames_(Conf().exists("stablePartMaps") ? 
                     Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
@@ -157,7 +158,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     double zbeamlineerr = -99.;
     if (stablePartMaps_.size()) {
       for (uint i=0; i<trackRefs.size(); ++i) {
-        
+	
         const reco::TrackBaseRef &trackRef = trackRefs.at(i);
 
         const reco::Track *refittedTrack = 0;
@@ -166,36 +167,41 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
           refittedTrack = &refittedTracks.at(i);
         else 
           refittedTrack = trackRef.get();
-        
+
         //fill dzError at beamline (take from refitted first track normally)
         if (zbeamlineerr<0.) {
           const reco::TransientTrack &tt = transientTrackBuilder->build(*refittedTrack);
           //null b-field
           const UniformMagneticField nullField(0.0); 
           TransverseImpactPointExtrapolator extrapolator(&nullField);
-
+	
           //const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(tt.stateOnSurface(vtxPoint), RecoVertex::convertPos(thebs.position()));
           const FreeTrajectoryState &initialfts = tt.initialFreeState();
           const GlobalTrajectoryParameters trackgtp(initialfts.position(),initialfts.momentum(),initialfts.charge(),&nullField);
           const FreeTrajectoryState trackfts(trackgtp,initialfts.cartesianError(),initialfts.curvilinearError());
           const TrajectoryStateOnSurface &bsstate = extrapolator.extrapolate(trackfts, RecoVertex::convertPos(thebs.position()));
-
           if (bsstate.isValid()) {
             double zbeamline = bsstate.globalPosition().z();
             zbeamlineerr = sqrt((bsstate.cartesianError().matrix())(2,2));
             if (0) {
               math::XYZVector mom(inConversion->refittedPairMomentum());
               double zbeamlineconv = (vtx.z()) - ((vtx.x()-thebs.position().x())*mom.x()+(vtx.y()-thebs.position().y())*mom.y())/mom.rho() * mom.z()/mom.rho();
-
               double zbeamlinetrk = (refittedTrack->vertex().z()) - ((refittedTrack->vertex().x()-thebs.position().x())*refittedTrack->momentum().x()+(refittedTrack->vertex().y()-thebs.position().y())*refittedTrack->momentum().y())/refittedTrack->momentum().rho() * refittedTrack->momentum().z()/refittedTrack->momentum().rho();
 
               printf("zbeamlineconv = %5f, zbeamlinetrk = %5f, zbeamline = %5f, zbeamlineerr = %5f\n",zbeamlineconv,zbeamlinetrk,zbeamline,zbeamlineerr);
             }
           }
         }
-        
 
-        const mithep::Particle *daughter = GetMitParticle(mitedm::refToBaseToPtr(trackRef));
+
+
+        const mithep::Particle *daughter = 0; 
+	try{daughter = GetMitParticle(mitedm::refToBaseToPtr(trackRef));}
+	catch(...) { 
+	  std::cout << " ======> Broken Track Reference ===> " << std::endl;
+	  if(checkTrackRef_)     throw edm::Exception(edm::errors::Configuration, "FillerConversionsDecay::FillDataBlock()\n")
+	    << "Error! not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
+	}
         
         mithep::StableData *outStable = stableData_->Allocate();
         new (outStable) mithep::StableData(daughter,
@@ -218,7 +224,6 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
     reco::ConversionRef theRef(hConversionProduct, inConversion-inConversions.begin());
     conversionMap_->Add(theRef, outConversion);
   }
-
   decays_->Trim();
 }
 
@@ -226,7 +231,6 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
 mithep::Particle *FillerConversionsDecay::GetMitParticle(edm::Ptr<reco::Track> ptr) const
 {
   // Return our particle referenced by the edm pointer.
-
   mithep::Particle *mitPart = 0;
   for (std::vector<const mithep::TrackPartMap*>::const_iterator bmap = stablePartMaps_.begin();
         bmap!=stablePartMaps_.end(); ++bmap) {
@@ -236,11 +240,10 @@ mithep::Particle *FillerConversionsDecay::GetMitParticle(edm::Ptr<reco::Track> p
       return mitPart;
     }
   }
-  
-  if (!mitPart)
+  if (!mitPart && checkTrackRef_)
     throw edm::Exception(edm::errors::Configuration, "FillerConversionsDecay::FillDataBlock()\n")
     << "Error! MITHEP Object " 
     << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
-    
+
   return mitPart;
 }

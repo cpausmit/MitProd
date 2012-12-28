@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.120 2012/07/25 03:08:42 paus Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.121 2012/08/09 21:16:04 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -305,10 +305,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     PileupEnergyDensity = cms.untracked.PSet(
         active                               = cms.untracked.bool(False),
         mitName                              = cms.untracked.string('Rho'),
-        edmName                              = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoi','rho'),
-        edmNameLowEta                        = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoi25','rho'),
-        edmNameRandom                        = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom','rho'),
-        edmNameRandomLowEta                  = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom25','rho'),
+        edmName                              = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoiMIT','rho'),
+        edmNameLowEta                        = cms.untracked.InputTag('kt6PFJetsForRhoComputationVoronoi25MIT','rho'),
+        edmNameRandom                        = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandomMIT','rho'),
+        edmNameRandomLowEta                  = cms.untracked.InputTag('kt6PFJetsForRhoComputationRandom25MIT','rho'),
         edmNameFixedGridAll                  = cms.untracked.InputTag('fixedGridRhoAll',''),
         edmNameFixedGridFastjetAll           = cms.untracked.InputTag('fixedGridRhoFastjetAll',''),
         edmNameKt6CaloJets                   = cms.untracked.InputTag('kt6CaloJets','rho'),
@@ -674,7 +674,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         photonMapName                 = cms.untracked.string('PFPhotonMapName'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
         pfNoPileupCandCandMapName     = cms.untracked.string('PFNoPileupCandMapName'),
-        fillerType                    = cms.untracked.string('FillerPFCandidates')
+        fillerType                    = cms.untracked.string('FillerPFCandidates'),
+        allowMissingPhotonRef         = cms.untracked.bool  (False)
     ),
 
     IC5GenJets = cms.untracked.PSet(
@@ -1505,7 +1506,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
        active        = cms.untracked.bool(False),
        mitName       = cms.untracked.string('EmbedWeight'),
        edmName       = cms.untracked.string('generator'),
-       fillerType    = cms.untracked.string('FillerEmbedWeight')
+       fillerType    = cms.untracked.string('FillerEmbedWeight'),
+       useGenInfo    = cms.untracked.bool(False)
      ),
      DCASig     = cms.untracked.PSet(
        active          = cms.untracked.bool(True),

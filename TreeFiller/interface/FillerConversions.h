@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerConversions.h,v 1.13 2009/09/25 08:42:50 loizides Exp $
+// $Id: FillerConversions.h,v 1.14 2010/03/18 20:21:00 bendavid Exp $
 //
 // FillerConversions
 //
@@ -33,6 +33,7 @@ namespace mithep
     
       std::string                              edmName_;             //name of edm conversions
       std::string                              mitName_;             //mit name of Conversions
+      bool                                     checkTrackRef_;       //Check the track references
       std::string                              convElectronMapName_; //name of imported electrons map
       std::vector<std::string>                 stablePartMapNames_;  //name imp maps wrt stable parts
       std::string                              conversionMapName_;   //name of exported conv map
