@@ -29,7 +29,9 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/pharris/FED442F4-549F-E111-ABD5-00221988F96C.root')
+                            #fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMu/StoreResults-DoubleMu_2012A_PromptReco_v1_embedded_trans1_tau115_ptelec1_17had1_17_v1-f456bdbb960236e5c696adfe9b04eaae/DoubleMu/USER/StoreResults-DoubleMu_2012A_PromptReco_v1_embedded_trans1_tau115_ptelec1_17had1_17_v1-f456bdbb960236e5c696adfe9b04eaae/0000/EE75CD02-539F-E111-85D5-0023AEFDE490.root')
+                            #fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMu/StoreResults-DoubleMu_2012B_PromptReco_v1_Run193752to195135_embedded_trans1_tau115_ptelec1_17had1_17_v2-f456bdbb960236e5c696adfe9b04eaae/DoubleMu/USER/StoreResults-DoubleMu_2012B_PromptReco_v1_Run193752to195135_embedded_trans1_tau115_ptelec1_17had1_17_v2-f456bdbb960236e5c696adfe9b04eaae/0000/FC0EB0FE-FAAD-E111-BC4E-001EC9DB2BFA.root')
+                            fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMu/StoreResults-DoubleMu_2012A_PromptReco_v1_embedded_trans1_tau115_ptelec1_17had1_17_v2-f456bdbb960236e5c696adfe9b04eaae//DoubleMu/USER/StoreResults-DoubleMu_2012A_PromptReco_v1_embedded_trans1_tau115_ptelec1_17had1_17_v2-f456bdbb960236e5c696adfe9b04eaae/0000/E4004575-B2AC-E111-9B88-001E4F3DED7B.root')
 )
 #process.source.inputCommands = cms.untracked.vstring(#"keep *",
 #                                                     "drop *_MEtoEDMConverter_*_*",
@@ -37,6 +39,7 @@ process.source = cms.Source("PoolSource",
 
 # other statements
 process.GlobalTag.globaltag = 'START53_V10::All'
+
 
 process.add_(cms.Service("ObjectService"))
 
@@ -47,9 +50,8 @@ process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 from MitProd.TreeFiller.filltauembedded_cff import *
 filltauembedded(process.MitTreeFiller)
-
-process.MitTreeFiller.Electrons.requireClusterAndGsfMap          = cms.untracked.bool(False)
-
+process.MitTreeFiller.EmbedWeight.useGenInfo = True
+process.newJetTracksAssociatorAtVertex.tracks = "tmfTracks"
 process.bambu_step  = cms.Path(process.BambuFillAOD)
 
 # schedule definition

@@ -1,4 +1,4 @@
-# $Id: BambuFillRECO_cfi.py,v 1.64 2012/03/29 23:41:58 paus Exp $
+# $Id: BambuFillRECO_cfi.py,v 1.65 2012/03/30 01:08:40 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -83,7 +83,8 @@ BambuRecoSequence = cms.Sequence(electronsStable*
                                  pfNoElectron*
                                  pfJetSequence*
                                  pfNoJet*
-                                 l1FastJetSequenceCHS
+                                 l1FastJetSequenceCHS*
+                                 PFTau
                                  )
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)

@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.39 2012/07/16 13:13:40 bendavid Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.40 2012/07/25 03:08:41 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_2-START53_V6/RelValProdTTbar/AODSIM/v2/0000/9A630BD7-C3B9-E111-BAB3-00304867918E.root')
+  fileNames = cms.untracked.vstring('/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_FED5F7FE-0597-E111-BE71-485B39800BB5.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *",

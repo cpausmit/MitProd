@@ -1,4 +1,4 @@
-# $Id: BambuSIM_cfi.py,v 1.18 2012/01/15 23:11:34 pharris Exp $
+# $Id: BambuSIM_cfi.py,v 1.19 2012/03/11 23:16:01 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,6 +20,7 @@ BambuGenSequence = cms.Sequence(
 #    flavorHistoryFilter*
 #    caloJetMCFlavour*
 #    pfJetMCFlavour
+  antiktGenJets
 )
 
 #function to enable sim filling for the given tree filler
