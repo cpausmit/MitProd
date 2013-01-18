@@ -36,7 +36,7 @@ then
     exit 0
   else
     echo " File is really broken. Remove it."
-    rm -f  $dir/$file
+    remove --exe --catalog $dir/$file
   fi
 else
   echo ""
@@ -66,7 +66,7 @@ then
     echo " ERRO - File is broken again. Removing it."
     echo "        $dir/$file"
     echo ""
-    rm -f  $dir/$file
+    remove --exe --catalog $dir/$file
   fi
 else
   echo ""
@@ -91,23 +91,26 @@ else
       echo ""
       echo " GOOD - Recovery completed successfully from CERN."
       echo "        $dir/$file"
-      # try to recover Tier-2 from CERN
-      echo " Start recovery on Tier-2."
-      downloadFile.sh $CERN_LOC/$cfg/$version/$dset/$file $MIT_LOC/$cfg/$version/$dset/$file \
-                      >& /dev/null 
-      echo "        -> Download (to Tier-2) status: $?"
-      test=`catalogFile.sh $MIT_LOC/$cfg/$version/$dset $file 2> /dev/null | grep XX-CATALOG-XX`
-      if [ "$test" != "" ]
+      # try to recover Tier-2 from CERN if that is required
+      if [ "$MIT_LOC/$cfg/$version/$dset/$file" != "$dir/$file" ]
       then
-        echo ""
-        echo " GOOD - Recovery on Tier-2 completed successfully from CERN."
-        echo "        $MIT_LOC/$cfg/$version/$dset/$file"
-        echo ""
-      else
-        echo " ERRO - File on tier-2 is still broken. Stop process"
-        echo "        $MIT_LOC/$cfg/$version/$dset/$file"
-        echo ""
-      fi    
+        echo " Start recovery on Tier-2."
+        downloadFile.sh $CERN_LOC/$cfg/$version/$dset/$file $MIT_LOC/$cfg/$version/$dset/$file \
+                        >& /dev/null 
+        echo "        -> Download (to Tier-2) status: $?"
+        test=`catalogFile.sh $MIT_LOC/$cfg/$version/$dset $file 2> /dev/null | grep XX-CATALOG-XX`
+        if [ "$test" != "" ]
+        then
+          echo ""
+          echo " GOOD - Recovery on Tier-2 completed successfully from CERN."
+          echo "        $MIT_LOC/$cfg/$version/$dset/$file"
+          echo ""
+        else
+          echo " ERRO - File on tier-2 is still broken. Stop process"
+          echo "        $MIT_LOC/$cfg/$version/$dset/$file"
+          echo ""
+        fi    
+      fi
     else
       echo " ERRO - File is broken again. Removing it."
       echo "        $dir/$file"

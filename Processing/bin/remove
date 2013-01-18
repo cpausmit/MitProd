@@ -49,8 +49,9 @@ def remove(source):
         cmd = "stager_rm -M " + source + "; nsrm " + source
     elif re.search('/mnt/hadoop/cms/store/user/paus',source):
         debugPrint(' Identified a tier-2 hadoop directory: ' + source)
-        source = srm.convertToUrl(source,debug)
-        cmd = 'srmrm ' + source + ' >& /dev/null'
+        #source = srm.convertToUrl(source,debug)
+        #cmd = 'srmrm ' + source + ' >& /dev/null'
+        cmd = 'glexec rm ' + source
     else:
         debugPrint(' Identified a normal directory')
         cmd = 'rm -rf ' + source
