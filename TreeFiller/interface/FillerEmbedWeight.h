@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerEmbedWeight.h,v 1.1 2011/11/24 11:41:42 pharris Exp $
+// $Id: FillerEmbedWeight.h,v 1.2 2012/12/28 17:27:20 pharris Exp $
 //
 // FillerMCEventInfo
 //
@@ -29,7 +29,13 @@ namespace mithep
 
     private:
       std::string              edmName_;       //edmname
+      std::string edmSpinnerName_;
+      std::string edmMuEffName_;
+      std::string edmMuRadName_;
+      std::string edmKineReweightGenName_;
+      std::string edmKineReweightRecName_;
       bool                     genInfo_;
+      bool                     recHit_;
       std::string              mitName_;       //mitname
       EmbedWeightArr           *embedWeight_;          //event info
   };

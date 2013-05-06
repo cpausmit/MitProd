@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.121 2012/08/09 21:16:04 paus Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.122 2012/12/28 17:27:20 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1503,11 +1503,17 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
       fillerType    = cms.untracked.string('FillerStableParts')
     ),
     EmbedWeight = cms.untracked.PSet(
-       active        = cms.untracked.bool(False),
-       mitName       = cms.untracked.string('EmbedWeight'),
-       edmName       = cms.untracked.string('generator'),
+       active         = cms.untracked.bool(False),
+       mitName        = cms.untracked.string('EmbedWeight'),
+       edmName        = cms.untracked.string('generator'),
+       edmSpinnerName = cms.untracked.string('TauSpinnerReco'),
+       edmMuEffName   = cms.untracked.string('ZmumuEvtSelEffCorrWeightProducer'),
+       edmMuRadName   = cms.untracked.string('muonRadiationCorrWeightProducer'),
+       edmKineReweightGenName = cms.untracked.string('embeddingKineReweightGENembedding'),
+       edmKineReweightRecName = cms.untracked.string('embeddingKineReweightRECembedding'),
        fillerType    = cms.untracked.string('FillerEmbedWeight'),
-       useGenInfo    = cms.untracked.bool(False)
+       useGenInfo    = cms.untracked.bool(False),
+       useRecHit     = cms.untracked.bool(True)
      ),
      DCASig     = cms.untracked.PSet(
        active          = cms.untracked.bool(True),
