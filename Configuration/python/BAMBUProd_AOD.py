@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AOD.py,v 1.37 2012/07/16 13:13:40 bendavid Exp $
+# $Id: BAMBUProd_AOD.py,v 1.38 2012/07/25 03:08:41 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,7 +36,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 # other statements
-process.GlobalTag.globaltag = 'GR_P_V40::All'
+process.GlobalTag.globaltag = 'GR_P_V41_AN2::All'
 
 process.add_(cms.Service("ObjectService"))
 

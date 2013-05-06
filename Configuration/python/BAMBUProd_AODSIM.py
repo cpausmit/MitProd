@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIM.py,v 1.40 2012/07/25 03:08:41 paus Exp $
+# $Id: BAMBUProd_AODSIM.py,v 1.41 2012/12/28 17:36:20 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,7 +30,8 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_FED5F7FE-0597-E111-BE71-485B39800BB5.root')
+  fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/DoubleMuParked/USER/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/0000/1AB39CBC-B7B0-E211-BDE0-00266CF3DFE0.root')
+                            #/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_FED5F7FE-0597-E111-BE71-485B39800BB5.root')#/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_FED5F7FE-0597-E111-BE71-485B39800BB5.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *",

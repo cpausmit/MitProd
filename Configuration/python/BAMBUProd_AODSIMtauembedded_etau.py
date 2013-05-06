@@ -45,8 +45,8 @@ process.load("MitProd.BAMBUSequences.BambuFillAODSIM_cfi")
 process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.load('TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff')
-process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root')
-# process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root')
+#process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root')
+ process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root')
 # process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root')
 
 from MitProd.TreeFiller.filltauembedded_cff import *
