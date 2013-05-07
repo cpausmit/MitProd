@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.6 2012/07/25 03:08:41 paus Exp $
+# $Id: BAMBUProd_AODSIMtauembedded_etau.py,v 1.1 2013/05/06 18:23:24 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,7 +46,7 @@ process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.load('TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff')
 #process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root')
- process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root')
+process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root')
 # process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root')
 
 from MitProd.TreeFiller.filltauembedded_cff import *
