@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.16 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerSuperClusters.cc,v 1.17 2012/12/28 17:27:21 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -34,6 +34,10 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
                                                               "BasicClusterMap")),
   psClusterMapName_     (Conf().getUntrackedParameter<string>("psClusterMapName", 
 							      "")),                                                            
+  psXClusterMapName_    (Conf().getUntrackedParameter<string>("psXClusterMapName", 
+							      "")),                                                            
+  psYClusterMapName_    (Conf().getUntrackedParameter<string>("psYClusterMapName", 
+							      "")),                                                            
   caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", 
 							      "CaloTowerDetIdMap")),                                                            
   superClusterMapName_  (Conf().getUntrackedParameter<string>("superClusterMapName", 
@@ -43,6 +47,8 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
   caloTowerName_        (Conf().getUntrackedParameter<string>("caloTowerName","towerMaker")),
   basicClusterMap_      (0),
   psClusterMap_         (0),
+  psXClusterMap_        (0),
+  psYClusterMap_        (0),
   caloTowerDetIdMap_    (0),
   superClusters_        (new mithep::SuperClusterArr(25)),
   superClusterMap_      (new mithep::SuperClusterMap),
@@ -79,6 +85,18 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
     psClusterMap_ = OS()->get<PsClusterMap>(psClusterMapName_);
     if (psClusterMap_)
       AddBranchDep(mitName_,psClusterMap_->GetBrName());
+  }
+  
+  if (!psXClusterMapName_.empty()) {
+    psXClusterMap_ = OS()->get<PsClusterMap>(psXClusterMapName_);
+    if (psXClusterMap_)
+      AddBranchDep(mitName_,psXClusterMap_->GetBrName());
+  }
+  
+  if (!psYClusterMapName_.empty()) {
+    psYClusterMap_ = OS()->get<PsClusterMap>(psYClusterMapName_);
+    if (psYClusterMap_)
+      AddBranchDep(mitName_,psYClusterMap_->GetBrName());
   }
 
   if (!caloTowerDetIdMapName_.empty()) {
@@ -192,16 +210,34 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     
     // add basic clusters that belong to this super cluster and tag with mustache id
     if (basicClusterMap_) {
+      std::vector<const mithep::BasicCluster*> pcs;
       std::vector<reco::CaloCluster> bcs;
       std::vector<unsigned int> insidebcs;
       std::vector<unsigned int> outsidebcs;
       for(reco::CaloCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
         if (bc->isNonnull()) {
-          outSC->AddCluster(basicClusterMap_->GetMit(*bc));
+	  const mithep::BasicCluster *bclus = basicClusterMap_->GetMit(*bc);
+	
+	  // insertion sort (basic clusters sorted by energy)
+	  pcs.push_back(bclus);
           bcs.push_back(**bc);
+	  unsigned int iclus = pcs.size()-1;
+	  while(iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
+	    reco::CaloCluster tmp_bcs = bcs[iclus];
+	    bcs[iclus]   = bcs[iclus-1];
+	    bcs[iclus-1] = tmp_bcs;
+	    
+	    const mithep::BasicCluster *tmp_pcs = pcs[iclus];
+	    pcs[iclus]   = pcs[iclus-1];
+	    pcs[iclus-1] = tmp_pcs;
+	    
+	    iclus--;
+	  }
         }
       }
-
+      for(unsigned int iclus=0; iclus<pcs.size(); iclus++)
+        outSC->AddCluster(pcs[iclus]);
+	
       mustache.MustacheClust(bcs,insidebcs,outsidebcs);
       for (unsigned int iclus=0; iclus<insidebcs.size(); ++iclus) {
         const_cast<mithep::BasicCluster*>(outSC->Cluster(insidebcs.at(iclus)))->SetInsideMustache(kTRUE);
@@ -212,16 +248,37 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     }
 
     // add preshower clusters that belong to this super cluster and tag with mustache id
-    if (psClusterMap_) {
+    if (psClusterMap_ || psXClusterMap_ || psYClusterMap_) {
+      std::vector<const mithep::PsCluster*> pcs;
       std::vector<reco::CaloCluster> bcs;
       std::vector<unsigned int> insidebcs;
       std::vector<unsigned int> outsidebcs;
       for(reco::CaloCluster_iterator bc = inSC->preshowerClustersBegin(); bc != inSC->preshowerClustersEnd(); ++bc) {
         if (bc->isNonnull()) {
-          outSC->AddPsClust(psClusterMap_->GetMit(*bc));
+	  const mithep::PsCluster *psclus = 0;
+          if(psClusterMap_)  psclus = psClusterMap_->GetMit(*bc);
+	  if(psXClusterMap_) psclus = psXClusterMap_->GetMit(*bc);
+	  if(psYClusterMap_) psclus = psYClusterMap_->GetMit(*bc);
+	  
+	  // insertion sort (Preshower clusters sorted by energy)
+	  pcs.push_back(psclus);
           bcs.push_back(**bc);
+	  unsigned int iclus = pcs.size()-1;
+	  while(iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
+	    reco::CaloCluster tmp_bcs = bcs[iclus];
+	    bcs[iclus]   = bcs[iclus-1];
+	    bcs[iclus-1] = tmp_bcs;
+	    
+	    const mithep::PsCluster *tmp_pcs = pcs[iclus];
+	    pcs[iclus]   = pcs[iclus-1];
+	    pcs[iclus-1] = tmp_pcs;
+	    
+	    iclus--;
+	  }
         }
-      }
+      }      
+      for(unsigned int iclus=0; iclus<pcs.size(); iclus++)
+        outSC->AddPsClust(pcs[iclus]);
 
       mustache.MustacheClust(bcs,insidebcs,outsidebcs);
       for (unsigned int iclus=0; iclus<insidebcs.size(); ++iclus) {

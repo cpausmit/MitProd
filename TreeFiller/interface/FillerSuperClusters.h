@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSuperClusters.h,v 1.10 2010/06/25 15:18:38 bendavid Exp $
+// $Id: FillerSuperClusters.h,v 1.11 2012/05/05 16:49:59 paus Exp $
 //
 // FillerSuperClusters
 //
@@ -44,13 +44,17 @@ namespace mithep
       std::string                      mitName_;               //mit name of collection
       std::string                      basicClusterMapName_;   //name of imp. map wrt basic clus
       std::string                      psClusterMapName_;      //name of imp. map wrt ps clus
+      std::string                      psXClusterMapName_;     //name of imp. map wrt ps x clus
+      std::string                      psYClusterMapName_;     //name of imp. map wrt ps y clus
       std::string                      caloTowerDetIdMapName_; //name of imp. map wrt caloTowerDetId
       std::string                      superClusterMapName_;   //name of exported map
       std::string                      superClusterIdMapName_; //name of exported id map
       std::string                      caloTowerName_;         //name of calotower collection
       const mithep::BasicClusterMap   *basicClusterMap_;       //map wrt basic clusters
       const mithep::PsClusterMap      *psClusterMap_;          //map wrt preshower clusters
-      const mithep::CaloTowerDetIdMap *caloTowerDetIdMap_;    //map wrt calo tower det id's
+      const mithep::PsClusterMap      *psXClusterMap_;         //map wrt preshower x clusters
+      const mithep::PsClusterMap      *psYClusterMap_;         //map wrt preshower y clusters      
+      const mithep::CaloTowerDetIdMap *caloTowerDetIdMap_;     //map wrt calo tower det id's
       mithep::SuperClusterArr         *superClusters_;         //array of super clusters
       mithep::SuperClusterMap         *superClusterMap_;       //map wrt super clusters
       mithep::SuperClusterIdMap       *superClusterIdMap_;     //map of DetIds to superclusters
