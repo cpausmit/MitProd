@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.122 2012/12/28 17:27:20 pharris Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.123 2013/05/06 18:27:47 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,6 +17,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'BarrelSuperClusters',
                                     'EndcapBasicClusters',
                                     'EndcapSuperClusters',
+				    'PsXClusters',
+				    'PsYClusters',
                                     'PixelHits',
                                     'StripHits',
                                     'PFBasicClusters',
@@ -251,6 +253,24 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         edmName          = cms.untracked.string('towerMaker'),
         caloTowerMapName = cms.untracked.string('CaloTowerMap'),
         fillerType       = cms.untracked.string('FillerCaloTowers')
+    ),
+
+    PsXClusters = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('PsXClusters'),
+        edmName             = cms.untracked.string('multi5x5SuperClustersWithPreshower:preshowerXClusters'),
+        psClusterMapName    = cms.untracked.string('PsXClusterMap'),
+        doPsClusters        = cms.untracked.bool(True),
+        fillerType          = cms.untracked.string('FillerPsClusters')
+    ),    
+    
+    PsYClusters = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('PsYClusters'),
+        edmName             = cms.untracked.string('multi5x5SuperClustersWithPreshower:preshowerYClusters'),
+        psClusterMapName    = cms.untracked.string('PsYClusterMap'),
+        doPsClusters        = cms.untracked.bool(True),
+        fillerType          = cms.untracked.string('FillerPsClusters')
     ),
 
     BarrelBasicClusters = cms.untracked.PSet(
