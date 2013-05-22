@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded_emu.py,v 1.1 2013/05/06 18:23:22 pharris Exp $
+# $Id: BAMBUProd_AODSIMtauembedded_emu.py,v 1.2 2013/05/07 11:31:20 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/DoubleMuParked/USER/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/0000/1AB39CBC-B7B0-E211-BDE0-00266CF3DFE0.root')
+  fileNames = cms.untracked.vstring('/store/cmst3/group/cmgtools/CMG/DoubleMu/StoreResults-Run2012A_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/USER/V5_B/PFAOD_81.root')
 )
 #process.source.inputCommands = cms.untracked.vstring("keep *",
 #                                                     "drop *_MEtoEDMConverter_*_*",
@@ -55,11 +55,5 @@ process.MitTreeFiller.MergedConversions.checkTrackRef           = cms.untracked.
 process.MitTreeFiller.EmbedWeight.useGenInfo                    = True
 
 process.bambu_step  = cms.Path(process.BambuFillAODSIM)
-process.output = cms.OutputModule("PoolOutputModule",
-                                  outputCommands = cms.untracked.vstring('keep *'),
-                                  fileName       = cms.untracked.string ("test.root")
-)
-
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
-process.outpath  = cms.EndPath(process.output)

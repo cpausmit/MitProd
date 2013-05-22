@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded_etau.py,v 1.1 2013/05/06 18:23:24 pharris Exp $
+# $Id: BAMBUProd_AODSIMtauembedded_etau.py,v 1.2 2013/05/07 11:31:20 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -55,11 +55,6 @@ process.MitTreeFiller.MergedConversions.checkTrackRef           = cms.untracked.
 process.MitTreeFiller.EmbedWeight.useGenInfo                    = True
 
 process.bambu_step  = cms.Path(process.BambuFillAODSIM)
-process.output = cms.OutputModule("PoolOutputModule",
-                                  outputCommands = cms.untracked.vstring('keep *'),
-                                  fileName       = cms.untracked.string ("test.root")
-)
 
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
-process.outpath  = cms.EndPath(process.output)
