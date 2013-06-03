@@ -2,8 +2,8 @@
 #===================================================================================================
 # Interface to execute a script on the server as globus ticket mapped user.
 #===================================================================================================
-#GATEWAY=se01.cmsaf.mit.edu
-GATEWAY=t2bat0210.cmsaf.mit.edu
+GATEWAY=se01.cmsaf.mit.edu
+#GATEWAY=t2bat0210.cmsaf.mit.edu
 TICKET=$X509_USER_PROXY
 SCRIPT=$1
 
@@ -23,6 +23,8 @@ chmod 755   $SCRIPT
 # Copy ticket and script
 scp $TICKET $TIER2_USER@${GATEWAY}:$X509_USER_PROXY 2> /dev/null
 scp $SCRIPT $TIER2_USER@${GATEWAY}:/tmp/            2> /dev/null
+
+#echo " Client certificate: $X509_USER_PROXY"
 
 # Execute the script
 ssh $TIER2_USER@${GATEWAY} \

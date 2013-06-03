@@ -9,7 +9,7 @@ FLAG=$2
 version=`basename $BOOK`
 first=1
 
-for line in `list $LOCATION/$BOOK/\*/crab_0_\*`
+for line in `glexec ls -s $LOCATION/$BOOK/\*/crab_0_\*`
 do
   if [ "`echo $line | grep :`" != "" ]
   then
@@ -24,6 +24,8 @@ do
     extDataset="$dataset/$crabId"
     first=1
   fi
+
+    echo "catalog.sh -ceg $version $extDataset --remove"
 
   if [ "$first" == 1 ] && [ "`echo $line | grep root`" != "" ]
   then
