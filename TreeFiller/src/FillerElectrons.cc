@@ -1,4 +1,4 @@
-// $Id: FillerElectrons.cc,v 1.67 2012/07/25 03:08:42 paus Exp $
+// $Id: FillerElectrons.cc,v 1.68 2012/12/28 17:27:21 pharris Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
@@ -304,7 +304,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     
     // make tracker track links,
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
-        outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef())));
+      try { outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef()))); } 
+      catch(...) {
+	if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	  << "Error! Tracker track unmapped collection " << edmName_ << endl;
+      }
     }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
         pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
@@ -624,7 +628,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	
       }
       else if (ckfconvTrackRef.isNonnull() && trackerTrackMap_) {
-        outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef)));
+        try { outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef))); }
+	catch(...) { 
+	  if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	      << "Error! Conversion Tracker track unmapped collection " << edmName_ << endl;
+	}
       }
     }
     else {
@@ -642,7 +650,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	  }
         }
         else if (trackerTrackMap_) {
-          outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+          try{ outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));}
+	  catch(...) {
+	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+	      << "Error! Conversion track unmapped collection " << edmName_ << endl;
+	  }
         }
       }
     }
