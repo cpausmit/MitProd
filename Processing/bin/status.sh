@@ -22,14 +22,14 @@ DIR1=/mnt/hadoop/cms/store/user/paus/$BOOK
 T3DIR=/mnt/hadoop/cmsprod/$BOOK
 if [ "`list $DIR1 2> /dev/null | grep $DATASET`" != "" ]
 then
-  #echo wc -l $BOOK/$DATASET.lfns '2> /dev/null | cut -d ' ' -f 1'
-  if ! [ -e "$BOOK/$DATASET.lfns" ]
+  if ! [ -e "lfns/$DATASET.lfns" ]
   then
     echo " Warning: complete file list not available. Creating it now."
     echo " -> findSamples.py --cmssw=mc --pattern=$DATASET --remakeLfns=1 --complete --exe"
+    # find sample in list
     findSamples.py --cmssw=mc --pattern=$DATASET --remakeLfns=1 --complete --exe >& /dev/null
   fi
-  nAll=`wc -l $BOOK/$DATASET.lfns 2> /dev/null | cut -d ' ' -f 1`
+  nAll=`wc -l lfns/$DATASET.lfns 2> /dev/null | cut -d ' ' -f 1`
   # how many are done on the Tier-2
   #echo list $DIR1/$DATASET '2> /dev/null | grep root | wc -l'
   nDone=`list $DIR1/$DATASET 2> /dev/null | grep root | wc -l`

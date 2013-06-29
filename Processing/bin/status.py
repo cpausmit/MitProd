@@ -51,5 +51,5 @@ cmd = 'list ' + dir + dataset + ' | grep root | wc '
 os.system(cmd)
 cmd = 'list ' + dir + dataset + '/crab_* | grep root | wc '
 os.system(cmd)
-cmd = 'wc filefi/013/' + dataset + '.lfns '
+cmd = 'wc lfns/' + dataset + '.lfns '
 os.system(cmd)

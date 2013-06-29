@@ -7,6 +7,8 @@
 echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pwd
 echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 
+export CATALOG_MACRO="runFileCataloger.C"
+
 export SCRAM_ARCH='slc5_ia32_gcc434'
 export VO_CMS_SW_DIR=~cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
@@ -28,6 +30,11 @@ if [ ".$2" == "." ]
 then
   dataFile=`basename $dataDir`
   dataDir=`dirname $dataDir`
+fi
+
+if ! [ -z "`echo $dataDir | grep delphes`" ]
+then
+  CATALOG_MACRO="runSimpleFileCataloger.C"
 fi
 
 procId=$$
@@ -53,13 +60,13 @@ which root
 ls -lhrt $CMSSW_BASE/src/MitAna/macros/
 
 echo " root -l -b -q $CMSSW_BASE/src/MitProd/Processing/root/rootlogon.C \ "
-echo "               $CMSSW_BASE/src/MitProd/Processing/root/runFileCataloger.C \ "
+echo "               $CMSSW_BASE/src/MitProd/Processing/root/${CATALOG_MACRO} \ "
 echo "               ($dataDir,$dataFile) \ "
 echo "               >& $logFile "
 
 root -l -b -q \
      $CMSSW_BASE/src/MitProd/Processing/root/rootlogon.C \
-     $CMSSW_BASE/src/MitProd/Processing/root/runFileCataloger.C\(\"$dataDir\",\"$dataFile\"\) \
+     $CMSSW_BASE/src/MitProd/Processing/root/${CATALOG_MACRO}\(\"$dataDir\",\"$dataFile\"\) \
      >& $logFile
   
 status=`echo $?`

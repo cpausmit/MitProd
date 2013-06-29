@@ -30,6 +30,14 @@ BOOK="$1"
 SAMPLE="$2"
 LOCATION="$3"
 
+if [ "$BOOK" == "" ] || [ "$SAMPLE" == "" ]
+then
+  echo " Sample and book have to be defined.... "
+  exit 0
+else
+  echo " Removing sample: $SAMPLE from book: $BOOK"
+fi
+
 echo ""
 echo "Trying to remove sample: $SAMPLE ($BOOK) from $LOCATION"
 
@@ -38,7 +46,8 @@ echo "Trying to remove sample: $SAMPLE ($BOOK) from $LOCATION"
 if [ "$LOCATION" == "" ] || [ "$LOCATION" == "T2MIT" ]
 then
   # remove the remote physical files
-  glexec ./removeSample.sh ${BOOK} $SAMPLE exec
+  #glexec ./removeSample.sh ${BOOK} $SAMPLE exec
+  glexec hadoop dfs -rmr /cms/store/user/paus/${BOOK}/$SAMPLE
   # remove remote catalogs
   if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]
   then

@@ -375,7 +375,7 @@ for line in os.popen(cmd).readlines():  # run command
 
         # test remake lfns request
         if remakeLfns != -1:
-            lfnFile = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
+            lfnFile = 'lfns/' + mitDataset + '.lfns'
             cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset + ' > ' \
                   + lfnFile
             print ' input: ' + cmd + '\n'

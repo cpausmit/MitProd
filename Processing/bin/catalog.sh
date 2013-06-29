@@ -122,12 +122,12 @@ do
     dataset=`basename $dir`
 
     # Show present status
-    lfnFile="$HOME/cms/jobs/$mitCfg/$VERSION/${dataset}.lfns_$crabId"
+    lfnFile="$HOME/cms/jobs/lfns/${dataset}.lfns_$crabId"
     nProc=`list $dir/$crabId | grep root | wc -l`
     nCata=`list $dir         | grep root | wc -l`
     nTota=`cat $lfnFile                  | wc -l`
-    printf " CATALOG - Lfns: %6d  (done)  %6d  (to catalog) / %6d (total: %s)\n" \
-	   $nCata $nProc $nTota $mitCfg/$VERSION/${dataset}.lfns_$crabId
+    printf " CATALOG - Lfns: %6d  (done)  %6d  (to catalog) / %6d (total: lfns/%s)\n" \
+	   $nCata $nProc $nTota ${dataset}.lfns_$crabId
 
     if [ "$nProc" == 0 ] && [ "$catalog" == 1 ]
     then
@@ -196,6 +196,9 @@ do
       done
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
+      #echo \
+      #  "extractCatalog.py $OPTION \
+      #    --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}"
       extractCatalog.py $OPTION \
         --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}
     fi

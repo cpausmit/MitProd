@@ -1,4 +1,4 @@
-// $Id: runSimpleFileCataloger.C,v 1.1 2012/02/28 11:54:37 paus Exp $
+// $Id: runSimpleFileCataloger.C,v 1.2 2012/03/29 23:41:59 paus Exp $
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <TROOT.h>
@@ -40,12 +40,22 @@ void catalogFile(const char *dir, const char *file)
     fileName = hadoopDoor + fileName;
   }
   
+  printf("\n Opening: %s\n\n",fileName.Data());
   TFile* f       = TFile::Open(fileName.Data());
+
+  TTree* tree = (TTree*) f->FindObjectAny("Delphes");
+  if (tree) {
+    printf("0000 %s %d %d\n",fileName.Data(),tree->GetEntries(),tree->GetEntries());
+    return;
+  }
+
   TTree* tree    = (TTree*) f->FindObjectAny("Events");
-  printf("XX-CATALOG-XX %s %d\n",fileName.Data(),tree->GetEntries());
+  if (tree)
+    printf("XX-CATALOG-XX %s %d\n",fileName.Data(),tree->GetEntries());
 
   TTree* allTree = (TTree*) f->FindObjectAny("AllEvents");
-  printf("XX-CATALOG-XX %s %d %d\n",fileName.Data(),tree->GetEntries(),allTree->GetEntries());
+  if (tree && allTree)
+    printf("XX-CATALOG-XX %s %d %d\n",fileName.Data(),tree->GetEntries(),allTree->GetEntries());
 }
 
 //--------------------------------------------------------------------------------------------------

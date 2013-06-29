@@ -135,11 +135,10 @@ if re.search('crab_0',dataset):
     offDataset = f[0]
     crabId     = f[1]
     try:
-        fileInput = open(os.environ['HOME']+ \
-                         '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId,'r')
+        fileInput = open(os.environ['HOME']+'/cms/jobs/lfns/'+offDataset +'.lfns'+'_'+crabId,'r')
     except IOError:
         print ' Could not open database for filename conversion -- FATAL \n   ' + \
-              os.environ['HOME']+ '/cms/jobs/'+mitCfg+'/'+version+'/'+offDataset+'.lfns'+'_'+crabId
+              os.environ['HOME']+ '/cms/jobs/lfns/'+offDataset+'.lfns'+'_'+crabId
         print ' Remove this directory and data therein ' + \
               ' remove --exe ...\n'
         sys.exit(1)
@@ -358,6 +357,8 @@ for line in os.popen(cmd).readlines():  # run command
         g        = file.split("_");
         file     = "_".join(g[0:-2])
 
+        #print " file  %s"%(fullFile)
+        #print " file  %s"%(file)
         #print " nProc: %d  nevts[file]  %d"%(nProc,nevts[file])
         if nProc == nevts[file]:
             ##print ' complete: ' + file + '  -->  ' + files[file] + '  %d /%d' %(nProc,nevts[file])

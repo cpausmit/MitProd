@@ -227,7 +227,7 @@ for crabTask in crabTasks:
 	    path1 = f[1]
 	    path0 = "/".join(path1.split("/")[:-1])
 	    cmd = ' glexec chmod a+w ' + path0 + ' ' + path1
-	    print ' Updating permissions - ' + cmd
+	    #print ' Updating permissions - ' + cmd
 	    status = os.system(cmd)
 
     if kill == 1:
@@ -238,8 +238,7 @@ for crabTask in crabTasks:
             crabTask.remove(1)
 	    continue
 
-    crabTask.loadAllLfns(crabTask.mitCfg + '/' + crabTask.mitVersion + '/' + \
-			 crabTask.mitDataset + '.lfns')
+    crabTask.loadAllLfns('lfns/' + crabTask.mitDataset + '.lfns')
     #if crabTask.status == 'cataloged':
     #    ##removeCrabTask(crabTask)
     #    crabTask.killAndRemove(1)

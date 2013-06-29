@@ -66,7 +66,7 @@ def getFiles(mitCfg,version):
 
 #===================================================================================================
 def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
-    lfnFile  = mitCfg + '/' + version + '/' + mitDataset + '.lfns'
+    lfnFile  = 'lfns/' + mitDataset + '.lfns'
     if os.path.exists(lfnFile):
         print "\n INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
         if not useExistingLfns:
@@ -306,8 +306,9 @@ mitCfg           = "filefi"
 version          = os.environ['MIT_VERS']
 #dbs              = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
 dbs              = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
-sched            = "glite"
-blacklist        = ""
+#sched            = "glite"
+sched            = "remoteGlidein"
+blacklist        = "fnal"
 nSubmit          = -1
 skpEvts          = ''
 fixSites         = ''
@@ -531,6 +532,7 @@ for subTask in crabTask.subTasks:
             createDirCern(storagePath)
         else:
             createDirGeneral(storageEle,storagePath,fastCreate)
+            fastCreate = 1     # now the base directory exists so move to the fast create modes
 
 #    cmd  = "crab -create -debug 3 -USER.ui_working_dir=" + tag + " | tee forDaniele "
     cmd  = "crab -create -cfg crab_" + crabTask.tag + ".cfg -USER.ui_working_dir=" + tag
@@ -669,7 +671,8 @@ for subTask in crabTask.subTasks:
         nSubmit = '%d-%d'%(mergedMinIdxs[idx],mergedMaxIdxs[idx])
         if mergedMinIdxs[idx] == mergedMaxIdxs[idx]:
             nSubmit = '%d,%d'%(mergedMinIdxs[idx],100000000)
-        cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
+        #cmd = 'crab -submit %s -continue %s -GRID.ce_white_list=%s'%(nSubmit,tag,mergedSites[idx])
+        cmd = 'crab -submit %s -continue %s -GRID.se_white_list=%s'%(nSubmit,tag,mergedSites[idx])
         print '  ' + cmd + '\n'
         status = os.system(cmd)
         retry = False
