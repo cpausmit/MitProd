@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerSuperClusters.h,v 1.11 2012/05/05 16:49:59 paus Exp $
+// $Id: FillerSuperClusters.h,v 1.12 2013/05/15 14:00:29 ksung Exp $
 //
 // FillerSuperClusters
 //
@@ -15,6 +15,8 @@
 #include "MitAna/DataTree/interface/SuperClusterCol.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class CaloGeometry;
 class CaloSubdetectorTopology;
@@ -38,6 +40,12 @@ namespace mithep
 						 const CaloGeometry& geometry,
 						 CaloSubdetectorTopology *topology_p, int row);     
       std::vector<float>               getESShape(std::vector<float> ESHits0);
+      void                             SCTimeSpanCalculator(const reco::SuperCluster* scl, 
+                                                            double xtalEnergyThr, double seedTime, 
+                                                            double& SCLeadTimeSpan,
+							    double& SCSubLeadTimeSpan, 
+                                                            const EcalRecHitCollection* ebRecHitCol,
+							    const EcalRecHitCollection* eeRecHitCol); 
 
     private:
       std::string                      edmName_;               //edm name of collection

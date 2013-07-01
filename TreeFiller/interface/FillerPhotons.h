@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.20 2012/05/05 16:49:58 paus Exp $
+// $Id: FillerPhotons.h,v 1.21 2012/07/25 03:08:42 paus Exp $
 //
 // FillerPhotons
 //
@@ -15,6 +15,8 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 namespace mithep 
 {
@@ -26,7 +28,17 @@ namespace mithep
 
       void                             BookDataBlock(TreeWriter &tws);
       void                             FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-  			               
+
+    protected:		               
+      void                             HERecHitMatcher(const reco::Photon* pho, int zSide,
+                                                       double deltaPhiMin, double rhoMin,
+                                                       double rhoMax, double rhEnMin,
+                                                       ThreeVector &matchRhPos,
+						       double &matchedRhEnergy,
+						       double &matchedRhTime,
+                                                       const HBHERecHitCollection *hbHeRecHitCol,
+						       const CaloGeometry *caloGeom); 
+
     private:		               
       std::string                      edmName_;                   //edm name: photon collection
       std::string                      mitName_;                   //mit name: photon collection
@@ -40,6 +52,10 @@ namespace mithep
       std::string                      photonMapName_;             //name: exported photon map
       std::string                      phIDCutBasedTightName_;     //name: tight cut phID algo
       std::string                      phIDCutBasedLooseName_;     //name: loose cut phID algo
+      std::string                      EBRecHitsEdmName_;          //name: input edm ECAL EB rec hits collection
+      std::string                      EERecHitsEdmName_;          //name: input edm ECAL EE rec hits collection
+      std::string                      PFCandsEdmName_;            //name: input edm pfCandidates
+      edm::InputTag                    HBHERecHitsEdmName_;        //name: input edm HCAL HE rec hits collection  
       mithep::PhotonMap                *photonMap_;                //exported photon map
       mithep::PhotonArr                *photons_;                  //array of Photons
       const mithep::ConversionDecayMap *conversionMap_;            //imp. map wrt conver. electrons

@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.31 2012/07/25 03:08:42 paus Exp $
+// $Id: FillerPhotons.cc,v 1.32 2012/12/28 17:27:21 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -41,6 +41,13 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
 								  "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
 								  "PhotonIDProd:PhotonCutBasedIDLoose")),
+  EBRecHitsEdmName_         (Conf().getUntrackedParameter<string>("EBRecHitsEdmName_",
+								  "reducedEcalRecHitsEB")),
+  EERecHitsEdmName_         (Conf().getUntrackedParameter<string>("EERecHitsEdmName_",
+								  "reducedEcalRecHitsEE")),  
+  PFCandsEdmName_           (Conf().getUntrackedParameter<string>("PFCandsEdmName","particleFlow")),  
+  HBHERecHitsEdmName_       (Conf().getUntrackedParameter<edm::InputTag>("HBHERecHitsEdmName",
+									 edm::InputTag("reducedHcalRecHits:hbhereco"))),  
   photonMap_                (new mithep::PhotonMap),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
@@ -125,9 +132,9 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   
   //pf photon stuff 
   edm::Handle<EcalRecHitCollection> pEBRecHits;
-  event.getByLabel("reducedEcalRecHitsEB", pEBRecHits );
+  event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
   edm::Handle<EcalRecHitCollection> pEERecHits;
-  event.getByLabel( "reducedEcalRecHitsEE", pEERecHits );  
+  event.getByLabel(EERecHitsEdmName_, pEERecHits);  
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
@@ -138,8 +145,14 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
   
   Handle<reco::PFCandidateCollection> pPFCands;
-  event.getByLabel("particleFlow", pPFCands);
-  
+  event.getByLabel(PFCandsEdmName_, pPFCands);
+
+  // handles to the the pho-HErecHit matching 
+  edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
+  event.getByLabel(HBHERecHitsEdmName_, hcalRecHitHandle);
+  const HBHERecHitCollection* hbheRecHitCol =  hcalRecHitHandle.product(); 
+  const CaloGeometry* caloGeom = pGeometry.product(); 
+   
   // handles to get the photon ID information
   Handle<edm::ValueMap<bool> > phidLooseMap;
   if (!phIDCutBasedLooseName_.empty())
@@ -215,6 +228,68 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     //calo position
     outPhoton->SetCaloPosXYZ(iP->caloPosition().x(),iP->caloPosition().y(),iP->caloPosition().z());
 
+    //MIP tagger information
+    outPhoton->SetMipChi2(iP->mipChi2());
+    outPhoton->SetMipTotEnergy(iP->mipTotEnergy());                    
+    outPhoton->SetMipSlope(iP->mipSlope());                        
+    outPhoton->SetMipIntercept(iP->mipIntercept());                    
+    outPhoton->SetMipNhitCone(iP->mipNhitCone());                     
+    outPhoton->SetMipIsHalo(iP->mipIsHalo());                      
+
+    //make the pho-HErecHit matching 
+    ThreeVector matchRhPos(0,0,0);
+    double deltaPhiMin = 0.2;
+    double rhoMin = 110.;
+    double rhoMax = 140.;
+    double rhEnMin = 1.;
+    double matchedRhEnergy = -1.;
+    double matchedRhTime = -1000.;
+    //first do the std 2012 matching (wide DR window) - Plus side
+    HERecHitMatcher(&(*iP), +1,
+                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                    matchRhPos, matchedRhEnergy, matchedRhTime,
+                    hbheRecHitCol, caloGeom);
+    outPhoton->SetMatchHePlusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHePlusEn(matchedRhEnergy);                      
+    outPhoton->SetMatchHePlusTime(matchedRhTime);                      
+    //then do the std 2012 matching (wide DR window) - Minus side
+    matchRhPos.SetXYZ(0,0,0);
+    matchedRhEnergy = -1.;
+    matchedRhTime = -1000.;
+    HERecHitMatcher(&(*iP), -1,
+                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                    matchRhPos, matchedRhEnergy, matchedRhTime,
+                    hbheRecHitCol, caloGeom);
+    outPhoton->SetMatchHeMinusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHeMinusEn(matchedRhEnergy);                      
+    outPhoton->SetMatchHeMinusTime(matchedRhTime);                      
+    //thirdly do the std 2011 matching (narrow DR window) - Plus side
+    matchRhPos.SetXYZ(0,0,0);
+    deltaPhiMin = 0.2;
+    rhoMin = 115.;
+    rhoMax = 130.;
+    rhEnMin = 1.;
+    matchedRhEnergy = -1.;
+    matchedRhTime = -1000.;
+    HERecHitMatcher(&(*iP), +1,
+                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                    matchRhPos, matchedRhEnergy, matchedRhTime,
+                    hbheRecHitCol, caloGeom);
+    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);                      
+    outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);                      
+    //finally do the std 2011 matching (narrow DR window) - Minus side
+    matchRhPos.SetXYZ(0,0,0);
+    matchedRhEnergy = -1.;
+    matchedRhTime = -1000.;
+    HERecHitMatcher(&(*iP), -1,
+                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                    matchRhPos, matchedRhEnergy, matchedRhTime,
+                    hbheRecHitCol, caloGeom);
+    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);                      
+    outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);                      
+
     // make links to conversions
     if (conversionMap_) {
       const reco::ConversionRefVector &conversionRefs = iP->conversions();
@@ -249,7 +324,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
       if (pfClusterMap_ && iP->superCluster().isNonnull()) {
 	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
 	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
-	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster() );
+	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
 	  if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
 	}
       }	
@@ -288,4 +363,72 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 
   }
   photons_->Trim();
+}
+
+//--------------------------------------------------------------------------------------------------
+void FillerPhotons::HERecHitMatcher(const reco::Photon* pho, int zSide,
+                                    double deltaPhiMin, double rhoMin, double rhoMax,
+				    double rhEnMin, ThreeVector& matchRhPos,
+				    double& matchedRhEnergy, double& matchedRhTime,
+                                    const HBHERecHitCollection* hbheRecHitCol,
+				    const CaloGeometry* caloGeom)
+{
+  // This function provides information on the HBHE recHits aligned to the photon ECAL cluster.  A
+  // phi window around the photon is scanned, within the rho strip covering the ECAL EB, and the
+  // location, energy, timing of the most energetic recHits. One in HE+ and one in HE- are kept as
+  // photon attributes. The goal is to find beam halo candidates.
+
+  // re-initialize the input variables to be safe
+  matchRhPos.SetXYZ(0,0,0);
+  matchedRhEnergy = -1.;
+  matchedRhTime = -1000.;
+  
+  // check if the photon is in EB
+  if (!pho->isEB()) 
+    return;
+
+  // loop on the HE rechits 
+  for (HBHERecHitCollection::const_iterator hh = hbheRecHitCol->begin(); hh != hbheRecHitCol->end(); hh++) {
+    HcalDetId id(hh->detid());
+    
+    // discard the rh if not in HBHE
+    if (id.subdet()!=HcalEndcap) 
+      continue;
+    const CaloCellGeometry *hbhe_cell = caloGeom->getGeometry(hh->id());
+    Global3DPoint hbhe_position = hbhe_cell->getPosition();
+
+    // discard the rh if not in right side
+    if (hbhe_position.z() * zSide < 0) 
+      continue;
+
+    // discard the rh if not enough energetic
+    if (hh->energy() < rhEnMin)
+      continue;
+
+    // discard the rh if not in the rho window aruond ECAL EB
+    double thisX = hbhe_position.x();
+    double thisY = hbhe_position.y();
+    double thisZ = hbhe_position.z();
+    double rho = sqrt(thisX*thisX + thisY*thisY);
+
+    if ((rho < rhoMin) || (rho > rhoMax))
+      continue;
+	  
+    // discard the rh if not in the phi window around the photon
+    double corrDeltaPhi = TMath::Abs(pho->phi()-hbhe_position.phi());
+    if (corrDeltaPhi > TMath::Pi())
+      corrDeltaPhi = TMath::TwoPi() - corrDeltaPhi;     
+    if (corrDeltaPhi > deltaPhiMin) 
+      continue;
+    
+    // update the selected rechit
+    if (hh->energy() > matchedRhEnergy) {
+      matchedRhEnergy = hh->energy();
+      matchedRhTime = hh->time();
+      matchRhPos.SetXYZ(thisX,thisY,thisZ);
+    } 
+
+  } // End loop over RecHits
+  
+  return;
 }

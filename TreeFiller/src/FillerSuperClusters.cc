@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.17 2012/12/28 17:27:21 pharris Exp $
+// $Id: FillerSuperClusters.cc,v 1.18 2013/05/15 14:00:29 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -129,7 +129,8 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   GetProduct(edmName_, hSuperClusterProduct, event);
   
   Handle<CaloTowerCollection> hCaloTowerProduct;
-  if(caloTowerName_.size() > 0) GetProduct(caloTowerName_, hCaloTowerProduct, event);
+  if (caloTowerName_.size() > 0)
+    GetProduct(caloTowerName_, hCaloTowerProduct, event);
 
   superClusterMap_->SetEdmProductId(hSuperClusterProduct.id().id());
   const reco::SuperClusterCollection inSuperClusters = *(hSuperClusterProduct.product());  
@@ -137,6 +138,14 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   //lazy tools for supercluster ecal timing
   EcalClusterLazyTools lazyTools(event, setup, edm::InputTag("reducedEcalRecHitsEB"), 
                                  edm::InputTag("reducedEcalRecHitsEE"));
+
+  //ecal recHit collections for further ecal timing
+  edm::Handle<EcalRecHitCollection> hEBRecHits;
+  event.getByLabel("reducedEcalRecHitsEB" , hEBRecHits);
+  const EcalRecHitCollection ebRecHitCollection = *(hEBRecHits.product()); 
+  edm::Handle<EcalRecHitCollection> hEERecHits;
+  event.getByLabel("reducedEcalRecHitsEE" , hEERecHits);
+  const EcalRecHitCollection eeRecHitCollection = *(hEERecHits.product()); 
 
   //mustache id
   reco::Mustache mustache;
@@ -190,7 +199,18 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
     //ecal timing information
     outSC->SetTime(lazyTools.SuperClusterTime(*inSC, event));
-    outSC->SetSeedTime(lazyTools.SuperClusterSeedTime(*inSC));
+    double seedTime = lazyTools.SuperClusterSeedTime(*inSC);
+    outSC->SetSeedTime(seedTime);
+
+    //further ecal timing information
+    double xtalEnergyThr = 1.; // 1 GeV Energy threshold to get rid of noise in the timing calculation
+    //default values if the span time calculation fails
+    double SCLeadTimeSpan = 1000;
+    double SCSubLeadTimeSpan = 1000;
+    SCTimeSpanCalculator(&(*inSC),xtalEnergyThr,seedTime,SCLeadTimeSpan,SCSubLeadTimeSpan, 
+			 &ebRecHitCollection,&eeRecHitCollection);
+    outSC->SetLeadTimeSpan(SCLeadTimeSpan);
+    outSC->SetSubLeadTimeSpan(SCSubLeadTimeSpan);
 
     //preshower shape variables
     if (inSC->seed()->hitsAndFractions().at(0).first.subdetId()==EcalEndcap) {
@@ -499,3 +519,63 @@ std::vector<float> FillerSuperClusters::getESShape(std::vector<float> ESHits0)
   return esShape;
 }
 
+//--------------------------------------------------------------------------------------------------
+void  FillerSuperClusters::SCTimeSpanCalculator(const reco::SuperCluster* scl, 
+						double xtalEnergyThr, double seedTime, 
+						double& SCLeadTimeSpan, double& SCSubLeadTimeSpan, 
+						const EcalRecHitCollection* ebRecHitCol,
+						const EcalRecHitCollection* eeRecHitCol)
+{
+  // This function provides information on the time span of the given supercluster.  The seed is
+  // used as reference, and the time span is computed as the maximal time distance between the seed
+  // time and any other SC xtal time. Low energy xtal are discarded from the computation to mitigate
+  // the effect of noise/PU
+
+
+  // check if the SC is in the ecal fiducial region, otherwise return default time span values
+  if (scl->hitsAndFractions().at(0).first.subdetId()!=EcalBarrel &&
+      scl->hitsAndFractions().at(0).first.subdetId()!=EcalEndcap   )
+    return;
+
+  // initialize the time span variables 
+  SCLeadTimeSpan = 0;
+  SCSubLeadTimeSpan = 0;
+
+  // loop on SuperCluster recHits
+  for (std::vector< std::pair<DetId, float> >::const_iterator rhIt = scl->hitsAndFractions().begin();
+       rhIt != scl->hitsAndFractions().end(); ++rhIt) {
+
+    // scl seed is in barrel
+    if (scl->hitsAndFractions().at(0).first.subdetId()==EcalBarrel ) {
+      EcalRecHitCollection::const_iterator itt = ebRecHitCol->find( rhIt->first );
+      // check xtal energy
+      if ((*itt).energy() > xtalEnergyThr) {
+        float timeDiff = seedTime - (*itt).time();
+        if (fabs(timeDiff) > fabs(SCLeadTimeSpan)) {
+          SCSubLeadTimeSpan = SCLeadTimeSpan; 
+          SCLeadTimeSpan = timeDiff;
+        }
+        if (fabs(timeDiff) > fabs(SCSubLeadTimeSpan) && fabs(timeDiff) < fabs(SCLeadTimeSpan))
+	  SCSubLeadTimeSpan = timeDiff;
+      }
+    }
+
+    // scl seed is in endcap
+    else {
+      EcalRecHitCollection::const_iterator itt = eeRecHitCol->find( rhIt->first );
+      // check xtal energy
+      if ((*itt).energy() > xtalEnergyThr) {
+        float timeDiff = seedTime - (*itt).time();
+        if (fabs(timeDiff) > fabs(SCLeadTimeSpan)) {
+          SCSubLeadTimeSpan = SCLeadTimeSpan; 
+          SCLeadTimeSpan = timeDiff;
+        }
+        if (fabs(timeDiff) > fabs(SCSubLeadTimeSpan) && fabs(timeDiff) < fabs(SCLeadTimeSpan))
+	  SCSubLeadTimeSpan = timeDiff;
+      }
+    }
+
+  } // End loop over RecHits
+  
+  return;
+}

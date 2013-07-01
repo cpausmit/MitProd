@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.123 2013/05/06 18:27:47 pharris Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.124 2013/05/15 14:01:25 ksung Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -33,7 +33,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'PixelLessTracks',
                                     'StandaloneMuonTracks',
                                     'StandaloneMuonTracksWVtxConstraint',
+                                    'StandaloneCosmicMuonTracks',
                                     'GlobalMuonTracks',
+                                    'GlobalCosmicMuonTracks',
                                     'ConversionInOutTracks',
                                     'ConversionOutInTracks',
                                     'GsfTracks',
@@ -46,6 +48,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                     'TrackletVertexes',
                                     'ClusterVertexes',
                                     'Muons',
+                                    'CosmicMuons',
                                     'Electrons',
                                     'ElectronsStable',
                                     'ConversionInOutElectronsStable',
@@ -494,6 +497,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         fillerType                = cms.untracked.string('FillerTracks')
     ),
 
+    StandaloneCosmicMuonTracks = cms.untracked.PSet(
+        active                    = cms.untracked.bool(True),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('StandaloneCosmicMuonTracks'),
+        edmName                   = cms.untracked.string('cosmicMuons'),
+        trackingMapName           = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('StandaloneCosmicMuonTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
+
     GlobalMuonTracks = cms.untracked.PSet(
         active                    = cms.untracked.bool(True),
         ecalAssocActive           = cms.untracked.bool(False),
@@ -503,6 +519,19 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
         endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
         trackMapName              = cms.untracked.string('GlobalMuonTracksMapName'),
+        edmSimAssociationName     = cms.untracked.string(''),
+        fillerType                = cms.untracked.string('FillerTracks')
+    ),
+
+    GlobalCosmicMuonTracks = cms.untracked.PSet(
+        active                    = cms.untracked.bool(True),
+        ecalAssocActive           = cms.untracked.bool(False),
+        mitName                   = cms.untracked.string('GlobalCosmicMuonTracks'),
+        edmName                   = cms.untracked.string('globalCosmicMuons'),
+        trackingMapName           = cms.untracked.string('TrackingMap'),
+        barrelSuperClusterMapName = cms.untracked.string('barrelSuperClusterMap'),
+        endcapSuperClusterMapName = cms.untracked.string('endcapSuperClusterMap'),
+        trackMapName              = cms.untracked.string('GlobalCosmicMuonTracksMapName'),
         edmSimAssociationName     = cms.untracked.string(''),
         fillerType                = cms.untracked.string('FillerTracks')
     ),
@@ -569,6 +598,21 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         staVtxTrackMapName  = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
         trackerTrackMapName = cms.untracked.string('TracksMapName'),
         muonMapName         = cms.untracked.string('muonMap'),
+        pvEdmName           = cms.untracked.string('offlinePrimaryVertices'),
+        pvBSEdmName         = cms.untracked.string('offlinePrimaryVerticesWithBS'),
+        fitUnbiasedVertex   = cms.untracked.bool(False),
+        fillerType          = cms.untracked.string('FillerMuons')
+    ),
+
+    CosmicMuons = cms.untracked.PSet(
+        active              = cms.untracked.bool(True),
+        mitName             = cms.untracked.string('CosmicMuons'),
+        edmName             = cms.untracked.string('muonsFromCosmics'),
+        expectedHitsName    = cms.untracked.string(''),
+        globalTrackMapName  = cms.untracked.string('GlobalCosmicMuonTracksMapName'),
+        staTrackMapName     = cms.untracked.string('StandaloneCosmicMuonTracksMapName'),
+        staVtxTrackMapName  = cms.untracked.string('StandaloneCosmicMuonTracksMapName'),
+        muonMapName         = cms.untracked.string('cosmicMuonMap'),
         pvEdmName           = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName         = cms.untracked.string('offlinePrimaryVerticesWithBS'),
         fitUnbiasedVertex   = cms.untracked.bool(False),
