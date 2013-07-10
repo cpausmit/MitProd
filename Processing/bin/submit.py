@@ -83,8 +83,8 @@ def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
     return lfnFile
 
 #===================================================================================================
-def makeSiteFile(mitCfg,version,mitDataset,dbs,useExistingSites):
-    siteFile  = mitCfg + '/' + version + '/' + mitDataset + '.sites'
+def makeSiteFile(mitDataset,dbs,useExistingSites):
+    siteFile  = './sites/' + mitDataset + '.sites'
     if os.path.exists(siteFile):
         print "\n INFO -- Site file found: %s. Someone already worked on this dataset.\n" % siteFile
         if not useExistingSites:
@@ -417,7 +417,7 @@ if crabTask.nLfnDone != 0:
     fastCreate = 1
 
 # ok, looks like we will be submitting
-siteFile = makeSiteFile(mitCfg,version,mitDataset,dbs,useExistingSites)
+siteFile = makeSiteFile(mitDataset,dbs,useExistingSites)
 
 crabTask.createSubTasks(lfnFile + '_' + crabTask.tag)
 cmd = 'cp ' + lfnFile +  '_' + crabTask.tag + '_*' + ' ./'

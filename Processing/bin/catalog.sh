@@ -21,7 +21,7 @@ do case "$o" in
   d) cataDir=$OPTARG;;
   m) mitCfg=$OPTARG;;
   n) nFilesPerSet=$OPTARG;;
-  [?]) echo "usage: $H [-cegt] [-d <catalogDir> ] [-m <mitcfg> ] [-n <nEvts> ] <version> [ <pattern> [ <location> ] ]"
+  [?]) echo "usage: $H [-cegt] [-d <catalogDir> ] [-m <mitcfg> ] [-n <nFilesPerSet> ] <version> [ <pattern> [ <location> ] ]"
        exit 1;;
   esac
 done
