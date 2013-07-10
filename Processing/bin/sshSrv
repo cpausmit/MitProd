@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+debug=0
+
+if [ "$debug" == "1" ]
+then
+  echo " sshSrv  $*"
+fi
+
+# decode the relevant ssh parameter
+user=$USER
+host=$1; shift
+if [ "`echo $host | grep @`" != "" ]
+then
+  user=`echo $host | cut -d@ -f1`
+  host=`echo $host | cut -d@ -f2`
+fi
+
+# construct the name of the pipe
+pipe=/tmp/${USER}-ssh-${user}-${host}.pipe
+
+# check whether pipe exists already
+if ! [ -e "$pipe" ]
+then
+  if [ "$debug" == "1" ]
+  then
+    echo "ssh -oControlMaster=yes -oControlPath=$pipe $user@$host"
+  fi
+  # setting off an xterm to hold open our connection
+  #nohup xterm -bg darkred -fg yellow -geometry 82x24 -e ssh -oControlMaster=yes -oControlPath=$pipe $user@$host &
+  # defaulting back to standard ssh (spawning the process does not work)
+  ssh $user@$host $*
+else
+  # execute the ssh command
+  if [ "$debug" == "1" ]
+  then
+    echo "ssh -oControlMaster=no -oControlPath=$pipe $user@$host -t $*"
+  fi
+  ssh -oControlMaster=no -oControlPath=$pipe $user@$host -t $* 2> /dev/null
+fi
+
+exit 0
