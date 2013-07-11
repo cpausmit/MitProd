@@ -1,4 +1,4 @@
-// $Id: FillerEmbedWeight.cc,v 1.3 2012/12/28 17:27:21 pharris Exp $
+// $Id: FillerEmbedWeight.cc,v 1.4 2013/05/06 18:27:49 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerEmbedWeight.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -22,6 +22,7 @@ FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, const char *name, 
 
   genInfo_(Conf().getUntrackedParameter<bool>  ("useGenInfo","True")),
   recHit_ (Conf().getUntrackedParameter<bool>  ("useRecHit","True")),
+  useMuRad_ (Conf().getUntrackedParameter<bool>  ("useMuonRad","True")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkEmbedWeightBrn)),
   embedWeight_(new mithep::EmbedWeightArr)
 {
@@ -52,23 +53,23 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
   // Fill missing energy from edm collection into our collection.
   embedWeight_->Delete();
   
-  double inEmbedWeightValue              = 0;
-  double inSpinnerWeightValue            = 0;
-  double inSpinnerFlipWeightValue        = 0;
-  double inSpinnerPlusWeightValue        = 0;
-  double inSpinnerMinusWeightValue       = 0;
-  double inMuEffWeightValue              = 0;
-  double inMuEffWeightUpValue            = 0;
-  double inMuEffWeightDownValue          = 0;
-  double inMuRadWeightValue              = 0;
-  double inMuRadWeightUpValue            = 0;
-  double inMuRadWeightDownValue          = 0;
-  double inGenTau2PtVsGenTau1PtGenValue  = 0;
-  double inGenTau2EtaVsGenTau1EtaGenValue = 0;
-  double inDiTauMassVsGenDiTauPtGenValue = 0;
-  double inGenTau2PtVsGenTau1PtRecValue  = 0;
-  double inGenTau2EtaVsGenTau1EtaRecValue= 0;
-  double inDiTauMassVsGenDiTauPtRecValue = 0;
+  double inEmbedWeightValue              = 1;
+  double inSpinnerWeightValue            = 1;
+  double inSpinnerFlipWeightValue        = 1;
+  double inSpinnerPlusWeightValue        = 1;
+  double inSpinnerMinusWeightValue       = 1;
+  double inMuEffWeightValue              = 1;
+  double inMuEffWeightUpValue            = 1;
+  double inMuEffWeightDownValue          = 1;
+  double inMuRadWeightValue              = 1;
+  double inMuRadWeightUpValue            = 1;
+  double inMuRadWeightDownValue          = 1;
+  double inGenTau2PtVsGenTau1PtGenValue  = 1;
+  double inGenTau2EtaVsGenTau1EtaGenValue = 1;
+  double inDiTauMassVsGenDiTauPtGenValue = 1;
+  double inGenTau2PtVsGenTau1PtRecValue  = 1;
+  double inGenTau2EtaVsGenTau1EtaRecValue= 1;
+  double inDiTauMassVsGenDiTauPtRecValue = 1;
 
   if(!genInfo_) { 
     Handle<double> hEmbedWeight;
@@ -107,19 +108,20 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
     Handle<double> hMuEffWeightDown;
     event.getByLabel(edm::InputTag(edmMuEffName_,"weightDown","EmbeddedRECO"),hMuEffWeightDown);
     inMuEffWeightDownValue = *(hMuEffWeightDown.product());  
-
-    Handle<double> hMuRadWeight;
-    event.getByLabel(edm::InputTag(edmMuRadName_,"weight","EmbeddedRECO"),hMuRadWeight);
-    inMuRadWeightValue = *(hMuRadWeight.product());  
-
-    Handle<double> hMuRadWeightUp;
-    event.getByLabel(edm::InputTag(edmMuRadName_,"weightUp","EmbeddedRECO"),hMuRadWeightUp);
-    inMuRadWeightUpValue = *(hMuRadWeightUp.product());  
-
-    Handle<double> hMuRadWeightDown;
-    event.getByLabel(edm::InputTag(edmMuRadName_,"weightDown","EmbeddedRECO"),hMuRadWeightDown);
-    inMuRadWeightDownValue = *(hMuRadWeightDown.product());  
-
+    
+    if(useMuRad_) { 
+      Handle<double> hMuRadWeight;
+      event.getByLabel(edm::InputTag(edmMuRadName_,"weight","EmbeddedRECO"),hMuRadWeight);
+      inMuRadWeightValue = *(hMuRadWeight.product());  
+      
+      Handle<double> hMuRadWeightUp;
+      event.getByLabel(edm::InputTag(edmMuRadName_,"weightUp","EmbeddedRECO"),hMuRadWeightUp);
+      inMuRadWeightUpValue = *(hMuRadWeightUp.product());  
+      
+      Handle<double> hMuRadWeightDown;
+      event.getByLabel(edm::InputTag(edmMuRadName_,"weightDown","EmbeddedRECO"),hMuRadWeightDown);
+      inMuRadWeightDownValue = *(hMuRadWeightDown.product());  
+    }
     Handle<double> hGenTau2PtVsGenTau1PtGen;
     event.getByLabel(edm::InputTag(edmKineReweightGenName_,"genTau2PtVsGenTau1Pt"),hGenTau2PtVsGenTau1PtGen);
     inGenTau2PtVsGenTau1PtGenValue = *(hGenTau2PtVsGenTau1PtGen.product());  
@@ -182,6 +184,6 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
   embedWeight->SetGenTau2VsGenTau1PtRec    (inGenTau2PtVsGenTau1PtRec);
   embedWeight->SetGenTau2VsGenTau1EtaRec   (inGenTau2EtaVsGenTau1EtaRec);
   embedWeight->SetDiTauMassVsGenDiTauPtRec (inDiTauMassVsGenDiTauPtRec);
-  embedWeight->SetWeight();
+  if(recHit_) embedWeight->SetWeight();
   embedWeight_->Trim();
 }

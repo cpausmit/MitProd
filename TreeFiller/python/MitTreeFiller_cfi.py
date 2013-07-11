@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.124 2013/05/15 14:01:25 ksung Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.125 2013/07/01 20:18:00 paus Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -1577,7 +1577,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
        edmKineReweightRecName = cms.untracked.string('embeddingKineReweightRECembedding'),
        fillerType    = cms.untracked.string('FillerEmbedWeight'),
        useGenInfo    = cms.untracked.bool(False),
-       useRecHit     = cms.untracked.bool(True)
+       useRecHit     = cms.untracked.bool(True),
+       useMuonRad    = cms.untracked.bool(True)
      ),
      DCASig     = cms.untracked.PSet(
        active          = cms.untracked.bool(True),
