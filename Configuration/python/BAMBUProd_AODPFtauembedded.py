@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODSIMtauembedded.py,v 1.8 2013/05/22 11:00:59 pharris Exp $
+# $Id: BAMBUProd_AODPFtauembedded.py,v 1.1 2013/07/11 13:57:30 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -61,7 +61,8 @@ process.MitTreeFiller.PrimaryVertexesBS.trackMapName            = 'tmfTracksMapN
 process.MitTreeFiller.PFCandidates.trackerTrackMapNames         = cms.untracked.vstring('tmfTracksMapName')
 process.MitTreeFiller.ShrinkingConePFTaus.trackMapNames         = cms.untracked.vstring('tmfTracksMapName')
 process.MitTreeFiller.HPSTaus.trackMapNames                     = cms.untracked.vstring('tmfTracksMapName')
-process.MitTreeFiller.Electrons.trackerTrackMapName             = 'tmfTracksMapName'
+#process.MitTreeFiller.Electrons.trackerTrackMapName             = 'tmfTracksMapName'
+process.MitTreeFiller.Electrons.trackerTrackMapName             = 'TracksMapName'
 process.MitTreeFiller.PFCandidates.gsfTrackMapName              = ''
 process.MitTreeFiller.PFCandidates.allowMissingPhotonRef        = True   
 process.bambu_step  = cms.Path(process.BambuFillAOD)
