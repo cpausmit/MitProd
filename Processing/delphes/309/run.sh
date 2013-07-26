@@ -28,7 +28,6 @@ export    DATADIR=$2
 export     CONFIG=`echo *_crab_0_*.py | sed 's#_crab_0_[0-9].*\.py#.tcl#'`
 cp *_crab_0_*.py $CONFIG
 export     OUTPUT=`echo *lfns_crab_0_*  | cut -d '.' -f 1`_000.root
-
 export InputFiles=`head -$JOBID *.lfns_* | tail -1 | tr -s ' ' | cut -d ' ' -f2`
 
 echo ""
@@ -47,6 +46,14 @@ echo "Real configuration file (tcl): $CONFIG"
 export LD_LIBRARY_PATH=".:${LD_LIBRARY_PATH}"
 echo   "ldd ./DelphesCMSFWLite"
 ldd         ./DelphesCMSFWLite
+
+# when running at MIT
+ln -s /mnt/hadoop/cms/store/user/paus/minbias/minbias_14tev.pileup ./MinBias.pileup
+
+# when running somewhere else
+#which wget
+#wget http://t3serv001.mit.edu/~klute/delphes/MinBias100K_14TeV.pileup \
+#     -O MinBias.pileup
 
 echo ""
 echo "Start running at `date -u`"

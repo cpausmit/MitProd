@@ -13,9 +13,9 @@ if [ "$PRINTOPT" == "-header" ]
 then
   date=`date`
   printf "\nUpdated: $date\n\n%s\n" \
-    'BOOK          SAMPLE                                    All     T2(Catalg)   ToDo'
+    'BOOK          SAMPLE                                    All     T2 (Catalg)   ToDo'
   printf "%s\n" \
-    '---------------------------------------------------------------------------------'
+    '----------------------------------------------------------------------------------'
 fi
 
 DIR1=/mnt/hadoop/cms/store/user/paus/$BOOK
@@ -70,7 +70,7 @@ then
   #printf "%-13s %-38s %6d %6d(%6d) %6d - %6d(%6d) %6d %12d ev, %8.2f GB, %5.1f kB/ev\n" \
   #  $BOOK $DATASET \
   #  $nAll $nDone $nCata $nMissing $nDoneT3 $nCataT3 $nMissingT3 $nEvents $size $sizePerEvent
-  printf "%-13s %-38s %6d %6d(%6d) %6d %12d ev, %8.2f GB, %5.1f kB/ev\n" \
+  printf "%-13s %-38s %6d %6d (%6d) %6d %12d ev, %8.2f GB, %5.1f kB/ev\n" \
     $BOOK $DATASET \
     $nAll $nDone $nCata $nMissing $nEvents $size $sizePerEvent
 fi

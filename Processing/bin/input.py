@@ -35,6 +35,7 @@ db      = None
 dbs     = None
 dataset = None
 option  = 'lfn'
+private = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -55,9 +56,35 @@ if dataset == None:
     cmd = "--dataset=  required parameter not provided."
     raise RuntimeError, cmd
 
+# is it a private production
+f = dataset.split('/')
+if f[1] == "mc":
+    private = True
+    #print ' Attention -- private dataset identified.'
+
 #---------------------------------------------------------------------------------------------------
 # main
 #---------------------------------------------------------------------------------------------------
+if private:
+    lfn = '/store/user/paus' + dataset
+    dir = '/mnt/hadoop/cms/store/user/paus' + dataset
+    cmd = 'list ' + dir
+    for line in os.popen(cmd).readlines():
+        line = line[:-1]
+        f = line.split(' ')
+        size = int(f[0])
+        file = f[1]
+
+        cmdCount = 'catalogFile.sh /mnt/hadoop/cms' + lfn + \
+                   '/' + file + ' 2>/dev/null|tail -1|cut -d\' \' -f5'
+        #print ' COUNT: ' + cmdCount
+        nEvts = 0
+        for tmp in os.popen(cmdCount).readlines():
+            nEvts = tmp[:-1]
+
+        print '%s#00000000-0000-0000-0000-000000000000 %s/%s %s'%(dataset,lfn,file,nEvts) 
+    sys.exit()
+
 if not db:
     # find relevant blocks
     if   dbs == 'none':

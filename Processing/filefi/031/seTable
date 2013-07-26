@@ -27,6 +27,7 @@ T2_RU_ITEP : se3.itep.ru
 T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
 T2_UK_London_IC : gfe02.grid.hep.ph.ic.ac.uk
 T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk
+T2_UK_London_Brunel : dc2-grid-64.brunel.ac.uk
 T2_US_Caltech : cit-se.ultralight.org
 T2_US_Florida : srm.ihepa.ufl.edu
 T2_US_MIT : se01.cmsaf.mit.edu : /srm/v2/server?SFN=/mnt/hadoop/cms/store : /user/paus

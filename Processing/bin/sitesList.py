@@ -24,6 +24,7 @@ except getopt.GetoptError, ex:
 # Set defaults for each option
 dataset = None
 dbs     = ''
+private = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -40,9 +41,20 @@ if dataset == None:
     cmd = "--dataset=  required parameter not provided."
     raise RuntimeError, cmd
 
+# is it a private production
+f = dataset.split('/')
+if f[1] == "mc":
+    private = True
+    #print ' Attention -- private dataset identified.'
+
 #---------------------------------------------------------------------------------------------------
 # main
 #---------------------------------------------------------------------------------------------------
+# handle private production first
+if private:
+    print dataset + '#00000000-0000-0000-0000-000000000000 : ' + 'se01.cmsaf.mit.edu'
+    sys.exit()
+
 # find relevant site for this dataset
 cmd  = "dbs search "
 if dbs != '':

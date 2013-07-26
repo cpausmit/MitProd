@@ -12,6 +12,118 @@ def Domain():
 
 #---------------------------------------------------------------------------------------------------
 """
+Class:  SampleCollection(tag='',pattern='')
+Each sample can be described through this class
+"""
+#---------------------------------------------------------------------------------------------------
+class SampleCollection:
+    "A Collection of Samples with some Common Definition"
+    tag     = ''
+    pattern = ''
+    samples = []
+
+    #-----------------------------------------------------------------------------------------------
+    # constructor to connect with existing setup
+    #-----------------------------------------------------------------------------------------------
+    def __init__(self,tag='',pattern=''):
+        self.tag        = tag
+        self.pattern    = pattern
+        self.samples    = []
+
+    #-----------------------------------------------------------------------------------------------
+    # present the current samples in the list
+    #-----------------------------------------------------------------------------------------------
+    def show(self):
+        i = 0
+        for sample in self.samples:
+            print ' ---- %4d ----'%(i)
+            sample.show()
+            i = i + 1 
+
+    #-----------------------------------------------------------------------------------------------
+    # read list from a given database file
+    #-----------------------------------------------------------------------------------------------
+    def readFromFile(self,file=''):
+        cmd = 'cat ' + file
+        join       = 0
+        fullLine   = ""
+        bSlash     = "\\";
+        for line in os.popen(cmd).readlines():  # run command
+            line = line[:-1]
+            # get ride of empty or commented lines
+            if line == '' or line[0] == '#':
+                continue
+            # join lines
+            if join == 1:
+                fullLine += line
+            else:
+                fullLine  = line
+            # determine if finished or more is coming
+            if fullLine[-1] == bSlash:
+                join = 1
+                fullLine = fullLine[:-1]
+            else:
+                join = 0
+                # test whether there is a directory   
+                #-print ' Full line: ' + fullLine
+                sample = Sample()
+                sample.readFromLine(fullLine)
+                self.samples.append(sample)
+
+    #-----------------------------------------------------------------------------------------------
+    # update status
+    #-----------------------------------------------------------------------------------------------
+    def updateStatusFromFile(self,file=''):
+        cmd = 'cat ' + file + ' | grep filefi | tr -d \( '
+        join       = 0
+        for line in os.popen(cmd).readlines(): # run command
+            line     = line[:-1]
+            names    = line.split()            # splitting every blank
+            dataset  = names[1]                # MIT name of the dataset
+            allLfns  = names[2]                # number of all  Lfns of the sample
+            doneLfns = names[3]                # number of done Lfns
+            for sample in self.samples:
+                if dataset == sample.mitDataset:
+                    sample.allLfns  = int(allLfns)
+                    sample.doneLfns = int(doneLfns)
+                    break
+            
+    def compareStatusToFile(self,file='',oldBook='',oldPattern='',newPattern='',exe=0):
+        cmd = 'cat ' + file + ' | grep filefi | tr -d \( '
+        join       = 0
+
+        for line in os.popen(cmd).readlines(): # run command
+            line     = line[:-1]
+            names    = line.split()            # splitting every blank
+            dataset  = names[1]                # MIT name of the dataset
+            allLfns  = names[2]                # number of all  Lfns of the sample
+            doneLfns = names[3]                # number of done Lfns
+
+            p = re.compile(oldPattern)
+            datasetMatch = p.sub(newPattern,dataset);
+
+            for sample in self.samples:
+                if dataset == datasetMatch:
+                    if sample.doneLfns != -1:
+                        completionFraction = float(doneLfns)/float(allLfns)
+
+                        print '\n Found match -> doneLfns (old/new): %4d/%4d  comp: %4.2f -> %s'% \
+                              (sample.doneLfns,int(doneLfns),completionFraction,dataset)
+
+                        if (int(allLfns) == sample.allLfns and \
+                            completionFraction > 0.75):
+                            tmp = ' removeSample.sh %s %s'%(oldBook,sample.dataset)
+                            print ' CMD: %s'%(tmp)
+                            if exe == 1:
+                                os.system(tmp)
+                        else:
+                            print ' STOP!       -> allLfns  (old/new): %4d/%4d -> %s %f'% \
+                              (sample.allLfns,int(allLfns),dataset,completionFraction)
+                    break
+            
+
+#---------------------------------------------------------------------------------------------------
+"""
 Class:  Sample(cmsDataset='undefined',mitDataset='undefined',
                localpath='undefined',status='undefined')
 Each sample can be described through this class
@@ -26,6 +138,8 @@ class Sample:
     localPath      = 'undefined'
     dbs            = 'undefined'
     fixSites       = 'undefined'
+    allLfns        = -1
+    doneLfns       = -1
     #-----------------------------------------------------------------------------------------------
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
@@ -39,17 +153,21 @@ class Sample:
         self.localPath  = localPath
         self.dbs        = dbs
         self.fixSites   = fixSites
+        self.allLfns    = -1
+        self.doneLfns   = -1
 
     #-----------------------------------------------------------------------------------------------
     # present the current samples
     #-----------------------------------------------------------------------------------------------
     def show(self):
         print ' Dataset  : ' + self.cmsDataset + ' (' + self.mitDataset + ')'
-        print ' NEvents  : ' + self.nEvents
+        print ' NEvents  : ' + str(self.nEvents)
         print ' Status   : ' + self.status
         print ' LocalPath: ' + self.localPath
         print ' Dbs      : ' + self.dbs
         print ' FixSites : ' + self.fixSites
+        print ' All Lfns : ' + str(self.allLfns)
+        print ' Done Lfns: ' + str(self.doneLfns)
 
     def showFormat(self,f1,f2,f3,f4,f5,f6,f7):
         dbs = ''
@@ -60,6 +178,34 @@ class Sample:
             fixSites += ' ' + self.fixSites
         print self.cmsDataset.ljust(f1),self.mitDataset.ljust(f2),self.nEvents.ljust(f3),\
               self.status.ljust(f4),self.localPath.ljust(f5),dbs.ljust(f6),fixSites.ljust(f7)
+
+    #-----------------------------------------------------------------------------------------------
+    # initialize from an ascii line in a file
+    #-----------------------------------------------------------------------------------------------
+    def readFromLine(self,fullLine):
+        names           = fullLine.split()  # splitting every blank
+        self.cmsDataset = names[0]          #                CMS name of the dataset
+        self.mitDataset = names[1]          # the equivalent MIT name of the dataset
+        self.nEvents    = int(names[2])     # number of events to be used in the production
+        if names[4] != "-":
+            self.localPath  = names[4]
+        if len(names) >= 6:
+            dbs = names[5]
+            testDbs  = 'wget http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + \
+                       '/servlet/DBSServlet >& /dev/null'
+            status   = os.system(testDbs)
+            if status == 0:
+                self.dbs = 'http://cmsdbsprod.cern.ch/cms_dbs_' + dbs + \
+                           '/servlet/DBSServlet'
+            else:
+                self.dbs = dbs
+                #print '   dbs: ' + self.dbs + '\n'
+        if len(names) >= 7:
+            self.fixSites = names[6]
+        else:
+            self.dbs = \
+                     "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
+            #print ''
 
 #---------------------------------------------------------------------------------------------------
 """

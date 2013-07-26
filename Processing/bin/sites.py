@@ -22,8 +22,9 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
-block = None
-dbs   = ''
+block   = None
+dbs     = ''
+private = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -40,9 +41,20 @@ if block == None:
     cmd = "--block=  required parameter not provided."
     raise RuntimeError, cmd
 
+# is it a private production
+f = block.split('#')
+if f[1] == "00000000-0000-0000-0000-000000000000":
+    private = True
+    #print ' Attention -- private dataset identified.'
+
 #---------------------------------------------------------------------------------------------------
 # main
 #---------------------------------------------------------------------------------------------------
+# handle private production first
+if private:
+        print block + ' : ' + 'se01.cmsaf.mit.edu'
+    sys.exit()
+
 # find relevant site for this block
 cmd  = "dbs search "
 if dbs != '':

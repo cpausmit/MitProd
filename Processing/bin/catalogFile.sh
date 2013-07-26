@@ -32,7 +32,7 @@ then
   dataDir=`dirname $dataDir`
 fi
 
-if ! [ -z "`echo $dataDir | grep delphes`" ]
+if ! [ -z "`echo $dataDir | grep delphes`" ] || ! [ -z "`echo $dataDir | grep user/paus/mc`" ]
 then
   CATALOG_MACRO="runSimpleFileCataloger.C"
 fi
@@ -70,7 +70,7 @@ root -l -b -q \
      >& $logFile
   
 status=`echo $?`
-error=`cat $logFile |grep -v mithep::Selector::UpdateRunInfo | grep Error | wc -l`
+error=`cat $logFile |grep -v mithep::Selector::UpdateRunInfo | grep -v 'no dictionary for class' | grep 'Error' | wc -l`
 zip=`grep R__unzip: $logFile | wc -l`
   
 echo " "

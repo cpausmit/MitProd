@@ -1,4 +1,4 @@
-# $Id: BAMBUProd_AODPFtauembedded.py,v 1.2 2013/07/11 14:16:13 pharris Exp $
+# $Id: BAMBUProd_AODPFtauembedded.py,v 1.3 2013/07/23 15:24:59 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,7 +29,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMu/StoreResults-Run2012A_22Jan2013_v1_PFembedded_trans1_tau115_ptelec1_20had1_18_v1-5ef1c0fd428eb740081f19333520fdc8/DoubleMu/USER/StoreResults-Run2012A_22Jan2013_v1_PFembedded_trans1_tau115_ptelec1_20had1_18_v1-5ef1c0fd428eb740081f19333520fdc8/0000/F2D4C5EE-A1E4-E211-BCA1-0023AEFD8A58.root')
+  fileNames = cms.untracked.vstring('/store/results/tau-pflow/DoubleMuParked/StoreResults-Run2012B_22Jan2013_v1_PFembedded_trans1_tau115_ptelec1_20had1_18_v1-5ef1c0fd428eb740081f19333520fdc8/DoubleMuParked/USER/StoreResults-Run2012B_22Jan2013_v1_PFembedded_trans1_tau115_ptelec1_20had1_18_v1-5ef1c0fd428eb740081f19333520fdc8/0000/FEDB3320-CEE7-E211-8BED-0023AEFDEE84.root')
 )
 #process.source.inputCommands = cms.untracked.vstring("keep *",
 #                                                     "drop *_MEtoEDMConverter_*_*",
@@ -50,7 +50,7 @@ process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAna
 # process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root')
 
 from MitProd.TreeFiller.filltauembedded_cff import *
-filltauembedded(process.MitTreeFiller)    
+filltauembedded(process.MitTreeFiller)
 process.MitTreeFiller.MergedConversions.checkTrackRef           = cms.untracked.bool(False)
 process.MitTreeFiller.EmbedWeight.useGenInfo                    = True
 process.MitTreeFiller.EmbedWeight.useRecHit                     = False
@@ -64,8 +64,8 @@ process.MitTreeFiller.HPSTaus.trackMapNames                     = cms.untracked.
 #process.MitTreeFiller.Electrons.trackerTrackMapName             = 'tmfTracksMapName'
 process.MitTreeFiller.Electrons.trackerTrackMapName             = 'TracksMapName'
 process.MitTreeFiller.PFCandidates.gsfTrackMapName              = ''
-process.MitTreeFiller.PFCandidates.allowMissingPhotonRef        = True   
+process.MitTreeFiller.PFCandidates.allowMissingPhotonRef        = True
+process.newJetTracksAssociatorAtVertex.tracks = "tmfTracks"
 process.bambu_step  = cms.Path(process.BambuFillAOD)
 # schedule definition
 process.schedule = cms.Schedule(process.bambu_step)
-

@@ -567,13 +567,14 @@ for subTask in crabTask.subTasks:
         #os.system(cmd)
         sys.exit(0)
         
-    
-    # adjust arguments
-    cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
-          ' > ' + tag + '/share/arguments.xml'
-    print '  update arguments: ' + cmd
-    if test == 0:
-        os.system(cmd)
+    # adjust arguments for official datasets (not for private copies)
+    f = cmsDataset.split('/')
+    if f[1] != "mc":
+        cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
+              ' > ' + tag + '/share/arguments.xml'
+        print '  update arguments: ' + cmd
+        if test == 0:
+            os.system(cmd)
 
     # loop through the file and determine the submission parameters
     block   = ''
@@ -693,6 +694,12 @@ os.system(cmd)
 
 print ' Done... keep watching it...'
 sys.exit(0)
+
+
+
+
+
+
 
 # --------------------------------------------------------------------------------------------------
 # Run a test job to test the configuration and measure the expected output size
