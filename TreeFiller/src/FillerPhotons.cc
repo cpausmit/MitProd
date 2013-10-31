@@ -1,4 +1,4 @@
-// $Id: FillerPhotons.cc,v 1.32 2012/12/28 17:27:21 pharris Exp $
+// $Id: FillerPhotons.cc,v 1.33 2013/07/01 20:18:00 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -286,9 +286,9 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                     deltaPhiMin, rhoMin, rhoMax, rhEnMin,
                     matchRhPos, matchedRhEnergy, matchedRhTime,
                     hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
-    outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);                      
-    outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);                      
+    outPhoton->SetMatchHeMinusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHeMinusEnDR15(matchedRhEnergy);                      
+    outPhoton->SetMatchHeMinusTimeDR15(matchedRhTime);                      
 
     // make links to conversions
     if (conversionMap_) {

@@ -1,4 +1,4 @@
-// $Id: FillerSuperClusters.cc,v 1.18 2013/05/15 14:00:29 ksung Exp $
+// $Id: FillerSuperClusters.cc,v 1.19 2013/07/01 20:18:00 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -16,6 +16,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
@@ -188,6 +189,14 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     outSC->SetPreshowerEnergy(inSC->preshowerEnergy());
     outSC->SetPhiWidth(inSC->phiWidth());
     outSC->SetEtaWidth(inSC->etaWidth());
+
+    //Compute roundness and angle of the supercluster
+    if (inSC->hitsAndFractions().at(0).first.subdetId()==EcalBarrel ) {
+      std::vector<float> showerShapesBarrel = 
+      EcalClusterTools::roundnessBarrelSuperClusters(*(inSC),ebRecHitCollection,0);
+      outSC->SetRoundness(showerShapesBarrel[0]);
+      outSC->SetAngle(showerShapesBarrel[1]);
+    }
 
     //Compute Hadronic Energy behind the supercluster (within DR < 0.15)
     if(caloTowerName_.size() > 0) { 

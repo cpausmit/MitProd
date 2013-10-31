@@ -1,4 +1,4 @@
-# $Id: MitTreeFiller_cfi.py,v 1.125 2013/07/01 20:18:00 paus Exp $
+# $Id: MitTreeFiller_cfi.py,v 1.126 2013/07/11 14:00:41 pharris Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -177,10 +177,18 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     ),
 
     EvtSelData = cms.untracked.PSet(
-        active     = cms.untracked.bool(False),
-        mitName    = cms.untracked.string('EvtSelData'),
-        edmName    = cms.untracked.string('evtSelData'),
-        fillerType = cms.untracked.string('FillerEvtSelData')
+        active                        = cms.untracked.bool(True),
+        mitName                       = cms.untracked.string('EvtSelData'),
+        HBHENoiseFilterName           = cms.untracked.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),  
+        ECALDeadCellFilterName        = cms.untracked.InputTag('EcalDeadCellTriggerPrimitiveFilter'),  
+        trackingFailureFilterName     = cms.untracked.InputTag('trackingFailureFilter'),  
+        EEBadScFilterName             = cms.untracked.InputTag('eeBadScFilter'),  
+        ECALaserCorrFilterName        = cms.untracked.InputTag('ecalLaserCorrFilter'),  
+        tkManyStripClusName           = cms.untracked.InputTag('manystripclus53X'),  
+        tkTooManyStripClusName        = cms.untracked.InputTag('toomanystripclus53X'),  
+        tkLogErrorTooManyClustersName = cms.untracked.InputTag('logErrorTooManyClusters'),  
+        BeamHaloSummaryName           = cms.untracked.InputTag('BeamHaloSummary'),  
+        fillerType                    = cms.untracked.string('FillerEvtSelData')
     ),
 
     BeamSpot = cms.untracked.PSet(
