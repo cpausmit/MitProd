@@ -72,15 +72,11 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
     reco::GenJetRef jetRef(hGenJetProduct, inJet - inJets.begin());    
     
     mithep::GenJet *jet = genjets_->Allocate();
-    new (jet) mithep::GenJet(inJet->p4().x(),
-                          inJet->p4().y(),
-                          inJet->p4().z(),
-                          inJet->p4().e());
-
-    jet->SetHadEnergy (inJet->hadEnergy());
-    jet->SetEmEnergy (inJet->emEnergy());
-    jet->SetInvisibleEnergy (inJet->invisibleEnergy());
-    jet->SetAuxiliaryEnergy (inJet->auxiliaryEnergy());
+    new (jet) mithep::GenJet(inJet->p4().x(),inJet->p4().y(),inJet->p4().z(),inJet->p4().e());
+    jet->SetHadEnergy(inJet->hadEnergy());
+    jet->SetEmEnergy(inJet->emEnergy());
+    jet->SetInvisibleEnergy(inJet->invisibleEnergy());
+    jet->SetAuxiliaryEnergy(inJet->auxiliaryEnergy());
 
     if (flavorMatchingActive_) {
       unsigned int iJet = inJet - inJets.begin();
@@ -91,14 +87,15 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
       int flavorAlgDef = (matchedParton.algoDefinitionParton().isNonnull())?
         matchedParton.algoDefinitionParton()->pdgId():0;
       
-      if (flavorMatchingDefinition_ == "Algorithmic") {
+      if (flavorMatchingDefinition_ == "Algorithmic")
         jet->SetMatchedMCFlavor(flavorAlgDef);
-      } else if(flavorMatchingDefinition_ == "Physics") {
+      else if(flavorMatchingDefinition_ == "Physics")
         jet->SetMatchedMCFlavor(flavorPhysDef);
-      } else {
+      else
         jet->SetMatchedMCFlavor(0);
-      }
+
     }     
-  }  
+  }
+
   genjets_->Trim();
 }
