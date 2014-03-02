@@ -5,9 +5,9 @@
 import os,sys,types,string,getopt
 
 # Define string to explain usage of the script
-usage =  "Usage: site.py --dataset=<name>\n"
-usage += "               [ --dbs=<name> ]\n"
-usage += "               --help\n"
+usage =  "Usage: sitesList.py --dataset=<name>\n"
+usage += "                  [ --dbs=<name> ]\n"
+usage += "                    --help\n"
     
 # Define the valid options which can be specified and check out the command line
 valid = ['dataset=','dbs=','help']
@@ -55,37 +55,64 @@ if private:
     print dataset + '#00000000-0000-0000-0000-000000000000 : ' + 'se01.cmsaf.mit.edu'
     sys.exit()
 
-# find relevant site for this dataset
-cmd  = "dbs search "
-if dbs != '':
-    cmd += " --url=" + dbs
-cmd += " --query=\"find block,site where dataset=*" + dataset + "\""
-cmd += "| grep -v DBS | grep \\\. | tr -s ' ' | sort -u "
-
-# setup the variable
-sites     = {}
-siteText  = ''
-lastBlock = ''
-block     = ''
-site      = ''
+# dbs 3 interface
+# - find all relevant blocks
+cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + dataset + '"'
+blocks = []
 for line in os.popen(cmd).readlines():
-        line  = line[:-1]
-        f     = line.split(' ');
-        block = f[0]
-        site  = f[1]
-        if block != lastBlock and lastBlock != '':
-            sites[lastBlock] = siteText
-            lastBlock        = block
-            siteText         = site
-        else:
-            lastBlock = block
-            if site != '':
-                siteText = siteText + ',' + site
-            else:
-                siteText = site
+    line  = line[:-1]
+    f     = line.split(' ');
+    block = f[0]
+    blocks.append(block)
 
-# pick up the last block
-sites[block] = siteText
+# - find all sites (se) for each block
+sites = {}
+for block in blocks:
+    siteString = ''
+    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
+    for line in os.popen(cmd).readlines():
+        line = line[:-1]
+        f    = line.split(' ');
+        if siteString == '':
+            siteString = f[0]
+        else:
+            siteString = f[0] + "," + siteString
+
+    sites[block] = siteString
+    
+
+## DBS2 > # find relevant site for this dataset
+## DBS2 > cmd  = "dbs search "
+## DBS2 > if dbs != '':
+## DBS2 >     cmd += " --url=" + dbs
+## DBS2 > cmd += " --query=\"find block,site where dataset=*" + dataset + "\""
+## DBS2 > cmd += "| grep -v DBS | grep \\\. | tr -s ' ' | sort -u "
+## DBS2 > 
+## DBS2 > # setup the variable
+## DBS2 > sites     = {}
+## DBS2 > siteText  = ''
+## DBS2 > lastBlock = ''
+## DBS2 > block     = ''
+## DBS2 > site      = ''
+## DBS2 > for line in os.popen(cmd).readlines():
+## DBS2 >     line  = line[:-1]
+## DBS2 >     f     = line.split(' ');
+## DBS2 >     block = f[0]
+## DBS2 >     site  = f[1]
+## DBS2 >     if block != lastBlock and lastBlock != '':
+## DBS2 >         sites[lastBlock] = siteText
+## DBS2 >         lastBlock        = block
+## DBS2 >         siteText         = site
+## DBS2 >     else:
+## DBS2 >         lastBlock = block
+## DBS2 >         if site != '':
+## DBS2 >             siteText = siteText + ',' + site
+## DBS2 >         else:
+## DBS2 >             siteText = site
+## DBS2 > 
+## DBS2 > # pick up the last block
+## DBS2 > sites[block] = siteText
+
 
 # print each block and the sites that hold it in a comma seperate list 
 for block,sites in sites.iteritems():

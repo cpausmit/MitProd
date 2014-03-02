@@ -10,6 +10,14 @@ usage += "                --option=[ lfn, xml ]\n"
 usage += "                [ --dbs= ]\n"
 usage += "                --help\n"
 
+def printHeader(option):
+    if option == 'xml':
+        print '<arguments>'
+        
+def printFooter(option):
+    if option == 'xml':
+        print '</arguments>'
+
 def printLine(option,nEvents,block,lfn,iJob):
     if option == 'xml':
         print '  <Job MaxEvents="%d'%nEvents + '"  InputFiles="' + lfn \
@@ -65,6 +73,7 @@ if f[1] == "mc":
 #---------------------------------------------------------------------------------------------------
 # main
 #---------------------------------------------------------------------------------------------------
+# option one: we are using a privatly produced dataset
 if private:
     lfn = '/store/user/paus' + dataset
     dir = '/mnt/hadoop/cms/store/user/paus' + dataset
@@ -85,64 +94,104 @@ if private:
         print '%s#00000000-0000-0000-0000-000000000000 %s/%s %s'%(dataset,lfn,file,nEvts) 
     sys.exit()
 
+# option two: 
 if not db:
-    # find relevant blocks
-    if   dbs == 'none':
-        cmd = 'dascli.py --query="block=' + dataset + '*" --limit=999999 --format=blocks'
-    elif dbs == '':
-        cmd = 'dbs search --query=\"find block where dataset=*' + dataset + '\"'
-    elif re.search('http://',dbs):
-        cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=*' + dataset + '"'
-    else:
-        cmd = 'echo ' + dataset + '#00000000-0000-0000-0000-000000000000'
 
-    #print "CMD " + cmd
-    cmd += "| grep \# | sort"
-    # never print #print "cmd: " + cmd
-
+#    cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
+#          dataset + ' | grep file.block_name, file.name, file.nevents" | grep store | sort'
+    cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + \
+          dataset + ' | grep block.name" | sort'
     blocks = []
-    iJob = 1
-    if option == 'xml':
-        print '<arguments>'
     for line in os.popen(cmd).readlines():
-        line = line[:-1]
+        line  = line[:-1]
         blocks.append(line)
-    for block in blocks:
-        #print ' BLOCK: ' + block
 
-        if   dbs == 'none':
-            cmd = 'dascli.py --query="file block=' + block + '" --limit=999999 --format=files'
-        elif dbs == '':
-            cmd = 'dbs search --query="find file,file.numevents where block=' + block + '"'
-        elif re.search('http://',dbs):
-            cmd = 'dbs search --url=' + dbs + \
-                  ' --query="find file,file.numevents where block=' + block + '"'
-        else:
-            cmd = 'cat /home/cmsprod/catalog/t2mit/private/' + dbs + dataset \
-                  + '/Files | sed \'s@XX-CATALOG-XX@@\' | sed \'s@root://xrootd1.cmsaf.mit.edu/@@\''
-            
-        #print "CMD " + cmd
-        cmd += "| grep store | sort"
+    # header if needed
+    printHeader(option)
+
+    for block in blocks:
+        cmd = 'das_client.py --format=plain --limit=0 --query="file block=' + \
+              block + ' | grep file.name, file.nevents" | grep store | sort'
+
+        iJob = 1
         for line in os.popen(cmd).readlines():
-            #print "LINE >" + line
             line = line[:-1]
+
             f       = line.split()
             lfn     = f[0]
             nEvents = int(f[1])
+            
             f       = lfn.split("/")
             file    = f[-1]
+            
             if nEvents != 0:
                 printLine(option,nEvents,block,lfn,iJob)
                 iJob = iJob + 1
-    if option == 'xml':
-        print '</arguments>'
 
+    # footer if needed
+    printFooter(option)
+
+## 
+##     # find relevant blocks
+##     if   dbs == 'none':
+##         cmd = 'dascli.py --query="block=' + dataset + '*" --limit=999999 --format=blocks'
+##     elif dbs == '':
+##         cmd = 'dbs search --query=\"find block where dataset=*' + dataset + '\"'
+##     elif re.search('http://',dbs):
+##         cmd = 'dbs search --url=' + dbs + ' --query="find block where dataset=*' + dataset + '"'
+##     else:
+##         cmd = 'echo ' + dataset + '#00000000-0000-0000-0000-000000000000'
+## 
+##     print "CMD " + cmd
+##     cmd += "| grep \# | sort"
+##     # never print #print "cmd: " + cmd
+## 
+##     blocks = []
+##     iJob = 1
+##     printHeader(option)
+## 
+##     # find all blocks
+##     for line in os.popen(cmd).readlines():
+##         line = line[:-1]
+##         blocks.append(line)
+## 
+##     # find all files per block
+##     for block in blocks:
+##         #print ' BLOCK: ' + block
+## 
+##         if   dbs == 'none':
+##             cmd = 'dascli.py --query="file block=' + block + '" --limit=999999 --format=files'
+##         elif dbs == '':
+##             cmd = 'dbs search --query="find file,file.numevents where block=' + block + '"'
+##         elif re.search('http://',dbs):
+##             cmd = 'dbs search --url=' + dbs + \
+##                   ' --query="find file,file.numevents where block=' + block + '"'
+##         else:
+##             cmd = 'cat /home/cmsprod/catalog/t2mit/private/' + dbs + dataset \
+##                   + '/Files | sed \'s@XX-CATALOG-XX@@\' | sed \'s@root://xrootd.cmsaf.mit.edu/@@\''
+##             
+##         #print "CMD " + cmd
+##         cmd += "| grep store | sort"
+##         for line in os.popen(cmd).readlines():
+##             #print "LINE >" + line
+##             line = line[:-1]
+##             f       = line.split()
+##             lfn     = f[0]
+##             nEvents = int(f[1])
+##             f       = lfn.split("/")
+##             file    = f[-1]
+##             if nEvents != 0:
+##                 printLine(option,nEvents,block,lfn,iJob)
+##                 iJob = iJob + 1
+##     printFooter(option)
+
+# option three: use our cached version of the database
 if db:
     cmd = 'cat ' + db
 
     iJob = 1
-    if option == 'xml':
-        print '<arguments>'
+
+    printHeader(option)
     for line in os.popen(cmd).readlines():
         line    = line[:-1]
     
@@ -157,6 +206,4 @@ if db:
         if nEvents != 0:
             printLine(option,nEvents,block,lfn,iJob)
             iJob = iJob + 1
-    
-    if option == 'xml':
-        print '</arguments>'
+    printFooter(option)

@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-  version    = cms.untracked.string('Mit_029'),
+  version    = cms.untracked.string('Mit_033'),
   annotation = cms.untracked.string('AOD'),
   name       = cms.untracked.string('BambuProduction')
 )
