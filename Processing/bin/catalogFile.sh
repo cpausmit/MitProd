@@ -10,18 +10,14 @@ echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 export CATALOG_MACRO="runFileCataloger.C"
 
 export SCRAM_ARCH='slc5_ia32_gcc434'
-export VO_CMS_SW_DIR=~cmsprod/cmssoft
+export  VO_CMS_SW_DIR=~cmsprod/cmssoft
 source $VO_CMS_SW_DIR/cmsset_default.sh
 cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
 
-klist
-cp ~/.krb5/krb5cc_`id -u`  /tmp/
 cp ~/.krb5/x509up_u`id -u` /tmp/
-export KRB5CCNAME=FILE:/tmp/krb5cc_`id -u`
-klist
 voms-proxy-info -all
 
 dataDir=$1
@@ -40,13 +36,6 @@ fi
 procId=$$
 logFile=`echo $dataDir/$dataFile | tr '/' '+'`
 logFile=/tmp/$logFile
-
-echo " DataFile: $dataFile  in DataDir: $dataDir"
-if [ "`echo $dataDir | grep castor`" != "" ]
-then
-  echo " "; echo " Staging all file into castor ...."; echo " "
-  $HOME/bin/stageSample.py --dataDir=$dataDir --pattern=$dataFile
-fi
 
 echo " "; echo "Initialize CMSSW"; echo " "
 pwd
