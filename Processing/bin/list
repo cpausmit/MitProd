@@ -10,10 +10,16 @@ user = os.environ['TICKET_HOLDER']
 t2user = os.environ['TIER2_USER']
 
 def list(dir,pattern,debug):
-    if   re.search('/castor/cern.ch/',    dir):
+    if   re.search('/castor/cern.ch/',dir):
         if debug != 0:
             print ' identified a castor directory'
         cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
+    elif re.search('/eos/cms/',dir):
+        if debug != 0:
+            print ' identified an eos directory'
+        #cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
+        cmd = "srmls -srm_protocol_version=2  srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=" + dir + \
+              '| grep root | tr -s \' \'| cut -d\' \' -f2,3'
     elif re.search('/mnt/hadoop/cms/store',dir):
         #if debug != 0:
         #    print ' identified a tier-2 hadoop directory'

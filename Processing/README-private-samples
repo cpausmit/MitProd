@@ -1,0 +1,39 @@
+# first download the private AOD(SIM) sample
+#  -- files with original names end up in:  /mnt/hadoop/cms/store/user/paus/mc/arapyan/DoublyChargedHiggs/SM_vbf_h_gamma  etc.
+
+downloadSample.sh /eos/cms/store/user arapyan/DoublyChargedHiggs SM_vbf_h_gamma       /mnt/hadoop/cms/store/user/paus/mc 100 ~/download 1
+downloadSample.sh /eos/cms/store/user arapyan/DoublyChargedHiggs VBF_HToGoldGoldGamma /mnt/hadoop/cms/store/user/paus/mc 100 ~/download 1
+
+# declare it in the Production.{mc|data} file
+
+/mc/arapyan/DoublyChargedHiggs/SM_vbf_h_gamma        w13-hppmm-vbf-h-gamma-aa-v1         1  new  -
+/mc/arapyan/DoublyChargedHiggs/VBF_HToGoldGoldGamma  w13-hppmm-vbf-hgoldgoldgamma-aa-v1  1  new  -
+
+# to speed things up create the catalog files like this
+
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs SM_vbf_h_gamma --retry
+generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/mc/arapyan/DoublyChargedHiggs/SM_vbf_h_gamma/RawFiles.00 \
+                > ~/cms/jobs/lfns/w13-hppmm-vbf-h-gamma-aa-v1.lfns
+
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs VBF_HToGoldGoldGamma --retry
+generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/mc/arapyan/DoublyChargedHiggs/VBF_HToGoldGoldGamma/RawFiles.00 \
+                > ~/cms/jobs/lfns/w13-hppmm-vbf-hgoldgoldgamma-aa-v1.lfns
+
+# submit the production (make sure not to overwrite your produced lfns --useExistingLfns)
+
+submit.py --mitCfg=filefi --version=032 --cmssw=mc --useExistingLfns --mitDataset=w13-hppmm-vbf-h-gamma-aa-v1
+submit.py --mitCfg=filefi --version=032 --cmssw=mc --useExistingLfns --mitDataset=w13-hppmm-vbf-hgoldgoldgamma-aa-v1
+
+
+# for failures (copies did not work you can try)
+
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs SM_vbf_h_gamma --remove
+downloadSample.sh /eos/cms/store/user arapyan/DoublyChargedHiggs SM_vbf_h_gamma       /mnt/hadoop/cms/store/user/paus/mc 100 ~/download 1
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs SM_vbf_h_gamma --retry
+
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs VBF_HToGoldGoldGamma --remove
+downloadSample.sh /eos/cms/store/user arapyan/DoublyChargedHiggs VBF_HToGoldGoldGamma /mnt/hadoop/cms/store/user/paus/mc 100 ~/download 1
+catalog.sh -ce -m  mc/arapyan DoublyChargedHiggs VBF_HToGoldGoldGamma --retry
+
+
+

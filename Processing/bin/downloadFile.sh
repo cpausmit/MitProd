@@ -50,6 +50,11 @@ then
   storageEle="se01.cmsaf.mit.edu"
   storagePath='/srm/v2/server?SFN='
   targetUrl="srm://${storageEle}:8443${storagePath}$target"
+elif [ "`echo $target | grep /eos/cms`" != "" ]
+then
+  storageEle='srm-eoscms.cern.ch'
+  storagePath='/srm/v2/server?SFN='
+  targetUrl="srm://${storageEle}:8443${storagePath}$target"
 elif [ "`echo $target | grep /castor/cern.ch`" != "" ]
 then
   storageEle='srm-cms.cern.ch'
@@ -64,6 +69,11 @@ sourceUrl="file:///$dataFile"
 if [ "`echo $dataFile | grep /mnt/hadoop/cms/store`" != "" ]
 then
   storageEle="se01.cmsaf.mit.edu"
+  storagePath='/srm/v2/server?SFN='
+  sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
+elif [ "`echo $dataFile | grep /eos/cms`" != "" ]
+then
+  storageEle='srm-eoscms.cern.ch'
   storagePath='/srm/v2/server?SFN='
   sourceUrl="srm://${storageEle}:8443${storagePath}$dataFile"
 elif [ "`echo $dataFile | grep /castor/cern.ch`" != "" ]
