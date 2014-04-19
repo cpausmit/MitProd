@@ -1,5 +1,3 @@
-// $Id: FillerMuons.cc,v 1.43 2012/03/29 23:41:59 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
@@ -411,46 +409,56 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   muons_->Trim();
 }
 
-int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId, reco::Muon::ArbitrationType type ) {
-  if(!iM->isMatchesValid()) return 0;
+//--------------------------------------------------------------------------------------------------
+int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId, reco::Muon::ArbitrationType type )
+{
+  if (!iM->isMatchesValid())
+    return 0;
+
   int segments(0);
 
-  for( std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = iM->matches().begin();
-       chamberMatch != iM->matches().end(); chamberMatch++ )
-    {
-      if(chamberMatch->segmentMatches.empty()) continue;
-      if(!(chamberMatch->station()==station && chamberMatch->detector()==muonSubdetId)) continue;
-      if(type == reco::Muon::NoArbitration) {
-        segments += chamberMatch->segmentMatches.size();
-        continue;
-      }
-      for( std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-           segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
-        {
-          if(type == reco::Muon::SegmentArbitration)
-            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
-              segments++;
-              break;
-            }
-          if(type == reco::Muon::SegmentAndTrackArbitration)
-            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
-              segments++;
-              break;
-            }
-          if(type == reco::Muon::SegmentAndTrackArbitrationCleaned)
-            if(segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
-               segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
-              segments++;
-              break;
-            }
-          if(type > 1<<7)
-            if(segmentMatch->isMask(type)) {
-              segments++;
-              break;
-            }
-        }
+  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = iM->matches().begin();
+       chamberMatch != iM->matches().end(); chamberMatch++) {
+
+    if (chamberMatch->segmentMatches.empty())
+      continue;
+
+    if (!(chamberMatch->station()==station && chamberMatch->detector()==muonSubdetId))
+      continue;
+
+    if (type == reco::Muon::NoArbitration) {
+      segments += chamberMatch->segmentMatches.size();
+      continue;
     }
+
+    for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+	 segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++) {
+      if (type == reco::Muon::SegmentArbitration)
+	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
+	  segments++;
+	  break;
+	}
+      if (type == reco::Muon::SegmentAndTrackArbitration)
+	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
+	  segments++;
+	  break;
+	}
+
+      if (type == reco::Muon::SegmentAndTrackArbitrationCleaned)
+	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
+	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
+	  segments++;
+	  break;
+	}
+
+      if (type > 1<<7)
+	if (segmentMatch->isMask(type)) {
+	  segments++;
+	  break;
+	}
+    }
+  }
   return segments;
 }
