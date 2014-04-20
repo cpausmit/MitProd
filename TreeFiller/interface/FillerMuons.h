@@ -1,13 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMuons.h,v 1.16 2012/01/15 23:23:34 pharris Exp $
-//
 // FillerMuons
 //
 // Implementation of a filler to fill EDM muons into our mithep::Muon data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_FILLERMUONS_H
 #define MITPROD_TREEFILLER_FILLERMUONS_H
 
