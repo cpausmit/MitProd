@@ -6,6 +6,7 @@
 #   sshCernTunnel dtmit08
 #
 #---------------------------------------------------------------------------------------------------
+CERN_ACTIVE=0
 CATALOG=~cmsprod/catalog
 testTunnel=`ps auxw | grep -v grep | grep sshCernTunnel`
 if [ "$testTunnel" == "" ]
@@ -52,49 +53,53 @@ echo ""
 
 # Start with CERN
 
-sourceExists=`srmls -recursion_depth=0 ${CERN_SERVER}${CERN_LOCATION}/${BOOK}/$SOURCE 2> /dev/null`
-echo " Existing - source (CERN): $sourceExists"
-targetExists=`srmls -recursion_depth=0 ${CERN_SERVER}${CERN_LOCATION}/${BOOK}/$TARGET 2> /dev/null`
-echo " Existing - target (CERN): $targetExists"
-
-# first the original files
-if [ ".$sourceExists" != "." ] && [ ".$targetExists" == "." ]
+if [ "$CERN_ACTIVE" != "0" ]
 then
-  echo " Move data files at CERN"
-  move ${CERN_LOCATION}/${BOOK}/$SOURCE  ${CERN_LOCATION}/${BOOK}/$TARGET
-  # next are the cern catalogs
-  existSource=`ssh localhost -p 2222 ls -1 catalog/cern/${BOOK}/$SOURCE 2> /dev/null`
-  if [ "$existSource" != "" ]
-  then
-    echo " Moving catalogs at CERN"
-    ssh localhost -p 2222 \
-      "cd catalog/cern/${BOOK}; mv $SOURCE $TARGET; cd $TARGET; repstr $SOURCE $TARGET Filesets RawFiles.??"
-  else
-    echo " No catalogs found at CERN"
-  fi
-else
-  echo " No data files found at CERN"
-fi
 
-# now the local CERN files
-existSource=`ssh localhost -p 2222 ls -1 ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE 2> /dev/null`
-existTarget=`ssh localhost -p 2222 ls -1 ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET 2> /dev/null`
-if [ "$existSource" != "" ] && [ "$existTarget" == "" ]
-then
-  echo " Moving local samples: mv ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET"
-  ssh localhost -p 2222 mv ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET
-  # next are the cern local catalogs
-  existSource=`ssh localhost -p 2222 ls -1 catalog/local/${BOOK}/$SOURCE 2> /dev/null`
-  if [ "$existSource" != "" ]
+  sourceExists=`srmls -recursion_depth=0 ${CERN_SERVER}${CERN_LOCATION}/${BOOK}/$SOURCE 2> /dev/null`
+  echo " Existing - source (CERN): $sourceExists"
+  targetExists=`srmls -recursion_depth=0 ${CERN_SERVER}${CERN_LOCATION}/${BOOK}/$TARGET 2> /dev/null`
+  echo " Existing - target (CERN): $targetExists"
+  
+  # first the original files
+  if [ ".$sourceExists" != "." ] && [ ".$targetExists" == "." ]
   then
-    echo " Moving local catalogs at CERN"
-    ssh localhost -p 2222 \
-      "cd catalog/local/${BOOK}; mv $SOURCE $TARGET; cd $TARGET; repstr $SOURCE $TARGET Filesets RawFiles.??"
+    echo " Move data files at CERN"
+    move ${CERN_LOCATION}/${BOOK}/$SOURCE  ${CERN_LOCATION}/${BOOK}/$TARGET
+    # next are the cern catalogs
+    existSource=`ssh localhost -p 2222 ls -1 catalog/cern/${BOOK}/$SOURCE 2> /dev/null`
+    if [ "$existSource" != "" ]
+    then
+      echo " Moving catalogs at CERN"
+      ssh localhost -p 2222 \
+        "cd catalog/cern/${BOOK}; mv $SOURCE $TARGET; cd $TARGET; repstr $SOURCE $TARGET Filesets RawFiles.??"
+    else
+      echo " No catalogs found at CERN"
+    fi
   else
-    echo " No local catalogs found at CERN"
+    echo " No data files found at CERN"
   fi
-else
-  echo " No local data files found at CERN"
+  
+  # now the local CERN files
+  existSource=`ssh localhost -p 2222 ls -1 ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE 2> /dev/null`
+  existTarget=`ssh localhost -p 2222 ls -1 ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET 2> /dev/null`
+  if [ "$existSource" != "" ] && [ "$existTarget" == "" ]
+  then
+    echo " Moving local samples: mv ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET"
+    ssh localhost -p 2222 mv ${CERN_LOCAL_LOCATION}/${BOOK}/$SOURCE ${CERN_LOCAL_LOCATION}/${BOOK}/$TARGET
+    # next are the cern local catalogs
+    existSource=`ssh localhost -p 2222 ls -1 catalog/local/${BOOK}/$SOURCE 2> /dev/null`
+    if [ "$existSource" != "" ]
+    then
+      echo " Moving local catalogs at CERN"
+      ssh localhost -p 2222 \
+        "cd catalog/local/${BOOK}; mv $SOURCE $TARGET; cd $TARGET; repstr $SOURCE $TARGET Filesets RawFiles.??"
+    else
+      echo " No local catalogs found at CERN"
+    fi
+  else
+    echo " No local data files found at CERN"
+  fi
 fi
 
 # Continue with MIT

@@ -30,7 +30,7 @@ def printLine(option,nEvents,block,lfn,iJob):
 valid = ['db=','dbs=','dataset=','option=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
-except getopt.GetoptError, ex:
+except getopt.GetoptError, ex: 
     print usage
     print str(ex)
     sys.exit(1)
@@ -66,6 +66,7 @@ if dataset == None:
 
 # is it a private production
 f = dataset.split('/')
+#print " Dataset: " + dataset
 if f[1] == "mc":
     private = True
     #print ' Attention -- private dataset identified.'
@@ -73,8 +74,33 @@ if f[1] == "mc":
 #---------------------------------------------------------------------------------------------------
 # main
 #---------------------------------------------------------------------------------------------------
+# option one: use our cached version of the database
+if db:
+    cmd = 'cat ' + db
+
+    iJob = 1
+
+    printHeader(option)
+    for line in os.popen(cmd).readlines():
+        line    = line[:-1]
+    
+        f       = line.split()
+        block   = f[0]
+        lfn     = f[1]
+        nEvents = int(f[2])
+    
+        f       = lfn.split("/")
+        file    = f[-1]
+
+        if nEvents != 0:
+            printLine(option,nEvents,block,lfn,iJob)
+            iJob = iJob + 1
+    printFooter(option)
+
+    sys.exit(0)
+
 # option one: we are using a privatly produced dataset
-if private:
+elif private:
     lfn = '/store/user/paus' + dataset
     dir = '/mnt/hadoop/cms/store/user/paus' + dataset
     cmd = 'list ' + dir
@@ -85,17 +111,32 @@ if private:
         file = f[1]
 
         cmdCount = 'catalogFile.sh /mnt/hadoop/cms' + lfn + \
-                   '/' + file + ' 2>/dev/null|tail -1|cut -d\' \' -f5'
+                   '/' + file + ' >& /tmp/cata.TMP; grep XX-CATALOG-XX /tmp/cata.TMP' 
         #print ' COUNT: ' + cmdCount
         nEvts = 0
         for tmp in os.popen(cmdCount).readlines():
-            nEvts = tmp[:-1]
+            tmp = tmp[:-1]
+            #print " Check: " + tmp
+            f = tmp.split(" ")
+            if len(f) > 4:
+                nEvts = f[4]
 
-        print '%s#00000000-0000-0000-0000-000000000000 %s/%s %s'%(dataset,lfn,file,nEvts) 
+        if nEvts == 0:
+            #os.system("cat /tmp/cata.TMP");
+            for tmp in os.popen(cmdCount).readlines():
+                tmp = tmp[:-1]
+                #print " Check: " + tmp
+                f = tmp.split(" ")
+                if len(f) > 4:
+                    nEvts = f[4]
+            
+        if nEvts > 0:
+            print '%s#00000000-0000-0000-0000-000000000000 %s/%s %s'%(dataset,lfn,file,nEvts)
+        #print ''
     sys.exit()
 
 # option two: 
-if not db:
+elif not db:
 
 #    cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
 #          dataset + ' | grep file.block_name, file.name, file.nevents" | grep store | sort'
@@ -184,26 +225,3 @@ if not db:
 ##                 printLine(option,nEvents,block,lfn,iJob)
 ##                 iJob = iJob + 1
 ##     printFooter(option)
-
-# option three: use our cached version of the database
-if db:
-    cmd = 'cat ' + db
-
-    iJob = 1
-
-    printHeader(option)
-    for line in os.popen(cmd).readlines():
-        line    = line[:-1]
-    
-        f       = line.split()
-        block   = f[0]
-        lfn     = f[1]
-        nEvents = int(f[2])
-    
-        f       = lfn.split("/")
-        file    = f[-1]
-
-        if nEvents != 0:
-            printLine(option,nEvents,block,lfn,iJob)
-            iJob = iJob + 1
-    printFooter(option)

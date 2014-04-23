@@ -568,13 +568,13 @@ for subTask in crabTask.subTasks:
         sys.exit(0)
         
     # adjust arguments for official datasets (not for private copies)
-    f = cmsDataset.split('/')
-    if f[1] != "mc":
-        cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
-              ' > ' + tag + '/share/arguments.xml'
-        print '  update arguments: ' + cmd
-        if test == 0:
-            os.system(cmd)
+#    f = cmsDataset.split('/')
+#    if f[1] != "mc":
+    cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
+          ' > ' + tag + '/share/arguments.xml'
+    print '  update arguments: ' + cmd
+    if test == 0:
+        os.system(cmd)
 
     # loop through the file and determine the submission parameters
     block   = ''
@@ -693,139 +693,6 @@ cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Templat
 os.system(cmd)
 
 print ' Done... keep watching it...'
+
 sys.exit(0)
 
-
-
-
-
-
-
-# --------------------------------------------------------------------------------------------------
-# Run a test job to test the configuration and measure the expected output size
-# --------------------------------------------------------------------------------------------------
-if noTestJob == 0:
-    #-----------------------------------------------------------------------------------------------
-    # use a specific file for test
-    #-----------------------------------------------------------------------------------------------
-    # first check whether we already have a local file
-    print '\n Try to find an existing local file using "find"'
-    f    = cmsDataset.split("/")
-    name = f[1]
-    vers = f[2]
-    tier = f[3]
-    file = ""
-    lfn  = ""
-    cmd  = 'find ./store/ -name ' + name
-    print 'Searching: ' + cmd
-    for line in os.popen(cmd).readlines():  # run command
-        file = line[:-1]                    # strip '\n'
-
-    # looks like there could be a file we found a directory, confirm
-    if file != "":
-        print '\n We have a directory ' + file + ' .. confirming'
-        file = file + '/' + tier
-        cmd = 'find ' + file + ' -name \*.root'
-        for line in os.popen(cmd).readlines():  # run command
-            if line.find(vers):
-                file = line[:-1]                # strip '\n'
-                lfn = file[1:]
-
-        if os.path.exists(file):
-            print ' moving on with locally found file: \n' + '   ' + file
-        else:
-            print ' no local file found'
-            file = ""
-            lfn = ""
-
-    # now try to see whether we can find a file to download
-    if file == "":
-        cmd = './bin/findLfn.py --input=' + cmsDataset + ' | grep /store/'
-        print '\n Find an LFN to download: ' + cmd
-        for line in os.popen(cmd).readlines():  # run command
-            if line.find("/store") != -1:
-                lfn = line[:-1]                 # strip '\n'
-                break
-        if lfn == "":
-            print "\n WARNING: No file found, continue assuming it is a simulation job.\n\n"
-        else:
-            print '  --> LFN: ' + lfn
-            file = '.' + lfn
-
-            if os.path.exists(file):
-                print '  --> File already exists: ' + file
-            else:
-                cmd = './bin/downloadLfn.py ' + lfn
-                print '  --> downloading: ' + cmd
-                status = os.system(cmd)
-                if status != 0:
-                    print ' ERROR - failed to copy LFN. EXIT now!'
-                    sys.exit(1)
-
-    # Parse template input and adjust the input file to the newly copied lfn
-    fileInput  = open(cmsswPy,'r')
-    fileOutput = open("test-"+cmsswPy,'w')
-    line = fileInput.readline()
-    while (line != ''):
-        if line.find("file:") != -1:
-            line = '"file:' + lfn[1:] + '"\n'
-        fileOutput.write(line)
-        line = fileInput.readline()
-    fileInput .close()
-    fileOutput.close()
-
-    # Setting the number of events (hard coded in the file so far)
-    nTryEvts = 1000.
-
-    print '\n  --> Please wait, running a test job now! Should be short (trying %.0f'%nTryEvts + \
-          ' evts). Check log: cmssw.log'
-    cmd = 'rm -f cmssw.log; /usr/bin/time --format "%e %U %S" cmsRun test-' + cmsswPy + \
-          ' >& cmssw.log'
-    print ' CMD: ' + cmd
-    status = os.system(cmd)
-
-    cmd = 'tail -1 cmssw.log'
-    for file in os.popen(cmd).readlines():  # run command
-        line       = file[:-1]              # strip '\n'
-        f          = line.split()           # splitting every blank
-        rtime      = float(f[0])            # wall clock time
-        utime      = float(f[1])            # user time
-        stime      = float(f[2])            # system time
-
-    nEvtsTest = 1000
-    cmd = 'grep \'Begin processing\' cmssw.log | tail -1'
-    for file in os.popen(cmd).readlines():  # run command
-        line       = file[:-1]              # strip '\n'
-        # test whether there is a directory
-        f          = line.split()           # splitting every blank
-        nEvtsTest  = f[3]                   # this is the number of records processed
-        nEvtsTest  = int(nEvtsTest[:-2])    # strip 'th'
-        cmd = 'ls -s ' + mitDataset  + '*.root'
-    size = 0
-    for file in os.popen(cmd).readlines():  # run command
-        line       = file[:-1]              # strip '\n'
-        f          = line.split()           # splitting every blank
-        size      += int(f[0])/1000.        # size in MB
-
-    cmd = 'tail -1 cmssw.log'
-    for file in os.popen(cmd).readlines():  # run command
-        line       = file[:-1]              # strip '\n'
-        # get total, user and system times
-        names      = line.split()           # splitting every blank
-
-    if nEvtsTest != nTryEvts:
-        print ' WARNING - Instead of %f  did  %d'%(nTryEvts,nEvtsTest)
-
-    print ' '
-    print ' Number of test events produced:  %d'%nEvtsTest
-    print ' File size for all events:        %.2f MB'%size
-    print ' Processing time for all events:  %.2f secs (u: %.2f s: %.2f)'%(rtime,utime,stime)
-    print ' '
-    print '  --> 1 event == %.2f secs'%(rtime/nEvtsTest)
-    print '  --> 1.00 GB == %d events'%(nEvtsTest/size*1024.)
-    print '  --> %.2f GB == %d events'%(nevents/(nEvtsTest/size*1024.),nevents)
-    print ' '
-
-if testJob == 1:
-    print '\n Test job finished, stopping now.\n'
-    sys.exit(0)

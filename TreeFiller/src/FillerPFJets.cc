@@ -1,4 +1,4 @@
-// $Id: FillerPFJets.cc,v 1.16 2011/11/28 20:33:30 bendavid Exp $
+// $Id: FillerPFJets.cc,v 1.17 2012/03/11 23:11:56 pharris Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -56,22 +56,22 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
                    ("CombinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
   combinedSecondaryVertexMVABJetTagsName_(Conf().getUntrackedParameter<string>
                    ("CombinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
-  ghostTrackBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("GhostTrackBJetTagsName","ghostTrackBJetTags")),                                                         
+  //ghostTrackBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("GhostTrackBJetTagsName","ghostTrackBJetTags")),                                                         
   trackCountingHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("TrackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
   trackCountingHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
                    ("TrackCountingHighPurBJetTagsName","trackCountingHighPurBJetTags")),
-  softMuonBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SoftMuonBJetTagsName","softMuonBJetTags")),
-  softMuonByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SoftMuonByIP3dBJetTagsName","softMuonByIP3dBJetTags")),
-  softMuonByPtBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SoftMuonByPtBJetTagsName","softMuonByPtBJetTags")),
-  softElectronByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SoftElectronByIP3dBJetTagsName","softElectronByIP3dBJetTags")),
-  softElectronByPtBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SoftElectronByPtBJetTagsName","softElectronByPtBJetTags")),
+  //softMuonBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("SoftMuonBJetTagsName","softMuonBJetTags")),
+  //softMuonByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("SoftMuonByIP3dBJetTagsName","softMuonByIP3dBJetTags")),
+  //softMuonByPtBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("SoftMuonByPtBJetTagsName","softMuonByPtBJetTags")),
+  //softElectronByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("SoftElectronByIP3dBJetTagsName","softElectronByIP3dBJetTags")),
+  //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter<string>
+  //                 ("SoftElectronByPtBJetTagsName","softElectronByPtBJetTags")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","pfCandMapName")),
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   pfCandMap_(0),
@@ -142,12 +142,12 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetTagCollection> hCombinedSecondaryVertexMVABJetTags;
   Handle<reco::JetTagCollection> hTrackCountingHighEffBJetTags;
   Handle<reco::JetTagCollection> hTrackCountingHighPurBJetTags;
-  Handle<reco::JetTagCollection> hSoftMuonBJetTags;
-  Handle<reco::JetTagCollection> hSoftMuonByIP3dBJetTags;
-  Handle<reco::JetTagCollection> hSoftMuonByPtBJetTags;
-  Handle<reco::JetTagCollection> hSoftElectronByIP3dBJetTags;
-  Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
-  Handle<reco::JetTagCollection> hGhostTrackBJetTags;
+  //Handle<reco::JetTagCollection> hSoftMuonBJetTags;
+  //Handle<reco::JetTagCollection> hSoftMuonByIP3dBJetTags;
+  //Handle<reco::JetTagCollection> hSoftMuonByPtBJetTags;
+  //Handle<reco::JetTagCollection> hSoftElectronByIP3dBJetTags;
+  //Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
+  //Handle<reco::JetTagCollection> hGhostTrackBJetTags;
 
   if (bTaggingActive_) {
     GetProduct(jetProbabilityBJetTagsName_, hJetProbabilityBJetTags, event);    
@@ -159,12 +159,12 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
     GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
     GetProduct(trackCountingHighPurBJetTagsName_, hTrackCountingHighPurBJetTags, event);    
-    GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
-    GetProduct(softMuonByIP3dBJetTagsName_, hSoftMuonByIP3dBJetTags, event);
-    GetProduct(softMuonByPtBJetTagsName_, hSoftMuonByPtBJetTags, event);   
-    GetProduct(softElectronByIP3dBJetTagsName_, hSoftElectronByIP3dBJetTags, event);
-    GetProduct(softElectronByPtBJetTagsName_, hSoftElectronByPtBJetTags, event);    
-    event.getByLabel(ghostTrackBJetTagsName_,hGhostTrackBJetTags);
+    //GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
+    //GetProduct(softMuonByIP3dBJetTagsName_, hSoftMuonByIP3dBJetTags, event);
+    //GetProduct(softMuonByPtBJetTagsName_, hSoftMuonByPtBJetTags, event);   
+    //GetProduct(softElectronByIP3dBJetTagsName_, hSoftElectronByIP3dBJetTags, event);
+    //GetProduct(softElectronByPtBJetTagsName_, hSoftElectronByPtBJetTags, event);    
+    //event.getByLabel(ghostTrackBJetTagsName_,hGhostTrackBJetTags);
   }
   
   const reco::PFJetCollection inJets = *(hJetProduct.product());  
@@ -261,11 +261,11 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
         (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
       jet->SetTrackCountingHighPurBJetTagsDisc(
         (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
-      jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
-      jet->SetSoftMuonByIP3dBJetTagsDisc((*(hSoftMuonByIP3dBJetTags.product()))[jetBaseRef]); 
-      jet->SetSoftMuonByPtBJetTagsDisc((*(hSoftMuonByPtBJetTags.product()))[jetBaseRef]); 
-      jet->SetSoftElectronByIP3dBJetTagsDisc((*(hSoftElectronByIP3dBJetTags.product()))[jetBaseRef]);
-      jet->SetSoftElectronByPtBJetTagsDisc((*(hSoftElectronByPtBJetTags.product()))[jetBaseRef]); 
+      //jet->SetSoftMuonBJetTagsDisc((*(hSoftMuonBJetTags.product()))[jetBaseRef]);
+      //jet->SetSoftMuonByIP3dBJetTagsDisc((*(hSoftMuonByIP3dBJetTags.product()))[jetBaseRef]); 
+      //jet->SetSoftMuonByPtBJetTagsDisc((*(hSoftMuonByPtBJetTags.product()))[jetBaseRef]); 
+      //jet->SetSoftElectronByIP3dBJetTagsDisc((*(hSoftElectronByIP3dBJetTags.product()))[jetBaseRef]);
+      //jet->SetSoftElectronByPtBJetTagsDisc((*(hSoftElectronByPtBJetTags.product()))[jetBaseRef]); 
 //      jet->SetGhostTrackBJetTagsDisc((*(hGhostTrackBJetTags.product()))[jetBaseRef]);       
     }
 

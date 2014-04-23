@@ -42,24 +42,24 @@ newGhostTrackBJetTags = ghostTrackBJetTags.clone()
 newGhostTrackBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newImpactParameterTagInfos"), cms.InputTag("newGhostTrackVertexTagInfos") )
 
 
-# soft electron b-tag
-newSoftElectronTagInfos = softElectronTagInfos.clone()
-newSoftElectronTagInfos.jets = "ak5PFJets"
-newSoftElectronByIP3dBJetTags = softElectronByIP3dBJetTags.clone()
-newSoftElectronByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
-newSoftElectronByPtBJetTags = softElectronByPtBJetTags.clone()
-newSoftElectronByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
-
-
-# soft muon b-tag
-newSoftMuonTagInfos = softMuonTagInfos.clone()
-newSoftMuonTagInfos.jets = "ak5PFJets"
-newSoftMuonBJetTags = softMuonBJetTags.clone()
-newSoftMuonBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
-newSoftMuonByIP3dBJetTags = softMuonByIP3dBJetTags.clone()
-newSoftMuonByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
-newSoftMuonByPtBJetTags = softMuonByPtBJetTags.clone()
-newSoftMuonByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
+## soft electron b-tag
+#newSoftElectronTagInfos = softElectronTagInfos.clone()
+#newSoftElectronTagInfos.jets = "ak5PFJets"
+#newSoftElectronByIP3dBJetTags = softElectronByIP3dBJetTags.clone()
+#newSoftElectronByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
+#newSoftElectronByPtBJetTags = softElectronByPtBJetTags.clone()
+#newSoftElectronByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
+#
+#
+## soft muon b-tag
+#newSoftMuonTagInfos = softMuonTagInfos.clone()
+#newSoftMuonTagInfos.jets = "ak5PFJets"
+#newSoftMuonBJetTags = softMuonBJetTags.clone()
+#newSoftMuonBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
+#newSoftMuonByIP3dBJetTags = softMuonByIP3dBJetTags.clone()
+#newSoftMuonByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
+#newSoftMuonByPtBJetTags = softMuonByPtBJetTags.clone()
+#newSoftMuonByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
 
 
 # prepare a path running the new modules
@@ -91,27 +91,28 @@ newJetBtaggingGhostTrack = cms.Sequence(
     newGhostTrackBJetTags
 )
 
-newJetBtaggingEle = cms.Sequence(
-    softElectronCands *
-    newSoftElectronTagInfos *
-    newSoftElectronByIP3dBJetTags *
-    newSoftElectronByPtBJetTags
-)
-
-newJetBtaggingMu = cms.Sequence(
-    newSoftMuonTagInfos * (
-        newSoftMuonBJetTags +
-        newSoftMuonByIP3dBJetTags +
-        newSoftMuonByPtBJetTags
-    )
-)
+#newJetBtaggingEle = cms.Sequence(
+#    softElectronCands *
+#    newSoftElectronTagInfos *
+#    newSoftElectronByIP3dBJetTags *
+#    newSoftElectronByPtBJetTags
+#)
+#
+#newJetBtaggingMu = cms.Sequence(
+#    newSoftMuonTagInfos * (
+#        newSoftMuonBJetTags +
+#        newSoftMuonByIP3dBJetTags +
+#        newSoftMuonByPtBJetTags
+#    )
+#)
 
 newJetBtagging = cms.Sequence(
     newJetBtaggingIP +
     newJetBtaggingSV +
-    newJetBtaggingGhostTrack +
-    newJetBtaggingEle +
-    newJetBtaggingMu
+    newJetBtaggingGhostTrack
+#    +
+#    newJetBtaggingEle +
+#    newJetBtaggingMu
 )
 
 newBtaggingAll = cms.Sequence(

@@ -84,6 +84,8 @@ fi
 
 # Create a list of the datsets we need to catalog
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`
+#echo "LIST=  list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2 "
+
 if   [ "`echo $PATTERN | grep crab_0_`" != ""  ]
 then
   LIST="${LOCATION}/$mitCfg/$VERSION/$PATTERN"
@@ -196,9 +198,9 @@ do
       done
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
-      #echo \
-      #  "extractCatalog.py $OPTION \
-      #    --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}"
+      echo \
+        " extractCatalog.py $OPTION \
+          --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}"
       extractCatalog.py $OPTION \
         --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}
     fi
