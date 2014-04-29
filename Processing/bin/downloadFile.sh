@@ -10,14 +10,6 @@ echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
 LCGCP='lcg-cp'
 SRMCP='srmcp'
 
-#klist
-id=`id -u`
-cp ~/.krb5/x509up_u${id} /tmp/
-cp ~/.krb5/ticket        /tmp/krb5cc_${id}
-ls -lhrt /tmp/krb5cc_${id}
-export KRB5CCNAME=FILE:/tmp/krb5cc_${id}
-#klist
-
 dataFile=$1
 target=$2
 procId=$$
@@ -27,6 +19,9 @@ echo " DataFile: $dataFile  to: $target"
 echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 pwd=`pwd`
+
+# show the certificate
+voms-proxy-info -all
 
 # legacy but works on 32 bit machines
 if [ "`uname -p`" != "x86_64" ]

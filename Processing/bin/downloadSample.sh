@@ -208,10 +208,6 @@ do
   # say what we are going to submit
   echo "   downloadFiles.sh $dataDir $book $dataset $target $condorOutput $$ $next $last"
 
-  logFile=`echo download:$book/$dataset/${next}-${last}.txt | tr '/' '+'`
-  logFile=/tmp/$logFile
-  rm -f $logFile
-
   # prepare the condor_submit files
   cat > submit_$$.cmd <<EOF
 Universe                = vanilla
@@ -225,7 +221,8 @@ GetEnv                  = True
 Input                   = /dev/null
 Output                  = $condorOutput/$book/$dataset/${next}-${last}.out
 Error                   = $condorOutput/$book/$dataset/${next}-${last}.err
-Log                     = $logFile
+Log                     = $condorOutput/$book/$dataset/${next}-${last}.log
+use_x509userproxy       = True
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 

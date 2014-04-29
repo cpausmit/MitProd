@@ -17,7 +17,6 @@ eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd $pwd
 
-cp ~/.krb5/x509up_u`id -u` /tmp/
 voms-proxy-info -all
 
 dataDir=$1
