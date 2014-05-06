@@ -4,20 +4,19 @@
 #
 #                                                                             Ch.Paus (Dec 09, 2008)
 #---------------------------------------------------------------------------------------------------
-echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pwd
-echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
+# some basic printing
+h=`basename $0`
+echo " ${h}: Show who and where we are!"
+echo " Script:    $h"
+echo " Arguments: ($*)"
+echo " "
+echo " start time    : "`date`
+echo " user executing: "`whoami`" --> "`id`
+echo " running on    : "`/bin/hostname`
+echo " executing in  : "`pwd`
+echo " ";
 
 export CATALOG_MACRO="runFileCataloger.C"
-
-export SCRAM_ARCH='slc5_ia32_gcc434'
-export  VO_CMS_SW_DIR=~cmsprod/cmssoft
-source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
-eval   `scram runtime -sh`
-source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
-cd $pwd
-
-voms-proxy-info -all
 
 dataDir=$1
 dataFile=$2
@@ -37,16 +36,33 @@ logFile=`echo $dataDir/$dataFile | tr '/' '+'`
 logFile=/tmp/$logFile
 
 echo " "; echo "Initialize CMSSW"; echo " "
-pwd
-pwd=`pwd`
+
+#export SCRAM_ARCH='slc5_ia32_gcc434'
+#export  VO_CMS_SW_DIR=~cmsprod/cmssoft
+#source $VO_CMS_SW_DIR/cmsset_default.sh
+#cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
+#eval   `scram runtime -sh`
+#source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
+
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
+eval   `scram runtime -sh`
+source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
+
+cd - >& /dev/null
+
+# show the certificate
+voms-proxy-info -all
 
 # Get ready to run
 rm -f $logFile
 
-echo " "; echo "Starting root now"; echo " "
 which root
-ls -lhrt $CMSSW_BASE/src/MitAna/macros/
+echo "PWD: $CMSSW_BASE/src/MitAna/macros/"
+ls -lhrt   $CMSSW_BASE/src/MitAna/macros/
+which root
 
+echo " "; echo "Starting root now"; echo " "
 echo " root -l -b -q $CMSSW_BASE/src/MitProd/Processing/root/rootlogon.C \ "
 echo "               $CMSSW_BASE/src/MitProd/Processing/root/${CATALOG_MACRO} \ "
 echo "               ($dataDir,$dataFile) \ "

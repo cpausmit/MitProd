@@ -1,5 +1,3 @@
-// $Id: runFileCataloger.C,v 1.5 2012/02/28 11:54:37 paus Exp $
-
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include <TROOT.h>
 #include <TSystem.h>
@@ -47,7 +45,9 @@ void catalogFile(const char *dir, const char *file)
 
   // set up analysis
   hMod->Add(gMod);
-  gAna->SetSuperModule(hMod);
+  //gAna->SetSuperModule(hMod);
+
+  gAna->SetSuperModule(gMod);
   
   TString fileName = TString(dir) + slash +  + TString(file);
   //printf("Index: %d\n",fileName.Index("castor/cern.ch"));
@@ -61,7 +61,7 @@ void catalogFile(const char *dir, const char *file)
   
   printf(" Adding: %s\n",fileName.Data());
   gAna->AddFile(fileName);
-  gAna->SetUseHLT(1);
+  gAna->SetUseHLT(0);
 
   // run the analysis after successful initialisation
   gAna->Run(false);
