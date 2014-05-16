@@ -19,7 +19,7 @@ def list(dir,pattern,debug):
             print ' identified an eos directory'
         #cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
         cmd = "srmls -srm_protocol_version=2  srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=" + dir + \
-              '| grep root | tr -s \' \'| cut -d\' \' -f2,3'
+              '| tr -s \' \'| cut -d\' \' -f2,3'
     elif re.search('/mnt/hadoop/cms/store',dir):
         #if debug != 0:
         #    print ' identified a tier-2 hadoop directory'

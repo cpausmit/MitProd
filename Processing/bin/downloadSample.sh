@@ -48,28 +48,6 @@ fi
 
 list $opt $dataDir/$book/$dataset | sort > $condorOutput/$book/$dataset/fileList-all.$$.txt-bak
 
-# Make sure there are kerberos and globus tickets available
-id=`id -u`
-mkdir             -p  ~/.krb5/
-cp /tmp/x509up_u${id} ~/.krb5/
-KRB5CCNAME=`klist -5 | grep 'Ticket cache:' | cut -d' ' -f 3`
-if ! [ -z $KRB5CCNAME ]
-then
-  mkdir    -p  ~/.krb5/
-  chmod 0      ~/.krb5
-  chmod u=rwx  ~/.krb5
-  file=`echo $KRB5CCNAME | cut -d: -f2`
-  if [ -f "$file" ]
-  then
-    cp $file ~/.krb5/ticket
-  else
-    echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
-    exit 1
-  fi
-else
-  echo " ERROR -- missing kerberos ticket ($KRB5CCNAME)."
-fi
-
 # make list of all remote files
 rm -f $condorOutput/$book/$dataset/fileList-all.$$.txt
 touch $condorOutput/$book/$dataset/fileList-all.$$.txt
@@ -222,16 +200,14 @@ Input                   = /dev/null
 Output                  = $condorOutput/$book/$dataset/${next}-${last}.out
 Error                   = $condorOutput/$book/$dataset/${next}-${last}.err
 Log                     = $condorOutput/$book/$dataset/${next}-${last}.log
-use_x509userproxy       = True
 should_transfer_files   = YES
-when_to_transfer_output = ON_EXIT
-
+when_to_transfer_output = ON_EXIT+
+use_x509userproxy       = True
+x509userproxysubject    = $DN
 +AccountingGroup        = "group_cmsuser.cmsu0284"
-
 Queue
 EOF
 
-#+x509userproxysubject   = $DN
 
   # submit the jobs
   condor_submit submit_$$.cmd >& /dev/null #>& lastSub
