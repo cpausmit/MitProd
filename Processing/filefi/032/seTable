@@ -1,10 +1,10 @@
 # site_name : se   [ : general-storagepath : user-remote-directory ]
 T0_CH_CERN : srm-cms.cern.ch : /srm/managerv2?SFN=/castor/cern.ch : /user/p/paus
-T1_DE_KIT : cmssrm-fzk.gridka.de
+T1_DE_KIT : cmssrm-kit.gridka.de
 T1_ES_PIC : srmcms.pic.es
 T1_FR_CCIN2P3 : ccsrm.in2p3.fr
 T1_IT_CNAF : storm-fe-cms.cr.cnaf.infn.it
-T1_UK_RAL : srm-cms.gridpp.rl.ac.uk
+T1_UK_RAL : srm-cms-disk.gridpp.rl.ac.uk
 T1_US_FNAL : cmssrm.fnal.gov
 T2_AT_Vienna: hephyse.oeaw.ac.at
 T2_BE_IIHE : maite.iihe.ac.be
@@ -28,16 +28,13 @@ T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
 T2_UK_London_IC : gfe02.grid.hep.ph.ic.ac.uk
 T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk
 T2_UK_London_Brunel : dc2-grid-64.brunel.ac.uk
-# 10/07/13 - CP unreliable
-#T2_US_Caltech : cit-se.ultralight.org
-# 11/16/13 - CP error 60137
-#T2_US_Florida : srm.ihepa.ufl.edu
+T2_US_Caltech : cit-se.ultralight.org
+T2_US_Florida : srm.ihepa.ufl.edu
 T2_US_MIT : se01.cmsaf.mit.edu : /srm/v2/server?SFN=/mnt/hadoop/cms/store : /user/paus
 T2_US_Nebraska : srm.unl.edu
 T2_US_Purdue : srm-dcache.rcac.purdue.edu
 T2_US_UCSD : bsrm-1.t2.ucsd.edu
 T2_US_Wisconsin : cmssrm.hep.wisc.edu
-# 10/07/13 - CP unreliable, put back in 11/12/13
 T2_TW_Taiwan : f-dpm001.grid.sinica.edu.tw
 T2_DE_DESY : dcache-se-cms.desy.de
 T2_IT_Legnaro : t2-srm-02.lnl.infn.it
@@ -45,8 +42,7 @@ T2_IT_Pisa : cmsdcache.pi.infn.it
 T2_IT_Bari: storm-se-01.ba.infn.it
 T2_ES_CIEMAT : srm.ciemat.es
 T2_CN_Beijing : srm.ihep.ac.cn
-# 11/08/12 - CP too many errors
-#T2_RU_JINR : lcgsedc01.jinr.ru
+T2_RU_JINR : lcgsedc01.jinr.ru
 T2_HU_Budapest: grid143.kfki.hu
 T2_TR_METU : eymir.grid.metu.edu.tr
 T3_CH_PSI : t3se01.psi.ch
