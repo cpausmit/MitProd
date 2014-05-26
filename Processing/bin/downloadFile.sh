@@ -20,6 +20,13 @@ echo " "; echo "Initialize CMSSW"; echo " "
 pwd
 pwd=`pwd`
 
+# take care of the certificate
+if [ -e "./x509up_u`id -u`" ]
+then
+  export X509_USER_PROXY="./x509up_u`id -u`"
+fi
+echo " INFO -- using the x509 ticket: $X509_USER_PROXY"
+
 # show the certificate
 voms-proxy-info -all
 
@@ -28,14 +35,6 @@ if [ "`uname -p`" != "x86_64" ]
 then
   source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
 fi
-
-#export SCRAM_ARCH='slc5_ia32_gcc434'
-#export VO_CMS_SW_DIR=/server/01a/mitdata/cmssoft
-#source $VO_CMS_SW_DIR/cmsset_default.sh
-#cd     $HOME/cms/cmssw/019/CMSSW_3_9_7/src
-#eval   `scram runtime -sh`
-#source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
-#cd $pwd
 
 # make storage Urls for target and source
 
@@ -81,8 +80,5 @@ fi
 echo " "; echo "Starting download now"; echo " "
 echo "$LCGCP -D srmv2 -b $sourceUrl $targetUrl"
 $LCGCP -D srmv2 -b  $sourceUrl $targetUrl
-
-#echo "$SRMCP -2 $sourceUrl $targetUrl"
-#$SRMCP -2 $sourceUrl $targetUrl
 
 exit 0

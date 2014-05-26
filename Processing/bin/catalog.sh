@@ -84,7 +84,7 @@ fi
 
 # Create a list of the datsets we need to catalog
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`
-#echo "LIST=  list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2 "
+#echo "LIST=  list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2  ($LIST)"
 
 if   [ "`echo $PATTERN | grep crab_0_`" != ""  ]
 then

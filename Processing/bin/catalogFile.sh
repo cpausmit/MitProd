@@ -37,23 +37,22 @@ logFile=/tmp/$logFile
 
 echo " "; echo "Initialize CMSSW"; echo " "
 
-export SCRAM_ARCH='slc5_ia32_gcc434'
-export  VO_CMS_SW_DIR=~cmsprod/cmssoft
-source $VO_CMS_SW_DIR/cmsset_default.sh
-cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
+# this seems to fail -- local release broken?
+#export SCRAM_ARCH='slc5_ia32_gcc434'
+#export  VO_CMS_SW_DIR=~cmsprod/cmssoft
+#source $VO_CMS_SW_DIR/cmsset_default.sh
+#cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
 
-#source /cvmfs/cms.cern.ch/cmsset_default.sh
+source /cvmfs/cms.cern.ch/cmsset_default.sh
 #cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
-
+cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 
 cd - >& /dev/null
 
 # show the certificate
-#voms-proxy-init --key   ~/.globus/userkey.pem  \
-#                --cert  ~/.globus/usercert.pem \
-#                --valid 168:00 -voms cms  # --out   $proxy
+voms-proxy-init --key ~/.globus/userkey.pem --cert ~/.globus/usercert.pem --valid 168:00 -voms cms
 voms-proxy-info -all
 
 # Get ready to run
@@ -62,7 +61,6 @@ rm -f $logFile
 which root
 echo "PWD: $CMSSW_BASE/src/MitAna/macros/"
 ls -lhrt   $CMSSW_BASE/src/MitAna/macros/
-which root
 
 echo " "; echo "Starting root now"; echo " "
 echo " root -l -b -q $CMSSW_BASE/src/MitProd/Processing/root/rootlogon.C \ "

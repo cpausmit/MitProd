@@ -5,6 +5,6 @@ then
   echo ""
 else
   export MIT_PROD_DIR="$CMSSW_BASE/src/MitProd/Processing"
-  export PATH="$CMSSW_BASE/src/MitProd/Processing/bin:${PATH}"
+  export PATH="$HOME/bin:$CMSSW_BASE/src/MitProd/Processing/bin:${PATH}"
   export PYTHONPATH="$CMSSW_BASE/src/MitProd/Processing/python:${PYTHONPATH}"
 fi

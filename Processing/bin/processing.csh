@@ -1,6 +1,6 @@
 if ($?CMSSW_BASE) then 
   setenv MIT_PROD_DIR "$CMSSW_BASE/src/MitProd/Processing"
-  setenv PATH         "$CMSSW_BASE/src/MitProd/Processing/bin:${PATH}"
+  setenv PATH         "${HOME}/bin:$CMSSW_BASE/src/MitProd/Processing/bin:${PATH}"
   setenv PYTHONPATH   "$CMSSW_BASE/src/MitProd/Processing/python:${PYTHONPATH}"
 else
   echo ""

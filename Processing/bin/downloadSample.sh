@@ -175,6 +175,9 @@ then
   ssh $TICKET_HOLDER@lxplus.cern.ch rm fileList.$$.txt
 fi
 
+# make sure authentication will work
+x509File=/tmp/x509up_u`id -u`
+
 # loop over the condor jobs and submit them
 while [ $i -le $nCopyProcs ] && [ $last -le $nFiles ]
 do
@@ -189,7 +192,7 @@ do
   # prepare the condor_submit files
   cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = ( (Arch == "INTEL") && (Disk >= DiskUsage) && ((Memory * 1024) >= ImageSize) && (HasFileTransfer) )
+Requirements            = Arch == "INTEL" && Disk >= DiskUsage && (Memory * 1024) >= ImageSize && HasFileTransfer
 Notify_user             = $TICKET_HOLDER@mit.edu
 Notification            = Error
 Executable              = $script
@@ -200,24 +203,22 @@ Input                   = /dev/null
 Output                  = $condorOutput/$book/$dataset/${next}-${last}.out
 Error                   = $condorOutput/$book/$dataset/${next}-${last}.err
 Log                     = $condorOutput/$book/$dataset/${next}-${last}.log
+transfer_input_files    = $x509File
 should_transfer_files   = YES
-when_to_transfer_output = ON_EXIT+
-use_x509userproxy       = True
-x509userproxysubject    = $DN
+when_to_transfer_output = ON_EXIT
 +AccountingGroup        = "group_cmsuser.cmsu0284"
 Queue
 EOF
 
-
   # submit the jobs
   condor_submit submit_$$.cmd >& /dev/null #>& lastSub
-  #cat submit_$$.cmd
   rm  submit_$$.cmd
 
   # update counters
   next=$(( $next + $nFilesPerJob ))
   last=$(( $last + $nFilesPerJob ))
   i=$(( $i + 1 ))
+
 done
 
 exit 0
