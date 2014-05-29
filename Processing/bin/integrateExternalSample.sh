@@ -129,14 +129,12 @@ echo " EXE - catalog.sh -ce -m $BOOK cataDBook $cataDataset --retry"
 catalog.sh -ce -m $BOOK $cataBook $cataDataset --retry
 
 # when all is done (careful these files are used for checking, so no more changes once you start)
-
 echo " EXE - generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/$BOOK/$DATASET/RawFiles.00 \
        > ~/cms/jobs/lfns/${MIT_DATASET}.lfns"
 generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/$BOOK/$DATASET/RawFiles.00 \
        > ~/cms/jobs/lfns/${MIT_DATASET}.lfns
 
 # submit the production (make sure not to overwrite your produced lfns --useExistingLfns)
-
 echo " EXE - submit.py --mitCfg=filefi --version=032 --cmssw=mc --useExistingLfns --mitDataset=$MIT_DATASET"
 findSamples.py --cmssw=mc --useExistingLfns --pattern=$MIT_DATASET --complete --exe
 

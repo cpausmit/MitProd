@@ -71,7 +71,7 @@ do
     mkdir -p $catalogDir/condor/$book/$dataset/${skim}
     cat > submit_$$.cmd <<EOF
 Universe                = vanilla
-Requirements            = Arch == "X86_64" && OpSys == "LINUX" && Disk >= DiskUsage && (Memory * 1024) >= ImageSize && HasFileTransfer
+Requirements            = (Arch == "INTEL" || Arch == "X86_64") && Disk >= DiskUsage && (Memory * 1024) >= ImageSize && HasFileTransfer
 Notification            = Error
 Executable              = $script
 Arguments               = $dataDir/$book/$dataset $file
