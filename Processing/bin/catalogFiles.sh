@@ -46,9 +46,14 @@ fi
 # Create a list of the files we need to catalog
 echo ""
 LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
+# make sure authentication will work
+
+# get authentication
+x509File=/tmp/x509up_u`id -u`
+
 for file in $LIST
 do
-  file=`basename $file`  #;echo $file
+  file=`basename $file`
   logFile=`echo $book/$dataset/${skim}$file | tr '/' '+'`
   logFile=/tmp/$logFile
   rm -f $logFile
@@ -81,9 +86,9 @@ Input                   = /dev/null
 Output                  = $catalogDir/condor/$book/$dataset/${skim}$file.out
 Error                   = $catalogDir/condor/$book/$dataset/${skim}$file.err
 Log                     = $catalogDir/condor/$book/$dataset/${skim}$file.log
+transfer_input_files    = $x509File
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
-use_x509userproxy       = True
 +AccountingGroup        = "catalog.cmsprod"
 Queue
 EOF

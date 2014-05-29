@@ -52,7 +52,12 @@ source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 cd - >& /dev/null
 
 # show the certificate
-voms-proxy-init --key ~/.globus/userkey.pem --cert ~/.globus/usercert.pem --valid 168:00 -voms cms
+# take care of the certificate
+if [ -e "./x509up_u`id -u`" ]
+then
+  export X509_USER_PROXY="./x509up_u`id -u`"
+fi
+echo " INFO -- using the x509 ticket: $X509_USER_PROXY"
 voms-proxy-info -all
 
 # Get ready to run

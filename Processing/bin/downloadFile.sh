@@ -4,8 +4,17 @@
 #
 #                                                                             Ch.Paus (Nov 18, 2010)
 #---------------------------------------------------------------------------------------------------
-echo " ";echo " ==== JOB ENVIRONMENT ==== ";echo " "; whoami;id;/bin/hostname;pwd
-echo " ";echo " ==== START JOB WITH ARGUMENTS: $* ====";echo " "
+# some basic printing
+h=`basename $0`
+echo " ${h}: Show who and where we are!"
+echo " Script:    $h"
+echo " Arguments: ($*)"
+echo " "
+echo " start time    : "`date`
+echo " user executing: "`whoami`" --> "`id`
+echo " running on    : "`/bin/hostname`
+echo " executing in  : "`pwd`
+echo " ";
 
 LCGCP='lcg-cp'
 SRMCP='srmcp'
