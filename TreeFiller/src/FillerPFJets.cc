@@ -1,5 +1,3 @@
-// $Id: FillerPFJets.cc,v 1.17 2012/03/11 23:11:56 pharris Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -73,8 +71,8 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
   //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter<string>
   //                 ("SoftElectronByPtBJetTagsName","softElectronByPtBJetTags")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","pfCandMapName")),
-  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   pfCandMap_(0),
+  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   jetMap_(new mithep::PFJetMap),
   jets_(new mithep::PFJetArr(16))
 {
@@ -98,10 +96,14 @@ void FillerPFJets::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_,&jets_);
   OS()->add<mithep::PFJetArr>(jets_,mitName_);
 
+  // if a map name has been given
   if (!pfCandMapName_.empty()) {
+    // find the pf candidate map
     pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_);
-    if (pfCandMap_)
+    // if the map exists in the object service
+    if (pfCandMap_) {
       AddBranchDep(mitName_,pfCandMap_->GetBrName());
+    }
   }
   if (!jetMapName_.empty()) {
     jetMap_->SetBrName(mitName_);
@@ -121,10 +123,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   // handle for the Jet Collection
   Handle<reco::PFJetCollection> hJetProduct;
   GetProduct(edmName_, hJetProduct, event);
-
-//   Handle<double> rho;
-//   GetProduct(rhoName_, rho, event);
-
+  // handle for rho
   Handle<double> rho;
   event.getByLabel(rhoName_,rho);
 
@@ -169,7 +168,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   
   const reco::PFJetCollection inJets = *(hJetProduct.product());  
 
-  //Handles to Jet to Vertex Association
+  // Handles to Jet to Vertex Association
   Handle<std::vector<double> > JV_alpha;  
   Handle<std::vector<double> > JV_beta;    
   std::vector<double>::const_iterator it_jv_alpha;
@@ -182,7 +181,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     it_jv_beta  = JV_beta->begin();    
   }
 
-  //Define Jet Correction Services
+  // Define Jet Correction Services
   const JetCorrector* correctorL2 = 0; 
   const JetCorrector* correctorL3 = 0; 
   if (jetCorrectionsActive_) {
@@ -194,25 +193,23 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
   for (reco::PFJetCollection::const_iterator inJet = inJets.begin(); 
        inJet != inJets.end(); ++inJet) {
     
-    reco::PFJetRef jetRef(hJetProduct, inJet - inJets.begin());    
+    reco::PFJetRef   jetRef(hJetProduct, inJet - inJets.begin());    
     reco::JetBaseRef jetBaseRef(jetRef);
     
     mithep::PFJet *jet = jets_->Allocate();
-    new (jet) mithep::PFJet(inJet->p4().x(),
-                          inJet->p4().y(),
-                          inJet->p4().z(),
-                          inJet->p4().e());
 
-    //add to map
+    new (jet) mithep::PFJet(inJet->p4().x(),inJet->p4().y(),inJet->p4().z(),inJet->p4().e());
+
+    // add to map
     edm::Ptr<reco::PFJet> thePtr(hJetProduct, inJet - inJets.begin());
-    jetMap_->Add(thePtr, jet);
+    jetMap_->Add(thePtr,jet);
 
-    //fill jet moments
+    // fill jet moments
     jet->SetSigmaEta(TMath::Sqrt(inJet->etaetaMoment()));
     jet->SetSigmaPhi(TMath::Sqrt(inJet->phiphiMoment()));
 
 
-    //fill pfjet-specific quantities
+    // fill pfjet-specific quantities
     jet->SetChargedHadronEnergy(inJet->chargedHadronEnergy());
     jet->SetNeutralHadronEnergy(inJet->neutralHadronEnergy());
     jet->SetChargedEmEnergy(inJet->chargedEmEnergy());
@@ -223,7 +220,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     jet->SetMuonMultiplicity(inJet->muonMultiplicity());
      
     if (jetToVertexActive_) {
-      //compute alpha and beta parameter for jets
+      // compute alpha and beta parameter for jets
       jet->SetAlpha((*it_jv_alpha));
       jet->SetBeta((*it_jv_beta));      
     }
@@ -231,7 +228,7 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
     // fill the area anyway 
     jet->SetJetArea(inJet->jetArea());
 
-    //Jet Corrections
+    // Jet Corrections
     if (fastJetCorrectionsActive_) {
       double l1Scale = (inJet->pt() - (*rho)*inJet->jetArea())/inJet->pt();
       l1Scale = (l1Scale>0) ? l1Scale : 0.0;
@@ -282,18 +279,24 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
       
       if (flavorMatchingDefinition_ == "Algorithmic") {
         jet->SetMatchedMCFlavor(flavorAlgDef);
-      } else if(flavorMatchingDefinition_ == "Physics") {
+      }
+      else if (flavorMatchingDefinition_ == "Physics") {
         jet->SetMatchedMCFlavor(flavorPhysDef);
-      } else {
+      }
+      else {
         jet->SetMatchedMCFlavor(0);
       }
     }
 
     // add PFCandidate refs
     if (pfCandMap_) {
+      //printf(" Adding pfCandMap (%s) : %d\n",mitName_.data(),pfCandMap_->GetEntries());
       for (uint i=0; i<inJet->numberOfDaughters(); ++i) {
-        const reco::CandidatePtr candPtr = inJet->daughterPtr(i);
+        const reco::CandidatePtr   candPtr = inJet->daughterPtr(i);
         const reco::PFCandidatePtr pfPtr(candPtr);
+
+	//printf(" GetMit (%s) : %d\n",mitName_.data(),pfCandMap_->GetEntries());
+	
         const mithep::PFCandidate *constituent = pfCandMap_->GetMit(pfPtr);
 	jet->AddPFCand(constituent);
       }

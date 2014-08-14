@@ -18,8 +18,10 @@ def list(dir,pattern,debug):
         if debug != 0:
             print ' identified an eos directory'
         #cmd = 'ssh ' + user + '@lxplus.cern.ch rfdir ' + dir + '| tr -s \' \'| cut -d\' \' -f5,9'
-        cmd = "srmls -srm_protocol_version=2  srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=" + dir + \
-              '| tr -s \' \'| cut -d\' \' -f2,3'
+        #cmd = "srmls -srm_protocol_version=2  srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=" + dir + \
+        #      '| tr -s \' \'| cut -d\' \' -f2,3'
+        cmd = "lcg-ls -l srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=" + dir + \
+              "| tr -s ' ' | cut -d ' ' -f5,7"
     elif re.search('/mnt/hadoop/cms/store',dir):
         #if debug != 0:
         #    print ' identified a tier-2 hadoop directory'

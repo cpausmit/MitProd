@@ -60,4 +60,5 @@ except:
 MitTreeFiller.Electrons.expectedHitsName = ''
 MitTreeFiller.Muons.expectedHitsName = ''
 
-BambuFillAOD = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)
+BambuFillAOD = cms.Sequence(BambuRecoSequence*
+                            BambuRecoFillSequence)

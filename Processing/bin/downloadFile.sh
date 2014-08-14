@@ -33,17 +33,22 @@ pwd=`pwd`
 if [ -e "./x509up_u`id -u`" ]
 then
   export X509_USER_PROXY="./x509up_u`id -u`"
+elif [ -e "/tmp/x509up_u`id -u`" ]
+then
+  export X509_USER_PROXY="/tmp/x509up_u`id -u`"
+else
+  echo " ERROR - no ticket file, transfer will fail!"
 fi
 echo " INFO -- using the x509 ticket: $X509_USER_PROXY"
 
 # show the certificate
 voms-proxy-info -all
 
-# legacy but works on 32 bit machines
-if [ "`uname -p`" != "x86_64" ]
-then
-  source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
-fi
+## legacy but works on 32 bit machines
+#if [ "`uname -p`" != "x86_64" ]
+#then
+##  source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env_3_1.sh
+#fi
 
 # make storage Urls for target and source
 

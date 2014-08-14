@@ -21,6 +21,7 @@ T2_FR_GRIF_IRFU: node12.datagrid.cea.fr
 T2_IN_TIFR : se01.indiacms.res.in
 T2_IT_Rome : cmsrm-se01.roma1.infn.it
 T2_PT_NCG_Lisbon : srm01.ncg.ingrid.pt
+T2_RU_IHEP : dp0015.m45.ihep.su
 T2_RU_ITEP : se3.itep.ru
 # 08/29/2010 CP - removed UK sites because of 8020 error in muo-pr sample
 # T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
@@ -47,6 +48,8 @@ T2_CN_Beijing : srm.ihep.ac.cn
 #T2_RU_JINR : lcgsedc01.jinr.ru
 T2_HU_Budapest: grid143.kfki.hu
 T2_TR_METU : eymir.grid.metu.edu.tr
+T2_UA_KIPT : cms-se0.kipt.kharkov.ua
+T2_EE_Estonia : ganymede.hep.kbfi.ee
 T3_CH_PSI : t3se01.psi.ch
 T3_GR_Ioannina : pc138.physics.uoi.gr
 T3_US_FNALLPC : cmsdca2.fnal.gov

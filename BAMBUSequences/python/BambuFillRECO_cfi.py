@@ -1,5 +1,3 @@
-# $Id: BambuFillRECO_cfi.py,v 1.66 2012/12/28 17:36:20 pharris Exp $
-
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.TreeFiller.MitTreeFiller_cfi import *
@@ -38,7 +36,7 @@ MitTreeFiller.AKt5PFJets.bTaggingActive = True
 #MitTreeFiller.CentralPFMet.active       = True
 #MitTreeFiller.CleanPFMet.active         = True
 
-#to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
+# to re-run pftau reco/id (since final tags never made it into the 42x nor 44x release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
@@ -71,15 +69,19 @@ pfJets.doRhoFastjet            = False
 #to run and store the decisions of the MET filters
 #> The iso-based HBHE noise filter
 from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
+
 #> The ECAL dead cell trigger primitive filter
 from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
 EcalDeadCellTriggerPrimitiveFilter.taggingMode = cms.bool(True)
+
 #> The EE bad SuperCrystal filter
 from RecoMET.METFilters.eeBadScFilter_cfi import *
 eeBadScFilter.taggingMode = cms.bool(True)
+
 #> The ECAL laser correction filter
 from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 ecalLaserCorrFilter.taggingMode = cms.bool(True)
+
 #> The Good vertices collection needed by the tracking failure filter
 goodVertices = cms.EDFilter(
   "VertexSelector",
@@ -87,9 +89,11 @@ goodVertices = cms.EDFilter(
   src = cms.InputTag("offlinePrimaryVertices"),
   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
 )
+
 #> The tracking failure filter
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
 trackingFailureFilter.taggingMode = cms.bool(True)
+
 #> The tracking POG filters: NB for these three false means good event
 from RecoMET.METFilters.trackingPOGFilters_cff import *
 manystripclus53X.taggedMode = cms.untracked.bool(True)
@@ -98,16 +102,18 @@ toomanystripclus53X.taggedMode = cms.untracked.bool(True)
 toomanystripclus53X.forcedValue = cms.untracked.bool(False)
 logErrorTooManyClusters.taggedMode = cms.untracked.bool(True)
 logErrorTooManyClusters.forcedValue = cms.untracked.bool(False)
+
 #> The MET filter sequence
-metFilters = cms.Sequence(
-   HBHENoiseFilterResultProducer *
-   EcalDeadCellTriggerPrimitiveFilter *
-   goodVertices * trackingFailureFilter *
-   eeBadScFilter *
-   ecalLaserCorrFilter *
-   trkPOGFilters
+metFilters = cms.Sequence(       HBHENoiseFilterResultProducer *
+                                 EcalDeadCellTriggerPrimitiveFilter *
+                                 goodVertices *
+                                 trackingFailureFilter *
+                                 eeBadScFilter *
+                                 ecalLaserCorrFilter *
+                                 trkPOGFilters
 )
 
+#> The bambu reco sequence
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
@@ -130,4 +136,5 @@ BambuRecoSequence = cms.Sequence(electronsStable*
 
 BambuRecoFillSequence = cms.Sequence(MitTreeFiller)
 
-BambuFillRECO = cms.Sequence(BambuRecoSequence*BambuRecoFillSequence)
+BambuFillRECO = cms.Sequence(    BambuRecoSequence*
+                                 BambuRecoFillSequence)

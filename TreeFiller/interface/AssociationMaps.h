@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMaps.h,v 1.28 2012/05/05 16:49:58 paus Exp $
-//
 // AssociationMaps
 //
 // This header file defines the standard types for the AssociationMaps we want to use.

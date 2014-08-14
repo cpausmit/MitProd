@@ -1,6 +1,7 @@
 # site_name : se   [ : general-storagepath : user-remote-directory ]
 T0_CH_CERN : srm-cms.cern.ch : /srm/managerv2?SFN=/castor/cern.ch : /user/p/paus
 T1_DE_KIT : cmssrm-kit.gridka.de
+T2_EE_Estonia : ganymede.hep.kbfi.ee
 T1_ES_PIC : srmcms.pic.es
 T1_FR_CCIN2P3 : ccsrm.in2p3.fr
 T1_IT_CNAF : storm-fe-cms.cr.cnaf.infn.it
@@ -23,7 +24,10 @@ T2_FR_GRIF_IRFU: node12.datagrid.cea.fr
 T2_IN_TIFR : se01.indiacms.res.in
 T2_IT_Rome : cmsrm-se01.roma1.infn.it
 T2_PT_NCG_Lisbon : srm01.ncg.ingrid.pt
+T2_RU_IHEP : dp0015.m45.ihep.su
 T2_RU_ITEP : se3.itep.ru
+T2_TH_CUNSTDA : terbium.lsr.nectec.or.th
+T2_UA_KIPT : cms-se0.kipt.kharkov.ua
 T2_UK_London_IC : gfe02.hep.ph.ic.ac.uk
 T2_UK_London_IC : gfe02.grid.hep.ph.ic.ac.uk
 T2_UK_SGrid_RALPP : heplnx204.pp.rl.ac.uk

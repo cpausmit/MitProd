@@ -1,37 +1,37 @@
-# $Id: BambuFillFASTSIM_cfi.py,v 1.2 2010/05/30 15:28:58 bendavid Exp $
-
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.BAMBUSequences.BambuFillAOD_cfi import *
-
 from MitProd.BAMBUSequences.BambuSIM_cfi import *
 
-#Perform required tree filler reconfiguration for SIM info
+# Perform required tree filler reconfiguration for SIM info
 enableSIM(MitTreeFiller)
 
-#Disable filling of geant4 simulation truth, not present in AODSIM
+# Disable filling of geant4 simulation truth, not present in AODSIM
 MitTreeFiller.MCParticles.simActive = False
 
-#disable filling of L1 trigger info (not consistantly available in fastsim)
+# Disable filling of L1 trigger info (not consistently available in fastsim)
 MitTreeFiller.MetaInfos.l1Active = False
 
-#disable pileup info filling
+# Disable pileup info filling
 MitTreeFiller.PileupInfo.active = False
 
-#replace conversion sequence with fastsim friendly sequence omitting ecal-seeded tracks
+# Replace conversion sequence with fastsim friendly sequence omitting ecal-seeded tracks
 BambuRecoSequence.replace(electronsStable,electronsStableFastSim)
 mvfConversions.iStables1 = 'mergedGeneralGsfStable'
 mvfConversions.iStables2 = 'mergedGeneralGsfStable'
 MitTreeFiller.MergedElectronsStable.edmName = 'mergedGeneralGsfStable'
 
-#Disable filling of ecal-seeded conversions, not present in fastsim
+# Disable filling of ecal-seeded conversions, not present in fastsim
 MitTreeFiller.ConversionInOutTracks.active = False
 MitTreeFiller.ConversionOutInTracks.active = False
 MitTreeFiller.ConversionInOutElectronsStable.active = False
 MitTreeFiller.ConversionOutInElectronsStable.active = False
 MitTreeFiller.Conversions.active = False
 
-#rerun trackjet reconstruction since it is not included by default in the fastsim sequence
+# Rerun trackjet reconstruction since it is not included by default in the fastsim sequence
 from RecoJets.Configuration.RecoTrackJets_cff import *
 
-BambuFillFASTSIM = cms.Sequence(BambuRecoSequence*recoTrackJets*BambuGenSequence*BambuRecoFillSequence)
+BambuFillFASTSIM = cms.Sequence(BambuRecoSequence*
+                                recoTrackJets*
+                                BambuGenSequence*
+                                BambuRecoFillSequence)

@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ObjectService.h,v 1.7 2009/03/15 11:17:47 loizides Exp $
-//
 // ObjectService 
 //
 // This service can be used in the config files to provide a simple interface to exchange objects

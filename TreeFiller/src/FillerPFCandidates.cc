@@ -1,5 +1,3 @@
-// $Id: FillerPFCandidates.cc,v 1.17 2012/07/25 03:08:42 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -24,8 +22,10 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
                                        const char *name, bool active) :
   BaseFiller                    (cfg,name,active),
   edmName_                      (Conf().getUntrackedParameter<string>("edmName","particleFlow")),
-  edmPfNoPileupName_            (Conf().getUntrackedParameter<string>("edmName","pfNoElectrons")),
-  mitName_                      (Conf().getUntrackedParameter<string>("mitName",Names::gkPFCandidatesBrn)),
+  edmPfNoPileupName_            (Conf().getUntrackedParameter<string>("edmPfNoPileupName",
+								      "pfNoElectrons")),
+  mitName_                      (Conf().getUntrackedParameter<string>("mitName",
+								      Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
 				 Conf().getUntrackedParameter<vector<string> >("trackerTrackMapNames") : 
 				 vector<string>()),
@@ -33,12 +33,15 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
   muonMapName_                  (Conf().getUntrackedParameter<string>("muonMapName","")),
   electronMapName_              (Conf().getUntrackedParameter<string>("electronMapName","")),
   photonMapName_                (Conf().getUntrackedParameter<string>("photonMapName","")),
-  barrelSuperClusterMapName_    (Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
-  endcapSuperClusterMapName_    (Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  pfElectronSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfElectronSuperClusterMapName","")),
+  barrelSuperClusterMapName_    (Conf().getUntrackedParameter<string>("barrelSuperClusterMapName",
+								      "")),
+  endcapSuperClusterMapName_    (Conf().getUntrackedParameter<string>("endcapSuperClusterMapName",
+								      "")),
+  pfElectronSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfElectronSuperClusterMapName",
+								      "")),
   conversionMapName_            (Conf().getUntrackedParameter<string>("conversionMapName","")),
   pfCandMapName_                (Conf().getUntrackedParameter<string>("pfCandMapName","")),
-  pfNoPileupCandMapName_        (Conf().getUntrackedParameter<string>("pfNoPileupMapName","")),
+  pfNoPileupCandMapName_        (Conf().getUntrackedParameter<string>("pfNoPileupCandMapName","")),
   allowMissingTrackRef_         (Conf().getUntrackedParameter<bool>("allowMissingTrackRef",false)),
   allowMissingPhotonRef_        (Conf().getUntrackedParameter<bool>("allowMissingPhotonRef",false)),
   fillPfNoPileup_               (Conf().getUntrackedParameter<bool>("fillPfNoPileup",true)),
@@ -74,13 +77,7 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_,&pfCands_);
   OS()->add<mithep::PFCandidateArr>(pfCands_,mitName_);
-
-//   if (!trackerTrackMapName_.empty()) {
-//     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-//     if (trackerTrackMap_)
-//       AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
-//   }
-
+  // book all tracker maps
   for (std::vector<std::string>::const_iterator bmapName = trackerTrackMapNames_.begin();
         bmapName!=trackerTrackMapNames_.end(); ++bmapName) {
     if (!bmapName->empty()) {
@@ -91,7 +88,6 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
       }
     }
   }
-
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
     if (gsfTrackMap_)
@@ -204,14 +200,14 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       outPfCand->SetPFType(mithep::PFCandidate::eEGammaHF);
 
     // fill pf flags bitmask
-    outPfCand->SetFlag(mithep::PFCandidate::eNormal, 
-                       iP->flag(reco::PFCandidate::NORMAL));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMPhiSModules, 
-                       iP->flag(reco::PFCandidate::E_PHI_SMODULES));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMEta0, 
-                       iP->flag(reco::PFCandidate::E_ETA_0));
-    outPfCand->SetFlag(mithep::PFCandidate::eEMEtaModules, 
-                       iP->flag(reco::PFCandidate::E_ETA_MODULES));
+    outPfCand->SetFlag(mithep::PFCandidate::eNormal,
+		       iP->flag(reco::PFCandidate::NORMAL));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMPhiSModules,
+		       iP->flag(reco::PFCandidate::E_PHI_SMODULES));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMEta0,
+		       iP->flag(reco::PFCandidate::E_ETA_0));
+    outPfCand->SetFlag(mithep::PFCandidate::eEMEtaModules,
+		       iP->flag(reco::PFCandidate::E_ETA_MODULES));
     outPfCand->SetFlag(mithep::PFCandidate::eEMBarrelEndcap, 
                        iP->flag(reco::PFCandidate::E_BARREL_ENDCAP));
     outPfCand->SetFlag(mithep::PFCandidate::eEMPreshowerEdge, 
@@ -238,17 +234,19 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
                        iP->flag(reco::PFCandidate::T_FROM_GAMMACONV));
     outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
                        iP->flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
-
-    //printf("pf type = %i\n",iP->particleId());
                        
     // fill references to other branches
     if (iP->trackRef().isNonnull()) {
-      //printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
-      //       iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),
-      //       iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
+
+      if (0)  // for debugging
+	printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
+	       iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),
+	       iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
+
       const mithep::Track *thetrack = getMitTrack(refToPtr(iP->trackRef()),allowMissingTrackRef_);
       outPfCand->SetTrackerTrk(thetrack);
     }    
+
     if (gsfTrackMap_ && iP->gsfTrackRef().isNonnull()) 
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iP->gsfTrackRef())));
     if (muonMap_ && iP->muonRef().isNonnull()) 
@@ -258,12 +256,13 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     if (photonMap_ && iP->photonRef().isNonnull()) 
       try{outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(iP->photonRef())));} 
       catch (...) { 
-	if(!allowMissingPhotonRef_) {
+	if (!allowMissingPhotonRef_) {
 	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
 	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
 	}
       }
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
+	pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(barrelSuperClusterMap_->GetMit(iP->superClusterRef()));
       else if (endcapSuperClusterMap_->HasMit(iP->superClusterRef()))
@@ -271,26 +270,39 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       else if ( pfElectronSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(pfElectronSuperClusterMap_->GetMit(iP->superClusterRef()));
     }
+
     if (conversionMap_ && iP->conversionRef().isNonnull()) 
       outPfCand->SetConversion(conversionMap_->GetMit(iP->conversionRef()));
 
     // add to exported pf candidate map
-    reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
-    pfCandMap_->Add(thePtr, outPfCand);
+    reco::PFCandidatePtr thePtr(hPfCandProduct,iP-inPfCands.begin());
+    pfCandMap_->Add(thePtr,outPfCand);
     
-    //add pf No Pileup map
-    //===> Do I do a loop?
+    // add pf No Pileup map
     bool found = false;
-    if(fillPfNoPileup_) { 
+    if (fillPfNoPileup_) { 
+      // initially set the candidate to be not part of the NoPilup collection
       outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,false);
+      // try to find match with the no-pileup map
       for (reco::PFCandidateCollection::const_iterator iNoPileupP = inPfNoPileupCands.begin();
 	   iNoPileupP != inPfNoPileupCands.end(); ++iNoPileupP) {
-	if(iP->px() == iNoPileupP->px() && iP->py() == iNoPileupP->py() && iNoPileupP->pz() == iP->pz()) { 
-	  reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct, iNoPileupP - inPfNoPileupCands.begin());
-	  pfNoPileupCandMap_->Add(theNoPileupPtr, outPfCand);
+
+	//	if (*iP == *iNoPileupP) { // pointers should be the same (but it does not)
+
+	// this is not the best way to do it, but well I did not come up with a better one yet
+	if (iP->px() == iNoPileupP->px() &&
+	    iP->py() == iNoPileupP->py() &&
+	    iP->pz() == iNoPileupP->pz()   ) {
+	  reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct,
+					      iNoPileupP-inPfNoPileupCands.begin());
+
+	  // set the candidate to be part of the NoPilup collection
 	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
-	  if(found) edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-	    << "Error! PF No Pileup double linked " << endl;
+
+	  pfNoPileupCandMap_->Add(theNoPileupPtr,outPfCand);
+	  if (found)
+	    edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+	      << "PF No Pileup was double linked!! " << endl;
 	  found = true;
 	}
       }
@@ -310,10 +322,11 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
   // loop through pf candidates and resolve mother-daughter links
-  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
-       iP != inPfCands.end(); ++iP) {
-    
-    reco::PFCandidatePtr thePtr(hPfCandProduct, iP - inPfCands.begin());
+  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end();
+       ++iP) {
+    reco::PFCandidatePtr thePtr(hPfCandProduct, iP-inPfCands.begin());
+
+    // CP: I found this code commented, not sure why it was, need to check this
 
     //mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
     // fill mother-daughter links
@@ -328,7 +341,7 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-const mithep::Track *FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const
+const mithep::Track *FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing) const
 {
   // Return our particle referenced by the edm pointer.
 
@@ -342,7 +355,8 @@ const mithep::Track *FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool 
     }
   }
   
-  if (!mitPart && !allowmissing)
+  // make sure we got a link if it is required
+  if (!mitPart && !allowMissing)
     throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
     << "Error! MITHEP Object " 
     << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;

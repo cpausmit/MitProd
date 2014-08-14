@@ -16,6 +16,11 @@ pid=$1;          shift
 first=$1;        shift
 last=$1;         shift
 
+if ! [ -z "$MIT_PROD_DIR" ]
+then
+  export PATH="${MIT_PROD_DIR}/bin:${PATH}"
+fi
+
 # prepare environment
 echo " "
 echo " Process dataset: $dataset  of book: $book"
@@ -54,6 +59,9 @@ do
   # find potential JSON file
   export size=`echo $line | tr -s ' ' | cut -d ' ' -f 1`
   # now run the download
+  echo ""
+  echo " --> Next file to download: $dataDir/$book/$dataset/$file"
+  echo ""
   echo "$script $dataDir/$book/$dataset/$file $target/$book/$dataset/$file"
   $script $dataDir/$book/$dataset/$file $target/$book/$dataset/$file
 done

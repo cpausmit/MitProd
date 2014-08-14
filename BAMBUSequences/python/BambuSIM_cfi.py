@@ -1,5 +1,3 @@
-# $Id: BambuSIM_cfi.py,v 1.19 2012/03/11 23:16:01 pharris Exp $
-
 import FWCore.ParameterSet.Config as cms
 
 from MitProd.BAMBUSequences.BambuFillRECO_cfi import *

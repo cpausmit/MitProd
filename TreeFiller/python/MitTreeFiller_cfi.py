@@ -1,9 +1,6 @@
-# $Id: MitTreeFiller_cfi.py,v 1.127 2013/10/31 14:22:46 paus Exp $
-
 import FWCore.ParameterSet.Config as cms
 
 MitTreeFiller = cms.EDAnalyzer("FillMitTree",
-
     fillers = cms.untracked.vstring('MetaInfos',
                                     'MetaInfosE29',
                                     'MCParticles',
@@ -179,7 +176,8 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     EvtSelData = cms.untracked.PSet(
         active                        = cms.untracked.bool(True),
         mitName                       = cms.untracked.string('EvtSelData'),
-        HBHENoiseFilterName           = cms.untracked.InputTag('HBHENoiseFilterResultProducer','HBHENoiseFilterResult'),  
+        HBHENoiseFilterName           = cms.untracked.InputTag('HBHENoiseFilterResultProducer',
+                                                               'HBHENoiseFilterResult'),  
         ECALDeadCellFilterName        = cms.untracked.InputTag('EcalDeadCellTriggerPrimitiveFilter'),  
         trackingFailureFilterName     = cms.untracked.InputTag('trackingFailureFilter'),  
         EEBadScFilterName             = cms.untracked.InputTag('eeBadScFilter'),  
@@ -733,7 +731,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         active                        = cms.untracked.bool(True),
         mitName                       = cms.untracked.string('PFCandidates'),
         edmName                       = cms.untracked.string('particleFlow'),
-        edmNoPileupName               = cms.untracked.string('pfNoElectron'),
+        edmPfNoPileupName             = cms.untracked.string('pfNoElectron'),
         trackerTrackMapNames          = cms.untracked.vstring('TracksMapName',
                                                               'ConversionTracksMapName'),
         gsfTrackMapName               = cms.untracked.string('GsfTracksMapName'),
@@ -745,7 +743,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         electronMapName               = cms.untracked.string('electronMap'),
         photonMapName                 = cms.untracked.string('PFPhotonMapName'),
         pfCandMapName                 = cms.untracked.string('PFCandMapName'),
-        pfNoPileupCandCandMapName     = cms.untracked.string('PFNoPileupCandMapName'),
+        pfNoPileupCandMapName         = cms.untracked.string('PFNoPileupCandMapName'),
         fillerType                    = cms.untracked.string('FillerPFCandidates'),
         allowMissingPhotonRef         = cms.untracked.bool  (False)
     ),
@@ -1170,6 +1168,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         jetMapName                    = cms.untracked.string('KT6PFJetMap'),
         fillerType                    = cms.untracked.string('FillerPFJets')
     ),
+
     AKt5PFJets = cms.untracked.PSet(
         active                                   = cms.untracked.bool(True),
         flavorMatchingActive                     = cms.untracked.bool(False),
@@ -1236,7 +1235,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
         #SoftElectronByIP3dBJetTagsName           = cms.untracked.string('newSoftElectronByIP3dBJetTags'),
         #SoftElectronByPtBJetTagsName             = cms.untracked.string('newSoftElectronByPtBJetTags'),
         pfCandMapName                            = cms.untracked.string('PFNoPileupCandMapName'),
-        jetMapName                               = cms.untracked.string('pfJetMap'),
+        jetMapName                               = cms.untracked.string('AKt5PFJetCHSMap'),
         fillerType                               = cms.untracked.string('FillerPFJets')
     ),
 

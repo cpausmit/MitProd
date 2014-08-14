@@ -192,13 +192,14 @@ do
   # prepare the condor_submit files
   cat > submit_$$.cmd <<EOF
 Universe                = vanilla
+Environment             = "MIT_PROD_DIR=$MIT_PROD_DIR"
 Requirements            = Arch == "INTEL" && Disk >= DiskUsage && (Memory * 1024) >= ImageSize && HasFileTransfer
 Notify_user             = $TICKET_HOLDER@mit.edu
 Notification            = Error
 Executable              = $script
 Arguments               = $dataDir $book $dataset $target $condorOutput $$ $next $last
 Rank                    = Mips
-GetEnv                  = True
+GetEnv                  = False
 Input                   = /dev/null
 Output                  = $condorOutput/$book/$dataset/${next}-${last}.out
 Error                   = $condorOutput/$book/$dataset/${next}-${last}.err
