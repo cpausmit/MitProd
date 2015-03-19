@@ -124,8 +124,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     BitMask48 sharedLayers;
     UInt_t numShared=0;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<sharedHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = sharedHitPattern.getHitPattern(hi);
+    for (Int_t hi=0; hi<sharedHitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); hi++) {
+      uint32_t hit = sharedHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hi);
       if (sharedHitPattern.getHitType(hit)<=1) {
         if (sharedHitPattern.trackerHitFilter(hit)) {
           numShared++;
@@ -154,8 +154,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           BitMask48 crossedLayers;
           UInt_t numCrossed=0;
           // search for all good crossed layers (with or without hit)
-          for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
-            uint32_t hit = hitPattern.getHitPattern(hi);
+          for (Int_t hi=0; hi<hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); hi++) {
+            uint32_t hit = hitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hi);
             if (hitPattern.getHitType(hit)<=1) {
               if (hitPattern.trackerHitFilter(hit)) {
                 numCrossed++;
@@ -170,7 +170,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           if(verbose_>1) {
             if (outStable->NWrongHits()) {          
               printf("numCrossed:                %i\n",numCrossed);
-              printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
+              printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS));
               printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
               printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
               printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());

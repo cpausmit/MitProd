@@ -160,36 +160,42 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       outTrack->SetIsGsf(kFALSE);
     
     if (verbose_>2) {
-      printf("Track pt = %5f, eta = %5f, phi = %5f, nhits = %i, numberofvalidhits = %i, numberofmissinghits = %i, expectedhitsinner = %i, expectedhitsouter = %i\n",it->pt(),it->eta(),it->phi(),it->hitPattern().numberOfHits(),it->numberOfValidHits(),it->hitPattern().numberOfLostHits(),it->trackerExpectedHitsInner().numberOfHits(),it->trackerExpectedHitsOuter().numberOfHits());
+      printf("Track pt = %5f, eta = %5f, phi = %5f, nhits = %i, numberofvalidhits = %i, numberofmissinghits = %i, expectedhitsinner = %i, expectedhitsouter = %i\n",
+             it->pt(), it->eta(), it->phi(),
+             it->hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS),
+             it->numberOfValidHits(),
+             it->hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS),
+             it->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS),
+             it->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
     }
 
     //fill hit layer map and missing hits
     const reco::HitPattern &hits = it->hitPattern();
     BitMask48 hitLayers;
     BitMask48 missingHitLayers;
-    for (Int_t i=0; i<hits.numberOfHits(); i++) {
-      uint32_t hit = hits.getHitPattern(i);
-      if (hits.validHitFilter(hit)) {
-        if (hits.trackerHitFilter(hit)) {
+    for (Int_t i=0; i<hits.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+      if (reco::HitPattern::validHitFilter(hit)) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           hitLayers.SetBit(hitReader_.Layer(hit));
           if (verbose_>2)
             printf("Found valid hit with layer %i\n",hitReader_.Layer(hit));
         }
       }
 
-      if (hits.getHitType(hit)==1) {
-        if (hits.trackerHitFilter(hit)) {
+      if (reco::HitPattern::getHitType(hit)==1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           missingHitLayers.SetBit(hitReader_.Layer(hit));
         }
       }
        
       if (verbose_>2) {
-        if (hits.muonDTHitFilter(hit))
-          printf("Muon DT Layer = %i\n", hits.getLayer(hit));
-        if (hits.muonCSCHitFilter(hit))
-          printf("Muon CSC Layer = %i\n", hits.getLayer(hit));        
-        if (hits.muonRPCHitFilter(hit))
-          printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
+        if (reco::HitPattern::muonDTHitFilter(hit))
+          printf("Muon DT Layer = %i\n", reco::HitPattern::getLayer(hit));
+        if (reco::HitPattern::muonCSCHitFilter(hit))
+          printf("Muon CSC Layer = %i\n", reco::HitPattern::getLayer(hit));        
+        if (reco::HitPattern::muonRPCHitFilter(hit))
+          printf("Muon RPC Layer = %i\n", reco::HitPattern::getLayer(hit));
       }
     }
 
@@ -198,13 +204,12 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 
 
     //set expected inner hits
-    const reco::HitPattern &expectedInnerHitPattern = it->trackerExpectedHitsInner();
     BitMask48 expectedHitsInner;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<expectedInnerHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = expectedInnerHitPattern.getHitPattern(hi);
-      if (expectedInnerHitPattern.getHitType(hit)<=1) {
-        if (expectedInnerHitPattern.trackerHitFilter(hit)) {
+    for (Int_t hi=0; hi<hits.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); hi++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, hi);
+      if (reco::HitPattern::getHitType(hit)<=1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           expectedHitsInner.SetBit(hitReader_.Layer(hit));
         }
       }
@@ -213,13 +218,12 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     outTrack->SetExpectedHitsInner(expectedHitsInner);
 
     //set expected outer hits
-    const reco::HitPattern &expectedOuterHitPattern = it->trackerExpectedHitsOuter();
     BitMask48 expectedHitsOuter;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<expectedOuterHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = expectedOuterHitPattern.getHitPattern(hi);
-      if (expectedOuterHitPattern.getHitType(hit)<=1) {
-        if (expectedOuterHitPattern.trackerHitFilter(hit)) {
+    for (Int_t hi=0; hi<hits.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); hi++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, hi);
+      if (reco::HitPattern::getHitType(hit)<=1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           expectedHitsOuter.SetBit(hitReader_.Layer(hit));
         }
       }
@@ -231,8 +235,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     outTrack->SetNHits(it->numberOfValidHits());
     outTrack->SetNPixelHits(it->hitPattern().numberOfValidPixelHits());
     outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits());
-    outTrack->SetNExpectedHitsInner(it->trackerExpectedHitsInner().numberOfHits());
-    outTrack->SetNExpectedHitsOuter(it->trackerExpectedHitsOuter().numberOfHits());
+    outTrack->SetNExpectedHitsInner(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    outTrack->SetNExpectedHitsOuter(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
 
     if (verbose_>2)
