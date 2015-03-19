@@ -16,8 +16,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCParticleCol.h"
 #include "MitAna/DataTree/interface/TrackingParticleCol.h"
@@ -220,7 +218,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
     
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());
+    const TrackingParticleCollection &trackingParticles = *(hTrackingParticleProduct.product());
     
     // loop through all TrackingParticles
     for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin();
@@ -228,7 +226,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 
       if ( simActive_ && iM->g4Tracks().size() ) {
 	TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
-	const SimTrack &theSimTrack = iM->g4Tracks().at(iM->g4Tracks().size()-1);
+	const SimTrack &theSimTrack = iM->g4Tracks().back();
 	mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
 	trackingMap_->Add(theRef, outSimParticle);
         
@@ -236,50 +234,55 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
           mithep::TrackingParticle *outTracking = trackingParticles_->AddNew();
           
           //fill associated sim tracks
+          // ?? shouldn't we be adding iM->trackId()?? (Y.I. 18/03/2015)
           for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
                  iST != iM->g4Tracks().end(); ++iST) {
             outTracking->AddMCPart(simMap_->GetMit(theSimTrack.trackId()));
           }
-          
-          //fill hit information
-          reco::HitPattern hitPattern;
-          int nHits = 0;
-          
-          //loop through sim hits and construct intermediate reco::HitPattern
-          for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
-                iSimHit != iM->pSimHit_end(); ++iSimHit) {
 
-            unsigned int detectorIdIndex = iSimHit->detUnitId();
-            DetId detectorId = DetId(detectorIdIndex);
+          // Below commented out on 18/03/2015
+          // TrackingParticle no longer (>= 6_2_X) holds information on the underlying sim hits
+          // due to speed and memory consumption concerns.
+          
+          // //fill hit information
+          // reco::HitPattern hitPattern;
+          // int nHits = 0;
+          
+          // //loop through sim hits and construct intermediate reco::HitPattern
+          // for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
+          //       iSimHit != iM->pSimHit_end(); ++iSimHit) {
+
+          //   unsigned int detectorIdIndex = iSimHit->detUnitId();
+          //   DetId detectorId = DetId(detectorIdIndex);
             
-            InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);
+          //   InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);
           
-            hitPattern.set(tHit,nHits);
-            ++nHits;
+          //   hitPattern.set(tHit,nHits);
+          //   ++nHits;
           
-          }
+          // }
 
-          //construct hit layer bitmask as used in bambu
-          BitMask48 hits;
-          // search for all good crossed layers (with or without hit)
-          for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
-            uint32_t hit = hitPattern.getHitPattern(hi);
-            if (hitPattern.getHitType(hit)<=1) {
-              if (hitPattern.trackerHitFilter(hit)) {
-                hits.SetBit(hitReader_.Layer(hit));
-              }
-            }
-          }
+          // //construct hit layer bitmask as used in bambu
+          // BitMask48 hits;
+          // // search for all good crossed layers (with or without hit)
+          // for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
+          //   uint32_t hit = hitPattern.getHitPattern(hi);
+          //   if (hitPattern.getHitType(hit)<=1) {
+          //     if (hitPattern.trackerHitFilter(hit)) {
+          //       hits.SetBit(hitReader_.Layer(hit));
+          //     }
+          //   }
+          // }
           
-          outTracking->SetHits(hits); 
+          // outTracking->SetHits(hits); 
           
-          if (verbose_>1) {
-            printf("Hit Layer Mask: ");
-            for (Int_t biti=47; biti >= 0; --biti) {
-                  printf("%i",hits.TestBit(biti));
-            }
-            printf("\n");
-          }
+          // if (verbose_>1) {
+          //   printf("Hit Layer Mask: ");
+          //   for (Int_t biti=47; biti >= 0; --biti) {
+          //         printf("%i",hits.TestBit(biti));
+          //   }
+          //   printf("\n");
+          // }
           
         }
         
