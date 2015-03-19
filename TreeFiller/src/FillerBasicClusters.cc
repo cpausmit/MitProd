@@ -13,7 +13,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 
 using namespace std;
 using namespace edm;
@@ -86,7 +86,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
                                  edm::InputTag(endcapEcalRecHitName_));
 
-  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
+  //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
 
   EcalClusterLocal local;                                 
                                  

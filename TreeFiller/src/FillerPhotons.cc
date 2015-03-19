@@ -10,8 +10,8 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
-#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
-#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -142,7 +142,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   
-  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
+  //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
   
   Handle<reco::PFCandidateCollection> pPFCands;
   event.getByLabel(PFCandsEdmName_, pPFCands);
@@ -324,33 +324,33 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
       if (pfClusterMap_ && iP->superCluster().isNonnull()) {
 	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
 	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
-	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
-	  if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+	  // float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
+	  // if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
 	}
       }	
     }
     
     //horrible stuff: make links to PFCandidates to try and recover pflow clustering when pflow id failed...
-    if (pfCandMap_ && iP->superCluster().isNonnull()) {
-      std::vector<PFCandidatePtr> inmust;
-      std::vector<PFCandidatePtr> outmust;
-      std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
-								      pEBRecHits,
-								      pEERecHits,
-								      geometryEB,
-								      geometryEE);
-      ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
-					 inmust, 
-				       	 outmust,
-					 pPFCands,
-					 scsize.first,
-					 scsize.second);
+    // if (pfCandMap_ && iP->superCluster().isNonnull()) {
+    //   std::vector<PFCandidatePtr> inmust;
+    //   std::vector<PFCandidatePtr> outmust;
+    //   std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
+    //     							      pEBRecHits,
+    //     							      pEERecHits,
+    //     							      geometryEB,
+    //     							      geometryEE);
+    //   ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
+    //     				 inmust, 
+    //     			       	 outmust,
+    //     				 pPFCands,
+    //     				 scsize.first,
+    //     				 scsize.second);
       
-      for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
-	outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
-      for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
-	outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
-    }
+    //   for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
+    //     outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
+    //   for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
+    //     outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
+    // }
     
     ////regression energy corrections
     //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);

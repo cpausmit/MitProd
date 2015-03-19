@@ -38,7 +38,7 @@
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
-#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -197,7 +197,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   
-  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);  
+  //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);  
   
    //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
@@ -360,13 +360,13 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
     
     //tag overlapping energy of pflow clusters
-    if (pfClusterMap_ && iM->pflowSuperCluster().isNonnull() && egammasc) {
-      for (reco::CaloCluster_iterator pfcit = iM->pflowSuperCluster()->clustersBegin();
-	   pfcit!=iM->pflowSuperCluster()->clustersEnd(); ++pfcit) {
-	float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc );
-	if(pfClusterMap_->HasMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
-      }
-    }	
+    // if (pfClusterMap_ && iM->pflowSuperCluster().isNonnull() && egammasc) {
+    //   for (reco::CaloCluster_iterator pfcit = iM->pflowSuperCluster()->clustersBegin();
+    //        pfcit!=iM->pflowSuperCluster()->clustersEnd(); ++pfcit) {
+    //     float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc );
+    //     if(pfClusterMap_->HasMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+    //   }
+    // }	
   
     //compute NLayersWithMeasurement for associated ctf track
     if (iM->closestCtfTrackRef().isNonnull()) {
