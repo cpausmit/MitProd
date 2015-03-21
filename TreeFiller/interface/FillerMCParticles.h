@@ -20,13 +20,18 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/HitPatternReader.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
 namespace mithep 
 {
   class FillerMCParticles : public BaseFiller
   {
     public:
-      FillerMCParticles(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerMCParticles(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerMCParticles();
 
       void                           BookDataBlock(TreeWriter &tws);
@@ -39,9 +44,12 @@ namespace mithep
       bool                           simActive_;       //=true if simulated particles are filled
       bool                           trackingActive_;  //=true if TrackingParticles are mapped
       bool                           fillTracking_;    //=treu if detailed sim hit info is filled
-      std::string                    genEdmName_;      //edm name of generated particles
-      std::string                    simEdmName_;      //edm name of simulated particles
-      std::string                    trackingEdmName_; //edm name of simulated TrackingParticles
+      edm::EDGetTokenT<edm::HepMCProduct> hepMCProdToken_; //edm name of generated particles
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //edm name of generated particles
+      edm::EDGetTokenT<std::vector<int> > genBarcodesToken_; //edm name of generated particles
+      edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+      edm::EDGetTokenT<std::vector<SimVertex> > simVerticesToken_;
+      edm::EDGetTokenT<TrackingParticleCollection> trackingEdmToken_; //edm name of simulated TrackingParticles
       std::string                    genMapName_;      //name of exp map wrt generated particles
       std::string                    simMapName_;      //name of exp map wrt simulated particles
       std::string                    trackingMapName_; //name of exp map wrt TrackingParticles

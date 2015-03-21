@@ -14,19 +14,21 @@
 #include "MitAna/DataTree/interface/GenMetFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
 namespace mithep 
 {
   class FillerGenMet : public BaseFiller
   {  
     public:
-      FillerGenMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerGenMet(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerGenMet();
 
       void                  BookDataBlock(TreeWriter &tws);
       void 	            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string           edmName_;    //edm name of met collection
+      edm::EDGetTokenT<reco::GenMETCollection> edmToken_;    //edm name of met collection
       std::string           mitName_;    //mit name of met collection
       mithep::GenMetArr    *genMets_;    //array of Mets
   };

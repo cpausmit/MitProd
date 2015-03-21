@@ -14,21 +14,43 @@
 #include "MitAna/DataTree/interface/ElectronFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace mithep
 {
   class FillerElectrons : public BaseFiller
   {
     public:
-      FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerElectrons();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e,
                                                    const edm::EventSetup &es);
     private:
-      std::string                    edmName_;                   //edm name of electrons collection
-      std::string                    expectedHitsName_;          //edm name of corrected expected hits valuemap
+      edm::EDGetTokenT<reco::GsfElectronCollection> edmToken_;                   //edm name of electrons collection
+      edm::EDGetTokenT<reco::VertexCollection> pvEdmToken_;                 //name of primary vertex collection
+      edm::EDGetTokenT<reco::VertexCollection> pvBSEdmToken_;               //name of bs-constrained pv collection
+      edm::EDGetTokenT<edm::ValueMap<float> > eIDCutBasedTightToken_;      //name of tight cut eID algo
+      edm::EDGetTokenT<edm::ValueMap<float> > eIDCutBasedLooseToken_;      //name of loose cut eID algo
+      edm::EDGetTokenT<edm::ValueMap<float> > eIDLikelihoodToken_;         //name of likelihood cut eID algo
+      edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
+      edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
+      edm::EDGetTokenT<mitedm::DecayPartCol> conversionsToken_;
+      edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
+      edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;     //It is very likely unnecessary to prepare three
+      edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
+      edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
+
       std::string                    mitName_;                   //mit name of Electrons collection
       std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
       std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
@@ -38,11 +60,6 @@ namespace mithep
       std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
       std::string                    pfClusterMapName_;          //name of imp. map wrt pflow clus
       std::string                    electronMapName_;           //name of exported electron map
-      std::string                    eIDCutBasedTightName_;      //name of tight cut eID algo
-      std::string                    eIDCutBasedLooseName_;      //name of loose cut eID algo
-      std::string                    eIDLikelihoodName_;         //name of likelihood cut eID algo
-      std::string                    pvEdmName_;                 //name of primary vertex collection
-      std::string                    pvBSEdmName_;               //name of bs-constrained pv collection
       bool                           recomputeConversionInfo_;   //recompute conversion info
       bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
       mithep::ElectronMap           *electronMap_;               //exported electron map

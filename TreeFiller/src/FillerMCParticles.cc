@@ -4,16 +4,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -26,17 +21,19 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, const char *name, bool active) : 
+FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg, name, active),
   genActive_(Conf().getUntrackedParameter<bool>("genActive",true)),
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
   trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
   fillTracking_(Conf().getUntrackedParameter<bool>("fillTracking",false)),
-  genEdmName_(Conf().getUntrackedParameter<string>("genEdmName","genParticles")),
-  simEdmName_(Conf().getUntrackedParameter<string>("simEdmName","g4SimHits")),
-  trackingEdmName_(Conf().getUntrackedParameter<string>("trackingEdmName",
-                                                        "mergedtruth:MergedTrackTruth")),
+  hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, "genEdmName","genParticles")),
+  genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, "genEdmName","genParticles")),
+  genBarcodesToken_(GetToken<std::vector<int> >(collector, "genEdmName","genParticles")),
+  simTracksToken_(GetToken<edm::SimTrackContainer>(collector, "simEdmName","g4SimHits")),
+  simVerticesToken_(GetToken<std::vector<SimVertex> >(collector, "simEdmName","g4SimHits")),
+  trackingEdmToken_(GetToken<TrackingParticleCollection>(collector, "trackingEdmName", "mergedtruth:MergedTrackTruth")),
   genMapName_(Conf().getUntrackedParameter<string>("genMapName","GenMap")),
   simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
@@ -116,7 +113,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
   
   if (genActive_ && !useAodGen_) {
     Handle<edm::HepMCProduct> hHepMCProduct;
-    GetProduct(genEdmName_, hHepMCProduct, event);  
+    GetProduct(hepMCProdToken_, hHepMCProduct, event);  
   
     const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
 
@@ -142,13 +139,13 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     aodGenMap_->Reset();
   
     Handle<reco::GenParticleCollection> hGenPProduct;
-    GetProduct(genEdmName_, hGenPProduct, event);  
+    GetProduct(genParticlesToken_, hGenPProduct, event);  
     
     // element by element aligned collection of hepmc barcodes associated to
     // the genparticles
     Handle<std::vector<int> > genBarcodes;
     if (simActive_)
-      GetProduct(genEdmName_, genBarcodes, event);  
+      GetProduct(genBarcodesToken_, genBarcodes, event);  
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
   
@@ -178,7 +175,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     simMap_->Reset();
 
     Handle<edm::SimTrackContainer> hSimTrackProduct;
-    GetProduct(simEdmName_, hSimTrackProduct, event);
+    GetProduct(simTracksToken_, hSimTrackProduct, event);
 
     const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
 
@@ -216,7 +213,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     trackingMap_->Reset();
   
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
-    GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
+    GetProduct(trackingEdmToken_, hTrackingParticleProduct, event);
     
     const TrackingParticleCollection &trackingParticles = *(hTrackingParticleProduct.product());
     
@@ -312,7 +309,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   if (genActive_ && !useAodGen_) {
   
     Handle<edm::HepMCProduct> hHepMCProduct;
-    GetProduct(genEdmName_, hHepMCProduct, event);
+    GetProduct(hepMCProdToken_, hHepMCProduct, event);
     
     const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
   
@@ -354,7 +351,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   if (genActive_ && useAodGen_) {
   
     Handle<reco::GenParticleCollection> hGenPProduct;
-    GetProduct(genEdmName_, hGenPProduct, event);  
+    GetProduct(genParticlesToken_, hGenPProduct, event);  
   
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
     // loop over all genparticles and copy their information
@@ -384,12 +381,12 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
   // loop over SimTracks and resolve links
   if (simActive_) {
     Handle<edm::SimTrackContainer> hSimTrackProduct;
-    GetProduct(simEdmName_, hSimTrackProduct, event);
+    GetProduct(simTracksToken_, hSimTrackProduct, event);
 
     const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
    
     Handle<std::vector<SimVertex> > hSimVertexProduct;
-    GetProduct(simEdmName_, hSimVertexProduct, event);
+    GetProduct(simVerticesToken_, hSimVertexProduct, event);
 
     const edm::SimVertexContainer simVertexes = *(hSimVertexProduct.product());
 
@@ -419,7 +416,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
 
   if (verbose_>1 && trackingActive_) {
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
-    GetProduct(trackingEdmName_, hTrackingParticleProduct, event);
+    GetProduct(trackingEdmToken_, hTrackingParticleProduct, event);
     
     const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
    

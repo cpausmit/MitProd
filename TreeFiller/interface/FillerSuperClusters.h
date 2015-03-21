@@ -17,6 +17,8 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class CaloGeometry;
 class CaloSubdetectorTopology;
@@ -27,7 +29,7 @@ namespace mithep
   class FillerSuperClusters : public BaseFiller
   {  
     public:
-      FillerSuperClusters(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerSuperClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerSuperClusters();
 
       void                             BookDataBlock(TreeWriter &tws);
@@ -48,7 +50,11 @@ namespace mithep
 							    const EcalRecHitCollection* eeRecHitCol); 
 
     private:
-      std::string                      edmName_;               //edm name of collection
+      edm::EDGetTokenT<reco::SuperClusterCollection> edmToken_;               //edm name of collection
+      edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;         //name of calotower collection
+      edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;         //name of EB rechit collection
+      edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;         //name of EE rechit collection
+      edm::EDGetTokenT<EcalRecHitCollection> esRecHitsToken_;         //name of ES rechit collection
       std::string                      mitName_;               //mit name of collection
       std::string                      basicClusterMapName_;   //name of imp. map wrt basic clus
       std::string                      psClusterMapName_;      //name of imp. map wrt ps clus
@@ -57,7 +63,6 @@ namespace mithep
       std::string                      caloTowerDetIdMapName_; //name of imp. map wrt caloTowerDetId
       std::string                      superClusterMapName_;   //name of exported map
       std::string                      superClusterIdMapName_; //name of exported id map
-      std::string                      caloTowerName_;         //name of calotower collection
       const mithep::BasicClusterMap   *basicClusterMap_;       //map wrt basic clusters
       const mithep::PsClusterMap      *psClusterMap_;          //map wrt preshower clusters
       const mithep::PsClusterMap      *psXClusterMap_;         //map wrt preshower x clusters

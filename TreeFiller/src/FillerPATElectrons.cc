@@ -11,11 +11,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/Common/interface/View.h"
 #include "MitAna/DataTree/interface/ElectronCol.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -27,9 +25,10 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg, 
+                                       edm::ConsumesCollector& collector,
                                        const char *name, bool active) :
   BaseFiller(cfg,"PATElectrons",active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Electrons")),
+  edmToken_(GetToken<edm::View<pat::Electron> >(collector, "edmName","selectedLayer1Electrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
   trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
@@ -77,7 +76,7 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
   electrons_->Delete();
   
   edm::Handle<edm::View<pat::Electron> > electronHandle;
-  event.getByLabel(edm::InputTag(edmName_),electronHandle);
+  GetProduct(edmToken_, electronHandle, event);
 
   edm::View<pat::Electron> electrons = *electronHandle;
 

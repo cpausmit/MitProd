@@ -4,22 +4,32 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EmbedWeightCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, const char *name, bool active) : 
+FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_       (Conf().getUntrackedParameter<string>("edmName"       ,"generator_weight")),
-  edmSpinnerName_(Conf().getUntrackedParameter<string>("edmSpinnerName","TauSpinnerRec")),
-  edmMuEffName_  (Conf().getUntrackedParameter<string>("edmMuEffName"  ,"ZmumuEvtSelEffCorrWeightProducer")),
-  edmMuRadName_  (Conf().getUntrackedParameter<string>("edmMuRadName"  ,"muonRadiationCorrWeightProducer")),
-  edmKineReweightGenName_ (Conf().getUntrackedParameter<string>("edmKineReweightGenName"  ,"embeddingKineReweightGENembedding")),
-  edmKineReweightRecName_ (Conf().getUntrackedParameter<string>("edmKineReweightRecName"  ,"embeddingKineReweightRECembedding")),
-
+  genWeightToken_(GetToken<double>(collector, "genWeightName", "generator_weight:weight:EmbeddedRECO")),
+  genInfoToken_(GetToken<GenFilterInfo>(collector, "genInfoName", "generator_weight:minVisPtFilter:EmbeddedRECO", true)),
+  spinnerWeightToken_(GetToken<double>(collector, "spinnerWeightName", "TauSpinnerRec:TauSpinnerWT:EmbeddedSPIN")),
+  spinnerWeightFlipToken_(GetToken<double>(collector, "spinnerWeightFlipName", "TauSpinnerRec:TauSpinnerWTFlip:EmbeddedSPIN")),
+  spinnerWeightMinusToken_(GetToken<double>(collector, "spinnerWeightMinusName", "TauSpinnerRec:TauSpinnerWThplus:EmbeddedSPIN")),
+  spinnerWeightPlusToken_(GetToken<double>(collector, "spinnerWeightPlusName", "TauSpinnerRec:TauSpinnerWThminus:EmbeddedSPIN")),
+  muEffWeightToken_(GetToken<double>(collector, "muEffWeightName", "ZmumuEvtSelEffCorrWeightProducer:weight:EmbeddedRECO")),
+  muEffWeightUpToken_(GetToken<double>(collector, "muEffWeightUpName", "ZmumuEvtSelEffCorrWeightProducer:weightUp:EmbeddedRECO")),
+  muEffWeightDownToken_(GetToken<double>(collector, "muEffWeightDownName", "ZmumuEvtSelEffCorrWeightProducer:weightDown:EmbeddedRECO")),
+  muRadWeightToken_(GetToken<double>(collector, "muRadWeightName", "muonRadiationCorrWeightProducer:weight:EmbeddedRECO")),
+  muRadWeightUpToken_(GetToken<double>(collector, "muRadWeightUpName", "muonRadiationCorrWeightProducer:weightUp:EmbeddedRECO")),
+  muRadWeightDownToken_(GetToken<double>(collector, "muRadWeightDownName", "muonRadiationCorrWeightProducer:weightDown:EmbeddedRECO")),
+  genTau2PtVsGenTau1PtGenToken_(GetToken<double>(collector, "genTau2PtVsGenTau1PtGenName", "embeddingKineReweightGENembedding:genTau2PtVsGenTau1Pt")),
+  genTau2EtaVsGenTau1EtaGenToken_(GetToken<double>(collector, "genTau2EtaVsGenTau1EtaGenName", "embeddingKineReweightGENembedding:genTau2EtaVsGenTau1Eta")),
+  diTauMassVsGenDiTauPtGenToken_(GetToken<double>(collector, "diTauMassVsGenDiTauPtGenName", "embeddingKineReweightGENembedding:genDiTauMassVsGenDiTauPt")),
+  genTau2PtVsGenTau1PtRecToken_(GetToken<double>(collector, "genTau2PtVsGenTau1PtRecName", "embeddingKineReweightRECembedding:genTau2PtVsGenTau1Pt")),
+  genTau2EtaVsGenTau1EtaRecToken_(GetToken<double>(collector, "genTau2EtaVsGenTau1EtaRecName", "embeddingKineReweightRECembedding:genTau2EtaVsGenTau1Eta")),
+  diTauMassVsGenDiTauPtRecToken_(GetToken<double>(collector, "diTauMassVsGenDiTauPtRecName", "embeddingKineReweightRECembedding:genDiTauMassVsGenDiTauPt")),
   genInfo_(Conf().getUntrackedParameter<bool>  ("useGenInfo","True")),
   recHit_ (Conf().getUntrackedParameter<bool>  ("useRecHit","True")),
   useMuRad_ (Conf().getUntrackedParameter<bool>  ("useMuonRad","True")),
@@ -71,79 +81,79 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
   double inGenTau2EtaVsGenTau1EtaRecValue= 1;
   double inDiTauMassVsGenDiTauPtRecValue = 1;
 
-  if(!genInfo_) { 
-    Handle<double> hEmbedWeight;
-    event.getByLabel(edm::InputTag(edmName_,"weight","EmbeddedRECO"),hEmbedWeight);
-    inEmbedWeightValue = *(hEmbedWeight.product());  
-  } else { 
-    edm::Handle<GenFilterInfo> hGenFilterInfo;
-    event.getByLabel(edm::InputTag(edmName_, "minVisPtFilter", "EmbeddedRECO"), hGenFilterInfo);
+  if(genInfo_) { 
+    Handle<GenFilterInfo> hGenFilterInfo;
+    GetProduct(genInfoToken_, hGenFilterInfo, event);
     inEmbedWeightValue = hGenFilterInfo->filterEfficiency();
+  } else { 
+    Handle<double> hEmbedWeight;
+    GetProduct(genWeightToken_, hEmbedWeight, event);
+    inEmbedWeightValue = *(hEmbedWeight.product());  
   }    
   if(recHit_) { 
     Handle<double> hSpinnerWeight;
-    event.getByLabel(edm::InputTag(edmSpinnerName_,"TauSpinnerWT","EmbeddedSPIN"),hSpinnerWeight);
+    GetProduct(spinnerWeightToken_, hSpinnerWeight, event);
     inSpinnerWeightValue = *(hSpinnerWeight.product());  
 
     Handle<double> hSpinnerWeightFlip;
-    event.getByLabel(edm::InputTag(edmSpinnerName_,"TauSpinnerWTFlip","EmbeddedSPIN"),hSpinnerWeightFlip);
+    GetProduct(spinnerWeightFlipToken_, hSpinnerWeightFlip, event);
     inSpinnerFlipWeightValue = *(hSpinnerWeightFlip.product());  
 
     Handle<double> hSpinnerWeightMinus;
-    event.getByLabel(edm::InputTag(edmSpinnerName_,"TauSpinnerWThplus","EmbeddedSPIN"),hSpinnerWeightMinus);
+    GetProduct(spinnerWeightMinusToken_, hSpinnerWeightMinus, event);
     inSpinnerMinusWeightValue = *(hSpinnerWeightMinus.product());  
 
     Handle<double> hSpinnerWeightPlus;
-    event.getByLabel(edm::InputTag(edmSpinnerName_,"TauSpinnerWThminus","EmbeddedSPIN"),hSpinnerWeightPlus);
+    GetProduct(spinnerWeightPlusToken_, hSpinnerWeightPlus, event);
     inSpinnerPlusWeightValue = *(hSpinnerWeightPlus.product());  
 
     Handle<double> hMuEffWeight;
-    event.getByLabel(edm::InputTag(edmMuEffName_,"weight","EmbeddedRECO"),hMuEffWeight);
+    GetProduct(muEffWeightToken_, hMuEffWeight, event);
     inMuEffWeightValue = *(hMuEffWeight.product());  
 
     Handle<double> hMuEffWeightUp;
-    event.getByLabel(edm::InputTag(edmMuEffName_,"weightUp","EmbeddedRECO"),hMuEffWeightUp);
+    GetProduct(muEffWeightUpToken_, hMuEffWeightUp, event);
     inMuEffWeightUpValue = *(hMuEffWeightUp.product());  
 
     Handle<double> hMuEffWeightDown;
-    event.getByLabel(edm::InputTag(edmMuEffName_,"weightDown","EmbeddedRECO"),hMuEffWeightDown);
+    GetProduct(muEffWeightDownToken_, hMuEffWeightDown, event);
     inMuEffWeightDownValue = *(hMuEffWeightDown.product());  
     
     if(useMuRad_) { 
       Handle<double> hMuRadWeight;
-      event.getByLabel(edm::InputTag(edmMuRadName_,"weight","EmbeddedRECO"),hMuRadWeight);
+      GetProduct(muRadWeightToken_, hMuRadWeight, event);
       inMuRadWeightValue = *(hMuRadWeight.product());  
       
       Handle<double> hMuRadWeightUp;
-      event.getByLabel(edm::InputTag(edmMuRadName_,"weightUp","EmbeddedRECO"),hMuRadWeightUp);
+      GetProduct(muRadWeightUpToken_, hMuRadWeightUp, event);
       inMuRadWeightUpValue = *(hMuRadWeightUp.product());  
       
       Handle<double> hMuRadWeightDown;
-      event.getByLabel(edm::InputTag(edmMuRadName_,"weightDown","EmbeddedRECO"),hMuRadWeightDown);
+      GetProduct(muRadWeightDownToken_, hMuRadWeightDown, event);
       inMuRadWeightDownValue = *(hMuRadWeightDown.product());  
     }
     Handle<double> hGenTau2PtVsGenTau1PtGen;
-    event.getByLabel(edm::InputTag(edmKineReweightGenName_,"genTau2PtVsGenTau1Pt"),hGenTau2PtVsGenTau1PtGen);
+    GetProduct(genTau2PtVsGenTau1PtGenToken_, hGenTau2PtVsGenTau1PtGen, event);
     inGenTau2PtVsGenTau1PtGenValue = *(hGenTau2PtVsGenTau1PtGen.product());  
 
     Handle<double> hGenTau2EtaVsGenTau1EtaGen;
-    event.getByLabel(edm::InputTag(edmKineReweightGenName_,"genTau2EtaVsGenTau1Eta"),hGenTau2EtaVsGenTau1EtaGen);
+    GetProduct(genTau2EtaVsGenTau1EtaGenToken_, hGenTau2EtaVsGenTau1EtaGen, event);
     inGenTau2EtaVsGenTau1EtaGenValue = *(hGenTau2EtaVsGenTau1EtaGen.product());  
 
     Handle<double> hDiTauMassVsGenDiTauPtGen;
-    event.getByLabel(edm::InputTag(edmKineReweightGenName_,"genDiTauMassVsGenDiTauPt"),hDiTauMassVsGenDiTauPtGen);
+    GetProduct(diTauMassVsGenDiTauPtGenToken_, hDiTauMassVsGenDiTauPtGen, event);
     inDiTauMassVsGenDiTauPtGenValue = *(hDiTauMassVsGenDiTauPtGen.product());  
 
     Handle<double> hGenTau2PtVsGenTau1PtRec;
-    event.getByLabel(edm::InputTag(edmKineReweightRecName_,"genTau2PtVsGenTau1Pt"),hGenTau2PtVsGenTau1PtRec);
+    GetProduct(genTau2PtVsGenTau1PtRecToken_, hGenTau2PtVsGenTau1PtRec, event);
     inGenTau2PtVsGenTau1PtRecValue = *(hGenTau2PtVsGenTau1PtRec.product());  
 
     Handle<double> hGenTau2EtaVsGenTau1EtaRec;
-    event.getByLabel(edm::InputTag(edmKineReweightRecName_,"genTau2EtaVsGenTau1Eta"),hGenTau2EtaVsGenTau1EtaRec);
+    GetProduct(genTau2EtaVsGenTau1EtaRecToken_, hGenTau2EtaVsGenTau1EtaRec, event);
     inGenTau2EtaVsGenTau1EtaRecValue = *(hGenTau2EtaVsGenTau1EtaRec.product());  
 
     Handle<double> hDiTauMassVsGenDiTauPtRec;
-    event.getByLabel(edm::InputTag(edmKineReweightRecName_,"genDiTauMassVsGenDiTauPt"),hDiTauMassVsGenDiTauPtRec);
+    GetProduct(diTauMassVsGenDiTauPtRecToken_, hDiTauMassVsGenDiTauPtRec, event);
     inDiTauMassVsGenDiTauPtRecValue = *(hDiTauMassVsGenDiTauPtRec.product());  
   }
   const double inEmbedWeight        = inEmbedWeightValue;

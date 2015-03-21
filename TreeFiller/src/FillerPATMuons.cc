@@ -6,13 +6,11 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/Common/interface/View.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -23,9 +21,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
+FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller(cfg,"PATMuons",active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","selectedLayer1Muons")),
+  edmToken_(GetToken<edm::View<pat::Muon> >(collector, "edmName","selectedLayer1Muons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),
   staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
@@ -87,7 +85,7 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
   muons_->Delete();
   
   edm::Handle<edm::View<pat::Muon> > muonHandle;
-  event.getByLabel(edm::InputTag(edmName_),muonHandle);
+  GetProduct(edmToken_, muonHandle, event);
   edm::View<pat::Muon> muons = *muonHandle;
 
   for(edm::View<pat::Muon>::const_iterator iM = muons.begin(); iM!=muons.end(); ++iM){
@@ -105,7 +103,7 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
         else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
           outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
         else throw edm::Exception(edm::errors::Configuration, "FillerPATMuons:FillDataBlock()\n")
-          << "Error! Track reference in unmapped collection " << edmName_ << endl;
+               << "Error! Track reference in unmapped collection";
       }
 
       if (trackerTrackMap_ && iM->track().isNonnull()) 

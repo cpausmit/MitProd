@@ -19,15 +19,15 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "MagneticField/UniformEngine/src/UniformMagneticField.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerConversionsDecay::FillerConversionsDecay(const ParameterSet &cfg, const char *name, bool active) :
+FillerConversionsDecay::FillerConversionsDecay(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","conversions")),
+  edmToken_(GetToken<reco::ConversionCollection>(collector, "edmName","conversions")),
+  beamspotToken_(GetToken<reco::BeamSpot>(collector, "beamspotName", "offlineBeamSpot")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
   checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
   stableDataName_(mitName_ + "_StableDatas"),  
@@ -92,7 +92,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
 
   //get beamspot
   edm::Handle<reco::BeamSpot> bsHandle;
-  event.getByLabel("offlineBeamSpot", bsHandle);
+  GetProduct(beamspotToken_, bsHandle, event);
   const reco::BeamSpot &thebs = *bsHandle.product();
 
   //transient track producer
@@ -101,7 +101,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
 
   Handle<reco::ConversionCollection> hConversionProduct;
-  GetProduct(edmName_, hConversionProduct, event);
+  GetProduct(edmToken_, hConversionProduct, event);
 
   conversionMap_->SetEdmProductId(hConversionProduct.id().id());
         

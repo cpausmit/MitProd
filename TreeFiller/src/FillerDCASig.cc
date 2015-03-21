@@ -20,11 +20,11 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDCASig::FillerDCASig(const ParameterSet &cfg, const char *name, bool active) :
+FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller            (cfg,name,active),
-  edmElectronName_      (Conf().getUntrackedParameter<string>("edmElectronName","gsfElectrons")),
-  edmMuonName_          (Conf().getUntrackedParameter<string>("edmMuonName",    "muons")),
-  edmTauName_           (Conf().getUntrackedParameter<string>("edmTauName",     "hpsPFTauProducer")),
+  edmElectronToken_      (GetToken<reco::GsfElectronCollection>(collector, "edmElectronName","gsfElectrons")),
+  edmMuonToken_          (GetToken<reco::MuonCollection>(collector, "edmMuonName",    "muons")),
+  edmTauToken_           (GetToken<reco::PFTauCollection>(collector, "edmTauName",     "hpsPFTauProducer")),
   mitName_              (Conf().getUntrackedParameter<string>("mitName",        "DCASig")),
   electronMapName_      (Conf().getUntrackedParameter<string>("electronMapName","")),
   muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName",    "")),
@@ -90,17 +90,17 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
 
   //handle for the electron collection
   Handle<reco::GsfElectronCollection> hElectronProduct;
-  GetProduct(edmElectronName_, hElectronProduct, event);
+  GetProduct(edmElectronToken_, hElectronProduct, event);
   const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
 
   //handle for the muon collection
   Handle<reco::MuonCollection> hMuonProduct;
-  GetProduct(edmMuonName_, hMuonProduct, event);
+  GetProduct(edmMuonToken_, hMuonProduct, event);
   const reco::MuonCollection inMuons            = *(hMuonProduct.product());
 
   // handle for the tau collection
   Handle<reco::PFTauCollection> hTauProduct;
-  GetProduct(edmTauName_, hTauProduct, event);
+  GetProduct(edmTauToken_, hTauProduct, event);
   const reco::PFTauCollection inTaus             = *(hTauProduct.product());
 
   //Declare some variables
@@ -146,7 +146,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-          << "Error! Electron unmapped collection " << edmElectronName_ << endl;
+                             << "Error! Electron unmapped collection";
       }
       edm::Ptr<reco::Muon>        pMuonPtr(hMuonProduct, iMuon - inMuons.begin());
       try {
@@ -154,7 +154,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-          << "Error! Muon unmapped collection " << edmMuonName_ << endl;
+                             << "Error! Muon unmapped collection";
       }
     }
 
@@ -190,7 +190,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-          << "Error! Electron unmapped collection " << edmElectronName_ << endl;
+                             << "Error! Electron unmapped collection";
       }
       edm::Ptr<reco::PFTau> pTauPtr(hTauProduct,iTau - inTaus.begin());
       try {
@@ -199,7 +199,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Tau unmapped collection " << edmTauName_ << endl;
+            << "Error! Tau unmapped collection";
       }
       //std::cout << " ===> Tau Ref : " << &pTauPtr << " -- " << ((tauMap_->GetMit(pTauPtr))) << endl;
     }
@@ -236,7 +236,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Electron unmapped collection " << edmElectronName_ << endl;
+            << "Error! Electron unmapped collection";
       }
       edm::Ptr<reco::GsfElectron> pElectron1Ptr(hElectronProduct, iElectron1 - inElectrons.begin());
       try {
@@ -245,7 +245,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Electron unmapped collection " << edmElectronName_ << endl;
+            << "Error! Electron unmapped collection";
       }
     }
   }
@@ -288,7 +288,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Muon unmapped collection " << edmMuonName_ << endl;
+            << "Error! Muon unmapped collection";
       }
       edm::Ptr<reco::PFTau> pTauPtr(hTauProduct, iTau - inTaus.begin());
       try {
@@ -297,7 +297,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Tau unmapped collection " << edmTauName_ << endl;
+            << "Error! Tau unmapped collection";
       }
     }
 
@@ -332,7 +332,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Muon unmapped collection " << edmMuonName_ << endl;
+            << "Error! Muon unmapped collection";
       }
       edm::Ptr<reco::Muon> pMuon1Ptr(hMuonProduct, iMuon1 - inMuons.begin());
       try {
@@ -341,7 +341,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-            << "Error! Muon unmapped collection " << edmMuonName_ << endl;
+            << "Error! Muon unmapped collection";
       }
     }
   }
@@ -387,7 +387,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
 	  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-	    << "Error! Tau unmapped collection " << edmTauName_ << endl;
+	    << "Error! Tau unmapped collection";
       }
       edm::Ptr<reco::PFTau> pTau1Ptr(hTauProduct, iTau1 - inTaus.begin());
       try {
@@ -396,7 +396,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       catch(...) {
         if (checkDCARef_)
 	  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-	    << "Error! Tau unmapped collection " << edmTauName_ << endl;
+	    << "Error! Tau unmapped collection";
       }
     }
   }

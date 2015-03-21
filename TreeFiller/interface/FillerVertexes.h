@@ -15,19 +15,21 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 namespace mithep 
 {
   class FillerVertexes : public BaseFiller
   {  
     public:
-      FillerVertexes(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerVertexes();
 
       void                     BookDataBlock(TreeWriter &tws);
       void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string              edmName_;        //edm name of Vertex collection
+      edm::EDGetTokenT<reco::VertexCollection> edmToken_;        //edm name of Vertex collection
       std::string              mitName_;        //mit name of Vertices
       std::string              trackMapName_;   //name of imported map wrt trk trks
       std::string              vertexMapName_;  //name of exported map

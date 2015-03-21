@@ -197,6 +197,8 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
   else
     cfg.getParameterSetNames(pars, false);
 
+  edm::ConsumesCollector collector(consumesCollector());
+
   // loop over psets
   for (unsigned int i = 0; i<pars.size(); ++i) {
 
@@ -219,194 +221,194 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
                                 << "' for '" << name << "'" << std::endl;
 
     if (ftype.compare("FillerMetaInfos")==0) {
-      FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg, name.c_str(), defactive_);
+      FillerMetaInfos *fillerMetaInfos = new FillerMetaInfos(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMetaInfos);
       continue;
     }
     if (ftype.compare("FillerMCParticles")==0) {
-      FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg, name.c_str(), defactive_);
+      FillerMCParticles *fillerMCParticles = new FillerMCParticles(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMCParticles);
       continue;
     }
     if (ftype.compare("FillerMCEventInfo")==0) {
-      FillerMCEventInfo *fillerMCEventInfo = new FillerMCEventInfo(cfg, name.c_str(), defactive_);
+      FillerMCEventInfo *fillerMCEventInfo = new FillerMCEventInfo(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMCEventInfo);
       continue;
     }
     if (ftype.compare("FillerMCVertexes")==0) {
-      FillerMCVertexes *fillerMCVertexes = new FillerMCVertexes(cfg, name.c_str(), defactive_);
+      FillerMCVertexes *fillerMCVertexes = new FillerMCVertexes(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMCVertexes);
       continue;
     }  
     if (ftype.compare("FillerEvtSelData")==0) {
-      FillerEvtSelData *fillerEvtSelData = new FillerEvtSelData(cfg, name.c_str(), defactive_);
+      FillerEvtSelData *fillerEvtSelData = new FillerEvtSelData(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerEvtSelData);
       continue;
     }
     if (ftype.compare("FillerBeamSpot")==0) {
-      FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, name.c_str(), defactive_);
+      FillerBeamSpot *fillerBeamSpot = new FillerBeamSpot(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerBeamSpot);
       continue;
     }
     if (ftype.compare("FillerVertexes")==0) {
-      FillerVertexes *fillerVertexes = new FillerVertexes(cfg, name.c_str(), defactive_);
+      FillerVertexes *fillerVertexes = new FillerVertexes(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerVertexes);
       continue;
     }  
     if (ftype.compare("FillerCaloTowers")==0) {
-      FillerCaloTowers *fillerCaloTowers = new FillerCaloTowers(cfg, name.c_str(), defactive_);
+      FillerCaloTowers *fillerCaloTowers = new FillerCaloTowers(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerCaloTowers);
       continue;
     }  
     if (ftype.compare("FillerGenJets")==0) {
-      FillerGenJets *fillerGenJets = new FillerGenJets(cfg, name.c_str(), defactive_);
+      FillerGenJets *fillerGenJets = new FillerGenJets(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerGenJets);
       continue;
     }  
     if (ftype.compare("FillerCaloJets")==0) {
-      FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg, name.c_str(), defactive_);
+      FillerCaloJets *fillerCaloJets = new FillerCaloJets(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerCaloJets);
       continue;
     }  
     if (ftype.compare("FillerMet")==0) {
-      FillerMet *fillerMet = new FillerMet(cfg, name.c_str(), defactive_);
+      FillerMet *fillerMet = new FillerMet(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMet);
       continue;
     }  
     if (ftype.compare("FillerGenMet")==0) {
-      FillerGenMet *fillerGenMet = new FillerGenMet(cfg, name.c_str(), defactive_);
+      FillerGenMet *fillerGenMet = new FillerGenMet(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerGenMet);
       continue;
     }  
     if (ftype.compare("FillerCaloMet")==0) {
-      FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg, name.c_str(), defactive_);
+      FillerCaloMet *fillerCaloMet = new FillerCaloMet(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerCaloMet);
       continue;
     }
     if (ftype.compare("FillerPFMet")==0) {
-      FillerPFMet *fillerPFMet = new FillerPFMet(cfg, name.c_str(), defactive_);
+      FillerPFMet *fillerPFMet = new FillerPFMet(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPFMet);
       continue;
     }  
     if (ftype.compare("FillerBasicClusters")==0) {
       FillerBasicClusters *fillerBasicClusters = 
-        new FillerBasicClusters(cfg, name.c_str(), defactive_);
+        new FillerBasicClusters(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerBasicClusters);
       continue;
     }  
     if (ftype.compare("FillerPsClusters")==0) {
       FillerPsClusters *fillerPsClusters = 
-        new FillerPsClusters(cfg, name.c_str(), defactive_);
+        new FillerPsClusters(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPsClusters);
       continue;
     }  
     if (ftype.compare("FillerSuperClusters")==0) {
       FillerSuperClusters *fillerSuperClusters =  
-        new FillerSuperClusters(cfg, name.c_str(), defactive_);
+        new FillerSuperClusters(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerSuperClusters);
       continue;
     }  
     if (ftype.compare("FillerPixelHits")==0) {
       FillerPixelHits *fillerPixelHits =  
-        new FillerPixelHits(cfg, name.c_str(), defactive_);
+        new FillerPixelHits(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPixelHits);
       continue;
     }  
     if (ftype.compare("FillerPileupInfo")==0) {
       FillerPileupInfo *fillerPileupInfo =  
-        new FillerPileupInfo(cfg, name.c_str(), defactive_);
+        new FillerPileupInfo(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPileupInfo);
       continue;
     }  
     if (ftype.compare("FillerPileupEnergyDensity")==0) {
       FillerPileupEnergyDensity *fillerPileupEnergyDensity =  
-        new FillerPileupEnergyDensity(cfg, name.c_str(), defactive_);
+        new FillerPileupEnergyDensity(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPileupEnergyDensity);
       continue;
     }  
     if (ftype.compare("FillerStripHits")==0) {
       FillerStripHits *fillerStripHits =  
-        new FillerStripHits(cfg, name.c_str(), defactive_);
+        new FillerStripHits(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerStripHits);
       continue;
     }  
     if (ftype.compare("FillerTracks")==0) {
-      FillerTracks *fillerTracks = new FillerTracks(cfg, name.c_str(), defactive_);
+      FillerTracks *fillerTracks = new FillerTracks(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerTracks);
       continue;
     }  
     if (ftype.compare("FillerMuons")==0) {
-      FillerMuons *fillerMuons = new FillerMuons(cfg, name.c_str(), defactive_);
+      FillerMuons *fillerMuons = new FillerMuons(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerMuons);
       continue;
     }  
     if (ftype.compare("FillerElectrons")==0) {
-      FillerElectrons *fillerElectrons = new FillerElectrons(cfg, name.c_str(), defactive_);
+      FillerElectrons *fillerElectrons = new FillerElectrons(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerElectrons);
       continue;
     }  
     if (ftype.compare("FillerConversions")==0) {
-      FillerConversions *fillerConversions = new FillerConversions(cfg, name.c_str(), defactive_);
+      FillerConversions *fillerConversions = new FillerConversions(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerConversions);
       continue;
     } 
     if (ftype.compare("FillerConversionsDecay")==0) {
-      FillerConversionsDecay *fillerConversionsDecay = new FillerConversionsDecay(cfg, name.c_str(), defactive_);
+      FillerConversionsDecay *fillerConversionsDecay = new FillerConversionsDecay(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerConversionsDecay);
       continue;
     }    
     if (ftype.compare("FillerPhotons")==0) { 
-      FillerPhotons *fillerPhotons = new FillerPhotons(cfg, name.c_str(), defactive_);
+      FillerPhotons *fillerPhotons = new FillerPhotons(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPhotons);
       continue;
     }  
     if (ftype.compare("FillerStableParts")==0) {
-      FillerStableParts *fillerStableParts = new FillerStableParts(cfg, name.c_str(), defactive_);
+      FillerStableParts *fillerStableParts = new FillerStableParts(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerStableParts);
       continue;
     }  
     if (ftype.compare("FillerDecayParts")==0) {
-      FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg, name.c_str(), defactive_);
+      FillerDecayParts *fillerDecayParts = new FillerDecayParts(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerDecayParts);
       continue;
     }  
     if (ftype.compare("FillerPFCandidates")==0) {
-      FillerPFCandidates *fillerPFCands = new FillerPFCandidates(cfg, name.c_str(), defactive_);
+      FillerPFCandidates *fillerPFCands = new FillerPFCandidates(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPFCands);
       continue;
     }  
     if (ftype.compare("FillerPFJets")==0) {
-      FillerPFJets *fillerPFJets = new FillerPFJets(cfg, name.c_str(), defactive_);
+      FillerPFJets *fillerPFJets = new FillerPFJets(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
       continue;
     }  
     if (ftype.compare("FillerJPTJets")==0) {
-      FillerJPTJets *fillerJPTJets = new FillerJPTJets(cfg, name.c_str(), defactive_);
+      FillerJPTJets *fillerJPTJets = new FillerJPTJets(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerJPTJets);
       continue;
     }  
     if (ftype.compare("FillerCaloTaus")==0) {
-      FillerCaloTaus *fillerCaloTaus = new FillerCaloTaus(cfg, name.c_str(), defactive_);
+      FillerCaloTaus *fillerCaloTaus = new FillerCaloTaus(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerCaloTaus);
       continue;
     }
     if (ftype.compare("FillerPFTaus")==0) {
-      FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, name.c_str(), defactive_);
+      FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerPFTaus);
       continue;
     }  
     if (ftype.compare("FillerTrackJets")==0) {
-      FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, name.c_str(), defactive_);
+      FillerTrackJets *fillerTrackJets = new FillerTrackJets(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerTrackJets);
       continue;
     }
     if (ftype.compare("FillerEmbedWeight")==0) {
-      FillerEmbedWeight *fillerEmbedWeight = new FillerEmbedWeight(cfg, name.c_str(), defactive_);
+      FillerEmbedWeight *fillerEmbedWeight = new FillerEmbedWeight(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerEmbedWeight);
       continue;
     }
     if (ftype.compare("FillerDCASig")==0) {
-      FillerDCASig *fillerDCASig = new FillerDCASig(cfg, name.c_str(), defactive_);
+      FillerDCASig *fillerDCASig = new FillerDCASig(cfg, collector, name.c_str(), defactive_);
       addActiveFiller(fillerDCASig);
       continue;
     }

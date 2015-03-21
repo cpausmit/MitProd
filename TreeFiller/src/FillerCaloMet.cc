@@ -2,7 +2,6 @@
 
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "MitAna/DataTree/interface/CaloMetCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -12,9 +11,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, const char *name, bool active) : 
+FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","met")),
+  edmToken_(GetToken<reco::CaloMETCollection>(collector, "edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   caloMets_(new mithep::CaloMetArr)
 {
@@ -47,7 +46,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
   caloMets_->Delete();
 
   Handle<reco::CaloMETCollection> hCaloMetProduct;
-  GetProduct(edmName_, hCaloMetProduct, event);
+  GetProduct(edmToken_, hCaloMetProduct, event);
 
   const reco::CaloMETCollection inCaloMets = *(hCaloMetProduct.product());  
 

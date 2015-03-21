@@ -13,12 +13,16 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+
 namespace mithep 
 {
   class FillerDCASig : public BaseFiller
   {  
     public:
-    FillerDCASig(const edm::ParameterSet &cfg, const char *name, bool active=1);
+    FillerDCASig(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
     ~FillerDCASig();
 
       void                                     BookDataBlock(TreeWriter &tws);
@@ -31,9 +35,9 @@ namespace mithep
     private:
       mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;
     
-      std::string                              edmElectronName_;     //name of edm electrons
-      std::string                              edmMuonName_;         //name of edm muons
-      std::string                              edmTauName_;          //name of edm Taus
+      edm::EDGetTokenT<reco::GsfElectronCollection> edmElectronToken_;     //name of edm electrons
+      edm::EDGetTokenT<reco::MuonCollection> edmMuonToken_;         //name of edm muons
+      edm::EDGetTokenT<reco::PFTauCollection> edmTauToken_;          //name of edm Taus
       std::string                              mitName_;             //mit name of Conversions
       std::string                              electronMapName_;     //name of imported electrons map
       std::string                              muonMapName_;         //name of imported muons map

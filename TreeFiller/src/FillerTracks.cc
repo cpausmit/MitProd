@@ -1,10 +1,8 @@
 // $Id: FillerTracks.cc,v 1.42 2011/09/28 16:50:07 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -22,12 +20,12 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active) :
+FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller(cfg,name,active),
   ecalAssocActive_(Conf().getUntrackedParameter<bool>("ecalAssocActive",0)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","generalTracks")),
+  edmToken_(GetToken<edm::View<reco::Track> >(collector, "edmName","generalTracks")),
+  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, "edmSimAssociationName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
-  edmSimAssocName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   barrelSuperClusterIdMapName_(Conf().getUntrackedParameter<string>
                                ("superClusterIdMapName","barrelSuperClusterIdMap")),
@@ -42,8 +40,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   // Constructor.
   
   if (ecalAssocActive_) // initialize track associator configuration if needed
-    assocParams_.loadParameters(
-      cfg.getUntrackedParameter<ParameterSet>("TrackAssociatorParameters"));
+    assocParams_.loadParameters(cfg.getUntrackedParameterSet("TrackAssociatorParameters"), collector);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   // initialize handle and get product,
   // this usage allows also to get collections of classes which inherit from reco::Track
   Handle<View<reco::Track> > hTrackProduct;
-  GetProduct(edmName_, hTrackProduct, event);  
+  GetProduct(edmToken_, hTrackProduct, event);  
 	
   //printf("edmName = %s, product id = %i\n",edmName_.c_str(),hTrackProduct.id().id());
   
@@ -104,13 +101,13 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   const View<reco::Track> inTracks = *(hTrackProduct.product());  
   
   if (verbose_>1)
-    printf("Track Collection: %s, id=%i\n",edmName_.c_str(),hTrackProduct.id().id());
+    printf("Track Collection: id=%i\n", hTrackProduct.id().id());
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
-  if (trackingMap_ && !edmSimAssocName_.empty()) {
+  if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
-    GetProduct(edmSimAssocName_, simAssociationProduct, event);  
+    GetProduct(edmSimAssocToken_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
     if (verbose_>1)
       printf("SimAssociation Map Size = %i\n",(int)simAssociation.size());
@@ -234,7 +231,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     //fill actual hit counts
     outTrack->SetNHits(it->numberOfValidHits());
     outTrack->SetNPixelHits(it->hitPattern().numberOfValidPixelHits());
-    outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits());
+    outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS));
     outTrack->SetNExpectedHitsInner(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
     outTrack->SetNExpectedHitsOuter(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
@@ -286,7 +283,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
 
     //do sim associations
-    if (trackingMap_ && !edmSimAssocName_.empty()) {
+    if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
       if (verbose_>1)
         printf("Trying Track-Sim association\n");
       reco::TrackBaseRef theBaseRef = inTracks.refAt(it - inTracks.begin());

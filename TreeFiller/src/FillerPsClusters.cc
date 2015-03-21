@@ -2,7 +2,6 @@
 
 #include "MitProd/TreeFiller/interface/FillerPsClusters.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h" 
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "MitAna/DataTree/interface/PsClusterCol.h"
@@ -17,9 +16,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPsClusters::FillerPsClusters(const ParameterSet &cfg, const char *name, bool active) : 
+FillerPsClusters::FillerPsClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller       (cfg,name,active),
-  edmName_         (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+  edmToken_        (GetToken<reco::PreshowerClusterCollection>(collector, "edmName","hybridSuperClusters")),
   mitName_         (Conf().getUntrackedParameter<string>("mitName","PsClusters")),
   psClusterMapName_(Conf().getUntrackedParameter<string>("psClusterMapName",
 							 "PsClusterMap")),
@@ -62,7 +61,7 @@ void FillerPsClusters::FillDataBlock(const edm::Event      &event,
   psClusterMap_->Reset();
 
   Handle<reco::PreshowerClusterCollection> hPsClusterProduct;
-  GetProduct(edmName_, hPsClusterProduct, event);
+  GetProduct(edmToken_, hPsClusterProduct, event);
   psClusterMap_->SetEdmProductId(hPsClusterProduct.id().id());
   const reco::PreshowerClusterCollection &inPsClusters = *(hPsClusterProduct.product());  
 

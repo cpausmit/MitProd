@@ -1,5 +1,7 @@
 // $Id: BaseFiller.cc,v 1.7 2009/03/15 11:20:41 loizides Exp $
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitAna/DataTree/interface/BranchName.h"
 #include "MitAna/DataTree/interface/BranchTable.h"

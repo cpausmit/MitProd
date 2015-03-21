@@ -5,7 +5,6 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
-#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 #include "MitAna/DataTree/interface/GenJetCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -15,13 +14,12 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerGenJets::FillerGenJets(const ParameterSet &cfg, const char *name, bool active) : 
+FillerGenJets::FillerGenJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
   flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","genjets")),
+  edmToken_(GetToken<reco::GenJetCollection>(collector, "edmName", "genjets")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","GenJets")), 
-  flavorMatchingByReferenceName_(Conf().getUntrackedParameter<string>
-                   ("flavorMatchingByReferenceName","srcByReference")),
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
   genjets_(new mithep::GenJetArr(16))
@@ -56,12 +54,12 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
 
   // handle for the jet collection
   Handle<reco::GenJetCollection> hGenJetProduct;
-  GetProduct(edmName_, hGenJetProduct, event);
+  GetProduct(edmToken_, hGenJetProduct, event);
 
   // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
-    GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
+    GetProduct(flavorMatchingByReferenceToken_, hPartonMatchingProduct, event);
 
   const reco::GenJetCollection inJets = *(hGenJetProduct.product());  
   

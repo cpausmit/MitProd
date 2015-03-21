@@ -16,12 +16,14 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "MitAna/DataTree/interface/ConversionCol.h"
+
 namespace mithep 
 {
   class FillerConversions : public BaseFiller
   {  
     public:
-      FillerConversions(const edm::ParameterSet &cfg, const char *name, bool active=1);
+    FillerConversions(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerConversions();
 
       void                                     BookDataBlock(TreeWriter &tws);
@@ -31,7 +33,7 @@ namespace mithep
     private:
       mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;
     
-      std::string                              edmName_;             //name of edm conversions
+      edm::EDGetTokenT<reco::ConversionCollection> edmToken_;             //name of edm conversions
       std::string                              mitName_;             //mit name of Conversions
       bool                                     checkTrackRef_;       //Check the track references
       std::string                              convElectronMapName_; //name of imported electrons map

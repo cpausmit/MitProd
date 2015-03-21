@@ -12,46 +12,31 @@
 #define MITPROD_TREEFILLER_FILLERPFTAUS_H
 
 #include "MitAna/DataTree/interface/PFTauFwd.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 namespace mithep
 {
   class FillerPFTaus : public BaseFiller
   {
     public:
-      struct PFTauDiscHandle
-      {
-          std::string name; // EDM name
-          edm::Handle<reco::PFTauDiscriminator> handle;
-
-          Double32_t value(reco::PFTauRef tauRef)
-          {
-            if(handle.isValid())
-              return (*handle)[tauRef];
-            else
-              return 0;
-          }
-      };
-
-      FillerPFTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerPFTaus();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
-
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
-
       bool                           hpsActive_;      //=true if HPS discriminants are filled
-      std::string                    edmName_;        //edm name of jets collection
+      edm::EDGetTokenT<reco::PFTauCollection> edmToken_;        //edm name of jets collection
+      std::map<std::string, edm::EDGetTokenT<reco::PFTauDiscriminator> > hpsTokens_;
       std::string                    mitName_;        //mit name of jets collection
-      std::map<string, PFTauDiscHandle> hpsHandles_;     // handles for HPS discriminators
       std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
       std::string                    jetMapName_;     //name of imported PFJetMap
       std::string                    pfCandMapName_;  //name of imported PFCandidateMap
@@ -63,6 +48,7 @@ namespace mithep
       mithep::PFTauMap              *tauMap_;         //exported PFTau map
       mithep::PFTauArr              *taus_;           //array of taus
 
+      //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
       template <typename C>
       edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<C, typename C::value_type, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
         typedef typename C::value_type T;

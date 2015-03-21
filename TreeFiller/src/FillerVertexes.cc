@@ -2,7 +2,6 @@
 
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/VertexCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -13,9 +12,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerVertexes::FillerVertexes(const ParameterSet &cfg, const char *name, bool active) : 
+FillerVertexes::FillerVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","offlinePrimaryVertices")),
+  edmToken_(GetToken<reco::VertexCollection>(collector, "edmName","offlinePrimaryVertices")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","")),
   vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName","VertexMap")),
@@ -64,7 +63,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
   vertexMap_->Reset();
 
   Handle<reco::VertexCollection> hVertexProduct;
-  GetProduct(edmName_, hVertexProduct, event);
+  GetProduct(edmToken_, hVertexProduct, event);
   vertexMap_->SetEdmProductId(hVertexProduct.id().id());
   const reco::VertexCollection inVertexes = *(hVertexProduct.product());  
 

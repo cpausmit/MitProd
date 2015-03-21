@@ -16,12 +16,14 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 namespace mithep 
 {
   class FillerPFCandidates : public BaseFiller
   {  
     public:
-      FillerPFCandidates(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerPFCandidates();
 
       void                           BookDataBlock(TreeWriter &tws);
@@ -32,8 +34,8 @@ namespace mithep
 
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
-      std::string                    edmName_;                  //edm name of PFCandidates coll
-      std::string                    edmPfNoPileupName_;        //edm name of PFNoPileup  coll
+      edm::EDGetTokenT<reco::PFCandidateCollection> edmToken_;                  //edm name of PFCandidates coll
+      edm::EDGetTokenT<reco::PFCandidateCollection> edmPfNoPileupToken_;        //edm name of PFNoPileup  coll
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
       std::string                    globalTrackMapName_;       //name: impo. map wrt global muons
       std::string                    staTrackMapName_;          //name: impo. map wrt sta muons

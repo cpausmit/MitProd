@@ -1,7 +1,6 @@
 // $Id: FillerBasicClusters.cc,v 1.21 2012/07/16 13:13:40 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "MitAna/DataTree/interface/BasicClusterCol.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -20,12 +19,12 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, const char *name, bool active) : 
+FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_             (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+  edmToken_(GetToken<reco::CaloClusterCollection>(collector, "edmName", "hybridSuperClusters")),
+  barrelEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName","")),
+  endcapEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName","")),
   mitName_             (Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
-  barrelEcalRecHitName_(Conf().getUntrackedParameter<string>("barrelEcalRecHitName","")),
-  endcapEcalRecHitName_(Conf().getUntrackedParameter<string>("endcapEcalRecHitName","")),
   basicClusterMapName_ (Conf().getUntrackedParameter<string>("basicClusterMapName",
 							     "BasicClusterMap")),
   pfClusters_          (Conf().getUntrackedParameter<bool>("pfClusters",false)),
@@ -68,23 +67,22 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusterMap_->Reset();
 
   Handle<reco::CaloClusterCollection> hBasicClusterProduct;
-  GetProduct(edmName_, hBasicClusterProduct, event);
+  GetProduct(edmToken_, hBasicClusterProduct, event);
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
   const reco::CaloClusterCollection &inBasicClusters = *(hBasicClusterProduct.product());  
 
   edm::Handle< EcalRecHitCollection > pEBRecHits;
-  event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
+  GetProduct(barrelEcalRecHitToken_, pEBRecHits, event);
   edm::Handle< EcalRecHitCollection > pEERecHits;
-  event.getByLabel( endcapEcalRecHitName_, pEERecHits );
+  GetProduct(endcapEcalRecHitToken_, pEERecHits, event);
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
-  const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  // const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  // const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
-  EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
-                                 edm::InputTag(endcapEcalRecHitName_));
+  EcalClusterLazyTools lazyTools(event, setup, barrelEcalRecHitToken_, endcapEcalRecHitToken_);
 
   //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
 

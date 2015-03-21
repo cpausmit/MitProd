@@ -20,25 +20,25 @@ namespace mithep
   class FillerPileupEnergyDensity : public BaseFiller
   {
     public:
-      FillerPileupEnergyDensity(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPileupEnergyDensity(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerPileupEnergyDensity();
 
       void                  BookDataBlock(TreeWriter &tws);
       void                  FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      edm::InputTag         edmName_;                  //edm names of various rho collections
-      edm::InputTag         edmNameLowEta_;            //  ..
-      edm::InputTag         edmNameRandom_;
-      edm::InputTag         edmNameRandomLowEta_;
-      edm::InputTag         edmNameFixedGridAll_;
-      edm::InputTag         edmNameFixedGridFastjetAll_;
-      edm::InputTag         edmNameKt6CaloJets_;
-      edm::InputTag         edmNameKt6CaloJetsCentral_;
-      edm::InputTag         edmNameKt6PFJets_;
-      edm::InputTag         edmNameKt6PFJetsCentralChargedPileUp_;
-      edm::InputTag         edmNameKt6PFJetsCentralNeutral_;
-      edm::InputTag         edmNameKt6PFJetsCentralNeutralTight_;
+      edm::EDGetTokenT<double> edmToken_;                  //edm names of various rho collections
+      edm::EDGetTokenT<double> edmNameLowEtaToken_;            //  ..
+      edm::EDGetTokenT<double> edmNameRandomToken_;
+      edm::EDGetTokenT<double> edmNameRandomLowEtaToken_;
+      edm::EDGetTokenT<double> edmNameFixedGridAllToken_;
+      edm::EDGetTokenT<double> edmNameFixedGridFastjetAllToken_;
+      edm::EDGetTokenT<double> edmNameKt6CaloJetsToken_;
+      edm::EDGetTokenT<double> edmNameKt6CaloJetsCentralToken_;
+      edm::EDGetTokenT<double> edmNameKt6PFJetsToken_;
+      edm::EDGetTokenT<double> edmNameKt6PFJetsCentralChargedPileUpToken_;
+      edm::EDGetTokenT<double> edmNameKt6PFJetsCentralNeutralToken_;
+      edm::EDGetTokenT<double> edmNameKt6PFJetsCentralNeutralTightToken_;
 
       std::string           mitName_;                  //mit name of PileupEnergyDensitys
 

@@ -12,9 +12,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerConversions::FillerConversions(const ParameterSet &cfg, const char *name, bool active) :
+FillerConversions::FillerConversions(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller         (cfg,name,active),
-  edmName_           (Conf().getUntrackedParameter<string>("edmName","conversions")),
+  edmToken_           (GetToken<reco::ConversionCollection>(collector, "edmName","conversions")),
   mitName_           (Conf().getUntrackedParameter<string>("mitName","Conversions")),
   checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
   stablePartMapNames_(Conf().exists("stablePartMaps") ? 
@@ -72,7 +72,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
   conversionMap_->Reset();
 
   Handle<reco::ConversionCollection> hConversionProduct;
-  GetProduct(edmName_, hConversionProduct, event);
+  GetProduct(edmToken_, hConversionProduct, event);
 
   conversionMap_->SetEdmProductId(hConversionProduct.id().id());
         

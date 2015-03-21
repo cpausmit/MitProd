@@ -19,12 +19,15 @@
 #include "MitAna/DataTree/interface/DecayDataFwd.h"
 #include "MitAna/DataTree/interface/DecayParticleFwd.h"
 
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 namespace mithep 
 {
   class FillerConversionsDecay : public BaseFiller
   {  
     public:
-      FillerConversionsDecay(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerConversionsDecay(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerConversionsDecay();
 
       void                                     BookDataBlock(TreeWriter &tws);
@@ -34,7 +37,8 @@ namespace mithep
     private:
       mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;
     
-      std::string                              edmName_;             //name of edm conversions
+      edm::EDGetTokenT<reco::ConversionCollection> edmToken_;             //name of edm conversions
+      edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
       std::string                              mitName_;             //mit name of Conversions
       bool                                     checkTrackRef_;       //Check to see if track collection is there
       std::string                              stableDataName_;      //= mitName_ + "_StableDatas"  

@@ -12,7 +12,6 @@
 #include "MitAna/DataTree/interface/DecayDataCol.h"
 #include "MitAna/DataTree/interface/DecayParticleCol.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
@@ -20,9 +19,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bool active) :
+FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+  edmToken_(GetToken<mitedm::DecayPartCol>(collector, "edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   stableDataName_(mitName_ + "_StableDatas"),
   decayDataName_(mitName_ + "_DecayDatas"),
@@ -90,7 +89,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
   decayData_->Delete();
 
   Handle<mitedm::DecayPartCol> hParts;
-  GetProduct(edmName_, hParts, evt);  
+  GetProduct(edmToken_, hParts, evt);  
   const mitedm::DecayPartCol *iParts = hParts.product();
   
   // loop through all DecayParts and fill the information

@@ -1,7 +1,6 @@
 // $Id: FillerSuperClusters.cc,v 1.19 2013/07/01 20:18:00 paus Exp $
 
 #include "MitProd/TreeFiller/interface/FillerSuperClusters.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "MitAna/DataTree/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h" 
@@ -27,9 +26,13 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *name, bool active) : 
+FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller            (cfg,name,active),
-  edmName_              (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+  edmToken_(GetToken<reco::SuperClusterCollection>(collector, "edmName","hybridSuperClusters")),
+  caloTowerToken_(GetToken<CaloTowerCollection>(collector, "caloTowerName","towerMaker")),
+  ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "reducedEcalRecHitsEB")),
+  eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "reducedEcalRecHitsEE")),
+  esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "reducedEcalRecHitsES")),
   mitName_              (Conf().getUntrackedParameter<string>("mitName","SuperClusters")),
   basicClusterMapName_  (Conf().getUntrackedParameter<string>("basicClusterMapName", 
                                                               "BasicClusterMap")),
@@ -45,7 +48,6 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, const char *na
 							      "SuperClusterMap")),
   superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
                                                               "SuperClusterIdMap")),
-  caloTowerName_        (Conf().getUntrackedParameter<string>("caloTowerName","towerMaker")),
   basicClusterMap_      (0),
   psClusterMap_         (0),
   psXClusterMap_        (0),
@@ -127,25 +129,24 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   superClusterIdMap_->Reset();
 
   Handle<reco::SuperClusterCollection> hSuperClusterProduct;
-  GetProduct(edmName_, hSuperClusterProduct, event);
+  GetProduct(edmToken_, hSuperClusterProduct, event);
   
   Handle<CaloTowerCollection> hCaloTowerProduct;
-  if (caloTowerName_.size() > 0)
-    GetProduct(caloTowerName_, hCaloTowerProduct, event);
+  if (!caloTowerToken_.isUninitialized())
+    GetProduct(caloTowerToken_, hCaloTowerProduct, event);
 
   superClusterMap_->SetEdmProductId(hSuperClusterProduct.id().id());
   const reco::SuperClusterCollection inSuperClusters = *(hSuperClusterProduct.product());  
 
   //lazy tools for supercluster ecal timing
-  EcalClusterLazyTools lazyTools(event, setup, edm::InputTag("reducedEcalRecHitsEB"), 
-                                 edm::InputTag("reducedEcalRecHitsEE"));
+  EcalClusterLazyTools lazyTools(event, setup, ebRecHitsToken_, eeRecHitsToken_);
 
   //ecal recHit collections for further ecal timing
   edm::Handle<EcalRecHitCollection> hEBRecHits;
-  event.getByLabel("reducedEcalRecHitsEB" , hEBRecHits);
+  GetProduct(ebRecHitsToken_, hEBRecHits, event);
   const EcalRecHitCollection ebRecHitCollection = *(hEBRecHits.product()); 
   edm::Handle<EcalRecHitCollection> hEERecHits;
-  event.getByLabel("reducedEcalRecHitsEE" , hEERecHits);
+  GetProduct(eeRecHitsToken_, hEERecHits, event);
   const EcalRecHitCollection eeRecHitCollection = *(hEERecHits.product()); 
 
   //mustache id
@@ -153,7 +154,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
   //es shape variables
   edm::Handle<EcalRecHitCollection> hESRecHits;
-  event.getByLabel("reducedEcalRecHitsES" , hESRecHits);
+  GetProductSafe(esRecHitsToken_, hESRecHits, event);
 
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
@@ -161,7 +162,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   edm::ESHandle<CaloTopology> pTopology;
   setup.get<CaloTopologyRecord>().get(pTopology);
 
-  const CaloSubdetectorGeometry *geometryES = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   EcalPreshowerTopology topology_p(pGeometry);
 
   //map of preshower rechits for shape calculations
@@ -199,7 +199,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     }
 
     //Compute Hadronic Energy behind the supercluster (within DR < 0.15)
-    if(caloTowerName_.size() > 0) { 
+    if(!caloTowerToken_.isUninitialized()) { 
       EgammaTowerIsolation towerIsoDepth1(0.15,0.,0.,1,hCaloTowerProduct.product()) ;  
       EgammaTowerIsolation towerIsoDepth2(0.15,0.,0.,2,hCaloTowerProduct.product()) ;  
       outSC->SetHcalDepth1Energy(towerIsoDepth1.getTowerESum(&(*inSC)));

@@ -1,6 +1,5 @@
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -19,11 +18,11 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, 
+                                       edm::ConsumesCollector& collector,
                                        const char *name, bool active) :
   BaseFiller                    (cfg,name,active),
-  edmName_                      (Conf().getUntrackedParameter<string>("edmName","particleFlow")),
-  edmPfNoPileupName_            (Conf().getUntrackedParameter<string>("edmPfNoPileupName",
-								      "pfNoElectrons")),
+  edmToken_(GetToken<reco::PFCandidateCollection>(collector, "edmName","particleFlow")),
+  edmPfNoPileupToken_(GetToken<reco::PFCandidateCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
   mitName_                      (Conf().getUntrackedParameter<string>("mitName",
 								      Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
@@ -149,11 +148,11 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
   pfNoPileupCandMap_->Reset();
 
   Handle<reco::PFCandidateCollection> hPfCandProduct;
-  GetProduct(edmName_, hPfCandProduct, event);  
+  GetProduct(edmToken_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
   Handle<reco::PFCandidateCollection> hPfNoPileupCandProduct;
-  GetProduct(edmPfNoPileupName_, hPfNoPileupCandProduct, event);  
+  GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
   const reco::PFCandidateCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
   for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
        iP != inPfCands.end(); ++iP) {
@@ -258,7 +257,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       catch (...) { 
 	if (!allowMissingPhotonRef_) {
 	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
+	    << "Error! Photon unmapped collection";
 	}
       }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
@@ -318,7 +317,7 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
   // Resolve and fill mother-daughter links.
 
   Handle<reco::PFCandidateCollection> hPfCandProduct;
-  GetProduct(edmName_, hPfCandProduct, event);  
+  GetProduct(edmToken_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
   // loop through pf candidates and resolve mother-daughter links

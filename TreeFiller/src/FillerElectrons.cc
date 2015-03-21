@@ -4,20 +4,16 @@
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexTrackCompatibilityEstimator.h"
@@ -52,10 +48,22 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name, bool active) :
+FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller                (cfg,name,active),
-  edmName_                  (Conf().getUntrackedParameter<string>("edmName","pixelMatchGsfElectrons")),
-  expectedHitsName_         (Conf().getUntrackedParameter<string>("expectedHitsName","")),  
+  edmToken_                 (GetToken<reco::GsfElectronCollection>(collector, "edmName","pixelMatchGsfElectrons")),
+  pvEdmToken_                (GetToken<reco::VertexCollection>(collector, "pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmToken_              (GetToken<reco::VertexCollection>(collector, "pvBSEdmName","offlinePrimaryVerticesWithBS")),  
+  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedTightName","eidTight")),
+  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedLooseName","eidLoose")),
+  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName","")),
+  generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
+  gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
+  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
+  ebRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "ebRecHitsName", "reducedEcalRecHitsEB")),
+  eeRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "eeRecHitsName", "reducedEcalRecHitsEE")),
+  beamSpotToken_            (GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
+  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
+  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
   mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   gsfTrackMapName_          (Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
   trackerTrackMapName_      (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
@@ -65,11 +73,6 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, const char *name,
   pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
   pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),
   electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName","")),
-  eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName","eidTight")),
-  eIDCutBasedLooseName_     (Conf().getUntrackedParameter<string>("eIDCutBasedLooseName","eidLoose")),
-  eIDLikelihoodName_        (Conf().getUntrackedParameter<string>("eIDLikelihoodName","")),
-  pvEdmName_                (Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_              (Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),  
   recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
   fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
   electronMap_              (new mithep::ElectronMap),
@@ -145,33 +148,33 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   electronMap_->Reset();
 
   Handle<reco::GsfElectronCollection> hElectronProduct;
-  GetProduct(edmName_, hElectronProduct, event);
+  GetProduct(edmToken_, hElectronProduct, event);
   
   // handles to get the electron ID information
   Handle<edm::ValueMap<float> > eidLooseMap;
-  GetProduct(eIDCutBasedLooseName_, eidLooseMap, event);
+  GetProduct(eIDCutBasedLooseToken_, eidLooseMap, event);
   Handle<edm::ValueMap<float> > eidTightMap;
-  GetProduct(eIDCutBasedTightName_, eidTightMap, event);
+  GetProduct(eIDCutBasedTightToken_, eidTightMap, event);
   edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
-  if (!eIDLikelihoodName_.empty()) {
-    GetProduct(eIDLikelihoodName_, eidLikelihoodMap, event);  
+  if (!eIDLikelihoodToken_.isUninitialized()) {
+    GetProduct(eIDLikelihoodToken_, eidLikelihoodMap, event);  
   }
   
   edm::Handle<reco::VertexCollection> hVertex;
-  event.getByLabel(pvEdmName_, hVertex);
+  GetProduct(pvEdmToken_, hVertex, event);
   const reco::VertexCollection *pvCol = hVertex.product();
   edm::Handle<reco::VertexCollection> hVertexBS;
-  event.getByLabel(pvBSEdmName_, hVertexBS);
+  GetProduct(pvBSEdmToken_, hVertexBS, event);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
   edm::Handle<reco::TrackCollection> hGeneralTracks;
-  event.getByLabel("generalTracks", hGeneralTracks);
+  GetProduct(generalTracksToken_, hGeneralTracks, event);
   //const reco::VertexCollection *trackCol = hGeneralTracks.product();
   
   edm::Handle<reco::GsfTrackCollection> hGsfTracks;
-  event.getByLabel("electronGsfTracks", hGsfTracks);
+  GetProduct(gsfTracksToken_, hGsfTracks, event);
 
   edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
-  event.getByLabel("mvfConversionRemoval", hConversions);
+  GetProduct(conversionsToken_, hConversions, event);
   
   mitedm::ConversionMatcher convMatcher;
      
@@ -187,15 +190,15 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
   //pf photon stuff 
   edm::Handle< EcalRecHitCollection > pEBRecHits;
-  event.getByLabel("reducedEcalRecHitsEB", pEBRecHits );
+  GetProduct(ebRecHitsToken_, pEBRecHits, event);
   edm::Handle< EcalRecHitCollection > pEERecHits;
-  event.getByLabel( "reducedEcalRecHitsEE", pEERecHits );  
+  GetProduct(eeRecHitsToken_, pEERecHits, event);
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
-  const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  // const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  // const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   
   //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);  
   
@@ -240,7 +243,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     // pflow electron stuff
     outElectron->SetIsEcalDriven(iM->ecalDrivenSeed());
     outElectron->SetIsTrackerDriven(iM->trackerDrivenSeed());
-    outElectron->SetMva(iM->mva());
+    outElectron->SetMva(iM->mva_Isolated());
     
     // shower shape variables   
     outElectron->SetE15(iM->e1x5());
@@ -267,9 +270,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     outElectron->SetHCalIsoTowDr03(iM->dr03HcalTowerSumEtBc());    
     
     //pflow isolation
-    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().chargedHadronIso);
-    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().neutralHadronIso);
-    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().photonIso);
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().sumChargedHadronPt);
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().sumNeutralHadronEt);
+    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().sumPhotonEt);
     
     // fiducial flags
     outElectron->SetIsEB(iM->isEB());
@@ -288,7 +291,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       try{outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));}
       catch(...) { 
 	if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! GSF track unmapped collection " << edmName_ << endl;
+                                   << "Error! GSF track unmapped collection";
       }
     }
     // make links to ambigous gsf tracks
@@ -297,7 +300,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         try{outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));}
 	catch(...) { 
 	  if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	    << "Error! GSF track unmapped collection " << edmName_ << endl;
+                                     << "Error! GSF track unmapped collection";
 	}
       }
     }
@@ -307,7 +310,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       try { outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef()))); } 
       catch(...) {
 	if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! Tracker track unmapped collection " << edmName_ << endl;
+                                   << "Error! Tracker track unmapped collection";
       }
     }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
@@ -323,46 +326,46 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
       else if(checkClusterActive_) {
 	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+	  << "Error! SuperCluster reference in unmapped collection";
       }
     }
     
-    if (pfSuperClusterMap_ && iM->pflowSuperCluster().isNonnull()) {
-      if(pfSuperClusterMap_->HasMit(iM->pflowSuperCluster()))  {
-	outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->pflowSuperCluster()));
+    if (pfSuperClusterMap_ && iM->parentSuperCluster().isNonnull()) {
+      if(pfSuperClusterMap_->HasMit(iM->parentSuperCluster()))  {
+	outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->parentSuperCluster()));
       } else if(checkClusterActive_) { 
 	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+	  << "Error! SuperCluster reference in unmapped collection";
       }
     }
     
     //find matching egamma supercluster first by ref, or by geometric matching if only pfsupercluster is linked
-    const reco::SuperCluster *egammasc = 0;
-    double mindr = 999.;
-    if (iM->superCluster().isNonnull() && iM->superCluster() != iM->pflowSuperCluster()) {
-      egammasc = iM->superCluster().get();
-    }
-    else {
-      for (SuperClusterMap::fwdMapType::const_iterator scit = barrelSuperClusterMap_->FwdMap().begin(); scit != barrelSuperClusterMap_->FwdMap().end(); ++scit) {
-	double dr = reco::deltaR(*iM->pflowSuperCluster(),*scit->first);
-	if (dr<0.1 && dr<mindr) {
-	  egammasc = scit->first.get();
-	  mindr = dr;
-	}
-      }
-      for (SuperClusterMap::fwdMapType::const_iterator scit = endcapSuperClusterMap_->FwdMap().begin(); scit != endcapSuperClusterMap_->FwdMap().end(); ++scit) {
-	double dr = reco::deltaR(*iM->pflowSuperCluster(),*scit->first);
-	if (dr<0.1 && dr<mindr) {
-	  egammasc = scit->first.get();
-	  mindr = dr;
-	}
-      }      
-    }
+    // const reco::SuperCluster *egammasc = 0;
+    // double mindr = 999.;
+    // if (iM->superCluster().isNonnull() && iM->superCluster() != iM->parentSuperCluster()) {
+    //   egammasc = iM->superCluster().get();
+    // }
+    // else {
+    //   for (SuperClusterMap::fwdMapType::const_iterator scit = barrelSuperClusterMap_->FwdMap().begin(); scit != barrelSuperClusterMap_->FwdMap().end(); ++scit) {
+    //     double dr = reco::deltaR(*iM->parentSuperCluster(),*scit->first);
+    //     if (dr<0.1 && dr<mindr) {
+    //       egammasc = scit->first.get();
+    //       mindr = dr;
+    //     }
+    //   }
+    //   for (SuperClusterMap::fwdMapType::const_iterator scit = endcapSuperClusterMap_->FwdMap().begin(); scit != endcapSuperClusterMap_->FwdMap().end(); ++scit) {
+    //     double dr = reco::deltaR(*iM->parentSuperCluster(),*scit->first);
+    //     if (dr<0.1 && dr<mindr) {
+    //       egammasc = scit->first.get();
+    //       mindr = dr;
+    //     }
+    //   }      
+    // }
     
     //tag overlapping energy of pflow clusters
-    // if (pfClusterMap_ && iM->pflowSuperCluster().isNonnull() && egammasc) {
-    //   for (reco::CaloCluster_iterator pfcit = iM->pflowSuperCluster()->clustersBegin();
-    //        pfcit!=iM->pflowSuperCluster()->clustersEnd(); ++pfcit) {
+    // if (pfClusterMap_ && iM->parentSuperCluster().isNonnull() && egammasc) {
+    //   for (reco::CaloCluster_iterator pfcit = iM->parentSuperCluster()->clustersBegin();
+    //        pfcit!=iM->parentSuperCluster()->clustersEnd(); ++pfcit) {
     //     float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc );
     //     if(pfClusterMap_->HasMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
     //   }
@@ -409,19 +412,19 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
         if(foundMatch && fitUnbiasedVertex_) {
           edm::Handle<reco::BeamSpot> bs;
-          event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
+          GetProduct(beamSpotToken_, bs, event);
 	  
 	  VertexReProducer revertex(hVertex,event); //Needs to be fixed
-
 	  edm::Handle<reco::BeamSpot> pvbeamspot;
-          event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
+          GetProduct(pvBeamSpotToken_, pvbeamspot, event);
 	  vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
 	  if(pvs.size()>0) {
             thevtxub = pvs.front();      // take the first in the list
           }
+
           VertexReProducer revertexbs(hVertexBS,event);
           edm::Handle<reco::BeamSpot> pvbsbeamspot;
-          event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
+          GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
           vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
 	  if(pvbss.size()>0) {
             thevtxubbs = pvbss.front();  // take the first in the list
@@ -623,7 +626,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         try {outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));}
 	  catch(...) { 
 	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+                                       << "Error! GSF track unmapped collection";
 	  }
 	
       }
@@ -631,7 +634,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         try { outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef))); }
 	catch(...) { 
 	  if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! Conversion Tracker track unmapped collection " << edmName_ << endl;
+                                     << "Error! Conversion Tracker track unmapped collection";
 	}
       }
     }
@@ -646,14 +649,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
           try{outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));}
 	  catch(...) { 
 	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+                                       << "Error! GSF track unmapped collection";
 	  }
         }
         else if (trackerTrackMap_) {
           try{ outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));}
 	  catch(...) {
 	    if(checkClusterActive_)  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! Conversion track unmapped collection " << edmName_ << endl;
+                                       << "Error! Conversion track unmapped collection";
 	  }
         }
       }
@@ -662,12 +665,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     // fill Electron ID information
     outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
     outElectron->SetPassTightID((*eidTightMap)[eRef]);
-    if (!eIDLikelihoodName_.empty()) {
+    if (!eIDLikelihoodToken_.isUninitialized()) {
       outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
     }
     // fill corrected expected inner hits
     if(iM->gsfTrack().isNonnull()) {
-      outElectron->SetCorrectedNExpectedHitsInner(iM->gsfTrack()->trackerExpectedHitsInner().numberOfHits());
+      outElectron->SetCorrectedNExpectedHitsInner(iM->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
     }
     //fill additional conversion flag
     outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));

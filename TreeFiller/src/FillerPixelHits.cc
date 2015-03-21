@@ -5,7 +5,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h" 
@@ -21,9 +20,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPixelHits::FillerPixelHits(const ParameterSet &cfg, const char *name, bool active) :
+FillerPixelHits::FillerPixelHits(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","siPixelRecHits")),
+  edmToken_(GetToken<SiPixelRecHitCollection>(collector, "edmName","siPixelRecHits")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPixelHitBrn)),
   phits_(new mithep::PixelHitArr(1000))
 {
@@ -57,7 +56,7 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
 
   // initialize handle and get product
   Handle<SiPixelRecHitCollection> hRecHits;
-  GetProduct(edmName_, hRecHits, event);  
+  GetProduct(edmToken_, hRecHits, event);  
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   if (!hits->size())

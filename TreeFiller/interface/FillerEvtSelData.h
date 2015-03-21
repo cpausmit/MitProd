@@ -13,6 +13,8 @@
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/METReco/interface/BeamHaloSummary.h"
+
 namespace mithep 
 {
   class EvtSelData;
@@ -21,6 +23,7 @@ namespace mithep
   {
     public:
       FillerEvtSelData(const edm::ParameterSet &cfg, 
+                       edm::ConsumesCollector&,
                        const char *name="EvtSelData", bool active=1);
       ~FillerEvtSelData();
 
@@ -37,15 +40,15 @@ namespace mithep
 
     private:    
       std::string              mitName_;                        //mit branch name
-      edm::InputTag            HBHENoiseFilterName_;            //name: input edm HBHENoiseFilter decision 
-      edm::InputTag            ECALDeadCellFilterName_;         //name: input edm ECALDeadCellFilter decision 
-      edm::InputTag            trackingFailureFilterName_;      //name: input edm trackingFailureFilter decision 
-      edm::InputTag            EEBadScFilterName_;              //name: input edm EEBadScFilter decision 
-      edm::InputTag            ECALaserCorrFilterName_;         //name: input edm ECALaserCorrFilter decision 
-      edm::InputTag            tkManyStripClusName_;            //name: input edm trackingOddFilter decision [1]
-      edm::InputTag            tkTooManyStripClusName_;         //name: input edm trackingOddFilter decision [2]
-      edm::InputTag            tkLogErrorTooManyClustersName_;  //name: input edm trackingOddFilter decision [3]
-      edm::InputTag            BeamHaloSummaryName_;            //name: input edm BeamHalo summary 
+      edm::EDGetTokenT<bool>   HBHENoiseFilterToken_;            //name: input edm HBHENoiseFilter decision 
+      edm::EDGetTokenT<bool>   ECALDeadCellFilterToken_;         //name: input edm ECALDeadCellFilter decision 
+      edm::EDGetTokenT<bool>   trackingFailureFilterToken_;      //name: input edm trackingFailureFilter decision 
+      edm::EDGetTokenT<bool>   EEBadScFilterToken_;              //name: input edm EEBadScFilter decision 
+      edm::EDGetTokenT<bool>   ECALaserCorrFilterToken_;         //name: input edm ECALaserCorrFilter decision 
+      edm::EDGetTokenT<bool>   tkManyStripClusToken_;            //name: input edm trackingOddFilter decision [1]
+      edm::EDGetTokenT<bool>   tkTooManyStripClusToken_;         //name: input edm trackingOddFilter decision [2]
+      edm::EDGetTokenT<bool>   tkLogErrorTooManyClustersToken_;  //name: input edm trackingOddFilter decision [3]
+      edm::EDGetTokenT<reco::BeamHaloSummary>   BeamHaloSummaryToken_;            //name: input edm BeamHalo summary 
       EvtSelData               *evtSelData_;                    //event selection data object
   };
 }

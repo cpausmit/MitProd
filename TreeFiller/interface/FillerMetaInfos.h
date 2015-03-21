@@ -12,15 +12,21 @@
 #ifndef MITPROD_TREEFILLER_FILLERMETAINFOS_H
 #define MITPROD_TREEFILLER_FILLERMETAINFOS_H
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "MitAna/DataTree/interface/L1TriggerMaskFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectBaseFwd.h"
 #include "MitAna/DataTree/interface/TriggerObjectRelFwd.h"
 #include "MitAna/DataTree/interface/Types.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
 class THashTable;
 
@@ -34,11 +40,12 @@ namespace mithep
   class FillerMetaInfos : public BaseFiller
   {
     public:
-      FillerMetaInfos(const edm::ParameterSet &cfg, const char *name="MetaInfos", bool active=1);
+      FillerMetaInfos(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name="MetaInfos", bool active=1);
       ~FillerMetaInfos();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                           FillRunBlock(const edm::Run&, const edm::EventSetup&);
 
     private:
       void                           FillBitAMask(BitMask128 &bits, const DecisionWord &dw);
@@ -49,23 +56,25 @@ namespace mithep
       void                           FillRunInfo(const edm::Event &e, const edm::EventSetup &es);
       const char                    *Istr() const;
 
+      edm::EDGetTokenT<trigger::TriggerEvent> hltEvtToken_;   //HLT trigger event edm name
+      edm::EDGetTokenT<edm::TriggerResults> hltResToken_;   //HLT trigger results edm name
+      edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GTRRToken_;   //l1 global readout trigger record edm name
+      edm::EDGetTokenT<L1GtTriggerMenuLite> l1GtMenuLiteToken_; //L1 trigger menu lite edm name
+      edm::InputTag l1GtMenuLiteTag_;
+
       std::string                    evtName_;      //event branch name (must be unique)
       std::string                    runTreeName_;  //run info tree name (must be unique)
       std::string                    lahTreeName_;  //look-ahead header tree name (must be unique)
       std::string                    hltTreeName_;  //hlt tree name (must be unique)
       Bool_t                         hltActive_;    //=true if HLT info are filled
       std::string                    hltProcName_;  //HLT process name to be used
-      std::string                    hltResName_;   //HLT trigger results edm name
-      std::string                    hltEvtName_;   //HLT trigger event edm name
       std::string                    hltTableName_; //HLT trigger table branch name
       std::string                    hltLabelName_; //HLT trigger label branch name
       std::string                    hltMenuName_;  //HLT trigger menu branch name
       std::string                    hltBitsName_;  //HLT trigger bits branch name
       std::string                    hltObjsName_;  //HLT trigger branch name
       Bool_t                         l1Active_;     //=true if some L1 info are filled
-      std::string                    l1GtMenuLiteName_; //L1 trigger menu lite edm name
       std::string                    l1GTRecName_;  //L1 global trigger record edm name
-      std::string                    l1GTRRName_;   //l1 global readout trigger record edm name
       std::string                    l1TBitsName_;  //L1 technical bit name
       std::string                    l1ABitsName_;  //L1 algo bit name
       TreeWriter                    *tws_;          //tree writer (not owned)

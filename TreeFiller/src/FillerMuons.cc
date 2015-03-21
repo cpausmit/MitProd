@@ -1,10 +1,8 @@
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -25,9 +23,14 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active) :
+FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
   BaseFiller            (cfg,name,active),
-  edmName_              (Conf().getUntrackedParameter<string>("edmName","muons")),
+  edmToken_(GetToken<reco::MuonCollection>(collector, "edmName","muons")),
+  pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName","offlinePrimaryVertices")),
+  pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName","offlinePrimaryVerticesWithBS")),
+  beamSpotToken_(GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
+  pvBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
+  pvbsBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
   expectedHitsName_     (Conf().getUntrackedParameter<string>("expectedHitsName","")),
   mitName_              (Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName","")),
@@ -35,8 +38,6 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, const char *name, bool ac
   staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
   trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
   muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName","")),
-  pvEdmName_            (Conf().getUntrackedParameter<string>("pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmName_          (Conf().getUntrackedParameter<string>("pvBSEdmName","offlinePrimaryVerticesWithBS")),
   fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
   globalTrackMap_       (0),
   standaloneTrackMap_   (0),
@@ -101,15 +102,15 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   muonMap_->Reset();
 
   Handle<reco::MuonCollection> hMuonProduct;
-  GetProduct(edmName_, hMuonProduct, event);
+  GetProduct(edmToken_, hMuonProduct, event);
   const reco::MuonCollection inMuons = *(hMuonProduct.product());
 
   edm::Handle<reco::VertexCollection> hVertex;
-  event.getByLabel(pvEdmName_, hVertex);
+  GetProduct(pvEdmToken_, hVertex, event);
   const reco::VertexCollection *pvCol = hVertex.product();
 
   edm::Handle<reco::VertexCollection> hVertexBS;
-  event.getByLabel(pvBSEdmName_, hVertexBS);
+  GetProduct(pvBSEdmToken_, hVertexBS, event);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
 
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
@@ -213,7 +214,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
         outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
       else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
-             << "Error! Track reference in unmapped collection " << edmName_ << endl;
+             << "Error! Track reference in unmapped collection";
     }
     if (trackerTrackMap_ && iM->track().isNonnull()) {
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
@@ -241,11 +242,11 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
       if (foundMatch && fitUnbiasedVertex_) {
         edm::Handle<reco::BeamSpot> bs;
-        event.getByLabel(edm::InputTag("offlineBeamSpot"),bs);
+        GetProduct(beamSpotToken_, bs, event);
 
         VertexReProducer revertex(hVertex,event);
         edm::Handle<reco::BeamSpot> pvbeamspot;
-        event.getByLabel(revertex.inputBeamSpot(),pvbeamspot);
+        GetProduct(pvBeamSpotToken_, pvbeamspot, event);
         vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
         if(pvs.size()>0) {
           thevtxub = pvs.front();      // take the first in the list
@@ -253,7 +254,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
         VertexReProducer revertexbs(hVertexBS,event);
         edm::Handle<reco::BeamSpot> pvbsbeamspot;
-        event.getByLabel(revertexbs.inputBeamSpot(),pvbsbeamspot);
+        GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
         vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
         if(pvbss.size()>0) {
           thevtxubbs = pvbss.front();  // take the first in the list
@@ -385,13 +386,13 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
     // fill corrected expected inner hits
     if (iM->innerTrack().isNonnull()) {
-      outMuon->SetCorrectedNExpectedHitsInner (iM->innerTrack()->trackerExpectedHitsInner().numberOfHits());
+      outMuon->SetCorrectedNExpectedHitsInner (iM->innerTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
       outMuon->SetValidFraction               (iM->innerTrack()->validFraction());
       outMuon->SetNTrkLayersHit               (iM->innerTrack()->hitPattern().trackerLayersWithMeasurement());
-      outMuon->SetNTrkLayersNoHit             (iM->innerTrack()->hitPattern().trackerLayersWithoutMeasurement());
+      outMuon->SetNTrkLayersNoHit             (iM->innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
       outMuon->SetNPxlLayersHit               (iM->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-      outMuon->SetNTrkLostHitsIn              (iM->innerTrack()->trackerExpectedHitsInner().numberOfLostTrackerHits());
-      outMuon->SetNTrkLostHitsOut             (iM->innerTrack()->trackerExpectedHitsOuter().numberOfLostTrackerHits());
+      outMuon->SetNTrkLostHitsIn              (iM->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
+      outMuon->SetNTrkLostHitsOut             (iM->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
     }
 
     // add muon to map

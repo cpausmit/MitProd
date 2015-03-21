@@ -1,13 +1,9 @@
 // $Id: FillerCaloJets.cc,v 1.29 2011/03/09 17:32:53 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/JetReco/interface/JetID.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
-#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "MitAna/DataTree/interface/CaloJetCol.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -18,59 +14,35 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, const char *name, bool active) : 
+FillerCaloJets::FillerCaloJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
   flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
   bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
   jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),
   jetCorrectionsActive_(Conf().getUntrackedParameter<bool>("jetCorrectionsActive",true)),
   jetIDActive_(Conf().getUntrackedParameter<bool>("jetIDActive",false)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","recoCaloJets:iterativeCone5CaloJets")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)), 
-  jetToVertexAlphaName_(Conf().getUntrackedParameter<string>
-                        ("jetToVertexAlphaName","jetToVertexAlpha")),
-  jetToVertexBetaName_(Conf().getUntrackedParameter<string>
-                       ("jetToVertexBetaName","jetToVertexBetaName")),
+  edmToken_(GetToken<reco::CaloJetCollection>(collector, "edmName","recoCaloJets:iterativeCone5CaloJets")),
+  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, "jetToVertexAlphaName","jetToVertexAlpha")),
+  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, "jetToVertexBetaName","jetToVertexBetaName")),
+  jetIDToken_(GetToken<reco::JetIDValueMap>(collector, "jetIDName","jetIDName")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName","srcByReference")),
+  jetProbabilityBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "JetProbabilityBJetTagsName","jetProbabilityBJetTags")),
+  jetBProbabilityBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "JetBProbabilityBJetTagsName","jetBProbabilityBJetTags")),
+  simpleSecondaryVertexBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexBJetTagsName","simpleSecondaryVertexBJetTags")),
+  simpleSecondaryVertexHighEffBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighEffBJetTagsName","simpleSecondaryVertexHighEffBJetTags")),                   
+  simpleSecondaryVertexHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName","simpleSecondaryVertexHighPurBJetTags")),                   
+  combinedSecondaryVertexBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
+  combinedSecondaryVertexMVABJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
+  trackCountingHighEffBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
+  trackCountingHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName","trackCountingHighPurBJetTags")),
+  ghostTrackBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "GhostTrackBJetTagsName","ghostTrackBJetTags")),
   L2JetCorrectorName_(Conf().getUntrackedParameter<string>
                       ("L2JetCorrectorName","L2JetCorrectorName")),
   L3JetCorrectorName_(Conf().getUntrackedParameter<string>
                       ("L3JetCorrectorName","L3JetCorrectorName")),
-  jetIDName_(Conf().getUntrackedParameter<string>
-                      ("jetIDName","jetIDName")),
-  flavorMatchingByReferenceName_(Conf().getUntrackedParameter<string>
-                   ("flavorMatchingByReferenceName","srcByReference")),
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
-  jetProbabilityBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("JetProbabilityBJetTagsName","jetProbabilityBJetTags")),  
-  jetBProbabilityBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("JetBProbabilityBJetTagsName","jetBProbabilityBJetTags")),   
-  simpleSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SimpleSecondaryVertexBJetTagsName","simpleSecondaryVertexBJetTags")),
-  simpleSecondaryVertexHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SimpleSecondaryVertexHighEffBJetTagsName","simpleSecondaryVertexHighEffBJetTags")),                   
-  simpleSecondaryVertexHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("SimpleSecondaryVertexHighPurBJetTagsName","simpleSecondaryVertexHighPurBJetTags")),                   
-  combinedSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("CombinedSecondaryVertexBJetTagsName","combinedSecondaryVertexBJetTags")),
-  combinedSecondaryVertexMVABJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("CombinedSecondaryVertexMVABJetTagsName","combinedSecondaryVertexMVABJetTags")),
-  ghostTrackBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("GhostTrackBJetTagsName","ghostTrackBJetTags")),                                                         
-  trackCountingHighEffBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("TrackCountingHighEffBJetTagsName","trackCountingHighEffBJetTags")),
-  trackCountingHighPurBJetTagsName_(Conf().getUntrackedParameter<string>
-                   ("TrackCountingHighPurBJetTagsName","trackCountingHighPurBJetTags")),
-  //softMuonBJetTagsName_(Conf().getUntrackedParameter<string>
-  //                 ("SoftMuonBJetTagsName","softMuonBJetTags")),
-  //softMuonByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
-  //                 ("SoftMuonByIP3dBJetTagsName","softMuonByIP3dBJetTags")),
-  //softMuonByPtBJetTagsName_(Conf().getUntrackedParameter<string>
-  //                 ("SoftMuonByPtBJetTagsName","softMuonByPtBJetTags")),
-  //softElectronByIP3dBJetTagsName_(Conf().getUntrackedParameter<string>
-  //                 ("SoftElectronByIP3dBJetTagsName","softElectronByIP3dBJetTags")),
-  //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter<string>
-  //                 ("SoftElectronByPtBJetTagsName","softElectronByPtBJetTags")),
+  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloJetBrn)), 
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName","CaloTowerMap")),
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","CaloJetMap")),
   caloTowerMap_(0),
@@ -119,17 +91,17 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
 
   // handle for the jet collection
   Handle<reco::CaloJetCollection> hJetProduct;
-  GetProduct(edmName_, hJetProduct, event);
+  GetProduct(edmToken_, hJetProduct, event);
 
   // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
   if (flavorMatchingActive_) 
-    GetProduct(flavorMatchingByReferenceName_, hPartonMatchingProduct, event);
+    GetProduct(flavorMatchingByReferenceToken_, hPartonMatchingProduct, event);
 
   // handle for jet id variables
   Handle<reco::JetIDValueMap> hJetIDMap;
   if (jetIDActive_)
-    GetProduct( jetIDName_, hJetIDMap, event);
+    GetProduct( jetIDToken_, hJetIDMap, event);
 
   Handle<reco::JetTagCollection> hJetProbabilityBJetTags;
   Handle<reco::JetTagCollection> hJetBProbabilityBJetTags;
@@ -140,29 +112,19 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   Handle<reco::JetTagCollection> hCombinedSecondaryVertexMVABJetTags;
   Handle<reco::JetTagCollection> hTrackCountingHighEffBJetTags;
   Handle<reco::JetTagCollection> hTrackCountingHighPurBJetTags;
-  //Handle<reco::JetTagCollection> hSoftMuonBJetTags;
-  //Handle<reco::JetTagCollection> hSoftMuonByIP3dBJetTags;
-  //Handle<reco::JetTagCollection> hSoftMuonByPtBJetTags;
-  //Handle<reco::JetTagCollection> hSoftElectronByIP3dBJetTags;
-  //Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
   Handle<reco::JetTagCollection> hGhostTrackBJetTags;
 
   if (bTaggingActive_) {
-    GetProduct(jetProbabilityBJetTagsName_, hJetProbabilityBJetTags, event);    
-    GetProduct(jetBProbabilityBJetTagsName_, hJetBProbabilityBJetTags, event);        
-    event.getByLabel(simpleSecondaryVertexBJetTagsName_,hSimpleSecondaryVertexBJetTags);
-    event.getByLabel(simpleSecondaryVertexHighEffBJetTagsName_,hSimpleSecondaryVertexHighEffBJetTags);
-    event.getByLabel(simpleSecondaryVertexHighPurBJetTagsName_,hSimpleSecondaryVertexHighPurBJetTags);
-    GetProduct(combinedSecondaryVertexBJetTagsName_, hCombinedSecondaryVertexBJetTags, event);    
-    GetProduct(combinedSecondaryVertexMVABJetTagsName_, hCombinedSecondaryVertexMVABJetTags, event);
-    GetProduct(trackCountingHighEffBJetTagsName_, hTrackCountingHighEffBJetTags, event);    
-    GetProduct(trackCountingHighPurBJetTagsName_, hTrackCountingHighPurBJetTags, event);    
-    //GetProduct(softMuonBJetTagsName_, hSoftMuonBJetTags, event);    
-    //GetProduct(softMuonByIP3dBJetTagsName_, hSoftMuonByIP3dBJetTags, event);
-    //GetProduct(softMuonByPtBJetTagsName_, hSoftMuonByPtBJetTags, event);   
-    //GetProduct(softElectronByIP3dBJetTagsName_, hSoftElectronByIP3dBJetTags, event);
-    //GetProduct(softElectronByPtBJetTagsName_, hSoftElectronByPtBJetTags, event);    
-    event.getByLabel(ghostTrackBJetTagsName_,hGhostTrackBJetTags);
+    GetProduct(jetProbabilityBJetTagsToken_, hJetProbabilityBJetTags, event);    
+    GetProduct(jetBProbabilityBJetTagsToken_, hJetBProbabilityBJetTags, event);        
+    GetProduct(simpleSecondaryVertexBJetTagsToken_,hSimpleSecondaryVertexBJetTags, event);
+    GetProduct(simpleSecondaryVertexHighEffBJetTagsToken_,hSimpleSecondaryVertexHighEffBJetTags, event);
+    GetProduct(simpleSecondaryVertexHighPurBJetTagsToken_,hSimpleSecondaryVertexHighPurBJetTags, event);
+    GetProduct(combinedSecondaryVertexBJetTagsToken_, hCombinedSecondaryVertexBJetTags, event);    
+    GetProduct(combinedSecondaryVertexMVABJetTagsToken_, hCombinedSecondaryVertexMVABJetTags, event);
+    GetProduct(trackCountingHighEffBJetTagsToken_, hTrackCountingHighEffBJetTags, event);    
+    GetProduct(trackCountingHighPurBJetTagsToken_, hTrackCountingHighPurBJetTags, event);    
+    GetProduct(ghostTrackBJetTagsToken_,hGhostTrackBJetTags, event);
   }
   
   const reco::CaloJetCollection inJets = *(hJetProduct.product());  
@@ -174,8 +136,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
   std::vector<double>::const_iterator it_jv_beta;
 
   if (jetToVertexActive_) {
-    GetProduct(jetToVertexAlphaName_, JV_alpha, event); 
-    GetProduct(jetToVertexBetaName_, JV_beta, event);  
+    GetProduct(jetToVertexAlphaToken_, JV_alpha, event); 
+    GetProduct(jetToVertexBetaToken_, JV_beta, event);  
     it_jv_alpha = JV_alpha->begin();
     it_jv_beta  = JV_beta->begin();    
   }

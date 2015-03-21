@@ -1,7 +1,6 @@
 // $Id: FillerBeamSpot.cc,v 1.6 2009/11/30 13:43:03 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MitAna/DataTree/interface/BeamSpotCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -11,9 +10,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, const char *name, bool active) : 
+FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","offlineBeamSpot")),
+  edmToken_(GetToken<reco::BeamSpot>(collector, "edmName","offlineBeamSpot")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","BeamSpot")),
   beamSpots_(new mithep::BeamSpotArr)
 {
@@ -46,7 +45,7 @@ void FillerBeamSpot::FillDataBlock(const edm::Event      &event,
   beamSpots_->Delete();
 
   Handle<reco::BeamSpot> hBeamSpotProduct;
-  GetProduct(edmName_, hBeamSpotProduct, event);
+  GetProduct(edmToken_, hBeamSpotProduct, event);
   const reco::BeamSpot *inBeamSpot = hBeamSpotProduct.product();  
 
   mithep::BeamSpot *bs = beamSpots_->AddNew();

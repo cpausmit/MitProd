@@ -3,7 +3,6 @@
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFTauCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -13,10 +12,11 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool active) : 
+FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
   hpsActive_(Conf().getUntrackedParameter<bool>("hpsActive", false)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+  edmToken_(GetToken<reco::PFTauCollection>(collector, "edmName","")),
+  hpsTokens_(),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPFTauBrn)),
   trackMapNames_(Conf().exists("trackMapNames") ? 
                     Conf().getUntrackedParameter<vector<string> >("trackMapNames") : 
@@ -33,48 +33,49 @@ FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, const char *name, bool activ
   // Constructor.
 
   // Retrieve EDM names of HPS Tau Discriminators
-  vector<pair<string, string> > hpsNames;
-  hpsNames.push_back(make_pair("discriminationByLooseElectronRejectionName", "hpsPFTauDiscriminationByLooseElectronRejection"));
-  hpsNames.push_back(make_pair("discriminationByMediumElectronRejectionName", "hpsPFTauDiscriminationByMediumElectronRejection"));
-  hpsNames.push_back(make_pair("discriminationByTightElectronRejectionName", "hpsPFTauDiscriminationByTightElectronRejection"));
-  hpsNames.push_back(make_pair("discriminationByMVAElectronRejectionName", "hpsPFTauDiscriminationByMVAElectronRejection"));
-  hpsNames.push_back(make_pair("discriminationByLooseMuonRejectionName", "hpsPFTauDiscriminationByLooseMuonRejection"));
-  hpsNames.push_back(make_pair("discriminationByMediumMuonRejectionName", "hpsPFTauDiscriminationByMediumMuonRejection"));
-  hpsNames.push_back(make_pair("discriminationByTightMuonRejectionName", "hpsPFTauDiscriminationByTightMuonRejection"));
-  hpsNames.push_back(make_pair("discriminationByDecayModeFindingName", "hpsPFTauDiscriminationByDecayModeFinding"));
-  hpsNames.push_back(make_pair("discriminationByVLooseIsolationName", "hpsPFTauDiscriminationByVLooseIsolation"));
-  hpsNames.push_back(make_pair("discriminationByLooseIsolationName", "hpsPFTauDiscriminationByLooseIsolation"));
-  hpsNames.push_back(make_pair("discriminationByMediumIsolationName", "hpsPFTauDiscriminationByMediumIsolation"));
-  hpsNames.push_back(make_pair("discriminationByTightIsolationName", "hpsPFTauDiscriminationByTightIsolation"));
-  hpsNames.push_back(make_pair("discriminationByVLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"));
-  hpsNames.push_back(make_pair("discriminationByLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"));
-  hpsNames.push_back(make_pair("discriminationByMediumCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"));
-  hpsNames.push_back(make_pair("discriminationByTightCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"));
-  hpsNames.push_back(make_pair("discriminationByRawCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr"));
-  hpsNames.push_back(make_pair("mva2rawElectronRejectionName", "hpsPFTauDiscriminationByMVA2rawElectronRejection"));
-  hpsNames.push_back(make_pair("mva2rawElectronRejectionCategoryName", "hpsPFTauDiscriminationByMVA2rawElectronRejection:category"));
-  hpsNames.push_back(make_pair("mva2LooseElectronRejectionName", "hpsPFTauDiscriminationByMVA2LooseElectronRejection"));
-  hpsNames.push_back(make_pair("mva2MediumElectronRejectionName", "hpsPFTauDiscriminationByMVA2MediumElectronRejection"));
-  hpsNames.push_back(make_pair("mva2TightElectronRejectionName", "hpsPFTauDiscriminationByMVA2TightElectronRejection"));
-  hpsNames.push_back(make_pair("mva3rawElectronRejectionName", "hpsPFTauDiscriminationByMVA3rawElectronRejection"));
-  hpsNames.push_back(make_pair("mva3rawElectronRejectionCategoryName", "hpsPFTauDiscriminationByMVA3rawElectronRejection:category"));
-  hpsNames.push_back(make_pair("mva3LooseElectronRejectionName", "hpsPFTauDiscriminationByMVA3LooseElectronRejection"));
-  hpsNames.push_back(make_pair("mva3MediumElectronRejectionName", "hpsPFTauDiscriminationByMVA3MediumElectronRejection"));
-  hpsNames.push_back(make_pair("mva3TightElectronRejectionName", "hpsPFTauDiscriminationByMVA3TightElectronRejection"));
-  hpsNames.push_back(make_pair("mva3VTightElectronRejectionName", "hpsPFTauDiscriminationByMVA3VTightElectronRejection"));
-  hpsNames.push_back(make_pair("looseCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"));
-  hpsNames.push_back(make_pair("mediumCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"));
-  hpsNames.push_back(make_pair("tightCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"));
-  hpsNames.push_back(make_pair("rawCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits"));
-  hpsNames.push_back(make_pair("looseMuonRejection2Name", "hpsPFTauDiscriminationByLooseMuonRejection2"));
-  hpsNames.push_back(make_pair("mediumMuonRejection2Name", "hpsPFTauDiscriminationByMediumMuonRejection2"));
-  hpsNames.push_back(make_pair("tightMuonRejection2Name", "hpsPFTauDiscriminationByTightMuonRejection2"));
+  std::string hpsNames[][2] = {
+    {"discriminationByLooseElectronRejectionName", "hpsPFTauDiscriminationByLooseElectronRejection"},
+    {"discriminationByMediumElectronRejectionName", "hpsPFTauDiscriminationByMediumElectronRejection"},
+    {"discriminationByTightElectronRejectionName", "hpsPFTauDiscriminationByTightElectronRejection"},
+    {"discriminationByMVAElectronRejectionName", "hpsPFTauDiscriminationByMVAElectronRejection"},
+    {"discriminationByLooseMuonRejectionName", "hpsPFTauDiscriminationByLooseMuonRejection"},
+    {"discriminationByMediumMuonRejectionName", "hpsPFTauDiscriminationByMediumMuonRejection"},
+    {"discriminationByTightMuonRejectionName", "hpsPFTauDiscriminationByTightMuonRejection"},
+    {"discriminationByDecayModeFindingName", "hpsPFTauDiscriminationByDecayModeFinding"},
+    {"discriminationByVLooseIsolationName", "hpsPFTauDiscriminationByVLooseIsolation"},
+    {"discriminationByLooseIsolationName", "hpsPFTauDiscriminationByLooseIsolation"},
+    {"discriminationByMediumIsolationName", "hpsPFTauDiscriminationByMediumIsolation"},
+    {"discriminationByTightIsolationName", "hpsPFTauDiscriminationByTightIsolation"},
+    {"discriminationByVLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"},
+    {"discriminationByLooseCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"},
+    {"discriminationByMediumCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"},
+    {"discriminationByTightCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"},
+    {"discriminationByRawCombinedIsolationDBSumPtCorrName", "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr"},
+    {"mva2rawElectronRejectionName", "hpsPFTauDiscriminationByMVA2rawElectronRejection"},
+    {"mva2rawElectronRejectionCategoryName", "hpsPFTauDiscriminationByMVA2rawElectronRejection:category"},
+    {"mva2LooseElectronRejectionName", "hpsPFTauDiscriminationByMVA2LooseElectronRejection"},
+    {"mva2MediumElectronRejectionName", "hpsPFTauDiscriminationByMVA2MediumElectronRejection"},
+    {"mva2TightElectronRejectionName", "hpsPFTauDiscriminationByMVA2TightElectronRejection"},
+    {"mva3rawElectronRejectionName", "hpsPFTauDiscriminationByMVA3rawElectronRejection"},
+    {"mva3rawElectronRejectionCategoryName", "hpsPFTauDiscriminationByMVA3rawElectronRejection:category"},
+    {"mva3LooseElectronRejectionName", "hpsPFTauDiscriminationByMVA3LooseElectronRejection"},
+    {"mva3MediumElectronRejectionName", "hpsPFTauDiscriminationByMVA3MediumElectronRejection"},
+    {"mva3TightElectronRejectionName", "hpsPFTauDiscriminationByMVA3TightElectronRejection"},
+    {"mva3VTightElectronRejectionName", "hpsPFTauDiscriminationByMVA3VTightElectronRejection"},
+    {"looseCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"},
+    {"mediumCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"},
+    {"tightCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"},
+    {"rawCombinedIsolationDBSumPtCorr3HitsName", "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits"},
+    {"looseMuonRejection2Name", "hpsPFTauDiscriminationByLooseMuonRejection2"},
+    {"mediumMuonRejection2Name", "hpsPFTauDiscriminationByMediumMuonRejection2"},
+    {"tightMuonRejection2Name", "hpsPFTauDiscriminationByTightMuonRejection2"}
+  };
 
-  for(vector<pair<string, string> >::iterator it = hpsNames.begin(); it != hpsNames.end(); it++)
+  for(unsigned iN = 0; iN != sizeof(hpsNames) / sizeof(std::string) / 2; ++iN)
   {
-    string paramName = it->first;
-    string defaultEDMName = it->second;
-    hpsHandles_[paramName].name = Conf().getUntrackedParameter<string>(paramName, defaultEDMName);
+    string& paramName = hpsNames[iN][0];
+    string& defaultEDMName = hpsNames[iN][1];
+    hpsTokens_[paramName] = GetToken<reco::PFTauDiscriminator>(collector, paramName, defaultEDMName, true);
   }
 }
 
@@ -133,15 +134,15 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
 
   // handle for the tau collection
   Handle<reco::PFTauCollection> hTauProduct;
-  GetProduct(edmName_, hTauProduct, event);
+  GetProduct(edmToken_, hTauProduct, event);
 
   // Handles for HPS discriminator
+  map<string, edm::Handle<reco::PFTauDiscriminator> > hpsHandles;
   if(hpsActive_)
   {
-    for(map<string, PFTauDiscHandle>::iterator it = hpsHandles_.begin(); it != hpsHandles_.end(); it++)
-    {
-      PFTauDiscHandle &hpsDisc = it->second;
-      GetProductSafe(hpsDisc.name, hpsDisc.handle, event);
+    for(map<string, edm::EDGetTokenT<reco::PFTauDiscriminator> >::iterator it = hpsTokens_.begin(); it != hpsTokens_.end(); it++){
+      // handle map entries created on the fly
+      GetProductSafe(it->second, hpsHandles[it->first], event);
     }
   }
 
@@ -184,52 +185,52 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     // fill HPS discriminants
     if(hpsActive_)
     {
-      tau->SetDiscriminationByLooseElectronRejection(hpsHandles_["discriminationByLooseElectronRejectionName"].value(tauRef));
-      tau->SetDiscriminationByMediumElectronRejection(hpsHandles_["discriminationByMediumElectronRejectionName"].value(tauRef));
-      tau->SetDiscriminationByTightElectronRejection(hpsHandles_["discriminationByTightElectronRejectionName"].value(tauRef));
-      tau->SetDiscriminationByMVAElectronRejection(hpsHandles_["discriminationByMVAElectronRejectionName"].value(tauRef));
-      tau->SetDiscriminationByLooseMuonRejection(hpsHandles_["discriminationByLooseMuonRejectionName"].value(tauRef));
-      tau->SetDiscriminationByMediumMuonRejection(hpsHandles_["discriminationByMediumMuonRejectionName"].value(tauRef));
-      tau->SetDiscriminationByTightMuonRejection(hpsHandles_["discriminationByTightMuonRejectionName"].value(tauRef));
-      tau->SetDiscriminationByDecayModeFinding(hpsHandles_["discriminationByDecayModeFindingName"].value(tauRef));
-      tau->SetDiscriminationByVLooseIsolation(hpsHandles_["discriminationByVLooseIsolationName"].value(tauRef));
-      tau->SetDiscriminationByLooseIsolation(hpsHandles_["discriminationByLooseIsolationName"].value(tauRef));
-      tau->SetDiscriminationByMediumIsolation(hpsHandles_["discriminationByMediumIsolationName"].value(tauRef));
-      tau->SetDiscriminationByTightIsolation(hpsHandles_["discriminationByTightIsolationName"].value(tauRef));
-      tau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr(hpsHandles_["discriminationByVLooseCombinedIsolationDBSumPtCorrName"].value(tauRef));
-      tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr(hpsHandles_["discriminationByLooseCombinedIsolationDBSumPtCorrName"].value(tauRef));
-      tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr(hpsHandles_["discriminationByMediumCombinedIsolationDBSumPtCorrName"].value(tauRef));
-      tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr(hpsHandles_["discriminationByTightCombinedIsolationDBSumPtCorrName"].value(tauRef));
-      tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr(hpsHandles_["discriminationByRawCombinedIsolationDBSumPtCorrName"].value(tauRef));
-      tau->SetMVA2rawElectronRejection(hpsHandles_["mva2rawElectronRejectionName"].value(tauRef));
-      tau->SetMVA2rawElectronRejectionCategory(hpsHandles_["mva2rawElectronRejectionCategoryName"].value(tauRef));
-      tau->SetMVA2LooseElectronRejection(hpsHandles_["mva2LooseElectronRejectionName"].value(tauRef));
-      tau->SetMVA2MediumElectronRejection(hpsHandles_["mva2MediumElectronRejectionName"].value(tauRef));
-      tau->SetMVA2TightElectronRejection(hpsHandles_["mva2TightElectronRejectionName"].value(tauRef));
-      tau->SetMVA3rawElectronRejection(hpsHandles_["mva3rawElectronRejectionName"].value(tauRef));
-      tau->SetMVA3rawElectronRejectionCategory(hpsHandles_["mva3rawElectronRejectionCategoryName"].value(tauRef));
-      tau->SetMVA3LooseElectronRejection(hpsHandles_["mva3LooseElectronRejectionName"].value(tauRef));
-      tau->SetMVA3MediumElectronRejection(hpsHandles_["mva3MediumElectronRejectionName"].value(tauRef));
-      tau->SetMVA3TightElectronRejection(hpsHandles_["mva3TightElectronRejectionName"].value(tauRef));
-      tau->SetMVA3VTightElectronRejection(hpsHandles_["mva3VTightElectronRejectionName"].value(tauRef));
-      tau->SetLooseCombinedIsolationDBSumPtCorr3Hits(hpsHandles_["looseCombinedIsolationDBSumPtCorr3HitsName"].value(tauRef));
-      tau->SetMediumCombinedIsolationDBSumPtCorr3Hits(hpsHandles_["mediumCombinedIsolationDBSumPtCorr3HitsName"].value(tauRef));
-      tau->SetTightCombinedIsolationDBSumPtCorr3Hits(hpsHandles_["tightCombinedIsolationDBSumPtCorr3HitsName"].value(tauRef));
-      tau->SetRawCombinedIsolationDBSumPtCorr3Hits(hpsHandles_["rawCombinedIsolationDBSumPtCorr3HitsName"].value(tauRef));
-      tau->SetLooseMuonRejection2(hpsHandles_["looseMuonRejection2Name"].value(tauRef));
-      tau->SetMediumMuonRejection2(hpsHandles_["mediumMuonRejection2Name"].value(tauRef));
-      tau->SetTightMuonRejection2(hpsHandles_["tightMuonRejection2Name"].value(tauRef));
+      auto discVal = [&hpsHandles, &tauRef](std::string const& discName)->double {
+        std::map<std::string, edm::Handle<reco::PFTauDiscriminator> >::const_iterator itr(hpsHandles.find(discName));
+        if(itr == hpsHandles.end()) return 0.;
+        edm::Handle<reco::PFTauDiscriminator> const& handle(itr->second);
+        if(handle.isValid())
+          return (*handle)[tauRef];
+        else
+          return 0.;
+      };
+      
+      tau->SetDiscriminationByLooseElectronRejection(discVal("discriminationByLooseElectronRejectionName"));
+      tau->SetDiscriminationByMediumElectronRejection(discVal("discriminationByMediumElectronRejectionName"));
+      tau->SetDiscriminationByTightElectronRejection(discVal("discriminationByTightElectronRejectionName"));
+      tau->SetDiscriminationByMVAElectronRejection(discVal("discriminationByMVAElectronRejectionName"));
+      tau->SetDiscriminationByLooseMuonRejection(discVal("discriminationByLooseMuonRejectionName"));
+      tau->SetDiscriminationByMediumMuonRejection(discVal("discriminationByMediumMuonRejectionName"));
+      tau->SetDiscriminationByTightMuonRejection(discVal("discriminationByTightMuonRejectionName"));
+      tau->SetDiscriminationByDecayModeFinding(discVal("discriminationByDecayModeFindingName"));
+      tau->SetDiscriminationByVLooseIsolation(discVal("discriminationByVLooseIsolationName"));
+      tau->SetDiscriminationByLooseIsolation(discVal("discriminationByLooseIsolationName"));
+      tau->SetDiscriminationByMediumIsolation(discVal("discriminationByMediumIsolationName"));
+      tau->SetDiscriminationByTightIsolation(discVal("discriminationByTightIsolationName"));
+      tau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByVLooseCombinedIsolationDBSumPtCorrName"));
+      tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByLooseCombinedIsolationDBSumPtCorrName"));
+      tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr(discVal("discriminationByMediumCombinedIsolationDBSumPtCorrName"));
+      tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr(discVal("discriminationByTightCombinedIsolationDBSumPtCorrName"));
+      tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr(discVal("discriminationByRawCombinedIsolationDBSumPtCorrName"));
+      tau->SetMVA2rawElectronRejection(discVal("mva2rawElectronRejectionName"));
+      tau->SetMVA2rawElectronRejectionCategory(discVal("mva2rawElectronRejectionCategoryName"));
+      tau->SetMVA2LooseElectronRejection(discVal("mva2LooseElectronRejectionName"));
+      tau->SetMVA2MediumElectronRejection(discVal("mva2MediumElectronRejectionName"));
+      tau->SetMVA2TightElectronRejection(discVal("mva2TightElectronRejectionName"));
+      tau->SetMVA3rawElectronRejection(discVal("mva3rawElectronRejectionName"));
+      tau->SetMVA3rawElectronRejectionCategory(discVal("mva3rawElectronRejectionCategoryName"));
+      tau->SetMVA3LooseElectronRejection(discVal("mva3LooseElectronRejectionName"));
+      tau->SetMVA3MediumElectronRejection(discVal("mva3MediumElectronRejectionName"));
+      tau->SetMVA3TightElectronRejection(discVal("mva3TightElectronRejectionName"));
+      tau->SetMVA3VTightElectronRejection(discVal("mva3VTightElectronRejectionName"));
+      tau->SetLooseCombinedIsolationDBSumPtCorr3Hits(discVal("looseCombinedIsolationDBSumPtCorr3HitsName"));
+      tau->SetMediumCombinedIsolationDBSumPtCorr3Hits(discVal("mediumCombinedIsolationDBSumPtCorr3HitsName"));
+      tau->SetTightCombinedIsolationDBSumPtCorr3Hits(discVal("tightCombinedIsolationDBSumPtCorr3HitsName"));
+      tau->SetRawCombinedIsolationDBSumPtCorr3Hits(discVal("rawCombinedIsolationDBSumPtCorr3HitsName"));
+      tau->SetLooseMuonRejection2(discVal("looseMuonRejection2Name"));
+      tau->SetMediumMuonRejection2(discVal("mediumMuonRejection2Name"));
+      tau->SetTightMuonRejection2(discVal("tightMuonRejection2Name"));
     }
-
-    // add track references
-//     if (trackMap_) {
-//       // electron preid track reference
-//       if (inTau->electronPreIDTrack().isNonnull()) {
-//         if (!allowMissingTrackRef_ || trackMap_->HasMit(refToPtrHack(inTau->electronPreIDTrack()))) {
-//           tau->SetElectronTrack(trackMap_->GetMit(refToPtrHack(inTau->electronPreIDTrack())));
-//         }
-//       }
-//     }
 
      if (inTau->electronPreIDTrack().isNonnull()) {
        const mithep::Track *theTrack = getMitTrack(refToPtrHack(inTau->electronPreIDTrack()),allowMissingTrackRef_);
@@ -244,39 +245,39 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     // add pf candidate references
     if (pfCandMap_) {
       if (inTau->leadPFCand().isNonnull())
-        tau->SetLeadPFCand(pfCandMap_->GetMit(refToPtrHack(inTau->leadPFCand())));
+        tau->SetLeadPFCand(pfCandMap_->GetMit(inTau->leadPFCand()));
         
       if (inTau->leadPFChargedHadrCand().isNonnull()) {
         const mithep::PFCandidate *pfc = 
-          pfCandMap_->GetMit(refToPtrHack(inTau->leadPFChargedHadrCand()));
+          pfCandMap_->GetMit(inTau->leadPFChargedHadrCand());
         tau->SetLeadChargedHadronPFCand(pfc);
       }
         
       if (inTau->leadPFNeutralCand().isNonnull())
-        tau->SetLeadNeutralPFCand(pfCandMap_->GetMit(refToPtrHack(inTau->leadPFNeutralCand())));
+        tau->SetLeadNeutralPFCand(pfCandMap_->GetMit(inTau->leadPFNeutralCand()));
         
       for (uint i=0; i<inTau->signalPFCands().size(); ++i) {
-        const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFCands().at(i)));
+        const PFCandidate *signalCand = pfCandMap_->GetMit(inTau->signalPFCands().at(i));
         tau->AddSignalPFCand(signalCand);
       }
 
       for (uint i=0; i<inTau->signalPFChargedHadrCands().size(); ++i) {
-	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFChargedHadrCands().at(i)));
+	const PFCandidate *signalCand = pfCandMap_->GetMit(inTau->signalPFChargedHadrCands().at(i));
 	tau->AddSignalPFChargedHadrCand(signalCand);
       }
 
       for (uint i=0; i<inTau->signalPFNeutrHadrCands().size(); ++i) {
-	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFNeutrHadrCands().at(i)));
+	const PFCandidate *signalCand = pfCandMap_->GetMit(inTau->signalPFNeutrHadrCands().at(i));
 	tau->AddSignalPFNeutrHadrCand(signalCand);
       }
 
       for (uint i=0; i<inTau->signalPFGammaCands().size(); ++i) {
-	const PFCandidate *signalCand = pfCandMap_->GetMit(refToPtrHack(inTau->signalPFGammaCands().at(i)));
+	const PFCandidate *signalCand = pfCandMap_->GetMit(inTau->signalPFGammaCands().at(i));
 	tau->AddSignalPFGammaCand(signalCand);
       }
       
       for (uint i=0; i<inTau->isolationPFCands().size(); ++i) {
-        const PFCandidate *isoCand = pfCandMap_->GetMit(refToPtrHack(inTau->isolationPFCands().at(i)));
+        const PFCandidate *isoCand = pfCandMap_->GetMit(inTau->isolationPFCands().at(i));
         tau->AddIsoPFCand(isoCand);
       }
     }

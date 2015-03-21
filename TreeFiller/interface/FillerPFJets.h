@@ -13,12 +13,16 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
 namespace mithep 
 {
   class FillerPFJets : public BaseFiller
   {  
     public:
-      FillerPFJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPFJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
       ~FillerPFJets();
 
       void              BookDataBlock(TreeWriter &tws);
@@ -30,31 +34,23 @@ namespace mithep
       bool              jetToVertexActive_;                        //=true if jet to vertex info is done
       bool              jetCorrectionsActive_;                     //=true if jet corrections are done
       bool              fastJetCorrectionsActive_;                 //=true if fastjet corrections are done
-      std::string       edmName_;                                  //edm name of jets collection
+      edm::EDGetTokenT<reco::PFJetCollection> edmToken_;                                  //edm name of jets collection
+      edm::EDGetTokenT<std::vector<double> > jetToVertexAlphaToken_;                     //edm name of jet to vertex alpha coll
+      edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_;                      //edm name of jet to vertex beta coll
+      edm::EDGetTokenT<double> rhoToken_;                                  //edm name of Energy per unit area
+      edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_;            //source of flavor matching
+      edm::EDGetTokenT<reco::JetTagCollection> jetProbabilityBJetTagsToken_;               //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> jetBProbabilityBJetTagsToken_;              //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> simpleSecondaryVertexHighEffBJetTagsToken_; //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> simpleSecondaryVertexHighPurBJetTagsToken_; //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexBJetTagsToken_;      //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexMVABJetTagsToken_;   //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighEffBJetTagsToken_;         //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighPurBJetTagsToken_;         //bjet algo discriminant
       std::string       mitName_;                                  //mit name of jets collection
-      std::string       jetToVertexAlphaName_;                     //edm name of jet to vertex alpha coll
-      std::string       jetToVertexBetaName_;                      //edm name of jet to vertex beta coll
-      edm::InputTag     rhoName_;                                  //edm name of Energy per unit area
-    //std::string       rhoName_;                                  //edm name of Energy per unit area
       std::string       L2JetCorrectorName_;                       //label of the L2JetCorrection service
       std::string       L3JetCorrectorName_;                       //label of the L3JetCorrection service
-      std::string       flavorMatchingByReferenceName_;            //source of flavor matching
       std::string       flavorMatchingDefinition_;                 //type of flavor matching
-      std::string       jetProbabilityBJetTagsName_;               //bjet algo discriminant
-      std::string       jetBProbabilityBJetTagsName_;              //bjet algo discriminant
-      std::string       simpleSecondaryVertexBJetTagsName_;        //bjet algo discriminant
-      std::string       simpleSecondaryVertexHighEffBJetTagsName_; //bjet algo discriminant
-      std::string       simpleSecondaryVertexHighPurBJetTagsName_; //bjet algo discriminant
-      std::string       combinedSecondaryVertexBJetTagsName_;      //bjet algo discriminant
-      std::string       combinedSecondaryVertexMVABJetTagsName_;   //bjet algo discriminant
-      std::string       ghostTrackBJetTagsName_;                   //bjet algo discriminant      
-      std::string       trackCountingHighEffBJetTagsName_;         //bjet algo discriminant
-      std::string       trackCountingHighPurBJetTagsName_;         //bjet algo discriminant
-      std::string       softMuonBJetTagsName_;                     //bjet algo discriminant        
-      std::string       softMuonByIP3dBJetTagsName_;               //bjet algo discriminant
-      std::string       softMuonByPtBJetTagsName_;                 //bjet algo discriminant
-      std::string       softElectronByIP3dBJetTagsName_;           //bjet algo discriminant
-      std::string       softElectronByPtBJetTagsName_;             //bjet algo discriminant
       std::string       pfCandMapName_;                            //name of imported PFCandidateMap
       const mithep::PFCandidateMap
 	               *pfCandMap_;                                //map wrt PFCandidates

@@ -1,8 +1,6 @@
 // $Id: FillerPFMet.cc,v 1.7 2011/10/03 16:15:50 ksung Exp $
 
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFMetCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -12,9 +10,10 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPFMet::FillerPFMet(const ParameterSet &cfg, const char *name, bool active) : 
+FillerPFMet::FillerPFMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
   BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<edm::InputTag>("edmName")),
+  edmToken_(GetToken<reco::PFMETCollection>(collector, "edmName")),
+  edmSingleToken_(GetToken<reco::PFMET>(collector, "edmName")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   pfMets_(new mithep::PFMetArr)
 {
@@ -49,13 +48,11 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
   reco::PFMETCollection inPFMets;
   
   Handle<reco::PFMETCollection> hCaloMetProduct;
-  //GetProduct(edmName_, hCaloMetProduct, event);
-  event.getByLabel(edmName_,hCaloMetProduct);
-  if(hCaloMetProduct.isValid()) {
+  if(GetProductSafe(edmToken_,hCaloMetProduct, event)){
     inPFMets = *(hCaloMetProduct.product());
   } else {
     Handle<reco::PFMET> hSingleMetProduct;
-    event.getByLabel(edmName_, hSingleMetProduct);
+    GetProduct(edmSingleToken_, hSingleMetProduct, event);
     inPFMets.push_back(*hSingleMetProduct.product());
   }
   // loop through all mets
