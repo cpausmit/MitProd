@@ -19,8 +19,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerJPTJets::FillerJPTJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerJPTJets::FillerJPTJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
   bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
   jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),

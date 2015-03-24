@@ -32,7 +32,7 @@ namespace mithep
   class BaseFiller
   {
     public:
-      BaseFiller(const edm::ParameterSet &cfg, const char *name, bool active=true);
+      BaseFiller(const edm::ParameterSet &cfg, ObjectService*, const char *name, bool active=true);
       virtual ~BaseFiller() {}
 
       bool                     Active()  const { return active_;       }
@@ -60,7 +60,7 @@ namespace mithep
       template <typename TYPE>
       bool                     GetProductSafe(const edm::EDGetTokenT<TYPE>&, edm::Handle<TYPE> &handle,
                                               const edm::Event &event) const;    
-      ObjectService           *OS();
+      ObjectService           *OS() { return os_; }
 
       const std::string        name_;    //name of this filler
       const std::string        brtname_; //name of branch table (def = BranchTable)
@@ -69,6 +69,7 @@ namespace mithep
       const bool               verify_;  //=1 if verificatin code is active
       const int                verbose_; //verbosity level (do not introduce more than 0-4 levels)
       BranchTable             *brtable_; //branch dependency table
+      ObjectService           *os_;      //object repository passed by the EDAnalyzer
   };
 }
 

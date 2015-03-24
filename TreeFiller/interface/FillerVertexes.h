@@ -22,7 +22,7 @@ namespace mithep
   class FillerVertexes : public BaseFiller
   {  
     public:
-      FillerVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerVertexes();
 
       void                     BookDataBlock(TreeWriter &tws);

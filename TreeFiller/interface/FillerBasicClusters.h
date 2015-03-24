@@ -24,7 +24,7 @@ namespace mithep
   class FillerBasicClusters : public BaseFiller
   {  
     public:
-      FillerBasicClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerBasicClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerBasicClusters();
 
       void                     BookDataBlock(TreeWriter &tws);

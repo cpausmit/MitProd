@@ -21,8 +21,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg, name, active),
+FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg, os, name, active),
   genActive_(Conf().getUntrackedParameter<bool>("genActive",true)),
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),

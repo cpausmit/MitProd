@@ -23,7 +23,7 @@ namespace mithep
   class FillerConversions : public BaseFiller
   {  
     public:
-    FillerConversions(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+    FillerConversions(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerConversions();
 
       void                                     BookDataBlock(TreeWriter &tws);

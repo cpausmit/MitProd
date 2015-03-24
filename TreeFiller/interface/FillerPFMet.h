@@ -23,7 +23,7 @@ namespace mithep
   class FillerPFMet : public BaseFiller
   {  
     public:
-      FillerPFMet(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active=1);
+      FillerPFMet(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService*, const char *name, bool active=1);
       ~FillerPFMet();
 
       void                  BookDataBlock(TreeWriter &tws);

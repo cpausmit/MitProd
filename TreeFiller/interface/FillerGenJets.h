@@ -23,7 +23,7 @@ namespace mithep
   class FillerGenJets : public BaseFiller
   {  
     public:
-      FillerGenJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerGenJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerGenJets();
 
       void                BookDataBlock(TreeWriter &tws);

@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::CaloTauCollection>(collector, "edmName","recoCaloTaus:iterativeCone5CaloTaus")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 

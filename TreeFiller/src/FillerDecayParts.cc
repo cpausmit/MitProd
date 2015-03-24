@@ -19,8 +19,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
+FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<mitedm::DecayPartCol>(collector, "edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   stableDataName_(mitName_ + "_StableDatas"),

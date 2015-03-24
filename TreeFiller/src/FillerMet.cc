@@ -13,8 +13,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMet::FillerMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerMet::FillerMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::METCollection>(collector, "edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   mets_(new mithep::MetArr)

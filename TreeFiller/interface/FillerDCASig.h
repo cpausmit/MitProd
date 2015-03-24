@@ -22,7 +22,7 @@ namespace mithep
   class FillerDCASig : public BaseFiller
   {  
     public:
-    FillerDCASig(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+    FillerDCASig(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
     ~FillerDCASig();
 
       void                                     BookDataBlock(TreeWriter &tws);

@@ -24,7 +24,7 @@ namespace mithep
   class FillerTrackJets : public BaseFiller
   {  
     public:
-      FillerTrackJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerTrackJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerTrackJets();
 
       void            BookDataBlock(TreeWriter &tws);

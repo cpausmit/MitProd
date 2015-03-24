@@ -27,7 +27,7 @@ namespace mithep
   class FillerConversionsDecay : public BaseFiller
   {  
     public:
-      FillerConversionsDecay(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerConversionsDecay(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerConversionsDecay();
 
       void                                     BookDataBlock(TreeWriter &tws);

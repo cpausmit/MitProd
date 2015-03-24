@@ -34,7 +34,7 @@ namespace mithep
       void                     beginJob();
       void                     endJob();
 
-      static ObjectService    *os() { return os_; }
+      ObjectService           *os() { return os_; }
 
     protected:
       bool                     addActiveFiller(BaseFiller *bf);
@@ -46,7 +46,7 @@ namespace mithep
       BranchTable             *brtable_;       //branch dependency table
       int                      acfnumber_;     //keep track of active file number
       TreeWriter              *tws_;           //pointer to tree writer
-      static ObjectService    *os_;            //object service (set in beginJob)
+      ObjectService           *os_;            //object service (set in beginJob)
   };
 }
 #endif

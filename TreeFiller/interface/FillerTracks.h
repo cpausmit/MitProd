@@ -26,7 +26,7 @@ namespace mithep
   class FillerTracks : public BaseFiller
   {  
     public:
-      FillerTracks(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerTracks(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerTracks();
 
       void                                BookDataBlock(TreeWriter &tws);

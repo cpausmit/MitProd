@@ -29,7 +29,7 @@ namespace mithep
   class FillerSuperClusters : public BaseFiller
   {  
     public:
-      FillerSuperClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerSuperClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerSuperClusters();
 
       void                             BookDataBlock(TreeWriter &tws);

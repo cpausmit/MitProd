@@ -21,7 +21,7 @@ namespace mithep
   class FillerBeamSpot : public BaseFiller
   {  
     public:
-      FillerBeamSpot(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerBeamSpot(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerBeamSpot();
 
       void                    BookDataBlock(TreeWriter &tws);

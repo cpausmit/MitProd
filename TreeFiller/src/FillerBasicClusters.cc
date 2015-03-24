@@ -19,8 +19,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::CaloClusterCollection>(collector, "edmName", "hybridSuperClusters")),
   barrelEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName","")),
   endcapEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName","")),

@@ -23,7 +23,7 @@ namespace mithep
   class FillerPsClusters : public BaseFiller
   {  
     public:
-      FillerPsClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPsClusters(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPsClusters();
 
       void                             BookDataBlock(TreeWriter &tws);

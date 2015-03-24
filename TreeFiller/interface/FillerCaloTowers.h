@@ -22,7 +22,7 @@ namespace mithep
   class FillerCaloTowers : public BaseFiller
   {  
     public:
-      FillerCaloTowers(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerCaloTowers(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerCaloTowers();
 
       void                   BookDataBlock(TreeWriter &tws);

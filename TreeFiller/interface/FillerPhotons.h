@@ -26,7 +26,7 @@ namespace mithep
   class FillerPhotons : public BaseFiller
   {  
     public:
-      FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPhotons();
 
       void                             BookDataBlock(TreeWriter &tws);

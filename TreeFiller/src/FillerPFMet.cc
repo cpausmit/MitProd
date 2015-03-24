@@ -10,8 +10,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPFMet::FillerPFMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerPFMet::FillerPFMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::PFMETCollection>(collector, "edmName")),
   edmSingleToken_(GetToken<reco::PFMET>(collector, "edmName")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),

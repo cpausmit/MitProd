@@ -21,7 +21,7 @@ namespace mithep
   class FillerGenMet : public BaseFiller
   {  
     public:
-      FillerGenMet(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerGenMet(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerGenMet();
 
       void                  BookDataBlock(TreeWriter &tws);

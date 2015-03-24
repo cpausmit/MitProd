@@ -48,8 +48,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller                (cfg,name,active),
+FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller                (cfg,os,name,active),
   edmToken_                 (GetToken<reco::GsfElectronCollection>(collector, "edmName","pixelMatchGsfElectrons")),
   pvEdmToken_                (GetToken<reco::VertexCollection>(collector, "pvEdmName","offlinePrimaryVertices")),
   pvBSEdmToken_              (GetToken<reco::VertexCollection>(collector, "pvBSEdmName","offlinePrimaryVerticesWithBS")),  

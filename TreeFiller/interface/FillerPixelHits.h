@@ -23,7 +23,7 @@ namespace mithep
   class FillerPixelHits : public BaseFiller
   {  
     public:
-      FillerPixelHits(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPixelHits(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPixelHits();
 
       void                                BookDataBlock(TreeWriter &tws);

@@ -29,7 +29,7 @@ namespace mithep
   class FillerDecayParts : public BaseFiller
   {  
     public:
-      FillerDecayParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+    FillerDecayParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerDecayParts();
     
       void                                      BookDataBlock(TreeWriter &tws);

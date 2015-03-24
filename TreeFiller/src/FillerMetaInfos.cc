@@ -28,8 +28,8 @@ using namespace mithep;
 Int_t mithep::FillerMetaInfos::instance_ = 0;
 
 //--------------------------------------------------------------------------------------------------
-FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,(instance_==0||active?1:0)),
+FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,(instance_==0||active?1:0)),
   hltEvtToken_(), // set below
   hltResToken_(), // set below
   l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, "l1GtReadRecEdmName","")),

@@ -23,7 +23,7 @@ namespace mithep
   class FillerStripHits : public BaseFiller
   {  
     public:
-      FillerStripHits(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerStripHits(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerStripHits();
 
       void                                BookDataBlock(TreeWriter &tws);

@@ -23,7 +23,7 @@ namespace mithep
   class FillerStableParts : public BaseFiller
   {  
     public:
-      FillerStableParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerStableParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerStableParts();
     
       void                                  BookDataBlock(TreeWriter &tws);

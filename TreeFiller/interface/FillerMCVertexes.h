@@ -24,7 +24,7 @@ namespace mithep
   class FillerMCVertexes : public BaseFiller
   {
     public:
-      FillerMCVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerMCVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService* os, const char *name, bool active=1);
       ~FillerMCVertexes();
 
       void                           BookDataBlock(TreeWriter &tws);

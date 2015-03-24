@@ -14,8 +14,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerGenJets::FillerGenJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerGenJets::FillerGenJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
   edmToken_(GetToken<reco::GenJetCollection>(collector, "edmName", "genjets")),
   flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),

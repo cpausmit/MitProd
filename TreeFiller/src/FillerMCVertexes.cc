@@ -10,8 +10,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCVertexes::FillerMCVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg, name, active),
+FillerMCVertexes::FillerMCVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg, os, name, active),
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
   hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, "edmName","genParticles", true)),
   genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, "edmName","genParticles")),

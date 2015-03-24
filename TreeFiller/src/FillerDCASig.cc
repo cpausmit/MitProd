@@ -20,8 +20,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller            (cfg,name,active),
+FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller            (cfg,os,name,active),
   edmElectronToken_      (GetToken<reco::GsfElectronCollection>(collector, "edmElectronName","gsfElectrons")),
   edmMuonToken_          (GetToken<reco::MuonCollection>(collector, "edmMuonName",    "muons")),
   edmTauToken_           (GetToken<reco::PFTauCollection>(collector, "edmTauName",     "hpsPFTauProducer")),

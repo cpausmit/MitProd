@@ -40,7 +40,7 @@ namespace mithep
   class FillerMetaInfos : public BaseFiller
   {
     public:
-      FillerMetaInfos(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name="MetaInfos", bool active=1);
+      FillerMetaInfos(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name="MetaInfos", bool active=1);
       ~FillerMetaInfos();
 
       void                           BookDataBlock(TreeWriter &tws);

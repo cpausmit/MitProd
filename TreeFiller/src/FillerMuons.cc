@@ -23,8 +23,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller            (cfg,name,active),
+FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller            (cfg,os,name,active),
   edmToken_(GetToken<reco::MuonCollection>(collector, "edmName","muons")),
   pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName","offlinePrimaryVertices")),
   pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName","offlinePrimaryVerticesWithBS")),

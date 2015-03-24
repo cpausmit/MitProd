@@ -10,8 +10,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   genWeightToken_(GetToken<double>(collector, "genWeightName", "generator_weight:weight:EmbeddedRECO")),
   genInfoToken_(GetToken<GenFilterInfo>(collector, "genInfoName", "generator_weight:minVisPtFilter:EmbeddedRECO", true)),
   spinnerWeightToken_(GetToken<double>(collector, "spinnerWeightName", "TauSpinnerRec:TauSpinnerWT:EmbeddedSPIN")),

@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerVertexes::FillerVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerVertexes::FillerVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::VertexCollection>(collector, "edmName","offlinePrimaryVertices")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","PrimaryVertexes")),
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","")),

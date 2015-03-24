@@ -20,7 +20,7 @@ namespace mithep
   class FillerPileupEnergyDensity : public BaseFiller
   {
     public:
-      FillerPileupEnergyDensity(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPileupEnergyDensity(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPileupEnergyDensity();
 
       void                  BookDataBlock(TreeWriter &tws);

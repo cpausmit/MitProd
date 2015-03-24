@@ -11,8 +11,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerEvtSelData::FillerEvtSelData(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name,  bool active) : 
-  BaseFiller(cfg,"EvtSelData",active),
+FillerEvtSelData::FillerEvtSelData(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name,  bool active) : 
+  BaseFiller(cfg, os, "EvtSelData",active),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkEvtSelDataBrn)),
   HBHENoiseFilterToken_(GetToken<bool>(collector, "HBHENoiseFilterName", "HBHENoiseFilterResultProducer")),
   ECALDeadCellFilterToken_(GetToken<bool>(collector, "ECALDeadCellFilterName", "EcalDeadCellTriggerPrimitiveFilter")),

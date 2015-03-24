@@ -22,7 +22,7 @@ namespace mithep
   class FillerPileupInfo : public BaseFiller
   {  
     public:
-      FillerPileupInfo(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPileupInfo(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPileupInfo();
 
       void                  BookDataBlock(TreeWriter &tws);

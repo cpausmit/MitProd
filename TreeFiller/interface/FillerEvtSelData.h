@@ -24,6 +24,7 @@ namespace mithep
     public:
       FillerEvtSelData(const edm::ParameterSet &cfg, 
                        edm::ConsumesCollector&,
+                       ObjectService*,
                        const char *name="EvtSelData", bool active=1);
       ~FillerEvtSelData();
 

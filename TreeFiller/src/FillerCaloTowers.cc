@@ -14,8 +14,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<CaloTowerCollection>(collector, "edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),

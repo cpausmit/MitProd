@@ -10,8 +10,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::BeamSpot>(collector, "edmName","offlineBeamSpot")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","BeamSpot")),
   beamSpots_(new mithep::BeamSpotArr)

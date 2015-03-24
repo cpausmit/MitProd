@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller                           (cfg,name,active),
+FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller                           (cfg,os,name,active),
   edmToken_(GetToken<double>(collector, "edmName")),
   edmNameLowEtaToken_(GetToken<double>(collector, "edmNameLowEta")),
   edmNameRandomToken_(GetToken<double>(collector, "edmNameRandom")),

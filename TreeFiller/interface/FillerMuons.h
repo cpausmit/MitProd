@@ -22,7 +22,7 @@ namespace mithep
   class FillerMuons : public BaseFiller
   {  
     public:
-      FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerMuons();
 
       void                        BookDataBlock(TreeWriter &tws);

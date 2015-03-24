@@ -20,8 +20,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPixelHits::FillerPixelHits(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
+FillerPixelHits::FillerPixelHits(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<SiPixelRecHitCollection>(collector, "edmName","siPixelRecHits")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPixelHitBrn)),
   phits_(new mithep::PixelHitArr(1000))

@@ -25,7 +25,7 @@ namespace mithep
   class FillerCaloJets : public BaseFiller
   {  
     public:
-      FillerCaloJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerCaloJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerCaloJets();
 
       void            BookDataBlock(TreeWriter &tws);

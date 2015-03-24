@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerConversions::FillerConversions(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller         (cfg,name,active),
+FillerConversions::FillerConversions(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller         (cfg,os,name,active),
   edmToken_           (GetToken<reco::ConversionCollection>(collector, "edmName","conversions")),
   mitName_           (Conf().getUntrackedParameter<string>("mitName","Conversions")),
   checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),

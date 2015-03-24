@@ -16,14 +16,15 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-BaseFiller::BaseFiller(const ParameterSet &cfg, const char *name, bool active) :
+BaseFiller::BaseFiller(const ParameterSet &cfg, ObjectService* os, const char *name, bool active) :
   name_(name),
   brtname_(cfg.getUntrackedParameter<string>("brTabName",Names::gkBranchTable)),
   config_(cfg.exists(name) ? cfg.getUntrackedParameter<ParameterSet>(name) : ParameterSet()),
   active_(config_.getUntrackedParameter<bool>("active",active)),
   verify_(config_.getUntrackedParameter<bool>("verify",false)),
   verbose_(config_.getUntrackedParameter<int>("verbose",0)),
-  brtable_(0)
+  brtable_(0),
+  os_(os)
 {
   // Constructor.
 }
@@ -52,14 +53,6 @@ void BaseFiller::AddBranchDep(const char *n, const char *d)
 
   if (!brtable_->Find(n,d))
     brtable_->Add(new BranchName(n,d));
-}
-
-//--------------------------------------------------------------------------------------------------
-ObjectService *BaseFiller::OS()           
-{ 
-  // Return ObjectService.
-
-  return FillMitTree::os(); 
 }
 
 //--------------------------------------------------------------------------------------------------

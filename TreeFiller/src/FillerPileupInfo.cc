@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPileupInfo::FillerPileupInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerPileupInfo::FillerPileupInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<std::vector<PileupSummaryInfo> >(collector, "edmName","addPileupInfo")),
   edmSingleToken_(GetToken<PileupSummaryInfo>(collector, "edmName","addPileupInfo")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPileupInfoBrn)),

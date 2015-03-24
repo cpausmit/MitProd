@@ -18,8 +18,6 @@
 #define MITPROD_OBJECTSERVICE_OBJECTSERVICE_H
 
 #include <string>
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,20 +25,13 @@
 #include "MitProd/ObjectService/interface/NamedObjectOwned.h"
 #include <THashTable.h>
 
-namespace edm 
-{
-  class ActivityRegistry;
-  class ParameterSet;
-  class ModuleDescription;
-}
-
 namespace mithep 
 {
   using std::string;
 
   class ObjectService  {
     public:
-      ObjectService(const edm::ParameterSet &cfg, edm::ActivityRegistry &ar);
+      ObjectService();
       ~ObjectService();
 
       template<class T> bool     add(const T *obj, const char *name);
@@ -63,12 +54,10 @@ namespace mithep
       template<class T> T       *modObjEvt(const string &name)     const
                                    { return modObjEvt<T>(name.c_str());     }
 
-    private:
-      void       preEventProcessing(const edm::EventID &id, const edm::Timestamp &t);
-      void       postEventProcessing(const edm::Event &e, const edm::EventSetup &es);
-      void       postBeginJob();
-      void       postEndJob();
+      void clear();
+      void clearEvt();
 
+    private:
       THashTable obs_;    //hash table holding the objects
       THashTable obsEvt_; //hash table holding the objects per event
   };

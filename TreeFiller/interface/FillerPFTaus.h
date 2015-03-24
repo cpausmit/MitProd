@@ -24,7 +24,7 @@ namespace mithep
   class FillerPFTaus : public BaseFiller
   {
     public:
-      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPFTaus();
 
       void                           BookDataBlock(TreeWriter &tws);

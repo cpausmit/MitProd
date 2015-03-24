@@ -23,7 +23,7 @@ namespace mithep
   class FillerPATElectrons : public BaseFiller
   {  
     public:
-      FillerPATElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, const char *name, bool active=1);
+      FillerPATElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService* os, const char *name, bool active=1);
       ~FillerPATElectrons();
 
       void                      BookDataBlock(TreeWriter &tws);

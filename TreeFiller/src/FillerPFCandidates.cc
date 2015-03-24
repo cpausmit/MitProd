@@ -19,8 +19,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, 
                                        edm::ConsumesCollector& collector,
+                                       ObjectService* os,
                                        const char *name, bool active) :
-  BaseFiller                    (cfg,name,active),
+  BaseFiller                    (cfg,os,name,active),
   edmToken_(GetToken<reco::PFCandidateCollection>(collector, "edmName","particleFlow")),
   edmPfNoPileupToken_(GetToken<reco::PFCandidateCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
   mitName_                      (Conf().getUntrackedParameter<string>("mitName",

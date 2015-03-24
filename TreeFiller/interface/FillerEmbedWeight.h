@@ -24,6 +24,7 @@ namespace mithep
     public:
       FillerEmbedWeight(const edm::ParameterSet &cfg, 
                         edm::ConsumesCollector&,
+                        ObjectService*,
                         const char *name="EmbedWeight", bool active=1);
       ~FillerEmbedWeight();
 

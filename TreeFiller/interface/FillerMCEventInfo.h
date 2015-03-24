@@ -26,6 +26,7 @@ namespace mithep
     public:
       FillerMCEventInfo(const edm::ParameterSet &cfg, 
                         edm::ConsumesCollector&,
+                        ObjectService*,
                         const char *name="MCEventInfo", bool active=1);
       ~FillerMCEventInfo();
 

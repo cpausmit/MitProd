@@ -13,8 +13,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name,  bool active) : 
-  BaseFiller(cfg,"MCEventInfo",active),
+FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name,  bool active) : 
+  BaseFiller(cfg,os,"MCEventInfo",active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
   genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, "genHepMCEventEdmName","generator")),
   genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, "genEvtInfoEdmName","generator")),

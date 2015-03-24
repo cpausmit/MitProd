@@ -12,8 +12,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
+FillerPFTaus::FillerPFTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
   hpsActive_(Conf().getUntrackedParameter<bool>("hpsActive", false)),
   edmToken_(GetToken<reco::PFTauCollection>(collector, "edmName","")),
   hpsTokens_(),

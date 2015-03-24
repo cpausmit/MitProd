@@ -16,8 +16,8 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerStableParts::FillerStableParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
+FillerStableParts::FillerStableParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<mitedm::StablePartCol>(collector, "edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   trackMapNames_(Conf().exists("trackMapNames") ? 

@@ -26,8 +26,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg, 
                                        edm::ConsumesCollector& collector,
+                                       ObjectService* os,
                                        const char *name, bool active) :
-  BaseFiller(cfg,"PATElectrons",active),
+  BaseFiller(cfg,os,"PATElectrons",active),
   edmToken_(GetToken<edm::View<pat::Electron> >(collector, "edmName","selectedLayer1Electrons")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   gsfTrackMapName_(Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
