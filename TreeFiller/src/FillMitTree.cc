@@ -58,7 +58,7 @@ FillMitTree::FillMitTree(const edm::ParameterSet &cfg) :
   brtable_(0),
   acfnumber_(-1),
   tws_(new TreeWriter(Names::gkEvtTreeName,0)),
-  os_(0)
+  os_(new ObjectService)
 {
   // Constructor.
 
@@ -153,7 +153,6 @@ void FillMitTree::beginJob()
 {
   // Access the tree and book branches.
 
-  os_ = new ObjectService;
   brtable_ = new BranchTable;
   brtable_->SetName(Names::gkBranchTable);
   brtable_->SetOwner();
