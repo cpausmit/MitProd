@@ -173,8 +173,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   edm::Handle<reco::GsfTrackCollection> hGsfTracks;
   GetProduct(gsfTracksToken_, hGsfTracks, event);
 
-  edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
-  GetProduct(conversionsToken_, hConversions, event);
+  // edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
+  // GetProduct(conversionsToken_, hConversions, event);
   
   mitedm::ConversionMatcher convMatcher;
      
@@ -673,7 +673,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       outElectron->SetCorrectedNExpectedHitsInner(iM->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
     }
     //fill additional conversion flag
-    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
+    //    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
     
     // add electron to map
     edm::Ptr<reco::GsfElectron> thePtr(hElectronProduct, iM - inElectrons.begin());
