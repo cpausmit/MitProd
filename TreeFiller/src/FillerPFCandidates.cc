@@ -23,7 +23,7 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
                                        const char *name, bool active) :
   BaseFiller                    (cfg,os,name,active),
   edmToken_(GetToken<reco::PFCandidateCollection>(collector, "edmName","particleFlow")),
-  edmPfNoPileupToken_(GetToken<reco::PFCandidateCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
+  edmPfNoPileupToken_(GetToken<reco::PFCandidateFwdPtrVector>(collector, "edmPfNoPileupName", "pfNoElectrons")),
   mitName_                      (Conf().getUntrackedParameter<string>("mitName",
 								      Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
@@ -152,9 +152,9 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
   GetProduct(edmToken_, hPfCandProduct, event);  
   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
-  Handle<reco::PFCandidateCollection> hPfNoPileupCandProduct;
+  Handle<reco::PFCandidateFwdPtrVector> hPfNoPileupCandProduct;
   GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
-  const reco::PFCandidateCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
+  const reco::PFCandidateFwdPtrVector &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
   for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
        iP != inPfCands.end(); ++iP) {
     mithep::PFCandidate *outPfCand = pfCands_->Allocate();
@@ -284,8 +284,10 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       // initially set the candidate to be not part of the NoPilup collection
       outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,false);
       // try to find match with the no-pileup map
-      for (reco::PFCandidateCollection::const_iterator iNoPileupP = inPfNoPileupCands.begin();
-	   iNoPileupP != inPfNoPileupCands.end(); ++iNoPileupP) {
+      for (reco::PFCandidateFwdPtrVector::const_iterator iNoPileupPItr = inPfNoPileupCands.begin();
+	   iNoPileupPItr != inPfNoPileupCands.end(); ++iNoPileupPItr) {
+
+        reco::PFCandidateFwdPtr const& iNoPileupP(*iNoPileupPItr);
 
 	//	if (*iP == *iNoPileupP) { // pointers should be the same (but it does not)
 
@@ -293,13 +295,11 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
 	if (iP->px() == iNoPileupP->px() &&
 	    iP->py() == iNoPileupP->py() &&
 	    iP->pz() == iNoPileupP->pz()   ) {
-	  reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct,
-					      iNoPileupP-inPfNoPileupCands.begin());
 
 	  // set the candidate to be part of the NoPilup collection
 	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
 
-	  pfNoPileupCandMap_->Add(theNoPileupPtr,outPfCand);
+	  pfNoPileupCandMap_->Add(iNoPileupP.ptr(),outPfCand);
 	  if (found)
 	    edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
 	      << "PF No Pileup was double linked!! " << endl;
