@@ -6,6 +6,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
@@ -33,7 +34,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, edm::ConsumesCollector
   hltEvtToken_(), // set below
   hltResToken_(), // set below
   l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, "l1GtReadRecEdmName","")),
-  l1GtMenuLiteToken_(GetToken<L1GtTriggerMenuLite>(collector, "l1GtMenuLiteEdmName","l1GtTriggerMenuLite")),
+  l1GtMenuLiteToken_(collector.consumes<L1GtTriggerMenuLite, edm::InRun>(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite"))),
   l1GtMenuLiteTag_(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName","l1GtTriggerMenuLite")),
   evtName_(Conf().getUntrackedParameter<string>("evtMitName",Names::gkEvtHeaderBrn)),
   runTreeName_(Conf().getUntrackedParameter<string>("runTreeMitName",Names::gkRunTreeName)),
@@ -433,7 +434,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   if (l1Active_) {
 
     Handle<L1GtTriggerMenuLite> gtMenuLite;
-    GetProduct(l1GtMenuLiteToken_, gtMenuLite, event);
+    event.getRun().getByToken(l1GtMenuLiteToken_, gtMenuLite);
     
     // get L1 algo names
     labels->push_back("xxx-L1AlgoNames-xxx");
@@ -677,7 +678,7 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup&
     return;
 
   Handle<L1GtTriggerMenuLite> gtMenuLite;
-  GetProduct(l1GtMenuLiteToken_, gtMenuLite, event);
+  event.getRun().getByToken(l1GtMenuLiteToken_, gtMenuLite);
 
   BitMask128 l1amask;
   BitMask128 l1tmask;
