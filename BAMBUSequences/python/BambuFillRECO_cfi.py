@@ -46,7 +46,9 @@ goodOfflinePrimaryVertices = cms.EDFilter(
     src = cms.InputTag('offlinePrimaryVertices')
     )
 
+from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 from CommonTools.ParticleFlow.pfNoPileUp_cff                 import *
+from CommonTools.ParticleFlow.pfNoPileUpJME_cff                 import *
 from CommonTools.ParticleFlow.pfParticleSelection_cff        import *
 from CommonTools.ParticleFlow.pfPhotons_cff                  import *
 from CommonTools.ParticleFlow.pfElectrons_cff                import *
@@ -56,15 +58,17 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi     import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi      import *
 
-pfPileUp.PFCandidates          = 'particleFlow'
-pfNoPileUp.bottomCollection    = 'particleFlow'
-pfPileUpIso.PFCandidates       = 'particleFlow'
-pfNoPileUpIso.bottomCollection = 'particleFlow'
+pfPileUp.PFCandidates          = 'particleFlowPtrs'
+pfNoPileUp.bottomCollection    = 'particleFlowPtrs'
+pfPileUpIso.PFCandidates       = 'particleFlowPtrs'
+pfNoPileUpIso.bottomCollection = 'particleFlowPtrs'
 pfPileUp.Enable                = True
 pfPileUp.Vertices              = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex   = cms.bool(False)
 pfJets.doAreaFastjet           = True
 pfJets.doRhoFastjet            = False
+
+pfMuonsFromVertex.vertices = 'goodOfflinePrimaryVertices'
 
 #to run and store the decisions of the MET filters
 #> The iso-based HBHE noise filter
@@ -120,13 +124,17 @@ BambuRecoSequence = cms.Sequence(electronsStable*
                                  newBtaggingAll*
 				 #ClusteredPFMetProducer*
                                  goodOfflinePrimaryVertices*
+                                 particleFlowPtrs*
                                  pfNoPileUpSequence*
                                  pfParticleSelectionSequence*
+                                 pfNoPileUpJMESequence*
                                  pfPhotonSequence*
                                  pfMuonSequence*
                                  pfNoMuon*
+                                 pfNoMuonJME*
                                  pfElectronSequence*
                                  pfNoElectron*
+                                 pfNoElectronJME*
                                  pfJetSequence*
                                  pfNoJet*
                                  l1FastJetSequenceCHS*
