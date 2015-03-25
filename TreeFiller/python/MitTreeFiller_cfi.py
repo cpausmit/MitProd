@@ -636,7 +636,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
     Electrons = cms.untracked.PSet(
         active                           = cms.untracked.bool(True),
-        edmName                          = cms.untracked.string('gsfElectrons'),
+        edmName                          = cms.untracked.string('gedGsfElectrons'),
         pvEdmName                        = cms.untracked.string('offlinePrimaryVertices'),
         pvBSEdmName                      = cms.untracked.string('offlinePrimaryVerticesWithBS'),
         eIDCutBasedLooseName             = cms.untracked.string('eidLoose'),
@@ -1605,7 +1605,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
      DCASig     = cms.untracked.PSet(
        active          = cms.untracked.bool(True),
        mitName         = cms.untracked.string('DCASig'),
-       edmElectronName = cms.untracked.string('gsfElectrons'),
+       edmElectronName = cms.untracked.string('gedGsfElectrons'),
        edmMuonName     = cms.untracked.string('muons'),
        edmTauName      = cms.untracked.string('hpsPFTauProducer'),
        electronMapName = cms.untracked.string('electronMap'),
