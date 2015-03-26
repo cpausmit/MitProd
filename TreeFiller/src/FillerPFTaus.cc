@@ -305,7 +305,7 @@ const mithep::Track *FillerPFTaus::getMitTrack(mitedm::TrackPtr ptr, bool allowm
   }
   
   if (!mitPart && !allowmissing)
-    throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
+    throw edm::Exception(edm::errors::Configuration, "FillerPFTaus::FillDataBlock()\n")
     << "Error! MITHEP Object " 
     << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
     
