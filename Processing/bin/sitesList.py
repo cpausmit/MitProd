@@ -52,12 +52,13 @@ if f[1] == "mc":
 #---------------------------------------------------------------------------------------------------
 # handle private production first
 if private:
-    print dataset + '#00000000-0000-0000-0000-000000000000 : ' + 'se01.cmsaf.mit.edu'
+    print dataset + '#00000000-0000-0000-0000-000000000000 : ' + 'T2_US_MIT'
     sys.exit()
 
 # dbs 3 interface
 # - find all relevant blocks
 cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + dataset + '"'
+#print 'BLOCKS: ' + cmd
 blocks = []
 for line in os.popen(cmd).readlines():
     line  = line[:-1]
@@ -69,7 +70,9 @@ for line in os.popen(cmd).readlines():
 sites = {}
 for block in blocks:
     siteString = ''
-    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
+    #cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
+    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + '"'
+    #print 'BLOCK: ' + cmd
     for line in os.popen(cmd).readlines():
         line = line[:-1]
         f    = line.split(' ');

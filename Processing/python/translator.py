@@ -12,7 +12,8 @@ Each SubTask in CRAB can be described through this class
 """
 #---------------------------------------------------------------------------------------------------
 class Translator:
-    "Translator for the storage and computing elements to the "
+    "Translator for the storage and computing elements from hostnames to generic site names"
+
     # variable to be determined
     ceTable            = 'undefined' # compute elements translation table
     seTable            = 'undefined' # storage elements translation table
@@ -20,6 +21,7 @@ class Translator:
     prefSitesTable     = 'undefined' # comma separated list of preferred sites
     ces                = {}
     ses                = {}
+    sites              = []          # generic name of all sites
     preferredSitesList = []
     preferredSites     = []
     #-----------------------------------------------------------------------------------------------
@@ -45,6 +47,8 @@ class Translator:
         #self.show()
 
     def readList(self,file):
+        # read a given file name as a list each line one list entry       
+
         list = []
         cmd = 'grep -v ^# ' + file + ' | tr -d \' \''
         print ' Loading list: ' + cmd
@@ -57,6 +61,8 @@ class Translator:
         return list
 
     def readTable(self,file):
+        # read a given file name as a table with colon separated entries
+        
         table = {}
         cmd = 'grep -v ^# ' + file + ' | tr -d \' \''
         print ' Loading table: ' + cmd
@@ -68,10 +74,35 @@ class Translator:
                 print ' Site already in tables %s (%s)'%(names[1],names[0])
             table[names[1]] = names[0]
 
+            # add all generic site names
+            if not (names[0] in self.sites):
+                self.sites.append(names[0])
+
         return table
 
-    def translateSes(self,seString):
+    def cleanSites(self,seString):
+        # not all sites are available we will only keep the ones specified in out table
+
         print ' translating SE sites: ' + seString
+        sites = seString.split(",")
+        newString = ''
+        for site in sites:
+            if site in self.sites:
+                if newString == '':
+                    newString = site
+                else:
+                    newString = "%s,%s"%(newString,site)
+
+        #print 'Cleaned: %s'%(newString)
+        self.allSites = newString
+        return newString
+
+    def translateSes(self,seString):
+        # translate the given string from SE hostnames to the generic site names (T2_US_MIT, etc.)
+
+        print ' translating SE sites: ' + seString
+        self.show()
+
         sites = seString.split(",")
         newString = ''
         #print ' Looping through sites %s'%(seString)
@@ -90,6 +121,8 @@ class Translator:
         return newString
 
     def translateCes(self,ceString):
+        # translate the given string from SE hostnames to the generic site names (T2_US_MIT, etc.)
+
         print ' translating CE sites: ' + ceString
         sites = ceString.split(",")
         newString = ''
@@ -104,6 +137,7 @@ class Translator:
             else:
                 print '  dropping  %s  because it is not in our table'%(site)
 
+        
         #print 'Translated: %s'%(newString)
         self.allSites = newString
         return newString

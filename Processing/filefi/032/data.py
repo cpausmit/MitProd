@@ -45,7 +45,8 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
 
-process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+#process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+process.MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 
 process.bambu_step  = cms.Path(process.BambuFillAOD)
 
