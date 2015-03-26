@@ -71,8 +71,8 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, const char *name, bool activ
   //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter<string>
   //                 ("SoftElectronByPtBJetTagsName","softElectronByPtBJetTags")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","pfCandMapName")),
-  pfCandMap_(0),
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
+  pfCandMap_(0),
   jetMap_(new mithep::PFJetMap),
   jets_(new mithep::PFJetArr(16))
 {

@@ -161,7 +161,8 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   edm::ESHandle<CaloTopology> pTopology;
   setup.get<CaloTopologyRecord>().get(pTopology);
 
-  const CaloSubdetectorGeometry *geometryES = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  // const CaloSubdetectorGeometry *geometryES = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
   EcalPreshowerTopology topology_p(pGeometry);
 
   //map of preshower rechits for shape calculations

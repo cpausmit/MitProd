@@ -227,7 +227,6 @@ for crabTask in crabTasks:
 	    path1 = f[1]
 	    path0 = "/".join(path1.split("/")[:-1])
 	    cmd = ' glexec chmod a+w ' + path0 + ' ' + path1
-	    #print ' Updating permissions - ' + cmd
 	    status = os.system(cmd)
 
     if kill == 1:

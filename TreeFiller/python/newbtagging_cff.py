@@ -1,16 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-
 # b-tagging general configuration
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoBTag.Configuration.RecoBTag_cff import *
-
 
 # create a new jets and tracks association
 newJetTracksAssociatorAtVertex = ic5JetTracksAssociatorAtVertex.clone()
 newJetTracksAssociatorAtVertex.jets = "ak5PFJets"
 newJetTracksAssociatorAtVertex.tracks = "generalTracks"
-
 
 # impact parameter b-tag
 newImpactParameterTagInfos = impactParameterTagInfos.clone()
