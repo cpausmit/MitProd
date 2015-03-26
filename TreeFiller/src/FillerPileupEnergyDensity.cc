@@ -1,5 +1,3 @@
-// $Id: FillerPileupEnergyDensity.cc,v 1.5 2012/05/05 16:49:59 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"

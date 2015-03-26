@@ -1,5 +1,3 @@
-// $Id: FillerBasicClusters.cc,v 1.21 2012/07/16 13:13:40 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -13,7 +11,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 
 using namespace std;
 using namespace edm;
@@ -28,7 +25,6 @@ FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, const char *na
   endcapEcalRecHitName_(Conf().getUntrackedParameter<string>("endcapEcalRecHitName","")),
   basicClusterMapName_ (Conf().getUntrackedParameter<string>("basicClusterMapName",
 							     "BasicClusterMap")),
-  pfClusters_          (Conf().getUntrackedParameter<bool>("pfClusters",false)),
   basicClusters_       (new mithep::BasicClusterArr(100)),
   basicClusterMap_     (new mithep::BasicClusterMap)
 {
@@ -75,31 +71,25 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   edm::Handle< EcalRecHitCollection > pEBRecHits;
   event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
   edm::Handle< EcalRecHitCollection > pEERecHits;
-  event.getByLabel( endcapEcalRecHitName_, pEERecHits );
+  event.getByLabel(endcapEcalRecHitName_, pEERecHits );
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
-  const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-
-  EcalClusterLazyTools lazyTools(event, setup, edm::InputTag(barrelEcalRecHitName_), 
+  EcalClusterLazyTools lazyTools(event, setup,
+				 edm::InputTag(barrelEcalRecHitName_), 
                                  edm::InputTag(endcapEcalRecHitName_));
-
-  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
 
   EcalClusterLocal local;                                 
                                  
-  //loop over rechits and make map of energy values
+  // loop over rechits and make map of energy values
   std::map<DetId,float> hitEnergies;
 
-  for (EcalRecHitCollection::const_iterator it = pEBRecHits->begin(); it!=pEBRecHits->end(); ++it) {
+  for (EcalRecHitCollection::const_iterator it = pEBRecHits->begin(); it!=pEBRecHits->end(); ++it)
     hitEnergies.insert(std::pair<DetId,float>(it->id(),it->energy()));
-  }
 
-  for (EcalRecHitCollection::const_iterator it = pEERecHits->begin(); it!=pEERecHits->end(); ++it) {
+  for (EcalRecHitCollection::const_iterator it = pEERecHits->begin(); it!=pEERecHits->end(); ++it)
     hitEnergies.insert(std::pair<DetId,float>(it->id(),it->energy()));
-  }
 
   // loop through all basic clusters
   for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
@@ -143,52 +133,72 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
     outBasicCluster->SetCovEtaEta  (lazyTools.covariances(*inBC)[0]);
     outBasicCluster->SetCovPhiPhi  (lazyTools.covariances(*inBC)[2]);
 
-    //ecal timing information
+    // ecal timing information
     const reco::BasicCluster *inbcd = dynamic_cast<const reco::BasicCluster*>(&*inBC);
-
     if (inbcd) {
-      outBasicCluster->SetTime(lazyTools.BasicClusterTime(*inbcd, event));
-      outBasicCluster->SetSeedTime(lazyTools.BasicClusterSeedTime(*inbcd));
+      if (inBC->hitsAndFractions().at(0).first.subdetId() == EcalBarrel ||
+	  inBC->hitsAndFractions().at(0).first.subdetId() == EcalEndcap   ) {
+	outBasicCluster->SetTime(lazyTools.BasicClusterTime(*inbcd, event));
+	outBasicCluster->SetSeedTime(lazyTools.BasicClusterSeedTime(*inbcd));
+      }
     }
 
-    //local coordinates
-    if (inBC->hitsAndFractions().at(0).first.subdetId()==EcalBarrel) {
-      float etacry, phicry, thetatilt, phitilt;
-      int ieta, iphi;
-      local.localCoordsEB(*inBC,setup,etacry,phicry,ieta,iphi,thetatilt,phitilt);
-      outBasicCluster->SetEtaCry(etacry);
-      outBasicCluster->SetPhiCry(phicry);
-      outBasicCluster->SetIEta(ieta);
-      outBasicCluster->SetIPhi(iphi);
-      outBasicCluster->SetThetaAxis(thetatilt);
-      outBasicCluster->SetPhiAxis(phitilt);
+    // local crystal information
 
-      EBDetId edet(inBC->hitsAndFractions().at(0).first);
-
-      outBasicCluster->SetSeedIEta(edet.ieta());
-      outBasicCluster->SetSeedIPhi(edet.iphi());
+    // patch for now to protect against cluster with negative energy
+    if (inBC->energy()<0) {
+      std::cout << " WARNING - cluster energy is negative!"
+		<< " Skipping crystal info for this cluster." << std::endl;
     }
     else {
-      float xcry, ycry, thetatilt, phitilt;
-      int ix, iy;
-      local.localCoordsEE(*inBC,setup,xcry,ycry,ix,iy,thetatilt,phitilt);
-      outBasicCluster->SetXCry(xcry);
-      outBasicCluster->SetYCry(ycry);
-      outBasicCluster->SetIX(ix);
-      outBasicCluster->SetIY(iy);
-      outBasicCluster->SetThetaAxis(thetatilt);
-      outBasicCluster->SetPhiAxis(phitilt);
+  
+      if      (inBC->hitsAndFractions().at(0).first.subdetId() == EcalBarrel) {
+        float etacry, phicry, thetatilt, phitilt;
+        int ieta, iphi;
+        local.localCoordsEB(*inBC,setup,etacry,phicry,ieta,iphi,thetatilt,phitilt);
+        outBasicCluster->SetEtaCry(etacry);
+        outBasicCluster->SetPhiCry(phicry);
+        outBasicCluster->SetIEta(ieta);
+        outBasicCluster->SetIPhi(iphi);
+        outBasicCluster->SetThetaAxis(thetatilt);
+        outBasicCluster->SetPhiAxis(phitilt);
+  
+        EBDetId edet(inBC->hitsAndFractions().at(0).first);
+  
+        outBasicCluster->SetSeedIEta(edet.ieta());
+        outBasicCluster->SetSeedIPhi(edet.iphi());
+      }
+      else if (inBC->hitsAndFractions().at(0).first.subdetId() == EcalEndcap) {
+        float xcry, ycry, thetatilt, phitilt;
+        int ix, iy;
+        local.localCoordsEE(*inBC,setup,xcry,ycry,ix,iy,thetatilt,phitilt);
+        outBasicCluster->SetXCry(xcry);
+        outBasicCluster->SetYCry(ycry);
+        outBasicCluster->SetIX(ix);
+        outBasicCluster->SetIY(iy);
+        outBasicCluster->SetThetaAxis(thetatilt);
+        outBasicCluster->SetPhiAxis(phitilt);
+  
+        EEDetId edet(inBC->hitsAndFractions().at(0).first);
 
-      EEDetId edet(inBC->hitsAndFractions().at(0).first);
-
-      outBasicCluster->SetSeedIX(edet.ix());
-      outBasicCluster->SetSeedIY(edet.iy());
+        outBasicCluster->SetSeedIX(edet.ix());
+        outBasicCluster->SetSeedIY(edet.iy());
+      }
+      else {                             // this is for clusters in the preshower
+        outBasicCluster->SetXCry(-99);
+        outBasicCluster->SetYCry(-99);
+        outBasicCluster->SetIX(-99);
+        outBasicCluster->SetIY(-99);
+        outBasicCluster->SetThetaAxis(-99);
+        outBasicCluster->SetPhiAxis(-99);
+        outBasicCluster->SetSeedIX(-99);
+        outBasicCluster->SetSeedIY(-99);
+      }
     }
-
+  
     // add basic clusters to the map
     reco::CaloClusterPtr thePtr(hBasicClusterProduct, inBC-inBasicClusters.begin());
     basicClusterMap_->Add(thePtr, outBasicCluster);
-  
   }
   basicClusters_->Trim();
 }

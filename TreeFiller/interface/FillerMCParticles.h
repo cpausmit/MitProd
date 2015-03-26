@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCParticles.h,v 1.10 2010/01/07 11:04:31 bendavid Exp $
-//
 // FillerMCParticles
 //
 // Imlementation of a filler to fill HepMC particles or the AOD GenParticle candidates (gen)
@@ -10,7 +8,6 @@
 //
 // Authors: C.Loizides, J.Bendavid
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 #define MITPROD_TREEFILLER_FILLERMCPARTICLES_H
 

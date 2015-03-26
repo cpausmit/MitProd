@@ -1,14 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerBasicClusters.h,v 1.8 2010/03/24 15:40:57 sixie Exp $
-//
 // FillerBasicClusters
 //
-// Implementation of a filler to fill EDM basic clusters into the
-// mithep::BasicCluster data structure.
+// Implementation of a filler to fill EDM basic clusters into the mithep::BasicCluster data
+// structure.
 //
 // Authors: C.Paus, J.Bendavid, S.Xie
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
 #define MITPROD_TREEFILLER_FILLERBASICCLUSTERS_H
 
@@ -28,14 +25,13 @@ namespace mithep
       void 	               FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string              edmName_;              //edm name of clusters
-      std::string              mitName_;              //mit name of clusters
-      std::string              barrelEcalRecHitName_; //name of barrel ecal rechits 
-      std::string              endcapEcalRecHitName_; //name of endcap ecal rechits
-      std::string              basicClusterMapName_;  //name of export map
-      bool                     pfClusters_;           //for alternate shape computations
-      mithep::BasicClusterArr *basicClusters_;        //array of basic clusters
-      mithep::BasicClusterMap *basicClusterMap_;      //map wrt basic Clusters
+      std::string              edmName_;              // edm name of clusters
+      std::string              mitName_;              // mit name of clusters
+      std::string              barrelEcalRecHitName_; // name of barrel ecal rechits 
+      std::string              endcapEcalRecHitName_; // name of endcap ecal rechits
+      std::string              basicClusterMapName_;  // name of export map
+      mithep::BasicClusterArr *basicClusters_;        // array of basic clusters
+      mithep::BasicClusterMap *basicClusterMap_;      // map wrt basic Clusters
   };
 }
 #endif

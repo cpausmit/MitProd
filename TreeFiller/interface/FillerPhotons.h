@@ -63,8 +63,10 @@ namespace mithep
       const mithep::SuperClusterMap    *barrelSuperClusterMap_;    //map wrt barrel super clusters
       const mithep::SuperClusterMap    *endcapSuperClusterMap_;    //map wrt endcap super clusters
       const mithep::SuperClusterMap    *pfSuperClusterMap_;        //map wrt pflow super clusters  
-      const mithep::BasicClusterMap    *pfClusterMap_;             //map wrt pflow basic clusters        
-      const mithep::PFCandidateMap     *pfCandMap_;                //map wrt pflow candidates
+      const mithep::BasicClusterMap    *pfClusterMap_;             //map wrt pflow basic clusters
+      //CP this changed for 70x
+      const mithep::PFCandViewMap      *pfCandMap_;                //map wrt pflow candidates
+
       EGEnergyCorrector                 ecorr_;
   };
 }

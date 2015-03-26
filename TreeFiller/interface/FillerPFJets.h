@@ -56,9 +56,9 @@ namespace mithep
       std::string       softElectronByIP3dBJetTagsName_;           //bjet algo discriminant
       std::string       softElectronByPtBJetTagsName_;             //bjet algo discriminant
       std::string       pfCandMapName_;                            //name of imported PFCandidateMap
-      std::string       jetMapName_;                               //name of exported PFJetMap
       const mithep::PFCandidateMap
 	               *pfCandMap_;                                //map wrt PFCandidates
+      std::string       jetMapName_;                               //name of exported PFJetMap
       mithep::PFJetMap *jetMap_;                                   //export map
       mithep::PFJetArr *jets_;                                     //array of Jets
   };

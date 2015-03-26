@@ -1,5 +1,3 @@
-// $Id: FillerMCParticles.cc,v 1.21 2010/03/18 20:21:00 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,6 +20,7 @@
 #include "MitAna/DataTree/interface/MCParticleCol.h"
 #include "MitAna/DataTree/interface/TrackingParticleCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 using namespace std;
 using namespace edm;
@@ -235,31 +234,30 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         if (fillTracking_) {
           mithep::TrackingParticle *outTracking = trackingParticles_->AddNew();
           
-          //fill associated sim tracks
+          // fill associated sim tracks
           for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
                  iST != iM->g4Tracks().end(); ++iST) {
             outTracking->AddMCPart(simMap_->GetMit(theSimTrack.trackId()));
           }
           
-          //fill hit information
+          // fill hit information
           reco::HitPattern hitPattern;
-          int nHits = 0;
           
-          //loop through sim hits and construct intermediate reco::HitPattern
-          for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
-                iSimHit != iM->pSimHit_end(); ++iSimHit) {
+	  //CP THIS NEEDS TO WORK --> pSimHits disappeared from TrackingParticle?!
+	  //CP --> turns out this is obsolete!! Will delete soon ;-)
 
-            unsigned int detectorIdIndex = iSimHit->detUnitId();
-            DetId detectorId = DetId(detectorIdIndex);
-            
-            InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);
-          
-            hitPattern.set(tHit,nHits);
-            ++nHits;
-          
-          }
+          //CP // loop through sim hits and construct intermediate reco::HitPattern
+          //CP int nHits = 0;
+          //CP for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
+          //CP       iSimHit != iM->pSimHit_end(); ++iSimHit) {
+          //CP   unsigned int detectorIdIndex = iSimHit->detUnitId();
+          //CP   DetId detectorId = DetId(detectorIdIndex);
+          //CP   InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);          
+          //CP   hitPattern.set(tHit,nHits);
+          //CP   ++nHits;
+          //CP }
 
-          //construct hit layer bitmask as used in bambu
+          // construct hit layer bitmask as used in bambu
           BitMask48 hits;
           // search for all good crossed layers (with or without hit)
           for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {

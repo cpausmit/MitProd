@@ -84,6 +84,7 @@ namespace mithep
   typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::PFTau>,       mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>   PFCandidateMap;
+  typedef AssociationMap<const edm::FwdPtr<reco::PFCandidate>,mithep::PFCandidate*>   PFCandViewMap;
   typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>       CaloJetMap;
   typedef AssociationMap<const edm::Ptr<reco::JPTJet>,      mithep::JPTJet*>        JPTJetMap;
   typedef AssociationMap<const edm::Ptr<reco::PFJet>,       mithep::PFJet*>         PFJetMap;

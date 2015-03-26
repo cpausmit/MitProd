@@ -1,11 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFTaus.h,v 1.14 2012/03/26 15:27:15 mhchan Exp $
-//
 // FillerPFTaus
 //
 // Implementation of a filler to fill EDM pf taus into our mithep::PFTau data structure.
 //
-// Authors: C.Loizides, J.Bendavid
+// Authors: C.Loizides, J.Bendavid, C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERPFTAUS_H
@@ -24,16 +22,16 @@ namespace mithep
     public:
       struct PFTauDiscHandle
       {
-          std::string name; // EDM name
-          edm::Handle<reco::PFTauDiscriminator> handle;
-
-          Double32_t value(reco::PFTauRef tauRef)
-          {
-            if(handle.isValid())
-              return (*handle)[tauRef];
-            else
-              return 0;
-          }
+	std::string name;                // EDM name
+	edm::Handle<reco::PFTauDiscriminator> handle;
+	
+	Double32_t value(reco::PFTauRef tauRef)
+	{
+	  if (handle.isValid())
+	    return (*handle)[tauRef];
+	  else
+	    return 0;
+	}
       };
 
       FillerPFTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
@@ -43,32 +41,23 @@ namespace mithep
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      //template <typename C> edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<typename C, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const &ref)  { return edm::Ptr<typename C::value_type>(ref.id(), ref.get(), ref.key()); }
-
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
-
-      bool                           hpsActive_;      //=true if HPS discriminants are filled
-      std::string                    edmName_;        //edm name of jets collection
-      std::string                    mitName_;        //mit name of jets collection
-      std::map<string, PFTauDiscHandle> hpsHandles_;     // handles for HPS discriminators
+      bool                           hpsActive_;       //=true if HPS discriminants are filled
+      std::string                    edmName_;         //edm name of jets collection
+      std::string                    mitName_;         //mit name of jets collection
+      std::map<string, PFTauDiscHandle> hpsHandles_;   //handles for HPS discriminators
       std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
-      std::string                    jetMapName_;     //name of imported PFJetMap
-      std::string                    pfCandMapName_;  //name of imported PFCandidateMap
-      std::string                    tauMapName_;     //name of exported PFTau Map
-      bool                           allowMissingTrackRef_; //allow missing track reference (needed for tau embedding samples)
-      std::vector<const mithep::TrackMap*> trackMaps_;       //map wrt Tracks
-      const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
-      const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
-      mithep::PFTauMap              *tauMap_;         //exported PFTau map
-      mithep::PFTauArr              *taus_;           //array of taus
-
-      template <typename C>
-      edm::Ptr<typename C::value_type> refToPtrHack(edm::Ref<C, typename C::value_type, edm::refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
-        typedef typename C::value_type T;
-        return edm::Ptr<T>(ref.id(), ref.get(), ref.key());
-      }
-
+      std::string                    jetMapName_;      //name of imported PFJetMap
+      std::string                    pfCandMapName_;   //name of imported PFCandidateMap
+      std::string                    tauMapName_;      //name of exported PFTau Map
+      bool                           allowMissingTrackRef_; //allow missing track reference
+                                                            //-->needed for tau embedding samples
+      std::vector<const mithep::TrackMap*> trackMaps_; //map wrt Tracks
+      const mithep::PFJetMap        *jetMap_;          //map wrt pfjets
+      const mithep::PFCandidateMap  *pfCandMap_;       //map wrt pf candidates
+      mithep::PFTauMap              *tauMap_;          //exported PFTau map
+      mithep::PFTauArr              *taus_;            //array of taus
   };
 }
 #endif

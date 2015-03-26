@@ -1,17 +1,15 @@
-
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPFCandidates.h,v 1.10 2012/07/25 03:08:42 paus Exp $
-//
 // FillerPFCandidates
 //
 // Implementation of a filler to fill EDM PFCandidates into our mithep::PFCandidate data structure.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_FILLERPFCANDIDATES_H
 #define MITPROD_TREEFILLER_FILLERPFCANDIDATES_H
 
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "MitAna/DataTree/interface/PFCandidateFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
@@ -21,11 +19,15 @@ namespace mithep
   class FillerPFCandidates : public BaseFiller
   {  
     public:
+      typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
+
       FillerPFCandidates(const edm::ParameterSet &cfg, const char *name, bool active=1);
       ~FillerPFCandidates();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+
+      // THIS RESOLVE LINKS DOES NOT DO ANYTHING
       void                           ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
@@ -52,6 +54,7 @@ namespace mithep
       bool                           allowMissingTrackRef_;     //allow missing track ref (tau emb)
       bool                           allowMissingPhotonRef_;     //allow missing photon ref (tau emb)
       bool                           fillPfNoPileup_;
+
       std::vector<const mithep::TrackMap*>
                                      trackerTrackMaps_;         //maps wrt tracker tracks
       const mithep::TrackMap        *gsfTrackMap_;              //map wrt pf gsf tracks
@@ -62,8 +65,13 @@ namespace mithep
       const mithep::SuperClusterMap *endcapSuperClusterMap_;    //map wrt superclusters
       const mithep::SuperClusterMap *pfElectronSuperClusterMap_;//map wrt superclusters
       const mithep::ConversionMap   *conversionMap_;            //map wrt conversions
+
+      //CP - new for 70x
+      //mithep::PFCandViewMap         *pfCandMap_;                //exported map
+      //mithep::PFCandViewMap         *pfNoPileupCandMap_;        //exported map for pf no pileup
       mithep::PFCandidateMap        *pfCandMap_;                //exported map
       mithep::PFCandidateMap        *pfNoPileupCandMap_;        //exported map for pf no pileup
+
       mithep::PFCandidateArr        *pfCands_;                  //array of PFCandidates
   };
 }
