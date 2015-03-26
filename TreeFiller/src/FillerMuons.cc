@@ -26,8 +26,10 @@ using namespace mithep;
 FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller            (cfg,os,name,active),
   edmToken_(GetToken<reco::MuonCollection>(collector, "edmName","muons")),
-  pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName","offlinePrimaryVertices")),
-  pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName","offlinePrimaryVerticesWithBS")),
+  pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName",
+                                                          "offlinePrimaryVertices")),
+  pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
+                                                            "offlinePrimaryVerticesWithBS")),
   beamSpotToken_(GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
   pvBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
@@ -220,7 +222,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
     }
 
-    //compute impact parameter with respect to PV
+    // compute impact parameter with respect to PV
     if (iM->track().isNonnull()) {
       const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track());
 
@@ -232,8 +234,9 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
       reco::TrackCollection newTkCollection;
       bool foundMatch = false;
-      for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end(); itk++) {
-        if(itk->get() == &*(iM->innerTrack())) {
+      for (reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end();
+	   itk++) {
+        if (itk->get() == &*(iM->innerTrack())) {
           foundMatch = true;
           continue;
         }
@@ -248,7 +251,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         edm::Handle<reco::BeamSpot> pvbeamspot;
         GetProduct(pvBeamSpotToken_, pvbeamspot, event);
         vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-        if(pvs.size()>0) {
+        if (pvs.size()>0) {
           thevtxub = pvs.front();      // take the first in the list
         }
 
@@ -256,17 +259,18 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         edm::Handle<reco::BeamSpot> pvbsbeamspot;
         GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
         vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-        if(pvbss.size()>0) {
+        if (pvbss.size()>0) {
           thevtxubbs = pvbss.front();  // take the first in the list
         }
       }
 
-
-      //preserve sign of transverse impact parameter (cross-product definition from track, not lifetime-signing)
+      // preserve sign of transverse impact parameter (cross-product definition from track, not
+      // lifetime-signing)
       const double thesign   = ( (-iM->track()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
       const double thesignbs = ( (-iM->track()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
 
-      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
+      const std::pair<bool,Measurement1D> &d0pv =
+	IPTools::absoluteTransverseImpactParameter(tt,thevtx);
       if (d0pv.first) {
         outMuon->SetD0PV(thesign*d0pv.second.value());
         outMuon->SetD0PVErr(d0pv.second.error());
@@ -284,7 +288,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetIp3dPV(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &d0pvbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
+      const std::pair<bool,Measurement1D> &d0pvbs =
+	IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
       if (d0pvbs.first) {
         outMuon->SetD0PVBS(thesignbs*d0pvbs.second.value());
         outMuon->SetD0PVBSErr(d0pvbs.second.error());
@@ -293,7 +298,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetD0PVBS(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpvbs =  IPTools::absoluteImpactParameter3D(tt,thevtxbs);
+      const std::pair<bool,Measurement1D> &ip3dpvbs =
+	IPTools::absoluteImpactParameter3D(tt,thevtxbs);
       if (ip3dpvbs.first) {
         outMuon->SetIp3dPVBS(thesignbs*ip3dpvbs.second.value());
         outMuon->SetIp3dPVBSErr(ip3dpvbs.second.error());
@@ -302,7 +308,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetIp3dPVBS(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &d0pvub =  IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
+      const std::pair<bool,Measurement1D> &d0pvub =
+	IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
       if (d0pvub.first) {
         outMuon->SetD0PVUB(thesign*d0pvub.second.value());
         outMuon->SetD0PVUBErr(d0pvub.second.error());
@@ -311,7 +318,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetD0PVUB(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpvub =  IPTools::absoluteImpactParameter3D(tt,thevtxub);
+      const std::pair<bool,Measurement1D> &ip3dpvub =
+	IPTools::absoluteImpactParameter3D(tt,thevtxub);
       if (ip3dpvub.first) {
         outMuon->SetIp3dPVUB(thesign*ip3dpvub.second.value());
         outMuon->SetIp3dPVUBErr(ip3dpvub.second.error());
@@ -320,7 +328,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetIp3dPVUB(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &d0pvubbs =  IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
+      const std::pair<bool,Measurement1D> &d0pvubbs =
+	IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
       if (d0pvubbs.first) {
         outMuon->SetD0PVUBBS(thesignbs*d0pvubbs.second.value());
         outMuon->SetD0PVUBBSErr(d0pvubbs.second.error());
@@ -329,7 +338,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetD0PVUBBS(-99.0);
       }
 
-      const std::pair<bool,Measurement1D> &ip3dpvubbs =  IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
+      const std::pair<bool,Measurement1D> &ip3dpvubbs =
+	IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
       if (ip3dpvubbs.first) {
         outMuon->SetIp3dPVUBBS(thesignbs*ip3dpvubbs.second.value());
         outMuon->SetIp3dPVUBBSErr(ip3dpvubbs.second.error());
@@ -338,8 +348,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         outMuon->SetIp3dPVUBBS(-99.0);
       }
 
-      //compute compatibility with PV using taking into account also the case where muon track
-      //was included in the vertex fit
+      // compute compatibility with PV using taking into account also the case where muon track was
+      // included in the vertex fit
       if (iM->track()->extra().isAvailable()) {
 
         const std::pair<bool,double> &pvCompat = kalmanEstimator.estimate(pvCol->at(0),tt);
@@ -364,7 +374,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
     outMuon->SetNChambers  (iM->numberOfChambers());
     outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
     outMuon->SetNMatches   (iM->numberOfMatches());
-    for(int i0 = 0; i0 < 4; i0++) {
+    for (int i0 = 0; i0 < 4; i0++) {
       // DTs
       outMuon->SetDX(i0,            iM->dX(i0+1,1));
       outMuon->SetDY(i0,            iM->dY(i0+1,1));

@@ -42,7 +42,8 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillAOD_cfi")
 
-process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+#process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+process.MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 
 process.load('TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff')
 process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root')

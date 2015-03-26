@@ -1,5 +1,3 @@
-// $Id: FillerMetaInfos.cc,v 1.61 2011/05/15 20:40:53 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -438,6 +436,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
     
     // get L1 algo names
     labels->push_back("xxx-L1AlgoNames-xxx");
+    // size_t position = labels->size();
     int algoError;
     for (UInt_t kk = 0; kk<128; ++kk) {
       const std::string *algoName = gtMenuLite->gtAlgorithmName(kk, algoError);
@@ -451,6 +450,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
 
     // get L1 tech names
     labels->push_back("xxx-L1TechNames-xxx");
+    //position = labels->size();
     int techError;
     for (UInt_t kk = 0; kk<64; ++kk) {
       const std::string *techName = gtMenuLite->gtTechTrigName(kk, techError);

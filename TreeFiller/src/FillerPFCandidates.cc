@@ -1,4 +1,6 @@
-#include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -11,6 +13,7 @@
 #include "MitAna/DataTree/interface/PFCandidateCol.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 
 using namespace std;
 using namespace edm;
@@ -142,25 +145,42 @@ void FillerPFCandidates::BookDataBlock(TreeWriter &tws)
 void FillerPFCandidates::FillDataBlock(const edm::Event      &event, 
                                        const edm::EventSetup &setup)
 {
-  // Fill muon information. 
+  // Fill particle flow candidate information. 
 
   pfCands_->Delete();
   pfCandMap_->Reset();
   pfNoPileupCandMap_->Reset();
 
-  Handle<reco::PFCandidateCollection> hPfCandProduct;
+  // get PF Candidates
+  //Handle<reco::PFCandidateCollection> hPfCandProduct;
+  //GetProduct(edmName_, hPfCandProduct, event);  
+  //const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+  //printf(" Get Particle Flow Candidates\n");
+  Handle<PFCollection> hPfCandProduct;
   GetProduct(edmToken_, hPfCandProduct, event);  
-  const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+  const PFCollection &inPfCands = *(hPfCandProduct.product());
 
-  Handle<reco::PFCandidateFwdPtrVector> hPfNoPileupCandProduct;
-  GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
-  const reco::PFCandidateFwdPtrVector &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
-  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
-       iP != inPfCands.end(); ++iP) {
+  // get PF NoPileup Candidates
+  //CP Handle<reco::PFCandidateCollection> hPfNoPileupCandProduct;
+  //CP //Handle<reco::PFCandidateCollection> hPfNoPileupCandProduct;
+  //CP GetProduct(edmPfNoPileupName_, hPfNoPileupCandProduct, event);  
+  //CP const reco::PFCandidateCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
+  //printf(" Get Particle Flow Candidates - no pileup\n");
+  Handle<PFCollection> hPfNoPileupCandProduct;
+  GetProduct(edmToken_, hPfNoPileupCandProduct, event);  
+  const PFCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
+
+  //for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
+  //     iP != inPfCands.end(); ++iP) {
+  for (PFCollection::const_iterator iPf = inPfCands.begin(); iPf != inPfCands.end(); ++iPf) {
+
+    // Not nice put well....
+    const reco::PFCandidate *iP = &(*(*iPf));
+
     mithep::PFCandidate *outPfCand = pfCands_->Allocate();
     new (outPfCand) mithep::PFCandidate(iP->px(),iP->py(),iP->pz(),iP->energy());
 
-    // fill variables
+    // fill standard variables
     outPfCand->SetCharge(iP->charge());
     outPfCand->SetEECal(iP->ecalEnergy());
     outPfCand->SetEHCal(iP->hcalEnergy());
@@ -177,10 +197,10 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     outPfCand->SetMvaGammaNeutralH(iP->mva_gamma_nh());
     outPfCand->SetEtaECal(iP->positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(iP->positionAtECALEntrance().phi());
-
+    
     // fill source vertex
     outPfCand->SetVertex(iP->vertex().x(),iP->vertex().y(),iP->vertex().z());
-
+    
     // fill pf type enum
     if (iP->particleId()==reco::PFCandidate::X)
       outPfCand->SetPFType(mithep::PFCandidate::eX);
@@ -198,16 +218,16 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       outPfCand->SetPFType(mithep::PFCandidate::eHadronHF);
     else if (iP->particleId()==reco::PFCandidate::egamma_HF)
       outPfCand->SetPFType(mithep::PFCandidate::eEGammaHF);
-
+    
     // fill pf flags bitmask
     outPfCand->SetFlag(mithep::PFCandidate::eNormal,
-		       iP->flag(reco::PFCandidate::NORMAL));
+    		       iP->flag(reco::PFCandidate::NORMAL));
     outPfCand->SetFlag(mithep::PFCandidate::eEMPhiSModules,
-		       iP->flag(reco::PFCandidate::E_PHI_SMODULES));
+    		       iP->flag(reco::PFCandidate::E_PHI_SMODULES));
     outPfCand->SetFlag(mithep::PFCandidate::eEMEta0,
-		       iP->flag(reco::PFCandidate::E_ETA_0));
+    		       iP->flag(reco::PFCandidate::E_ETA_0));
     outPfCand->SetFlag(mithep::PFCandidate::eEMEtaModules,
-		       iP->flag(reco::PFCandidate::E_ETA_MODULES));
+    		       iP->flag(reco::PFCandidate::E_ETA_MODULES));
     outPfCand->SetFlag(mithep::PFCandidate::eEMBarrelEndcap, 
                        iP->flag(reco::PFCandidate::E_BARREL_ENDCAP));
     outPfCand->SetFlag(mithep::PFCandidate::eEMPreshowerEdge, 
@@ -237,77 +257,98 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
                        
     // fill references to other branches
     if (iP->trackRef().isNonnull()) {
-
       if (0)  // for debugging
-	printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
-	       iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),
-	       iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
-
+    	printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
+    	       iP->trackRef().id().processIndex(),iP->trackRef().id().productIndex(),
+    	       iP->trackRef()->algo(),iP->trackRef()->quality(reco::TrackBase::highPurity));
       const mithep::Track *thetrack = getMitTrack(refToPtr(iP->trackRef()),allowMissingTrackRef_);
       outPfCand->SetTrackerTrk(thetrack);
     }    
-
+    
+    // linking with the GfsTracks
     if (gsfTrackMap_ && iP->gsfTrackRef().isNonnull()) 
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iP->gsfTrackRef())));
+    
+    // linking with the Muons
     if (muonMap_ && iP->muonRef().isNonnull()) 
       outPfCand->SetMuon(muonMap_->GetMit(refToPtr(iP->muonRef())));
+    
+    // linking with the Electrons
     if (electronMap_ && iP->gsfElectronRef().isNonnull()) 
       outPfCand->SetElectron(electronMap_->GetMit(refToPtr(iP->gsfElectronRef())));
+    
+    // linking with the Photons
     if (photonMap_ && iP->photonRef().isNonnull()) 
       try{outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(iP->photonRef())));} 
       catch (...) { 
-	if (!allowMissingPhotonRef_) {
-	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-	    << "Error! Photon unmapped collection";
-	}
+    	if (!allowMissingPhotonRef_) {
+    	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+    	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
+    	}
       }
+    
+    // linking with the SuperClusters
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
-	pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
+    	pfElectronSuperClusterMap_ && iP->superClusterRef().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(barrelSuperClusterMap_->GetMit(iP->superClusterRef()));
       else if (endcapSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(endcapSuperClusterMap_->GetMit(iP->superClusterRef()));
-      else if ( pfElectronSuperClusterMap_->HasMit(iP->superClusterRef()))
+      else if (pfElectronSuperClusterMap_->HasMit(iP->superClusterRef()))
         outPfCand->SetSCluster(pfElectronSuperClusterMap_->GetMit(iP->superClusterRef()));
     }
-
+    
     if (conversionMap_ && iP->conversionRef().isNonnull()) 
       outPfCand->SetConversion(conversionMap_->GetMit(iP->conversionRef()));
-
+    
     // add to exported pf candidate map
-    reco::PFCandidatePtr thePtr(hPfCandProduct,iP-inPfCands.begin());
-    pfCandMap_->Add(thePtr,outPfCand);
+    reco::PFCandidatePtr ptr = (*iPf).ptr();
+    pfCandMap_->Add(ptr,outPfCand);
+
+    //CP //reco::PFCandidatePtr thePtr(hPfCandProduct,inPfCands[i]);
+    //CP //pfCandMap_->Add(thePtr,outPfCand);
     
     // add pf No Pileup map
     bool found = false;
     if (fillPfNoPileup_) { 
       // initially set the candidate to be not part of the NoPilup collection
       outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,false);
+
       // try to find match with the no-pileup map
-      for (reco::PFCandidateFwdPtrVector::const_iterator iNoPileupPItr = inPfNoPileupCands.begin();
-	   iNoPileupPItr != inPfNoPileupCands.end(); ++iNoPileupPItr) {
+      //for (reco::PFCandidateCollection::const_iterator iNoPileupP = inPfNoPileupCands.begin();
+      //     iNoPileupP != inPfNoPileupCands.end(); ++iNoPileupP) {
 
-        reco::PFCandidateFwdPtr const& iNoPileupP(*iNoPileupPItr);
+      for (PFCollection::const_iterator iPfNp = inPfNoPileupCands.begin();
+	   iPfNp != inPfNoPileupCands.end(); ++iPfNp) {
+	// Not nice put well....
+	const reco::PFCandidate *iPNp = &(*(*iPfNp));
+    
+    	// this is not the best way to do it, but well I did not come up with a better one yet
+    	if (iP->px() == iPNp->px() &&
+    	    iP->py() == iPNp->py() &&
+    	    iP->pz() == iPNp->pz()   ) {
+    
+    	  // set the candidate to be part of the NoPilup collection
+    	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
+	  // add it to our map
 
-	//	if (*iP == *iNoPileupP) { // pointers should be the same (but it does not)
+	  reco::PFCandidatePtr ptrNp = (*iPfNp).ptr();
+	  pfNoPileupCandMap_->Add(ptrNp,outPfCand);
 
-	// this is not the best way to do it, but well I did not come up with a better one yet
-	if (iP->px() == iNoPileupP->px() &&
-	    iP->py() == iNoPileupP->py() &&
-	    iP->pz() == iNoPileupP->pz()   ) {
+    	  //CP reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct,
+    	  //                                    iNoPileupP-inPfNoPileupCands.begin());
+    	  //CP pfNoPileupCandMap_->Add(theNoPileupPtr,outPfCand);
 
-	  // set the candidate to be part of the NoPilup collection
-	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
-
-	  pfNoPileupCandMap_->Add(iNoPileupP.ptr(),outPfCand);
-	  if (found)
-	    edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-	      << "PF No Pileup was double linked!! " << endl;
-	  found = true;
-	}
+    	  if (found)
+    	    edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+    	      << "PF No Pileup was double linked!! " << endl;
+    	  found = true;
+    	}
       }
     }
   }
+
+  //printf(" Trim and get out.\n");
   pfCands_->Trim();
 }
 
@@ -317,26 +358,41 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
 {
   // Resolve and fill mother-daughter links.
 
-  Handle<reco::PFCandidateCollection> hPfCandProduct;
+  //CP Handle<reco::PFCandidateCollection> hPfCandProduct;
+  //CP GetProduct(edmName_, hPfCandProduct, event);  
+  //CP const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+  //CP for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end();
+  //CP      ++iP) {
+  //CP   reco::PFCandidatePtr thePtr(hPfCandProduct, iP-inPfCands.begin());
+  //CP   // CP: I found this code commented, not sure why it was commented, need to check this
+  //CP 
+  //CP   //mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
+  //CP   // fill mother-daughter links
+  //CP   //     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
+  //CP   //     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
+  //CP   //     if (motherCandPtr.isNonnull()) {
+  //CP   //       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
+  //CP   //       outPfCand->SetMother(mother);
+  //CP   //       mother->AddDaughter(outPfCand);
+  //CP   //     }
+  //CP }
+
+  // get PF Candidates
+  //printf(" Get Particle Flow Candidates - ResolveLinks\n");
+  Handle<PFCollection> hPfCandProduct;
   GetProduct(edmToken_, hPfCandProduct, event);  
-  const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+  const PFCollection &inPfCands = *(hPfCandProduct.product());
 
   // loop through pf candidates and resolve mother-daughter links
-  for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end();
-       ++iP) {
-    reco::PFCandidatePtr thePtr(hPfCandProduct, iP-inPfCands.begin());
 
-    // CP: I found this code commented, not sure why it was, need to check this
 
-    //mithep::PFCandidate *outPfCand = pfCandMap_->GetMit(thePtr);
-    // fill mother-daughter links
-    //     const reco::CandidatePtr motherCandPtr = iP->sourceCandidatePtr(0);
-    //     const reco::PFCandidatePtr motherPtr(motherCandPtr); 
-    //     if (motherCandPtr.isNonnull()) {
-    //       mithep::PFCandidate *mother = pfCandMap_->GetMit(motherPtr);
-    //       outPfCand->SetMother(mother);
-    //       mother->AddDaughter(outPfCand);
-    //     }
+  for (PFCollection::const_iterator iPf = inPfCands.begin(); iPf != inPfCands.end(); ++iPf) {
+    // Not nice put well....
+    //const reco::PFCandidate *iP = &(*(*iPf));
+    
+    // the FwdPtr is *iPf
+
+    // NOTHING IS HAPPENING ?
   }
 }
 

@@ -1,5 +1,3 @@
-// $Id: FillerPhotons.cc,v 1.33 2013/07/01 20:18:00 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -99,7 +97,7 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
       AddBranchDep(mitName_,pfClusterMap_->GetBrName());
   }  
   if (!pfCandMapName_.empty()) {
-    pfCandMap_ = OS()->get<PFCandidateMap>(pfCandMapName_);
+    pfCandMap_ = OS()->get<PFCandViewMap>(pfCandMapName_);
     if (pfCandMap_)
       AddBranchDep(mitName_,pfCandMap_->GetBrName());
   }  
@@ -114,9 +112,6 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                                   const edm::EventSetup &setup)
 {
   // Fill photon array.
-
-  //if (!ecorr_.IsInitialized())
-  //  ecorr_.Initialize(setup,std::string(TString("gbrph.root")));
   
   photons_->Delete();
   photonMap_->Reset();
@@ -126,22 +121,30 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   GetProduct(edmToken_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
-  //pf photon stuff 
-  // edm::Handle<EcalRecHitCollection> pEBRecHits;
-  // event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
-  // edm::Handle<EcalRecHitCollection> pEERecHits;
-  // event.getByLabel(EERecHitsEdmName_, pEERecHits);  
-  
+  // pf photon stuff 
+  //YI edm::Handle<EcalRecHitCollection> pEBRecHits;
+  //YI event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
+  //YI edm::Handle<EcalRecHitCollection> pEERecHits;
+  //YI event.getByLabel(EERecHitsEdmName_, pEERecHits);  
+
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
- 
-  // const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  // const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+
+  //CP const CaloSubdetectorGeometry *geometryEB =
+  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  //CP const CaloSubdetectorGeometry *geometryEE =
+  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  //CP ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
   
-  //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
-  
-  // Handle<reco::PFCandidateCollection> pPFCands;
-  // event.getByLabel(PFCandsEdmName_, pPFCands);
+
+  //CP Handle<reco::PFCandidateCollection> pPFCands;
+  //CP event.getByLabel(PFCandsEdmName_, pPFCands);
+
+  //CP Handle<PFCollection> hPFCands;
+  //CP event.getByLabel(PFCandsEdmName_, pPFCands);
+
+  //GetProduct(edmName_, hPfCandProduct, event);  
+  //const PFCollection &inPfCands = *(hPfCandProduct.product());
 
   // handles to the the pho-HErecHit matching 
   edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
@@ -161,11 +164,15 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
     
-    int photonIndex = iP - inPhotons.begin();
-    reco::PhotonRef phRef(hPhotonProduct, photonIndex);
+    // get photon reference
+    int photonIndex = iP-inPhotons.begin();
+    reco::PhotonRef phRef(hPhotonProduct,photonIndex);
 
+    // book the new bambu photon
     mithep::Photon *outPhoton = photons_->Allocate();
     new (outPhoton) mithep::Photon(iP->px(),iP->py(),iP->pz(),iP->energy());
+
+    // set standard variables
     outPhoton->SetIsConverted(iP->hasConversionTracks());
     outPhoton->SetR9(iP->r9());
     outPhoton->SetHadOverEm(iP->hadronicOverEm());
@@ -183,7 +190,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetCoviEtaiEta(iP->sigmaIetaIeta());
     outPhoton->SetHadOverEmTow(iP->hadTowOverEm());
 
-    //isolation variables for dR=0.3
+    // isolation variables for dR=0.3
     outPhoton->SetEcalRecHitIsoDr03(iP->ecalRecHitSumEtConeDR03());
     outPhoton->SetHcalTowerSumEtDr03(iP->hcalTowerSumEtConeDR03());
     outPhoton->SetHcalDepth1TowerSumEtDr03(iP->hcalDepth1TowerSumEtConeDR03());
@@ -192,9 +199,11 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHollowConeTrkIsoDr03(iP->trkSumPtHollowConeDR03());
     outPhoton->SetSolidConeNTrkDr03(iP->nTrkSolidConeDR03());
     outPhoton->SetHollowConeNTrkDr03(iP->nTrkHollowConeDR03());
-    outPhoton->SetHCalIsoTowDr03(iP->hcalTowerSumEtConeDR03() + (iP->hadronicOverEm() - iP->hadTowOverEm())*iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
+    outPhoton->SetHCalIsoTowDr03(iP->hcalTowerSumEtConeDR03() +
+				 (iP->hadronicOverEm()-iP->hadTowOverEm())
+				 *iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
 
-    //isolation variables for dR=0.4
+    // isolation variables for dR=0.4
     outPhoton->SetEcalRecHitIsoDr04(iP->ecalRecHitSumEtConeDR04());
     outPhoton->SetHcalTowerSumEtDr04(iP->hcalTowerSumEtConeDR04());
     outPhoton->SetHcalDepth1TowerSumEtDr04(iP->hcalDepth1TowerSumEtConeDR04());
@@ -203,14 +212,16 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetHollowConeTrkIsoDr04(iP->trkSumPtHollowConeDR04());
     outPhoton->SetSolidConeNTrkDr04(iP->nTrkSolidConeDR04());
     outPhoton->SetHollowConeNTrkDr04(iP->nTrkHollowConeDR04());
-    outPhoton->SetHCalIsoTowDr04(iP->hcalTowerSumEtConeDR04() + (iP->hadronicOverEm() - iP->hadTowOverEm())*iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
+    outPhoton->SetHCalIsoTowDr04(iP->hcalTowerSumEtConeDR04() +
+				 (iP->hadronicOverEm()-iP->hadTowOverEm())
+				 *iP->superCluster()->energy()/cosh(iP->superCluster()->eta()));    
 
-    //pflow isolation
+    // pflow isolation
     outPhoton->SetPFChargedHadronIso(iP->chargedHadronIso());
     outPhoton->SetPFChargedHadronIso(iP->neutralHadronIso());
     outPhoton->SetPFChargedHadronIso(iP->photonIso());    
     
-    //fiducial and quality flags
+    // fiducial and quality flags
     outPhoton->SetIsEB(iP->isEB());
     outPhoton->SetIsEE(iP->isEE());
     outPhoton->SetIsEBGap(iP->isEBGap());
@@ -218,13 +229,15 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsEBEEGap(iP->isEBEEGap());
     //deprecated, identical to supercluster preselection in 3_1_X, so set to true
     outPhoton->SetIsLooseEM(true); //deprecated
-    if (!phIDCutBasedLooseToken_.isUninitialized()) outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
-    if (!phIDCutBasedTightToken_.isUninitialized()) outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
+    if (!phIDCutBasedLooseToken_.isUninitialized())
+      outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
+    if (!phIDCutBasedTightToken_.isUninitialized())
+      outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
-    //calo position
+    // calo position
     outPhoton->SetCaloPosXYZ(iP->caloPosition().x(),iP->caloPosition().y(),iP->caloPosition().z());
 
-    //MIP tagger information
+    // MIP tagger information
     outPhoton->SetMipChi2(iP->mipChi2());
     outPhoton->SetMipTotEnergy(iP->mipTotEnergy());                    
     outPhoton->SetMipSlope(iP->mipSlope());                        
@@ -232,7 +245,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetMipNhitCone(iP->mipNhitCone());                     
     outPhoton->SetMipIsHalo(iP->mipIsHalo());                      
 
-    //make the pho-HErecHit matching 
+    // make the pho-HErecHit matching 
     ThreeVector matchRhPos(0,0,0);
     double deltaPhiMin = 0.2;
     double rhoMin = 110.;
@@ -240,7 +253,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     double rhEnMin = 1.;
     double matchedRhEnergy = -1.;
     double matchedRhTime = -1000.;
-    //first do the std 2012 matching (wide DR window) - Plus side
+    // first do the std 2012 matching (wide DR window) - Plus side
     HERecHitMatcher(&(*iP), +1,
                     deltaPhiMin, rhoMin, rhoMax, rhEnMin,
                     matchRhPos, matchedRhEnergy, matchedRhTime,
@@ -248,7 +261,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetMatchHePlusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
     outPhoton->SetMatchHePlusEn(matchedRhEnergy);                      
     outPhoton->SetMatchHePlusTime(matchedRhTime);                      
-    //then do the std 2012 matching (wide DR window) - Minus side
+    // then do the std 2012 matching (wide DR window) - Minus side
     matchRhPos.SetXYZ(0,0,0);
     matchedRhEnergy = -1.;
     matchedRhTime = -1000.;
@@ -256,7 +269,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                     deltaPhiMin, rhoMin, rhoMax, rhEnMin,
                     matchRhPos, matchedRhEnergy, matchedRhTime,
                     hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHeMinusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHeMinusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
     outPhoton->SetMatchHeMinusEn(matchedRhEnergy);                      
     outPhoton->SetMatchHeMinusTime(matchedRhTime);                      
     //thirdly do the std 2011 matching (narrow DR window) - Plus side
@@ -271,10 +284,10 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                     deltaPhiMin, rhoMin, rhoMax, rhEnMin,
                     matchRhPos, matchedRhEnergy, matchedRhTime,
                     hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
     outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);                      
     outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);                      
-    //finally do the std 2011 matching (narrow DR window) - Minus side
+    // finally do the std 2011 matching (narrow DR window) - Minus side
     matchRhPos.SetXYZ(0,0,0);
     matchedRhEnergy = -1.;
     matchedRhTime = -1000.;
@@ -282,7 +295,7 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
                     deltaPhiMin, rhoMin, rhoMax, rhEnMin,
                     matchRhPos, matchedRhEnergy, matchedRhTime,
                     hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHeMinusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
+    outPhoton->SetMatchHeMinusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
     outPhoton->SetMatchHeMinusEnDR15(matchedRhEnergy);                      
     outPhoton->SetMatchHeMinusTimeDR15(matchedRhTime);                      
 
@@ -312,51 +325,48 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
     }
 
-    // make link to pf supercluster
-    if (pfSuperClusterMap_ && iP->parentSuperCluster().isNonnull()) {
-      if(pfSuperClusterMap_->HasMit(iP->parentSuperCluster())) 
-	 outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->parentSuperCluster()));
-      //horrible stuff: mark PF superclusters with fraction of energy that overlaps with egamma supercluster
-      if (pfClusterMap_ && iP->superCluster().isNonnull()) {
-	for (reco::CaloCluster_iterator pfcit = iP->parentSuperCluster()->clustersBegin();
-	     pfcit!=iP->parentSuperCluster()->clustersEnd(); ++pfcit) {
-	  // float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
-	  // if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
-	}
-      }	
-    }
+    //CP // make link to pf supercluster (DOES NOT EXIST ANYMORE)
+    //CP if (pfSuperClusterMap_ && iP->pfSuperCluster().isNonnull()) {
+    //CP   if (pfSuperClusterMap_->HasMit(iP->pfSuperCluster())) 
+    //CP 	outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
+    //CP   
+    //CP   //CP // horrible stuff: mark PF superclusters with fraction of energy that overlaps with egamma
+    //CP   //CP // supercluster
+    //CP   //CP if (pfClusterMap_ && iP->superCluster().isNonnull()) {
+    //CP   //CP 	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
+    //CP   //CP 	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
+    //CP   //CP 	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
+    //CP   //CP 	  if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
+    //CP   //CP 	}
+    //CP   //CP }	
+    //CP }
     
-    //horrible stuff: make links to PFCandidates to try and recover pflow clustering when pflow id failed...
-    // if (pfCandMap_ && iP->superCluster().isNonnull()) {
-    //   std::vector<PFCandidatePtr> inmust;
-    //   std::vector<PFCandidatePtr> outmust;
-    //   std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
-    //     							      pEBRecHits,
-    //     							      pEERecHits,
-    //     							      geometryEB,
-    //     							      geometryEE);
-    //   ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
-    //     				 inmust, 
-    //     			       	 outmust,
-    //     				 pPFCands,
-    //     				 scsize.first,
-    //     				 scsize.second);
-      
-    //   for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
-    //     outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
-    //   for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
-    //     outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
-    // }
-    
-    ////regression energy corrections
-    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*iP);
-    //outPhoton->SetEnergyRegr(cor.first);
-    //outPhoton->SetEnergyErrRegr(cor.second);
+    //CP // horrible stuff: make links to PFCandidates to try and recover pflow clustering when pflow id
+    //CP // failed...
+    //CP if (pfCandMap_ && iP->superCluster().isNonnull()) {
+    //CP   std::vector<PFCandidatePtr> inmust;
+    //CP   std::vector<PFCandidatePtr> outmust;
+    //CP   std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
+    //CP 								      pEBRecHits,
+    //CP 								      pEERecHits,
+    //CP 								      geometryEB,
+    //CP 								      geometryEE);
+    //CP   ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
+    //CP 					 inmust, 
+    //CP 				       	 outmust,
+    //CP 					 pPFCands,
+    //CP 					 scsize.first,
+    //CP 					 scsize.second);
+    //CP   
+    //CP   for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
+    //CP 	outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
+    //CP   for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
+    //CP 	outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
+    //CP }
 
     // add electron to map
-    edm::Ptr<reco::Photon> thePtr(hPhotonProduct, iP - inPhotons.begin());
-    photonMap_->Add(thePtr, outPhoton);
-
+    edm::Ptr<reco::Photon> thePtr(hPhotonProduct,photonIndex);
+    photonMap_->Add(thePtr,outPhoton);
   }
   photons_->Trim();
 }
@@ -384,12 +394,15 @@ void FillerPhotons::HERecHitMatcher(const reco::Photon* pho, int zSide,
     return;
 
   // loop on the HE rechits 
-  for (HBHERecHitCollection::const_iterator hh = hbheRecHitCol->begin(); hh != hbheRecHitCol->end(); hh++) {
+  for (HBHERecHitCollection::const_iterator hh = hbheRecHitCol->begin();
+       hh != hbheRecHitCol->end(); hh++) {
     HcalDetId id(hh->detid());
     
     // discard the rh if not in HBHE
     if (id.subdet()!=HcalEndcap) 
       continue;
+
+    // get global 3d point for rechit
     const CaloCellGeometry *hbhe_cell = caloGeom->getGeometry(hh->id());
     Global3DPoint hbhe_position = hbhe_cell->getPosition();
 
@@ -401,11 +414,8 @@ void FillerPhotons::HERecHitMatcher(const reco::Photon* pho, int zSide,
     if (hh->energy() < rhEnMin)
       continue;
 
-    // discard the rh if not in the rho window aruond ECAL EB
-    double thisX = hbhe_position.x();
-    double thisY = hbhe_position.y();
-    double thisZ = hbhe_position.z();
-    double rho = sqrt(thisX*thisX + thisY*thisY);
+    // discard the rh if not in the rho window around ECAL EB
+    double rho = sqrt(hbhe_position.x()*hbhe_position.x() + hbhe_position.y()*hbhe_position.y());
 
     if ((rho < rhoMin) || (rho > rhoMax))
       continue;
@@ -421,10 +431,9 @@ void FillerPhotons::HERecHitMatcher(const reco::Photon* pho, int zSide,
     if (hh->energy() > matchedRhEnergy) {
       matchedRhEnergy = hh->energy();
       matchedRhTime = hh->time();
-      matchRhPos.SetXYZ(thisX,thisY,thisZ);
+      matchRhPos.SetXYZ(hbhe_position.x(),hbhe_position.y(),hbhe_position.z());
     } 
-
-  } // End loop over RecHits
+  }
   
   return;
 }

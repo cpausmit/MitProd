@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_2-START53_V6/RelValProdTTbar/AODSIM/v2/0000/9A630BD7-C3B9-E111-BAB3-00304867918E.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/Summer12_DR53X/ZH_ZToBB_HToInv_M-125_8TeV_pythia6/AODSIM/PU_S10_START53_V7C-v1/10000/00509898-9F96-E211-AE79-002590200868.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *",
@@ -44,7 +44,8 @@ process.add_(cms.Service("ObjectService"))
 
 process.load("MitProd.BAMBUSequences.BambuFillAODSIM_cfi")
 
-process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+#process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+process.MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 
 #process.output = cms.OutputModule("PoolOutputModule",
 #                                  outputCommands = cms.untracked.vstring('keep *'),

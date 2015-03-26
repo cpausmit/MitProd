@@ -77,7 +77,8 @@ function checkDatabase {
   # function that echos the submit command for a given dataset if it is in the database
 
   dataset="$1"
-
+  dataset=`echo $dataset | sed 's/\+/\\\\+/g'`
+  #echo "Dataset = $dataset"
   entry=`findSamples.py --cmssw=mc --pattern=$dataset --complete 2> /dev/null | grep submit`
   echo $entry
 }
@@ -92,9 +93,11 @@ MIT_DATASET="$3"
 EOS="$4"
 PAUSMC="$5"
 
-# for file cataloging
+# for file cataloging and submitting
 cataBook=`dirname $DATASET`
 cataDataset=`basename $DATASET`
+cmsDataset=`echo $BOOK/$DATASET | tr '/' '+'`
+pattern=`echo $DATASET | cut -d '/' -f 1`
 
 # test whether download already running
 jobs=$(checkForCondor $cataDataset)
@@ -113,7 +116,10 @@ echo ""
 echo "/$BOOK/$DATASET $MIT_DATASET 1 new -"
 echo ""
 echo ""
+#checkDatabase $MIT_DATASET
+#exit
 entry=$(checkDatabase $MIT_DATASET)
+echo " Entry: $entry"
 if [ "$entry" == "" ]
 then
   read -p "Please update the Production.mc file first! [return] " yn
@@ -125,17 +131,17 @@ fi
 waitForCondor $cataDataset
 
 # make a catalog
-echo " EXE - catalog.sh -ce -m $BOOK cataDBook $cataDataset --retry"
+echo " EXE - catalog.sh -ce -m $BOOK $cataDataset --retry"
 catalog.sh -ce -m $BOOK $cataBook $cataDataset --retry
 
 # when all is done (careful these files are used for checking, so no more changes once you start)
 echo " EXE - generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/$BOOK/$DATASET/RawFiles.00 \
-       > ~/cms/jobs/lfns/${MIT_DATASET}.lfns"
+       > ~/cms/jobs/lfns/${cmsDataset}.lfns"
 generateLfns.py --rawFile=/home/cmsprod/catalog/t2mit/$BOOK/$DATASET/RawFiles.00 \
-       > ~/cms/jobs/lfns/${MIT_DATASET}.lfns
+       > ~/cms/jobs/lfns/${cmsDataset}.lfns
 
 # submit the production (make sure not to overwrite your produced lfns --useExistingLfns)
-echo " EXE - submit.py --mitCfg=filefi --version=032 --cmssw=mc --useExistingLfns --mitDataset=$MIT_DATASET"
-findSamples.py --cmssw=mc --useExistingLfns --pattern=$MIT_DATASET --complete --exe
+echo " EXE - findSamples.py --cmssw=mc --useExistingLfns --pattern=$DATASET --complete --exe"
+findSamples.py --cmssw=mc --useExistingLfns --pattern=$pattern --complete --exe
 
 exit 0

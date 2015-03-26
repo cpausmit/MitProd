@@ -16,6 +16,8 @@ import os,sys,getopt,re,string
 import task,translator
 t2user = os.environ['TIER2_USER']
 
+SRMSRC='/usr/bin'
+
 #===================================================================================================
 def domain():
     d = os.uname()[1]
@@ -201,7 +203,7 @@ def createDirGeneral(storageEle,storagePath,fastCreate):
     storageUrl = 'srm://' + storageEle + ':8443' + storagePath
 
     # check whether path exists
-    cmd = 'srmls ' + storageUrl + ' >& /dev/null'
+    cmd = SRMSRC + '/' + 'srmls ' + storageUrl + ' >& /dev/null'
     status = os.system(cmd)
     
     # create it only if missing
@@ -212,15 +214,15 @@ def createDirGeneral(storageEle,storagePath,fastCreate):
     else:
         # create all relevant directories
         if fastCreate == 0:
-            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath0 + ' >& /dev/null'
+            cmd = SRMSRC + '/' + 'srmmkdir srm://' + storageEle + ':8443' + storagePath0 + ' >& /dev/null'
             print '  srmmkdir: ' + cmd
             status = os.system(cmd)
             print '  srmmkdir: status %d'%(status)
-            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath1 + ' >& /dev/null'
+            cmd = SRMSRC + '/' + 'srmmkdir srm://' + storageEle + ':8443' + storagePath1 + ' >& /dev/null'
             print '  srmmkdir: ' + cmd
             status = os.system(cmd)
             print '  srmmkdir: status %d'%(status)
-            cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath2 + ' >& /dev/null'
+            cmd = SRMSRC + '/' + 'srmmkdir srm://' + storageEle + ':8443' + storagePath2 + ' >& /dev/null'
             print '  srmmkdir: ' + cmd
             status = os.system(cmd)
             print '  srmmkdir: status %d'%(status)
@@ -228,7 +230,7 @@ def createDirGeneral(storageEle,storagePath,fastCreate):
             print ' Fast create activated. '
     
         # create the main storage directory
-        cmd = 'srmmkdir srm://' + storageEle + ':8443' + storagePath  + ' >& /dev/null'
+        cmd = SRMSRC + '/' + 'srmmkdir srm://' + storageEle + ':8443' + storagePath  + ' >& /dev/null'
         print '  srmmkdir: ' + cmd
         status = os.system(cmd)
         print '  srmmkdir: status  %d'%(status)
@@ -244,18 +246,17 @@ def createDirGeneral(storageEle,storagePath,fastCreate):
             print ' '
 
     print ' Check permissions with:  srmls -l -count=1 ' + storageUrl + '\n'
-    cmd = 'srmls -l -count=1 ' + storageUrl + ' | grep UserPermission | grep RWX'
+    cmd = SRMSRC + '/' + 'srmls -l -count=1 ' + storageUrl + ' | grep UserPermission | grep RWX'
     status = -1
     for line in os.popen(cmd).readlines():  # run command
         line = line[:-1]
         print " Permissions? " + line
-        status = 0
-       #status = os.system(cmd)
+        status = os.system(cmd)
     print ' '
 
     if status != 0:
         print '  --> Directory creation or permissions failed. EXIT now.\n'
-        sys.exit(1)
+#        sys.exit(1)
  
 #===================================================================================================
 # Main starts here
@@ -308,7 +309,7 @@ version          = os.environ['MIT_VERS']
 dbs              = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
 #sched            = "glite"
 sched            = "remoteGlidein"
-blacklist        = "fnal"
+blacklist        = "T1_TW_ASGC"
 nSubmit          = -1
 skpEvts          = ''
 fixSites         = ''
@@ -325,41 +326,41 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--cmsDataset":
-        cmsDataset       = arg
+        cmsDataset = arg
     if opt == "--mitDataset":
-        mitDataset       = arg
+        mitDataset = arg
     if opt == "--cmssw":
-        cmssw            = arg
+        cmssw = arg
     if opt == "--mitCfg":
-        mitCfg           = arg
+        mitCfg = arg
     if opt == "--version":
-        version          = arg
+        version = arg
     if opt == "--dbs":
-        dbs              = arg
+        dbs = arg
     if opt == "--sched":
-        sched            = arg
+        sched = arg
     if opt == "--blacklist":
-        blacklist        = arg
+        blacklist = arg
     if opt == "--nSubmit":
-        nSubmit          = arg
+        nSubmit = arg
     if opt == "--skipEvents":
-        skpEvts          = arg
+        skpEvts = arg
     if opt == "--fixSites":
-        fixSites         = arg
+        fixSites = arg
     if opt == "--complete":
-        complete         = 1
+        complete = 1
     if opt == "--useExistingLfns":
         useExistingLfns  = True
     if opt == "--useExistingSites":
         useExistingSites = True
     if opt == "--noTestJob":
-        noTestJob        = 1
-        testJob          = 0
+        noTestJob = 1
+        testJob = 0
     if opt == "--testJob":
-        testJob          = 1
-        noTestJob        = 0
+        testJob = 1
+        noTestJob = 0
     if opt == "--test":
-        test             = 1
+        test = 1
 
 # Deal with obvious problems
 if cmsDataset == None and mitDataset == None:
@@ -388,7 +389,7 @@ trans = translator.Translator(os.environ['MIT_PROD_DIR']+'/'+mitCfg+'/'+version+
 # Create the corresponding crab task
 crabTask             = task.Task(crabId,cmsDataset,mitDataset,mitCfg,version,cmssw)
 if crabTask.mitDataset == 'undefined' or crabTask.cmsDataset == 'undefined':
-    print "ERROR - dataset not defined."
+    print " ERROR - dataset not defined."
     sys.exit(1)
 else:
     mitDataset = crabTask.mitDataset
@@ -402,7 +403,7 @@ if cmsDataset == None or mitDataset == None:
     raise RuntimeError, cmd
 
 getFiles(mitCfg,version)
-lfnFile  = makeLfnFile (mitCfg,version,mitDataset,dbs,useExistingLfns)
+lfnFile  = makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns)
 
 crabTask.storagePath = findStoragePath(mitCfg,version,mitDataset,seFile)
 crabTask.loadAllLfns(lfnFile)
@@ -559,7 +560,8 @@ for subTask in crabTask.subTasks:
 
     # test something useful is going to happen
     if int(nJobsTotal) > 0:
-        print ' More than zero (%d) jobs got created, go ahead and submit (%s).\n'%(int(nJobsTotal),crabId)
+        print ' More than zero (%d) jobs got created, go ahead and submit (%s).\n'\
+              %(int(nJobsTotal),crabId)
     else:
         print ' Zero or less jobs got created: cleanup and EXIT.'
         cmd = 'rm -rf `echo *' + crabId + '*`'
@@ -568,8 +570,6 @@ for subTask in crabTask.subTasks:
         sys.exit(0)
         
     # adjust arguments for official datasets (not for private copies)
-#    f = cmsDataset.split('/')
-#    if f[1] != "mc":
     cmd = 'input.py --db=' + lfnFile + '_' + tag + ' --option=xml --dataset=' + cmsDataset + \
           ' > ' + tag + '/share/arguments.xml'
     print '  update arguments: ' + cmd
@@ -628,11 +628,16 @@ for subTask in crabTask.subTasks:
                 line = line[:-1]
                 sites = line
 
-                sites = trans.translateSes(sites)
+                print " SITES: " + sites
+
+                ## not needed anymore ## sites = trans.translateSes(sites)
+                sites = trans.cleanSites(sites)
                 sites = trans.selectPreferred()
 
         if sites == '':
-            print ' ERROR - no sites for this data block, do not submit.'
+            print '\n ERROR - no sites for this data block, do not submit.'
+            print '           --> move on to the next block.\n'
+            continue
         else:
             print '   Block ' + block + '  process:  %d  to  %d'%(minIdxs[idx],maxIdxs[idx]) + \
                   ' at\n        > ' + sites
@@ -695,4 +700,3 @@ os.system(cmd)
 print ' Done... keep watching it...'
 
 sys.exit(0)
-

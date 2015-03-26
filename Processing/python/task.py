@@ -185,7 +185,8 @@ class Sample:
     def readFromLine(self,fullLine):
         names           = fullLine.split()  # splitting every blank
         self.cmsDataset = names[0]          #                CMS name of the dataset
-        self.mitDataset = names[1]          # the equivalent MIT name of the dataset
+        # OLD CP # self.mitDataset = names[1]          # the equivalent MIT name of the dataset
+        self.mitDataset = self.cmsDataset[1:].replace("/","+")
         self.nEvents    = int(names[2])     # number of events to be used in the production
         if names[4] != "-":
             self.localPath  = names[4]
@@ -288,9 +289,7 @@ class Task:
         self.tag    = tag
         self.status = 'undefined'
 
-        if tag == 'new':
-            self.new(cmsDataset,mitDataset,mitCfg,mitVersion,cmssw)
-        elif not os.path.exists(tag):
+        if tag == 'new' or not os.path.exists(tag):
             self.new(cmsDataset,mitDataset,mitCfg,mitVersion,cmssw)
         else:
             cmd = 'cat ' + tag + '/share/crab.cfg | grep ^dataset| cut -d= -f2| tr -d \' \''
@@ -326,14 +325,17 @@ class Task:
         self.cmssw      = cmssw
         self.status     = 'undefined'
 
+        # NEW CP # derive cmsDataset if not given
+        if not self.cmsDataset:
+            self.cmsDataset = "/" + mitDataset.replace("+","/")
+
+
         # derive the missing parameters
         seFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/'+ mitVersion + '/seTable'
         if not os.path.exists(seFile):
             cmd = "Storage element file not found: %s" % seFile
             raise RuntimeError, cmd
         # resolve the other mitCfg parameters from the configuration file
-        #cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + \
-        #      mitCfg + '/' + mitVersion + '/' + 'Productions' + '.' + self.cmssw
         cmd = 'cat ' + './' + \
               mitCfg + '/' + mitVersion + '/' + 'Productions' + '.' + self.cmssw
         join       = 0
@@ -357,10 +359,13 @@ class Task:
                 join = 0
                 # test whether there is a directory   
                 #-print ' Full line: ' + fullLine
-                names      = fullLine.split()       # splitting every blank
+                names = fullLine.split()       # splitting every blank
+
+                # check whether we know the dataset
                 if names[0] == self.cmsDataset or names[1] == self.mitDataset:
-                    self.cmsDataset = names[0]      #                CMS name of the dataset
-                    self.mitDataset = names[1]      # the equivalent MIT name of the dataset
+                    self.cmsDataset = names[0]                 # CMS name of the dataset
+                    # OLD CP # self.mitDataset = names[1]      # the equivalent MIT name of the dataset
+                    self.mitDataset = self.cmsDataset[1:].replace("/","+")
                     self.nEvents    = int(names[2]) # number of events to be used in the production
                     if names[4] != "-":
                         self.localPath  = names[4]

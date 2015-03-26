@@ -1,13 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: AssociationMap.h,v 1.9 2009/03/15 11:20:40 loizides Exp $
-//
 // AssociationMap
 //
 // Wrapper for std::map, used to resolve links during tree filling.
 //
 // Authors: C.Paus, J.Bendavid, C.Loizides
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_ASSOCIATIONMAP_H
 #define MITPROD_TREEFILLER_ASSOCIATIONMAP_H
 

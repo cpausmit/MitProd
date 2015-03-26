@@ -1,0 +1,15 @@
+General overview of our configuration
+=====================================
+
+-- 032 --
+
+MitProd/Configuration/python/BAMBUProd_AODSIM.py
+
+ -> MitProd/Configuration/python/BAMBUProd_RECOSIM.py
+ -> MitProd/Configuration/python/BAMBUProd_RECO.py
+
+ -> MitProd/BAMBUSequences/python/BambuFillAODSIM_cfi.py
+ -> MitProd/BAMBUSequences/python/BambuFillRECOSIM_cfi.py
+ -> MitProd/BAMBUSequences/python/BambuFillRECO_cfi.py
+
+ -> MitProd/TreeFiller/python/MitTreeFiller_cfi.py

@@ -1,13 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseFiller.h,v 1.18 2009/12/12 22:33:46 bendavid Exp $
-//
 // BaseFiller
 //
 // Base class to define the interface for a filler.
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_BASEFILLER_H
 #define MITPROD_TREEFILLER_BASEFILLER_H
 
