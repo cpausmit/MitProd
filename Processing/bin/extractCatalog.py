@@ -149,7 +149,8 @@ if re.search('crab_0',dataset):
     for line in fileInput:
         f = line.split(" ")
         g = f[1].split("/")
-        originalFile = offDataset + '_000_%d'%index
+        # OLD CP # originalFile = offDataset + '_000_%d'%index
+        originalFile = 'bambu-output-file-tmp' + '_000_%d'%index
         if debug == 1:
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[2]))
         files[originalFile] = g[-1] 
@@ -346,8 +347,14 @@ for line in os.popen(cmd).readlines():  # run command
     if official == 1:
         if len(f) < 2:
             continue
+
         fullFile = f[0]
-        nProc    = int(f[1])
+
+	try:
+	    nProc    = int(f[1])
+	except:
+	    continue
+	
         g        = fullFile.split("/");
         file     = g[-1]
         g        = g[:-2]

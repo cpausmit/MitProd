@@ -50,7 +50,8 @@ def findCompletedDatasets(path):
         print " Collecting information over completed samples"
     datasetList = []
 
-    cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/Completed  2> /dev/null'
+    cmd = 'cat ' + os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + \
+          '/Completed  2> /dev/null'
     for line in os.popen(cmd).readlines():   # run command
         line    = line[:-1]                  # strip '\n'
         dataset = line
@@ -202,16 +203,17 @@ if not useCachedDb:
         print " No difference in the local and central database files (rc=%d)."%(rc)
     else:
         print " Differences in central and local file found (rc=%d)."%(rc)
-        answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
-        # Check whether something has changed
-        if answer == 'y' or answer == 'Y':
-            cmd  = 'mv /tmp/Productions.' + cmssw + ' ./' + mitCfg \
-                   + '/' + version + '/Productions.' + cmssw
-            rc = call(cmd.split(' '))
-            print ' Local database was overwritten.'
-        else:
-            print ' Local database *not* overwritten. Exit here.'
-            sys.exit(0)
+        print " Moving one!."%(rc)
+        #answer = raw_input(" Overwrite the local database with these changes and continue? [y/N] ")
+        ## Check whether something has changed
+        #if answer == 'y' or answer == 'Y':
+        #    cmd  = 'mv /tmp/Productions.' + cmssw + ' ./' + mitCfg \
+        #           + '/' + version + '/Productions.' + cmssw
+        #    rc = call(cmd.split(' '))
+        #    print ' Local database was overwritten.'
+        #else:
+        #    print ' Local database *not* overwritten. Exit here.'
+        #    sys.exit(0)
 else:
     print " Using cached version: "
     cmd = 'ls -lhrt ./' + mitCfg + '/' + version + '/Productions.' \
@@ -256,7 +258,6 @@ cmd = 'cat ' + './' + mitCfg + '/' + version + '/' + 'Productions'
 if cmssw != '':
     cmd = cmd + '.' + cmssw
 
-
 print ''
 
 join       = 0
@@ -298,7 +299,8 @@ for line in os.popen(cmd).readlines():  # run command
         if debug == True:
             print "FullLine: " + fullLine
         cmsDataset = names[0]
-        mitDataset = names[1]               # this is the equivalent MIT name of the dataset
+        # OLD CP # mitDataset = names[1]      # the equivalent MIT name of the dataset
+        mitDataset = cmsDataset[1:].replace("/","+")
         nevents    = int(names[2])          # number of events to be used in the production
         procStatus = names[3]
         local      = names[4]
@@ -312,6 +314,9 @@ for line in os.popen(cmd).readlines():  # run command
         
         if pattern != '' and not re.search(pattern,mitDataset):
             continue
+#	else:
+#	    print ' SET: ' + mitDataset 
+#	    print ' PTR:    ' + pattern
 
         # this is a dataset (equivalent to a line) that we will consider
         sample = task.Sample(cmsDataset,mitDataset,str(nevents),procStatus,local)
