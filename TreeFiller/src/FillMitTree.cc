@@ -104,7 +104,13 @@ void FillMitTree::beginRun(edm::Run const &run, edm::EventSetup const &setup)
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    (*iF)->FillRunBlock(run,setup);
+    try {
+      (*iF)->FillRunBlock(run,setup);
+    }
+    catch (std::exception& exc) {
+      edm::LogError("Exception") << "Exception in " << (*iF)->Name() << "::FillRunBlock()";
+      throw;
+    }
   }
   
 }
@@ -120,14 +126,24 @@ void FillMitTree::analyze(const edm::Event      &event,
 
   // first step: Loop over the data fillers of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    //printf("%s FillDataBlock\n",(*iF)->Name().c_str());
-    (*iF)->FillDataBlock(event,setup);
+    try {
+      (*iF)->FillDataBlock(event,setup);
+    }
+    catch (std::exception& exc) {
+      edm::LogError("Exception") << "Exception in " << (*iF)->Name() << "::FillDataBlock()";
+      throw;
+    }
   }
 
   // second step: Loop over the link resolution of the various components
   for (std::vector<BaseFiller*>::const_iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    //printf("%s ResolveLinks\n",(*iF)->Name().c_str());
-    (*iF)->ResolveLinks(event,setup);
+    try {
+      (*iF)->ResolveLinks(event,setup);
+    }
+    catch (std::exception& exc) {
+      edm::LogError("Exception") << "Exception in " << (*iF)->Name() << "::ResolveLinks()";
+      throw;
+    }
   }
 
   if (brtable_) { // only the first FillMitTree object has to deal with the branch table
@@ -161,7 +177,13 @@ void FillMitTree::beginJob()
   // loop over the various components and book the branches
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << (*iF)->Name() << endl;
-    (*iF)->BookDataBlock(*tws_);
+    try {
+      (*iF)->BookDataBlock(*tws_);
+    }
+    catch (std::exception& exc) {
+      edm::LogError("Exception") << "Exception in " << (*iF)->Name() << "::BookDataBlock()";
+      throw;
+    }
   }
 
   // call branch ref for the event tree
@@ -453,7 +475,13 @@ void FillMitTree::endJob()
   // Delete fillers.
 
   for (std::vector<BaseFiller*>::iterator iF = fillers_.begin(); iF != fillers_.end(); ++iF) {
-    delete *iF;
+    try {
+      delete *iF;
+    }
+    catch (std::exception& exc) {
+      edm::LogError("Exception") << "Exception in " << (*iF)->Name() << "::~" << (*iF)->Name() << "()";
+      throw;
+    }
   }
   tws_->Clear();
 
