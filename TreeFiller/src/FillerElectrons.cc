@@ -294,8 +294,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
       catch(...) { 
 	if (checkClusterActive_)
-	  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	    << "Error! GSF track unmapped collection " << edmName_ << endl;
+          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+            << "Error! GSF track unmapped collection";
       }
     }
     // make links to ambigous gsf tracks
@@ -308,7 +308,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	catch(...) { 
 	  if (checkClusterActive_)
 	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+	      << "Error! GSF track unmapped collection";
 	}
       }
     }
@@ -319,7 +319,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       catch(...) {
 	if (checkClusterActive_)
 	  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	    << "Error! Tracker track unmapped collection " << edmName_ << endl;
+	    << "Error! Tracker track unmapped collection";
       }
     }
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
@@ -332,7 +332,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetSuperCluster(pfSuperClusterMap_->GetMit(iM->superCluster()));  
       else if (checkClusterActive_)
 	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+	  << "Error! SuperCluster reference in unmapped collection";
     }
     
     if (pfSuperClusterMap_ && iM->parentSuperCluster().isNonnull()) {
@@ -340,7 +340,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->parentSuperCluster()));
       else if (checkClusterActive_)
 	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection " << edmName_ << endl;
+	  << "Error! SuperCluster reference in unmapped collection";
     }
     
     // find matching egamma supercluster first by ref, or by geometric matching if only
@@ -666,7 +666,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	catch(...) { 
 	  if (checkClusterActive_)
 	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection " << edmName_ << endl;
+	      << "Error! GSF track unmapped collection";
 	}
       }
       else if (ckfconvTrackRef.isNonnull() && trackerTrackMap_) {
@@ -676,7 +676,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	catch(...) {
 	  if (checkClusterActive_)
 	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! Conversion Tracker track unmapped collection " << edmName_ << endl;
+	      << "Error! Conversion Tracker track unmapped collection";
 	}
       }
     }
@@ -695,7 +695,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	  catch(...) { 
 	    if (checkClusterActive_)
 	      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-		<< "Error! GSF track unmapped collection " << edmName_ << endl;
+		<< "Error! GSF track unmapped collection";
 	  }
         }
         else if (trackerTrackMap_) {
@@ -706,7 +706,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 	  catch(...) {
 	    if (checkClusterActive_)
 	      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-		<< "Error! Conversion track unmapped collection " << edmName_ << endl;
+		<< "Error! Conversion track unmapped collection";
 	  }
         }
       }
@@ -723,6 +723,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (iM->gsfTrack().isNonnull()) {
       outElectron->
         SetCorrectedNExpectedHitsInner(iM->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    }
 
     //fill additional conversion flag
     //    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));

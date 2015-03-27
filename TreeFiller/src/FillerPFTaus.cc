@@ -221,51 +221,51 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
     // fill HPS discriminants
     if(hpsActive_)
     {
-      auto discVal = [&hpsHandles, &tauRef](std::string const& discName)->double {
+      auto discVal = [&hpsHandles, &tRef](std::string const& discName)->double {
         DiscHandleMap::const_iterator itr(hpsHandles.find(discName));
         if(itr == hpsHandles.end()) return 0.;
         edm::Handle<reco::PFTauDiscriminator> const& handle(itr->second);
         if(handle.isValid())
-          return (*handle)[tauRef];
+          return (*handle)[tRef];
         else
           return 0.;
       };
       
-      tau->SetDiscriminationByLooseElectronRejection(discVal("discriminationByLooseElectronRejectionName"));
-      tau->SetDiscriminationByMediumElectronRejection(discVal("discriminationByMediumElectronRejectionName"));
-      tau->SetDiscriminationByTightElectronRejection(discVal("discriminationByTightElectronRejectionName"));
-      tau->SetDiscriminationByMVAElectronRejection(discVal("discriminationByMVAElectronRejectionName"));
-      tau->SetDiscriminationByLooseMuonRejection(discVal("discriminationByLooseMuonRejectionName"));
-      tau->SetDiscriminationByMediumMuonRejection(discVal("discriminationByMediumMuonRejectionName"));
-      tau->SetDiscriminationByTightMuonRejection(discVal("discriminationByTightMuonRejectionName"));
-      tau->SetDiscriminationByDecayModeFinding(discVal("discriminationByDecayModeFindingName"));
-      tau->SetDiscriminationByVLooseIsolation(discVal("discriminationByVLooseIsolationName"));
-      tau->SetDiscriminationByLooseIsolation(discVal("discriminationByLooseIsolationName"));
-      tau->SetDiscriminationByMediumIsolation(discVal("discriminationByMediumIsolationName"));
-      tau->SetDiscriminationByTightIsolation(discVal("discriminationByTightIsolationName"));
-      tau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByVLooseCombinedIsolationDBSumPtCorrName"));
-      tau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByLooseCombinedIsolationDBSumPtCorrName"));
-      tau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr(discVal("discriminationByMediumCombinedIsolationDBSumPtCorrName"));
-      tau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr(discVal("discriminationByTightCombinedIsolationDBSumPtCorrName"));
-      tau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr(discVal("discriminationByRawCombinedIsolationDBSumPtCorrName"));
-      tau->SetMVA2rawElectronRejection(discVal("mva2rawElectronRejectionName"));
-      tau->SetMVA2rawElectronRejectionCategory(discVal("mva2rawElectronRejectionCategoryName"));
-      tau->SetMVA2LooseElectronRejection(discVal("mva2LooseElectronRejectionName"));
-      tau->SetMVA2MediumElectronRejection(discVal("mva2MediumElectronRejectionName"));
-      tau->SetMVA2TightElectronRejection(discVal("mva2TightElectronRejectionName"));
-      tau->SetMVA3rawElectronRejection(discVal("mva3rawElectronRejectionName"));
-      tau->SetMVA3rawElectronRejectionCategory(discVal("mva3rawElectronRejectionCategoryName"));
-      tau->SetMVA3LooseElectronRejection(discVal("mva3LooseElectronRejectionName"));
-      tau->SetMVA3MediumElectronRejection(discVal("mva3MediumElectronRejectionName"));
-      tau->SetMVA3TightElectronRejection(discVal("mva3TightElectronRejectionName"));
-      tau->SetMVA3VTightElectronRejection(discVal("mva3VTightElectronRejectionName"));
-      tau->SetLooseCombinedIsolationDBSumPtCorr3Hits(discVal("looseCombinedIsolationDBSumPtCorr3HitsName"));
-      tau->SetMediumCombinedIsolationDBSumPtCorr3Hits(discVal("mediumCombinedIsolationDBSumPtCorr3HitsName"));
-      tau->SetTightCombinedIsolationDBSumPtCorr3Hits(discVal("tightCombinedIsolationDBSumPtCorr3HitsName"));
-      tau->SetRawCombinedIsolationDBSumPtCorr3Hits(discVal("rawCombinedIsolationDBSumPtCorr3HitsName"));
-      tau->SetLooseMuonRejection2(discVal("looseMuonRejection2Name"));
-      tau->SetMediumMuonRejection2(discVal("mediumMuonRejection2Name"));
-      tau->SetTightMuonRejection2(discVal("tightMuonRejection2Name"));
+      outTau->SetDiscriminationByLooseElectronRejection(discVal("discriminationByLooseElectronRejectionName"));
+      outTau->SetDiscriminationByMediumElectronRejection(discVal("discriminationByMediumElectronRejectionName"));
+      outTau->SetDiscriminationByTightElectronRejection(discVal("discriminationByTightElectronRejectionName"));
+      outTau->SetDiscriminationByMVAElectronRejection(discVal("discriminationByMVAElectronRejectionName"));
+      outTau->SetDiscriminationByLooseMuonRejection(discVal("discriminationByLooseMuonRejectionName"));
+      outTau->SetDiscriminationByMediumMuonRejection(discVal("discriminationByMediumMuonRejectionName"));
+      outTau->SetDiscriminationByTightMuonRejection(discVal("discriminationByTightMuonRejectionName"));
+      outTau->SetDiscriminationByDecayModeFinding(discVal("discriminationByDecayModeFindingName"));
+      outTau->SetDiscriminationByVLooseIsolation(discVal("discriminationByVLooseIsolationName"));
+      outTau->SetDiscriminationByLooseIsolation(discVal("discriminationByLooseIsolationName"));
+      outTau->SetDiscriminationByMediumIsolation(discVal("discriminationByMediumIsolationName"));
+      outTau->SetDiscriminationByTightIsolation(discVal("discriminationByTightIsolationName"));
+      outTau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByVLooseCombinedIsolationDBSumPtCorrName"));
+      outTau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByLooseCombinedIsolationDBSumPtCorrName"));
+      outTau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr(discVal("discriminationByMediumCombinedIsolationDBSumPtCorrName"));
+      outTau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr(discVal("discriminationByTightCombinedIsolationDBSumPtCorrName"));
+      outTau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr(discVal("discriminationByRawCombinedIsolationDBSumPtCorrName"));
+      outTau->SetMVA2rawElectronRejection(discVal("mva2rawElectronRejectionName"));
+      outTau->SetMVA2rawElectronRejectionCategory(discVal("mva2rawElectronRejectionCategoryName"));
+      outTau->SetMVA2LooseElectronRejection(discVal("mva2LooseElectronRejectionName"));
+      outTau->SetMVA2MediumElectronRejection(discVal("mva2MediumElectronRejectionName"));
+      outTau->SetMVA2TightElectronRejection(discVal("mva2TightElectronRejectionName"));
+      outTau->SetMVA3rawElectronRejection(discVal("mva3rawElectronRejectionName"));
+      outTau->SetMVA3rawElectronRejectionCategory(discVal("mva3rawElectronRejectionCategoryName"));
+      outTau->SetMVA3LooseElectronRejection(discVal("mva3LooseElectronRejectionName"));
+      outTau->SetMVA3MediumElectronRejection(discVal("mva3MediumElectronRejectionName"));
+      outTau->SetMVA3TightElectronRejection(discVal("mva3TightElectronRejectionName"));
+      outTau->SetMVA3VTightElectronRejection(discVal("mva3VTightElectronRejectionName"));
+      outTau->SetLooseCombinedIsolationDBSumPtCorr3Hits(discVal("looseCombinedIsolationDBSumPtCorr3HitsName"));
+      outTau->SetMediumCombinedIsolationDBSumPtCorr3Hits(discVal("mediumCombinedIsolationDBSumPtCorr3HitsName"));
+      outTau->SetTightCombinedIsolationDBSumPtCorr3Hits(discVal("tightCombinedIsolationDBSumPtCorr3HitsName"));
+      outTau->SetRawCombinedIsolationDBSumPtCorr3Hits(discVal("rawCombinedIsolationDBSumPtCorr3HitsName"));
+      outTau->SetLooseMuonRejection2(discVal("looseMuonRejection2Name"));
+      outTau->SetMediumMuonRejection2(discVal("mediumMuonRejection2Name"));
+      outTau->SetTightMuonRejection2(discVal("tightMuonRejection2Name"));
     }
 
     if (iT->electronPreIDTrack().isNonnull()) {
@@ -283,7 +283,7 @@ void FillerPFTaus::FillDataBlock(const edm::Event      &event,
       }
       catch(...) { 
 	throw edm::Exception(edm::errors::Configuration, "FillerTaus:FillDataBlock()\n")
-	  << "Error! Jet unmapped collection " << edmName_ << endl;
+	  << "Error! Jet unmapped collection";
       }
     }
 
@@ -363,7 +363,7 @@ const mithep::Track *FillerPFTaus::getMitTrack(mitedm::TrackPtr ptr, bool allowM
     }
   }
   
-  if (!mitPart && !allowmissing)
+  if (!mitPart && !allowMissing)
     throw edm::Exception(edm::errors::Configuration, "FillerPFTaus::FillDataBlock()\n")
       << "Error! MITHEP Object " 
       << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;

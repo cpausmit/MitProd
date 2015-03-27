@@ -36,8 +36,8 @@ namespace mithep
 
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
-      edm::EDGetTokenT<reco::PFCandidateCollection> edmToken_;                  //edm name of PFCandidates coll
-      edm::EDGetTokenT<reco::PFCandidateFwdPtrVector> edmPfNoPileupToken_;        //edm name of PFNoPileup  coll
+      edm::EDGetTokenT<PFCollection> edmToken_;                  //edm name of PFCandidates coll
+      edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;        //edm name of PFNoPileup  coll
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
       std::string                    globalTrackMapName_;       //name: impo. map wrt global muons
       std::string                    staTrackMapName_;          //name: impo. map wrt sta muons

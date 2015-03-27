@@ -25,8 +25,8 @@ FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg,
                                        ObjectService* os,
                                        const char *name, bool active) :
   BaseFiller                    (cfg,os,name,active),
-  edmToken_(GetToken<reco::PFCandidateCollection>(collector, "edmName","particleFlow")),
-  edmPfNoPileupToken_(GetToken<reco::PFCandidateFwdPtrVector>(collector, "edmPfNoPileupName", "pfNoElectrons")),
+  edmToken_(GetToken<PFCollection>(collector, "edmName","particleFlow")),
+  edmPfNoPileupToken_(GetToken<PFCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
   mitName_                      (Conf().getUntrackedParameter<string>("mitName",
 								      Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
@@ -283,7 +283,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       catch (...) { 
     	if (!allowMissingPhotonRef_) {
     	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-    	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
+    	    << "Error! Photon unmapped collection";
     	}
       }
     

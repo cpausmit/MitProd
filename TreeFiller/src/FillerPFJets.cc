@@ -69,8 +69,8 @@ FillerPFJets::FillerPFJets(const ParameterSet &cfg, edm::ConsumesCollector& coll
   flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
   pfCandMapName_(Conf().getUntrackedParameter<string>("pfCandMapName","pfCandMapName")),
-  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   pfCandMap_(0),
+  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","PFJetMap")),
   jetMap_(new mithep::PFJetMap),
 
   jets_(new mithep::PFJetArr(16))
