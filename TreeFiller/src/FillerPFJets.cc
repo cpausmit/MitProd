@@ -125,7 +125,8 @@ void FillerPFJets::FillDataBlock(const edm::Event      &event,
 
   // handle for rho
   Handle<double> rho;
-  GetProduct(rhoToken_, rho, event);
+  if (fastJetCorrectionsActive_)
+    GetProduct(rhoToken_, rho, event);
 
   // handles for jet flavour matching 
   Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  

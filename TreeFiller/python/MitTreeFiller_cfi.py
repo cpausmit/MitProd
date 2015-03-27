@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
 # This python module is actually not the offlinePrimaryVertex saved in AOD
 # This module is cloned to unsortedOfflinePrimaryVertices and used as an input to
 # the real offlinePrimaryVertex, which is a clone of sortedPrimaryVertices.
 # Nevertheless, the reference of the beam spot from offlinePrimaryVertex is ultimately
 # a reference to the beam spot in this module.
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
 
 MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   fillers = cms.untracked.vstring(
@@ -629,7 +629,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fastJetCorrectionsActive                 = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt4PFJets'),
     edmName                                  = cms.untracked.string('ak4PFJets'),
-    rhoName                                  = cms.untracked.string('kt6PFJetsForRhoComputation:rho'),
+    rhoName                                  = cms.untracked.string(''),
     jetToVertexAlphaName                     = cms.untracked.string('jetVertexAlphaAKT4PF:Var'),
     jetToVertexBetaName                      = cms.untracked.string('jetVertexBetaAKT4PF:Var'),
     L2JetCorrectorName                       = cms.untracked.string('L2RelativeJetCorrectorAKT4PF'),
@@ -659,7 +659,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fastJetCorrectionsActive                 = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt4PFJetsCHS'),
     edmName                                  = cms.untracked.string('pfJets'),
-    rhoName                                  = cms.untracked.InputTag('kt6PFJetsForRhoComputationNoPileup','rho'),
+    rhoName                                  = cms.untracked.string(''),
     jetToVertexAlphaName                     = cms.untracked.string('jetVertexAlphaAKT4PF:Var'),
     jetToVertexBetaName                      = cms.untracked.string('jetVertexBetaAKT4PF:Var'),
     L2JetCorrectorName                       = cms.untracked.string('L2RelativeJetCorrectorAKT4PF'),
@@ -694,7 +694,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fastJetCorrectionsActive                 = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt8PFJets'),
     edmName                                  = cms.untracked.string('ak8PFJets'),
-    rhoName                                  = cms.untracked.InputTag('kt6PFJetsForRhoComputation','rho'),
+    rhoName                                  = cms.untracked.string(''),
     jetToVertexAlphaName                     = cms.untracked.string('jetVertexAlphaAKT8PF:Var'),
     jetToVertexBetaName                      = cms.untracked.string('jetVertexBetaAKT8PF:Var'),
     L2JetCorrectorName                       = cms.untracked.string('L2RelativeJetCorrectorAKT8PF'),
@@ -724,7 +724,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fastJetCorrectionsActive                 = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt8PFJetsCHS'),
     edmName                                  = cms.untracked.string('pfJets'),
-    rhoName                                  = cms.untracked.InputTag('kt6PFJetsForRhoComputationNoPileup','rho'),
+    rhoName                                  = cms.untracked.string(''),
     jetToVertexAlphaName                     = cms.untracked.string('jetVertexAlphaAKT8PF:Var'),
     jetToVertexBetaName                      = cms.untracked.string('jetVertexBetaAKT8PF:Var'),
     L2JetCorrectorName                       = cms.untracked.string('L2RelativeJetCorrectorAKT8PF'),
@@ -760,7 +760,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   PFMet = cms.untracked.PSet(
     active     = cms.untracked.bool(True),
     mitName    = cms.untracked.string('PFMet'),
-    edmName    = cms.untracked.InputTag('pfMet'),
+    edmName    = cms.untracked.string('pfMet'),
     fillerType = cms.untracked.string('FillerPFMet')
   ),
 
