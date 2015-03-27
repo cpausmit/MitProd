@@ -765,7 +765,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   ),
 
   TCMet = cms.untracked.PSet(
-    active     = cms.untracked.bool(True),
+    active     = cms.untracked.bool(False),
     mitName    = cms.untracked.string('TCMet'),
     edmName    = cms.untracked.string('tcMet'),
     fillerType = cms.untracked.string('FillerMet')
