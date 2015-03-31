@@ -39,7 +39,6 @@ namespace mithep
       edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
       edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
       
-      std::string                 expectedHitsName_;      //edm name of corrected expected hits valuemap
       std::string                 mitName_;               //mit name of Muons
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons

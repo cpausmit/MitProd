@@ -33,7 +33,6 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& c
   beamSpotToken_(GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
   pvBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
-  expectedHitsName_     (Conf().getUntrackedParameter<string>("expectedHitsName","")),
   mitName_              (Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName","")),
   staTrackMapName_      (Conf().getUntrackedParameter<string>("staTrackMapName","")),
