@@ -168,14 +168,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   GetProduct(pvBSEdmToken_, hVertexBS, event);
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
   edm::Handle<reco::TrackCollection> hGeneralTracks;
-  GetProduct(generalTracksToken_, hGeneralTracks, event);
+  GetProductSafe(generalTracksToken_, hGeneralTracks, event);
   //const reco::VertexCollection *trackCol = hGeneralTracks.product();
   
   edm::Handle<reco::GsfTrackCollection> hGsfTracks;
-  GetProduct(gsfTracksToken_, hGsfTracks, event);
+  GetProductSafe(gsfTracksToken_, hGsfTracks, event);
 
-  // edm::Handle<std::vector<mitedm::DecayPart> > hConversions;
-  // GetProduct(conversionsToken_, hConversions, event);
+  edm::Handle<mitedm::DecayPartCol> hConversions;
+  GetProductSafe(conversionsToken_, hConversions, event);
   
   mitedm::ConversionMatcher convMatcher;
      
@@ -650,7 +650,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       ConversionFinder convFinder;
       outElectron->SetConvPartnerDCotTheta(iM->convDcot());
       ConversionInfo convInfo = 
-	convFinder.getConversionInfo(*iM, hGeneralTracks, hGsfTracks, bfield);
+        convFinder.getConversionInfo(*iM, hGeneralTracks, hGsfTracks, bfield);
   
       outElectron->SetConvFlag(convInfo.flag());
       outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
@@ -726,7 +726,7 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
 
     //fill additional conversion flag
-    //    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
+    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
     
     // add electron to map
     edm::Ptr<reco::GsfElectron> thePtr(hElectronProduct, iM - inElectrons.begin());
