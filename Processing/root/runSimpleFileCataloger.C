@@ -1,6 +1,6 @@
 // $Id: runSimpleFileCataloger.C,v 1.2 2012/03/29 23:41:59 paus Exp $
 
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <TROOT.h>
 #include <TSystem.h>
 #endif
