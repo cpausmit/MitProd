@@ -4,7 +4,6 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EvtSelData.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
-#include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include <bitset>
 
 using namespace std;
@@ -12,27 +11,18 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerEvtSelData::FillerEvtSelData(const ParameterSet &cfg, const char *name,  bool active) : 
-  BaseFiller(cfg,"EvtSelData",active),
+FillerEvtSelData::FillerEvtSelData(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name,  bool active) : 
+  BaseFiller(cfg, os, "EvtSelData",active),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkEvtSelDataBrn)),
-  HBHENoiseFilterName_           (Conf().getUntrackedParameter<edm::InputTag>("HBHENoiseFilterName",
-                                  edm::InputTag("HBHENoiseFilterResultProducer"))),  
-  ECALDeadCellFilterName_        (Conf().getUntrackedParameter<edm::InputTag>("ECALDeadCellFilterName",
-                                  edm::InputTag("EcalDeadCellTriggerPrimitiveFilter"))),  
-  trackingFailureFilterName_     (Conf().getUntrackedParameter<edm::InputTag>("trackingFailureFilterName",
-                                  edm::InputTag("trackingFailureFilter"))),  
-  EEBadScFilterName_             (Conf().getUntrackedParameter<edm::InputTag>("EEBadScFilterName",
-                                  edm::InputTag("eeBadScFilter"))),  
-  ECALaserCorrFilterName_        (Conf().getUntrackedParameter<edm::InputTag>("ECALaserCorrFilterName",
-                                  edm::InputTag("ecalLaserCorrFilter"))),  
-  tkManyStripClusName_           (Conf().getUntrackedParameter<edm::InputTag>("tkManyStripClusName",
-                                  edm::InputTag("manystripclus53X"))),  
-  tkTooManyStripClusName_         (Conf().getUntrackedParameter<edm::InputTag>("tkTooManyStripClusName",
-                                  edm::InputTag("toomanystripclus53X"))),  
-  tkLogErrorTooManyClustersName_ (Conf().getUntrackedParameter<edm::InputTag>("tkLogErrorTooManyClustersName",
-                                  edm::InputTag("logErrorTooManyClusters"))),  
-  BeamHaloSummaryName_           (Conf().getUntrackedParameter<edm::InputTag>("BeamHaloSummaryName",
-                                  edm::InputTag("BeamHaloSummary"))),  
+  HBHENoiseFilterToken_(GetToken<bool>(collector, "HBHENoiseFilterName", "HBHENoiseFilterResultProducer")),
+  ECALDeadCellFilterToken_(GetToken<bool>(collector, "ECALDeadCellFilterName", "EcalDeadCellTriggerPrimitiveFilter")),
+  trackingFailureFilterToken_(GetToken<bool>(collector, "trackingFailureFilterName", "trackingFailureFilter")),
+  EEBadScFilterToken_(GetToken<bool>(collector, "EEBadScFilterName", "eeBadScFilter")),
+  ECALaserCorrFilterToken_(GetToken<bool>(collector, "ECALaserCorrFilterName", "ecalLaserCorrFilter")),
+  tkManyStripClusToken_(GetToken<bool>(collector, "tkManyStripClusName", "manystripclus53X")),
+  tkTooManyStripClusToken_(GetToken<bool>(collector, "tkTooManyStripClusName", "toomanystripclus53X")),
+  tkLogErrorTooManyClustersToken_(GetToken<bool>(collector, "tkLogErrorTooManyClustersName", "logErrorTooManyClusters")),
+  BeamHaloSummaryToken_(GetToken<reco::BeamHaloSummary>(collector, "BeamHaloSummaryName", "BeamHaloSummary")),
   evtSelData_(new EvtSelData())
 {
   // Constructor.
@@ -61,31 +51,31 @@ void FillerEvtSelData::FillDataBlock(const edm::Event &event,
 {
   //Read the MET filters boolean decisions
   edm::Handle<bool> HBHENoiseFilterHandle;
-  event.getByLabel(HBHENoiseFilterName_, HBHENoiseFilterHandle);
+  GetProduct(HBHENoiseFilterToken_, HBHENoiseFilterHandle, event);
   bool isHBHENoiseFilter = *HBHENoiseFilterHandle;
   
   edm::Handle<bool> ECALDeadCellFilterHandle;
-  event.getByLabel(ECALDeadCellFilterName_, ECALDeadCellFilterHandle);
+  GetProduct(ECALDeadCellFilterToken_, ECALDeadCellFilterHandle, event);
   bool isECALDeadCellFilter = *ECALDeadCellFilterHandle;
   
   edm::Handle<bool> trackingFailureFilterHandle;
-  event.getByLabel(trackingFailureFilterName_, trackingFailureFilterHandle);
+  GetProduct(trackingFailureFilterToken_, trackingFailureFilterHandle, event);
   bool isTrackingFailureFilter = *trackingFailureFilterHandle;
 
   edm::Handle<bool> EEBadScFilterHandle;
-  event.getByLabel(EEBadScFilterName_, EEBadScFilterHandle);
+  GetProduct(EEBadScFilterToken_, EEBadScFilterHandle, event);
   bool isEEBadScFilter = *EEBadScFilterHandle;
 
   edm::Handle<bool> ECALaserCorrFilterHandle;
-  event.getByLabel(ECALaserCorrFilterName_, ECALaserCorrFilterHandle);
+  GetProduct(ECALaserCorrFilterToken_, ECALaserCorrFilterHandle, event);
   bool isECALaserCorrFilter = *ECALaserCorrFilterHandle;
 
   edm::Handle<bool> tkManyStripClusHandle;
-  event.getByLabel(tkManyStripClusName_, tkManyStripClusHandle);
+  GetProduct(tkManyStripClusToken_, tkManyStripClusHandle, event);
   edm::Handle<bool> tkTooManyStripClusHandle;
-  event.getByLabel(tkTooManyStripClusName_, tkTooManyStripClusHandle);
+  GetProduct(tkTooManyStripClusToken_, tkTooManyStripClusHandle, event);
   edm::Handle<bool> tkLogErrorTooManyClustersHandle;
-  event.getByLabel(tkLogErrorTooManyClustersName_, tkLogErrorTooManyClustersHandle);
+  GetProduct(tkLogErrorTooManyClustersToken_, tkLogErrorTooManyClustersHandle, event);
   //Odd tracking filter :three filters (with inverted logic)
   bool isTkOddManyStripClusFilter = !(*tkManyStripClusHandle);
   bool isTkOddTooManyStripClusFilter = !(*tkTooManyStripClusHandle);
@@ -93,7 +83,7 @@ void FillerEvtSelData::FillDataBlock(const edm::Event &event,
 
   //Read the beam halo summary
   edm::Handle<reco::BeamHaloSummary> BeamHaloSummaryHandle;
-  event.getByLabel(BeamHaloSummaryName_ , BeamHaloSummaryHandle);
+  GetProduct(BeamHaloSummaryToken_ , BeamHaloSummaryHandle, event);
   bool isCSCTightHaloFilter = !BeamHaloSummaryHandle->CSCTightHaloId();
   bool isCSCLooseHaloFilter = !BeamHaloSummaryHandle->CSCLooseHaloId();
 

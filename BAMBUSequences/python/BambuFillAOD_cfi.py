@@ -57,7 +57,6 @@ try:
 except:
   pass
 
-MitTreeFiller.Electrons.expectedHitsName = ''
 MitTreeFiller.Muons.expectedHitsName = ''
 
 BambuFillAOD = cms.Sequence(BambuRecoSequence*

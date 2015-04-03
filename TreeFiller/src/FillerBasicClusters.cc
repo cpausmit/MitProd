@@ -1,5 +1,4 @@
 #include "MitProd/TreeFiller/interface/FillerBasicClusters.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "MitAna/DataTree/interface/BasicClusterCol.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -11,18 +10,19 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 
 using namespace std;
 using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_             (Conf().getUntrackedParameter<string>("edmName","hybridSuperClusters")),
+FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<reco::CaloClusterCollection>(collector, "edmName", "hybridSuperClusters")),
+  barrelEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName","")),
+  endcapEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName","")),
   mitName_             (Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
-  barrelEcalRecHitName_(Conf().getUntrackedParameter<string>("barrelEcalRecHitName","")),
-  endcapEcalRecHitName_(Conf().getUntrackedParameter<string>("endcapEcalRecHitName","")),
   basicClusterMapName_ (Conf().getUntrackedParameter<string>("basicClusterMapName",
 							     "BasicClusterMap")),
   basicClusters_       (new mithep::BasicClusterArr(100)),
@@ -64,21 +64,24 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   basicClusterMap_->Reset();
 
   Handle<reco::CaloClusterCollection> hBasicClusterProduct;
-  GetProduct(edmName_, hBasicClusterProduct, event);
+  GetProduct(edmToken_, hBasicClusterProduct, event);
   basicClusterMap_->SetEdmProductId(hBasicClusterProduct.id().id());
   const reco::CaloClusterCollection &inBasicClusters = *(hBasicClusterProduct.product());  
 
   edm::Handle< EcalRecHitCollection > pEBRecHits;
-  event.getByLabel(barrelEcalRecHitName_, pEBRecHits );
+  GetProduct(barrelEcalRecHitToken_, pEBRecHits, event);
   edm::Handle< EcalRecHitCollection > pEERecHits;
-  event.getByLabel(endcapEcalRecHitName_, pEERecHits );
+  GetProduct(endcapEcalRecHitToken_, pEERecHits, event);
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
-  EcalClusterLazyTools lazyTools(event, setup,
-				 edm::InputTag(barrelEcalRecHitName_), 
-                                 edm::InputTag(endcapEcalRecHitName_));
+  // const CaloSubdetectorGeometry *geometryEB = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  // const CaloSubdetectorGeometry *geometryEE = pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+
+  EcalClusterLazyTools lazyTools(event, setup, barrelEcalRecHitToken_, endcapEcalRecHitToken_);
+
+  //  ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
 
   EcalClusterLocal local;                                 
                                  

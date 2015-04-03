@@ -15,12 +15,16 @@
 #include "MitAna/DataTree/interface/EmbedWeightFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+
 namespace mithep 
 {
   class FillerEmbedWeight : public BaseFiller
   {
     public:
       FillerEmbedWeight(const edm::ParameterSet &cfg, 
+                        edm::ConsumesCollector&,
+                        ObjectService*,
                         const char *name="EmbedWeight", bool active=1);
       ~FillerEmbedWeight();
 
@@ -28,12 +32,24 @@ namespace mithep
       void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
 
     private:
-      std::string              edmName_;       //edmname
-      std::string edmSpinnerName_;
-      std::string edmMuEffName_;
-      std::string edmMuRadName_;
-      std::string edmKineReweightGenName_;
-      std::string edmKineReweightRecName_;
+      edm::EDGetTokenT<double> genWeightToken_;
+      edm::EDGetTokenT<GenFilterInfo> genInfoToken_;
+      edm::EDGetTokenT<double> spinnerWeightToken_;
+      edm::EDGetTokenT<double> spinnerWeightFlipToken_;
+      edm::EDGetTokenT<double> spinnerWeightMinusToken_;
+      edm::EDGetTokenT<double> spinnerWeightPlusToken_;
+      edm::EDGetTokenT<double> muEffWeightToken_;
+      edm::EDGetTokenT<double> muEffWeightUpToken_;
+      edm::EDGetTokenT<double> muEffWeightDownToken_;
+      edm::EDGetTokenT<double> muRadWeightToken_;
+      edm::EDGetTokenT<double> muRadWeightUpToken_;
+      edm::EDGetTokenT<double> muRadWeightDownToken_;
+      edm::EDGetTokenT<double> genTau2PtVsGenTau1PtGenToken_;
+      edm::EDGetTokenT<double> genTau2EtaVsGenTau1EtaGenToken_;
+      edm::EDGetTokenT<double> diTauMassVsGenDiTauPtGenToken_;
+      edm::EDGetTokenT<double> genTau2PtVsGenTau1PtRecToken_;
+      edm::EDGetTokenT<double> genTau2EtaVsGenTau1EtaRecToken_;
+      edm::EDGetTokenT<double> diTauMassVsGenDiTauPtRecToken_; 
       bool                     genInfo_;
       bool                     recHit_;
       bool                     useMuRad_;

@@ -11,14 +11,18 @@
 #include "MitAna/DataTree/interface/MuonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace mithep 
 {
   class FillerMuons : public BaseFiller
   {  
     public:
-      FillerMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerMuons();
 
       void                        BookDataBlock(TreeWriter &tws);
@@ -28,16 +32,19 @@ namespace mithep
 						   reco::Muon::ArbitrationType arbitrationType =
 						   reco::Muon::SegmentAndTrackArbitration);
     private:
-      std::string                 edmName_;               //edm name of muons collection
-      std::string                 expectedHitsName_;      //edm name of corrected expected hits valuemap
+      edm::EDGetTokenT<reco::MuonCollection> edmToken_;               //edm name of muons collection
+      edm::EDGetTokenT<reco::VertexCollection> pvEdmToken_;             //name of primary vertex collection
+      edm::EDGetTokenT<reco::VertexCollection> pvBSEdmToken_;           //name of bs-constrained pv collection
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;     //It is very likely unnecessary to prepare three
+      edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
+      edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
+      
       std::string                 mitName_;               //mit name of Muons
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons
       std::string                 staVtxTrackMapName_;    //name of imported map wrt sta vtx muons
       std::string                 trackerTrackMapName_;   //name of imported map wrt tracker muons
       std::string                 muonMapName_;           //name of exported muon map
-      std::string                 pvEdmName_;             //name of primary vertex collection
-      std::string                 pvBSEdmName_;           //name of bs-constrained pv collection
       bool                        fitUnbiasedVertex_;     //recompute vertex position without muon track
       const mithep::TrackMap     *globalTrackMap_;        //map wrt global muons
       const mithep::TrackMap     *standaloneTrackMap_;    //map wrt standalone muons

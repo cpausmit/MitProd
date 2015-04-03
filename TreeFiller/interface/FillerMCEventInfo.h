@@ -14,6 +14,9 @@
 
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 namespace mithep 
 {
   class MCEventInfo;
@@ -22,6 +25,8 @@ namespace mithep
   {
     public:
       FillerMCEventInfo(const edm::ParameterSet &cfg, 
+                        edm::ConsumesCollector&,
+                        ObjectService*,
                         const char *name="MCEventInfo", bool active=1);
       ~FillerMCEventInfo();
 
@@ -30,10 +35,10 @@ namespace mithep
 
     private:
       std::string              evtName_;              //mit event branch name
-      std::string              genHepMCEvName_;       //hepmc branch name (if present)
-      std::string              genEvtInfoName_;       //edm event info name 
+      edm::EDGetTokenT<edm::HepMCProduct> genHepMCEvToken_;       //hepmc branch name (if present)
+      edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken_;       //edm event info name 
       bool                     flavorHistoryActive_;  //=true if flavor history is filled
-      std::string              flavorHistName_;       //edm flavor history name
+      edm::EDGetTokenT<unsigned int> flavorHistToken_;       //edm flavor history name
       MCEventInfo             *eventInfo_;            //event info
   };
 }

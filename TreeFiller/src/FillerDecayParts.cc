@@ -12,7 +12,6 @@
 #include "MitAna/DataTree/interface/DecayDataCol.h"
 #include "MitAna/DataTree/interface/DecayParticleCol.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
@@ -20,9 +19,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<mitedm::DecayPartCol>(collector, "edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   stableDataName_(mitName_ + "_StableDatas"),
   decayDataName_(mitName_ + "_DecayDatas"),
@@ -90,7 +89,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
   decayData_->Delete();
 
   Handle<mitedm::DecayPartCol> hParts;
-  GetProduct(edmName_, hParts, evt);  
+  GetProduct(edmToken_, hParts, evt);  
   const mitedm::DecayPartCol *iParts = hParts.product();
   
   // loop through all DecayParts and fill the information
@@ -124,8 +123,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
     BitMask48 sharedLayers;
     UInt_t numShared=0;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<sharedHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = sharedHitPattern.getHitPattern(hi);
+    for (Int_t hi=0; hi<sharedHitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); hi++) {
+      uint32_t hit = sharedHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hi);
       if (sharedHitPattern.getHitType(hit)<=1) {
         if (sharedHitPattern.trackerHitFilter(hit)) {
           numShared++;
@@ -154,8 +153,8 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           BitMask48 crossedLayers;
           UInt_t numCrossed=0;
           // search for all good crossed layers (with or without hit)
-          for (Int_t hi=0; hi<hitPattern.numberOfHits(); hi++) {
-            uint32_t hit = hitPattern.getHitPattern(hi);
+          for (Int_t hi=0; hi<hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); hi++) {
+            uint32_t hit = hitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hi);
             if (hitPattern.getHitType(hit)<=1) {
               if (hitPattern.trackerHitFilter(hit)) {
                 numCrossed++;
@@ -170,7 +169,7 @@ void FillerDecayParts::FillDataBlock(const edm::Event      &evt,
           if(verbose_>1) {
             if (outStable->NWrongHits()) {          
               printf("numCrossed:                %i\n",numCrossed);
-              printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits());
+              printf("Hit Pattern Size:          %i\n",hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS));
               printf("# of hits:                 %i\n",cDaughter->Trk()->NHits());
               printf("# of crossed layers:       %i\n",crossedLayers.NBitsSet());            
               printf("# of wrong/missing layers: %i\n",badLayers.NBitsSet());

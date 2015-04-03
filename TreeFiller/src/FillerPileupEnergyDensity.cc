@@ -10,20 +10,20 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller                           (cfg,name,active),
-  edmName_                             (Conf().getUntrackedParameter<edm::InputTag>("edmName")),
-  edmNameLowEta_                       (Conf().getUntrackedParameter<edm::InputTag>("edmNameLowEta")),
-  edmNameRandom_                       (Conf().getUntrackedParameter<edm::InputTag>("edmNameRandom")),
-  edmNameRandomLowEta_                 (Conf().getUntrackedParameter<edm::InputTag>("edmNameRandomLowEta")),
-  edmNameFixedGridAll_                 (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridAll")),
-  edmNameFixedGridFastjetAll_          (Conf().getUntrackedParameter<edm::InputTag>("edmNameFixedGridFastjetAll")),
-  edmNameKt6CaloJets_                  (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6CaloJets")),
-  edmNameKt6CaloJetsCentral_           (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6CaloJetsCentral")),
-  edmNameKt6PFJets_                    (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6PFJets")),
-  edmNameKt6PFJetsCentralChargedPileUp_(Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6PFJetsCentralChargedPileUp")),
-  edmNameKt6PFJetsCentralNeutral_      (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6PFJetsCentralNeutral")),
-  edmNameKt6PFJetsCentralNeutralTight_ (Conf().getUntrackedParameter<edm::InputTag>("edmNameKt6PFJetsCentralNeutralTight")),
+FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller                           (cfg,os,name,active),
+  edmToken_(GetToken<double>(collector, "edmName")),
+  edmNameLowEtaToken_(GetToken<double>(collector, "edmNameLowEta")),
+  edmNameRandomToken_(GetToken<double>(collector, "edmNameRandom")),
+  edmNameRandomLowEtaToken_(GetToken<double>(collector, "edmNameRandomLowEta")),
+  edmNameFixedGridAllToken_(GetToken<double>(collector, "edmNameFixedGridAll")),
+  edmNameFixedGridFastjetAllToken_(GetToken<double>(collector, "edmNameFixedGridFastjetAll")),
+  edmNameKt6CaloJetsToken_(GetToken<double>(collector, "edmNameKt6CaloJets")),
+  edmNameKt6CaloJetsCentralToken_(GetToken<double>(collector, "edmNameKt6CaloJetsCentral")),
+  edmNameKt6PFJetsToken_(GetToken<double>(collector, "edmNameKt6PFJets")),
+  edmNameKt6PFJetsCentralChargedPileUpToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralChargedPileUp")),
+  edmNameKt6PFJetsCentralNeutralToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutral")),
+  edmNameKt6PFJetsCentralNeutralTightToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutralTight")),
   mitName_                             (Conf().getUntrackedParameter<string>("mitName",Names::gkPileupEnergyDensityBrn)),
   rhos_                                (new mithep::PileupEnergyDensityArr)
 {
@@ -55,40 +55,40 @@ void FillerPileupEnergyDensity::FillDataBlock(const edm::Event      &event,
   rhos_->Delete();
 
   Handle<double> hRho;
-  event.getByLabel(edmName_,hRho);
+  GetProduct(edmToken_, hRho, event);
 
   Handle<double> hRhoLowEta;
-  event.getByLabel(edmNameLowEta_,hRhoLowEta);
+  GetProduct(edmNameLowEtaToken_, hRhoLowEta, event);
 
   Handle<double> hRhoRandom;
-  event.getByLabel(edmNameRandom_,hRhoRandom);
+  GetProduct(edmNameRandomToken_, hRhoRandom, event);
 
   Handle<double> hRhoRandomLowEta;
-  event.getByLabel(edmNameRandomLowEta_,hRhoRandomLowEta);
+  GetProduct(edmNameRandomLowEtaToken_, hRhoRandomLowEta, event);
 
   Handle<double> hRhoFixedGridAll;
-  event.getByLabel(edmNameFixedGridAll_,hRhoFixedGridAll);
+  GetProduct(edmNameFixedGridAllToken_, hRhoFixedGridAll, event);
 
   Handle<double> hRhoFixedGridFastjetAll;
-  event.getByLabel(edmNameFixedGridFastjetAll_,hRhoFixedGridFastjetAll);
+  GetProduct(edmNameFixedGridFastjetAllToken_, hRhoFixedGridFastjetAll, event);
 
   Handle<double> hRhoKt6CaloJets;
-  event.getByLabel(edmNameKt6CaloJets_,hRhoKt6CaloJets);
+  GetProduct(edmNameKt6CaloJetsToken_, hRhoKt6CaloJets, event);
 
   Handle<double> hRhoKt6CaloJetsCentral;
-  event.getByLabel(edmNameKt6CaloJetsCentral_,hRhoKt6CaloJetsCentral);
+  GetProduct(edmNameKt6CaloJetsCentralToken_, hRhoKt6CaloJetsCentral, event);
 
   Handle<double> hRhoKt6PFJets;
-  event.getByLabel(edmNameKt6PFJets_,hRhoKt6PFJets);
+  GetProduct(edmNameKt6PFJetsToken_, hRhoKt6PFJets, event);
 
   Handle<double> hRhoKt6PFJetsCentralChargedPileUp;
-  event.getByLabel(edmNameKt6PFJetsCentralChargedPileUp_,hRhoKt6PFJetsCentralChargedPileUp);
+  GetProduct(edmNameKt6PFJetsCentralChargedPileUpToken_, hRhoKt6PFJetsCentralChargedPileUp, event);
 
   Handle<double> hRhoKt6PFJetsCentralNeutral;
-  event.getByLabel(edmNameKt6PFJetsCentralNeutral_,hRhoKt6PFJetsCentralNeutral);
+  GetProduct(edmNameKt6PFJetsCentralNeutralToken_, hRhoKt6PFJetsCentralNeutral, event);
 
   Handle<double> hRhoKt6PFJetsCentralNeutralTight;
-  event.getByLabel(edmNameKt6PFJetsCentralNeutralTight_,hRhoKt6PFJetsCentralNeutralTight);
+  GetProduct(edmNameKt6PFJetsCentralNeutralTightToken_, hRhoKt6PFJetsCentralNeutralTight, event);
 
   mithep::PileupEnergyDensity *rho = rhos_->AddNew();
 

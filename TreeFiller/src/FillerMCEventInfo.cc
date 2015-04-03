@@ -1,8 +1,6 @@
 // $Id: FillerMCEventInfo.cc,v 1.16 2010/03/18 20:21:00 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MCEventInfo.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -15,13 +13,13 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, const char *name,  bool active) : 
-  BaseFiller(cfg,"MCEventInfo",active),
+FillerMCEventInfo::FillerMCEventInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name,  bool active) : 
+  BaseFiller(cfg,os,"MCEventInfo",active),
   evtName_(Conf().getUntrackedParameter<string>("evtName",Names::gkMCEvtInfoBrn)),
-  genHepMCEvName_(Conf().getUntrackedParameter<string>("genHepMCEventEdmName","generator")),
-  genEvtInfoName_(Conf().getUntrackedParameter<string>("genEvtInfoEdmName","generator")),
+  genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, "genHepMCEventEdmName","generator")),
+  genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, "genEvtInfoEdmName","generator")),
   flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive",false)),
-  flavorHistName_(Conf().getUntrackedParameter<string>("flavorHistEdmName","flavorHistoryFilter")),
+  flavorHistToken_(GetToken<unsigned int>(collector, "flavorHistEdmName","flavorHistoryFilter")),
   eventInfo_(new MCEventInfo())
 {
   // Constructor.
@@ -56,12 +54,12 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
   
   Handle<GenEventInfoProduct> hEvtInfo;
 
-  if (genEvtInfoName_.empty() || !GetProductSafe(genEvtInfoName_, hEvtInfo, event)) {
+  if (genEvtInfoToken_.isUninitialized() || !GetProductSafe(genEvtInfoToken_, hEvtInfo, event)) {
 
     // fall back to hepmc if requested
-    if (!genHepMCEvName_.empty()) {
+    if (!genHepMCEvToken_.isUninitialized()) {
       Handle<edm::HepMCProduct> hHepMCProduct;
-      GetProduct(genHepMCEvName_, hHepMCProduct, event);
+      GetProduct(genHepMCEvToken_, hHepMCProduct, event);
       const HepMC::GenEvent *genEvt = hHepMCProduct->GetEvent();
       eventInfo_->SetScale(genEvt->event_scale());
       eventInfo_->SetProcessId(genEvt->signal_process_id());
@@ -103,7 +101,7 @@ void FillerMCEventInfo::FillDataBlock(const edm::Event &event,
   // fill flavor history path if requested
   if (flavorHistoryActive_) {
     Handle<unsigned int> flavorHistoryPath;
-    GetProduct(flavorHistName_, flavorHistoryPath, event);
+    GetProduct(flavorHistToken_, flavorHistoryPath, event);
     eventInfo_->SetFlavorHistoryPath(*flavorHistoryPath);
   }
 }

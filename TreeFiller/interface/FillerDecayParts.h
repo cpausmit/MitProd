@@ -20,6 +20,8 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "MitProd/TreeFiller/interface/HitPatternReader.h"
 
+#include "MitEdm/DataFormats/interface/Collections.h"
+
 namespace mithep 
 {
   class Partice;
@@ -27,7 +29,7 @@ namespace mithep
   class FillerDecayParts : public BaseFiller
   {  
     public:
-      FillerDecayParts(const edm::ParameterSet &cfg, const char *name, bool active=1);
+    FillerDecayParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerDecayParts();
     
       void                                      BookDataBlock(TreeWriter &tws);
@@ -37,7 +39,7 @@ namespace mithep
     private:
       mithep::Particle                         *getMitParticle(mitedm::BasePartPtr ptr) const;
     
-      std::string                               edmName_;          //edm name of collection
+      edm::EDGetTokenT<mitedm::DecayPartCol>    edmToken_;          //edm name of collection
       std::string                               mitName_;          //mit name of collection
       std::string                               stableDataName_;   //= mitName_ + "_StableDatas"
       std::string                               decayDataName_;    //= mitName_ + "_DecayDatas"

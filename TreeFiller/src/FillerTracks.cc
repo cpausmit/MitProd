@@ -1,10 +1,8 @@
 // $Id: FillerTracks.cc,v 1.42 2011/09/28 16:50:07 bendavid Exp $
 
 #include "MitProd/TreeFiller/interface/FillerTracks.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -22,12 +20,12 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
+FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
   ecalAssocActive_(Conf().getUntrackedParameter<bool>("ecalAssocActive",0)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","generalTracks")),
+  edmToken_(GetToken<edm::View<reco::Track> >(collector, "edmName","generalTracks")),
+  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, "edmSimAssociationName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
-  edmSimAssocName_(Conf().getUntrackedParameter<string>("edmSimAssociationName","")),
   trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
   barrelSuperClusterIdMapName_(Conf().getUntrackedParameter<string>
                                ("superClusterIdMapName","barrelSuperClusterIdMap")),
@@ -42,8 +40,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, const char *name, bool activ
   // Constructor.
   
   if (ecalAssocActive_) // initialize track associator configuration if needed
-    assocParams_.loadParameters(
-      cfg.getUntrackedParameter<ParameterSet>("TrackAssociatorParameters"));
+    assocParams_.loadParameters(cfg.getUntrackedParameterSet("TrackAssociatorParameters"), collector);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   // initialize handle and get product,
   // this usage allows also to get collections of classes which inherit from reco::Track
   Handle<View<reco::Track> > hTrackProduct;
-  GetProduct(edmName_, hTrackProduct, event);  
+  GetProduct(edmToken_, hTrackProduct, event);  
 	
   //printf("edmName = %s, product id = %i\n",edmName_.c_str(),hTrackProduct.id().id());
   
@@ -104,13 +101,13 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   const View<reco::Track> inTracks = *(hTrackProduct.product());  
   
   if (verbose_>1)
-    printf("Track Collection: %s, id=%i\n",edmName_.c_str(),hTrackProduct.id().id());
+    printf("Track Collection: id=%i\n", hTrackProduct.id().id());
   
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
-  if (trackingMap_ && !edmSimAssocName_.empty()) {
+  if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
     Handle<reco::RecoToSimCollection> simAssociationProduct;
-    GetProduct(edmSimAssocName_, simAssociationProduct, event);  
+    GetProduct(edmSimAssocToken_, simAssociationProduct, event);  
     simAssociation = *(simAssociationProduct.product());
     if (verbose_>1)
       printf("SimAssociation Map Size = %i\n",(int)simAssociation.size());
@@ -160,36 +157,42 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
       outTrack->SetIsGsf(kFALSE);
     
     if (verbose_>2) {
-      printf("Track pt = %5f, eta = %5f, phi = %5f, nhits = %i, numberofvalidhits = %i, numberofmissinghits = %i, expectedhitsinner = %i, expectedhitsouter = %i\n",it->pt(),it->eta(),it->phi(),it->hitPattern().numberOfHits(),it->numberOfValidHits(),it->hitPattern().numberOfLostHits(),it->trackerExpectedHitsInner().numberOfHits(),it->trackerExpectedHitsOuter().numberOfHits());
+      printf("Track pt = %5f, eta = %5f, phi = %5f, nhits = %i, numberofvalidhits = %i, numberofmissinghits = %i, expectedhitsinner = %i, expectedhitsouter = %i\n",
+             it->pt(), it->eta(), it->phi(),
+             it->hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS),
+             it->numberOfValidHits(),
+             it->hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS),
+             it->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS),
+             it->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
     }
 
     //fill hit layer map and missing hits
     const reco::HitPattern &hits = it->hitPattern();
     BitMask48 hitLayers;
     BitMask48 missingHitLayers;
-    for (Int_t i=0; i<hits.numberOfHits(); i++) {
-      uint32_t hit = hits.getHitPattern(i);
-      if (hits.validHitFilter(hit)) {
-        if (hits.trackerHitFilter(hit)) {
+    for (Int_t i=0; i<hits.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+      if (reco::HitPattern::validHitFilter(hit)) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           hitLayers.SetBit(hitReader_.Layer(hit));
           if (verbose_>2)
             printf("Found valid hit with layer %i\n",hitReader_.Layer(hit));
         }
       }
 
-      if (hits.getHitType(hit)==1) {
-        if (hits.trackerHitFilter(hit)) {
+      if (reco::HitPattern::getHitType(hit)==1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           missingHitLayers.SetBit(hitReader_.Layer(hit));
         }
       }
        
       if (verbose_>2) {
-        if (hits.muonDTHitFilter(hit))
-          printf("Muon DT Layer = %i\n", hits.getLayer(hit));
-        if (hits.muonCSCHitFilter(hit))
-          printf("Muon CSC Layer = %i\n", hits.getLayer(hit));        
-        if (hits.muonRPCHitFilter(hit))
-          printf("Muon RPC Layer = %i\n", hits.getLayer(hit));
+        if (reco::HitPattern::muonDTHitFilter(hit))
+          printf("Muon DT Layer = %i\n", reco::HitPattern::getLayer(hit));
+        if (reco::HitPattern::muonCSCHitFilter(hit))
+          printf("Muon CSC Layer = %i\n", reco::HitPattern::getLayer(hit));        
+        if (reco::HitPattern::muonRPCHitFilter(hit))
+          printf("Muon RPC Layer = %i\n", reco::HitPattern::getLayer(hit));
       }
     }
 
@@ -198,13 +201,12 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
 
 
     //set expected inner hits
-    const reco::HitPattern &expectedInnerHitPattern = it->trackerExpectedHitsInner();
     BitMask48 expectedHitsInner;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<expectedInnerHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = expectedInnerHitPattern.getHitPattern(hi);
-      if (expectedInnerHitPattern.getHitType(hit)<=1) {
-        if (expectedInnerHitPattern.trackerHitFilter(hit)) {
+    for (Int_t hi=0; hi<hits.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); hi++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, hi);
+      if (reco::HitPattern::getHitType(hit)<=1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           expectedHitsInner.SetBit(hitReader_.Layer(hit));
         }
       }
@@ -213,13 +215,12 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     outTrack->SetExpectedHitsInner(expectedHitsInner);
 
     //set expected outer hits
-    const reco::HitPattern &expectedOuterHitPattern = it->trackerExpectedHitsOuter();
     BitMask48 expectedHitsOuter;
     // search for all good crossed layers (with or without hit)
-    for (Int_t hi=0; hi<expectedOuterHitPattern.numberOfHits(); hi++) {
-      uint32_t hit = expectedOuterHitPattern.getHitPattern(hi);
-      if (expectedOuterHitPattern.getHitType(hit)<=1) {
-        if (expectedOuterHitPattern.trackerHitFilter(hit)) {
+    for (Int_t hi=0; hi<hits.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); hi++) {
+      uint32_t hit = hits.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, hi);
+      if (reco::HitPattern::getHitType(hit)<=1) {
+        if (reco::HitPattern::trackerHitFilter(hit)) {
           expectedHitsOuter.SetBit(hitReader_.Layer(hit));
         }
       }
@@ -230,9 +231,9 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     //fill actual hit counts
     outTrack->SetNHits(it->numberOfValidHits());
     outTrack->SetNPixelHits(it->hitPattern().numberOfValidPixelHits());
-    outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits());
-    outTrack->SetNExpectedHitsInner(it->trackerExpectedHitsInner().numberOfHits());
-    outTrack->SetNExpectedHitsOuter(it->trackerExpectedHitsOuter().numberOfHits());
+    outTrack->SetNMissingHits(it->hitPattern().numberOfLostHits(reco::HitPattern::TRACK_HITS));
+    outTrack->SetNExpectedHitsInner(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    outTrack->SetNExpectedHitsOuter(it->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
 
     if (verbose_>2)
@@ -282,7 +283,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
 
     //do sim associations
-    if (trackingMap_ && !edmSimAssocName_.empty()) {
+    if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
       if (verbose_>1)
         printf("Trying Track-Sim association\n");
       reco::TrackBaseRef theBaseRef = inTracks.refAt(it - inTracks.begin());

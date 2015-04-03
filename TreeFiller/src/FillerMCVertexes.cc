@@ -10,10 +10,11 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMCVertexes::FillerMCVertexes(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg, name, active),
+FillerMCVertexes::FillerMCVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg, os, name, active),
   useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","genParticles")),
+  hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, "edmName","genParticles", true)),
+  genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, "edmName","genParticles")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","MCVertexes")),
   vertexes_(new mithep::VertexArr(1))
 {
@@ -49,7 +50,7 @@ void FillerMCVertexes::FillDataBlock(const edm::Event      &event,
 
   if (!useAodGen_) {
     Handle<edm::HepMCProduct> hHepMCProduct;
-    GetProduct(edmName_, hHepMCProduct, event);
+    GetProduct(hepMCProdToken_, hHepMCProduct, event);
     const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
 
     for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
@@ -67,7 +68,7 @@ void FillerMCVertexes::FillDataBlock(const edm::Event      &event,
     }  
   } else { /*useAodGen_*/
     Handle<reco::GenParticleCollection> hGenPProduct;
-    GetProduct(edmName_, hGenPProduct, event);  
+    GetProduct(genParticlesToken_, hGenPProduct, event);  
     const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {

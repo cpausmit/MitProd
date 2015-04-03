@@ -11,10 +11,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include <TString.h>
+
+#include <typeinfo>
 
 namespace mithep 
 {
@@ -24,7 +29,7 @@ namespace mithep
   class BaseFiller
   {
     public:
-      BaseFiller(const edm::ParameterSet &cfg, const char *name, bool active=true);
+      BaseFiller(const edm::ParameterSet &cfg, ObjectService*, const char *name, bool active=true);
       virtual ~BaseFiller() {}
 
       bool                     Active()  const { return active_;       }
@@ -43,14 +48,16 @@ namespace mithep
 
     protected:
       const edm::ParameterSet &Conf()    const { return config_;       }
+      template<typename TYPE>
+      edm::EDGetTokenT<TYPE>   GetToken(edm::ConsumesCollector&, std::string const& paramName, std::string const& defVal = "", bool mayConsume = false);
       void                     PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
-      void                     GetProduct(const std::string name, edm::Handle<TYPE> &prod,
+      void                     GetProduct(const edm::EDGetTokenT<TYPE>&, edm::Handle<TYPE> &handle,
                                           const edm::Event &event) const;    
       template <typename TYPE>
-      bool                     GetProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+      bool                     GetProductSafe(const edm::EDGetTokenT<TYPE>&, edm::Handle<TYPE> &handle,
                                               const edm::Event &event) const;    
-      ObjectService           *OS();
+      ObjectService           *OS() { return os_; }
 
       const std::string        name_;    //name of this filler
       const std::string        brtname_; //name of branch table (def = BranchTable)
@@ -59,41 +66,61 @@ namespace mithep
       const bool               verify_;  //=1 if verificatin code is active
       const int                verbose_; //verbosity level (do not introduce more than 0-4 levels)
       BranchTable             *brtable_; //branch dependency table
+      ObjectService           *os_;      //object repository passed by the EDAnalyzer
   };
+}
+
+template<typename TYPE>
+edm::EDGetTokenT<TYPE>
+mithep::BaseFiller::GetToken(edm::ConsumesCollector& collector, std::string const& paramName, std::string const& defVal, bool mayConsume)
+{
+  std::string paramString;
+  if(defVal.empty())
+    paramString = Conf().getUntrackedParameter<string>(paramName);
+  else
+    paramString = Conf().getUntrackedParameter<string>(paramName, defVal);
+
+  if(!paramString.empty()){
+    edm::InputTag tag(paramString);
+    if(mayConsume)
+      return collector.mayConsume<TYPE>(tag);
+    else
+      return collector.consumes<TYPE>(tag);
+  }
+  else
+    return edm::EDGetTokenT<TYPE>();
 }
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline void mithep::BaseFiller::GetProduct(const std::string edmname, edm::Handle<TYPE> &prod,
+inline void mithep::BaseFiller::GetProduct(const edm::EDGetTokenT<TYPE>& token, edm::Handle<TYPE> &handle,
                                            const edm::Event &event) const
 {
   // Try to access data collection from EDM file. We check if we really get just one
   // product with the given name. If not we print an error and exit.
 
   try {
-    event.getByLabel(edm::InputTag(edmname),prod);
-    if (!prod.isValid()) 
+    event.getByToken(token,handle);
+    if (!handle.product()) // throws here if handle is not valid
       throw edm::Exception(edm::errors::Configuration, "BaseFiller::GetProduct()\n")
-        << "Cannot get collection with label " << edmname << " for " << Name() <<  std::endl;
-  } catch (...) {
-    edm::LogError("BaseFiller") << "Cannot get collection with label "
-                                << edmname << " for " << Name() << std::endl;
-    PrintErrorAndExit(Form("Cannot get collection with label %s for %s", 
-                           edmname.c_str(), name_.c_str()));
+        << "Cannot get " << typeid(TYPE).name() << " for " << Name(); // there should be a better way to get object info..
+  } catch (std::exception& e) {
+    edm::LogError("BaseFiller") << e.what();
+    PrintErrorAndExit(e.what());
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline bool mithep::BaseFiller::GetProductSafe(const std::string edmname, edm::Handle<TYPE> &prod,
+inline bool mithep::BaseFiller::GetProductSafe(const edm::EDGetTokenT<TYPE>& token, edm::Handle<TYPE> &handle,
                                                const edm::Event &event) const
 {
   // Try to safely access data collection from EDM file. We check if we really get just one
   // product with the given name. If not, we return false.
 
   try {
-    event.getByLabel(edm::InputTag(edmname),prod);
-    if (!prod.isValid()) 
+    event.getByToken(token,handle);
+    if (!handle.isValid()) 
       return false;
   } catch (...) {
     return false;

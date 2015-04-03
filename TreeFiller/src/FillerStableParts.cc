@@ -9,7 +9,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/StableParticleCol.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 using namespace std;
@@ -17,9 +16,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerStableParts::FillerStableParts(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","")),
+FillerStableParts::FillerStableParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<mitedm::StablePartCol>(collector, "edmName","")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","")),
   trackMapNames_(Conf().exists("trackMapNames") ? 
                     Conf().getUntrackedParameter<vector<string> >("trackMapNames") : 
@@ -84,7 +83,7 @@ void FillerStableParts::FillDataBlock(const edm::Event      &evt,
   basePartMap_->Reset();
 
   Handle<mitedm::StablePartCol> hParts;
-  GetProduct(edmName_, hParts, evt);  
+  GetProduct(edmToken_, hParts, evt);  
   const mitedm::StablePartCol *iParts = hParts.product();
   
   // loop through all StableParts and fill the information

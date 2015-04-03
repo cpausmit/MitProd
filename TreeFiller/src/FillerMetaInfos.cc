@@ -3,10 +3,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "MitAna/DataTree/interface/EventHeader.h"
@@ -29,8 +27,13 @@ using namespace mithep;
 Int_t mithep::FillerMetaInfos::instance_ = 0;
 
 //--------------------------------------------------------------------------------------------------
-FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,(instance_==0||active?1:0)),
+FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,(instance_==0||active?1:0)),
+  hltEvtToken_(), // set below
+  hltResToken_(), // set below
+  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, "l1GtReadRecEdmName","")),
+  l1GtMenuLiteToken_(collector.consumes<L1GtTriggerMenuLite, edm::InRun>(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite"))),
+  l1GtMenuLiteTag_(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName","l1GtTriggerMenuLite")),
   evtName_(Conf().getUntrackedParameter<string>("evtMitName",Names::gkEvtHeaderBrn)),
   runTreeName_(Conf().getUntrackedParameter<string>("runTreeMitName",Names::gkRunTreeName)),
   lahTreeName_(Conf().getUntrackedParameter<string>("lahTreeMitName",Names::gkLATreeName)),
@@ -38,8 +41,6 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
                                                 Form("%s%s",Names::gkHltTreeName,Istr()))),
   hltActive_(Conf().getUntrackedParameter<bool>("hltActive",true)),
   hltProcName_(Conf().getUntrackedParameter<string>("hltProcName","")),
-  hltResName_(Conf().getUntrackedParameter<string>("hltResEdmName","TriggerResults")),
-  hltEvtName_(Conf().getUntrackedParameter<string>("hltEvtEdmName","hltTriggerSummaryAOD")),
   hltTableName_(Conf().getUntrackedParameter<string>("hltTableMitName",Names::gkHltTableBrn)),
   hltLabelName_(Conf().getUntrackedParameter<string>("hltLabelMitName",Names::gkHltLabelBrn)),
   hltMenuName_(Conf().getUntrackedParameter<string>("hltMenuMitName",Names::gkHltMenuBrn)),
@@ -48,9 +49,7 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
   hltObjsName_(Conf().getUntrackedParameter<string>("hltObjsMitName",
                                                     Form("%s%s",Names::gkHltObjBrn,Istr()))),
   l1Active_(Conf().getUntrackedParameter<bool>("l1Active",true)),
-  l1GtMenuLiteName_(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName","l1GtTriggerMenuLite")),
   l1GTRecName_(Conf().getUntrackedParameter<string>("l1GtRecordEdmName","l1GtRecord")),
-  l1GTRRName_(Conf().getUntrackedParameter<string>("l1GtReadRecEdmName","")),
   l1TBitsName_(Conf().getUntrackedParameter<string>("l1TechBitsMitName",
                                                     Form("%s%s",Names::gkL1TechBitsBrn,Istr()))),
   l1ABitsName_(Conf().getUntrackedParameter<string>("l1AlgoBitsMitName",
@@ -88,22 +87,38 @@ FillerMetaInfos::FillerMetaInfos(const ParameterSet &cfg, const char *name, bool
 
   if (l1Active_ && !hltActive_)
     PrintErrorAndExit("L1Active set _without_ hltActive set as well is not supported");
-  
+
+  std::string hltResName(Conf().getUntrackedParameter<std::string>("hltResEdmName","TriggerResults"));  
+  std::string hltEvtName(Conf().getUntrackedParameter<std::string>("hltEvtEdmName","hltTriggerSummaryAOD"));
+
   //force a particular process name for trigger output if required
+  //otherwise the trigger results last stored will be used (behavior dictated in the CMSSW framework)
   if (!hltProcName_.empty()) {
-    if (hltResName_.find(':')==string::npos)
-      hltResName_ += "::";
-    else 
-      hltResName_ += ":";
-    hltResName_ += hltProcName_;
-    if (hltEvtName_.find(':')==string::npos)
-      hltEvtName_ += "::";
-    else 
-      hltEvtName_ += ":";
-    hltEvtName_ += hltProcName_;
+    size_t firstColon(hltResName.find(':'));
+    if(firstColon == std::string::npos)
+      hltResName += "::";
+    else{
+      size_t secondColon(hltResName.find(':', firstColon + 1));
+      if(secondColon != std::string::npos)
+        hltResName.erase(secondColon);
+      hltResName += ":";
+    }
+    hltResName += hltProcName_;
+
+    firstColon = hltEvtName.find(':');
+    if(firstColon == std::string::npos)
+      hltEvtName += "::";
+    else{
+      size_t secondColon(hltEvtName.find(':', firstColon + 1));
+      if(secondColon != std::string::npos)
+        hltEvtName.erase(secondColon);
+      hltEvtName += ":";
+    }
+    hltEvtName += hltProcName_;
   } 
-  
-  
+
+  hltResToken_ = collector.consumes<TriggerResults>(edm::InputTag(hltResName));
+  hltEvtToken_ = collector.consumes<trigger::TriggerEvent>(edm::InputTag(hltEvtName));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +200,7 @@ void FillerMetaInfos::BookDataBlock(TreeWriter &tws)
     tws.AddBranch(l1ABitsName_,&l1ABits_);
     tws.AddBranch(Form("%sBeforeMask",l1TBitsName_.c_str()),&l1TBits2_);
     tws.AddBranch(Form("%sBeforeMask",l1ABitsName_.c_str()),&l1ABits2_);
-    if (l1GTRRName_.size()) {
+    if (!l1GTRRToken_.isUninitialized()) {
       tws.AddBranch(Form("%sBxs",l1TBitsName_.c_str()),&l1TbArr_);
       tws.AddBranch(Form("%sBxs",l1ABitsName_.c_str()),&l1AbArr_);
     }
@@ -297,6 +312,11 @@ void FillerMetaInfos::FillDataBlock(const edm::Event &event, const edm::EventSet
   runTree_->Fill();
 }
 
+void FillerMetaInfos::FillRunBlock(const edm::Run& run, const edm::EventSetup&)
+{
+  l1gtutils_.retrieveL1GtTriggerMenuLite(run, l1GtMenuLiteTag_);
+}  
+
 //--------------------------------------------------------------------------------------------------
 void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup &setup)
 {
@@ -307,41 +327,19 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
 
   // get HLT trigger object information to be able to access the tag information
   Handle<trigger::TriggerEvent> triggerEventHLT;
-  GetProduct(hltEvtName_, triggerEventHLT, event);
-  
-  //set process name from retrieved product in case no process name was specified
-  //(such that we take the hlt from the last run process)
-  if (hltProcName_.empty()) {
-    hltProcName_ = triggerEventHLT.provenance()->processName();
-    //printf("Extracted most recent process name %s\n",hltProcName_.c_str());
-    
-    //add extracted process name to input labels for future access
-    if (hltResName_.find(':')==string::npos)
-      hltResName_ += "::";
-    else 
-      hltResName_ += ":";
-    hltResName_ += hltProcName_;
-    if (hltEvtName_.find(':')==string::npos)
-      hltEvtName_ += "::";
-    else 
-      hltEvtName_ += ":";
-    hltEvtName_ += hltProcName_;
-  }
+  GetProduct(hltEvtToken_, triggerEventHLT, event);
   
   // get HLT trigger information
   Handle<TriggerResults> triggerResultsHLT;
-  GetProduct(hltResName_, triggerResultsHLT, event);
-  
+  GetProduct(hltResToken_, triggerResultsHLT, event);
   
   bool hltConfigChanged = false;
   if (!hltConfig_.init(event.getRun(), setup, hltProcName_, hltConfigChanged)) {
-    edm::LogError("FillerMetaInfos") << "Cannot access hlt config using PSet from" 
-                                      << hltResName_ << std::endl;
+    edm::LogError("FillerMetaInfos") << "Cannot access hlt config using PSet from trigger results";
     throw edm::Exception(edm::errors::Configuration, "FillerMetaInfos::FillHltInfo()\n")
-      << "Cannot access hlt config using PSet from" << hltResName_ << std::endl;
+      << "Cannot access hlt config using PSet from trigger results";
     return;
   }
-  
 
   // check size of menu... < 1024
   if (hltConfig_.size()>hltBits_->MaxSize()) {
@@ -434,7 +432,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
   if (l1Active_) {
 
     Handle<L1GtTriggerMenuLite> gtMenuLite;
-    event.getRun().getByLabel(InputTag(l1GtMenuLiteName_),gtMenuLite);
+    event.getRun().getByToken(l1GtMenuLiteToken_, gtMenuLite);
     
     // get L1 algo names
     labels->push_back("xxx-L1AlgoNames-xxx");
@@ -488,7 +486,7 @@ void FillerMetaInfos::FillHltInfo(const edm::Event &event, const edm::EventSetup
 }
  
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup &setup)
+void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup&)
 {
   // Fill HLT trigger objects along triggered paths.
 
@@ -501,11 +499,11 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
 
   // get HLT trigger information
   Handle<TriggerResults> triggerResultsHLT;
-  GetProduct(hltResName_, triggerResultsHLT, event);
+  GetProduct(hltResToken_, triggerResultsHLT, event);
 
   // get HLT trigger object information
   Handle<trigger::TriggerEvent> triggerEventHLT;
-  GetProduct(hltEvtName_, triggerEventHLT, event);
+  GetProduct(hltEvtToken_, triggerEventHLT, event);
 
   if (verify_)
     assert(triggerResultsHLT->size()==hltConfig_.size());
@@ -669,18 +667,18 @@ void FillerMetaInfos::FillHltTrig(const edm::Event &event, const edm::EventSetup
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup &setup)
+void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup&)
 {
   //  Fill L1 trigger bits after masking.
+
+  // The implementation here is not very efficient - should eliminate the use of
+  // L1GtUtils at some point. Y.I. 20.03.2015
 
   if (!l1Active_) 
     return;
 
-  edm::InputTag gtliteInputTag(l1GtMenuLiteName_);
   Handle<L1GtTriggerMenuLite> gtMenuLite;
-  event.getRun().getByLabel(gtliteInputTag, gtMenuLite);
-
-  l1gtutils_.retrieveL1GtTriggerMenuLite(event.getRun(), gtliteInputTag);
+  event.getRun().getByToken(l1GtMenuLiteToken_, gtMenuLite);
 
   BitMask128 l1amask;
   BitMask128 l1tmask;
@@ -729,11 +727,11 @@ void FillerMetaInfos::FillL1Trig(const edm::Event &event, const edm::EventSetup 
   l1TBits2_->SetBits(l1tbmask);
 
   // get L1 trigger readout record information if wanted
-  if (l1GTRRName_.size()==0)
+  if (l1GTRRToken_.isUninitialized())
     return;
 
   Handle<L1GlobalTriggerReadoutRecord> gtReadoutRec;
-  GetProduct(l1GTRRName_, gtReadoutRec, event);
+  GetProduct(l1GTRRToken_, gtReadoutRec, event);
 
   const L1GtFdlWord &fdlword(gtReadoutRec->gtFdlWord());
   eventHeader_->SetIsPhysDec(fdlword.physicsDeclared()==1);

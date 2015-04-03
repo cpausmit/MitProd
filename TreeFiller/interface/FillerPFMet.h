@@ -15,19 +15,23 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+
 namespace mithep 
 {
   class FillerPFMet : public BaseFiller
   {  
     public:
-      FillerPFMet(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPFMet(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService*, const char *name, bool active=1);
       ~FillerPFMet();
 
       void                  BookDataBlock(TreeWriter &tws);
       void                  FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      edm::InputTag         edmName_;    //edm name of met collection
+      edm::EDGetTokenT<reco::PFMETCollection> edmToken_;    //edm name of met collection
+      edm::EDGetTokenT<reco::PFMET> edmSingleToken_;    //edm name of met collection
       std::string           mitName_;    //mit name of met collection
       mithep::PFMetArr     *pfMets_;     //array of Mets
   };

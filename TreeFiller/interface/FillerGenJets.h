@@ -15,12 +15,15 @@
 #include "MitAna/DataTree/interface/GenJetFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+
 namespace mithep 
 {
   class FillerGenJets : public BaseFiller
   {  
     public:
-      FillerGenJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerGenJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerGenJets();
 
       void                BookDataBlock(TreeWriter &tws);
@@ -28,9 +31,9 @@ namespace mithep
   
     private:
       Bool_t              flavorMatchingActive_;            //=true if flavor matching is done
-      std::string         edmName_;                         //edm name of genjets collection
+      edm::EDGetTokenT<reco::GenJetCollection> edmToken_;                         //edm name of genjets collection
+      edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_;   //name of flavor matching collection
       std::string         mitName_;                         //mit name of GenJets 
-      std::string         flavorMatchingByReferenceName_;   //name of flavor matching collection
       std::string         flavorMatchingDefinition_;        //name of flavor matching algorithm
       mithep::GenJetArr  *genjets_;                         //array of GenJets
   };

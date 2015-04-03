@@ -2,7 +2,6 @@
 
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "MitAna/DataTree/interface/GenMetCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -12,9 +11,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerGenMet::FillerGenMet(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","genMetTrue")),
+FillerGenMet::FillerGenMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<reco::GenMETCollection>(collector, "edmName","genMetTrue")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkGenMetBrn)),
   genMets_(new mithep::GenMetArr)
 {
@@ -47,7 +46,7 @@ void FillerGenMet::FillDataBlock(const edm::Event      &event,
   genMets_->Delete();
 
   Handle<reco::GenMETCollection> hGenMetProduct;
-  GetProduct(edmName_, hGenMetProduct, event);
+  GetProduct(edmToken_, hGenMetProduct, event);
 
   const reco::GenMETCollection inGenMets = *(hGenMetProduct.product());  
 

@@ -16,12 +16,15 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+
 namespace mithep 
 {
   class FillerMCVertexes : public BaseFiller
   {
     public:
-      FillerMCVertexes(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerMCVertexes(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService* os, const char *name, bool active=1);
       ~FillerMCVertexes();
 
       void                           BookDataBlock(TreeWriter &tws);
@@ -29,7 +32,8 @@ namespace mithep
   
     private:
       bool                           useAodGen_;       //=true if AOD GenParticles to be used
-      std::string                    edmName_;         //edm name of generated particles
+      edm::EDGetTokenT<edm::HepMCProduct> hepMCProdToken_;         //edm name of generated particles
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;         //edm name of generated particles
       std::string                    mitName_;         //name of MCParticles branch
       mithep::VertexArr             *vertexes_;        //array of vertexes
   };

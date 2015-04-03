@@ -8,7 +8,6 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -23,9 +22,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerStripHits::FillerStripHits(const ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","siStripMatchedRecHits:stereoRecHit")),
+FillerStripHits::FillerStripHits(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<SiStripMatchedRecHit2DCollection>(collector, "edmName","siStripMatchedRecHits:stereoRecHit")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkStripHitBrn)),
   shits_(new mithep::StripHitArr(1000))
 {
@@ -60,7 +59,7 @@ void FillerStripHits::FillDataBlock(const edm::Event      &event,
 
   // initialize handle and get product
   Handle<SiStripMatchedRecHit2DCollection> hRecHits;
-  GetProduct(edmName_, hRecHits, event);  
+  GetProduct(edmToken_, hRecHits, event);  
 
   const SiStripMatchedRecHit2DCollection *hits = hRecHits.product();
   if (!hits->size())

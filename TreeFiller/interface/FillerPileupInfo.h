@@ -15,19 +15,22 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
 namespace mithep 
 {
   class FillerPileupInfo : public BaseFiller
   {  
     public:
-      FillerPileupInfo(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPileupInfo(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPileupInfo();
 
       void                  BookDataBlock(TreeWriter &tws);
       void 	            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                 edmName_;    //edm name of met collection
+      edm::EDGetTokenT<std::vector<PileupSummaryInfo> > edmToken_;    //edm name of met collection
+      edm::EDGetTokenT<PileupSummaryInfo> edmSingleToken_;    //edm name of met collection
       std::string                 mitName_;    //mit name of PileupInfos
       mithep::PileupInfoArr       *puInfos_;       //array of PileupInfos
   };

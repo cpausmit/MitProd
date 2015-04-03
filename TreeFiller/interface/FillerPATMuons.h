@@ -15,19 +15,22 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/Common/interface/View.h"
+
 namespace mithep 
 {
   class FillerPATMuons : public BaseFiller
   {  
     public:
-      FillerPATMuons(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPATMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPATMuons();
 
       void                        BookDataBlock(TreeWriter &tws);
       void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string                 edmName_;               //edm name of muon collection
+      edm::EDGetTokenT<edm::View<pat::Muon> > edmToken_;               //edm name of muon collection
       std::string                 mitName_;               //mit name of muon collection
       std::string                 globalTrackMapName_;    //name of imported map wrt global muons
       std::string                 staTrackMapName_;       //name of imported map wrt sta muons

@@ -6,6 +6,7 @@
 // Filter to select events with simulation-level conversions with two matched reconstructed tracks
 // in a particular phi range.
 // Requires TrackingParticles in the event.
+// BROKEN AT THE MOMENT - WITH MULTITHREADED CMSSW OBJECT SERVICE IS BEING REVIEWED (Y.I. 24.03.2015)
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ FilterConvPhi::FilterConvPhi(const edm::ParameterSet& iConfig)
   : minPhi_(iConfig.getUntrackedParameter<double>("minPhi",-TMath::Pi())),
     maxPhi_(iConfig.getUntrackedParameter<double>("maxPhi",-3.1))
 {
+  throw cms::Exception("BrokenModule") << "This module is broken at the moment due to ongoing upgrades.";
   // Constructor.
 }
 
@@ -63,8 +65,8 @@ FilterConvPhi::FilterConvPhi(const edm::ParameterSet& iConfig)
 
 void FilterConvPhi::beginJob(const edm::EventSetup &event)
 {
-  tracks_ = FillMitTree::os()->get<TrackArr>("Tracks");
-  mcParts_ = FillMitTree::os()->get<MCParticleArr>("MCParticles");
+  // tracks_ = FillMitTree::os()->get<TrackArr>("Tracks");
+  // mcParts_ = FillMitTree::os()->get<MCParticleArr>("MCParticles");
 }
 
 //--------------------------------------------------------------------------------------------------

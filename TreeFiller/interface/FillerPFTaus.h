@@ -10,31 +10,19 @@
 #define MITPROD_TREEFILLER_FILLERPFTAUS_H
 
 #include "MitAna/DataTree/interface/PFTauFwd.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 namespace mithep
 {
   class FillerPFTaus : public BaseFiller
   {
     public:
-      struct PFTauDiscHandle
-      {
-	std::string name;                // EDM name
-	edm::Handle<reco::PFTauDiscriminator> handle;
-	
-	Double32_t value(reco::PFTauRef tauRef)
-	{
-	  if (handle.isValid())
-	    return (*handle)[tauRef];
-	  else
-	    return 0;
-	}
-      };
-
-      FillerPFTaus(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPFTaus();
 
       void                           BookDataBlock(TreeWriter &tws);
@@ -43,21 +31,23 @@ namespace mithep
     private:
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
-      bool                           hpsActive_;       //=true if HPS discriminants are filled
-      std::string                    edmName_;         //edm name of jets collection
-      std::string                    mitName_;         //mit name of jets collection
-      std::map<string, PFTauDiscHandle> hpsHandles_;   //handles for HPS discriminators
+      typedef std::map<std::string, edm::EDGetTokenT<reco::PFTauDiscriminator> > DiscTokenMap;
+
+      bool                           hpsActive_;      //=true if HPS discriminants are filled
+      edm::EDGetTokenT<reco::PFTauCollection> edmToken_;        //edm name of jets collection
+      DiscTokenMap hpsTokens_;
+      std::string                    mitName_;        //mit name of jets collection
       std::vector<std::string>       trackMapNames_;   //name of imported TrackMap
-      std::string                    jetMapName_;      //name of imported PFJetMap
-      std::string                    pfCandMapName_;   //name of imported PFCandidateMap
-      std::string                    tauMapName_;      //name of exported PFTau Map
+      std::string                    jetMapName_;     //name of imported PFJetMap
+      std::string                    pfCandMapName_;  //name of imported PFCandidateMap
+      std::string                    tauMapName_;     //name of exported PFTau Map
       bool                           allowMissingTrackRef_; //allow missing track reference
                                                             //-->needed for tau embedding samples
-      std::vector<const mithep::TrackMap*> trackMaps_; //map wrt Tracks
-      const mithep::PFJetMap        *jetMap_;          //map wrt pfjets
-      const mithep::PFCandidateMap  *pfCandMap_;       //map wrt pf candidates
-      mithep::PFTauMap              *tauMap_;          //exported PFTau map
-      mithep::PFTauArr              *taus_;            //array of taus
+      std::vector<const mithep::TrackMap*> trackMaps_;       //map wrt Tracks
+      const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
+      const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
+      mithep::PFTauMap              *tauMap_;         //exported PFTau map
+      mithep::PFTauArr              *taus_;           //array of taus
   };
 }
 #endif

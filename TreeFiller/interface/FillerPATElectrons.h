@@ -15,19 +15,22 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/Common/interface/View.h"
+
 namespace mithep 
 {
   class FillerPATElectrons : public BaseFiller
   {  
     public:
-      FillerPATElectrons(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPATElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService* os, const char *name, bool active=1);
       ~FillerPATElectrons();
 
       void                      BookDataBlock(TreeWriter &tws);
       void                      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string               edmName_;               //edm name of electron collection
+      edm::EDGetTokenT<edm::View<pat::Electron> > edmToken_;               //edm name of electron collection
       std::string               mitName_;               //mit name of electron collection
       std::string               gsfTrackMapName_;       //name of imported map wrt gsf tracks
       std::string               trackerTrackMapName_;   //name of imported map wrt to trk tracks 

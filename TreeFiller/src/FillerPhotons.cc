@@ -2,20 +2,20 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "MitAna/DataTree/interface/Names.h"
-#include "MitAna/DataTree/interface/PhotonCol.h"
-#include "MitProd/ObjectService/interface/ObjectService.h"
-//CP #include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
-//CP #include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/PhotonCol.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
 #include "TSystem.h"
 
 using namespace std;
@@ -23,9 +23,16 @@ using namespace edm;
 using namespace mithep;
 
 //---------------------------------------------------------------------------------------------------
-FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active) :
-  BaseFiller                (cfg,name,active),
-  edmName_                  (Conf().getUntrackedParameter<string>("edmName","photons")),
+FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+  BaseFiller                (cfg,os,name,active),
+  edmToken_(GetToken<reco::PhotonCollection>(collector, "edmName","photons")),
+
+  HBHERecHitsEdmToken_(GetToken<HBHERecHitCollection>(collector, "HBHERecHitsEdmName", "reducedHcalRecHits:hbhereco")),
+  phIDCutBasedTightToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
+  // EBRecHitsEdmName_         (Conf().getUntrackedParameter<string>("EBRecHitsEdmName_", "reducedEcalRecHitsEB")),
+  // EERecHitsEdmName_         (Conf().getUntrackedParameter<string>("EERecHitsEdmName_", "reducedEcalRecHitsEE")),  
+  // PFCandsEdmName_           (Conf().getUntrackedParameter<string>("PFCandsEdmName","particleFlow")),  
   mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
   conversionMapName_        (Conf().getUntrackedParameter<string>("conversionMapName","")),
   oneLegConversionMapName_  (Conf().getUntrackedParameter<string>("oneLegConversionMapName","")),
@@ -35,17 +42,6 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, const char *name, boo
   pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),  
   pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName","")),
   photonMapName_            (Conf().getUntrackedParameter<string>("photonMapName","")),  
-  phIDCutBasedTightName_    (Conf().getUntrackedParameter<string>("phIDCutBasedTightName",
-								  "PhotonIDProd:PhotonCutBasedIDTight")),
-  phIDCutBasedLooseName_    (Conf().getUntrackedParameter<string>("phIDCutBasedLooseName",
-								  "PhotonIDProd:PhotonCutBasedIDLoose")),
-  EBRecHitsEdmName_         (Conf().getUntrackedParameter<string>("EBRecHitsEdmName_",
-								  "reducedEcalRecHitsEB")),
-  EERecHitsEdmName_         (Conf().getUntrackedParameter<string>("EERecHitsEdmName_",
-								  "reducedEcalRecHitsEE")),  
-  PFCandsEdmName_           (Conf().getUntrackedParameter<string>("PFCandsEdmName","particleFlow")),  
-  HBHERecHitsEdmName_       (Conf().getUntrackedParameter<edm::InputTag>("HBHERecHitsEdmName",
-									 edm::InputTag("reducedHcalRecHits:hbhereco"))),  
   photonMap_                (new mithep::PhotonMap),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
@@ -122,15 +118,15 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
 
   // get photon collection
   Handle<reco::PhotonCollection> hPhotonProduct;
-  GetProduct(edmName_, hPhotonProduct, event);
+  GetProduct(edmToken_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
   // pf photon stuff 
-  edm::Handle<EcalRecHitCollection> pEBRecHits;
-  event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
-  edm::Handle<EcalRecHitCollection> pEERecHits;
-  event.getByLabel(EERecHitsEdmName_, pEERecHits);  
-  
+  //YI edm::Handle<EcalRecHitCollection> pEBRecHits;
+  //YI event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
+  //YI edm::Handle<EcalRecHitCollection> pEERecHits;
+  //YI event.getByLabel(EERecHitsEdmName_, pEERecHits);  
+
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
 
@@ -150,21 +146,20 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   //GetProduct(edmName_, hPfCandProduct, event);  
   //const PFCollection &inPfCands = *(hPfCandProduct.product());
 
-
   // handles to the the pho-HErecHit matching 
   edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
-  event.getByLabel(HBHERecHitsEdmName_, hcalRecHitHandle);
+  GetProduct(HBHERecHitsEdmToken_, hcalRecHitHandle, event);
   const HBHERecHitCollection* hbheRecHitCol =  hcalRecHitHandle.product(); 
   const CaloGeometry* caloGeom = pGeometry.product(); 
    
   // handles to get the photon ID information
   Handle<edm::ValueMap<bool> > phidLooseMap;
-  if (!phIDCutBasedLooseName_.empty())
-    GetProduct(phIDCutBasedLooseName_, phidLooseMap, event);
+  if (!phIDCutBasedLooseToken_.isUninitialized())
+    GetProduct(phIDCutBasedLooseToken_, phidLooseMap, event);
 
   Handle<edm::ValueMap<bool> > phidTightMap;
-  if (!phIDCutBasedTightName_.empty())  
-    GetProduct(phIDCutBasedTightName_, phidTightMap, event);
+  if (!phIDCutBasedTightToken_.isUninitialized())  
+    GetProduct(phIDCutBasedTightToken_, phidTightMap, event);
   
   for (reco::PhotonCollection::const_iterator iP = inPhotons.begin(); 
        iP != inPhotons.end(); ++iP) {
@@ -234,9 +229,9 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsEBEEGap(iP->isEBEEGap());
     //deprecated, identical to supercluster preselection in 3_1_X, so set to true
     outPhoton->SetIsLooseEM(true); //deprecated
-    if (!phIDCutBasedLooseName_.empty())
+    if (!phIDCutBasedLooseToken_.isUninitialized())
       outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
-    if (!phIDCutBasedTightName_.empty())
+    if (!phIDCutBasedTightToken_.isUninitialized())
       outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
 
     // calo position

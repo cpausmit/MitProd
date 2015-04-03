@@ -16,12 +16,14 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "MitEdm/DataFormats/interface/Collections.h"
+
 namespace mithep 
 {
   class FillerStableParts : public BaseFiller
   {  
     public:
-      FillerStableParts(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerStableParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerStableParts();
     
       void                                  BookDataBlock(TreeWriter &tws);
@@ -30,7 +32,7 @@ namespace mithep
     private:
       mithep::Track                        *GetMitTrack(const mitedm::TrackPtr &ptr) const;
 
-      std::string                           edmName_;          //edm name of stable parts collection
+      edm::EDGetTokenT<mitedm::StablePartCol> edmToken_;          //edm name of stable parts collection
       std::string                           mitName_;          //mit name of StableParticles
       std::vector<std::string>              trackMapNames_;    //name of import maps wrt tracks
       std::string                           basePartMapName_;  //name of export map wrt stable parts

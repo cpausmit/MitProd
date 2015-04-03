@@ -3,7 +3,6 @@
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PileupInfoCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -13,9 +12,10 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerPileupInfo::FillerPileupInfo(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","addPileupInfo")),
+FillerPileupInfo::FillerPileupInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<std::vector<PileupSummaryInfo> >(collector, "edmName","addPileupInfo")),
+  edmSingleToken_(GetToken<PileupSummaryInfo>(collector, "edmName","addPileupInfo")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPileupInfoBrn)),
   puInfos_(new mithep::PileupInfoArr)
 {
@@ -49,14 +49,13 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
   std::vector<PileupSummaryInfo> inInfos;
 
   Handle<std::vector< PileupSummaryInfo > >  hPileupInfoProduct;
-  event.getByLabel(edmName_, hPileupInfoProduct);
-  if (hPileupInfoProduct.isValid()) {
+  if(GetProductSafe(edmToken_, hPileupInfoProduct, event)){
     inInfos = *hPileupInfoProduct.product();
     //printf("got vector of puinfo\n");
   }
   else {
     Handle<PileupSummaryInfo>  hSinglePileupInfoProduct;
-    event.getByLabel(edmName_, hSinglePileupInfoProduct);
+    GetProduct(edmSingleToken_, hSinglePileupInfoProduct, event);
     inInfos.push_back(*hSinglePileupInfoProduct.product());
   }
 

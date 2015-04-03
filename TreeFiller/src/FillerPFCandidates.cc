@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -22,11 +21,12 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, 
+                                       edm::ConsumesCollector& collector,
+                                       ObjectService* os,
                                        const char *name, bool active) :
-  BaseFiller                    (cfg,name,active),
-  edmName_                      (Conf().getUntrackedParameter<string>("edmName","particleFlow")),
-  edmPfNoPileupName_            (Conf().getUntrackedParameter<string>("edmPfNoPileupName",
-								      "pfNoElectrons")),
+  BaseFiller                    (cfg,os,name,active),
+  edmToken_(GetToken<PFCollection>(collector, "edmName","particleFlow")),
+  edmPfNoPileupToken_(GetToken<PFCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
   mitName_                      (Conf().getUntrackedParameter<string>("mitName",
 								      Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_         (Conf().exists("trackerTrackMapNames") ? 
@@ -157,7 +157,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
   //const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
   //printf(" Get Particle Flow Candidates\n");
   Handle<PFCollection> hPfCandProduct;
-  GetProduct(edmName_, hPfCandProduct, event);  
+  GetProduct(edmToken_, hPfCandProduct, event);  
   const PFCollection &inPfCands = *(hPfCandProduct.product());
 
   // get PF NoPileup Candidates
@@ -167,7 +167,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
   //CP const reco::PFCandidateCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
   //printf(" Get Particle Flow Candidates - no pileup\n");
   Handle<PFCollection> hPfNoPileupCandProduct;
-  GetProduct(edmName_, hPfNoPileupCandProduct, event);  
+  GetProduct(edmToken_, hPfNoPileupCandProduct, event);  
   const PFCollection &inPfNoPileupCands = *(hPfNoPileupCandProduct.product());
 
   //for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); 
@@ -176,7 +176,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
 
     // Not nice put well....
     const reco::PFCandidate *iP = &(*(*iPf));
- 
+
     mithep::PFCandidate *outPfCand = pfCands_->Allocate();
     new (outPfCand) mithep::PFCandidate(iP->px(),iP->py(),iP->pz(),iP->energy());
 
@@ -283,7 +283,7 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
       catch (...) { 
     	if (!allowMissingPhotonRef_) {
     	  throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-    	    << "Error! Photon unmapped collection " << edmName_ << std::endl;
+    	    << "Error! Photon unmapped collection";
     	}
       }
     
@@ -380,7 +380,7 @@ void FillerPFCandidates::ResolveLinks(const edm::Event      &event,
   // get PF Candidates
   //printf(" Get Particle Flow Candidates - ResolveLinks\n");
   Handle<PFCollection> hPfCandProduct;
-  GetProduct(edmName_, hPfCandProduct, event);  
+  GetProduct(edmToken_, hPfCandProduct, event);  
   const PFCollection &inPfCands = *(hPfCandProduct.product());
 
   // loop through pf candidates and resolve mother-daughter links

@@ -15,19 +15,21 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+
 namespace mithep 
 {
   class FillerCaloTowers : public BaseFiller
   {  
     public:
-      FillerCaloTowers(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerCaloTowers(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerCaloTowers();
 
       void                   BookDataBlock(TreeWriter &tws);
       void                   FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
   
     private:
-      std::string            edmName_;           //edm name of CaloTowers
+      edm::EDGetTokenT<CaloTowerCollection> edmToken_;           //edm name of CaloTowers
       std::string            mitName_;           //name of CaloTowers
       std::string            caloTowerMapName_;  //name of export map
       std::string            caloTowerDetIdMapName_;  //name of export map      

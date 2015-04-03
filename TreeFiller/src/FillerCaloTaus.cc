@@ -3,7 +3,6 @@
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
 #include "MitAna/DataTree/interface/CaloTauCol.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -13,9 +12,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","recoCaloTaus:iterativeCone5CaloTaus")),
+FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<reco::CaloTauCollection>(collector, "edmName","recoCaloTaus:iterativeCone5CaloTaus")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
   trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
   jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
@@ -81,7 +80,7 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
 
   // handle for the tau collection
   Handle<reco::CaloTauCollection> hTauProduct;
-  GetProduct(edmName_, hTauProduct, event);
+  GetProduct(edmToken_, hTauProduct, event);
   
   const reco::CaloTauCollection inTaus = *(hTauProduct.product());  
   // loop through all taus
@@ -146,7 +145,7 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
         else if ( endcapBCMap_->HasMit(refToPtr(clusterRef)) )
           tau->AddNeutralBC(endcapBCMap_->GetMit(refToPtr(clusterRef)));
         else throw edm::Exception(edm::errors::Configuration, "FillerCaloTaus:FillDataBlock()\n")
-             << "Error! Basic Cluster reference in unmapped collection " << edmName_ << endl;
+               << "Error! Basic Cluster reference in unmapped calo tau collection ";
       }
     }
   }      

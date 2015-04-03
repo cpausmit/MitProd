@@ -15,12 +15,17 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetID.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+
 namespace mithep 
 {
   class FillerCaloJets : public BaseFiller
   {  
     public:
-      FillerCaloJets(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerCaloJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerCaloJets();
 
       void            BookDataBlock(TreeWriter &tws);
@@ -32,30 +37,25 @@ namespace mithep
       bool            jetToVertexActive_;               //=true if jet to vertex info is done
       bool            jetCorrectionsActive_;            //=true if jet corrections are done
       bool            jetIDActive_;                     //=true if jet id variables are filled
-      std::string     edmName_;                         //edm name of jets collection
-      std::string     mitName_;                         //mit name of jets collection
-      std::string     jetToVertexAlphaName_;            //edm name of jet to vertex alpha coll
-      std::string     jetToVertexBetaName_;             //edm name of jet to vertex beta coll
+      edm::EDGetTokenT<reco::CaloJetCollection>     edmToken_;                         //edm name of jets collection
+      edm::EDGetTokenT<std::vector<double> >     jetToVertexAlphaToken_;            //edm name of jet to vertex alpha coll
+      edm::EDGetTokenT<std::vector<double> >     jetToVertexBetaToken_;             //edm name of jet to vertex beta coll
+      edm::EDGetTokenT<reco::JetIDValueMap>     jetIDToken_;                       //label of the JetID product
+      edm::EDGetTokenT<reco::JetMatchedPartonsCollection>     flavorMatchingByReferenceToken_;   //source of flavor matching
+      edm::EDGetTokenT<reco::JetTagCollection>     jetProbabilityBJetTagsToken_;             //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     jetBProbabilityBJetTagsToken_;            //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     simpleSecondaryVertexBJetTagsToken_;      //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     simpleSecondaryVertexHighEffBJetTagsToken_;      //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     simpleSecondaryVertexHighPurBJetTagsToken_;      //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     combinedSecondaryVertexBJetTagsToken_;    //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     combinedSecondaryVertexMVABJetTagsToken_; //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     trackCountingHighEffBJetTagsToken_;       //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     trackCountingHighPurBJetTagsToken_;       //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection>     ghostTrackBJetTagsToken_;                 //bjet algo discriminant      
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
       std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service
-      std::string     jetIDName_;                       //label of the JetID product
-      std::string     flavorMatchingByReferenceName_;   //source of flavor matching
       std::string     flavorMatchingDefinition_;        //type of flavor matching
-      std::string     jetProbabilityBJetTagsName_;             //bjet algo discriminant
-      std::string     jetBProbabilityBJetTagsName_;            //bjet algo discriminant
-      std::string     simpleSecondaryVertexBJetTagsName_;      //bjet algo discriminant
-      std::string     simpleSecondaryVertexHighEffBJetTagsName_;      //bjet algo discriminant
-      std::string     simpleSecondaryVertexHighPurBJetTagsName_;      //bjet algo discriminant
-      std::string     combinedSecondaryVertexBJetTagsName_;    //bjet algo discriminant
-      std::string     combinedSecondaryVertexMVABJetTagsName_; //bjet algo discriminant
-      std::string     ghostTrackBJetTagsName_;                 //bjet algo discriminant      
-      std::string     trackCountingHighEffBJetTagsName_;       //bjet algo discriminant
-      std::string     trackCountingHighPurBJetTagsName_;       //bjet algo discriminant
-      std::string     softMuonBJetTagsName_;                   //bjet algo discriminant        
-      std::string     softMuonByIP3dBJetTagsName_;             //bjet algo discriminant
-      std::string     softMuonByPtBJetTagsName_;               //bjet algo discriminant
-      std::string     softElectronByIP3dBJetTagsName_;         //bjet algo discriminant
-      std::string     softElectronByPtBJetTagsName_;           //bjet algo discriminant
+      std::string     mitName_;                         //mit name of jets collection
       std::string     caloTowerMapName_;                //name of imported CaloTowerMap
       std::string     jetMapName_;                      //name of exported CaloJetMap
       const mithep::CaloTowerMap      *caloTowerMap_;   //map wrt CaloTowers

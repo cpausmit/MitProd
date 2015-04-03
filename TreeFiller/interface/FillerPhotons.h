@@ -14,16 +14,19 @@
 #include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace mithep 
 {
   class FillerPhotons : public BaseFiller
   {  
     public:
-      FillerPhotons(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPhotons();
 
       void                             BookDataBlock(TreeWriter &tws);
@@ -40,7 +43,14 @@ namespace mithep
 						       const CaloGeometry *caloGeom); 
 
     private:		               
-      std::string                      edmName_;                   //edm name: photon collection
+      edm::EDGetTokenT<reco::PhotonCollection> edmToken_;                   //edm name: photon collection
+      edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //name: input edm HCAL HE rec hits collection  
+      edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //name: tight cut phID algo
+      edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedLooseToken_;     //name: loose cut phID algo
+//      std::string                      EBRecHitsEdmName_;          //name: input edm ECAL EB rec hits collection
+//      std::string                      EERecHitsEdmName_;          //name: input edm ECAL EE rec hits collection
+//      std::string                      PFCandsEdmName_;            //name: input edm pfCandidates
+
       std::string                      mitName_;                   //mit name: photon collection
       std::string                      conversionMapName_;         //name: imp. map wrt conv. elecs
       std::string                      oneLegConversionMapName_;   //name: imp. map wrt conv. elecs
@@ -50,12 +60,6 @@ namespace mithep
       std::string                      pfClusterMapName_;          //name: imp. map wrt pflow clus       
       std::string                      pfCandMapName_;             //name: imp. map wrt pfcandidates
       std::string                      photonMapName_;             //name: exported photon map
-      std::string                      phIDCutBasedTightName_;     //name: tight cut phID algo
-      std::string                      phIDCutBasedLooseName_;     //name: loose cut phID algo
-      std::string                      EBRecHitsEdmName_;          //name: input edm ECAL EB rec hits collection
-      std::string                      EERecHitsEdmName_;          //name: input edm ECAL EE rec hits collection
-      std::string                      PFCandsEdmName_;            //name: input edm pfCandidates
-      edm::InputTag                    HBHERecHitsEdmName_;        //name: input edm HCAL HE rec hits collection  
       mithep::PhotonMap                *photonMap_;                //exported photon map
       mithep::PhotonArr                *photons_;                  //array of Photons
       const mithep::ConversionDecayMap *conversionMap_;            //imp. map wrt conver. electrons

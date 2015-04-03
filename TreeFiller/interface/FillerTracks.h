@@ -17,12 +17,16 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/HitPatternReader.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+
 namespace mithep 
 {
   class FillerTracks : public BaseFiller
   {  
     public:
-      FillerTracks(const edm::ParameterSet &cfg, const char *name, bool active=1);
+      FillerTracks(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerTracks();
 
       void                                BookDataBlock(TreeWriter &tws);
@@ -34,9 +38,9 @@ namespace mithep
                                                        mithep::Track::EHitLayer> &layerMap);
 
       bool                                ecalAssocActive_;             //do track-ecal associations
-      std::string                         edmName_;                     //edm name of tracks coll
+      edm::EDGetTokenT<edm::View<reco::Track> > edmToken_;                     //edm name of tracks coll
+      edm::EDGetTokenT<reco::RecoToSimCollection> edmSimAssocToken_;             //edm name of sim assoc map
       std::string                         mitName_;                     //mit name of Tracks
-      std::string                         edmSimAssocName_;             //edm name of sim assoc map
       std::string                         trackingMapName_;             //name of imp. map wrt sim
       std::string                         barrelSuperClusterIdMapName_; //name of barrel sc id map
       std::string                         endcapSuperClusterIdMapName_; //name of endcap sc id map

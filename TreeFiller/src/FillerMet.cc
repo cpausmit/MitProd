@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MetCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -14,9 +13,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerMet::FillerMet(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","met")),
+FillerMet::FillerMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<reco::METCollection>(collector, "edmName","met")),
   mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   mets_(new mithep::MetArr)
 {
@@ -49,7 +48,7 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
   mets_->Delete();
 
   Handle<reco::METCollection> hMetProduct;
-  GetProduct(edmName_, hMetProduct, event);
+  GetProduct(edmToken_, hMetProduct, event);
 
   const reco::METCollection inMets = *(hMetProduct.product());  
 

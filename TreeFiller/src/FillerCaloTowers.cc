@@ -2,7 +2,6 @@
 
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -15,9 +14,9 @@ using namespace edm;
 using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, const char *name, bool active) : 
-  BaseFiller(cfg,name,active),
-  edmName_(Conf().getUntrackedParameter<string>("edmName","towerMaker")),
+FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  edmToken_(GetToken<CaloTowerCollection>(collector, "edmName","towerMaker")),
   mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
   caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),
   caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
@@ -72,7 +71,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   caloTowerDetIdMap_->Reset();
 
   Handle<CaloTowerCollection> hCaloTowerProduct;
-  GetProduct(edmName_, hCaloTowerProduct, event);
+  GetProduct(edmToken_, hCaloTowerProduct, event);
   const CaloTowerCollection inCaloTowers = *(hCaloTowerProduct.product());  
 
   for (CaloTowerCollection::const_iterator inCaloTower = inCaloTowers.begin(); 
