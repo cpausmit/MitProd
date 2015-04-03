@@ -33,7 +33,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'POSTLS170_V5::All'
+process.GlobalTag.globaltag = 'DESRUN1_74_V4::All'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -58,9 +58,6 @@ process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
 )
-
-# adding our object service for intermodule communications
-process.add_(cms.Service("ObjectService"))
 
 
 # Import/Load the filler so all is already available for config changes
