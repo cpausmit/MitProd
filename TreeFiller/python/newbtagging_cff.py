@@ -30,9 +30,10 @@ newSimpleSecondaryVertexHighPurBJetTags.tagInfos = cms.VInputTag(cms.InputTag("n
 newCombinedSecondaryVertexBJetTags = combinedSecondaryVertexBJetTags.clone()
 newCombinedSecondaryVertexBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
                                                             cms.InputTag("newSecondaryVertexTagInfos") )
-newCombinedSecondaryVertexMVABJetTags = combinedSecondaryVertexMVABJetTags.clone()
-newCombinedSecondaryVertexMVABJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
-                                                               cms.InputTag("newSecondaryVertexTagInfos") )
+# replacing CSVMVA with CSVv2 - is this correct? Y.I. Apr 3 2015
+newCombinedSecondaryVertexV2BJetTags = combinedSecondaryVertexV2BJetTags.clone()
+newCombinedSecondaryVertexV2BJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
+                                                              cms.InputTag("newSecondaryVertexTagInfos") )
 
 # ghost track b-tag
 newGhostTrackVertexTagInfos = ghostTrackVertexTagInfos.clone()
@@ -78,7 +79,7 @@ newJetBtaggingSV = cms.Sequence(
     newSimpleSecondaryVertexHighEffBJetTags +
     newSimpleSecondaryVertexHighPurBJetTags +
     newCombinedSecondaryVertexBJetTags +
-    newCombinedSecondaryVertexMVABJetTags
+    newCombinedSecondaryVertexV2BJetTags
   )
 )
 
