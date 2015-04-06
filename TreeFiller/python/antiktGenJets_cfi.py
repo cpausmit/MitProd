@@ -5,6 +5,6 @@ from RecoJets.Configuration.RecoGenJets_cff import *
 
 antiktGenJets = cms.Sequence(
   genJetParticles*
-  ak5GenJets*
-  ak7GenJets
+  ak4GenJets*
+  ak8GenJets
 )

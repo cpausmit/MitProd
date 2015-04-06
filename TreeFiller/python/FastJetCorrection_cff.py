@@ -50,14 +50,14 @@ kt6PFJetsForRhoComputationRandom25CHSMIT = kt6PFJets.clone(
   rParam = cms.double(0.6),
   src = cms.InputTag('pfNoElectron')
 )
-ak5PFJetsForL1Correction = ak5PFJets.clone(
+ak4PFJetsForL1Correction = ak4PFJets.clone(
   doAreaFastjet = True
 )
 kt4PFJetsForL1Correction = kt4PFJets.clone(
   doAreaFastjet = True
 )
 
-#ak5PFJetsForL1CorrectionCHS = ak5PFJets.clone(doAreaFastjet = True)
+#ak4PFJetsForL1CorrectionCHS = ak4PFJets.clone(doAreaFastjet = True)
 #kt4PFJetsForL1CorrectionCHS = kt4PFJets.clone(doAreaFastjet = True) 
 
 #kt6PFJetsForRhoComputationRandom equivalent is stored in aod in 44x
@@ -80,7 +80,7 @@ l1FastJetSequence42 = cms.Sequence(
   kt6PFJetsForRhoComputationVoronoi25MIT *
   kt6PFJetsForRhoComputationRandomMIT *
   kt6PFJetsForRhoComputationRandom25MIT *
-  ak5PFJetsForL1Correction *
+  ak4PFJetsForL1Correction *
   kt4PFJetsForL1Correction
 )
 l1FastJetSequence42CHS = cms.Sequence(

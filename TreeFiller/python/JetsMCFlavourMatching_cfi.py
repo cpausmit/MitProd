@@ -109,21 +109,21 @@ KT6byValAlgo = cms.EDProducer("JetFlavourIdentifier",
 
 #AntiKt Jets
 # Flavour byReference
-AKT5byRef = cms.EDProducer("JetPartonMatcher",
-    jets                = cms.InputTag("ak5CaloJets"),
+AKT4byRef = cms.EDProducer("JetPartonMatcher",
+    jets                = cms.InputTag("ak4CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT5byValPhys = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT5byRef"),
+AKT4byValPhys = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT4byRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT5byRef"),
+AKT4byValAlgo = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT4byRef"),
     physicsDefinition = cms.bool(False)
 )
 
@@ -247,40 +247,40 @@ KT6PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
 
 #AntiKt Jets
 # Flavour byReference
-AKT5PFbyRef = cms.EDProducer("JetPartonMatcher",
-    jets                = cms.InputTag("ak5PFJets"),
+AKT4PFbyRef = cms.EDProducer("JetPartonMatcher",
+    jets                = cms.InputTag("ak4PFJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT5PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT5PFbyRef"),
+AKT4PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT4PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT5PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT5PFbyRef"),
+AKT4PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT4PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
 # Flavour byReference
-AKT7PFbyRef = cms.EDProducer("JetPartonMatcher",
-    jets                = cms.InputTag("ak7PFJets"),
+AKT8PFbyRef = cms.EDProducer("JetPartonMatcher",
+    jets                = cms.InputTag("ak8PFJetsCHS"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AKT7PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT7PFbyRef"),
+AKT8PFbyValPhys = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT8PFbyRef"),
     physicsDefinition = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AKT7PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference    = cms.InputTag("AKT7PFbyRef"),
+AKT8PFbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference    = cms.InputTag("AKT8PFbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
@@ -320,15 +320,15 @@ GenKT6byRef = cms.EDProducer("JetPartonMatcher",
 )
 
 #Flavour by Reference
-GenAKT5byRef = cms.EDProducer("JetPartonMatcher",
-    jets                = cms.InputTag("ak5GenJets"),
+GenAKT4byRef = cms.EDProducer("JetPartonMatcher",
+    jets                = cms.InputTag("ak4GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
 
 #Flavour by Reference
-GenAKT7byRef = cms.EDProducer("JetPartonMatcher",
-    jets                = cms.InputTag("ak7GenJets"),
+GenAKT8byRef = cms.EDProducer("JetPartonMatcher",
+    jets                = cms.InputTag("ak8GenJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons             = cms.InputTag("myPartons")
 )
@@ -338,24 +338,24 @@ sisCone5Flavour = cms.Sequence(SC5byRef*SC5byValPhys*SC5byValAlgo)
 sisCone7Flavour = cms.Sequence(SC7byRef*SC7byValPhys*SC7byValAlgo)
 KT4Flavour = cms.Sequence(KT4byRef*KT4byValPhys*KT4byValAlgo)
 KT6Flavour = cms.Sequence(KT6byRef*KT6byValPhys*KT6byValAlgo)
-AKT5Flavour = cms.Sequence(AKT5byRef*AKT5byValPhys*AKT5byValAlgo)
+AKT4Flavour = cms.Sequence(AKT4byRef*AKT4byValPhys*AKT4byValAlgo)
 AKT7Flavour = cms.Sequence(AKT7byRef*AKT7byValPhys*AKT7byValAlgo)
 iterativeCone5PFFlavour = cms.Sequence(IC5PFbyRef*IC5PFbyValPhys*IC5PFbyValAlgo)
 sisCone5PFFlavour = cms.Sequence(SC5PFbyRef*SC5PFbyValPhys*SC5PFbyValAlgo)
 sisCone7PFFlavour = cms.Sequence(SC7PFbyRef*SC7PFbyValPhys*SC7PFbyValAlgo)
 KT4PFFlavour = cms.Sequence(KT4PFbyRef*KT4PFbyValPhys*KT4PFbyValAlgo)
 KT6PFFlavour = cms.Sequence(KT6PFbyRef*KT6PFbyValPhys*KT6PFbyValAlgo)
-AKT5PFFlavour = cms.Sequence(AKT5PFbyRef*AKT5PFbyValPhys*AKT5PFbyValAlgo)
-AKT7PFFlavour = cms.Sequence(AKT7PFbyRef*AKT7PFbyValPhys*AKT7PFbyValAlgo)
+AKT4PFFlavour = cms.Sequence(AKT4PFbyRef*AKT4PFbyValPhys*AKT4PFbyValAlgo)
+AKT8PFFlavour = cms.Sequence(AKT8PFbyRef*AKT8PFbyValPhys*AKT8PFbyValAlgo)
 
-GenJetFlavour = cms.Sequence(GenKT4byRef*GenKT6byRef*GenAKT5byRef*GenAKT7byRef)
+GenJetFlavour = cms.Sequence(GenKT4byRef*GenKT6byRef*GenAKT4byRef*GenAKT8byRef)
 
 caloJetMCFlavour = cms.Sequence(myPartons
                                 +KT4Flavour
                                 +KT6Flavour
-                                +AKT5Flavour
+                                +AKT4Flavour
                                 +AKT7Flavour
                                 +GenJetFlavour)
 
-pfJetMCFlavour = cms.Sequence(KT4PFFlavour+KT6PFFlavour+AKT5PFFlavour+AKT7PFFlavour)
+pfJetMCFlavour = cms.Sequence(KT4PFFlavour+KT6PFFlavour+AKT4PFFlavour+AKT8PFFlavour)
 
