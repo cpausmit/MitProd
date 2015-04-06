@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/python
 #---------------------------------------------------------------------------------------------------
 # Script to identify all samples which are kept in our database.
 #
