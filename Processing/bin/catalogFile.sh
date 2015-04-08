@@ -16,7 +16,7 @@ echo " running on    : "`/bin/hostname`
 echo " executing in  : "`pwd`
 echo " ";
 
-export CATALOG_MACRO="runFileCataloger.C"
+export CATALOG_MACRO="runFileCataloger.C+"
 
 dataDir=$1
 dataFile=$2
@@ -44,8 +44,9 @@ echo " "; echo "Initialize CMSSW"; echo " "
 #cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
+#cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
 #cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
-cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
+cd     ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 

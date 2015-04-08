@@ -4,7 +4,8 @@
 #include "MitAna/DataUtil/interface/Debug.h"
 #include "MitAna/Catalog/interface/Catalog.h"
 #include "MitAna/Catalog/interface/Dataset.h"
-#include "MitAna/TreeMod/interface/HLTMod.h"
+#include "MitAna/TreeMod/interface/AnaFwkMod.h"
+//#include "MitAna/TreeMod/interface/HLTMod.h"
 #include "MitAna/TreeMod/interface/CatalogingMod.h"
 #include "MitAna/TreeMod/interface/Analysis.h"
 #endif
@@ -17,12 +18,12 @@ void catalogFile(const char *dir, const char *file);
 void reset();
 
 Analysis      *gAna(0);
-HLTMod        *hMod(0);
+//HLTMod        *hMod(0);
 CatalogingMod *gMod(0);
 
 //--------------------------------------------------------------------------------------------------
-void runFileCataloger(const char *dir = "/castor/cern.ch/user/p/paus/filler/004/s8-qcddj_15_20-id9",
-		      const char *file = "s8-qcddj_15_20-id9_000_1.root")
+void runFileCataloger(const char *dir = "/mnt/hadoop/cms/store/user/paus/filefi/040/RelValProdZEE_13+CMSSW_7_4_0_pre8-PUpmx50ns_MCRUN2_74_V6-v1+AODSIM/crab_0_150406_153710_0001",
+		      const char *file = "bambu-output-file-tmp_000_1_1_rUz.root")
 {
   // -----------------------------------------------------------------------------------------------
   // This script runs a full cataloging action on the given directory
@@ -46,6 +47,7 @@ void catalogFile(const char *dir, const char *file)
   // set up analysis
   //hMod->Add(gMod);
   //gAna->SetSuperModule(hMod);
+
   gAna->SetSuperModule(gMod);
   
   TString fileName = TString(dir) + slash +  + TString(file);
@@ -75,10 +77,10 @@ void reset()
     delete gAna;
   gAna = new Analysis();
 
-  if (hMod)
-    delete hMod;
-  hMod = new HLTMod();
-  //hMod->SetPrintTable(kTRUE);
+  //if (hMod)
+  //  delete hMod;
+  //hMod = new HLTMod();
+  //hMod->SetPrintTable(kFALSE);
 
   if (gMod)
     delete gMod;
