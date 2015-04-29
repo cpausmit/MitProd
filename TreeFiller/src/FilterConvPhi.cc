@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterConvPhi.cc,v 1.1 2010/01/18 14:37:18 bendavid Exp $
-//
 // FilterConvPhi
 //
 // Filter to select events with simulation-level conversions with two matched reconstructed tracks
@@ -36,8 +34,7 @@ namespace mitedm
     ~FilterConvPhi() {}
     
   protected:
-    virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
-    void beginJob(const edm::EventSetup &es);
+    virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup) override;
     bool FailedSimCuts(const mithep::MCParticle* p) const;
     const mithep::Track *MatchedTrack(const mithep::MCParticle* p) const;
     double minPhi_;
@@ -59,14 +56,6 @@ FilterConvPhi::FilterConvPhi(const edm::ParameterSet& iConfig)
 {
   throw cms::Exception("BrokenModule") << "This module is broken at the moment due to ongoing upgrades.";
   // Constructor.
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void FilterConvPhi::beginJob(const edm::EventSetup &event)
-{
-  // tracks_ = FillMitTree::os()->get<TrackArr>("Tracks");
-  // mcParts_ = FillMitTree::os()->get<MCParticleArr>("MCParticles");
 }
 
 //--------------------------------------------------------------------------------------------------
