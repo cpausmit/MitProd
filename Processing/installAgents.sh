@@ -6,11 +6,42 @@
 #
 #                                                                Ch.Paus: Version 0.0 (Apr 27, 2015)
 # --------------------------------------------------------------------------------------------------
+function install {
+  # function that will install the daemon named as the given first parameter
+  #   example: install reviewd
+
+  # command line parameter
+  daemon="$1"
+
+  # make sure directories exist
+  mkdir -p $MIT_PROD_AGENTS_LOG/${daemon}
+  chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_LOG
+
+  # stop potentially existing server process
+  if [ -e "/etc/init.d/${daemon}" ]
+  then
+    /etc/init.d/${daemon} status
+    /etc/init.d/${daemon} stop
+  fi
+  
+  # copy daemon
+  cp $MIT_PROD_AGENTS_BASE/sysv/${daemon} /etc/init.d/
+  
+  # start new server
+  /etc/init.d/${daemon} status
+  /etc/init.d/${daemon} start
+  sleep 2
+  /etc/init.d/${daemon} status
+  
+  # start on boot
+  chkconfig --level 345 ${daemon} on
+}
+
 # Configuration parameters (this needs more work but for now)
 export MIT_PROD_USER=cmsprod
 export MIT_PROD_GROUP=zh
 
-source agents/setupReview.sh
+source agents/setupAgents.sh
 
 # make sure mysql is setup properly for server and clients otherwise this will not work check out
 # the README
@@ -39,29 +70,13 @@ chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_BASE
 # create log/db structure
 #========================
 # owner has to be $MIT_PROD_USER:$MIT_PROD_GROUP, this user runs the process
-mkdir -p $MIT_PROD_REVIEW_LOG
-chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_REVIEW_LOG
+mkdir -p $MIT_PROD_AGENTS_LOG
+chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_LOG
 
 # install and start daemons
 #==========================
 
-# stop potentially existing server process
-if [ -e "/etc/init.d/reviewd" ]
-then
-  /etc/init.d/reviewd status
-  /etc/init.d/reviewd stop
-fi
-
-# copy Detox daemon
-cp $MIT_PROD_AGENTS_BASE/sysv/reviewd /etc/init.d/
-
-# start new server
-/etc/init.d/reviewd status
-/etc/init.d/reviewd start
-sleep 2
-/etc/init.d/reviewd status
-
-# start on boot
-chkconfig --level 345 reviewd on
+install reviewd
+install catalogd
 
 exit 0

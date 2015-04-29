@@ -4,20 +4,7 @@
 # do it on the long run but let's start this way.
 #
 #---------------------------------------------------------------------------------------------------
-# general info
-
-export MIT_PROD_AGENTS_BASE="/usr/local/MitProd/agents"
-
-# review process
-
-export MIT_PROD_REVIEW_WORK="/home/cmsprod/cms/jobs"
-export MIT_PROD_REVIEW_LOG="/local/cmsprod/MitProd/review"
-
-# Parameters for cleaning
-
-export MIT_PROD_REVIEW_CYCLE_HOURS=1
-
-# CMSSW setup etc.
+# Environment: CMSSW, CRAB etc.
 export MIT_VERS=040
 export MIT_TAG=Mit_040
 export TICKET_HOLDER="paus"
@@ -29,3 +16,17 @@ eval `scram runtime -sh`
 cd -
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 source /cvmfs/cms.cern.ch/crab/CRAB_${CRAB_VERS}/crab.sh
+
+# general info
+
+export MIT_PROD_AGENTS_BASE="/usr/local/MitProd/agents"
+export MIT_PROD_AGENTS_WORK="/home/cmsprod/cms/jobs"
+export MIT_PROD_AGENTS_LOG="/local/cmsprod/MitProd/agents"
+
+# review process
+
+export MIT_PROD_REVIEW_CYCLE_HOURS=1
+
+# catalog process
+
+export MIT_PROD_CATALOG_CYCLE_SECONDS=300
