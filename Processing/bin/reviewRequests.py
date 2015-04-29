@@ -92,13 +92,19 @@ def testEnvironment(mitCfg,version,cmssw,cmsswCfg):
             cmd += " XXXX ERROR no valid configuration found XXXX"
             raise RuntimeError, cmd
 
-def updateCacheDb(useCachedDb,mitCfg,version,cmssw):
+def updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw):
     # Deal with the cache of the database - either update the cache or do not
     
-    webServer = 'http://t3serv001.mit.edu/~cmsprod'
-    tmpFile = '/tmp/Productions.' + cmssw
+    if useCachedDb:
+        print " Using cached version: "
+        cmd = 'ls -lhrt ./' + mitCfg + '/' + version + '/Productions.' \
+              + cmssw
+        rc = call(cmd.split(' '))
+    else:                                                              # possibly remaking the cache
+        # parameters for the update
+        webServer = 'http://t3serv001.mit.edu/~cmsprod'
+        tmpFile = '/tmp/Productions.' + cmssw
 
-    if not useCachedDb:
         # remove cache to keep it clean
         cmd = 'rm -f ' + tmpFile
         os.system(cmd)
@@ -123,7 +129,12 @@ def updateCacheDb(useCachedDb,mitCfg,version,cmssw):
                 print " No difference in the local and central database files (rc=%d)."%(rc)
         else:
             print " Differences in central and local file found (rc=%d)."%(rc)
-            answer = raw_input(" Overwrite local database with these changes and continue? [y/N] ")
+            if updateCacheDb:
+                print " --> forcing update as requested."
+                answer = 'y'
+            else:
+                answer = raw_input(" Overwrite local database with changes and continue? [y/N] ")
+                
             # Check whether something has changed
             if answer == 'y' or answer == 'Y':
                 cmd  = 'mv /tmp/Productions.' + cmssw + ' ./' + mitCfg \
@@ -133,11 +144,6 @@ def updateCacheDb(useCachedDb,mitCfg,version,cmssw):
             else:
                 print ' Local database *not* overwritten. Exit here.'
                 sys.exit(0)
-    else:
-        print " Using cached version: "
-        cmd = 'ls -lhrt ./' + mitCfg + '/' + version + '/Productions.' \
-              + cmssw
-        rc = call(cmd.split(' '))
 
 def findPath(mitCfg,version):
     # Find the path to where we store our samples
@@ -170,6 +176,7 @@ usage  = "\nUsage: findSamples.py --mitCfg=<name>\n"
 usage += "                      --version=<version> [ default: MIT_VERS ]\n"
 usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
+usage += "                      --updateCachedDb\n"
 usage += "                      --useCachedDb\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --useExistingSites\n"
@@ -184,7 +191,7 @@ usage += "                      --help\n\n"
  
 # Define the valid options which can be specified and check out the command line
 valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','remakeLfns=','show=', \
-         'help','exe','useCachedDb','useExistingLfns','useExistingSites','debug']
+         'help','exe','updateCacheDb','useCachedDb','useExistingLfns','useExistingSites','debug']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -201,6 +208,7 @@ cmssw            = ''
 pattern          = ''
 cmsswCfg         = 'cmssw.cfg'
 exe              = 0
+updateCachedDb   = False
 useCachedDb      = False
 useExistingLfns  = False
 useExistingSites = False
@@ -225,6 +233,8 @@ for opt, arg in opts:
         pattern = arg
     if opt == "--exe":
         exe = 1
+    if opt == "--updateCachedDb":
+        updateCachedDb = True
     if opt == "--useCachedDb":
         useCachedDb = True
     if opt == "--useExistingLfns":
@@ -244,7 +254,7 @@ for opt, arg in opts:
 
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)
-updateCacheDb(useCachedDb,mitCfg,version,cmssw)
+updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
 
 # Where is our storage?
 path = findPath(mitCfg,version)

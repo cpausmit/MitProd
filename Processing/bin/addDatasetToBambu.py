@@ -51,6 +51,7 @@ def testLocalSetup(dataset,debug=0):
 	  dataset + ' | count(file), sum(file.size)"| sort -u'
     nFiles = ''
     size = ''
+    units = ''
     for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
         line    = line[:-1]
         f = line.split('=')
@@ -60,9 +61,16 @@ def testLocalSetup(dataset,debug=0):
             size = f[1]
 
     if line != '':
-	print '\n DAS - %s --> %s (nFiles: %s)\n'%(dataset,size,nFiles)
+        try:
+            units = size[-2:]
+            size = float(size[:-2])
+            nFiles = int(nFiles)
+        except:
+            print '\n Error - could not convert size and number of files (%s %s / %s).'%(size,units,nFiles)
+            sys.exit(1)
+        print '\n DAS - %s --> %.1f %s (nFiles: %d)\n'%(dataset,size,units,nFiles)
     else:
-	print ' Error - dataset not found with das_client.py.'
+	print '\n Error - dataset not found with das_client.py.\n'
 	sys.exit(1)
     
 #===================================================================================================
