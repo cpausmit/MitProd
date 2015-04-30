@@ -1,14 +1,13 @@
 #!/bin/bash
 # --------------------------------------------------------------------------------------------------
-# reviewd      Startup script for the review server
+# cleanupd     Startup script for the cleanup server
 #
 # chkconfig: - 70 15
-# description: Review is a process that will go to our production database and review all production\
-#              requests and submit all remainders needed to complete thje request.
+# description: Cleanup is a process that will and cleanup all ongoing production requests.
 #
-# processname: reviewd
-# config:      /etc/reviewd.conf
-# pidfile:     /var/run/reviewd.pid
+# processname: cleanupd
+# config:      /etc/cleanupd.conf
+# pidfile:     /var/run/cleanupd.pid
 # --------------------------------------------------------------------------------------------------
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -18,34 +17,34 @@
 INITLOG_ARGS=""
 
 # Path to the running script, server binary, and short-form for messages.
-#reviewd=/usr/sbin/reviewd
-reviewd=/usr/local/MitProd/agents/reviewd
-prog=reviewd
-pidfile=${PIDFILE-/var/run/reviewd.pid}
-lockfile=${LOCKFILE-/var/lock/subsys/reviewd}
+#cleanupd=/usr/sbin/cleanupd
+cleanupd=/usr/local/MitProd/agents/cleanupd
+prog=cleanupd
+pidfile=${PIDFILE-/var/run/cleanupd.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/cleanupd}
 
 RETVAL=0
 STOP_TIMEOUT=${STOP_TIMEOUT-10}
 
-# Start review daemon (reviewd)
+# Start cleanup daemon (cleanupd)
 start() {
     echo -n $"Starting $prog:"
-    daemon --user=cmsprod --pidfile=${pidfile} $reviewd \&
+    daemon --user=cmsprod --pidfile=${pidfile} $cleanupd \&
     RETVAL=$?
     echo
     [ $RETVAL = 0 ] && touch ${lockfile}
 
     # this seems like a hack, but I do not know how to do it differently
-    pid=`ps auxw | grep "/bin/bash $reviewd" |tr -s ' '|cut -d' ' -f2`
+    pid=`ps auxw | grep "/bin/bash $cleanupd" |tr -s ' '|cut -d' ' -f2`
     echo $pid > $pidfile
 
     return $RETVAL
 }
 
-# Stop review daemon (reviewd)
+# Stop cleanup daemon (cleanupd)
 stop() {
     echo -n $"Stopping $prog: "
-    killproc -p ${pidfile} -d ${STOP_TIMEOUT} $reviewd
+    killproc -p ${pidfile} -d ${STOP_TIMEOUT} $cleanupd
     RETVAL=$?
     echo
     [ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
@@ -60,7 +59,7 @@ case "$1" in
     stop
     ;;
   status)
-    status -p ${pidfile} $reviewd
+    status -p ${pidfile} $cleanupd
     RETVAL=$?
     ;;
   restart)
@@ -68,7 +67,7 @@ case "$1" in
     start
     ;;
   condrestart|try-restart)
-    if status -p ${pidfile} $reviewd >&/dev/null
+    if status -p ${pidfile} $cleanupd >&/dev/null
     then
       stop
       start

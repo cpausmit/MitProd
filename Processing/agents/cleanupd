@@ -1,6 +1,6 @@
 #!/bin/bash
 # --------------------------------------------------------------------------------------------------
-# Process to keep request review alive and well.
+# Process to keep cleanup alive and well.
 #
 # v1.0                                                                         C.Paus (Apr 27, 2015)
 # --------------------------------------------------------------------------------------------------
@@ -9,6 +9,7 @@ source $MIT_PROD_AGENTS_BASE/setupAgents.sh
 
 # daemon
 daemon=`basename $0`
+#daemonBanner=
 
 # go to work area
 cd $MIT_PROD_AGENTS_WORK
@@ -24,11 +25,11 @@ do
   mkdir -p $MIT_PROD_AGENTS_LOG/${daemon}
   if [ -e "$MIT_PROD_AGENTS_LOG/${daemon}" ]
   then
-    #echo " Request review log area exists. Let's start!"
+    #echo " Cleanup log area exists. Let's start!"
     sleep 1
   else
     echo ""
-    echo " Request review area could not be found ($MIT_PROD_AGENTS_LOG/${daemon}). EXIT!"
+    echo " Log area could not be found ($MIT_PROD_AGENTS_LOG/${daemon}). EXIT!"
     echo ""
     exit 1
   fi
@@ -42,9 +43,9 @@ do
   echo ""                                                                          >> $logFile
   env  | grep ^MIT_PROD                                                            >> $logFile
   echo ""                                                                          >> $logFile
-  echo " = = = =  I N I T I A L  R E V I E W   E N V I R O N M E N T  = = = ="     >> $logFile
+  echo " = = = =  I N I T I A L  C L E A N U P   E N V I R O N M E N T  = = = ="   >> $logFile
   echo ""                                                                          >> $logFile
-  env  | grep ^MIT_PROD_REVIEW                                                     >> $logFile
+  env  | grep ^MIT_PROD_CLEANUP                                                    >> $logFile
   echo ""                                                                          >> $logFile
   echo "[ PYTHON PATH: $PYTHONPATH ]"                                              >> $logFile
   echo ""                                                                          >> $logFile
@@ -52,27 +53,18 @@ do
   # ten loops over the process with one logfile (keep it small)
   for index in `echo 0 1 2 3 4 5 6 7 8 9`
   do
-    # period 3600 * nHours
-    let wait=3600*$MIT_PROD_REVIEW_CYCLE_HOURS
+    # period nSeconds
+    let wait=$MIT_PROD_CLEANUP_CYCLE_SECONDS
 
     echo " "                                                                      >> $logFile
-    echo " request review loop $index started -- $tag (cycle wait $wait sec)"     >> $logFile
+    echo " = = = = loop $index started -- $tag (cycle wait $wait sec)"            >> $logFile
     echo " "                                                                      >> $logFile
     echo "   --> "`date`                                                          >> $logFile
     echo " "                                                                      >> $logFile
-    cmssw=mc                                                                      
-    echo "   ==== cmssw: $cmssw"                                                  >> $logFile
-    echo " "                                                                      >> $logFile
-    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$cmssw --updateCacheDb --exe \
-                                                                                  >> $logFile 2>&1
-    echo " "                                                                      >> $logFile
-    cmssw=mc-phys14                                                               
-    echo "   ==== cmssw: $cmssw"                                                  >> $logFile
-    echo " "                                                                      >> $logFile
-    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$cmssw --updateCacheDb --exe \
-                                                                                  >> $logFile 2>&1
-    echo " completed review cycle."                                               >> $logFile
+    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=0 --clean             >> $logFile 2>&1
+    echo " completed ${daemon} cycle."                                            >> $logFile
     echo " FINISH by updating log files on web."                                  >> $logFile
+    echo " "                                                                      >> $logFile
 
     # insure that the log information is updated
     mkdir -p /home/cmsprod/public_html/MitProd/agents

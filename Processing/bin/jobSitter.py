@@ -5,7 +5,7 @@
 #
 # Author: C.Paus                                                                      (July 1, 2008)
 #---------------------------------------------------------------------------------------------------
-import os,sys,getopt,re,string
+import os,sys,getopt,re,string,time
 import task
 
 def removeCrabTask(crabTask):
@@ -238,10 +238,6 @@ for crabTask in crabTasks:
 	    continue
 
     crabTask.loadAllLfns('lfns/' + crabTask.mitDataset + '.lfns')
-    #if crabTask.status == 'cataloged':
-    #    ##removeCrabTask(crabTask)
-    #    crabTask.killAndRemove(1)
-    #    continue
 
     # make sure catalog is up to date
     f   = storagePath.split(" ")
@@ -268,31 +264,24 @@ for crabTask in crabTasks:
     print '      ' + cmd + '\n'
     
     if catalog != 0:
-            os.system(cmd)
+        os.system(cmd)
 
     # break out of the loop as only cataloging is required
     if catalog > 1:
-            continue
+        continue
 
-    # do we need to extend the task
-    if extend == 1:
-	cmd = 'crab -extend -c ' + crabTask.tag
-        print '\n------------------------------------------------------------------------------'
-        print '  --> EXTEND ' + crabTask.tag + ' -- ' \
-              + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
-              + '\n       -> ' + storageEle \
-              + '\n       -> ' + storagePath
-        print '------------------------------------------------------------------------------\n'
-	print '  --> ' + cmd
-        os.system(cmd)
-
-    #print '\n------------------------------------------------------------------------------'
-    #print '  --> STATUS ' + crabTask.tag + ' -- ' \
-    #      + '\n       -> ' + dataset   + '  (' + crabTask.mitDataset + ')'\
-    #      + '\n       -> ' + storageEle \
-    #      + '\n       -> ' + storagePath
-    #print '------------------------------------------------------------------------------\n'
+    # check the status
     print '\n  --> STATUS ' + crabTask.tag + ' -- ' + crabTask.mitDataset
+
+    # break out of the loop if request is too young
+    ageMinutes = (time.time() - os.path.getmtime("./"+crabTask.tag)) / 60.
+    minimumAgeMinutes = 60.
+    if ageMinutes < minimumAgeMinutes:
+        print ""
+        print " Skipping this request. It is too fresh for now (<%.1f)."%(minimumAgeMinutes)
+        print " age: %.1f min"%(ageMinutes)
+        print ""
+        continue
 
     # interact with crab to get the job status
     crabTask.getJobStati()
@@ -303,8 +292,12 @@ for crabTask in crabTasks:
     else:
         print ' '
         print ' Task status: ' + crabTask.status
+
         if crabTask.status == 'completed' or crabTask.status == 'finished':
+
             crabTask.remove(clean)
+            #print " DEBUG crabTask.remove(clean) "
+
 	    print ' INFO - crab task has been removed, continuing.\n'
 	    continue
         print ' '
@@ -352,23 +345,11 @@ for crabTask in crabTasks:
         if not re.search('-',subList) and not re.search(',',subList):
             subList = subList + ',999999999'
         cmd = 'crab -c ' + crabTask.tag + ' -submit ' + subList
-        ##print '\nACTION -- SUBMIT.PY: ' + cmd
-        ##if exe == 1:
-        ##    status = os.system(cmd)
     if resubList != '':
         cmd = 'crab -c ' + crabTask.tag + ' -resubmit ' + resubList
-        ##print '\nACTION -- RE-SUBMIT.PY: ' + cmd
-        ##if exe == 1:
-        ##    status = os.system(cmd)
 
 
     cmd = 'crab -getoutput -continue ' + crabTask.tag
-    #print '\n------------------------------------------------------------------------------'
-    #print '  --> GETOUTPUT ' + crabTask.tag + ' -- ' \
-    #      + '\n       -> ' + dataset \
-    #      + '\n       -> ' + storageEle \
-    #      + '\n       -> ' + storagePath
-    #print '------------------------------------------------------------------------------\n'
     print '\n  --> GETOUTPUT ' + crabTask.tag + ' -- ' + crabTask.mitDataset
     print '  --> ' + cmd
     status = os.system(cmd)

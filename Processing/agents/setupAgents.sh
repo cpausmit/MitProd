@@ -30,3 +30,7 @@ export MIT_PROD_REVIEW_CYCLE_HOURS=1
 # catalog process
 
 export MIT_PROD_CATALOG_CYCLE_SECONDS=300
+
+# catalog process
+
+export MIT_PROD_CLEANUP_CYCLE_SECONDS=3600

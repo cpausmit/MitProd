@@ -587,7 +587,9 @@ class Task:
         self.jobStati = []
         self.failingSites  = {}
         cmd = 'crab -status -continue ' + self.tag
-        #print 'Access Crab Job Stati, now!'
+
+        #print ' DEBUG Access Crab Job Stati, now!'
+
         for line in os.popen(cmd).readlines():  # run command
             line       = line[:-1]              # strip '\n'
             if active == 0:
@@ -596,10 +598,6 @@ class Task:
                 if not re.search(pattern,line) and not re.search('------',line):
                     print ' CRAB: ' + line
 
-            #>> # compactify line
-            #>> line       = " ".join(str(line).split()).strip()
-            #>> f          = line.split(" ")
-            # decide whether we are in job status line or not
             if line[1:5] == "----":
                 if active == 0:
                     active = 1  # print "Activated parsing"
@@ -608,32 +606,6 @@ class Task:
                 active = 0      # print "Deactivated parsing"
             # parse the content of the job report
             if active == 1:
-            #>>     #print ' LINE: ' + line
-            #>>     status = JobStatus(int(f[0]),f[1])
-            #>>     if len(f) > 2:
-            #>>         status.ce         = f[2]
-            #>> 
-            #>>         if len(f) >= 2 and f[1] == 'Retrieved':
-            #>>             if len(f) > 5:
-            #>>                 status.exitCode   = int(f[3])
-            #>>                 status.exitStatus = int(f[4])
-
-            # fixed column read
-## # CRAB_2_7_2
-## ##ID     STATUS             E_HOST                               EXE_EXIT_CODE JOB_EXIT_STATUS 
-##                 #lastChar          = len(line)
-##                 #print 'Last Char: %d'%lastChar
-##                 iJob              = int(line[0:5].strip())
-##                 sJob              = line[7:24].strip()
-##                 status            = JobStatus(iJob,sJob)
-##                 status.ce         = line[26:61].strip()
-##                 tmp               = line[63:75].strip()
-
-# CRAB_2_7_7
-##ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
-##25    N   Running           SubSuccess                           llrcream.in2p3.fr
-                #lastChar          = len(line)
-                #print 'Last Char: %d'%lastChar
                 iJob              = int(line[0:5].strip())
                 sJob              = line[10:27].strip()
                 status            = JobStatus(iJob,sJob)
@@ -645,8 +617,6 @@ class Task:
                 tmp               = line[53:64].strip()
                 if tmp != '':
                     status.exitStatus = int(tmp)
-
-                #print ' Appending:  id %d  array entry: %d '%(iJob,len(self.jobStati))
                 self.jobStati.append(status)
 
         # review job output so far
@@ -677,15 +647,13 @@ class Task:
                 else:
                     self.failingSites[status.ce]  = 1
 
-        #print ' Dimension of Job Stati: %d'%(len(self.jobStati))
-
-        # Loop through the job stati and determine the task status
-        # - check whether task is completed
         active = 0
         for status in self.jobStati:
-            if status.tag != 'Aborted' and status.tag != 'Retrieved' and status.tag != 'Created' and status.tag != 'Cleared':
+            if status.tag != 'Aborted' and status.tag != 'Retrieved' and \
+               status.tag != 'Created' and status.tag != 'Cleared':
                 active = 1
                 break
+
         if active == 0:
             self.status = 'completed'
             for status in self.jobStati:
@@ -694,8 +662,6 @@ class Task:
                     break
         else:
             self.status = 'active'
-        
-
 
     #-----------------------------------------------------------------------------------------------
     # print the line to complete the task

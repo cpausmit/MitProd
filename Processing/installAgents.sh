@@ -6,6 +6,7 @@
 #
 #                                                                Ch.Paus: Version 0.0 (Apr 27, 2015)
 # --------------------------------------------------------------------------------------------------
+
 function install {
   # function that will install the daemon named as the given first parameter
   #   example: install reviewd
@@ -78,5 +79,6 @@ chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_LOG
 
 install reviewd
 install catalogd
+install cleanupd
 
 exit 0
