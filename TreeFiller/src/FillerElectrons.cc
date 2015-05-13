@@ -60,8 +60,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesColl
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
   conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
-  ebRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "ebRecHitsName", "reducedEcalRecHitsEB")),
-  eeRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "eeRecHitsName", "reducedEcalRecHitsEE")),
+  ebRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName", "reducedEcalRecHitsEB")),
+  eeRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName", "reducedEcalRecHitsEE")),
   beamSpotToken_            (GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
@@ -71,8 +71,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesColl
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
   checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
-  pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
-  pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),
+  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName","")),
+  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName","")),
   electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName","")),
   recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
   fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
@@ -82,8 +82,8 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesColl
   trackerTrackMap_          (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
-  pfSuperClusterMap_        (0),
-  pfClusterMap_             (0)
+  pfEcalBarrelSuperClusterMap_(0),
+  pfEcalEndcapSuperClusterMap_(0)
 {
   // Constructor.
 }
@@ -124,16 +124,16 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (endcapSuperClusterMap_)
       AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
-  if (!pfSuperClusterMapName_.empty()) {
-    pfSuperClusterMap_ = OS()->get<SuperClusterMap>(pfSuperClusterMapName_);
-    if (pfSuperClusterMap_)
-      AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
+  if (!pfEcalBarrelSuperClusterMapName_.empty()) {
+    pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
+    if (pfEcalBarrelSuperClusterMap_)
+      AddBranchDep(mitName_,pfEcalBarrelSuperClusterMap_->GetBrName());
   }
-  if (!pfClusterMapName_.empty()) {
-    pfClusterMap_ = OS()->get<BasicClusterMap>(pfClusterMapName_);
-    if (pfClusterMap_)
-      AddBranchDep(mitName_,pfClusterMap_->GetBrName());
-  }    
+  if (!pfEcalEndcapSuperClusterMapName_.empty()) {
+    pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
+    if (pfEcalEndcapSuperClusterMap_)
+      AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
+  }
   if (!electronMapName_.empty()) {
     electronMap_->SetBrName(mitName_);
     OS()->add<ElectronMap>(electronMap_,electronMapName_);
@@ -290,10 +290,10 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) {
       try {
-	outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
+        outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
       }
       catch(...) { 
-	if (checkClusterActive_)
+        if (checkClusterActive_)
           throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
             << "Error! GSF track unmapped collection";
       }
@@ -303,13 +303,13 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       for (reco::GsfTrackRefVector::const_iterator agsfi = iM->ambiguousGsfTracksBegin();
 	   agsfi != iM->ambiguousGsfTracksEnd(); ++agsfi) {
         try {
-	  outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));
-	}
-	catch(...) { 
-	  if (checkClusterActive_)
-	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection";
-	}
+          outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));
+        }
+        catch(...) { 
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Ambiguous GSF track unmapped collection";
+        }
       }
     }
     
@@ -317,71 +317,33 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
       try { outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef()))); } 
       catch(...) {
-	if (checkClusterActive_)
-	  throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	    << "Error! Tracker track unmapped collection";
+        if (checkClusterActive_)
+          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+            << "Error! Tracker track unmapped collection";
       }
     }
+
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
-        pfSuperClusterMap_ && iM->superCluster().isNonnull()) {
+        iM->superCluster().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iM->superCluster()))
         outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        
       else if (endcapSuperClusterMap_->HasMit(iM->superCluster()))
         outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
-      else if (pfSuperClusterMap_->HasMit(iM->superCluster()))
-        outElectron->SetSuperCluster(pfSuperClusterMap_->GetMit(iM->superCluster()));  
       else if (checkClusterActive_)
-	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection";
+        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+          << "Error! Refined SuperCluster reference in unmapped collection";
     }
     
-    if (pfSuperClusterMap_ && iM->parentSuperCluster().isNonnull()) {
-      if (pfSuperClusterMap_->HasMit(iM->parentSuperCluster()))
-	outElectron->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iM->parentSuperCluster()));
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ &&
+        iM->parentSuperCluster().isNonnull()) {
+      if (pfEcalBarrelSuperClusterMap_->HasMit(iM->parentSuperCluster()))
+        outElectron->SetPFSuperCluster(pfEcalBarrelSuperClusterMap_->GetMit(iM->parentSuperCluster()));
+      else if (pfEcalEndcapSuperClusterMap_->HasMit(iM->parentSuperCluster()))
+        outElectron->SetPFSuperCluster(pfEcalEndcapSuperClusterMap_->GetMit(iM->parentSuperCluster()));
       else if (checkClusterActive_)
-	throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	  << "Error! SuperCluster reference in unmapped collection";
+        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+          << "Error! PFEcal SuperCluster reference in unmapped collection";
     }
-    
-    // find matching egamma supercluster first by ref, or by geometric matching if only
-    // pfsupercluster is linked
-    //CP const reco::SuperCluster *egammasc = 0;
-
-    double mindr = 999.;
-    //CP if (iM->superCluster().isNonnull() && iM->superCluster() != iM->parentSuperCluster()) {
-    //CP   egammasc = iM->superCluster().get();
-    //CP else {
-
-    if (! (iM->superCluster().isNonnull() && iM->superCluster() != iM->parentSuperCluster())) {
-      for (SuperClusterMap::fwdMapType::const_iterator
-	     scit = barrelSuperClusterMap_->FwdMap().begin();
-	   scit != barrelSuperClusterMap_->FwdMap().end(); ++scit) {
-	double dr = reco::deltaR(*iM->parentSuperCluster(),*scit->first);
-	if (dr<0.1 && dr<mindr) {
-	  //CP egammasc = scit->first.get();
-	  mindr = dr;
-	}
-      }
-      for (SuperClusterMap::fwdMapType::const_iterator
-	     scit = endcapSuperClusterMap_->FwdMap().begin();
-	   scit != endcapSuperClusterMap_->FwdMap().end(); ++scit) {
-	double dr = reco::deltaR(*iM->parentSuperCluster(),*scit->first);
-	if (dr<0.1 && dr<mindr) {
-	  //CP egammasc = scit->first.get();
-	  mindr = dr;
-	}
-      }      
-    }
-    
-   //CP // tag overlapping energy of pflow clusters
-   //CP if (pfClusterMap_ && iM->parentSuperCluster().isNonnull() && egammasc) {
-   //CP   for (reco::CaloCluster_iterator pfcit = iM->parentSuperCluster()->clustersBegin();
-   //CP 	   pfcit!=iM->parentSuperCluster()->clustersEnd(); ++pfcit) {
-   //CP 	float eoverlap = pfclusters.getPFSuperclusterOverlap( **pfcit, *egammasc);
-   //CP 	if (pfClusterMap_->HasMit(*pfcit))
-   //CP 	  const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
-   //CP   }
-   //CP }	
   
     //compute NLayersWithMeasurement for associated ctf track
     if (iM->closestCtfTrackRef().isNonnull()) {

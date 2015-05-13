@@ -47,18 +47,15 @@ namespace mithep
       edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //name: input edm HCAL HE rec hits collection  
       edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //name: tight cut phID algo
       edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedLooseToken_;     //name: loose cut phID algo
-//      std::string                      EBRecHitsEdmName_;          //name: input edm ECAL EB rec hits collection
-//      std::string                      EERecHitsEdmName_;          //name: input edm ECAL EE rec hits collection
-//      std::string                      PFCandsEdmName_;            //name: input edm pfCandidates
 
       std::string                      mitName_;                   //mit name: photon collection
       std::string                      conversionMapName_;         //name: imp. map wrt conv. elecs
       std::string                      oneLegConversionMapName_;   //name: imp. map wrt conv. elecs
       std::string                      barrelSuperClusterMapName_; //name: imp. map wrt barrel sclus
       std::string                      endcapSuperClusterMapName_; //name: imp. map wrt endcap sclus
-      std::string                      pfSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
-      std::string                      pfClusterMapName_;          //name: imp. map wrt pflow clus       
-      std::string                      pfCandMapName_;             //name: imp. map wrt pfcandidates
+      bool                             checkClusterActive_;
+      std::string                      pfEcalBarrelSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
+      std::string                      pfEcalEndcapSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
       std::string                      photonMapName_;             //name: exported photon map
       mithep::PhotonMap                *photonMap_;                //exported photon map
       mithep::PhotonArr                *photons_;                  //array of Photons
@@ -66,10 +63,8 @@ namespace mithep
       const mithep::ConversionDecayMap *oneLegConversionMap_;      //imp. map wrt conver. electrons
       const mithep::SuperClusterMap    *barrelSuperClusterMap_;    //map wrt barrel super clusters
       const mithep::SuperClusterMap    *endcapSuperClusterMap_;    //map wrt endcap super clusters
-      const mithep::SuperClusterMap    *pfSuperClusterMap_;        //map wrt pflow super clusters  
-      const mithep::BasicClusterMap    *pfClusterMap_;             //map wrt pflow basic clusters
-      //CP this changed for 70x
-      const mithep::PFCandViewMap      *pfCandMap_;                //map wrt pflow candidates
+      const mithep::SuperClusterMap    *pfEcalBarrelSuperClusterMap_;        //map wrt pflow super clusters  
+      const mithep::SuperClusterMap    *pfEcalEndcapSuperClusterMap_;        //map wrt pflow super clusters  
 
       EGEnergyCorrector                 ecorr_;
   };

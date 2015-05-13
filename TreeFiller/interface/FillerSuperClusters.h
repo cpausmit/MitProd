@@ -18,7 +18,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+//YI #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class CaloGeometry;
 class CaloSubdetectorTopology;
@@ -51,7 +51,7 @@ namespace mithep
 
     private:
       edm::EDGetTokenT<reco::SuperClusterCollection> edmToken_;               //edm name of collection
-      edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;         //name of calotower collection
+      // YI edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;         //name of calotower collection
       edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;         //name of EB rechit collection
       edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;         //name of EE rechit collection
       edm::EDGetTokenT<EcalRecHitCollection> esRecHitsToken_;         //name of ES rechit collection

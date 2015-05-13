@@ -30,17 +30,14 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollecto
   HBHERecHitsEdmToken_(GetToken<HBHERecHitCollection>(collector, "HBHERecHitsEdmName", "reducedHcalRecHits:hbhereco")),
   phIDCutBasedTightToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
-  // EBRecHitsEdmName_         (Conf().getUntrackedParameter<string>("EBRecHitsEdmName_", "reducedEcalRecHitsEB")),
-  // EERecHitsEdmName_         (Conf().getUntrackedParameter<string>("EERecHitsEdmName_", "reducedEcalRecHitsEE")),  
-  // PFCandsEdmName_           (Conf().getUntrackedParameter<string>("PFCandsEdmName","particleFlow")),  
   mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkPhotonBrn)),
   conversionMapName_        (Conf().getUntrackedParameter<string>("conversionMapName","")),
   oneLegConversionMapName_  (Conf().getUntrackedParameter<string>("oneLegConversionMapName","")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
   endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  pfSuperClusterMapName_    (Conf().getUntrackedParameter<string>("pfSuperClusterMapName","")),
-  pfClusterMapName_         (Conf().getUntrackedParameter<string>("pfClusterMapName","")),  
-  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName","")),
+  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterMap",true)),
+  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName","")),
+  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName","")),
   photonMapName_            (Conf().getUntrackedParameter<string>("photonMapName","")),  
   photonMap_                (new mithep::PhotonMap),
   photons_                  (new mithep::PhotonArr(16)),
@@ -48,9 +45,8 @@ FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollecto
   oneLegConversionMap_      (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
-  pfSuperClusterMap_        (0),
-  pfClusterMap_             (0),
-  pfCandMap_                (0)
+  pfEcalBarrelSuperClusterMap_(0),
+  pfEcalEndcapSuperClusterMap_(0)
 {
   // Constructor.
 }
@@ -76,6 +72,11 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
     if (conversionMap_)
       AddBranchDep(mitName_,conversionMap_->GetBrName());
   }
+  if (!oneLegConversionMapName_.empty()) {
+    oneLegConversionMap_ = OS()->get<ConversionDecayMap>(oneLegConversionMapName_);
+    if (oneLegConversionMap_)
+      AddBranchDep(mitName_,oneLegConversionMap_->GetBrName());
+  }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
     if (barrelSuperClusterMap_)
@@ -86,21 +87,16 @@ void FillerPhotons::BookDataBlock(TreeWriter &tws)
     if (endcapSuperClusterMap_)
       AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
-  if (!pfSuperClusterMapName_.empty()) {
-    pfSuperClusterMap_ = OS()->get<SuperClusterMap>(pfSuperClusterMapName_);
-    if (pfSuperClusterMap_)
-      AddBranchDep(mitName_,pfSuperClusterMap_->GetBrName());
+  if (!pfEcalBarrelSuperClusterMapName_.empty()) {
+    pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
+    if (pfEcalBarrelSuperClusterMap_)
+      AddBranchDep(mitName_,pfEcalBarrelSuperClusterMap_->GetBrName());
   }
-  if (!pfClusterMapName_.empty()) {
-    pfClusterMap_ = OS()->get<BasicClusterMap>(pfClusterMapName_);
-    if (pfClusterMap_)
-      AddBranchDep(mitName_,pfClusterMap_->GetBrName());
-  }  
-  if (!pfCandMapName_.empty()) {
-    pfCandMap_ = OS()->get<PFCandViewMap>(pfCandMapName_);
-    if (pfCandMap_)
-      AddBranchDep(mitName_,pfCandMap_->GetBrName());
-  }  
+  if (!pfEcalEndcapSuperClusterMapName_.empty()) {
+    pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
+    if (pfEcalEndcapSuperClusterMap_)
+      AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
+  }
   if (!photonMapName_.empty()) {
     photonMap_->SetBrName(mitName_);
     OS()->add<PhotonMap>(photonMap_,photonMapName_);
@@ -121,30 +117,8 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
   GetProduct(edmToken_, hPhotonProduct, event);
   const reco::PhotonCollection inPhotons = *(hPhotonProduct.product());  
   
-  // pf photon stuff 
-  //YI edm::Handle<EcalRecHitCollection> pEBRecHits;
-  //YI event.getByLabel(EBRecHitsEdmName_, pEBRecHits);
-  //YI edm::Handle<EcalRecHitCollection> pEERecHits;
-  //YI event.getByLabel(EERecHitsEdmName_, pEERecHits);  
-
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
-
-  //CP const CaloSubdetectorGeometry *geometryEB =
-  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  //CP const CaloSubdetectorGeometry *geometryEE =
-  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  //CP ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);
-  
-
-  //CP Handle<reco::PFCandidateCollection> pPFCands;
-  //CP event.getByLabel(PFCandsEdmName_, pPFCands);
-
-  //CP Handle<PFCollection> hPFCands;
-  //CP event.getByLabel(PFCandsEdmName_, pPFCands);
-
-  //GetProduct(edmName_, hPfCandProduct, event);  
-  //const PFCollection &inPfCands = *(hPfCandProduct.product());
 
   // handles to the the pho-HErecHit matching 
   edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
@@ -318,53 +292,30 @@ void FillerPhotons::FillDataBlock(const edm::Event      &event,
     }
 
     // make link to supercluster
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && iP->superCluster().isNonnull()) {
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
+        iP->superCluster().isNonnull()) {
       if (barrelSuperClusterMap_->HasMit(iP->superCluster()))
         outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(iP->superCluster()));        
       else if(endcapSuperClusterMap_->HasMit(iP->superCluster())) 
         outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(iP->superCluster()));
+      else if (checkClusterActive_)
+        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+          << "Error! Refined SuperCluster reference in unmapped collection";
     }
 
-    //CP // make link to pf supercluster (DOES NOT EXIST ANYMORE)
-    //CP if (pfSuperClusterMap_ && iP->pfSuperCluster().isNonnull()) {
-    //CP   if (pfSuperClusterMap_->HasMit(iP->pfSuperCluster())) 
-    //CP 	outPhoton->SetPFSuperCluster(pfSuperClusterMap_->GetMit(iP->pfSuperCluster()));
-    //CP   
-    //CP   //CP // horrible stuff: mark PF superclusters with fraction of energy that overlaps with egamma
-    //CP   //CP // supercluster
-    //CP   //CP if (pfClusterMap_ && iP->superCluster().isNonnull()) {
-    //CP   //CP 	for (reco::CaloCluster_iterator pfcit = iP->pfSuperCluster()->clustersBegin();
-    //CP   //CP 	     pfcit!=iP->pfSuperCluster()->clustersEnd(); ++pfcit) {
-    //CP   //CP 	  float eoverlap = pfclusters.getPFSuperclusterOverlap(**pfcit,*iP->superCluster());
-    //CP   //CP 	  if(pfClusterMap_->GetMit(*pfcit)) const_cast<mithep::BasicCluster*>(pfClusterMap_->GetMit(*pfcit))->SetMatchedEnergy(eoverlap);
-    //CP   //CP 	}
-    //CP   //CP }	
-    //CP }
-    
-    //CP // horrible stuff: make links to PFCandidates to try and recover pflow clustering when pflow id
-    //CP // failed...
-    //CP if (pfCandMap_ && iP->superCluster().isNonnull()) {
-    //CP   std::vector<PFCandidatePtr> inmust;
-    //CP   std::vector<PFCandidatePtr> outmust;
-    //CP   std::pair<double,double> scsize = ggPFPhotons::SuperClusterSize(*iP->superCluster(),
-    //CP 								      pEBRecHits,
-    //CP 								      pEERecHits,
-    //CP 								      geometryEB,
-    //CP 								      geometryEE);
-    //CP   ggPFPhotons::recoPhotonClusterLink(*iP->superCluster(),
-    //CP 					 inmust, 
-    //CP 				       	 outmust,
-    //CP 					 pPFCands,
-    //CP 					 scsize.first,
-    //CP 					 scsize.second);
-    //CP   
-    //CP   for (std::vector<PFCandidatePtr>::const_iterator pfit = inmust.begin(); pfit!=inmust.end(); ++pfit)
-    //CP 	outPhoton->AddPFPhotonInMustache(pfCandMap_->GetMit(*pfit));
-    //CP   for (std::vector<PFCandidatePtr>::const_iterator pfit = outmust.begin(); pfit!=outmust.end(); ++pfit)
-    //CP 	outPhoton->AddPFPhotonOutOfMustache(pfCandMap_->GetMit(*pfit));
-    //CP }
+    // make link to pf supercluster (DOES NOT EXIST ANYMORE)
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ &&
+        iP->parentSuperCluster().isNonnull()) {
+      if (pfEcalBarrelSuperClusterMap_->HasMit(iP->parentSuperCluster())) 
+    	outPhoton->SetPFSuperCluster(pfEcalBarrelSuperClusterMap_->GetMit(iP->parentSuperCluster()));
+      else if (pfEcalEndcapSuperClusterMap_->HasMit(iP->parentSuperCluster())) 
+    	outPhoton->SetPFSuperCluster(pfEcalEndcapSuperClusterMap_->GetMit(iP->parentSuperCluster()));
+      else if (checkClusterActive_)
+        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+          << "Error! PFEcal SuperCluster reference in unmapped collection";
+    }
 
-    // add electron to map
+    // add photon to map
     edm::Ptr<reco::Photon> thePtr(hPhotonProduct,photonIndex);
     photonMap_->Add(thePtr,outPhoton);
   }
