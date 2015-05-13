@@ -27,7 +27,7 @@ using namespace mithep;
 FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
   edmToken_(GetToken<reco::SuperClusterCollection>(collector, "edmName","hybridSuperClusters")),
-  caloTowerToken_(GetToken<CaloTowerCollection>(collector, "caloTowerName","towerMaker")),
+  //YI caloTowerToken_(GetToken<CaloTowerCollection>(collector, "caloTowerName","towerMaker")),
   ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "ebRecHitsName", "reducedEcalRecHitsEB")),
   eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "eeRecHitsName", "reducedEcalRecHitsEE")),
   esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "esRecHitsName", "reducedEcalRecHitsES")),

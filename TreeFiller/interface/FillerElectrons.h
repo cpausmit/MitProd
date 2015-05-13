@@ -57,8 +57,8 @@ namespace mithep
       std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
       std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
       bool                           checkClusterActive_;
-      std::string                    pfSuperClusterMapName_;     //name of imp. map wrt pflow sclus
-      std::string                    pfClusterMapName_;          //name of imp. map wrt pflow clus
+      std::string                    pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
+      std::string                    pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
       std::string                    electronMapName_;           //name of exported electron map
       bool                           recomputeConversionInfo_;   //recompute conversion info
       bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
@@ -68,8 +68,8 @@ namespace mithep
       const mithep::TrackMap        *trackerTrackMap_;           //map wrt tracker tracks
       const mithep::SuperClusterMap *barrelSuperClusterMap_;     //map wrt barrel super clusters
       const mithep::SuperClusterMap *endcapSuperClusterMap_;     //map wrt endcap super clusters
-      const mithep::SuperClusterMap *pfSuperClusterMap_;         //map wrt pflow super clusters
-      const mithep::BasicClusterMap *pfClusterMap_;              //map wrt pflow basic clusters
+      const mithep::SuperClusterMap *pfEcalBarrelSuperClusterMap_;     //map wrt pflow super clusters
+      const mithep::SuperClusterMap *pfEcalEndcapSuperClusterMap_;     //map wrt pflow super clusters
   };
 }
 #endif
