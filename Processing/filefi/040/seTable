@@ -23,6 +23,7 @@ T2_FR_IPHC : sbgse1.in2p3.fr
 T2_FR_GRIF_IRFU: node12.datagrid.cea.fr
 T2_IN_TIFR : se01.indiacms.res.in
 T2_IT_Rome : cmsrm-se01.roma1.infn.it
+T2_KR_KNU : cluster142.knu.ac.kr
 T2_PT_NCG_Lisbon : srm01.ncg.ingrid.pt
 T2_RU_IHEP : dp0015.m45.ihep.su
 T2_RU_ITEP : se3.itep.ru

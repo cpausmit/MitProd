@@ -260,8 +260,8 @@ for crabTask in crabTasks:
             cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
                    ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
 
-    print '\n  --> CATALOG '
-    print '      ' + cmd + '\n'
+    #print '\n  --> CATALOG '
+    #print '      ' + cmd + '\n'
     
     if catalog != 0:
         os.system(cmd)

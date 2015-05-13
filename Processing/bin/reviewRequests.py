@@ -13,6 +13,24 @@ import task
 # H E L P E R
 #---------------------------------------------------------------------------------------------------
 
+def findNumberOfFilesDone(mitCfg,version,dataset,debug=0):
+    # Find out how mnay files have been completed for this dataset so far
+
+    if debug > 0:
+        print " Find completed files for dataset: %s"%(dataset)
+
+    cmd = "list /mnt/hadoop/cms/store/user/paus/%s/%s/%s | grep .root | wc -l"\
+        %(mitCfg,version,dataset)
+    if debug > 0:
+        print " CMD: %s"%(cmd)
+
+    nFilesDone = 0
+    for line in os.popen(cmd).readlines():   # run command
+        nFilesDone = int(line[:-1])
+
+    return nFilesDone
+    
+
 def findStartedDatasets(path,debug=0):
     # Make a list of all datasets that have at sometimes already been considered AKA: started
 
@@ -267,10 +285,11 @@ ongoingDsetList  = findOngoingDatasets(path,debug)
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
 cursor = db.cursor()
 sql = 'select ' + \
-      'Datasets.DatasetProcess,Datasets.DatasetSetup,Datasets.DatasetTier,' + \
-      'RequestConfig,RequestVersion,RequestPy from Requests left join Datasets' + \
-      ' on Requests.DatasetId = Datasets.DatasetId where RequestConfig="' + \
-      mitCfg + '" and RequestVersion = "' + version + '" and RequestPy = "' + cmssw + '";'
+    'Datasets.DatasetProcess,Datasets.DatasetSetup,Datasets.DatasetTier,Datasets.DatasetNFiles,' + \
+    'RequestConfig,RequestVersion,RequestPy,RequestId,RequestNFilesDone from Requests ' + \
+    'left join Datasets on Requests.DatasetId = Datasets.DatasetId '+ \
+    'where RequestConfig="' + mitCfg + '" and RequestVersion = "' + version + \
+    '" and RequestPy = "' + cmssw + '";'
 if debug:
     print ' SQL: ' + sql
 
@@ -283,21 +302,81 @@ except:
     print " Error (%s): unable to fetch data."%(sql)
     sys.exit(0)
 
+#==================
+# M A I N  L O O P
+#==================
+
 # Take the result from the database and look at it
 for row in results:
     process = row[0]
     setup = row[1]
     tier = row[2]
+    nFiles = int(row[3])
+    requestId = int(row[7])
+    dbNFilesDone = int(row[8])
 
+    # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
 
+    # remove all datasets that do not match our pattern
     if pattern != '' and not re.search(pattern,datasetName):
         continue
 
-    print '# Submit new dataset: ' + datasetName
-    cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + \
-          ' --version=' + version
+    # check how many files are done
+    nFilesDone = findNumberOfFilesDone(mitCfg,version,datasetName)
+    print ' Number of files completed: %d (last check: %d) -- Dataset: %s' \
+        %(nFilesDone,dbNFilesDone,datasetName)
 
+    # what to do when the two numbers disagree
+    if dbNFilesDone != nFilesDone:
+        lUpdate = False
+
+        # assume more files have been found
+        if nFilesDone > 0 and nFilesDone > dbNFilesDone:
+            lUpdate = True
+        # less files are done now than before (this is a problem)
+        else:
+            if nFilesDone > 0: # looks like files have disappeared, but not all -> we should update
+                lUpdate = True
+                print '\n WARNING -- files have disappeared but there are files (%d -> %d now)'\
+                    %(dbNFilesDone,nFileDone)
+            else:              # looks like we did not connect with the storage
+                lUpdate = False
+                print '\n ERROR -- files have all disappeared, very suspicious (%d -> %d now)'\
+                    %(dbNFilesDone,nFileDone)
+
+        # 
+        if lUpdate:
+            sql = 'update Requests set RequestNFilesDone=%d where RequestId=%d'%(nFilesDone,requestId)
+            if debug:
+                print ' SQL: ' + sql
+
+            # Try to access the database
+            try:
+                # Execute the SQL command
+                cursor.execute(sql)
+                results = cursor.fetchall()      
+            except:
+                print " Error (%s): unable to update the database."%(sql)
+                sys.exit(0)
+        
+    # did we already complete the job?
+
+    if nFilesDone == nFiles:   # this is the case when all is done
+        print '\n DONE all files have been produced.\n'
+        continue
+    elif nFilesDone < nFiles:  # second most frequent case: work started but not completed
+        print '\n files missing, submit the missing ones.\n'
+    else:                      # weird, more files found than available               
+        print '\n ERROR more files found than available in dataset.\n'
+        continue
+
+
+    # if work not complete submit the remainder
+    print '# Submit new dataset: ' + datasetName
+    cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version
+
+    # make sure to use existing cache if requested
     if useExistingLfns:
         cmd += " --useExistingLfns"
     if useExistingSites:
@@ -305,8 +384,6 @@ for row in results:
 
     # last thing to add is the dataset itself (nicer printing)
     cmd += ' --mitDataset=' + datasetName
-
-    # check for errors (to be done)
 
     # make sure dataset is not yet being worked on
     if not inList(datasetName,ongoingDsetList):

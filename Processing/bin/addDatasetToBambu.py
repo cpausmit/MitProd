@@ -7,6 +7,24 @@
 import sys,os,subprocess,getopt,time
 import MySQLdb
 
+def convertSizeToGb(size,units):
+
+    sizeGb = -1.0
+
+    # decide what to do for the given unit
+    if   units == 'MB':
+        sizeGb = size/1000.
+    elif units == 'GB':
+        sizeGb = size
+    elif units == 'TB':
+        sizeGb = size*1000.
+    else:
+        print ' ERROR - Could not identify units. EXIT!'
+        sys.exit(0)
+
+    # return the size in GB as a float
+    return sizeGb
+
 def testLocalSetup(dataset,debug=0):
     # test all relevant components and exit is something is off
 
@@ -46,7 +64,9 @@ def testLocalSetup(dataset,debug=0):
         print ' Error - das_client.py in your path, please find it and add it to PATH. EXIT!'
         sys.exit(1)
 
-    # test whether this is a legitimate dataset by asking DAS
+def findDatasetProperties(dataset,debug=0):
+    # test whether this is a legitimate dataset by asking DAS and determine size and number of files
+
     cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
 	  dataset + ' | count(file), sum(file.size)"| sort -u'
     nFiles = ''
@@ -64,14 +84,19 @@ def testLocalSetup(dataset,debug=0):
         try:
             units = size[-2:]
             size = float(size[:-2])
+            # this is the text including the size units, that need to be converted
+            sizeGb = convertSizeToGb(size,units)
             nFiles = int(nFiles)
         except:
-            print '\n Error - could not convert size and number of files (%s %s / %s).'%(size,units,nFiles)
+            print '\n Error - could not convert size and number of files (%s %s / %s).'\
+                %(size,units,nFiles)
             sys.exit(1)
         print '\n DAS - %s --> %.1f %s (nFiles: %d)\n'%(dataset,size,units,nFiles)
     else:
 	print '\n Error - dataset not found with das_client.py.\n'
 	sys.exit(1)
+
+    return (sizeGb, nFiles)
     
 #===================================================================================================
 # Main starts here
@@ -105,6 +130,7 @@ for opt, arg in opts:
         dataset  = arg
 
 testLocalSetup(dataset,debug)
+(sizeGb, nFiles) = findDatasetProperties(dataset,debug)
 
 # Decompose dataset into the three pieces (process, setup, tier)
 f = dataset.split('/')
@@ -131,8 +157,37 @@ except:
     print " Error (%s): unable to fetch data."%(sql)
     sys.exit(0)
 
-if len(results) > 0:
-    print ' Dataset exists already in database. Do not insert again.'
+if len(results) == 1:
+    print ' Dataset exists once in database. Do not insert again, but check properties.\n'
+    for row in results:
+        process = row[1]
+        setup = row[2]
+        tier = row[3]
+        dbSizeGb = float(row[4])
+        dbNFiles = int(row[5])
+    # check whether information correct and adjust if needed
+    if dbSizeGb != sizeGb or dbNFiles != nFiles:
+        sql = "update Datasets set DatasetSizeGb=%f, DatasetNFiles=%d where "%(sizeGb,nFiles) + \
+            "DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
+        print " Try SQL: " + sql
+        try:
+            # Execute the SQL command
+            cursor.execute(sql)
+            # Commit your changes in the database
+            db.commit()
+        except:
+            print ' ERROR -- insert failed, rolling back.'
+            # Rollback in case there is any error
+            db.rollback()
+            sys.exit(1)
+        # we are done here, no mmore insert
+    else:
+        print " Database is up to date.\n"
+
+    sys.exit(1)
+
+elif len(results) > 1:
+    print ' Dataset exists already multiple times in database. ERROR please fix.'
     sys.exit(0)
 
 # Prepare SQL query to INSERT a new record into the database.
