@@ -84,7 +84,6 @@ install cleanupd
 # install web pages
 #==================
 
-echo " Sync web pages (no deletion)."
-$MIT_PROD_AGENTS_BASE/agents/html/install.sh
+$MIT_PROD_AGENTS_BASE/html/install.sh
 
 exit 0

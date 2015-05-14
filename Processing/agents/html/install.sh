@@ -7,10 +7,17 @@
 # Author: C.Paus                                                                     (May 14, 2015)
 #---------------------------------------------------------------------------------------------------
 
+# Message at the begining
+echo " "
+echo " $0 -> installing the web pages"
+echo " "
+
 # images
+echo " Copy images"
 cp $MIT_PROD_DIR/agents/html/agent*jpg $MIT_PROD_AGENTS_WWW
 
 # index files to log area
+echo " Generate index files"
 cp $MIT_PROD_DIR/agents/html/index.html $MIT_PROD_AGENTS_LOG
 
 cat $MIT_PROD_DIR/agents/html/index.php-Template \
@@ -24,7 +31,7 @@ cat $MIT_PROD_DIR/agents/html/index.php-Template \
    > $MIT_PROD_AGENTS_LOG/cleanupd/index.php
 
 # update web pages from log area
-echo " Sync webpages - no deletions"
+echo " Sync files to the web area - no deletions"
 mkdir -p $MIT_PROD_AGENTS_WWW 
 rsync -Cavz $MIT_PROD_AGENTS_LOG $MIT_PROD_AGENTS_WWW/../
 
