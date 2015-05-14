@@ -67,9 +67,8 @@ do
     echo " "                                                                      >> $logFile
 
     # insure that the log information is updated
-    mkdir -p /home/cmsprod/public_html/MitProd/agents
-    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} \
-                         /home/cmsprod/public_html/MitProd/agents >& /dev/null
+    mkdir -p $MIT_PROD_AGENTS_WWW 
+    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
     sleep $wait
   done
 

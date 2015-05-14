@@ -13,20 +13,38 @@ import task
 # H E L P E R
 #---------------------------------------------------------------------------------------------------
 
+def testTier2Disk(debug=0):
+    # make sure we can see the Tier-2 disks: returns -1 on failure
+
+    nFiles = -1
+    cmd = "list /mnt/hadoop/cms/store/user/paus 2> /dev/null"
+    if debug > 0:
+        print " CMD: %s"%(cmd)
+    try:
+        for line in os.popen(cmd).readlines():   # run command
+            nFiles += 1
+    except:
+        nFiles = -1
+
+    return nFiles
+
 def findNumberOfFilesDone(mitCfg,version,dataset,debug=0):
-    # Find out how mnay files have been completed for this dataset so far
+    # Find out how many files have been completed for this dataset so far
 
     if debug > 0:
         print " Find completed files for dataset: %s"%(dataset)
 
-    cmd = "list /mnt/hadoop/cms/store/user/paus/%s/%s/%s | grep .root | wc -l"\
+    cmd = "list /mnt/hadoop/cms/store/user/paus/%s/%s/%s 2> /dev/null | grep .root | wc -l"\
         %(mitCfg,version,dataset)
     if debug > 0:
         print " CMD: %s"%(cmd)
 
     nFilesDone = 0
-    for line in os.popen(cmd).readlines():   # run command
-        nFilesDone = int(line[:-1])
+    try:
+        for line in os.popen(cmd).readlines():   # run command
+            nFilesDone = int(line[:-1])
+    except:
+        nFileDone = -1
 
     return nFilesDone
     
@@ -38,7 +56,7 @@ def findStartedDatasets(path,debug=0):
         print " Collecting information over started samples"
     datasetList = []
 
-    cmd = 'list ' + path
+    cmd = 'list ' + path + ' 2> /dev/null'
     if debug:
         print ' List: ' + cmd
     for line in os.popen(cmd).readlines():   # run command
@@ -61,7 +79,7 @@ def findOngoingDatasets(path,debug=0):
         print " Collecting information over ongoing samples"
     datasetList = []
 
-    cmd = 'cat crab_[0-9]_[0-9]*_[0-9]*/share/crab.cfg |grep ^user_remote_dir'
+    cmd = 'cat crab_[0-9]_[0-9]*_[0-9]*/share/crab.cfg 2> /dev/null |grep ^user_remote_dir'
     for line in os.popen(cmd).readlines():   # run command
         line    = line[:-1]                  # strip '\n'
         f       = line.split("/")
@@ -273,6 +291,12 @@ for opt, arg in opts:
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)
 updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
+if testTier2Disk(0) < 0:
+    print '\n ERROR -- Tier-2 disks seem unavailable, please check! EXIT review process.\n'
+    sys.exit(0)
+else:
+    print '\n INFO -- Tier-2 disks are available, start review process.\n'
+
 
 # Where is our storage?
 path = findPath(mitCfg,version)
@@ -339,15 +363,16 @@ for row in results:
             if nFilesDone > 0: # looks like files have disappeared, but not all -> we should update
                 lUpdate = True
                 print '\n WARNING -- files have disappeared but there are files (%d -> %d now)'\
-                    %(dbNFilesDone,nFileDone)
+                    %(dbNFilesDone,nFilesDone)
             else:              # looks like we did not connect with the storage
                 lUpdate = False
-                print '\n ERROR -- files have all disappeared, very suspicious (%d -> %d now)'\
-                    %(dbNFilesDone,nFileDone)
+                print '\n WARNING -- files have all disappeared, very suspicious (%d -> %d now)'\
+                    %(dbNFilesDone,nFilesDone)
 
         # 
         if lUpdate:
-            sql = 'update Requests set RequestNFilesDone=%d where RequestId=%d'%(nFilesDone,requestId)
+            sql = 'update Requests set RequestNFilesDone=%d'%(nFilesDone) + \
+                ' where RequestId=%d'%(requestId)
             if debug:
                 print ' SQL: ' + sql
 

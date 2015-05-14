@@ -22,6 +22,7 @@ source /cvmfs/cms.cern.ch/crab/CRAB_${CRAB_VERS}/crab.sh
 export MIT_PROD_AGENTS_BASE="/usr/local/MitProd/agents"
 export MIT_PROD_AGENTS_WORK="/home/cmsprod/cms/jobs"
 export MIT_PROD_AGENTS_LOG="/local/cmsprod/MitProd/agents"
+export MIT_PROD_AGENTS_WWW="/home/cmsprod/public_html/MitProd/agents"
 
 # review process
 
