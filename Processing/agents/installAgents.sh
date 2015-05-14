@@ -37,15 +37,15 @@ function install {
   # start on boot
   chkconfig --level 345 ${daemon} on
 }
+#---------------------------------------------------------------------------------------------------
+#                                               M A I N
+#---------------------------------------------------------------------------------------------------
+# Setup the environment
+source setupAgents.sh
 
 # Configuration parameters (this needs more work but for now)
 export MIT_PROD_USER=cmsprod
 export MIT_PROD_GROUP=zh
-
-source agents/setupAgents.sh
-
-# make sure mysql is setup properly for server and clients otherwise this will not work check out
-# the README
 
 # General installation (you have to be in the directory of install script and you have to be root)
 
@@ -65,7 +65,7 @@ then
   echo " Removing previous installation."
   rm -rf "$MIT_PROD_AGENTS_BASE"
 fi
-cp -r ./agents "$TRUNC"
+cp -r ../agents "$TRUNC"
 chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_BASE
 
 # create log/db structure

@@ -18,7 +18,7 @@ body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25
 <h1>XX-NAME-XX agent (aka XX-AKA-XX) </h1>
 <?php
 print '<ul>';
-$output = shell_exec('ls -rt *.log | tail -5');
+$output = shell_exec('ls -t *.log | tail -5');
 $f = explode("\n",$output);
 foreach ($f as &$file) {
   if ($file != "") {
