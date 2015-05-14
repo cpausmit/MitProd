@@ -81,4 +81,10 @@ install reviewd
 install catalogd
 install cleanupd
 
+# install web pages
+#==================
+
+echo " Sync web pages (no deletion)."
+$MIT_PROD_AGENTS_BASE/agents/html/install.sh
+
 exit 0
