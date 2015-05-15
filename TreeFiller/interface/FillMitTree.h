@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillMitTree.h,v 1.17 2009/12/12 22:33:46 bendavid Exp $
-//
 // FillMitTree
 //
 // This is the one Edm Module which we use to perform all our actions to properly fill the MitTree.

@@ -11,21 +11,12 @@
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
-#include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 
-using namespace std;
-using namespace edm;
-using namespace mithep;
-
 //--------------------------------------------------------------------------------------------------
-FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+mithep::FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller            (cfg,os,name,active),
-  edmToken_(GetToken<reco::MuonCollection>(collector, "edmName","muons")),
+  edmToken_(GetToken<MuonView>(collector, "edmName","muons")),
   pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName",
                                                           "offlinePrimaryVertices")),
   pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
@@ -51,7 +42,7 @@ FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& c
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerMuons::~FillerMuons()
+mithep::FillerMuons::~FillerMuons()
 {
   // Destructor.
 
@@ -60,7 +51,7 @@ FillerMuons::~FillerMuons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::BookDataBlock(TreeWriter &tws)
+void mithep::FillerMuons::BookDataBlock(TreeWriter &tws)
 {
   // Add muons branch to tree and get pointers to maps.
 
@@ -94,7 +85,7 @@ void FillerMuons::BookDataBlock(TreeWriter &tws)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerMuons::FillDataBlock(const edm::Event      &event,
+void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
                                 const edm::EventSetup &setup)
 {
   // Fill muon information.
@@ -102,9 +93,9 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   muons_  ->Delete();
   muonMap_->Reset();
 
-  Handle<reco::MuonCollection> hMuonProduct;
+  edm::Handle<MuonView> hMuonProduct;
   GetProduct(edmToken_, hMuonProduct, event);
-  const reco::MuonCollection inMuons = *(hMuonProduct.product());
+  MuonView const& inMuons = *hMuonProduct;
 
   edm::Handle<reco::VertexCollection> hVertex;
   GetProduct(pvEdmToken_, hVertex, event);
@@ -115,118 +106,126 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
   const reco::VertexCollection *pvBSCol = hVertexBS.product();
 
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
 
   KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
 
-  LinearizedTrackStateFactory lTrackFactory;
-  VertexTrackFactory<5> vTrackFactory;
-  KalmanVertexUpdator<5> updator;
+  unsigned iMuon = 0;
+  for (auto&& inMuon : inMuons) {
+    edm::Ptr<reco::Muon> mPtr(hMuonProduct, iMuon);
+    ++iMuon;
 
-  for (reco::MuonCollection::const_iterator iM = inMuons.begin(); iM != inMuons.end(); ++iM) {
     mithep::Muon* outMuon = muons_->AddNew();
 
-    outMuon->SetPtEtaPhi        (iM->pt(),iM->eta(),iM->phi());
-    outMuon->SetCharge          (iM->charge());
-    outMuon->SetIsoR03SumPt     (iM->isolationR03().sumPt);
-    outMuon->SetIsoR03EmEt      (iM->isolationR03().emEt);
-    outMuon->SetIsoR03HadEt     (iM->isolationR03().hadEt);
-    outMuon->SetIsoR03HoEt      (iM->isolationR03().hoEt);
-    outMuon->SetIsoR03NTracks   (iM->isolationR03().nTracks);
-    outMuon->SetIsoR03NJets     (iM->isolationR03().nJets);
-    outMuon->SetIsoR05SumPt     (iM->isolationR05().sumPt);
-    outMuon->SetIsoR05EmEt      (iM->isolationR05().emEt);
-    outMuon->SetIsoR05HadEt     (iM->isolationR05().hadEt);
-    outMuon->SetIsoR05HoEt      (iM->isolationR05().hoEt);
-    outMuon->SetIsoR05NTracks   (iM->isolationR05().nTracks);
-    outMuon->SetIsoR05NJets     (iM->isolationR05().nJets);
-    outMuon->SetEmEnergy        (iM->calEnergy().em);
-    outMuon->SetHadEnergy       (iM->calEnergy().had);
-    outMuon->SetHoEnergy        (iM->calEnergy().ho);
-    outMuon->SetEmS9Energy      (iM->calEnergy().emS9);
-    outMuon->SetHadS9Energy     (iM->calEnergy().hadS9);
-    outMuon->SetHoS9Energy      (iM->calEnergy().hoS9);
-    outMuon->SetIsGlobalMuon    (iM->isGlobalMuon());
-    outMuon->SetIsTrackerMuon   (iM->isTrackerMuon());
-    outMuon->SetIsStandaloneMuon(iM->isStandAloneMuon());
-    outMuon->SetIsPFMuon        (iM->isPFMuon());
-    outMuon->SetIsCaloMuon      (iM->isCaloMuon());
+    outMuon->SetPtEtaPhi        (inMuon.pt(),inMuon.eta(),inMuon.phi());
+    outMuon->SetCharge          (inMuon.charge());
+    outMuon->SetIsoR03SumPt     (inMuon.isolationR03().sumPt);
+    outMuon->SetIsoR03EmEt      (inMuon.isolationR03().emEt);
+    outMuon->SetIsoR03HadEt     (inMuon.isolationR03().hadEt);
+    outMuon->SetIsoR03HoEt      (inMuon.isolationR03().hoEt);
+    outMuon->SetIsoR03NTracks   (inMuon.isolationR03().nTracks);
+    outMuon->SetIsoR03NJets     (inMuon.isolationR03().nJets);
+    outMuon->SetIsoR05SumPt     (inMuon.isolationR05().sumPt);
+    outMuon->SetIsoR05EmEt      (inMuon.isolationR05().emEt);
+    outMuon->SetIsoR05HadEt     (inMuon.isolationR05().hadEt);
+    outMuon->SetIsoR05HoEt      (inMuon.isolationR05().hoEt);
+    outMuon->SetIsoR05NTracks   (inMuon.isolationR05().nTracks);
+    outMuon->SetIsoR05NJets     (inMuon.isolationR05().nJets);
+    outMuon->SetEmEnergy        (inMuon.calEnergy().em);
+    outMuon->SetHadEnergy       (inMuon.calEnergy().had);
+    outMuon->SetHoEnergy        (inMuon.calEnergy().ho);
+    outMuon->SetEmS9Energy      (inMuon.calEnergy().emS9);
+    outMuon->SetHadS9Energy     (inMuon.calEnergy().hadS9);
+    outMuon->SetHoS9Energy      (inMuon.calEnergy().hoS9);
+    outMuon->SetIsGlobalMuon    (inMuon.isGlobalMuon());
+    outMuon->SetIsTrackerMuon   (inMuon.isTrackerMuon());
+    outMuon->SetIsStandaloneMuon(inMuon.isStandAloneMuon());
+    outMuon->SetIsPFMuon        (inMuon.isPFMuon());
+    outMuon->SetIsCaloMuon      (inMuon.isCaloMuon());
     //kink algorithm
-    outMuon->SetTrkKink         (iM->combinedQuality().trkKink);
-    outMuon->SetGlbKink         (iM->combinedQuality().glbKink);
+    outMuon->SetTrkKink         (inMuon.combinedQuality().trkKink);
+    outMuon->SetGlbKink         (inMuon.combinedQuality().glbKink);
     //save results from the muon selector in the MuonQuality bitmask
     outMuon->Quality().SetQuality(MuonQuality::All);
-    if (muon::isGoodMuon(*iM,muon::AllGlobalMuons))
+    if (muon::isGoodMuon(inMuon,muon::AllGlobalMuons))
       outMuon->Quality().SetQuality(MuonQuality::AllGlobalMuons);
-    if (muon::isGoodMuon(*iM,muon::AllStandAloneMuons))
+    if (muon::isGoodMuon(inMuon,muon::AllStandAloneMuons))
       outMuon->Quality().SetQuality(MuonQuality::AllStandAloneMuons);
-    if (muon::isGoodMuon(*iM,muon::AllTrackerMuons))
+    if (muon::isGoodMuon(inMuon,muon::AllTrackerMuons))
       outMuon->Quality().SetQuality(MuonQuality::AllTrackerMuons);
-    if (muon::isGoodMuon(*iM,muon::TrackerMuonArbitrated))
+    if (muon::isGoodMuon(inMuon,muon::TrackerMuonArbitrated))
       outMuon->Quality().SetQuality(MuonQuality::TrackerMuonArbitrated);
-    if (muon::isGoodMuon(*iM,muon::AllArbitrated))
+    if (muon::isGoodMuon(inMuon,muon::AllArbitrated))
       outMuon->Quality().SetQuality(MuonQuality::AllArbitrated);
-    if (muon::isGoodMuon(*iM,muon::GlobalMuonPromptTight))
+    if (muon::isGoodMuon(inMuon,muon::GlobalMuonPromptTight))
       outMuon->Quality().SetQuality(MuonQuality::GlobalMuonPromptTight);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationLoose);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationTight))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationTight);
-    if (muon::isGoodMuon(*iM,muon::TM2DCompatibilityLoose))
+    if (muon::isGoodMuon(inMuon,muon::TM2DCompatibilityLoose))
       outMuon->Quality().SetQuality(MuonQuality::TM2DCompatibilityLoose);
-    if (muon::isGoodMuon(*iM,muon::TM2DCompatibilityTight))
+    if (muon::isGoodMuon(inMuon,muon::TM2DCompatibilityTight))
       outMuon->Quality().SetQuality(MuonQuality::TM2DCompatibilityTight);
-    if (muon::isGoodMuon(*iM,muon::TMOneStationLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMOneStationLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMOneStationLoose);
-    if (muon::isGoodMuon(*iM,muon::TMOneStationTight))
+    if (muon::isGoodMuon(inMuon,muon::TMOneStationTight))
       outMuon->Quality().SetQuality(MuonQuality::TMOneStationTight);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedLowPtLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedLowPtLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedLowPtLoose);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedLowPtTight))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedLowPtTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedLowPtTight);
-    if (muon::isGoodMuon(*iM,muon::GMTkChiCompatibility))
+    if (muon::isGoodMuon(inMuon,muon::GMTkChiCompatibility))
       outMuon->Quality().SetQuality(MuonQuality::GMTkChiCompatibility);
-    if (muon::isGoodMuon(*iM,muon::GMStaChiCompatibility))
+    if (muon::isGoodMuon(inMuon,muon::GMStaChiCompatibility))
       outMuon->Quality().SetQuality(MuonQuality::GMStaChiCompatibility);
-    if (muon::isGoodMuon(*iM,muon::GMTkKinkTight))
+    if (muon::isGoodMuon(inMuon,muon::GMTkKinkTight))
       outMuon->Quality().SetQuality(MuonQuality::GMTkKinkTight);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationAngLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationAngLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationAngLoose);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationAngTight))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationAngTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationAngTight);
-    if (muon::isGoodMuon(*iM,muon::TMOneStationAngLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMOneStationAngLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMOneStationAngLoose);
-    if (muon::isGoodMuon(*iM,muon::TMOneStationAngTight))
+    if (muon::isGoodMuon(inMuon,muon::TMOneStationAngTight))
       outMuon->Quality().SetQuality(MuonQuality::TMOneStationAngTight);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedBarrelLowPtLoose))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedBarrelLowPtLoose))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtLoose);
-    if (muon::isGoodMuon(*iM,muon::TMLastStationOptimizedBarrelLowPtTight))
+    if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedBarrelLowPtTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
 
-    if (globalTrackMap_ && iM->combinedMuon().isNonnull()) {
-      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(refToPtr(iM->combinedMuon())));
-      outMuon->SetNValidHits(iM->globalTrack()->hitPattern().numberOfValidMuonHits());
+    reco::TrackRef combinedMuonRef = inMuon.combinedMuon();
+    reco::TrackRef standaloneMuonRef = inMuon.standAloneMuon();
+    reco::TrackRef trackRef = inMuon.track();
+
+    if (globalTrackMap_ && combinedMuonRef.isNonnull()) {
+      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(edm::refToPtr(combinedMuonRef)));
+      outMuon->SetNValidHits(combinedMuonRef->hitPattern().numberOfValidMuonHits());
     }
-    if (standaloneTrackMap_ && standaloneVtxTrackMap_ && iM->standAloneMuon().isNonnull()) {
-      Int_t refProductId = iM->standAloneMuon().id().id();
-      if ( refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
-      else if ( refProductId == standaloneTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(refToPtr(iM->standAloneMuon())));
-      else throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()\n")
-             << "Error! Track reference in unmapped collection";
+    if (standaloneTrackMap_ && standaloneVtxTrackMap_ && standaloneMuonRef.isNonnull()) {
+      mitedm::TrackPtr ptr = edm::refToPtr(standaloneMuonRef);
+
+      Int_t refProductId = standaloneMuonRef.id().id();
+      if (refProductId == standaloneVtxTrackMap_->GetEdmProductId())
+        outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(ptr));
+      else if (refProductId == standaloneTrackMap_->GetEdmProductId())
+        outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(ptr));
+      else
+        throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()")
+          << "Error! Track reference in unmapped collection";
     }
-    if (trackerTrackMap_ && iM->track().isNonnull()) {
-      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+    if (trackerTrackMap_ && trackRef.isNonnull()) {
+      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(edm::refToPtr(trackRef)));
     }
 
     // compute impact parameter with respect to PV
-    if (iM->track().isNonnull()) {
-      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->track());
+    if (trackRef.isNonnull()) {
+      const reco::TransientTrack &tt = transientTrackBuilder->build(trackRef);
+      reco::Track const& track = *trackRef.get();
 
-      reco::Vertex thevtx     = pvCol  ->at(0);
-      reco::Vertex thevtxbs   = pvBSCol->at(0);
+      reco::Vertex const& thevtx     = pvCol  ->at(0);
+      reco::Vertex const& thevtxbs   = pvBSCol->at(0);
 
       reco::Vertex thevtxub   = pvCol  ->at(0);
       reco::Vertex thevtxubbs = pvBSCol->at(0);
@@ -235,7 +234,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
       bool foundMatch = false;
       for (reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end();
 	   itk++) {
-        if (itk->get() == &*(iM->innerTrack())) {
+        if (itk->get() == trackRef.get()) {
           foundMatch = true;
           continue;
         }
@@ -249,7 +248,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         VertexReProducer revertex(hVertex,event);
         edm::Handle<reco::BeamSpot> pvbeamspot;
         GetProduct(pvBeamSpotToken_, pvbeamspot, event);
-        vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
+        std::vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
         if (pvs.size()>0) {
           thevtxub = pvs.front();      // take the first in the list
         }
@@ -257,7 +256,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
         VertexReProducer revertexbs(hVertexBS,event);
         edm::Handle<reco::BeamSpot> pvbsbeamspot;
         GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
-        vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
+        std::vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
         if (pvbss.size()>0) {
           thevtxubbs = pvbss.front();  // take the first in the list
         }
@@ -265,8 +264,8 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
       // preserve sign of transverse impact parameter (cross-product definition from track, not
       // lifetime-signing)
-      const double thesign   = ( (-iM->track()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
-      const double thesignbs = ( (-iM->track()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
+      const double thesign   = ( (-track.dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
+      const double thesignbs = ( (-track.dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
 
       const std::pair<bool,Measurement1D> &d0pv =
 	IPTools::absoluteTransverseImpactParameter(tt,thevtx);
@@ -349,7 +348,7 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
       // compute compatibility with PV using taking into account also the case where muon track was
       // included in the vertex fit
-      if (iM->track()->extra().isAvailable()) {
+      if (track.extra().isAvailable()) {
 
         const std::pair<bool,double> &pvCompat = kalmanEstimator.estimate(pvCol->at(0),tt);
         if (pvCompat.first) {
@@ -370,48 +369,47 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 
     }
 
-    outMuon->SetNChambers  (iM->numberOfChambers());
-    outMuon->SetStationMask(iM->stationMask(reco::Muon::SegmentAndTrackArbitration));
-    outMuon->SetNMatches   (iM->numberOfMatches());
+    outMuon->SetNChambers  (inMuon.numberOfChambers());
+    outMuon->SetStationMask(inMuon.stationMask(reco::Muon::SegmentAndTrackArbitration));
+    outMuon->SetNMatches   (inMuon.numberOfMatches());
     for (int i0 = 0; i0 < 4; i0++) {
       // DTs
-      outMuon->SetDX(i0,            iM->dX(i0+1,1));
-      outMuon->SetDY(i0,            iM->dY(i0+1,1));
-      outMuon->SetPullX(i0,         iM->pullX(i0+1,1));
-      outMuon->SetPullY(i0,         iM->pullY(i0+1,1));
-      outMuon->SetTrackDist(i0,     iM->trackDist(i0+1,1));
-      outMuon->SetTrackDistErr(i0,  iM->trackDistErr(i0+1,1));
-      outMuon->SetNSegments(i0,     NumberOfSegments(&(*iM),i0+1,1));
+      outMuon->SetDX(i0,            inMuon.dX(i0+1,1));
+      outMuon->SetDY(i0,            inMuon.dY(i0+1,1));
+      outMuon->SetPullX(i0,         inMuon.pullX(i0+1,1));
+      outMuon->SetPullY(i0,         inMuon.pullY(i0+1,1));
+      outMuon->SetTrackDist(i0,     inMuon.trackDist(i0+1,1));
+      outMuon->SetTrackDistErr(i0,  inMuon.trackDistErr(i0+1,1));
+      outMuon->SetNSegments(i0,     NumberOfSegments(inMuon,i0+1,1));
       // CSCs
-      outMuon->SetDX(4+i0,          iM->dX       (i0+1,2));
-      outMuon->SetDY(4+i0,          iM->dY       (i0+1,2));
-      outMuon->SetPullX(4+i0,       iM->pullX    (i0+1,2));
-      outMuon->SetPullY(4+i0,       iM->pullY    (i0+1,2));
-      outMuon->SetTrackDist(4+i0,   iM->trackDist(i0+1,2));
-      outMuon->SetTrackDistErr(4+i0,iM->trackDistErr(i0+1,2));
-      outMuon->SetNSegments(4+i0,   NumberOfSegments(&(*iM),i0+1,2));
+      outMuon->SetDX(4+i0,          inMuon.dX       (i0+1,2));
+      outMuon->SetDY(4+i0,          inMuon.dY       (i0+1,2));
+      outMuon->SetPullX(4+i0,       inMuon.pullX    (i0+1,2));
+      outMuon->SetPullY(4+i0,       inMuon.pullY    (i0+1,2));
+      outMuon->SetTrackDist(4+i0,   inMuon.trackDist(i0+1,2));
+      outMuon->SetTrackDistErr(4+i0,inMuon.trackDistErr(i0+1,2));
+      outMuon->SetNSegments(4+i0,   NumberOfSegments(inMuon,i0+1,2));
     }
 
-    reco::MuonRef theRef(hMuonProduct, iM - inMuons.begin());
     // fill corrected expected inner hits
-    if (iM->innerTrack().isNonnull()) {
-      outMuon->SetCorrectedNExpectedHitsInner (iM->innerTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
-      outMuon->SetValidFraction               (iM->innerTrack()->validFraction());
-      outMuon->SetNTrkLayersHit               (iM->innerTrack()->hitPattern().trackerLayersWithMeasurement());
-      outMuon->SetNTrkLayersNoHit             (iM->innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
-      outMuon->SetNPxlLayersHit               (iM->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-      outMuon->SetNTrkLostHitsIn              (iM->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
-      outMuon->SetNTrkLostHitsOut             (iM->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
+    if (trackRef.isNonnull()) {
+      reco::Track const& track = *trackRef.get();
+      outMuon->SetCorrectedNExpectedHitsInner (track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+      outMuon->SetValidFraction               (track.validFraction());
+      outMuon->SetNTrkLayersHit               (track.hitPattern().trackerLayersWithMeasurement());
+      outMuon->SetNTrkLayersNoHit             (track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
+      outMuon->SetNPxlLayersHit               (track.hitPattern().pixelLayersWithMeasurement());
+      outMuon->SetNTrkLostHitsIn              (track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
+      outMuon->SetNTrkLostHitsOut             (track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
     }
 
     // add muon to map
-    edm::Ptr<reco::Muon> thePtr(hMuonProduct, iM - inMuons.begin());
-    muonMap_->Add(thePtr, outMuon);
+    muonMap_->Add(mPtr, outMuon);
 
     if (verbose_>1) {
       if (!outMuon->HasGlobalTrk() && !outMuon->HasStandaloneTrk()) {
         printf("mithep::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",outMuon->Pt(),outMuon->Eta(),outMuon->Phi(), outMuon->Mass());
-        printf("  reco::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",iM->pt(),iM->eta(),iM->phi(),iM->mass());
+        printf("  reco::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",inMuon.pt(),inMuon.eta(),inMuon.phi(),inMuon.mass());
       }
     }
 
@@ -420,51 +418,49 @@ void FillerMuons::FillDataBlock(const edm::Event      &event,
 }
 
 //--------------------------------------------------------------------------------------------------
-int FillerMuons::NumberOfSegments(const reco::Muon *iM, int station, int muonSubdetId, reco::Muon::ArbitrationType type )
+int mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int muonSubdetId, reco::Muon::ArbitrationType type)
 {
-  if (!iM->isMatchesValid())
+  if (!inMuon.isMatchesValid())
     return 0;
 
   int segments(0);
 
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = iM->matches().begin();
-       chamberMatch != iM->matches().end(); chamberMatch++) {
-
-    if (chamberMatch->segmentMatches.empty())
+  std::vector<reco::MuonChamberMatch> const& matches = inMuon.matches();
+  for (auto&& chamberMatch : matches) {
+    if (chamberMatch.segmentMatches.empty())
       continue;
 
-    if (!(chamberMatch->station()==station && chamberMatch->detector()==muonSubdetId))
+    if (!(chamberMatch.station()==station && chamberMatch.detector()==muonSubdetId))
       continue;
 
     if (type == reco::Muon::NoArbitration) {
-      segments += chamberMatch->segmentMatches.size();
+      segments += chamberMatch.segmentMatches.size();
       continue;
     }
 
-    for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-	 segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++) {
+    for (auto&& segmentMatch : chamberMatch.segmentMatches) {
       if (type == reco::Muon::SegmentArbitration)
-	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
+	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
 	  segments++;
 	  break;
 	}
       if (type == reco::Muon::SegmentAndTrackArbitration)
-	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
+	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
 	  segments++;
 	  break;
 	}
 
       if (type == reco::Muon::SegmentAndTrackArbitrationCleaned)
-	if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
-	    segmentMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
+	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
+	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
 	  segments++;
 	  break;
 	}
 
       if (type > 1<<7)
-	if (segmentMatch->isMask(type)) {
+	if (segmentMatch.isMask(type)) {
 	  segments++;
 	  break;
 	}

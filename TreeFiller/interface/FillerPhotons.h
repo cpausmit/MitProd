@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerPhotons.h,v 1.21 2012/07/25 03:08:42 paus Exp $
-//
 // FillerPhotons
 //
 // Implementation of a filler to fill photons into our data structure, including converted photons.
@@ -20,6 +18,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace mithep 
 {
@@ -29,21 +28,23 @@ namespace mithep
       FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPhotons();
 
-      void                             BookDataBlock(TreeWriter &tws);
-      void                             FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void BookDataBlock(TreeWriter &tws);
+      void FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+
+      typedef edm::View<reco::Photon> PhotonView;
 
     protected:		               
-      void                             HERecHitMatcher(const reco::Photon* pho, int zSide,
-                                                       double deltaPhiMin, double rhoMin,
-                                                       double rhoMax, double rhEnMin,
-                                                       ThreeVector &matchRhPos,
-						       double &matchedRhEnergy,
-						       double &matchedRhTime,
-                                                       const HBHERecHitCollection *hbHeRecHitCol,
-						       const CaloGeometry *caloGeom); 
+      void HERecHitMatcher(reco::Photon const& pho, int zSide,
+                           double deltaPhiMin, double rhoMin,
+                           double rhoMax, double rhEnMin,
+                           ThreeVector &matchRhPos,
+                           double &matchedRhEnergy,
+                           double &matchedRhTime,
+                           HBHERecHitCollection const& hbHeRecHitCol,
+                           CaloGeometry const& caloGeom); 
 
     private:		               
-      edm::EDGetTokenT<reco::PhotonCollection> edmToken_;                   //edm name: photon collection
+      edm::EDGetTokenT<PhotonView>           edmToken_;                   //edm name: photon collection
       edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //name: input edm HCAL HE rec hits collection  
       edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //name: tight cut phID algo
       edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedLooseToken_;     //name: loose cut phID algo

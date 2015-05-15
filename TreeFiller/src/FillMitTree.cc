@@ -1,5 +1,3 @@
-// $Id: FillMitTree.cc,v 1.66 2012/03/29 23:41:59 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,7 +30,7 @@
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
-#include "MitProd/TreeFiller/interface/FillerPFTaus.h"
+#include "MitProd/TreeFiller/interface/FillerPFTaus.icc"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "MitProd/TreeFiller/interface/FillerPileupEnergyDensity.h"
@@ -410,6 +408,11 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
     if (ftype.compare("FillerPFTaus")==0) {
       FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFTaus);
+      continue;
+    }
+    if (ftype.compare("FillerPATTaus")==0) {
+      FillerPATTaus *fillerPATTaus = new FillerPATTaus(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPATTaus);
       continue;
     }  
     if (ftype.compare("FillerTrackJets")==0) {

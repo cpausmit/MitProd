@@ -2,16 +2,8 @@
 #include "MitProd/TreeFiller/interface/FillerElectrons.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexTrackCompatibilityEstimator.h"
@@ -26,42 +18,24 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/ConversionRejection/interface/ConversionMatcher.h"
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
-#include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
-//CP #include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/Math/interface/deltaR.h"
-
-using namespace std;
-using namespace edm;
-using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
-FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller                (cfg,os,name,active),
-  edmToken_                 (GetToken<reco::GsfElectronCollection>(collector, "edmName",
-                                                                              "pixelMatchGsfElectrons")),
-  pvEdmToken_                (GetToken<reco::VertexCollection>(collector, "pvEdmName",
-                                                                          "offlinePrimaryVertices")),
-  pvBSEdmToken_              (GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
-                                                                          "offlinePrimaryVerticesWithBS")),  
+  edmToken_                 (GetToken<GsfElectronView>(collector, "edmName",
+                                                                     "pixelMatchGsfElectrons")),
+  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, "pvEdmName",
+                                                              "offlinePrimaryVertices")),
+  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
+                                                              "offlinePrimaryVerticesWithBS")),  
   eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedTightName","eidTight")),
   eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedLooseName","eidLoose")),
   eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName","")),
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
   conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
-  ebRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName", "reducedEcalRecHitsEB")),
-  eeRecHitsToken_           (GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName", "reducedEcalRecHitsEE")),
   beamSpotToken_            (GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
@@ -89,7 +63,7 @@ FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesColl
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerElectrons::~FillerElectrons()
+mithep::FillerElectrons::~FillerElectrons()
 {
   // Destructor.
 
@@ -98,7 +72,7 @@ FillerElectrons::~FillerElectrons()
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerElectrons::BookDataBlock(TreeWriter &tws)
+void mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 
@@ -141,20 +115,20 @@ void FillerElectrons::BookDataBlock(TreeWriter &tws)
 }
 
 //--------------------------------------------------------------------------------------------------
-void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)	 
+void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)	 
 {
   // Fill electrons from edm collection into our collection.
 
   electrons_  ->Delete();
   electronMap_->Reset();
 
-  Handle<reco::GsfElectronCollection> hElectronProduct;
+  edm::Handle<GsfElectronView> hElectronProduct;
   GetProduct(edmToken_, hElectronProduct, event);
   
   // handles to get the electron ID information
-  Handle<edm::ValueMap<float> > eidLooseMap;
+  edm::Handle<edm::ValueMap<float> > eidLooseMap;
   GetProduct(eIDCutBasedLooseToken_, eidLooseMap, event);
-  Handle<edm::ValueMap<float> > eidTightMap;
+  edm::Handle<edm::ValueMap<float> > eidTightMap;
   GetProduct(eIDCutBasedTightToken_, eidTightMap, event);
   edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
   if (!eIDLikelihoodToken_.isUninitialized()) {
@@ -183,191 +157,203 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
   
-  GsfVertexTrackCompatibilityEstimator gsfEstimator;
-
-  LinearizedTrackStateFactory lTrackFactory;
-  VertexTrackFactory<5> vTrackFactory;
-  KalmanVertexUpdator<5> updator;
-
-  //pf photon stuff 
-  edm::Handle< EcalRecHitCollection > pEBRecHits;
-  GetProduct(ebRecHitsToken_, pEBRecHits, event);
-  edm::Handle< EcalRecHitCollection > pEERecHits;
-  GetProduct(eeRecHitsToken_, pEERecHits, event);
-  
-  //CP edm::ESHandle<CaloGeometry> pGeometry;
-  //CP setup.get<CaloGeometryRecord>().get(pGeometry);
-  //CP const CaloSubdetectorGeometry *geometryEB =
-  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  //CP const CaloSubdetectorGeometry *geometryEE =
-  //CP   pGeometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  //CP ggPFClusters pfclusters(pEBRecHits, pEERecHits, geometryEB, geometryEE);  
-  
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 
-  const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
+  GsfElectronView const& inElectrons = *hElectronProduct;
   // loop over electrons
-  for (reco::GsfElectronCollection::const_iterator iM = inElectrons.begin(); 
-       iM != inElectrons.end(); ++iM) {
-
+  unsigned iElectron = 0;
+  for (auto&& inElectron : inElectrons) {
     // the index and Ref are needed for the eID association Map
-    unsigned int iElectron = iM - inElectrons.begin();
-    reco::GsfElectronRef eRef(hElectronProduct, iElectron);
+    edm::Ref<GsfElectronView> eRef(hElectronProduct, iElectron);
+    edm::Ptr<reco::GsfElectron> ePtr(hElectronProduct, iElectron);
+    ++iElectron;
 
     mithep::Electron *outElectron = electrons_->AddNew();
     
-    outElectron->SetPtEtaPhi(iM->pt(),iM->eta(),iM->phi());
+    outElectron->SetPtEtaPhi(inElectron.pt(),inElectron.eta(),inElectron.phi());
          
-    outElectron->SetCharge(iM->charge());
-    outElectron->SetScPixCharge(iM->scPixCharge());
-    outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
-    outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());
-    outElectron->SetEEleClusterOverPout(iM->eEleClusterOverPout());
-    outElectron->SetPIn(iM->trackMomentumAtVtx().R());
-    outElectron->SetPOut(iM->trackMomentumOut().R());
-    outElectron->SetDeltaEtaSuperClusterTrackAtVtx(iM->deltaEtaSuperClusterTrackAtVtx());
-    outElectron->SetDeltaEtaSeedClusterTrackAtCalo(iM->deltaEtaSeedClusterTrackAtCalo());
-    outElectron->SetDeltaPhiSuperClusterTrackAtVtx(iM->deltaPhiSuperClusterTrackAtVtx());
-    outElectron->SetDeltaPhiSeedClusterTrackAtCalo(iM->deltaPhiSeedClusterTrackAtCalo());
-    outElectron->SetIsEnergyScaleCorrected(iM->isEnergyScaleCorrected());
-    //outElectron->SetIsMomentumCorrected(iM->isMomentumCorrected());
-    outElectron->SetNumberOfClusters(iM->basicClustersSize());
-    outElectron->SetClassification(iM->classification());
-    outElectron->SetFBrem(iM->fbrem());
-    outElectron->SetEcalEnergy(iM->correctedEcalEnergy());
-    outElectron->SetEcalEnergyError(iM->correctedEcalEnergyError());
-    outElectron->SetTrackMomentumError(iM->trackMomentumError());
+    outElectron->SetCharge(inElectron.charge());
+    outElectron->SetScPixCharge(inElectron.scPixCharge());
+    outElectron->SetESuperClusterOverP(inElectron.eSuperClusterOverP());
+    outElectron->SetESeedClusterOverPout(inElectron.eSeedClusterOverPout());
+    outElectron->SetEEleClusterOverPout(inElectron.eEleClusterOverPout());
+    outElectron->SetPIn(inElectron.trackMomentumAtVtx().R());
+    outElectron->SetPOut(inElectron.trackMomentumOut().R());
+    outElectron->SetDeltaEtaSuperClusterTrackAtVtx(inElectron.deltaEtaSuperClusterTrackAtVtx());
+    outElectron->SetDeltaEtaSeedClusterTrackAtCalo(inElectron.deltaEtaSeedClusterTrackAtCalo());
+    outElectron->SetDeltaPhiSuperClusterTrackAtVtx(inElectron.deltaPhiSuperClusterTrackAtVtx());
+    outElectron->SetDeltaPhiSeedClusterTrackAtCalo(inElectron.deltaPhiSeedClusterTrackAtCalo());
+    outElectron->SetIsEnergyScaleCorrected(inElectron.isEnergyScaleCorrected());
+    //outElectron->SetIsMomentumCorrected(inElectron.isMomentumCorrected());
+    outElectron->SetNumberOfClusters(inElectron.basicClustersSize());
+    outElectron->SetClassification(inElectron.classification());
+    outElectron->SetFBrem(inElectron.fbrem());
+    outElectron->SetEcalEnergy(inElectron.correctedEcalEnergy());
+    outElectron->SetEcalEnergyError(inElectron.correctedEcalEnergyError());
+    outElectron->SetTrackMomentumError(inElectron.trackMomentumError());
     
     // pflow electron stuff
-    outElectron->SetIsEcalDriven(iM->ecalDrivenSeed());
-    outElectron->SetIsTrackerDriven(iM->trackerDrivenSeed());
-    outElectron->SetMva(iM->mva_Isolated());
+    outElectron->SetIsEcalDriven(inElectron.ecalDrivenSeed());
+    outElectron->SetIsTrackerDriven(inElectron.trackerDrivenSeed());
+    outElectron->SetMva(inElectron.mva_Isolated());
     
     // shower shape variables   
-    outElectron->SetE15(iM->e1x5());
-    outElectron->SetE25Max(iM->e2x5Max());
-    outElectron->SetE55(iM->e5x5());
-    outElectron->SetCovEtaEta(iM->sigmaEtaEta());
-    outElectron->SetCoviEtaiEta(iM->sigmaIetaIeta());
-    outElectron->SetHadronicOverEm(iM->hcalOverEcal());
-    outElectron->SetHcalDepth1OverEcal(iM->hcalDepth1OverEcal());
-    outElectron->SetHcalDepth2OverEcal(iM->hcalDepth2OverEcal());
-    outElectron->SetHadOverEmTow(iM->hcalOverEcalBc()); 
+    outElectron->SetE15(inElectron.e1x5());
+    outElectron->SetE25Max(inElectron.e2x5Max());
+    outElectron->SetE55(inElectron.e5x5());
+    outElectron->SetCovEtaEta(inElectron.sigmaEtaEta());
+    outElectron->SetCoviEtaiEta(inElectron.sigmaIetaIeta());
+    outElectron->SetHadronicOverEm(inElectron.hcalOverEcal());
+    outElectron->SetHcalDepth1OverEcal(inElectron.hcalDepth1OverEcal());
+    outElectron->SetHcalDepth2OverEcal(inElectron.hcalDepth2OverEcal());
+    outElectron->SetHadOverEmTow(inElectron.hcalOverEcalBc()); 
 
     // fill isolation variables for both cone sizes
-    outElectron->SetEcalRecHitIsoDr04(iM->dr04EcalRecHitSumEt());
-    outElectron->SetHcalDepth1TowerSumEtDr04(iM->dr04HcalDepth1TowerSumEt());
-    outElectron->SetHcalDepth2TowerSumEtDr04(iM->dr04HcalDepth2TowerSumEt());
-    outElectron->SetTrackIsolationDr04(iM->dr04TkSumPt());
-    outElectron->SetHCalIsoTowDr04(iM->dr04HcalTowerSumEtBc());
-    outElectron->SetEcalRecHitIsoDr03(iM->dr03EcalRecHitSumEt());
-    outElectron->SetHcalTowerSumEtDr03(iM->dr03HcalTowerSumEt());
-    outElectron->SetHcalDepth1TowerSumEtDr03(iM->dr03HcalDepth1TowerSumEt());
-    outElectron->SetHcalDepth2TowerSumEtDr03(iM->dr03HcalDepth2TowerSumEt());
-    outElectron->SetTrackIsolationDr03(iM->dr03TkSumPt());
-    outElectron->SetHCalIsoTowDr03(iM->dr03HcalTowerSumEtBc());    
+    outElectron->SetEcalRecHitIsoDr04(inElectron.dr04EcalRecHitSumEt());
+    outElectron->SetHcalDepth1TowerSumEtDr04(inElectron.dr04HcalDepth1TowerSumEt());
+    outElectron->SetHcalDepth2TowerSumEtDr04(inElectron.dr04HcalDepth2TowerSumEt());
+    outElectron->SetTrackIsolationDr04(inElectron.dr04TkSumPt());
+    outElectron->SetHCalIsoTowDr04(inElectron.dr04HcalTowerSumEtBc());
+    outElectron->SetEcalRecHitIsoDr03(inElectron.dr03EcalRecHitSumEt());
+    outElectron->SetHcalTowerSumEtDr03(inElectron.dr03HcalTowerSumEt());
+    outElectron->SetHcalDepth1TowerSumEtDr03(inElectron.dr03HcalDepth1TowerSumEt());
+    outElectron->SetHcalDepth2TowerSumEtDr03(inElectron.dr03HcalDepth2TowerSumEt());
+    outElectron->SetTrackIsolationDr03(inElectron.dr03TkSumPt());
+    outElectron->SetHCalIsoTowDr03(inElectron.dr03HcalTowerSumEtBc());    
     
     //pflow isolation
-    outElectron->SetPFChargedHadronIso(iM->pfIsolationVariables().sumChargedHadronPt);
-    outElectron->SetPFNeutralHadronIso(iM->pfIsolationVariables().sumNeutralHadronEt);
-    outElectron->SetPFPhotonIso       (iM->pfIsolationVariables().sumPhotonEt);
+    outElectron->SetPFChargedHadronIso(inElectron.pfIsolationVariables().sumChargedHadronPt);
+    outElectron->SetPFNeutralHadronIso(inElectron.pfIsolationVariables().sumNeutralHadronEt);
+    outElectron->SetPFPhotonIso       (inElectron.pfIsolationVariables().sumPhotonEt);
     
     // fiducial flags
-    outElectron->SetIsEB(iM->isEB());
-    outElectron->SetIsEE(iM->isEE());
-    outElectron->SetIsEBEEGap(iM->isEBEEGap());
-    outElectron->SetIsEBEtaGap(iM->isEBEtaGap());
-    outElectron->SetIsEBPhiGap(iM->isEBPhiGap());
-    outElectron->SetIsEEDeeGap(iM->isEEDeeGap());
-    outElectron->SetIsEERingGap(iM->isEERingGap());
+    outElectron->SetIsEB(inElectron.isEB());
+    outElectron->SetIsEE(inElectron.isEE());
+    outElectron->SetIsEBEEGap(inElectron.isEBEEGap());
+    outElectron->SetIsEBEtaGap(inElectron.isEBEtaGap());
+    outElectron->SetIsEBPhiGap(inElectron.isEBPhiGap());
+    outElectron->SetIsEEDeeGap(inElectron.isEEDeeGap());
+    outElectron->SetIsEERingGap(inElectron.isEERingGap());
     
     // gsf-tracker match quality
-    outElectron->SetFracSharedHits(iM->shFracInnerHits());
+    outElectron->SetFracSharedHits(inElectron.shFracInnerHits());
+
+    reco::GsfTrackRef gsfTrackRef = inElectron.gsfTrack();
+    reco::TrackRef ctfTrackRef = inElectron.closestCtfTrackRef();
 
     // make proper links to Tracks and Super Clusters
-    if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) {
+    if (gsfTrackMap_ && gsfTrackRef.isNonnull()) {
+      mithep::Track const* trk = 0;
       try {
-        outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
+        trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef));
       }
-      catch(...) { 
+      catch (edm::Exception& ex) {
         if (checkClusterActive_)
           throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
             << "Error! GSF track unmapped collection";
       }
+      if (trk)
+        outElectron->SetGsfTrk(trk);
     }
+
     // make links to ambigous gsf tracks
     if (gsfTrackMap_) {
-      for (reco::GsfTrackRefVector::const_iterator agsfi = iM->ambiguousGsfTracksBegin();
-	   agsfi != iM->ambiguousGsfTracksEnd(); ++agsfi) {
+      for (reco::GsfTrackRefVector::const_iterator agsfi = inElectron.ambiguousGsfTracksBegin();
+	   agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
+        mithep::Track const* trk = 0;
         try {
-          outElectron->AddAmbiguousGsfTrack(gsfTrackMap_->GetMit(refToPtr(*agsfi)));
+          trk = gsfTrackMap_->GetMit(edm::refToPtr(*agsfi));
         }
-        catch(...) { 
+        catch (edm::Exception& ex) {
           if (checkClusterActive_)
             throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
               << "Error! Ambiguous GSF track unmapped collection";
         }
+        if (trk)
+          outElectron->AddAmbiguousGsfTrack(trk);
       }
     }
     
     // make tracker track links,
-    if (trackerTrackMap_ && iM->closestCtfTrackRef().isNonnull()) {
-      try { outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->closestCtfTrackRef()))); } 
-      catch(...) {
-        if (checkClusterActive_)
-          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-            << "Error! Tracker track unmapped collection";
+    if (trackerTrackMap_) {
+      if (ctfTrackRef.isNonnull()) {
+        mithep::Track const* trk = 0;
+        try {
+          trk = trackerTrackMap_->GetMit(edm::refToPtr(ctfTrackRef));
+        }
+        catch (edm::Exception& ex) {
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Tracker track unmapped collection";
+        }
+        if (trk)
+          outElectron->SetTrackerTrk(trk);
       }
     }
 
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && 
-        iM->superCluster().isNonnull()) {
-      if (barrelSuperClusterMap_->HasMit(iM->superCluster()))
-        outElectron->SetSuperCluster(barrelSuperClusterMap_->GetMit(iM->superCluster()));        
-      else if (endcapSuperClusterMap_->HasMit(iM->superCluster()))
-        outElectron->SetSuperCluster(endcapSuperClusterMap_->GetMit(iM->superCluster()));
-      else if (checkClusterActive_)
-        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-          << "Error! Refined SuperCluster reference in unmapped collection";
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_) {
+      reco::SuperClusterRef ref = inElectron.superCluster();
+      if(ref.isNonnull()) {
+        mithep::SuperCluster const* sc = 0;
+        try {
+          sc = barrelSuperClusterMap_->GetMit(ref, false); // no-throw version
+          if (!sc)
+            sc = endcapSuperClusterMap_->GetMit(ref, true);
+        }
+        catch (edm::Exception& ex) {
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Refined SuperCluster reference in unmapped collection";
+        }
+        if (sc)
+          outElectron->SetSuperCluster(sc);
+      }
     }
-    
-    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ &&
-        iM->parentSuperCluster().isNonnull()) {
-      if (pfEcalBarrelSuperClusterMap_->HasMit(iM->parentSuperCluster()))
-        outElectron->SetPFSuperCluster(pfEcalBarrelSuperClusterMap_->GetMit(iM->parentSuperCluster()));
-      else if (pfEcalEndcapSuperClusterMap_->HasMit(iM->parentSuperCluster()))
-        outElectron->SetPFSuperCluster(pfEcalEndcapSuperClusterMap_->GetMit(iM->parentSuperCluster()));
-      else if (checkClusterActive_)
-        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-          << "Error! PFEcal SuperCluster reference in unmapped collection";
+
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_) {
+      reco::SuperClusterRef ref = inElectron.parentSuperCluster();
+      if(ref.isNonnull()) {
+        mithep::SuperCluster const* sc = 0;
+        try {
+          sc = pfEcalBarrelSuperClusterMap_->GetMit(ref, false); //no-throw version
+          if (!sc)
+            sc = pfEcalEndcapSuperClusterMap_->GetMit(ref, true);
+        }
+        catch (edm::Exception& ex) {
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! PFEcal SuperCluster reference in unmapped collection";
+        }
+        if (sc)
+          outElectron->SetPFSuperCluster(sc);
+      }
     }
   
     //compute NLayersWithMeasurement for associated ctf track
-    if (iM->closestCtfTrackRef().isNonnull()) {
-      outElectron->SetCTFTrkNLayersWithMeasurement(iM->closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement());
-    } else {
+    if (ctfTrackRef.isNonnull())
+      outElectron->SetCTFTrkNLayersWithMeasurement(ctfTrackRef->hitPattern().trackerLayersWithMeasurement());
+    else
       outElectron->SetCTFTrkNLayersWithMeasurement(-1);
-    }
 
     //compute impact parameter with respect to PV
-    if (iM->gsfTrack().isNonnull()) {
-      const reco::TransientTrack &tt = transientTrackBuilder->build(iM->gsfTrack()); 
+    if (gsfTrackRef.isNonnull()) {
+      const reco::TransientTrack &tt = transientTrackBuilder->build(gsfTrackRef); 
 
       reco::TransientTrack ttckf;
 
-      reco::Vertex thevtx = pvCol->at(0);
-      reco::Vertex thevtxbs = pvBSCol->at(0);
+      reco::Vertex const& thevtx = pvCol->at(0);
+      reco::Vertex const& thevtxbs = pvBSCol->at(0);
 
       reco::Vertex thevtxub = pvCol->at(0);
       reco::Vertex thevtxubbs = pvBSCol->at(0);
      
       // check if closest ctf track is included in PV and if so, remove it before computing impact
       // parameters and uncertainties
-      if (iM->closestCtfTrackRef().isNonnull()) {
-        ttckf = transientTrackBuilder->build(iM->closestCtfTrackRef());
+      if (ctfTrackRef.isNonnull()) {
+        ttckf = transientTrackBuilder->build(ctfTrackRef);
 	
         // check if closest ctf track is included in PV and if so, remove it from the collection of
         // tracks associated with the PV and perform a refit before computing impact parameters and
@@ -375,14 +361,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         reco::TrackCollection newTkCollection;
         bool foundMatch = false;
         for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end();
-	    itk++) {
-          if (iM->closestCtfTrack().ctfTrack.isNonnull()) {
-            bool refMatching = (itk->get() == &*(iM->closestCtfTrack().ctfTrack));
-            float shFraction = iM->closestCtfTrack().shFracInnerHits;
-            if (refMatching && shFraction > 0.5) {
-              foundMatch = true; 
-	      continue;
-            }
+	    ++itk) {
+          bool refMatching = (itk->get() == ctfTrackRef.get());
+          float shFraction = inElectron.closestCtfTrack().shFracInnerHits;
+          if (refMatching && shFraction > 0.5) {
+            foundMatch = true; 
+            continue;
           }       
           newTkCollection.push_back(*itk->get());
         }
@@ -395,14 +379,14 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
 	  edm::Handle<reco::BeamSpot> pvbeamspot;
           GetProduct(pvBeamSpotToken_, pvbeamspot, event);
-	  vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
+          std::vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
 	  if (pvs.size()>0)
             thevtxub = pvs.front();      // take the first in the list
 
           VertexReProducer revertexbs(hVertexBS,event);
           edm::Handle<reco::BeamSpot> pvbsbeamspot;
           GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
-          vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
+          std::vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
 	  if (pvbss.size()>0)
             thevtxubbs = pvbss.front();  // take the first in the list
         }
@@ -410,8 +394,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
 
       // preserve sign of transverse impact parameter (cross-product definition from track, not
       // lifetime-signing)
-      const double gsfsign   = ( (-iM->gsfTrack()->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
-      const double gsfsignbs = ( (-iM->gsfTrack()->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
+      const double gsfsign   = ( (-gsfTrackRef->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
+      const double gsfsignbs = ( (-gsfTrackRef->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
       const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
       if (d0pv.first) {
         outElectron->SetD0PV(gsfsign*d0pv.second.value());
@@ -491,12 +475,12 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
         outElectron->SetIp3dPVUBBS(-999.0);
       }
 
-      if (iM->closestCtfTrackRef().isNonnull()) {
+      if (ctfTrackRef.isNonnull()) {
 
         const double ckfsign =
-	  ((-iM->closestCtfTrackRef()->dxy(thevtx.position()))   >=0) ? 1. : -1.;
+	  ((-ctfTrackRef->dxy(thevtx.position()))   >=0) ? 1. : -1.;
         const double ckfsignbs =
-	  ((-iM->closestCtfTrackRef()->dxy(thevtxbs.position())) >=0) ? 1. : -1.;
+	  ((-ctfTrackRef->dxy(thevtxbs.position())) >=0) ? 1. : -1.;
 
         const std::pair<bool,Measurement1D> &d0pvckf =
 	  IPTools::absoluteTransverseImpactParameter(ttckf,thevtx);
@@ -594,8 +578,8 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
 
       if (verbose_>1) {
-        printf("gsf track      pt = %5f\n",iM->gsfTrack()->pt());
-        printf("gsf track mode pt = %5f\n",iM->gsfTrack()->ptMode());
+        printf("gsf track      pt = %5f\n",gsfTrackRef->pt());
+        printf("gsf track mode pt = %5f\n",gsfTrackRef->ptMode());
         printf("ttrack         pt = %5f\n",tt.initialFreeState().momentum().perp());
         //printf("ttrackgsf      pt = %5f\n",
         //       ttgsf.innermostMeasurementState().globalMomentum().perp());
@@ -610,9 +594,9 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     //fill conversion partner track info
     if (recomputeConversionInfo_) {
       ConversionFinder convFinder;
-      outElectron->SetConvPartnerDCotTheta(iM->convDcot());
+      outElectron->SetConvPartnerDCotTheta(inElectron.convDcot());
       ConversionInfo convInfo = 
-        convFinder.getConversionInfo(*iM, hGeneralTracks, hGsfTracks, bfield);
+        convFinder.getConversionInfo(inElectron, hGeneralTracks, hGsfTracks, bfield);
   
       outElectron->SetConvFlag(convInfo.flag());
       outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
@@ -643,11 +627,11 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
       }
     }
     else {
-      outElectron->SetConvFlag(iM->convFlags());
-      outElectron->SetConvPartnerDCotTheta(iM->convDcot());
-      outElectron->SetConvPartnerDist(iM->convDist());
-      outElectron->SetConvPartnerRadius(iM->convRadius());
-      reco::TrackBaseRef convTrackRef = iM->convPartner();
+      outElectron->SetConvFlag(inElectron.convFlags());
+      outElectron->SetConvPartnerDCotTheta(inElectron.convDcot());
+      outElectron->SetConvPartnerDist(inElectron.convDist());
+      outElectron->SetConvPartnerRadius(inElectron.convRadius());
+      reco::TrackBaseRef convTrackRef = inElectron.convPartner();
       if (convTrackRef.isNonnull()) {
         if (dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_) {
           try{
@@ -682,25 +666,24 @@ void FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSet
     }
 
     // fill corrected expected inner hits
-    if (iM->gsfTrack().isNonnull()) {
+    if (gsfTrackRef.isNonnull()) {
       outElectron->
-        SetCorrectedNExpectedHitsInner(iM->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+        SetCorrectedNExpectedHitsInner(gsfTrackRef->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
     }
 
     //fill additional conversion flag
-    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(*iM,hConversions));
+    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(inElectron, hConversions));
     
     // add electron to map
-    edm::Ptr<reco::GsfElectron> thePtr(hElectronProduct, iM - inElectrons.begin());
-    electronMap_->Add(thePtr, outElectron);
+    electronMap_->Add(ePtr, outElectron);
  
     if (verbose_>1) {
-      double recomass = sqrt(iM->energy()*iM->energy() - iM->p()*iM->p());
+      double recomass = sqrt(inElectron.energy()*inElectron.energy() - inElectron.p()*inElectron.p());
       printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
              outElectron->Pt(), outElectron->Eta(), outElectron->Phi(), 
              outElectron->E(), outElectron->P(), outElectron->Mass());
       printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
-             iM->pt(), iM->eta(), iM->phi(), iM->energy(), iM->p(), recomass);  
+             inElectron.pt(), inElectron.eta(), inElectron.phi(), inElectron.energy(), inElectron.p(), recomass);  
     }
   } 
   electrons_->Trim();

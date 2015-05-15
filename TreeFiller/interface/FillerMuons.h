@@ -12,6 +12,7 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -27,12 +28,15 @@ namespace mithep
 
       void                        BookDataBlock(TreeWriter &tws);
       void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
-      int                         NumberOfSegments(const reco::Muon *iM,
+      int                         NumberOfSegments(reco::Muon const& inMuon,
 						   int station, int muonSubdetId,
 						   reco::Muon::ArbitrationType arbitrationType =
 						   reco::Muon::SegmentAndTrackArbitration);
+
+      typedef edm::View<reco::Muon> MuonView;
+
     private:
-      edm::EDGetTokenT<reco::MuonCollection> edmToken_;               //edm name of muons collection
+      edm::EDGetTokenT<MuonView> edmToken_;               //edm name of muons collection
       edm::EDGetTokenT<reco::VertexCollection> pvEdmToken_;             //name of primary vertex collection
       edm::EDGetTokenT<reco::VertexCollection> pvBSEdmToken_;           //name of bs-constrained pv collection
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;     //It is very likely unnecessary to prepare three

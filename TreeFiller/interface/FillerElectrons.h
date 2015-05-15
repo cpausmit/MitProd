@@ -1,11 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerElectrons.h,v 1.27 2012/03/11 23:11:55 pharris Exp $
 //
 // FillerElectrons
 //
 // Implementation of a filler to fill EDM electrons into our mithep::Electron data structure.
 //
-// Authors: C.Paus, P.Harris, J.Bendavid, S.Xie
+// Authors: C.Paus, P.Harris, J.Bendavid, S.Xie, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERELECTRONS_H
@@ -17,7 +16,8 @@
 #include "MitEdm/DataFormats/interface/Collections.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -35,8 +35,11 @@ namespace mithep
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e,
                                                    const edm::EventSetup &es);
+
+      typedef edm::View<reco::GsfElectron> GsfElectronView;                 //using View to deal with PAT electrons
+
     private:
-      edm::EDGetTokenT<reco::GsfElectronCollection> edmToken_;                   //edm name of electrons collection
+      edm::EDGetTokenT<GsfElectronView> edmToken_;              //edm name of electrons collection
       edm::EDGetTokenT<reco::VertexCollection> pvEdmToken_;                 //name of primary vertex collection
       edm::EDGetTokenT<reco::VertexCollection> pvBSEdmToken_;               //name of bs-constrained pv collection
       edm::EDGetTokenT<edm::ValueMap<float> > eIDCutBasedTightToken_;      //name of tight cut eID algo
@@ -45,8 +48,6 @@ namespace mithep
       edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
       edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksToken_;
       edm::EDGetTokenT<mitedm::DecayPartCol> conversionsToken_;
-      edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
-      edm::EDGetTokenT<EcalRecHitCollection> eeRecHitsToken_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;     //It is very likely unnecessary to prepare three
       edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
       edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
