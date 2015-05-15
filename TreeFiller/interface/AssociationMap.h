@@ -24,10 +24,10 @@ namespace mithep
     ~AssociationMap() {}
     
     void              Add(EdmClass edmObj, MitClass mitObj);
-    EdmClass          GetEdm(MitClass mitObj)    const;
+    EdmClass          GetEdm(MitClass mitObj, bool throwOnFail = kTRUE) const;
     Int_t             GetEdmProductId()          const { return edmProductId_;  }
     Int_t             GetEntries()               const { return fwdMap_.size(); }
-    MitClass          GetMit(EdmClass edmObj)    const;
+    MitClass          GetMit(EdmClass edmObj, bool throwOnFail = kTRUE) const;
     const char       *GetBrName()                const { return brname_.c_str();           }
     bool              HasMit(EdmClass edmObj)    const;
     void              Reset()                          { fwdMap_.clear(); revMap_.clear(); }
@@ -55,27 +55,34 @@ inline void mithep::AssociationMap<EdmClass,MitClass>::Add(EdmClass edmObj, MitC
 
 //--------------------------------------------------------------------------------------------------
 template <class EdmClass, class MitClass>
-inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmObj) const
+inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmObj, bool throwOnFail/* = kTRUE*/) const
 {
   typename fwdMapType::const_iterator iter = fwdMap_.find(edmObj);
 
   if (iter != fwdMap_.end())
     return iter->second;
-  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetMit()\n")
-         << "Error! EDM Object (" << typeid(edmObj).name() 
-         << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
+  else if (throwOnFail)
+    throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetMit()\n")
+      << "Error! EDM Object (" << typeid(edmObj).name() 
+      << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
+  else
+    return static_cast<MitClass>(0); // Relies on MitClass being a pointer type
 }
       
 //--------------------------------------------------------------------------------------------------
 template <class EdmClass, class MitClass>
-inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitObj) const
+inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitObj, bool throwOnFail/* = kTRUE*/) const
 {
   typename revMapType::const_iterator iter = revMap_.find(mitObj);
+
   if (iter != revMap_.end())
     return iter->second;
-  else throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetEdm()\n")
-         << "Error! MITHEP Object (" << typeid(mitObj).name() 
-         << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
+  else if (throwOnFail)
+    throw edm::Exception(edm::errors::Configuration, "AssociationMap::GetEdm()\n")
+      << "Error! MITHEP Object (" << typeid(mitObj).name() 
+      << ") not found in AssociationMap (" << typeid(*this).name() << ")." << std::endl;
+  else
+    return EdmClass();
 }
 
 //--------------------------------------------------------------------------------------------------
