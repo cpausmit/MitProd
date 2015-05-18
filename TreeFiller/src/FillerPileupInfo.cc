@@ -1,5 +1,3 @@
-// $Id: FillerPileupInfo.cc,v 1.4 2011/06/15 20:01:55 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -46,20 +44,21 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
   puInfos_->Delete();
 
-  std::vector<PileupSummaryInfo> inInfos;
+  std::vector<PileupSummaryInfo const*> inInfos;
 
-  Handle<std::vector< PileupSummaryInfo > >  hPileupInfoProduct;
+  Handle<std::vector< PileupSummaryInfo> >  hPileupInfoProduct;
   if(GetProductSafe(edmToken_, hPileupInfoProduct, event)){
-    inInfos = *hPileupInfoProduct.product();
-    //printf("got vector of puinfo\n");
+    std::vector<PileupSummaryInfo> const& inInfoCollection = *hPileupInfoProduct;
+    for (auto&& info : inInfoCollection)
+      inInfos.push_back(&info);
   }
   else {
     Handle<PileupSummaryInfo>  hSinglePileupInfoProduct;
     GetProduct(edmSingleToken_, hSinglePileupInfoProduct, event);
-    inInfos.push_back(*hSinglePileupInfoProduct.product());
+    inInfos.push_back(hSinglePileupInfoProduct.product());
   }
 
-  for (std::vector<PileupSummaryInfo>::const_iterator edmPUInfo = inInfos.begin(); edmPUInfo != inInfos.end(); ++edmPUInfo) {
+  for (auto edmPUInfo : inInfos) {
     //printf("filling puinfo for bx %i with %i interactions\n",edmPUInfo->getBunchCrossing(), edmPUInfo->getPU_NumInteractions());
     //printf("vector sizes: %i, %i, %i, %i, %i\n",int(edmPUInfo->getPU_zpositions().size()),int(edmPUInfo->getPU_sumpT_lowpT().size()),int(edmPUInfo->getPU_sumpT_highpT().size()),int(edmPUInfo->getPU_ntrks_lowpT().size()),int(edmPUInfo->getPU_ntrks_highpT().size()));
     mithep::PileupInfo *puInfo = puInfos_->AddNew();

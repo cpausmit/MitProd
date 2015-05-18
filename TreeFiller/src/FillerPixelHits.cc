@@ -1,5 +1,3 @@
-// $Id: FillerPixelHits.cc,v 1.7 2010/03/18 20:21:01 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPixelHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

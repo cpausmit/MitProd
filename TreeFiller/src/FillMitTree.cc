@@ -28,7 +28,7 @@
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
-#include "MitProd/TreeFiller/interface/FillerPFJets.h"
+#include "MitProd/TreeFiller/interface/FillerPFJets.icc"
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "MitProd/TreeFiller/interface/FillerPFTaus.icc"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
@@ -391,10 +391,20 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       continue;
     }  
     if (ftype.compare("FillerPFJets")==0) {
-      FillerPFJets *fillerPFJets = new FillerPFJets(cfg, collector, os_, name.c_str(), defactive_);
+      FillerPFJetsFromPFJets *fillerPFJets = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
       continue;
-    }  
+    }
+    if (ftype.compare("FillerPFJets")==0) {
+      FillerPFJetsFromPFJets *fillerPFJets = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPFJets);
+      continue;
+    }
+    if (ftype.compare("FillerPFJetsFromPATJets")==0) {
+      FillerPFJetsFromPATJets *fillerPFJets = new FillerPFJetsFromPATJets(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPFJets);
+      continue;
+    }
     if (ftype.compare("FillerJPTJets")==0) {
       FillerJPTJets *fillerJPTJets = new FillerJPTJets(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerJPTJets);
@@ -406,13 +416,13 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       continue;
     }
     if (ftype.compare("FillerPFTaus")==0) {
-      FillerPFTaus *fillerPFTaus = new FillerPFTaus(cfg, collector, os_, name.c_str(), defactive_);
+      FillerPFTausFromPFTaus *fillerPFTaus = new FillerPFTausFromPFTaus(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFTaus);
       continue;
     }
-    if (ftype.compare("FillerPATTaus")==0) {
-      FillerPATTaus *fillerPATTaus = new FillerPATTaus(cfg, collector, os_, name.c_str(), defactive_);
-      addActiveFiller(fillerPATTaus);
+    if (ftype.compare("FillerPFTausFromPATTaus")==0) {
+      FillerPFTausFromPATTaus *fillerPFTaus = new FillerPFTausFromPATTaus(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPFTaus);
       continue;
     }  
     if (ftype.compare("FillerTrackJets")==0) {

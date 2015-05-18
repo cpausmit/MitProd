@@ -8,7 +8,7 @@
 namespace mithep {
 
   template<class TAU>
-  mithep::FillerTaus<TAU>::FillerTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
+  mithep::FillerPFTaus<TAU>::FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
     BaseFiller(cfg, os, name, active),
     hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
     edmToken_(GetToken<TauCollection>(collector, "edmName", "")),
@@ -28,14 +28,14 @@ namespace mithep {
   }
 
   template<class TAU>
-  mithep::FillerTaus<TAU>::~FillerTaus()
+  mithep::FillerPFTaus<TAU>::~FillerPFTaus()
   {
     delete taus_;
     delete tauMap_;
   }
 
   template<class TAU>
-  void mithep::FillerTaus<TAU>::BookDataBlock(TreeWriter &tws)
+  void mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
   {
     // Add taus branch to tree.
 
@@ -73,7 +73,7 @@ namespace mithep {
   }
 
   template<class TAU>
-  void mithep::FillerTaus<TAU>::FillDataBlock(const edm::Event &event, 
+  void mithep::FillerPFTaus<TAU>::FillDataBlock(const edm::Event &event, 
                                               const edm::EventSetup &setup)
   {
     // Fill taus from edm collection into our collection.
@@ -186,7 +186,7 @@ namespace mithep {
   }
 
   template<class TAU>
-  const mithep::Track *mithep::FillerTaus<TAU>::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing) const
+  const mithep::Track *mithep::FillerPFTaus<TAU>::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing) const
   {
     // Return our particle referenced by the edm pointer.
 
@@ -198,7 +198,7 @@ namespace mithep {
     }
   
     if (!mitPart && !allowMissing)
-      throw edm::Exception(edm::errors::Configuration, "mithep::FillerTaus::FillDataBlock()\n")
+      throw edm::Exception(edm::errors::Configuration, "mithep::FillerPFTaus::FillDataBlock()\n")
         << "Error! MITHEP Object " 
         << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
 
@@ -207,21 +207,21 @@ namespace mithep {
 
   template<class TAU>
   void
-  mithep::FillerTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
+  mithep::FillerPFTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
   {
   }
 
 
   template<class TAU>
   void
-  mithep::FillerTaus<TAU>::setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const
+  mithep::FillerPFTaus<TAU>::setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const
   {
   }
 
 
   template<class TAU>
   void
-  mithep::FillerTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
+  mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
   {
   }
 }
@@ -233,7 +233,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerTaus<reco::PFTau>::setHPSTokens(edm::ConsumesCollector& collector)
+  mithep::FillerPFTaus<reco::PFTau>::setHPSTokens(edm::ConsumesCollector& collector)
   {
     std::string hpsNames[][2] = {
       {"discriminationByLooseElectronRejectionName",
@@ -317,7 +317,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
+  mithep::FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
   {
     auto discVal = [&hpsHandles, &tRef](std::string const& discName)->double {
       DiscHandleMap::const_iterator itr(hpsHandles.find(discName));
@@ -368,18 +368,18 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerTaus<reco::PFTau>::setPFJetRef(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  mithep::FillerPFTaus<reco::PFTau>::setPFJetRef(mithep::PFTau* outTau, reco::PFTau const& inTau) const
   {
     try {
       outTau->SetPFJet(jetMap_->GetMit(edm::refToPtr(inTau.jetRef())));
     }
     catch(...) { 
-      throw edm::Exception(edm::errors::Configuration, "FillerTaus:FillDataBlock()\n")
+      throw edm::Exception(edm::errors::Configuration, "FillerPFTaus:FillDataBlock()\n")
         << "Error! Jet unmapped collection";
     }
   }
 
-  typedef FillerTaus<reco::PFTau> FillerPFTaus;
-  typedef FillerTaus<pat::Tau> FillerPATTaus;
+  typedef FillerPFTaus<reco::PFTau> FillerPFTausFromPFTaus;
+  typedef FillerPFTaus<pat::Tau> FillerPFTausFromPATTaus;
 
 }

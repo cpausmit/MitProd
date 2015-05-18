@@ -1,5 +1,3 @@
-// $Id: FillerPFMet.cc,v 1.7 2011/10/03 16:15:50 ksung Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFMetCol.h"
@@ -45,20 +43,20 @@ void FillerPFMet::FillDataBlock(const edm::Event      &event,
 
   pfMets_->Delete();
 
-  reco::PFMETCollection inPFMets;
+  std::vector<reco::PFMET const*> inPFMets;
   
-  Handle<reco::PFMETCollection> hCaloMetProduct;
-  if(GetProductSafe(edmToken_,hCaloMetProduct, event)){
-    inPFMets = *(hCaloMetProduct.product());
+  Handle<reco::PFMETCollection> hPFMetProduct;
+  if(GetProductSafe(edmToken_,hPFMetProduct, event)){
+    reco::PFMETCollection const& inMetCollection = *hPFMetProduct;
+    for (auto&& met : inMetCollection)
+      inPFMets.push_back(&met);
   } else {
     Handle<reco::PFMET> hSingleMetProduct;
     GetProduct(edmSingleToken_, hSingleMetProduct, event);
-    inPFMets.push_back(*hSingleMetProduct.product());
+    inPFMets.push_back(hSingleMetProduct.product());
   }
   // loop through all mets
-  for (reco::PFMETCollection::const_iterator inPFMet = inPFMets.begin(); 
-       inPFMet != inPFMets.end(); ++inPFMet) {
-    
+  for (auto inPFMet : inPFMets) {
     mithep::PFMet *pfMet = pfMets_->Allocate();
     new (pfMet) mithep::PFMet(inPFMet->px(), inPFMet->py());
     

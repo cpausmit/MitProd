@@ -1,5 +1,3 @@
-// $Id: FillerStripHits.cc,v 1.2 2010/03/18 20:21:01 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerStripHits.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

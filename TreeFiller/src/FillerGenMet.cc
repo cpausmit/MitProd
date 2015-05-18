@@ -1,5 +1,3 @@
-// $Id: FillerGenMet.cc,v 1.3 2010/03/18 20:21:00 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "MitAna/DataTree/interface/GenMetCol.h"
@@ -48,7 +46,7 @@ void FillerGenMet::FillDataBlock(const edm::Event      &event,
   Handle<reco::GenMETCollection> hGenMetProduct;
   GetProduct(edmToken_, hGenMetProduct, event);
 
-  const reco::GenMETCollection inGenMets = *(hGenMetProduct.product());  
+  reco::GenMETCollection const& inGenMets = *hGenMetProduct;
 
   // loop through all mets
   for (reco::GenMETCollection::const_iterator inGenMet = inGenMets.begin(); 

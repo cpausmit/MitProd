@@ -320,8 +320,8 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
 
       for (PFCollection::const_iterator iPfNp = inPfNoPileupCands.begin();
 	   iPfNp != inPfNoPileupCands.end(); ++iPfNp) {
-	// Not nice put well....
-	const reco::PFCandidate *iPNp = &(*(*iPfNp));
+        // Not nice put well....
+        const reco::PFCandidate *iPNp = &(*(*iPfNp));
     
     	// this is not the best way to do it, but well I did not come up with a better one yet
     	if (iP->px() == iPNp->px() &&
@@ -330,10 +330,10 @@ void FillerPFCandidates::FillDataBlock(const edm::Event      &event,
     
     	  // set the candidate to be part of the NoPilup collection
     	  outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup,true);
-	  // add it to our map
+          // add it to our map
 
-	  reco::PFCandidatePtr ptrNp = (*iPfNp).ptr();
-	  pfNoPileupCandMap_->Add(ptrNp,outPfCand);
+          reco::PFCandidatePtr ptrNp = (*iPfNp).ptr();
+          pfNoPileupCandMap_->Add(ptrNp,outPfCand);
 
     	  //CP reco::PFCandidatePtr theNoPileupPtr(hPfNoPileupCandProduct,
     	  //                                    iNoPileupP-inPfNoPileupCands.begin());

@@ -1,5 +1,3 @@
-// $Id: FillerPsClusters.cc,v 1.1 2012/05/05 16:49:59 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPsClusters.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h" 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"

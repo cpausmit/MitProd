@@ -1,0 +1,274 @@
+#include "MitProd/TreeFiller/interface/FillerPFJets.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
+#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
+#include "MitAna/DataTree/interface/Names.h"
+#include "MitAna/DataTree/interface/PFJetCol.h"
+#include "MitAna/DataTree/interface/PileupEnergyDensity.h"
+#include "MitProd/ObjectService/interface/ObjectService.h"
+
+template<class JET>
+mithep::FillerPFJets<JET>::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg,os,name,active),
+  flavorMatchingActive_(Conf().getUntrackedParameter("flavorMatchingActive", true)),
+  bTaggingActive_(Conf().getUntrackedParameter("bTaggingActive", true)),
+  jetToVertexActive_(Conf().getUntrackedParameter("jetToVertexActive", true)),
+  jetCorrectionsActive_(Conf().getUntrackedParameter("jetCorrectionsActive", true)),
+  fastJetCorrectionsActive_(Conf().getUntrackedParameter("fastJetCorrectionsActive", false)),
+  edmToken_(GetToken<JetCollection>(collector, "edmName", "recoPFJets:iterativeCone5PFJets")),
+  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, "jetToVertexAlphaName", "jetToVertexAlpha")),
+  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, "jetToVertexBetaName", "jetToVertexBetaName")),
+  rhoToken_(GetToken<double>(collector, "rhoName")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
+  jetProbabilityBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "JetProbabilityBJetTagsName", "jetProbabilityBJetTags")),
+  jetBProbabilityBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "JetBProbabilityBJetTagsName", "jetBProbabilityBJetTags")),
+  simpleSecondaryVertexHighEffBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighEffBJetTagsName", "simpleSecondaryVertexHighEffBJetTags")),                   
+  simpleSecondaryVertexHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName", "simpleSecondaryVertexHighPurBJetTags")),                   
+  combinedSecondaryVertexBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName", "combinedSecondaryVertexBJetTags")),
+  combinedSecondaryVertexMVABJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexMVABJetTagsName", "combinedSecondaryVertexMVABJetTags")),
+  //ghostTrackBJetTagsName_(Conf().getUntrackedParameter("GhostTrackBJetTagsName", std::string("ghostTrackBJetTags"))),
+  trackCountingHighEffBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName", "trackCountingHighEffBJetTags")),
+  trackCountingHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName", "trackCountingHighPurBJetTags")),
+  //softMuonBJetTagsName_(Conf().getUntrackedParameter("SoftMuonBJetTagsName", std::string("softMuonBJetTags"))),
+  //softMuonByIP3dBJetTagsName_(Conf().getUntrackedParameter("SoftMuonByIP3dBJetTagsName", std::string("softMuonByIP3dBJetTags"))),
+  //softMuonByPtBJetTagsName_(Conf().getUntrackedParameter("SoftMuonByPtBJetTagsName", std::string("softMuonByPtBJetTags"))),
+  //softElectronByIP3dBJetTagsName_(Conf().getUntrackedParameter("SoftElectronByIP3dBJetTagsName", std::string("softElectronByIP3dBJetTags"))),
+  //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter("SoftElectronByPtBJetTagsName", std::string("softElectronByPtBJetTags"))),
+  mitName_(Conf().getUntrackedParameter("mitName", std::string("ItrCone5PFJets"))), 
+  L2JetCorrectorName_(Conf().getUntrackedParameter("L2JetCorrectorName", std::string("L2JetCorrectorName"))),
+  L3JetCorrectorName_(Conf().getUntrackedParameter("L3JetCorrectorName", std::string("L3JetCorrectorName"))),
+  flavorMatchingDefinition_(Conf().getUntrackedParameter("flavorMatchingDefinition", std::string("Algorithmic"))),
+  pfCandMapName_(Conf().getUntrackedParameter("pfCandMapName", std::string("pfCandMapName"))),
+  pfCandMap_(0),
+  jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("PFJetMap"))),
+  jetMap_(new mithep::PFJetMap),
+  jets_(new mithep::PFJetArr(16))
+{
+}
+
+template<class JET>
+mithep::FillerPFJets<JET>::~FillerPFJets()
+{
+  delete jets_;
+  delete jetMap_;
+}
+
+template<class JET>
+void
+mithep::FillerPFJets<JET>::BookDataBlock(mithep::TreeWriter& tws)
+{
+  // Add jets branch to tree.
+
+  mithep::ObjectService& os = *OS();
+
+  tws.AddBranch(mitName_, &jets_);
+  os.add(jets_, mitName_);
+
+  // if a map name has been given
+  if (!pfCandMapName_.empty()) {
+    // find the pf candidate map
+    pfCandMap_ = os.get<PFCandidateMap>(pfCandMapName_);
+    // if the map exists in the object service
+    if (pfCandMap_)
+      AddBranchDep(mitName_,pfCandMap_->GetBrName());
+  }
+  if (!jetMapName_.empty()) {
+    jetMap_->SetBrName(mitName_);
+    os.add(jetMap_, jetMapName_);
+  }
+}
+
+template<class JET>
+void
+mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event, 
+                                         edm::EventSetup const& setup)
+{
+  // Fill jets from edm collection into our collection.
+
+  jets_->Delete();
+  jetMap_->Reset();
+
+  // handle for the Jet Collection
+  edm::Handle<JetCollection> hJetProduct;
+  GetProduct(edmToken_, hJetProduct, event);
+  JetCollection const& inJets = *hJetProduct;
+
+  // handle for rho
+  edm::Handle<double> rho;
+  if (fastJetCorrectionsActive_)
+    GetProduct(rhoToken_, rho, event);
+
+  // handles for jet flavour matching 
+  edm::Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
+  reco::JetMatchedPartonsCollection const* matchedPartons = 0;
+  if (flavorMatchingActive_) {
+    GetProduct(flavorMatchingByReferenceToken_, hPartonMatchingProduct, event);
+    matchedPartons = hPartonMatchingProduct.product();
+    assert(matchedPartons->size() == inJets.size());
+  }
+
+  edm::Handle<reco::JetTagCollection> hJetProbabilityBJetTags;
+  edm::Handle<reco::JetTagCollection> hJetBProbabilityBJetTags;
+  edm::Handle<reco::JetTagCollection> hSimpleSecondaryVertexHighEffBJetTags;
+  edm::Handle<reco::JetTagCollection> hSimpleSecondaryVertexHighPurBJetTags;
+  edm::Handle<reco::JetTagCollection> hCombinedSecondaryVertexBJetTags;
+  edm::Handle<reco::JetTagCollection> hCombinedSecondaryVertexMVABJetTags;
+  edm::Handle<reco::JetTagCollection> hTrackCountingHighEffBJetTags;
+  edm::Handle<reco::JetTagCollection> hTrackCountingHighPurBJetTags;
+  //edm::Handle<reco::JetTagCollection> hSoftMuonBJetTags;
+  //edm::Handle<reco::JetTagCollection> hSoftMuonByIP3dBJetTags;
+  //edm::Handle<reco::JetTagCollection> hSoftMuonByPtBJetTags;
+  //edm::Handle<reco::JetTagCollection> hSoftElectronByIP3dBJetTags;
+  //edm::Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
+  //edm::Handle<reco::JetTagCollection> hGhostTrackBJetTags;
+
+  if (bTaggingActive_) {
+    GetProduct(jetProbabilityBJetTagsToken_, hJetProbabilityBJetTags, event);    
+    GetProduct(jetBProbabilityBJetTagsToken_, hJetBProbabilityBJetTags, event);        
+    GetProduct(simpleSecondaryVertexHighEffBJetTagsToken_,hSimpleSecondaryVertexHighEffBJetTags,event);
+    GetProduct(simpleSecondaryVertexHighPurBJetTagsToken_,hSimpleSecondaryVertexHighPurBJetTags,event);
+    GetProduct(combinedSecondaryVertexBJetTagsToken_, hCombinedSecondaryVertexBJetTags, event);    
+    GetProduct(combinedSecondaryVertexMVABJetTagsToken_, hCombinedSecondaryVertexMVABJetTags, event);
+    GetProduct(trackCountingHighEffBJetTagsToken_, hTrackCountingHighEffBJetTags, event);    
+    GetProduct(trackCountingHighPurBJetTagsToken_, hTrackCountingHighPurBJetTags, event);    
+  }
+  
+  // Handles to Jet-to-Vertex Association
+  edm::Handle<std::vector<double> > JV_alpha;  
+  edm::Handle<std::vector<double> > JV_beta;    
+  std::vector<double>::const_iterator it_jv_alpha;
+  std::vector<double>::const_iterator it_jv_beta;
+
+  if (jetToVertexActive_) {
+    GetProduct(jetToVertexAlphaToken_, JV_alpha, event); 
+    GetProduct(jetToVertexBetaToken_, JV_beta, event);  
+    it_jv_alpha = JV_alpha->begin();
+    it_jv_beta  = JV_beta->begin();    
+  }
+
+  // Define Jet Correction Services
+  const JetCorrector* correctorL2 = 0; 
+  const JetCorrector* correctorL3 = 0; 
+  if (jetCorrectionsActive_) {
+    correctorL2 = JetCorrector::getJetCorrector (L2JetCorrectorName_,setup);
+    correctorL3 = JetCorrector::getJetCorrector (L3JetCorrectorName_,setup);
+  }
+
+  // loop through all jets
+  unsigned iJet = 0;
+  for (auto&& inJet : inJets) {
+    edm::Ref<JetCollection> jetRef(hJetProduct, iJet);
+    reco::JetBaseRef jetBaseRef(jetRef);
+    edm::Ptr<reco::Jet> jetPtr(hJetProduct, iJet);
+    ++iJet;
+    
+    mithep::PFJet *jet = jets_->Allocate();
+
+    new (jet) mithep::PFJet(inJet.p4().x(),inJet.p4().y(),inJet.p4().z(),inJet.p4().e());
+
+    // add to map
+    jetMap_->Add(jetPtr,jet);
+
+    // fill jet moments
+    jet->SetSigmaEta(TMath::Sqrt(inJet.etaetaMoment()));
+    jet->SetSigmaPhi(TMath::Sqrt(inJet.phiphiMoment()));
+
+    // fill pfjet-specific quantities
+    jet->SetChargedHadronEnergy(inJet.chargedHadronEnergy());
+    jet->SetNeutralHadronEnergy(inJet.neutralHadronEnergy());
+    jet->SetChargedEmEnergy(inJet.chargedEmEnergy());
+    jet->SetChargedMuEnergy(inJet.chargedMuEnergy());
+    jet->SetNeutralEmEnergy(inJet.neutralEmEnergy());
+    jet->SetChargedMultiplicity(inJet.chargedMultiplicity());
+    jet->SetNeutralMultiplicity(inJet.neutralMultiplicity());
+    jet->SetMuonMultiplicity(inJet.muonMultiplicity());
+     
+    // compute alpha and beta parameter for jets if vertex matching active
+    if (jetToVertexActive_) {
+      jet->SetAlpha((*it_jv_alpha));
+      jet->SetBeta((*it_jv_beta));      
+    }
+
+    // fill the area anyway 
+    jet->SetJetArea(inJet.jetArea());
+
+    // jet corrections
+    if (fastJetCorrectionsActive_) {
+      double l1Scale = (inJet.pt() - (*rho)*inJet.jetArea())/inJet.pt();
+      l1Scale = (l1Scale>0) ? l1Scale : 0.0;
+      jet->SetL1OffsetCorrectionScale( l1Scale);
+      jet->EnableCorrection(mithep::PFJet::L1);
+    }
+    if (jetCorrectionsActive_) {
+      double L2Scale = correctorL2->correction(inJet.p4());
+      double L3Scale = correctorL3->correction(inJet.p4()*L2Scale);
+      jet->SetL2RelativeCorrectionScale(L2Scale);
+      jet->SetL3AbsoluteCorrectionScale(L3Scale);     
+      jet->EnableCorrection(mithep::PFJet::L2);
+      jet->EnableCorrection(mithep::PFJet::L3);     
+    }
+    
+    if (bTaggingActive_) {
+      jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
+      jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
+      jet->SetSimpleSecondaryVertexHighEffBJetTagsDisc((*(hSimpleSecondaryVertexHighEffBJetTags.product()))[jetBaseRef]);       
+      jet->SetSimpleSecondaryVertexHighPurBJetTagsDisc((*(hSimpleSecondaryVertexHighPurBJetTags.product()))[jetBaseRef]);       
+      jet->SetCombinedSecondaryVertexBJetTagsDisc(
+        (*(hCombinedSecondaryVertexBJetTags.product()))[jetBaseRef]);   
+      jet->SetCombinedSecondaryVertexMVABJetTagsDisc(
+        (*(hCombinedSecondaryVertexMVABJetTags.product()))[jetBaseRef]); 
+      jet->SetTrackCountingHighEffBJetTagsDisc(
+        (*(hTrackCountingHighEffBJetTags.product()))[jetBaseRef]);  
+      jet->SetTrackCountingHighPurBJetTagsDisc(
+        (*(hTrackCountingHighPurBJetTags.product()))[jetBaseRef]); 
+    }
+
+    // get the Monte Carlo flavour matching information
+    if (flavorMatchingActive_) {
+      reco::MatchedPartons const& matchedParton = (*matchedPartons)[jetBaseRef];
+      int flavorPhysDef = (matchedParton.physicsDefinitionParton().isNonnull())?
+        matchedParton.physicsDefinitionParton()->pdgId():0;
+      int flavorAlgDef = (matchedParton.algoDefinitionParton().isNonnull())?
+        matchedParton.algoDefinitionParton()->pdgId():0;
+      
+      if (flavorMatchingDefinition_ == "Algorithmic") {
+        jet->SetMatchedMCFlavor(flavorAlgDef);
+      }
+      else if (flavorMatchingDefinition_ == "Physics") {
+        jet->SetMatchedMCFlavor(flavorPhysDef);
+      }
+      else {
+        jet->SetMatchedMCFlavor(0);
+      }
+    }
+
+    // add PFCandidate refs
+    if (pfCandMap_) {
+      for (uint i=0; i<inJet.numberOfDaughters(); ++i) {
+        const reco::CandidatePtr candPtr = inJet.daughterPtr(i);
+        const reco::PFCandidatePtr pfPtr(candPtr);
+        const mithep::PFCandidate *constituent = pfCandMap_->GetMit(pfPtr);
+        jet->AddPFCand(constituent);
+      }
+    }
+    
+    // add jet vertex information
+    if (jetToVertexActive_) {
+      it_jv_alpha++; 
+      it_jv_beta++;
+    }
+  }      
+  jets_->Trim();
+}
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+typedef mithep::FillerPFJets<reco::PFJet> FillerPFJetsFromPFJets;
+typedef mithep::FillerPFJets<pat::Jet> FillerPFJetsFromPATJets;

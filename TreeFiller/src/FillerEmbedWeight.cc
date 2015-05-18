@@ -1,5 +1,3 @@
-// $Id: FillerEmbedWeight.cc,v 1.4 2013/05/06 18:27:49 pharris Exp $
-
 #include "MitProd/TreeFiller/interface/FillerEmbedWeight.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EmbedWeightCol.h"

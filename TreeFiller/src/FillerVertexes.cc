@@ -1,5 +1,3 @@
-// $Id: FillerVertexes.cc,v 1.10 2010/10/20 20:34:27 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerVertexes.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "MitAna/DataTree/interface/Names.h"
@@ -65,7 +63,7 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
   Handle<reco::VertexCollection> hVertexProduct;
   GetProduct(edmToken_, hVertexProduct, event);
   vertexMap_->SetEdmProductId(hVertexProduct.id().id());
-  const reco::VertexCollection inVertexes = *(hVertexProduct.product());  
+  reco::VertexCollection const& inVertexes = *hVertexProduct;
 
   // loop through all vertexes
   for (reco::VertexCollection::const_iterator inV = inVertexes.begin(); 

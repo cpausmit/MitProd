@@ -1,5 +1,3 @@
-// $Id: FillerEvtSelData.cc,v 1.6 2010/03/18 20:21:00 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerEvtSelData.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/EvtSelData.h"

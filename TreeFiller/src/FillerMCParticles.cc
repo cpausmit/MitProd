@@ -146,7 +146,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     if (simActive_)
       GetProduct(genBarcodesToken_, genBarcodes, event);  
   
-    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
+    reco::GenParticleCollection const& genParticles = *hGenPProduct;
   
     // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
@@ -176,7 +176,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     Handle<edm::SimTrackContainer> hSimTrackProduct;
     GetProduct(simTracksToken_, hSimTrackProduct, event);
 
-    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
+    edm::SimTrackContainer const& simTracks = *hSimTrackProduct;
 
     // loop through all simParticles
     for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
@@ -283,7 +283,7 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         }
         
         if (verbose_>1) {
-	  printf("trackId = %i\n",theSimTrack.trackId());
+          printf("trackId = %i\n",theSimTrack.trackId());
           printf("Tracking particle has %i SimTracks\n",(int)iM->g4Tracks().size());
           if (iM->g4Tracks().size()>1) {
             for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
@@ -352,7 +352,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     Handle<reco::GenParticleCollection> hGenPProduct;
     GetProduct(genParticlesToken_, hGenPProduct, event);  
   
-    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
+    reco::GenParticleCollection const& genParticles = *hGenPProduct;
     // loop over all genparticles and copy their information
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
@@ -382,12 +382,12 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     Handle<edm::SimTrackContainer> hSimTrackProduct;
     GetProduct(simTracksToken_, hSimTrackProduct, event);
 
-    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
+    edm::SimTrackContainer const& simTracks = *hSimTrackProduct;
    
     Handle<std::vector<SimVertex> > hSimVertexProduct;
     GetProduct(simVerticesToken_, hSimVertexProduct, event);
 
-    const edm::SimVertexContainer simVertexes = *(hSimVertexProduct.product());
+    edm::SimVertexContainer const& simVertexes = *hSimVertexProduct;
 
     // loop through all simParticles
     for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
@@ -417,7 +417,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(trackingEdmToken_, hTrackingParticleProduct, event);
     
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
+    TrackingParticleCollection const& trackingParticles = *hTrackingParticleProduct;
    
     // loop through all simParticles
     for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 

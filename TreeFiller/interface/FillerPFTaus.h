@@ -22,11 +22,11 @@
 namespace mithep
 {
   template<class TAU>
-  class FillerTaus : public BaseFiller
+  class FillerPFTaus : public BaseFiller
   {
     public:
-      FillerTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
-      ~FillerTaus();
+      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
+      ~FillerPFTaus();
 
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);

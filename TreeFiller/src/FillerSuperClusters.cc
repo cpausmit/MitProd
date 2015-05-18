@@ -35,15 +35,15 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesC
   basicClusterMapName_  (Conf().getUntrackedParameter<string>("basicClusterMapName", 
                                                               "BasicClusterMap")),
   psClusterMapName_     (Conf().getUntrackedParameter<string>("psClusterMapName", 
-							      "")),
+                                                              "")),
   psXClusterMapName_    (Conf().getUntrackedParameter<string>("psXClusterMapName", 
-							      "")),
+                                                              "")),
   psYClusterMapName_    (Conf().getUntrackedParameter<string>("psYClusterMapName",
-							      "")),
+                                                              "")),
   caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName",
-							      "CaloTowerDetIdMap")),
+                                                              "CaloTowerDetIdMap")),
   superClusterMapName_  (Conf().getUntrackedParameter<string>("superClusterMapName", 
-							      "SuperClusterMap")),
+                                                              "SuperClusterMap")),
   superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", 
                                                               "SuperClusterIdMap")),
   basicClusterMap_      (0),
@@ -134,17 +134,17 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   //CP   GetProduct(caloTowerToken_, hCaloTowerProduct, event);
 
   superClusterMap_->SetEdmProductId(hSuperClusterProduct.id().id());
-  const reco::SuperClusterCollection inSuperClusters = *(hSuperClusterProduct.product());  
+  reco::SuperClusterCollection const& inSuperClusters = *hSuperClusterProduct;
 
   EcalClusterLazyTools lazyTools(event, setup, ebRecHitsToken_, eeRecHitsToken_);
 
   // ecal recHit collections for further ecal timing
   edm::Handle<EcalRecHitCollection> hEBRecHits;
   GetProduct(ebRecHitsToken_, hEBRecHits, event);
-  const EcalRecHitCollection ebRecHitCollection = *(hEBRecHits.product()); 
+  EcalRecHitCollection const& ebRecHitCollection = *hEBRecHits;
   edm::Handle<EcalRecHitCollection> hEERecHits;
   GetProduct(eeRecHitsToken_, hEERecHits, event);
-  const EcalRecHitCollection eeRecHitCollection = *(hEERecHits.product()); 
+  EcalRecHitCollection const& eeRecHitCollection = *hEERecHits;
 
   // mustache id
   reco::Mustache mustache;
@@ -192,7 +192,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     // compute roundness and angle of the supercluster
     if (inSC->hitsAndFractions().at(0).first.subdetId()==EcalBarrel) {
       std::vector<float> showerShapesBarrel = 
-      EcalClusterTools::roundnessBarrelSuperClusters(*(inSC),ebRecHitCollection,0);
+        EcalClusterTools::roundnessBarrelSuperClusters(*(inSC),ebRecHitCollection,0);
       outSC->SetRoundness(showerShapesBarrel[0]);
       outSC->SetAngle(showerShapesBarrel[1]);
     }
@@ -216,15 +216,15 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     double SCLeadTimeSpan = 1000;
     double SCSubLeadTimeSpan = 1000;
     SCTimeSpanCalculator(&(*inSC),xtalEnergyThr,seedTime,SCLeadTimeSpan,SCSubLeadTimeSpan, 
-			 &ebRecHitCollection,&eeRecHitCollection);
+                         &ebRecHitCollection,&eeRecHitCollection);
     outSC->SetLeadTimeSpan(SCLeadTimeSpan);
     outSC->SetSubLeadTimeSpan(SCSubLeadTimeSpan);
 
     // preshower shape variables
     if (inSC->seed()->hitsAndFractions().at(0).first.subdetId()==EcalEndcap) {
       std::vector<float> phoESShape = getESShape(getESHits(inSC->x(), inSC->y(), inSC->z(),
-							   esmap, *pGeometry.product(),
-							   &topology_p, 0));
+                                                           esmap, *pGeometry.product(),
+                                                           &topology_p, 0));
 
       if (phoESShape.size()>=2) {
         outSC->SetPsEffWidthSigmaXX(phoESShape[0]);
@@ -246,23 +246,23 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       std::vector<unsigned int> outsidebcs;
       for (reco::CaloCluster_iterator bc = inSC->clustersBegin(); bc != inSC->clustersEnd(); ++bc) {
         if (bc->isNonnull()) {
-	  const mithep::BasicCluster *bclus = basicClusterMap_->GetMit(*bc);
+          const mithep::BasicCluster *bclus = basicClusterMap_->GetMit(*bc);
 	
-	  // insertion sort (basic clusters sorted by energy)
-	  pcs.push_back(bclus);
+          // insertion sort (basic clusters sorted by energy)
+          pcs.push_back(bclus);
           bcs.push_back(**bc);
-	  unsigned int iclus = pcs.size()-1;
-	  while (iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
-	    reco::CaloCluster tmp_bcs = bcs[iclus];
-	    bcs[iclus]   = bcs[iclus-1];
-	    bcs[iclus-1] = tmp_bcs;
+          unsigned int iclus = pcs.size()-1;
+          while (iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
+            reco::CaloCluster tmp_bcs = bcs[iclus];
+            bcs[iclus]   = bcs[iclus-1];
+            bcs[iclus-1] = tmp_bcs;
 	    
-	    const mithep::BasicCluster *tmp_pcs = pcs[iclus];
-	    pcs[iclus]   = pcs[iclus-1];
-	    pcs[iclus-1] = tmp_pcs;
+            const mithep::BasicCluster *tmp_pcs = pcs[iclus];
+            pcs[iclus]   = pcs[iclus-1];
+            pcs[iclus-1] = tmp_pcs;
 	    
-	    iclus--;
-	  }
+            iclus--;
+          }
         }
       }
       for (unsigned int iclus=0; iclus<pcs.size(); iclus++)
@@ -271,11 +271,11 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       mustache.MustacheClust(bcs,insidebcs,outsidebcs);
       for (unsigned int iclus=0; iclus<insidebcs.size(); ++iclus) {
         const_cast<mithep::BasicCluster*>(outSC->Cluster(insidebcs.at(iclus)))
-	  ->SetInsideMustache(kTRUE);
+          ->SetInsideMustache(kTRUE);
       }
       for (unsigned int iclus=0; iclus<outsidebcs.size(); ++iclus) {
         const_cast<mithep::BasicCluster*>(outSC->Cluster(outsidebcs.at(iclus)))
-	  ->SetInsideMustache(kFALSE);
+          ->SetInsideMustache(kFALSE);
       }
     }
 
@@ -286,31 +286,31 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       std::vector<unsigned int> insidebcs;
       std::vector<unsigned int> outsidebcs;
       for (reco::CaloCluster_iterator bc = inSC->preshowerClustersBegin();
-	   bc != inSC->preshowerClustersEnd(); ++bc) {
+           bc != inSC->preshowerClustersEnd(); ++bc) {
         if (bc->isNonnull()) {
-	  const mithep::PsCluster *psclus = 0;
+          const mithep::PsCluster *psclus = 0;
           if (psClusterMap_)
-	    psclus = psClusterMap_->GetMit(*bc);
-	  if (psXClusterMap_)
-	    psclus = psXClusterMap_->GetMit(*bc);
-	  if (psYClusterMap_)
-	    psclus = psYClusterMap_->GetMit(*bc);
+            psclus = psClusterMap_->GetMit(*bc);
+          if (psXClusterMap_)
+            psclus = psXClusterMap_->GetMit(*bc);
+          if (psYClusterMap_)
+            psclus = psYClusterMap_->GetMit(*bc);
 	  
-	  // insertion sort (Preshower clusters sorted by energy)
-	  pcs.push_back(psclus);
+          // insertion sort (Preshower clusters sorted by energy)
+          pcs.push_back(psclus);
           bcs.push_back(**bc);
-	  unsigned int iclus = pcs.size()-1;
-	  while (iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
-	    reco::CaloCluster tmp_bcs = bcs[iclus];
-	    bcs[iclus]   = bcs[iclus-1];
-	    bcs[iclus-1] = tmp_bcs;
+          unsigned int iclus = pcs.size()-1;
+          while (iclus>0 && pcs[iclus]->Energy()>pcs[iclus-1]->Energy()) {
+            reco::CaloCluster tmp_bcs = bcs[iclus];
+            bcs[iclus]   = bcs[iclus-1];
+            bcs[iclus-1] = tmp_bcs;
 	    
-	    const mithep::PsCluster *tmp_pcs = pcs[iclus];
-	    pcs[iclus]   = pcs[iclus-1];
-	    pcs[iclus-1] = tmp_pcs;
+            const mithep::PsCluster *tmp_pcs = pcs[iclus];
+            pcs[iclus]   = pcs[iclus-1];
+            pcs[iclus-1] = tmp_pcs;
 	    
-	    iclus--;
-	  }
+            iclus--;
+          }
         }
       }      
       for (unsigned int iclus=0; iclus<pcs.size(); iclus++)
@@ -319,11 +319,11 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       mustache.MustacheClust(bcs,insidebcs,outsidebcs);
       for (unsigned int iclus=0; iclus<insidebcs.size(); ++iclus) {
         const_cast<mithep::PsCluster*>(outSC->PsClust(insidebcs.at(iclus)))
-	  ->SetInsideMustache(kTRUE);
+          ->SetInsideMustache(kTRUE);
       }
       for (unsigned int iclus=0; iclus<outsidebcs.size(); ++iclus) {
         const_cast<mithep::PsCluster*>(outSC->PsClust(outsidebcs.at(iclus)))
-	  ->SetInsideMustache(kFALSE);
+          ->SetInsideMustache(kFALSE);
       }
     }
 
@@ -331,17 +331,17 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     double psenergyplane1 = 0.;
     double psenergyplane2 = 0.; 
     for(reco::CaloCluster_iterator bc = inSC->preshowerClustersBegin();
-	bc != inSC->preshowerClustersEnd(); ++bc) {
+        bc != inSC->preshowerClustersEnd(); ++bc) {
       const reco::PreshowerCluster *pscluster = 
-	dynamic_cast<const reco::PreshowerCluster*>(bc->get());
+        dynamic_cast<const reco::PreshowerCluster*>(bc->get());
 
       if (!pscluster)
-	continue;
+        continue;
 
       if      (pscluster->plane()==1)
-	psenergyplane1 += pscluster->energy();
+        psenergyplane1 += pscluster->energy();
       else if (pscluster->plane()==2)
-	psenergyplane2 += pscluster->energy();
+        psenergyplane2 += pscluster->energy();
     }
     outSC->SetPreshowerEnergyPlane1(psenergyplane1);
     outSC->SetPreshowerEnergyPlane2(psenergyplane2);
@@ -349,7 +349,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
     // add super cluster det ids to the id map and also fill supercluster-calotower associations
     const std::vector< std::pair<DetId, float> > &pairs = inSC->hitsAndFractions();
     for (std::vector< std::pair<DetId, float> >::const_iterator ipair = pairs.begin();
-          ipair < pairs.end(); ++ipair) {
+         ipair < pairs.end(); ++ipair) {
 
       const DetId &ihit = ipair->first;
    
@@ -375,16 +375,15 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
 // horrible code below copied from globe for preshower cluster shape calculations
 std::vector<float> FillerSuperClusters::getESHits(double X, double Y, double Z,
-						  std::map<DetId, EcalRecHit> rechits_map,
-						  const CaloGeometry& geometry,
-						  CaloSubdetectorTopology *topology_p, int row)
+                                                  std::map<DetId, EcalRecHit> rechits_map,
+                                                  const CaloGeometry& geometry,
+                                                  CaloSubdetectorTopology *topology_p, int row)
 {
   std::vector<float> esHits;
 
   const GlobalPoint point(X,Y,Z);
 
-  const CaloSubdetectorGeometry *geometry_p ;
-  geometry_p = geometry.getSubdetectorGeometry (DetId::Ecal,EcalPreshower) ;
+  const CaloSubdetectorGeometry *geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   DetId esId1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1);
   DetId esId2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2);
@@ -437,13 +436,13 @@ std::vector<float> FillerSuperClusters::getESHits(double X, double Y, double Z,
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
         if (it->second.energy() > 1.0e-10 && it != rechits_map.end())
-	  esHits.push_back(it->second.energy());
+          esHits.push_back(it->second.energy());
         else
-	  esHits.push_back(0);
+          esHits.push_back(0);
       }
       else {
         for (int j=i; j<15; j++)
-	  esHits.push_back(0);
+          esHits.push_back(0);
         break;
       }
     }
@@ -456,13 +455,13 @@ std::vector<float> FillerSuperClusters::getESHits(double X, double Y, double Z,
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
         if (it->second.energy() > 1.0e-10 && it != rechits_map.end())
-	  esHits.push_back(it->second.energy());
+          esHits.push_back(it->second.energy());
         else
-	  esHits.push_back(0);
+          esHits.push_back(0);
       }
       else {
         for (int j=i; j<15; j++)
-	  esHits.push_back(0);
+          esHits.push_back(0);
         break;
       }
     }
@@ -486,13 +485,13 @@ std::vector<float> FillerSuperClusters::getESHits(double X, double Y, double Z,
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
         if (it->second.energy() > 1.0e-10 && it != rechits_map.end())
-	  esHits.push_back(it->second.energy());
+          esHits.push_back(it->second.energy());
         else
-	  esHits.push_back(0);
+          esHits.push_back(0);
       }
       else {
         for (int j=i; j<15; j++)
-	  esHits.push_back(0);
+          esHits.push_back(0);
         break;
       }
     }
@@ -506,13 +505,13 @@ std::vector<float> FillerSuperClusters::getESHits(double X, double Y, double Z,
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
         if (it->second.energy() > 1.0e-10 && it != rechits_map.end())
-	  esHits.push_back(it->second.energy());
+          esHits.push_back(it->second.energy());
         else
-	  esHits.push_back(0);
+          esHits.push_back(0);
       }
       else {
         for (int j=i; j<15; j++)
-	  esHits.push_back(0);
+          esHits.push_back(0);
         break;
       }
     }
@@ -570,10 +569,10 @@ std::vector<float> FillerSuperClusters::getESShape(std::vector<float> ESHits0)
 
 //--------------------------------------------------------------------------------------------------
 void  FillerSuperClusters::SCTimeSpanCalculator(const reco::SuperCluster* scl, 
-						double xtalEnergyThr, double seedTime, 
-						double& SCLeadTimeSpan, double& SCSubLeadTimeSpan, 
-						const EcalRecHitCollection* ebRecHitCol,
-						const EcalRecHitCollection* eeRecHitCol)
+                                                double xtalEnergyThr, double seedTime, 
+                                                double& SCLeadTimeSpan, double& SCSubLeadTimeSpan, 
+                                                const EcalRecHitCollection* ebRecHitCol,
+                                                const EcalRecHitCollection* eeRecHitCol)
 {
   // This function provides information on the time span of the given supercluster.  The seed is
   // used as reference, and the time span is computed as the maximal time distance between the seed
@@ -604,7 +603,7 @@ void  FillerSuperClusters::SCTimeSpanCalculator(const reco::SuperCluster* scl,
           SCLeadTimeSpan = timeDiff;
         }
         if (fabs(timeDiff) > fabs(SCSubLeadTimeSpan) && fabs(timeDiff) < fabs(SCLeadTimeSpan))
-	  SCSubLeadTimeSpan = timeDiff;
+          SCSubLeadTimeSpan = timeDiff;
       }
     }
     // scl seed is in endcap
@@ -618,7 +617,7 @@ void  FillerSuperClusters::SCTimeSpanCalculator(const reco::SuperCluster* scl,
           SCLeadTimeSpan = timeDiff;
         }
         if (fabs(timeDiff) > fabs(SCSubLeadTimeSpan) && fabs(timeDiff) < fabs(SCLeadTimeSpan))
-	  SCSubLeadTimeSpan = timeDiff;
+          SCSubLeadTimeSpan = timeDiff;
       }
     }
   }

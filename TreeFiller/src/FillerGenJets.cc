@@ -1,5 +1,3 @@
-// $Id: FillerGenJets.cc,v 1.5 2009/09/25 08:42:50 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
@@ -61,7 +59,7 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
   if (flavorMatchingActive_) 
     GetProduct(flavorMatchingByReferenceToken_, hPartonMatchingProduct, event);
 
-  const reco::GenJetCollection inJets = *(hGenJetProduct.product());  
+  reco::GenJetCollection const& inJets = *hGenJetProduct;
   
   // loop through all jets
   for (reco::GenJetCollection::const_iterator inJet = inJets.begin(); 

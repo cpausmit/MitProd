@@ -85,9 +85,9 @@ namespace mithep
   typedef AssociationMap<const edm::Ptr<reco::BaseTau>,     mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>   PFCandidateMap;
   typedef AssociationMap<const edm::FwdPtr<reco::PFCandidate>,mithep::PFCandidate*>   PFCandViewMap;
-  typedef AssociationMap<const edm::Ptr<reco::CaloJet>,     mithep::CaloJet*>       CaloJetMap;
-  typedef AssociationMap<const edm::Ptr<reco::JPTJet>,      mithep::JPTJet*>        JPTJetMap;
-  typedef AssociationMap<const edm::Ptr<reco::PFJet>,       mithep::PFJet*>         PFJetMap;
-  typedef AssociationMap<const edm::Ptr<reco::TrackJet>,    mithep::TrackJet*>      TrackJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::CaloJet*>       CaloJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::JPTJet*>        JPTJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::PFJet*>         PFJetMap;
+  typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::TrackJet*>      TrackJetMap;
 }   
 #endif

@@ -91,17 +91,17 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
   //handle for the electron collection
   Handle<reco::GsfElectronCollection> hElectronProduct;
   GetProduct(edmElectronToken_, hElectronProduct, event);
-  const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
+  reco::GsfElectronCollection const& inElectrons = *hElectronProduct;
 
   //handle for the muon collection
   Handle<reco::MuonCollection> hMuonProduct;
   GetProduct(edmMuonToken_, hMuonProduct, event);
-  const reco::MuonCollection inMuons            = *(hMuonProduct.product());
+  reco::MuonCollection const& inMuons = *hMuonProduct;
 
   // handle for the tau collection
   Handle<reco::PFTauCollection> hTauProduct;
   GetProduct(edmTauToken_, hTauProduct, event);
-  const reco::PFTauCollection inTaus             = *(hTauProduct.product());
+  reco::PFTauCollection const& inTaus = *hTauProduct;
 
   //Declare some variables
   Double_t lDCA3D      = 0;     //3D x-y   DCA
@@ -142,7 +142,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       //Now the references
       edm::Ptr<reco::GsfElectron> pElectronPtr(hElectronProduct, iElectron - inElectrons.begin());
       try {
-	outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
+        outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
@@ -150,7 +150,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       }
       edm::Ptr<reco::Muon>        pMuonPtr(hMuonProduct, iMuon - inMuons.begin());
       try {
-	outDCASig->SetMuon     (muonMap_->GetMit(pMuonPtr));
+        outDCASig->SetMuon     (muonMap_->GetMit(pMuonPtr));
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
