@@ -44,7 +44,7 @@ namespace mithep {
     tws.AddBranch(mitName_,&taus_);
     os.add<mithep::PFTauArr>(taus_,mitName_);
 
-    for (auto bmapName : trackMapNames_) {
+    for (auto&& bmapName : trackMapNames_) {
       if (!bmapName.empty()) {
         const mithep::TrackMap *map = os.get<TrackMap>(bmapName);
         if (map) {
@@ -148,34 +148,28 @@ namespace mithep {
       // add pf candidate references
       if (pfCandMap_) {
         if (inTau.leadPFCand().isNonnull())
-          outTau->SetLeadPFCand(pfCandMap_->GetMit(inTau.leadPFCand()));
-        //outTau->SetLeadPFCand(pfCandMap_->GetMit(refToPtrHack(inTau.leadPFCand())));
+          outTau->SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
         
-        if (inTau.leadPFChargedHadrCand().isNonnull()) {
-          const mithep::PFCandidate *pfc = 
-            pfCandMap_->GetMit(inTau.leadPFChargedHadrCand());
-          //pfCandMap_->GetMit(refToPtrHack(inTau.leadPFChargedHadrCand()));
-          outTau->SetLeadChargedHadronPFCand(pfc);
-        }
+        if (inTau.leadPFChargedHadrCand().isNonnull())
+          outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFChargedHadrCand())));
         
         if (inTau.leadPFNeutralCand().isNonnull())
-          outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(inTau.leadPFNeutralCand()));
-        //outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(refToPtrHack(inTau.leadPFNeutralCand())));
+          outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFNeutralCand())));
         
         for (auto&& pfCandPtr : inTau.signalPFCands())
-          outTau->AddSignalPFCand(pfCandMap_->GetMit(pfCandPtr));
+          outTau->AddSignalPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
         for (auto&& pfCandPtr : inTau.signalPFChargedHadrCands())
-          outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(pfCandPtr));
+          outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
         for (auto&& pfCandPtr : inTau.signalPFNeutrHadrCands())
-          outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(pfCandPtr));
+          outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
         for (auto&& pfCandPtr : inTau.signalPFGammaCands())
-          outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(pfCandPtr));
+          outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
       
         for (auto&& pfCandPtr : inTau.isolationPFCands())
-          outTau->AddIsoPFCand(pfCandMap_->GetMit(pfCandPtr));
+          outTau->AddIsoPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
       }
 
       // add outTau equivalent to the map

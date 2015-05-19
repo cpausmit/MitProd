@@ -51,7 +51,7 @@ namespace mithep
       std::string     flavorMatchingDefinition_;        //type of flavor matching
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
       std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service
-      std::string     caloJetMapName_;                   //name of imported PFCandidateMap
+      std::string     caloJetMapName_;                   //name of imported CaloJetMap
       std::string     jetMapName_;                      //name of exported PFJetMap
       const mithep::CaloJetMap            *caloJetMap_;   //map wrt CaloJets
       mithep::JPTJetMap                   *jetMap_;      //export map

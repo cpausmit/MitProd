@@ -58,7 +58,7 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
     inInfos.push_back(hSinglePileupInfoProduct.product());
   }
 
-  for (auto edmPUInfo : inInfos) {
+  for (auto&& edmPUInfo : inInfos) {
     //printf("filling puinfo for bx %i with %i interactions\n",edmPUInfo->getBunchCrossing(), edmPUInfo->getPU_NumInteractions());
     //printf("vector sizes: %i, %i, %i, %i, %i\n",int(edmPUInfo->getPU_zpositions().size()),int(edmPUInfo->getPU_sumpT_lowpT().size()),int(edmPUInfo->getPU_sumpT_highpT().size()),int(edmPUInfo->getPU_ntrks_lowpT().size()),int(edmPUInfo->getPU_ntrks_highpT().size()));
     mithep::PileupInfo *puInfo = puInfos_->AddNew();

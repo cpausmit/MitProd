@@ -590,13 +590,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     conversionMapName             = cms.untracked.string('ConversionsMapName'),
     barrelSuperClusterMapName     = cms.untracked.string('superClusterMap'),
     endcapSuperClusterMapName     = cms.untracked.string('superClusterMap'),
-    pfElectronSuperClusterMapName = cms.untracked.string('PFSuperClusterMap'),        
     electronMapName               = cms.untracked.string('electronMap'),
     photonMapName                 = cms.untracked.string('PFPhotonMapName'),
     pfCandMapName                 = cms.untracked.string('PFCandMapName'),
     pfNoPileupCandMapName         = cms.untracked.string('PFNoPileupCandMapName'),
     fillerType                    = cms.untracked.string('FillerPFCandidates'),
-    allowMissingPhotonRef         = cms.untracked.bool  (False)
+    allowMissingTrackRef          = cms.untracked.bool(False),
+    allowMissingClusterRef        = cms.untracked.bool(False),
+    allowMissingPhotonRef         = cms.untracked.bool(False),
+    fillPfNoPileup                = cms.untracked.bool(True)
   ),
 
   AKT4GenJets = cms.untracked.PSet(

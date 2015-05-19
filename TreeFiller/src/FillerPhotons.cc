@@ -125,7 +125,7 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
     GetProduct(phIDCutBasedTightToken_, phidTightMap, event);
 
   unsigned iPhoton = 0;
-  for (auto inPhoton : inPhotons) {
+  for (auto&& inPhoton : inPhotons) {
     // get photon reference
     edm::Ref<PhotonView> phRef(hPhotonProduct, iPhoton);
     edm::Ptr<reco::Photon> phPtr(hPhotonProduct, iPhoton);
@@ -264,13 +264,13 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
 
     // make links to conversions
     if (conversionMap_) {
-      for (auto convRef : inPhoton.conversions())
+      for (auto&& convRef : inPhoton.conversions())
         outPhoton->AddConversionD(conversionMap_->GetMit(convRef));
     }
 
     // make links to conversions (single leg)
     if (oneLegConversionMap_) {
-      for (auto convRef : inPhoton.conversionsOneLeg())
+      for (auto&& convRef : inPhoton.conversionsOneLeg())
         outPhoton->AddConversionS(oneLegConversionMap_->GetMit(convRef));
     }
 
@@ -327,7 +327,7 @@ void mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
     return;
 
   // loop on the HE rechits 
-  for (auto hbheHit : hbheRecHitCol) {
+  for (auto&& hbheHit : hbheRecHitCol) {
     HcalDetId id(hbheHit.detid());
     
     // discard the rh if not in HBHE

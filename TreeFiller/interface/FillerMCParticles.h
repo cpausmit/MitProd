@@ -22,6 +22,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 namespace mithep 
 {
@@ -36,17 +37,28 @@ namespace mithep
       void                           ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
   
     private:
+      typedef AssociationMap<const reco::GenParticleRef, mithep::MCParticle*> GenParticleMap;
+      typedef AssociationMap<const pat::PackedGenParticleRef, mithep::MCParticle*> PackedGenParticleMap;
+
+      enum GenSource {
+        kGenParticles,
+        kPackedGenParticles,
+        kHepMCProduct,
+        nGenSources
+      };
+
       bool                           genActive_;       //=true if generated particles are filled
-      bool                           useAodGen_;       //=true if AOD GenParticles to be used
       bool                           simActive_;       //=true if simulated particles are filled
       bool                           trackingActive_;  //=true if TrackingParticles are mapped
-      bool                           fillTracking_;    //=treu if detailed sim hit info is filled
-      edm::EDGetTokenT<edm::HepMCProduct> hepMCProdToken_; //edm name of generated particles
-      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //edm name of generated particles
-      edm::EDGetTokenT<std::vector<int> > genBarcodesToken_; //edm name of generated particles
+      bool                           fillTracking_;    //=true if detailed sim hit info is filled
+      unsigned                       genSource_;       //=switch for gen particles source
+      edm::EDGetTokenT<edm::HepMCProduct> hepMCProdToken_; //edm token of generated particles
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //edm token of generated particles
+      edm::EDGetTokenT<std::vector<int> > genBarcodesToken_; //edm token of generated particles
       edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
       edm::EDGetTokenT<std::vector<SimVertex> > simVerticesToken_;
-      edm::EDGetTokenT<TrackingParticleCollection> trackingEdmToken_; //edm name of simulated TrackingParticles
+      edm::EDGetTokenT<TrackingParticleCollection> trackingEdmToken_; //edm token of simulated TrackingParticles
+      edm::EDGetTokenT<pat::PackedGenParticleCollection> packedGenParticlesToken_;
       std::string                    genMapName_;      //name of exp map wrt generated particles
       std::string                    simMapName_;      //name of exp map wrt simulated particles
       std::string                    trackingMapName_; //name of exp map wrt TrackingParticles
@@ -55,7 +67,8 @@ namespace mithep
       mithep::MCParticleArr         *mcParticles_;     //array of MCParticles
       mithep::TrackingParticleArr   *trackingParticles_; //array of TrackingParticles
       mithep::GenParticleBarcodeMap *genMap_;          //map wrt generated particles
-      mithep::AODGenParticleMap     *aodGenMap_;       //map wrt generated particles
+      GenParticleMap                *aodGenMap_;       //map wrt generated particles
+      PackedGenParticleMap          *packedGenMap_;    //map wrt generated particles
       mithep::SimTrackTidMap        *simMap_;          //map of SimTracks to G4 track ids
       mithep::TrackingParticleMap   *trackingMap_;     //map wrt TrackingParticles
       mithep::HitPatternReader       hitReader_;       //hit pattern reader

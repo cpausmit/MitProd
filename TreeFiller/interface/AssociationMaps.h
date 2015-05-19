@@ -9,6 +9,7 @@
 #ifndef MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
 #define MITPROD_TREEFILLER_ASSOCIATIONMAPS_H
 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -16,27 +17,24 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
+#include "MitAna/DataTree/interface/DataObjectFwd.h"
 #include "MitAna/DataTree/interface/TrackFwd.h"
 #include "MitAna/DataTree/interface/BasicClusterFwd.h"
 #include "MitAna/DataTree/interface/PsClusterFwd.h"
@@ -65,9 +63,7 @@ namespace mithep
   typedef AssociationMap<const reco::CaloClusterPtr,        mithep::BasicCluster*>  BasicClusterMap;
   typedef AssociationMap<const reco::CaloClusterPtr,        mithep::PsCluster*>     PsClusterMap;
   typedef AssociationMap<const reco::SuperClusterRef,       mithep::SuperCluster*>  SuperClusterMap;
-  typedef AssociationMap<const edm::Ptr<reco::GenParticle>, mithep::MCParticle*>    AODGenParticleMap;
   typedef AssociationMap<const int,                         mithep::MCParticle*>    GenParticleBarcodeMap;
-  typedef AssociationMap<const SimTrackRef,                 mithep::MCParticle*>    SimTrackMap;
   typedef AssociationMap<const unsigned int,                mithep::MCParticle*>    SimTrackTidMap;
   typedef AssociationMap<const TrackingParticleRef,         mithep::MCParticle*>    TrackingParticleMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Electron*>      ConversionElectronMap;
@@ -83,11 +79,11 @@ namespace mithep
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Electron*>      ElectronMap;
   typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::BaseTau>,     mithep::PFTau*>         PFTauMap;
-  typedef AssociationMap<const reco::PFCandidatePtr,        mithep::PFCandidate*>   PFCandidateMap;
-  typedef AssociationMap<const edm::FwdPtr<reco::PFCandidate>,mithep::PFCandidate*>   PFCandViewMap;
+  typedef AssociationMap<const reco::CandidatePtr,          mithep::PFCandidate*>   PFCandidateMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::CaloJet*>       CaloJetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::JPTJet*>        JPTJetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::PFJet*>         PFJetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::TrackJet*>      TrackJetMap;
-}   
+  typedef AssociationMap<const reco::CandidatePtr,          mithep::DataObject*>    CandidateMap;
+}
 #endif

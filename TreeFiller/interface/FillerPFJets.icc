@@ -250,12 +250,8 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
 
     // add PFCandidate refs
     if (pfCandMap_) {
-      for (uint i=0; i<inJet.numberOfDaughters(); ++i) {
-        const reco::CandidatePtr candPtr = inJet.daughterPtr(i);
-        const reco::PFCandidatePtr pfPtr(candPtr);
-        const mithep::PFCandidate *constituent = pfCandMap_->GetMit(pfPtr);
-        jet->AddPFCand(constituent);
-      }
+      for (unsigned iD = 0; iD < inJet.numberOfDaughters(); ++iD)
+        jet->AddPFCand(pfCandMap_->GetMit(inJet.daughterPtr(iD)));
     }
     
     // add jet vertex information
