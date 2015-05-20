@@ -4,30 +4,35 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
+#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
-//---------------------------------------------------------------------------------------------------
-mithep::FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
-  BaseFiller                (cfg,os,name,active),
-  edmToken_(GetToken<PhotonView>(collector, "edmName","photons")),
-  HBHERecHitsEdmToken_(GetToken<HBHERecHitCollection>(collector, "HBHERecHitsEdmName", "reducedHcalRecHits:hbhereco")),
-  phIDCutBasedTightToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
-  phIDCutBasedLooseToken_(GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
-  mitName_                  (Conf().getUntrackedParameter<std::string>("mitName",Names::gkPhotonBrn)),
-  conversionMapName_        (Conf().getUntrackedParameter<std::string>("conversionMapName","")),
-  oneLegConversionMapName_  (Conf().getUntrackedParameter<std::string>("oneLegConversionMapName","")),
-  barrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("barrelSuperClusterMapName","")),
-  endcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("endcapSuperClusterMapName","")),
-  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterMap",true)),
-  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalBarrelSuperClusterMapName","")),
-  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalEndcapSuperClusterMapName","")),
-  photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName","")),  
+mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
+  BaseFiller(cfg, os, name, active),
+  edmToken_                 (GetToken<PhotonView>(collector, "edmName", "photons")),
+  HBHERecHitsEdmToken_      (GetToken<HBHERecHitCollection>(collector, "HBHERecHitsEdmName", "reducedHcalRecHits:hbhereco")),
+  phIDCutBasedTightToken_   (GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseToken_   (GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
+  phIDCutBasedTightName_    (Conf().getUntrackedParameter<std::string>("phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
+  phIDCutBasedLooseName_    (Conf().getUntrackedParameter<std::string>("phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
+  mitName_                  (Conf().getUntrackedParameter<std::string>("mitName", Names::gkPhotonBrn)),
+  conversionMapName_        (Conf().getUntrackedParameter<std::string>("conversionMapName", "")),
+  oneLegConversionMapName_  (Conf().getUntrackedParameter<std::string>("oneLegConversionMapName", "")),
+  barrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
+  endcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
+  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterMap", true)),
+  fillFromPAT_              (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
+  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalBarrelSuperClusterMapName", "")),
+  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalEndcapSuperClusterMapName", "")),
+  photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
+  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
   photonMap_                (new mithep::PhotonMap),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
@@ -40,61 +45,61 @@ mithep::FillerPhotons::FillerPhotons(const edm::ParameterSet &cfg, edm::Consumes
   // Constructor.
 }
 
-//--------------------------------------------------------------------------------------------------
 mithep::FillerPhotons::~FillerPhotons()
 {
   // Destructor.
 
   delete photons_;
+  delete photonMap_;
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerPhotons::BookDataBlock(TreeWriter &tws)
+void
+mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
 {
   // Add photon branch to tree and get the map.
 
-  tws.AddBranch(mitName_,&photons_);
-  OS()->add<mithep::PhotonArr>(photons_,mitName_);
+  tws.AddBranch(mitName_, &photons_);
+  OS()->add(photons_, mitName_);
 
   if (!conversionMapName_.empty()) {
     conversionMap_ = OS()->get<ConversionDecayMap>(conversionMapName_);
     if (conversionMap_)
-      AddBranchDep(mitName_,conversionMap_->GetBrName());
+      AddBranchDep(mitName_, conversionMap_->GetBrName());
   }
   if (!oneLegConversionMapName_.empty()) {
     oneLegConversionMap_ = OS()->get<ConversionDecayMap>(oneLegConversionMapName_);
     if (oneLegConversionMap_)
-      AddBranchDep(mitName_,oneLegConversionMap_->GetBrName());
+      AddBranchDep(mitName_, oneLegConversionMap_->GetBrName());
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
     if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
     if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
   }
   if (!pfEcalBarrelSuperClusterMapName_.empty()) {
     pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
     if (pfEcalBarrelSuperClusterMap_)
-      AddBranchDep(mitName_,pfEcalBarrelSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
   }
   if (!pfEcalEndcapSuperClusterMapName_.empty()) {
     pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
     if (pfEcalEndcapSuperClusterMap_)
-      AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
   if (!photonMapName_.empty()) {
     photonMap_->SetBrName(mitName_);
-    OS()->add<PhotonMap>(photonMap_,photonMapName_);
+    OS()->add<PhotonMap>(photonMap_, photonMapName_);
   }  
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event, 
-                                  const edm::EventSetup &setup)
+void
+mithep::FillerPhotons::FillDataBlock(edm::Event const& event, 
+                                     edm::EventSetup const& setup)
 {
   // Fill photon array.
   
@@ -104,25 +109,35 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
   // get photon collection
   edm::Handle<PhotonView> hPhotonProduct;
   GetProduct(edmToken_, hPhotonProduct, event);
-  PhotonView const& inPhotons = *hPhotonProduct;
+  auto& inPhotons = *hPhotonProduct;
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
+  auto& caloGeom = *pGeometry;
 
   // handles to the the pho-HErecHit matching 
-  edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
-  GetProduct(HBHERecHitsEdmToken_, hcalRecHitHandle, event);
-  HBHERecHitCollection const& hbheRecHitCol =  *hcalRecHitHandle;
-  CaloGeometry const& caloGeom = *pGeometry;
+  HBHERecHitCollection const* hbheRecHitCol = 0;
+  if (!HBHERecHitsEdmToken_.isUninitialized()) {
+    edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
+    GetProduct(HBHERecHitsEdmToken_, hcalRecHitHandle, event);
+    hbheRecHitCol =  hcalRecHitHandle.product();
+  }
    
   // handles to get the photon ID information
-  edm::Handle<edm::ValueMap<bool> > phidLooseMap;
-  if (!phIDCutBasedLooseToken_.isUninitialized())
-    GetProduct(phIDCutBasedLooseToken_, phidLooseMap, event);
-
-  edm::Handle<edm::ValueMap<bool> > phidTightMap;
-  if (!phIDCutBasedTightToken_.isUninitialized())  
-    GetProduct(phIDCutBasedTightToken_, phidTightMap, event);
+  edm::ValueMap<bool> const* phidLooseMap = 0;
+  edm::ValueMap<bool> const* phidTightMap = 0;
+  if (!fillFromPAT_) {
+    edm::Handle<edm::ValueMap<bool> > hPhidLooseMap;
+    if (!phIDCutBasedLooseToken_.isUninitialized()) {
+      GetProduct(phIDCutBasedLooseToken_, hPhidLooseMap, event);
+      phidLooseMap = hPhidLooseMap.product();
+    }
+    edm::Handle<edm::ValueMap<bool> > hPhidTightMap;
+    if (!phIDCutBasedTightToken_.isUninitialized()) {
+      GetProduct(phIDCutBasedTightToken_, hPhidTightMap, event);
+      phidTightMap = hPhidTightMap.product();
+    }
+  }
 
   unsigned iPhoton = 0;
   for (auto&& inPhoton : inPhotons) {
@@ -192,10 +207,22 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetIsEBEEGap(inPhoton.isEBEEGap());
     //deprecated, identical to supercluster preselection in 3_1_X, so set to true
     outPhoton->SetIsLooseEM(true); //deprecated
-    if (!phIDCutBasedLooseToken_.isUninitialized())
-      outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
-    if (!phIDCutBasedTightToken_.isUninitialized())
-      outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);   
+
+    if (fillFromPAT_) {
+      auto patPhoton = dynamic_cast<pat::Photon const*>(&inPhoton);
+      if (!patPhoton)
+        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+          << "Error! fillFromPAT set on non-PAT input";
+      
+      outPhoton->SetIsLoosePhoton(patPhoton->photonID(phIDCutBasedLooseName_));
+      outPhoton->SetIsTightPhoton(patPhoton->photonID(phIDCutBasedTightName_));
+    }
+    else {
+      if (phidLooseMap)
+        outPhoton->SetIsLoosePhoton((*phidLooseMap)[phRef]);
+      if (phidTightMap)
+        outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);
+    }
 
     // calo position
     outPhoton->SetCaloPosXYZ(inPhoton.caloPosition().x(),inPhoton.caloPosition().y(),inPhoton.caloPosition().z());
@@ -208,59 +235,61 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
     outPhoton->SetMipNhitCone(inPhoton.mipNhitCone());                     
     outPhoton->SetMipIsHalo(inPhoton.mipIsHalo());                      
 
-    // make the pho-HErecHit matching 
-    ThreeVector matchRhPos(0,0,0);
-    double deltaPhiMin = 0.2;
-    double rhoMin = 110.;
-    double rhoMax = 140.;
-    double rhEnMin = 1.;
-    double matchedRhEnergy = -1.;
-    double matchedRhTime = -1000.;
-    // first do the std 2012 matching (wide DR window) - Plus side
-    HERecHitMatcher(inPhoton, +1,
-                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
-                    matchRhPos, matchedRhEnergy, matchedRhTime,
-                    hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHePlusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());                      
-    outPhoton->SetMatchHePlusEn(matchedRhEnergy);                      
-    outPhoton->SetMatchHePlusTime(matchedRhTime);                      
-    // then do the std 2012 matching (wide DR window) - Minus side
-    matchRhPos.SetXYZ(0,0,0);
-    matchedRhEnergy = -1.;
-    matchedRhTime = -1000.;
-    HERecHitMatcher(inPhoton, -1,
-                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
-                    matchRhPos, matchedRhEnergy, matchedRhTime,
-                    hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHeMinusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
-    outPhoton->SetMatchHeMinusEn(matchedRhEnergy);                      
-    outPhoton->SetMatchHeMinusTime(matchedRhTime);                      
-    //thirdly do the std 2011 matching (narrow DR window) - Plus side
-    matchRhPos.SetXYZ(0,0,0);
-    deltaPhiMin = 0.2;
-    rhoMin = 115.;
-    rhoMax = 130.;
-    rhEnMin = 1.;
-    matchedRhEnergy = -1.;
-    matchedRhTime = -1000.;
-    HERecHitMatcher(inPhoton, +1,
-                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
-                    matchRhPos, matchedRhEnergy, matchedRhTime,
-                    hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
-    outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);                      
-    outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);                      
-    // finally do the std 2011 matching (narrow DR window) - Minus side
-    matchRhPos.SetXYZ(0,0,0);
-    matchedRhEnergy = -1.;
-    matchedRhTime = -1000.;
-    HERecHitMatcher(inPhoton, -1,
-                    deltaPhiMin, rhoMin, rhoMax, rhEnMin,
-                    matchRhPos, matchedRhEnergy, matchedRhTime,
-                    hbheRecHitCol, caloGeom);
-    outPhoton->SetMatchHeMinusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
-    outPhoton->SetMatchHeMinusEnDR15(matchedRhEnergy);                      
-    outPhoton->SetMatchHeMinusTimeDR15(matchedRhTime);                      
+    if (hbheRecHitCol) {
+      // make the pho-HErecHit matching
+      ThreeVector matchRhPos(0,0,0);
+      double deltaPhiMin = 0.2;
+      double rhoMin = 110.;
+      double rhoMax = 140.;
+      double rhEnMin = 1.;
+      double matchedRhEnergy = -1.;
+      double matchedRhTime = -1000.;
+      // first do the std 2012 matching (wide DR window) - Plus side
+      HERecHitMatcher(inPhoton, +1,
+                      deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                      matchRhPos, matchedRhEnergy, matchedRhTime,
+                      *hbheRecHitCol, caloGeom);
+      outPhoton->SetMatchHePlusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
+      outPhoton->SetMatchHePlusEn(matchedRhEnergy);
+      outPhoton->SetMatchHePlusTime(matchedRhTime);
+      // then do the std 2012 matching (wide DR window) - Minus side
+      matchRhPos.SetXYZ(0,0,0);
+      matchedRhEnergy = -1.;
+      matchedRhTime = -1000.;
+      HERecHitMatcher(inPhoton, -1,
+                      deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                      matchRhPos, matchedRhEnergy, matchedRhTime,
+                      *hbheRecHitCol, caloGeom);
+      outPhoton->SetMatchHeMinusPos(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
+      outPhoton->SetMatchHeMinusEn(matchedRhEnergy);
+      outPhoton->SetMatchHeMinusTime(matchedRhTime);
+      //thirdly do the std 2011 matching (narrow DR window) - Plus side
+      matchRhPos.SetXYZ(0,0,0);
+      deltaPhiMin = 0.2;
+      rhoMin = 115.;
+      rhoMax = 130.;
+      rhEnMin = 1.;
+      matchedRhEnergy = -1.;
+      matchedRhTime = -1000.;
+      HERecHitMatcher(inPhoton, +1,
+                      deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                      matchRhPos, matchedRhEnergy, matchedRhTime,
+                      *hbheRecHitCol, caloGeom);
+      outPhoton->SetMatchHePlusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
+      outPhoton->SetMatchHePlusEnDR15(matchedRhEnergy);
+      outPhoton->SetMatchHePlusTimeDR15(matchedRhTime);
+      // finally do the std 2011 matching (narrow DR window) - Minus side
+      matchRhPos.SetXYZ(0,0,0);
+      matchedRhEnergy = -1.;
+      matchedRhTime = -1000.;
+      HERecHitMatcher(inPhoton, -1,
+                      deltaPhiMin, rhoMin, rhoMax, rhEnMin,
+                      matchRhPos, matchedRhEnergy, matchedRhTime,
+                      *hbheRecHitCol, caloGeom);
+      outPhoton->SetMatchHeMinusPosDR15(matchRhPos.X(),matchRhPos.Y(),matchRhPos.Z());
+      outPhoton->SetMatchHeMinusEnDR15(matchedRhEnergy);
+      outPhoton->SetMatchHeMinusTimeDR15(matchedRhTime);
+    }
 
     // make links to conversions
     if (conversionMap_) {
@@ -304,13 +333,41 @@ void mithep::FillerPhotons::FillDataBlock(const edm::Event      &event,
   photons_->Trim();
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
-                                            double deltaPhiMin, double rhoMin, double rhoMax,
-                                            double rhEnMin, ThreeVector& matchRhPos,
-                                            double& matchedRhEnergy, double& matchedRhTime,
-                                            HBHERecHitCollection const& hbheRecHitCol,
-                                            CaloGeometry const& caloGeom)
+void
+mithep::FillerPhotons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+{
+  if (!fillFromPAT_ || pfCandMapName_.empty())
+    return;
+
+  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
+  if (!pfCandMap)
+    throw edm::Exception(edm::errors::Configuration, "FillerPhotons:ResolveLinks()\n")
+      << "Error! fillFromPAT set but PF Candidate map not found";
+
+  for (unsigned iP = 0; iP != photons_->GetEntries(); ++iP) {
+    auto pho = photons_->At(iP);
+
+    auto pPtr = photonMap_->GetEdm(pho);
+    auto patPhoton = dynamic_cast<pat::Photon const*>(pPtr.get());
+    if (!patPhoton)
+      throw edm::Exception(edm::errors::Configuration, "FillerPhotons:ResolveLinks()\n")
+        << "Error! fillFromPAT set on non-PAT input";
+
+    unsigned nS = patPhoton->numberOfSourceCandidatePtrs();    
+    for (unsigned iS = 0; iS != nS; ++iS) {
+      auto pfCand = pfCandMap->GetMit(patPhoton->sourceCandidatePtr(iS));
+      pfCand->SetPhoton(pho);
+    }
+  }
+}
+
+void
+mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
+                                       double deltaPhiMin, double rhoMin, double rhoMax,
+                                       double rhEnMin, ThreeVector& matchRhPos,
+                                       double& matchedRhEnergy, double& matchedRhTime,
+                                       HBHERecHitCollection const& hbheRecHitCol,
+                                       CaloGeometry const& caloGeom)
 {
   // This function provides information on the HBHE recHits aligned to the photon ECAL cluster.  A
   // phi window around the photon is scanned, within the rho strip covering the ECAL EB, and the
@@ -335,8 +392,8 @@ void mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
       continue;
 
     // get global 3d point for rechit
-    const CaloCellGeometry *hbhe_cell = caloGeom.getGeometry(hbheHit.id());
-    Global3DPoint hbhe_position = hbhe_cell->getPosition();
+    auto hbhe_cell = caloGeom.getGeometry(hbheHit.id());
+    auto hbhe_position = hbhe_cell->getPosition();
 
     // discard the rh if not in right side
     if (hbhe_position.z() * zSide < 0) 
@@ -366,6 +423,4 @@ void mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
       matchRhPos.SetXYZ(hbhe_position.x(),hbhe_position.y(),hbhe_position.z());
     } 
   }
-  
-  return;
 }

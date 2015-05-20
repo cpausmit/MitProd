@@ -27,16 +27,9 @@ namespace mithep
     private:
       edm::EDGetTokenT<pat::PackedCandidateCollection> edmToken_; //edm name of PFCandidates coll
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
-      std::string                    electronMapName_;          //name: impo. map wrt electrons
-      std::string                    muonMapName_;              //name: impo. map wrt muons
-      std::string                    photonMapName_;            //name: impo. map wrt photons
       std::string                    pfCandMapName_;            //name: expo. pf candidate map
       std::string                    pfNoPileupCandMapName_;    //name: expo. PFnoPU candidate map
       bool                           fillPfNoPileup_;
-
-      const mithep::CandidateMap     *electronMap_;              //map wrt electrons
-      const mithep::CandidateMap     *muonMap_;                  //map wrt muons
-      const mithep::CandidateMap     *photonMap_;                //map wrt photons
 
       mithep::PFCandidateMap     *pfCandMap_;                //exported map
       mithep::PFCandidateMap     *pfNoPileupCandMap_;        //exported map for pf no pileup

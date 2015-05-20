@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
@@ -11,7 +12,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "MitAna/DataTree/interface/ElectronCol.h"
+#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
@@ -21,35 +24,37 @@
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//--------------------------------------------------------------------------------------------------
-mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
-  BaseFiller                (cfg,os,name,active),
+mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active/* = true*/) :
+  BaseFiller(cfg,os,name,active),
   edmToken_                 (GetToken<GsfElectronView>(collector, "edmName",
-                                                                     "pixelMatchGsfElectrons")),
+                                                       "pixelMatchGsfElectrons")),
   pvEdmToken_               (GetToken<reco::VertexCollection>(collector, "pvEdmName",
                                                               "offlinePrimaryVertices")),
   pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
                                                               "offlinePrimaryVerticesWithBS")),  
-  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedTightName","eidTight")),
-  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedLooseName","eidLoose")),
-  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName","")),
+  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedTightName", "eidTight")),
+  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, "eIDCutBasedLooseName", "eidLoose")),
+  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName", "")),
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
   conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
-  beamSpotToken_            (GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
-  mitName_                  (Conf().getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
-  gsfTrackMapName_          (Conf().getUntrackedParameter<string>("gsfTrackMapName","")),
-  trackerTrackMapName_      (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
-  barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName","")),
-  endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName","")),
-  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap",true)),
-  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName","")),
-  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName","")),
-  electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName","")),
-  recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo",false)),  
-  fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
+  eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
+  eIDCutBasedLooseName_     (Conf().getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
+  mitName_                  (Conf().getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
+  electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName", "")),
+  gsfTrackMapName_          (Conf().getUntrackedParameter<string>("gsfTrackMapName", "")),
+  trackerTrackMapName_      (Conf().getUntrackedParameter<string>("trackerTrackMapName", "")),
+  barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName", "")),
+  endcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("endcapSuperClusterMapName", "")),
+  checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap", true)),
+  pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName", "")),
+  pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName", "")),
+  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
+  recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo", false)),  
+  fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
+  fillFromPAT_              (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
   electronMap_              (new mithep::ElectronMap),
   electrons_                (new mithep::ElectronArr(16)),
   gsfTrackMap_              (0),
@@ -59,25 +64,27 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   pfEcalBarrelSuperClusterMap_(0),
   pfEcalEndcapSuperClusterMap_(0)
 {
-  // Constructor.
 }
 
-//--------------------------------------------------------------------------------------------------
 mithep::FillerElectrons::~FillerElectrons()
 {
-  // Destructor.
-
   delete electrons_;
   delete electronMap_;
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
+void
+mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 
   tws.AddBranch(mitName_,&electrons_);
-  OS()->add<mithep::ElectronArr>(electrons_,mitName_);
+  OS()->add(electrons_,mitName_);
+
+  if (!electronMapName_.empty()) {
+    electronMap_->SetBrName(mitName_);
+    OS()->add(electronMap_, electronMapName_);
+  }
+
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
     if (gsfTrackMap_)
@@ -108,14 +115,10 @@ void mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (pfEcalEndcapSuperClusterMap_)
       AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
   }
-  if (!electronMapName_.empty()) {
-    electronMap_->SetBrName(mitName_);
-    OS()->add<ElectronMap>(electronMap_,electronMapName_);
-  }
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)	 
+void
+mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::EventSetup &setup)	 
 {
   // Fill electrons from edm collection into our collection.
 
@@ -124,45 +127,107 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
 
   edm::Handle<GsfElectronView> hElectronProduct;
   GetProduct(edmToken_, hElectronProduct, event);
+
+  auto& inElectrons = *hElectronProduct;
   
   // handles to get the electron ID information
   edm::Handle<edm::ValueMap<float> > eidLooseMap;
-  GetProduct(eIDCutBasedLooseToken_, eidLooseMap, event);
   edm::Handle<edm::ValueMap<float> > eidTightMap;
-  GetProduct(eIDCutBasedTightToken_, eidTightMap, event);
+  if (!fillFromPAT_) {
+    GetProduct(eIDCutBasedLooseToken_, eidLooseMap, event);
+    GetProduct(eIDCutBasedTightToken_, eidTightMap, event);
+  }
+
   edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
   if (!eIDLikelihoodToken_.isUninitialized()) {
     GetProduct(eIDLikelihoodToken_, eidLikelihoodMap, event);  
   }
   
   edm::Handle<reco::VertexCollection> hVertex;
-  GetProduct(pvEdmToken_, hVertex, event);
-  const reco::VertexCollection *pvCol = hVertex.product();
+  if (!pvEdmToken_.isUninitialized())
+    GetProduct(pvEdmToken_, hVertex, event);
+
   edm::Handle<reco::VertexCollection> hVertexBS;
-  GetProduct(pvBSEdmToken_, hVertexBS, event);
-  const reco::VertexCollection *pvBSCol = hVertexBS.product();
+  if (!pvBSEdmToken_.isUninitialized())
+    GetProduct(pvBSEdmToken_, hVertexBS, event);
+
+  edm::Handle<reco::BeamSpot> pvbeamspot;
+  if (fitUnbiasedVertex_ && !pvBeamSpotToken_.isUninitialized())
+    GetProduct(pvBeamSpotToken_, pvbeamspot, event);
+
+  edm::Handle<reco::BeamSpot> pvbsbeamspot;
+  if (fitUnbiasedVertex_ && !pvbsBeamSpotToken_.isUninitialized())
+    GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
+
   edm::Handle<reco::TrackCollection> hGeneralTracks;
-  GetProductSafe(generalTracksToken_, hGeneralTracks, event);
-  //const reco::VertexCollection *trackCol = hGeneralTracks.product();
-  
   edm::Handle<reco::GsfTrackCollection> hGsfTracks;
-  GetProductSafe(gsfTracksToken_, hGsfTracks, event);
+  if (recomputeConversionInfo_) {
+    GetProduct(generalTracksToken_, hGeneralTracks, event);
+    GetProduct(gsfTracksToken_, hGsfTracks, event);
+  }
 
   edm::Handle<mitedm::DecayPartCol> hConversions;
-  GetProductSafe(conversionsToken_, hConversions, event);
+  GetProduct(conversionsToken_, hConversions, event);
   
   mitedm::ConversionMatcher convMatcher;
      
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
-  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+  auto transientTrackBuilder = hTransientTrackBuilder.product();
   
   //Get Magnetic Field from event setup, taking value at (0,0,0)
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  double bfield = 0.;
+  if (recomputeConversionInfo_) {
+    edm::ESHandle<MagneticField> magneticField;
+    setup.get<IdealMagneticFieldRecord>().get(magneticField);
+    bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  }
 
-  GsfElectronView const& inElectrons = *hElectronProduct;
+  VertexReProducer* vtxReProducers[] = {0, 0};
+  if (fitUnbiasedVertex_) {
+    if (hVertex.isValid())
+      vtxReProducers[0] = new VertexReProducer(hVertex, event);
+    if (hVertexBS.isValid())
+      vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+  }
+
+  typedef std::function<void(mithep::Electron&, double)> Setter;
+
+  edm::Handle<reco::VertexCollection>* pvcHandles[] = {&hVertex, &hVertexBS};
+  edm::Handle<reco::BeamSpot>* bsHandles[] = {&pvbeamspot, &pvbsbeamspot};
+  Setter d0pvSetters[] = {
+    &mithep::Electron::SetD0PV, &mithep::Electron::SetD0PVBS,
+    &mithep::Electron::SetD0PVUB, &mithep::Electron::SetD0PVUBBS
+  };
+  Setter d0pverrSetters[] = {
+    &mithep::Electron::SetD0PVErr, &mithep::Electron::SetD0PVBSErr,
+    &mithep::Electron::SetD0PVUBErr, &mithep::Electron::SetD0PVUBBSErr
+  };
+  Setter ip3dpvSetters[] = {
+    &mithep::Electron::SetIp3dPV, &mithep::Electron::SetIp3dPVBS,
+    &mithep::Electron::SetIp3dPVUB, &mithep::Electron::SetIp3dPVUBBS
+  };
+  Setter ip3dpverrSetters[] = {
+    &mithep::Electron::SetIp3dPVErr, &mithep::Electron::SetIp3dPVBSErr,
+    &mithep::Electron::SetIp3dPVUBErr, &mithep::Electron::SetIp3dPVUBBSErr
+  };
+  Setter d0pvckfSetters[] = {
+    &mithep::Electron::SetD0PVCkf, &mithep::Electron::SetD0PVBSCkf,
+    &mithep::Electron::SetD0PVUBCkf, &mithep::Electron::SetD0PVUBBSCkf
+  };
+  Setter d0pvckferrSetters[] = {
+    &mithep::Electron::SetD0PVCkfErr, &mithep::Electron::SetD0PVBSCkfErr,
+    &mithep::Electron::SetD0PVUBCkfErr, &mithep::Electron::SetD0PVUBBSCkfErr
+  };
+  Setter ip3dpvckfSetters[] = {
+    &mithep::Electron::SetIp3dPVCkf, &mithep::Electron::SetIp3dPVBSCkf,
+    &mithep::Electron::SetIp3dPVUBCkf, &mithep::Electron::SetIp3dPVUBBSCkf
+  };
+  Setter ip3dpvckferrSetters[] = {
+    &mithep::Electron::SetIp3dPVCkfErr, &mithep::Electron::SetIp3dPVBSCkfErr,
+    &mithep::Electron::SetIp3dPVUBCkfErr, &mithep::Electron::SetIp3dPVUBBSCkfErr
+  };
+
   // loop over electrons
   unsigned iElectron = 0;
   for (auto&& inElectron : inElectrons) {
@@ -171,7 +236,7 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     edm::Ptr<reco::GsfElectron> ePtr(hElectronProduct, iElectron);
     ++iElectron;
 
-    mithep::Electron *outElectron = electrons_->AddNew();
+    auto *outElectron = electrons_->AddNew();
     
     outElectron->SetPtEtaPhi(inElectron.pt(),inElectron.eta(),inElectron.phi());
          
@@ -241,8 +306,8 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     // gsf-tracker match quality
     outElectron->SetFracSharedHits(inElectron.shFracInnerHits());
 
-    reco::GsfTrackRef gsfTrackRef = inElectron.gsfTrack();
-    reco::TrackRef ctfTrackRef = inElectron.closestCtfTrackRef();
+    auto gsfTrackRef = inElectron.gsfTrack();
+    auto ctfTrackRef = inElectron.closestCtfTrackRef();
 
     // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_ && gsfTrackRef.isNonnull()) {
@@ -261,7 +326,7 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
 
     // make links to ambigous gsf tracks
     if (gsfTrackMap_) {
-      for (reco::GsfTrackRefVector::const_iterator agsfi = inElectron.ambiguousGsfTracksBegin();
+      for (auto agsfi = inElectron.ambiguousGsfTracksBegin();
 	   agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
         mithep::Track const* trk = 0;
         try {
@@ -295,7 +360,7 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     }
 
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_) {
-      reco::SuperClusterRef ref = inElectron.superCluster();
+      auto ref = inElectron.superCluster();
       if(ref.isNonnull()) {
         mithep::SuperCluster const* sc = 0;
         try {
@@ -314,7 +379,7 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     }
 
     if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_) {
-      reco::SuperClusterRef ref = inElectron.parentSuperCluster();
+      auto ref = inElectron.parentSuperCluster();
       if(ref.isNonnull()) {
         mithep::SuperCluster const* sc = 0;
         try {
@@ -340,270 +405,116 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
 
     //compute impact parameter with respect to PV
     if (gsfTrackRef.isNonnull()) {
-      const reco::TransientTrack &tt = transientTrackBuilder->build(gsfTrackRef); 
+      auto tt = transientTrackBuilder->build(gsfTrackRef);
+      auto& gsfTrack = *gsfTrackRef.get();
 
-      reco::TransientTrack ttckf;
+      if (verbose_ > 1) {
+        printf("gsf track      pt = %5f\n", gsfTrack.pt());
+        printf("gsf track mode pt = %5f\n", gsfTrack.ptMode());
+        printf("ttrack         pt = %5f\n", tt.initialFreeState().momentum().perp());
+      }
 
-      reco::Vertex const& thevtx = pvCol->at(0);
-      reco::Vertex const& thevtxbs = pvBSCol->at(0);
+      reco::TransientTrack ttckf = ctfTrackRef.isNonnull() ? transientTrackBuilder->build(ctfTrackRef) : reco::TransientTrack();
 
-      reco::Vertex thevtxub = pvCol->at(0);
-      reco::Vertex thevtxubbs = pvBSCol->at(0);
-     
-      // check if closest ctf track is included in PV and if so, remove it before computing impact
-      // parameters and uncertainties
-      if (ctfTrackRef.isNonnull()) {
-        ttckf = transientTrackBuilder->build(ctfTrackRef);
-	
-        // check if closest ctf track is included in PV and if so, remove it from the collection of
-        // tracks associated with the PV and perform a refit before computing impact parameters and
-        // uncertainties
-        reco::TrackCollection newTkCollection;
-        bool foundMatch = false;
-        for(reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end();
-	    ++itk) {
-          bool refMatching = (itk->get() == ctfTrackRef.get());
-          float shFraction = inElectron.closestCtfTrack().shFracInnerHits;
-          if (refMatching && shFraction > 0.5) {
-            foundMatch = true; 
-            continue;
-          }       
-          newTkCollection.push_back(*itk->get());
+      for (unsigned iPVType : {0, 1}) {
+        if (!pvcHandles[iPVType]->isValid())
+          continue;
+
+        auto& pvcHandle = *pvcHandles[iPVType];
+        auto& bs = **bsHandles[iPVType];
+
+        reco::Vertex const& pv = pvcHandle->at(0);
+        reco::Vertex pvub = pvcHandle->at(0);
+
+        if (fitUnbiasedVertex_ && ctfTrackRef.isNonnull() && inElectron.shFracInnerHits() > 0.5) {
+          reco::TrackCollection newTkCollection;
+          bool foundMatch = false;
+          for (auto itk = pv.tracks_begin(); itk != pv.tracks_end(); ++itk) {
+            if (itk->get() == ctfTrackRef.get()) {
+              foundMatch = true;
+              continue;
+            }
+            newTkCollection.push_back(*itk->get());
+          }
+
+          if (foundMatch) {
+            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, bs, setup);
+            if (pvs.size() > 0)
+              pvub = pvs.front();      // take the first in the list
+          }
+        }
+        
+        // preserve sign of transverse impact parameter (cross-product definition from track, not
+        // lifetime-signing)
+        const double ipsign = ((-gsfTrack.dxy(pv.position())) >= 0) ? 1. : -1.;
+
+        reco::Vertex const* verts[] = {&pv, &pvub};
+        for (unsigned iBias : {0, 1}) {
+          unsigned iSetter = iBias * 2 + iPVType;
+
+          auto d0pv = IPTools::absoluteTransverseImpactParameter(tt, *verts[iBias]);
+          if (d0pv.first) {
+            d0pvSetters[iSetter](*outElectron, ipsign * d0pv.second.value());
+            d0pverrSetters[iSetter](*outElectron, d0pv.second.error());
+          }
+          else
+            d0pvSetters[iSetter](*outElectron, -99.);
+
+          auto ip3dpv = IPTools::absoluteImpactParameter3D(tt, *verts[iBias]);
+          if (ip3dpv.first) {
+            ip3dpvSetters[iSetter](*outElectron, ipsign * ip3dpv.second.value());
+            ip3dpverrSetters[iSetter](*outElectron, ip3dpv.second.error());
+          }
+          else
+            ip3dpvSetters[iSetter](*outElectron, -99.);
         }
 
-        if (foundMatch && fitUnbiasedVertex_) {
-          edm::Handle<reco::BeamSpot> bs;
-          GetProduct(beamSpotToken_, bs, event);
-	  
-	  VertexReProducer revertex(hVertex,event); //Needs to be fixed
+        if (ctfTrackRef.isNonnull()) {
+          const double ckfipsign = ((-ctfTrackRef->dxy(pv.position())) >= 0) ? 1. : -1.;
 
-	  edm::Handle<reco::BeamSpot> pvbeamspot;
-          GetProduct(pvBeamSpotToken_, pvbeamspot, event);
-          std::vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-	  if (pvs.size()>0)
-            thevtxub = pvs.front();      // take the first in the list
+          for (unsigned iBias : {0, 1}) {
+            unsigned iSetter = iBias * 2 + iPVType;
 
-          VertexReProducer revertexbs(hVertexBS,event);
-          edm::Handle<reco::BeamSpot> pvbsbeamspot;
-          GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
-          std::vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-	  if (pvbss.size()>0)
-            thevtxubbs = pvbss.front();  // take the first in the list
-        }
-      }
-
-      // preserve sign of transverse impact parameter (cross-product definition from track, not
-      // lifetime-signing)
-      const double gsfsign   = ( (-gsfTrackRef->dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
-      const double gsfsignbs = ( (-gsfTrackRef->dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
-      const std::pair<bool,Measurement1D> &d0pv =  IPTools::absoluteTransverseImpactParameter(tt,thevtx);
-      if (d0pv.first) {
-        outElectron->SetD0PV(gsfsign*d0pv.second.value());
-        outElectron->SetD0PVErr(d0pv.second.error());
-      }
-      else {
-        outElectron->SetD0PV(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,thevtx);
-      if (ip3dpv.first) {
-        outElectron->SetIp3dPV(gsfsign*ip3dpv.second.value());
-        outElectron->SetIp3dPVErr(ip3dpv.second.error());
-      }
-      else {
-        outElectron->SetIp3dPV(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvbs =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
-      if (d0pvbs.first) {
-        outElectron->SetD0PVBS(gsfsignbs*d0pvbs.second.value());
-        outElectron->SetD0PVBSErr(d0pvbs.second.error());
-      }
-      else {
-        outElectron->SetD0PVBS(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpvbs =
-	IPTools::absoluteImpactParameter3D(tt,thevtxbs);
-      if (ip3dpvbs.first) {
-        outElectron->SetIp3dPVBS(gsfsignbs*ip3dpvbs.second.value());
-        outElectron->SetIp3dPVBSErr(ip3dpvbs.second.error());
-      }
-      else {
-        outElectron->SetIp3dPVBS(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvub =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
-      if (d0pvub.first) {
-        outElectron->SetD0PVUB(gsfsign*d0pvub.second.value());
-        outElectron->SetD0PVUBErr(d0pvub.second.error());
-      }
-      else {
-        outElectron->SetD0PVUB(-999.0);
-      }
-
-
-      const std::pair<bool,Measurement1D> &ip3dpvub =
-	IPTools::absoluteImpactParameter3D(tt,thevtxub);
-      if (ip3dpvub.first) {
-        outElectron->SetIp3dPVUB(gsfsign*ip3dpvub.second.value());
-        outElectron->SetIp3dPVUBErr(ip3dpvub.second.error());
-      }
-      else {
-        outElectron->SetIp3dPVUB(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvubbs =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
-      if (d0pvubbs.first) {
-        outElectron->SetD0PVUBBS(gsfsignbs*d0pvubbs.second.value());
-        outElectron->SetD0PVUBBSErr(d0pvubbs.second.error());
-      }
-      else {
-        outElectron->SetD0PVUBBS(-999.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpvubbs =
-	IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
-      if (ip3dpvubbs.first) {
-        outElectron->SetIp3dPVUBBS(gsfsignbs*ip3dpvubbs.second.value());
-        outElectron->SetIp3dPVUBBSErr(ip3dpvubbs.second.error());
-      }
-      else {
-        outElectron->SetIp3dPVUBBS(-999.0);
-      }
-
-      if (ctfTrackRef.isNonnull()) {
-
-        const double ckfsign =
-	  ((-ctfTrackRef->dxy(thevtx.position()))   >=0) ? 1. : -1.;
-        const double ckfsignbs =
-	  ((-ctfTrackRef->dxy(thevtxbs.position())) >=0) ? 1. : -1.;
-
-        const std::pair<bool,Measurement1D> &d0pvckf =
-	  IPTools::absoluteTransverseImpactParameter(ttckf,thevtx);
-        if (d0pvckf.first) {
-          outElectron->SetD0PVCkf(ckfsign*d0pvckf.second.value());
-          outElectron->SetD0PVCkfErr(d0pvckf.second.error());
+            auto d0pvckf = IPTools::absoluteTransverseImpactParameter(ttckf, *verts[iBias]);
+            if (d0pvckf.first) {
+              d0pvckfSetters[iSetter](*outElectron, ckfipsign * d0pvckf.second.value());
+              d0pvckferrSetters[iSetter](*outElectron, d0pvckf.second.error());
+            }
+            else
+              d0pvckfSetters[iSetter](*outElectron, -999.0);
+  
+            auto ip3dpvckf = IPTools::absoluteImpactParameter3D(ttckf, *verts[iBias]);
+            if (ip3dpvckf.first) {
+              ip3dpvckfSetters[iSetter](*outElectron, ckfipsign * ip3dpvckf.second.value());
+              ip3dpvckferrSetters[iSetter](*outElectron, ip3dpvckf.second.error());
+            }
+            else
+              ip3dpvckfSetters[iSetter](*outElectron, -999.);
+          }
         }
         else {
-          outElectron->SetD0PVCkf(-999.0);
-        }
-  
-  
-        const std::pair<bool,Measurement1D> &ip3dpvckf =
-	  IPTools::absoluteImpactParameter3D(ttckf,thevtx);
-        if (ip3dpvckf.first) {
-          outElectron->SetIp3dPVCkf(ckfsign*ip3dpvckf.second.value());
-          outElectron->SetIp3dPVCkfErr(ip3dpvckf.second.error());
-        }
-        else {
-          outElectron->SetIp3dPVCkf(-999.0);
-        }
-  
-        const std::pair<bool,Measurement1D> &d0pvbsckf =
-	  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxbs);
-        if (d0pvbsckf.first) {
-          outElectron->SetD0PVBSCkf(ckfsignbs*d0pvbsckf.second.value());
-          outElectron->SetD0PVBSCkfErr(d0pvbsckf.second.error());
-        }
-        else {
-          outElectron->SetD0PVBSCkf(-999.0);
-        }
-  
-        const std::pair<bool,Measurement1D> &ip3dpvbsckf =
-	  IPTools::absoluteImpactParameter3D(ttckf,thevtxbs);
-        if (ip3dpvbsckf.first) {
-          outElectron->SetIp3dPVBSCkf(ckfsignbs*ip3dpvbsckf.second.value());
-          outElectron->SetIp3dPVBSCkfErr(ip3dpvbsckf.second.error());
-        }
-        else {
-          outElectron->SetIp3dPVBSCkf(-999.0);
-        }
+          for (unsigned iBias : {0, 1}) {
+            unsigned iSetter = iBias * 2 + iPVType;
 
-        const std::pair<bool,Measurement1D> &d0pvubckf =
-	  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxub);
-        if (d0pvubckf.first) {
-          outElectron->SetD0PVUBCkf(ckfsign*d0pvubckf.second.value());
-          outElectron->SetD0PVUBCkfErr(d0pvubckf.second.error());
+            d0pvckfSetters[iSetter](*outElectron, -999.0);
+            ip3dpvckfSetters[iSetter](*outElectron, -999.);
+          }
         }
-        else {
-          outElectron->SetD0PVUBCkf(-999.0);
-        }
-  
-  
-        const std::pair<bool,Measurement1D> &ip3dpvubckf =
-	  IPTools::absoluteImpactParameter3D(ttckf,thevtxub);
-        if (ip3dpvubckf.first) {
-          outElectron->SetIp3dPVUBCkf(ckfsign*ip3dpvubckf.second.value());
-          outElectron->SetIp3dPVUBCkfErr(ip3dpvubckf.second.error());
-        }
-        else {
-          outElectron->SetIp3dPVUBCkf(-999.0);
-        }
-  
-        const std::pair<bool,Measurement1D> &d0pvubbsckf =
-	  IPTools::absoluteTransverseImpactParameter(ttckf,thevtxubbs);
-        if (d0pvubbsckf.first) {
-          outElectron->SetD0PVUBBSCkf(ckfsignbs*d0pvubbsckf.second.value());
-          outElectron->SetD0PVUBBSCkfErr(d0pvubbsckf.second.error());
-        }
-        else {
-          outElectron->SetD0PVUBBSCkf(-999.0);
-        }
-  
-        const std::pair<bool,Measurement1D> &ip3dpvubbsckf =
-	  IPTools::absoluteImpactParameter3D(ttckf,thevtxubbs);
-        if (ip3dpvubbsckf.first) {
-          outElectron->SetIp3dPVUBBSCkf(ckfsignbs*ip3dpvubbsckf.second.value());
-          outElectron->SetIp3dPVUBBSCkfErr(ip3dpvubbsckf.second.error());
-        }
-        else {
-          outElectron->SetIp3dPVUBBSCkf(-999.0);
-        }
-
-      }
-      else {
-        outElectron->SetD0PVCkf(-999.0);
-        outElectron->SetIp3dPVCkf(-999.0);
-        outElectron->SetD0PVBSCkf(-999.0);
-        outElectron->SetIp3dPVBSCkf(-999.0);
-
-        outElectron->SetD0PVUBCkf(-999.0);
-        outElectron->SetIp3dPVUBCkf(-999.0);
-        outElectron->SetD0PVUBBSCkf(-999.0);
-        outElectron->SetIp3dPVUBBSCkf(-999.0);
-      }
-
-      if (verbose_>1) {
-        printf("gsf track      pt = %5f\n",gsfTrackRef->pt());
-        printf("gsf track mode pt = %5f\n",gsfTrackRef->ptMode());
-        printf("ttrack         pt = %5f\n",tt.initialFreeState().momentum().perp());
-        //printf("ttrackgsf      pt = %5f\n",
-        //       ttgsf.innermostMeasurementState().globalMomentum().perp());
-        printf("ip3dpv reduced chisquared = %5f, probability = %5f\n",
-	       ip3dpv.second.value()/ip3dpv.second.error(),
-	       TMath::Prob(ip3dpv.second.value()/ip3dpv.second.error(),1));
-        //printf("gsf    reduced chisquared = %5f, probability = %5f\n",
-	//       pvGsfCompat.second/2, TMath::Prob(pvGsfCompat.second,2));
       }
     }
 
     //fill conversion partner track info
     if (recomputeConversionInfo_) {
-      ConversionFinder convFinder;
+      ConversionFinder convFinder; // does not have member data; essentially a static class
       outElectron->SetConvPartnerDCotTheta(inElectron.convDcot());
-      ConversionInfo convInfo = 
-        convFinder.getConversionInfo(inElectron, hGeneralTracks, hGsfTracks, bfield);
+      auto convInfo = convFinder.getConversionInfo(inElectron, hGeneralTracks, hGsfTracks, bfield);
   
       outElectron->SetConvFlag(convInfo.flag());
       outElectron->SetConvPartnerDCotTheta(convInfo.dcot());
       outElectron->SetConvPartnerDist(convInfo.dist());
       outElectron->SetConvPartnerRadius(convInfo.radiusOfConversion());
-      reco::TrackRef ckfconvTrackRef = convInfo.conversionPartnerCtfTk();
-      reco::GsfTrackRef gsfconvTrackRef = convInfo.conversionPartnerGsfTk();
+      auto ckfconvTrackRef = convInfo.conversionPartnerCtfTk();
+      auto gsfconvTrackRef = convInfo.conversionPartnerGsfTk();
   
       if (gsfconvTrackRef.isNonnull() && gsfTrackMap_) {
         try {
@@ -631,7 +542,7 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
       outElectron->SetConvPartnerDCotTheta(inElectron.convDcot());
       outElectron->SetConvPartnerDist(inElectron.convDist());
       outElectron->SetConvPartnerRadius(inElectron.convRadius());
-      reco::TrackBaseRef convTrackRef = inElectron.convPartner();
+      auto convTrackRef = inElectron.convPartner();
       if (convTrackRef.isNonnull()) {
         if (dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_) {
           try{
@@ -659,8 +570,19 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     }
 
     // fill Electron ID information
-    outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
-    outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    if (fillFromPAT_) {
+      auto patElectron = dynamic_cast<pat::Electron const*>(&inElectron);
+      if (!patElectron)
+        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+          << "Error! fillFromPAT set on non-PAT input";
+      outElectron->SetPassLooseID(patElectron->electronID(eIDCutBasedLooseName_));
+      outElectron->SetPassTightID(patElectron->electronID(eIDCutBasedTightName_));
+    }
+    else {
+      outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
+      outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    }
+
     if (!eIDLikelihoodToken_.isUninitialized()) {
       outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
     }
@@ -676,8 +598,8 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
     
     // add electron to map
     electronMap_->Add(ePtr, outElectron);
- 
-    if (verbose_>1) {
+
+    if (verbose_ > 1) {
       double recomass = sqrt(inElectron.energy()*inElectron.energy() - inElectron.p()*inElectron.p());
       printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
              outElectron->Pt(), outElectron->Eta(), outElectron->Phi(), 
@@ -685,6 +607,41 @@ void mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::
       printf("reco::GsfElectron   , pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
              inElectron.pt(), inElectron.eta(), inElectron.phi(), inElectron.energy(), inElectron.p(), recomass);  
     }
-  } 
+  }
   electrons_->Trim();
+
+  delete vtxReProducers[0];
+  delete vtxReProducers[1];
+}
+
+void
+mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+{
+  if (!fillFromPAT_ || pfCandMapName_.empty())
+    return;
+
+  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
+  if (!pfCandMap)
+    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:ResolveLinks()\n")
+      << "Error! fillFromPAT set but PF Candidate map not found";
+
+  for (unsigned iE = 0; iE != electrons_->GetEntries(); ++iE) {
+    auto ele = electrons_->At(iE);
+
+    auto ePtr = electronMap_->GetEdm(ele);
+    auto patElectron = dynamic_cast<pat::Electron const*>(ePtr.get());
+    if (!patElectron)
+      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:ResolveLinks()\n")
+        << "Error! fillFromPAT set on non-PAT input";
+
+    unsigned iS = 0;
+    if (patElectron->pfCandidateRef().isNonnull())
+      ++iS;
+
+    unsigned nS = patElectron->numberOfSourceCandidatePtrs();
+    for (; iS != nS; ++iS) {
+      auto pfCand = pfCandMap->GetMit(patElectron->sourceCandidatePtr(iS));
+      pfCand->SetElectron(ele);
+    }
+  }
 }

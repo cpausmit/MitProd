@@ -2,6 +2,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
@@ -10,27 +11,30 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
+#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 
-//--------------------------------------------------------------------------------------------------
-mithep::FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
-  BaseFiller            (cfg,os,name,active),
-  edmToken_(GetToken<MuonView>(collector, "edmName","muons")),
-  pvEdmToken_(GetToken<reco::VertexCollection>(collector, "pvEdmName",
+#include <functional>
+
+mithep::FillerMuons::FillerMuons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
+  BaseFiller(cfg, os, name, active),
+  edmToken_             (GetToken<MuonView>(collector, "edmName","muons")),
+  pvEdmToken_           (GetToken<reco::VertexCollection>(collector, "pvEdmName",
                                                           "offlinePrimaryVertices")),
-  pvBSEdmToken_(GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
-                                                            "offlinePrimaryVerticesWithBS")),
-  beamSpotToken_(GetToken<reco::BeamSpot>(collector, "beamSpotName", "offlineBeamSpot")),
-  pvBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
-  pvbsBeamSpotToken_(GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
-  mitName_              (Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
-  globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName","")),
-  staTrackMapName_      (Conf().getUntrackedParameter<string>("staTrackMapName","")),
-  staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
-  trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
-  muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName","")),
-  fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex",true)),
+  pvBSEdmToken_         (GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
+                                                          "offlinePrimaryVerticesWithBS")),
+  pvBeamSpotToken_      (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
+  pvbsBeamSpotToken_    (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
+  mitName_              (Conf().getUntrackedParameter<string>("mitName", Names::gkMuonBrn)),
+  globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName", "")),
+  staTrackMapName_      (Conf().getUntrackedParameter<string>("staTrackMapName", "")),
+  staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName", "")),
+  trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName", "")),
+  muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName", "")),
+  pfCandMapName_        (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
+  fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
+  fillFromPAT_          (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
   globalTrackMap_       (0),
   standaloneTrackMap_   (0),
   standaloneVtxTrackMap_(0),
@@ -41,7 +45,6 @@ mithep::FillerMuons::FillerMuons(const edm::ParameterSet &cfg, edm::ConsumesColl
   // Constructor.
 }
 
-//--------------------------------------------------------------------------------------------------
 mithep::FillerMuons::~FillerMuons()
 {
   // Destructor.
@@ -50,8 +53,8 @@ mithep::FillerMuons::~FillerMuons()
   delete muonMap_;
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerMuons::BookDataBlock(TreeWriter &tws)
+void
+mithep::FillerMuons::BookDataBlock(TreeWriter& tws)
 {
   // Add muons branch to tree and get pointers to maps.
 
@@ -84,9 +87,9 @@ void mithep::FillerMuons::BookDataBlock(TreeWriter &tws)
   }
 }
 
-//--------------------------------------------------------------------------------------------------
-void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
-                                const edm::EventSetup &setup)
+void
+mithep::FillerMuons::FillDataBlock(edm::Event const& event,
+                                   edm::EventSetup const& setup)
 {
   // Fill muon information.
 
@@ -95,28 +98,66 @@ void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
 
   edm::Handle<MuonView> hMuonProduct;
   GetProduct(edmToken_, hMuonProduct, event);
-  MuonView const& inMuons = *hMuonProduct;
+  auto& inMuons = *hMuonProduct;
 
   edm::Handle<reco::VertexCollection> hVertex;
-  GetProduct(pvEdmToken_, hVertex, event);
-  const reco::VertexCollection *pvCol = hVertex.product();
+  if (!pvEdmToken_.isUninitialized())
+    GetProduct(pvEdmToken_, hVertex, event);
 
   edm::Handle<reco::VertexCollection> hVertexBS;
-  GetProduct(pvBSEdmToken_, hVertexBS, event);
-  const reco::VertexCollection *pvBSCol = hVertexBS.product();
+  if (!pvBSEdmToken_.isUninitialized())
+    GetProduct(pvBSEdmToken_, hVertexBS, event);
+
+  edm::Handle<reco::BeamSpot> pvbeamspot;
+  if (fitUnbiasedVertex_ && !pvBeamSpotToken_.isUninitialized())
+    GetProduct(pvBeamSpotToken_, pvbeamspot, event);
+
+  edm::Handle<reco::BeamSpot> pvbsbeamspot;
+  if (fitUnbiasedVertex_ && !pvbsBeamSpotToken_.isUninitialized())
+    GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
 
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
-  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+  auto transientTrackBuilder = hTransientTrackBuilder.product();
 
   KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
+
+  VertexReProducer* vtxReProducers[] = {0, 0};
+  if (fitUnbiasedVertex_) {
+    if (hVertex.isValid())
+      vtxReProducers[0] = new VertexReProducer(hVertex, event);
+    if (hVertexBS.isValid())
+      vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+  }
+
+  typedef std::function<void(mithep::Muon&, double)> Setter;
+
+  edm::Handle<reco::VertexCollection>* pvcHandles[] = {&hVertex, &hVertexBS};
+  edm::Handle<reco::BeamSpot>* bsHandles[] = {&pvbeamspot, &pvbsbeamspot};
+  Setter d0pvSetters[] = {
+    &mithep::Muon::SetD0PV, &mithep::Muon::SetD0PVBS,
+    &mithep::Muon::SetD0PVUB, &mithep::Muon::SetD0PVUBBS
+  };
+  Setter d0pverrSetters[] = {
+    &mithep::Muon::SetD0PVErr, &mithep::Muon::SetD0PVBSErr,
+    &mithep::Muon::SetD0PVUBErr, &mithep::Muon::SetD0PVUBBSErr
+  };
+  Setter ip3dpvSetters[] = {
+    &mithep::Muon::SetIp3dPV, &mithep::Muon::SetIp3dPVBS,
+    &mithep::Muon::SetIp3dPVUB, &mithep::Muon::SetIp3dPVUBBS
+  };
+  Setter ip3dpverrSetters[] = {
+    &mithep::Muon::SetIp3dPVErr, &mithep::Muon::SetIp3dPVBSErr,
+    &mithep::Muon::SetIp3dPVUBErr, &mithep::Muon::SetIp3dPVUBBSErr
+  };
+  Setter pvcompatSetters[] = {&mithep::Muon::SetPVCompatibility, &mithep::Muon::SetPVBSCompatibility};
 
   unsigned iMuon = 0;
   for (auto&& inMuon : inMuons) {
     edm::Ptr<reco::Muon> mPtr(hMuonProduct, iMuon);
     ++iMuon;
 
-    mithep::Muon* outMuon = muons_->AddNew();
+    auto outMuon = muons_->AddNew();
 
     outMuon->SetPtEtaPhi        (inMuon.pt(),inMuon.eta(),inMuon.phi());
     outMuon->SetCharge          (inMuon.charge());
@@ -195,16 +236,16 @@ void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
     if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedBarrelLowPtTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
 
-    reco::TrackRef combinedMuonRef = inMuon.combinedMuon();
-    reco::TrackRef standaloneMuonRef = inMuon.standAloneMuon();
-    reco::TrackRef trackRef = inMuon.track();
+    auto combinedMuonRef = inMuon.combinedMuon();
+    auto standaloneMuonRef = inMuon.standAloneMuon();
+    auto trackRef = inMuon.track();
 
     if (globalTrackMap_ && combinedMuonRef.isNonnull()) {
       outMuon->SetGlobalTrk (globalTrackMap_->GetMit(edm::refToPtr(combinedMuonRef)));
       outMuon->SetNValidHits(combinedMuonRef->hitPattern().numberOfValidMuonHits());
     }
     if (standaloneTrackMap_ && standaloneVtxTrackMap_ && standaloneMuonRef.isNonnull()) {
-      mitedm::TrackPtr ptr = edm::refToPtr(standaloneMuonRef);
+      auto ptr = edm::refToPtr(standaloneMuonRef);
 
       Int_t refProductId = standaloneMuonRef.id().id();
       if (refProductId == standaloneVtxTrackMap_->GetEdmProductId())
@@ -221,152 +262,72 @@ void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
 
     // compute impact parameter with respect to PV
     if (trackRef.isNonnull()) {
-      const reco::TransientTrack &tt = transientTrackBuilder->build(trackRef);
-      reco::Track const& track = *trackRef.get();
+      auto tt = transientTrackBuilder->build(trackRef);
+      auto& track = *trackRef.get();
 
-      reco::Vertex const& thevtx     = pvCol  ->at(0);
-      reco::Vertex const& thevtxbs   = pvBSCol->at(0);
-
-      reco::Vertex thevtxub   = pvCol  ->at(0);
-      reco::Vertex thevtxubbs = pvBSCol->at(0);
-
-      reco::TrackCollection newTkCollection;
-      bool foundMatch = false;
-      for (reco::Vertex::trackRef_iterator itk = thevtx.tracks_begin(); itk!=thevtx.tracks_end();
-	   itk++) {
-        if (itk->get() == trackRef.get()) {
-          foundMatch = true;
+      for (unsigned iPVType : {0, 1}) {
+        if (!pvcHandles[iPVType]->isValid())
           continue;
-        }
-        newTkCollection.push_back(*itk->get());
-      }
 
-      if (foundMatch && fitUnbiasedVertex_) {
-        edm::Handle<reco::BeamSpot> bs;
-        GetProduct(beamSpotToken_, bs, event);
+        auto& pvcHandle = *pvcHandles[iPVType];
+        auto& bs = **bsHandles[iPVType];
 
-        VertexReProducer revertex(hVertex,event);
-        edm::Handle<reco::BeamSpot> pvbeamspot;
-        GetProduct(pvBeamSpotToken_, pvbeamspot, event);
-        std::vector<TransientVertex> pvs = revertex.makeVertices(newTkCollection,*pvbeamspot,setup);
-        if (pvs.size()>0) {
-          thevtxub = pvs.front();      // take the first in the list
-        }
+        reco::Vertex const& pv = pvcHandle->at(0);
+        reco::Vertex pvub = pvcHandle->at(0);
 
-        VertexReProducer revertexbs(hVertexBS,event);
-        edm::Handle<reco::BeamSpot> pvbsbeamspot;
-        GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
-        std::vector<TransientVertex> pvbss = revertexbs.makeVertices(newTkCollection,*pvbsbeamspot,setup);
-        if (pvbss.size()>0) {
-          thevtxubbs = pvbss.front();  // take the first in the list
-        }
-      }
+        if (fitUnbiasedVertex_) {
+          reco::TrackCollection newTkCollection;
+          bool foundMatch = false;
+          for (auto itk = pv.tracks_begin(); itk != pv.tracks_end(); ++itk) {
+            if (itk->get() == trackRef.get()) {
+              foundMatch = true;
+              continue;
+            }
+            newTkCollection.push_back(*itk->get());
+          }
 
-      // preserve sign of transverse impact parameter (cross-product definition from track, not
-      // lifetime-signing)
-      const double thesign   = ( (-track.dxy(thevtx.position()))   >=0 ) ? 1. : -1.;
-      const double thesignbs = ( (-track.dxy(thevtxbs.position())) >=0 ) ? 1. : -1.;
-
-      const std::pair<bool,Measurement1D> &d0pv =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtx);
-      if (d0pv.first) {
-        outMuon->SetD0PV(thesign*d0pv.second.value());
-        outMuon->SetD0PVErr(d0pv.second.error());
-      }
-      else {
-        outMuon->SetD0PV(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,thevtx);
-      if (ip3dpv.first) {
-        outMuon->SetIp3dPV(thesign*ip3dpv.second.value());
-        outMuon->SetIp3dPVErr(ip3dpv.second.error());
-      }
-      else {
-        outMuon->SetIp3dPV(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvbs =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxbs);
-      if (d0pvbs.first) {
-        outMuon->SetD0PVBS(thesignbs*d0pvbs.second.value());
-        outMuon->SetD0PVBSErr(d0pvbs.second.error());
-      }
-      else {
-        outMuon->SetD0PVBS(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpvbs =
-	IPTools::absoluteImpactParameter3D(tt,thevtxbs);
-      if (ip3dpvbs.first) {
-        outMuon->SetIp3dPVBS(thesignbs*ip3dpvbs.second.value());
-        outMuon->SetIp3dPVBSErr(ip3dpvbs.second.error());
-      }
-      else {
-        outMuon->SetIp3dPVBS(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvub =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxub);
-      if (d0pvub.first) {
-        outMuon->SetD0PVUB(thesign*d0pvub.second.value());
-        outMuon->SetD0PVUBErr(d0pvub.second.error());
-      }
-      else {
-        outMuon->SetD0PVUB(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpvub =
-	IPTools::absoluteImpactParameter3D(tt,thevtxub);
-      if (ip3dpvub.first) {
-        outMuon->SetIp3dPVUB(thesign*ip3dpvub.second.value());
-        outMuon->SetIp3dPVUBErr(ip3dpvub.second.error());
-      }
-      else {
-        outMuon->SetIp3dPVUB(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &d0pvubbs =
-	IPTools::absoluteTransverseImpactParameter(tt,thevtxubbs);
-      if (d0pvubbs.first) {
-        outMuon->SetD0PVUBBS(thesignbs*d0pvubbs.second.value());
-        outMuon->SetD0PVUBBSErr(d0pvubbs.second.error());
-      }
-      else {
-        outMuon->SetD0PVUBBS(-99.0);
-      }
-
-      const std::pair<bool,Measurement1D> &ip3dpvubbs =
-	IPTools::absoluteImpactParameter3D(tt,thevtxubbs);
-      if (ip3dpvubbs.first) {
-        outMuon->SetIp3dPVUBBS(thesignbs*ip3dpvubbs.second.value());
-        outMuon->SetIp3dPVUBBSErr(ip3dpvubbs.second.error());
-      }
-      else {
-        outMuon->SetIp3dPVUBBS(-99.0);
-      }
-
-      // compute compatibility with PV using taking into account also the case where muon track was
-      // included in the vertex fit
-      if (track.extra().isAvailable()) {
-
-        const std::pair<bool,double> &pvCompat = kalmanEstimator.estimate(pvCol->at(0),tt);
-        if (pvCompat.first) {
-          outMuon->SetPVCompatibility(pvCompat.second);
-        }
-        else {
-          outMuon->SetPVCompatibility(-99.0);
+          if (foundMatch) {
+            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, bs, setup);
+            if (pvs.size() > 0)
+              pvub = pvs.front();      // take the first in the list
+          }
         }
 
-        const std::pair<bool,double> &pvbsCompat = kalmanEstimator.estimate(pvBSCol->at(0),tt);
-        if (pvbsCompat.first) {
-          outMuon->SetPVBSCompatibility(pvbsCompat.second);
+        // preserve sign of transverse impact parameter (cross-product definition from track, not
+        // lifetime-signing)
+        const double ipsign = ((-track.dxy(pv.position())) >= 0) ? 1. : -1.;
+
+        reco::Vertex const* verts[] = {&pv, &pvub};
+        for (unsigned iBias : {0, 1}) {
+          unsigned iSetter = iBias * 2 + iPVType;
+
+          auto d0pv = IPTools::absoluteTransverseImpactParameter(tt, *verts[iBias]);
+          if (d0pv.first) {
+            d0pvSetters[iSetter](*outMuon, ipsign * d0pv.second.value());
+            d0pverrSetters[iSetter](*outMuon, d0pv.second.error());
+          }
+          else
+            d0pvSetters[iSetter](*outMuon, -99.);
+
+          auto ip3dpv = IPTools::absoluteImpactParameter3D(tt, *verts[iBias]);
+          if (ip3dpv.first) {
+            ip3dpvSetters[iSetter](*outMuon, ipsign * ip3dpv.second.value());
+            ip3dpverrSetters[iSetter](*outMuon, ip3dpv.second.error());
+          }
+          else
+            ip3dpvSetters[iSetter](*outMuon, -99.);
         }
-        else {
-          outMuon->SetPVBSCompatibility(-99.0);
+
+        // compute compatibility with PV using taking into account also the case where muon track was
+        // included in the vertex fit
+        if (track.extra().isAvailable()) {
+          auto pvCompat = kalmanEstimator.estimate(pv, tt);
+          if (pvCompat.first)
+            pvcompatSetters[iPVType](*outMuon, pvCompat.second);
+          else
+            pvcompatSetters[iPVType](*outMuon, -99.);
         }
       }
-
     }
 
     outMuon->SetNChambers  (inMuon.numberOfChambers());
@@ -393,7 +354,7 @@ void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
 
     // fill corrected expected inner hits
     if (trackRef.isNonnull()) {
-      reco::Track const& track = *trackRef.get();
+      auto& track = *trackRef;
       outMuon->SetCorrectedNExpectedHitsInner (track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
       outMuon->SetValidFraction               (track.validFraction());
       outMuon->SetNTrkLayersHit               (track.hitPattern().trackerLayersWithMeasurement());
@@ -415,6 +376,38 @@ void mithep::FillerMuons::FillDataBlock(const edm::Event      &event,
 
   }
   muons_->Trim();
+
+  delete vtxReProducers[0];
+  delete vtxReProducers[1];
+}
+
+void
+mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+{
+  if (!fillFromPAT_ || pfCandMapName_.empty())
+    return;
+
+  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
+  if (!pfCandMap)
+    throw edm::Exception(edm::errors::Configuration, "FillerMuons:ResolveLinks()\n")
+      << "Error! fillFromPAT set but PF Candidate map not found";
+
+  for (unsigned iE = 0; iE != muons_->GetEntries(); ++iE) {
+    auto mu = muons_->At(iE);
+
+    auto mPtr = muonMap_->GetEdm(mu);
+    auto patMuon = dynamic_cast<pat::Muon const*>(mPtr.get());
+    if (!patMuon)
+      throw edm::Exception(edm::errors::Configuration, "FillerMuons:ResolveLinks()\n")
+        << "Error! fillFromPAT set on non-PAT input";
+
+    unsigned iS = 0;
+    if (patMuon->pfCandidateRef().isNonnull())
+      ++iS;
+
+    auto pfCand = pfCandMap->GetMit(patMuon->sourceCandidatePtr(iS));
+    pfCand->SetMuon(mu);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

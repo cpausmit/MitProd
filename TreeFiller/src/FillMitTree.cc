@@ -28,6 +28,7 @@
 #include "MitProd/TreeFiller/interface/FillerMetaInfos.h"
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
+#include "MitProd/TreeFiller/interface/FillerPackedPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPFJets.icc"
 #include "MitProd/TreeFiller/interface/FillerPFMet.icc"
 #include "MitProd/TreeFiller/interface/FillerPFTaus.icc"
@@ -394,7 +395,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       FillerPFCandidates *fillerPFCands = new FillerPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFCands);
       continue;
-    }  
+    }
+    if (ftype.compare("FillerPackedPFCandidates")==0) {
+      FillerPackedPFCandidates *fillerPFCands = new FillerPackedPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPFCands);
+      continue;
+    }
     if (ftype.compare("FillerPFJets")==0) {
       FillerPFJetsFromPFJets *fillerPFJets = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);

@@ -9,15 +9,9 @@ mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterS
   BaseFiller(cfg, os, name, active),
   edmToken_(GetToken<pat::PackedCandidateCollection>(collector, "edmName", "packedPFCandidates")),
   mitName_                  (Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
-  electronMapName_          (Conf().getUntrackedParameter<std::string>("electronMapName", "")),
-  muonMapName_              (Conf().getUntrackedParameter<std::string>("muonMapName", "")),
-  photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
   pfCandMapName_            (Conf().getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_    (Conf().getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
   fillPfNoPileup_           (Conf().getUntrackedParameter<bool>("fillPfNoPileup", true)),
-  electronMap_              (0),
-  muonMap_                  (0),
-  photonMap_                (0),
   pfCandMap_                (new mithep::PFCandidateMap),
   pfNoPileupCandMap_        (new mithep::PFCandidateMap),
   pfCands_                  (new mithep::PFCandidateArr(16))
@@ -41,22 +35,6 @@ mithep::FillerPackedPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
 
   tws.AddBranch(mitName_, &pfCands_);
   OS()->add(pfCands_, mitName_);
-
-  if (!electronMapName_.empty()) {
-    electronMap_ = OS()->get<CandidateMap>(electronMapName_);
-    if (electronMap_)
-      AddBranchDep(mitName_, electronMap_->GetBrName());
-  }
-  if (!muonMapName_.empty()) {
-    muonMap_ = OS()->get<CandidateMap>(muonMapName_);
-    if (muonMap_)
-      AddBranchDep(mitName_, muonMap_->GetBrName());
-  }
-  if (!photonMapName_.empty()) {
-    photonMap_ = OS()->get<CandidateMap>(photonMapName_);
-    if (photonMap_)
-      AddBranchDep(mitName_, photonMap_->GetBrName());
-  }
 
   if (!pfCandMapName_.empty()) {
     pfCandMap_->SetBrName(mitName_);
@@ -122,34 +100,6 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
     default:
       outPfCand->SetPFType(mithep::PFCandidate::eX);
       break;
-    }
-    
-    // linking with higher-level particles
-    mithep::DataObject const* dataObj = 0;
-
-    switch (0) {
-    default:
-      if (electronMap_) {
-        dataObj = electronMap_->GetMit(ptr, false);
-        if (dataObj) {
-          outPfCand->SetElectron(static_cast<mithep::Electron const*>(dataObj));
-          break;
-        }
-      }
-      if (muonMap_) {
-        dataObj = muonMap_->GetMit(ptr, false);
-        if (dataObj) {
-          outPfCand->SetMuon(static_cast<mithep::Muon const*>(dataObj));
-          break;
-        }
-      }
-      if (photonMap_) {
-        dataObj = photonMap_->GetMit(ptr, false);
-        if (dataObj) {
-          outPfCand->SetPhoton(static_cast<mithep::Photon const*>(dataObj));
-          break;
-        }
-      }
     }
 
     outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, inPart.fromPV() > 0);
