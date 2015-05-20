@@ -29,7 +29,7 @@
 #include "MitProd/TreeFiller/interface/FillerMuons.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 #include "MitProd/TreeFiller/interface/FillerPFJets.icc"
-#include "MitProd/TreeFiller/interface/FillerPFMet.h"
+#include "MitProd/TreeFiller/interface/FillerPFMet.icc"
 #include "MitProd/TreeFiller/interface/FillerPFTaus.icc"
 #include "MitProd/TreeFiller/interface/FillerPhotons.h"
 #include "MitProd/TreeFiller/interface/FillerPileupInfo.h"
@@ -299,7 +299,12 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       continue;
     }
     if (ftype.compare("FillerPFMet")==0) {
-      FillerPFMet *fillerPFMet = new FillerPFMet(cfg, collector, os_, name.c_str(), defactive_);
+      FillerPFMetFromPFMET *fillerPFMet = new FillerPFMetFromPFMET(cfg, collector, os_, name.c_str(), defactive_);
+      addActiveFiller(fillerPFMet);
+      continue;
+    }  
+    if (ftype.compare("FillerPFMetFromPATMET")==0) {
+      FillerPFMetFromPATMET *fillerPFMet = new FillerPFMetFromPATMET(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFMet);
       continue;
     }  
@@ -390,11 +395,6 @@ bool FillMitTree::configure(const edm::ParameterSet &cfg)
       addActiveFiller(fillerPFCands);
       continue;
     }  
-    if (ftype.compare("FillerPFJets")==0) {
-      FillerPFJetsFromPFJets *fillerPFJets = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
-      addActiveFiller(fillerPFJets);
-      continue;
-    }
     if (ftype.compare("FillerPFJets")==0) {
       FillerPFJetsFromPFJets *fillerPFJets = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
       addActiveFiller(fillerPFJets);
