@@ -20,31 +20,34 @@ namespace mithep
   class BaseFiller;
   class TreeWriter;
   class ObjectService;
+  class LAHeader;
 
   class FillMitTree : public edm::EDAnalyzer
   {
-    public:
-      FillMitTree(const edm::ParameterSet &cfg);
-      ~FillMitTree();
+  public:
+    FillMitTree(edm::ParameterSet const&);
+    ~FillMitTree();
 
-      void                     beginRun(edm::Run const &, edm::EventSetup const&);
-      void                     analyze(const edm::Event &e, const edm::EventSetup &es);
-      void                     beginJob();
-      void                     endJob();
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void beginJob() override;
+    void endJob() override;
 
-      ObjectService           *os() { return os_; }
+    ObjectService *os() { return os_; }
 
-    protected:
-      bool                     addActiveFiller(BaseFiller *bf);
-      bool                     configure(const edm::ParameterSet &cfg);
-      bool                     configureTreeWriter(const edm::ParameterSet &cfg);
+  protected:
+    bool addActiveFiller(BaseFiller*);
+    bool configure(edm::ParameterSet const&);
+    bool configureTreeWriter(edm::ParameterSet const&);
 
-      std::vector<BaseFiller*> fillers_;       //list of active fillers
-      bool                     defactive_;     //default activity flag for fillers
-      BranchTable             *brtable_;       //branch dependency table
-      int                      acfnumber_;     //keep track of active file number
-      TreeWriter              *tws_;           //pointer to tree writer
-      ObjectService           *os_;            //object service (set in beginJob)
+    std::vector<BaseFiller*> fillers_;       //list of active fillers
+    bool                     defactive_;     //default activity flag for fillers
+    BranchTable             *brtable_;       //branch dependency table
+    LAHeader                *evtLAHeader_;  //look-ahead event header
+    int                      acfnumber_;     //keep track of active file number
+    TreeWriter              *tws_;           //pointer to tree writer
+    ObjectService           *os_;            //object service (set in beginJob)
   };
 }
 #endif

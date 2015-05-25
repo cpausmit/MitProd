@@ -10,6 +10,7 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlineP
 MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   fillers = cms.untracked.vstring(
     'MetaInfos',
+    'Trigger',
     'MCParticles',
     'MCEventInfo',
     'MCVertexes',
@@ -68,19 +69,29 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   MetaInfos = cms.untracked.PSet(
     active             = cms.untracked.bool(True),
-    hltActive          = cms.untracked.bool(True),
+    l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
+    evtMitName         = cms.untracked.string('EventHeader'),
+    fillerType         = cms.untracked.string('FillerMetaInfos')
+  ),
+
+  Trigger = cms.untracked.PSet(
+    active             = cms.untracked.bool(True),
+    hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'), # unset when filling from MiniAOD
+    hltObjsEdmName     = cms.untracked.string(''), # set when filling from MiniAOD
+    hltResEdmName      = cms.untracked.string('TriggerResults'),
+    l1GtMenuLiteEdmName = cms.untracked.string('l1GtTriggerMenuLite'),
+    l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
+    hltProcName        = cms.untracked.string('HLT'),
     hltTreeMitName     = cms.untracked.string('HLT'),
+    hltTableMitName    = cms.untracked.string('HLTTriggerTable'),
+    hltLabelMitName    = cms.untracked.string('HLTLabels'),
+    hltMenuMitName     = cms.untracked.string('HLTMenus'),
     hltBitsMitName     = cms.untracked.string('HLTBits'),
     hltObjsMitName     = cms.untracked.string('HLTObjects'),
-    hltResEdmName      = cms.untracked.string('TriggerResults'),
-    hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'),
-    hltProcName        = cms.untracked.string('HLT'),
     l1Active           = cms.untracked.bool(True),
-    l1GtRecordEdmName  = cms.untracked.string('l1GtRecord'),
-    l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
     l1TechBitsMitName  = cms.untracked.string('L1TechBits'),
     l1AlgoBitsMitName  = cms.untracked.string('L1AlgoBits'),
-    fillerType         = cms.untracked.string('FillerMetaInfos')
+    fillerType         = cms.untracked.string('FillerTrigger')
   ),
 
   MCParticles = cms.untracked.PSet(
@@ -205,7 +216,13 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     active                = cms.untracked.bool(True),
     mitName               = cms.untracked.string('SuperClusters'),
     edmName               = cms.untracked.string('particleFlowEGamma'),
+    ebRecHitsName         = cms.untracked.string('reducedEcalRecHitsEB'),
+    eeRecHitsName         = cms.untracked.string('reducedEcalRecHitsEE'),
+    esRecHitsName         = cms.untracked.string('reducedEcalRecHitsES'),
     basicClusterMapName   = cms.untracked.string('basicClusterMap'),
+    psClusterMapName      = cms.untracked.string(''),
+    psXClusterMapName     = cms.untracked.string(''),
+    psYClusterMapName     = cms.untracked.string(''),
     superClusterMapName   = cms.untracked.string('superClusterMap'),
     superClusterIdMapName = cms.untracked.string('superClusterIdMap'),
     #YI caloTowerName         = cms.untracked.string('towerMaker'),
@@ -811,6 +828,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     edmElectronName = cms.untracked.string('gedGsfElectrons'),
     edmMuonName     = cms.untracked.string('muons'),
     edmTauName      = cms.untracked.string('hpsPFTauProducer'),
+    edmTauType      = cms.untracked.string('PFTau'),
     electronMapName = cms.untracked.string('electronMap'),
     muonMapName     = cms.untracked.string('muonMap'),
     tauMapName      = cms.untracked.string('tauMap'),
