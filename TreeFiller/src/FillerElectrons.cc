@@ -129,7 +129,12 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   GetProduct(edmToken_, hElectronProduct, event);
 
   auto& inElectrons = *hElectronProduct;
-  
+
+  if (fillFromPAT_ && inElectrons.size() != 0 &&
+      !dynamic_cast<pat::Electron const*>(&inElectrons.at(0)))
+    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+      << "Error! fillFromPAT set on non-PAT input";
+
   // handles to get the electron ID information
   edm::Handle<edm::ValueMap<float> > eidLooseMap;
   edm::Handle<edm::ValueMap<float> > eidTightMap;
@@ -139,10 +144,9 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   }
 
   edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
-  if (!eIDLikelihoodToken_.isUninitialized()) {
-    GetProduct(eIDLikelihoodToken_, eidLikelihoodMap, event);  
-  }
-  
+  if (!eIDLikelihoodToken_.isUninitialized())
+    GetProduct(eIDLikelihoodToken_, eidLikelihoodMap, event);
+
   edm::Handle<reco::VertexCollection> hVertex;
   if (!pvEdmToken_.isUninitialized())
     GetProduct(pvEdmToken_, hVertex, event);
@@ -167,7 +171,8 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   }
 
   edm::Handle<mitedm::DecayPartCol> hConversions;
-  GetProduct(conversionsToken_, hConversions, event);
+  if (!conversionsToken_.isUninitialized())
+    GetProduct(conversionsToken_, hConversions, event);
   
   mitedm::ConversionMatcher convMatcher;
      
@@ -236,8 +241,8 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     edm::Ptr<reco::GsfElectron> ePtr(hElectronProduct, iElectron);
     ++iElectron;
 
-    auto *outElectron = electrons_->AddNew();
-    
+    auto outElectron = electrons_->AddNew();
+
     outElectron->SetPtEtaPhi(inElectron.pt(),inElectron.eta(),inElectron.phi());
          
     outElectron->SetCharge(inElectron.charge());
@@ -308,26 +313,28 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
 
     auto gsfTrackRef = inElectron.gsfTrack();
     auto ctfTrackRef = inElectron.closestCtfTrackRef();
+    bool gsfAvailable = gsfTrackRef.isAvailable();
+    bool ctfAvailable = ctfTrackRef.isAvailable();
 
     // make proper links to Tracks and Super Clusters
-    if (gsfTrackMap_ && gsfTrackRef.isNonnull()) {
-      mithep::Track const* trk = 0;
-      try {
-        trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef));
-      }
-      catch (edm::Exception& ex) {
-        if (checkClusterActive_)
-          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-            << "Error! GSF track unmapped collection";
-      }
-      if (trk)
-        outElectron->SetGsfTrk(trk);
-    }
-
-    // make links to ambigous gsf tracks
     if (gsfTrackMap_) {
-      for (auto agsfi = inElectron.ambiguousGsfTracksBegin();
-	   agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
+      if (gsfTrackRef.isNonnull()) {
+        mithep::Track const* trk = 0;
+        try {
+          trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef));
+        }
+        catch (edm::Exception& ex) {
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! GSF track unmapped collection";
+        }
+        if (trk)
+          outElectron->SetGsfTrk(trk);
+      }
+
+      // make links to ambigous gsf tracks
+
+      for (auto agsfi = inElectron.ambiguousGsfTracksBegin(); agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
         mithep::Track const* trk = 0;
         try {
           trk = gsfTrackMap_->GetMit(edm::refToPtr(*agsfi));
@@ -341,7 +348,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
           outElectron->AddAmbiguousGsfTrack(trk);
       }
     }
-    
+
     // make tracker track links,
     if (trackerTrackMap_) {
       if (ctfTrackRef.isNonnull()) {
@@ -396,17 +403,17 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
           outElectron->SetPFSuperCluster(sc);
       }
     }
-  
+
     //compute NLayersWithMeasurement for associated ctf track
-    if (ctfTrackRef.isNonnull())
+    if (ctfAvailable)
       outElectron->SetCTFTrkNLayersWithMeasurement(ctfTrackRef->hitPattern().trackerLayersWithMeasurement());
     else
       outElectron->SetCTFTrkNLayersWithMeasurement(-1);
 
     //compute impact parameter with respect to PV
-    if (gsfTrackRef.isNonnull()) {
+    if (gsfAvailable) {
       auto tt = transientTrackBuilder->build(gsfTrackRef);
-      auto& gsfTrack = *gsfTrackRef.get();
+      auto& gsfTrack = *gsfTrackRef;
 
       if (verbose_ > 1) {
         printf("gsf track      pt = %5f\n", gsfTrack.pt());
@@ -414,7 +421,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
         printf("ttrack         pt = %5f\n", tt.initialFreeState().momentum().perp());
       }
 
-      reco::TransientTrack ttckf = ctfTrackRef.isNonnull() ? transientTrackBuilder->build(ctfTrackRef) : reco::TransientTrack();
+      reco::TransientTrack ttckf = ctfAvailable ? transientTrackBuilder->build(ctfTrackRef) : reco::TransientTrack();
 
       for (unsigned iPVType : {0, 1}) {
         if (!pvcHandles[iPVType]->isValid())
@@ -469,7 +476,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
             ip3dpvSetters[iSetter](*outElectron, -99.);
         }
 
-        if (ctfTrackRef.isNonnull()) {
+        if (ctfAvailable) {
           const double ckfipsign = ((-ctfTrackRef->dxy(pv.position())) >= 0) ? 1. : -1.;
 
           for (unsigned iBias : {0, 1}) {
@@ -543,7 +550,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       outElectron->SetConvPartnerDist(inElectron.convDist());
       outElectron->SetConvPartnerRadius(inElectron.convRadius());
       auto convTrackRef = inElectron.convPartner();
-      if (convTrackRef.isNonnull()) {
+      if (convTrackRef.isAvailable()) {
         if (dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_) {
           try{
 	    outElectron->
@@ -571,21 +578,17 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
 
     // fill Electron ID information
     if (fillFromPAT_) {
-      auto patElectron = dynamic_cast<pat::Electron const*>(&inElectron);
-      if (!patElectron)
-        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-          << "Error! fillFromPAT set on non-PAT input";
-      outElectron->SetPassLooseID(patElectron->electronID(eIDCutBasedLooseName_));
-      outElectron->SetPassTightID(patElectron->electronID(eIDCutBasedTightName_));
+      auto& patElectron = static_cast<pat::Electron const&>(inElectron);
+      outElectron->SetPassLooseID(patElectron.electronID(eIDCutBasedLooseName_));
+      outElectron->SetPassTightID(patElectron.electronID(eIDCutBasedTightName_));
     }
     else {
       outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
       outElectron->SetPassTightID((*eidTightMap)[eRef]);
     }
 
-    if (!eIDLikelihoodToken_.isUninitialized()) {
+    if (eidLikelihoodMap.isValid())
       outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
-    }
 
     // fill corrected expected inner hits
     if (gsfTrackRef.isNonnull()) {
@@ -594,7 +597,8 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     }
 
     //fill additional conversion flag
-    outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(inElectron, hConversions));
+    if (hConversions.isValid())
+      outElectron->SetMatchesVertexConversion(convMatcher.matchesGoodConversion(inElectron, hConversions));
     
     // add electron to map
     electronMap_->Add(ePtr, outElectron);
@@ -629,18 +633,15 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
     auto ele = electrons_->At(iE);
 
     auto ePtr = electronMap_->GetEdm(ele);
-    auto patElectron = dynamic_cast<pat::Electron const*>(ePtr.get());
-    if (!patElectron)
-      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:ResolveLinks()\n")
-        << "Error! fillFromPAT set on non-PAT input";
+    auto& patElectron = dynamic_cast<pat::Electron const&>(*ePtr);
 
     unsigned iS = 0;
-    if (patElectron->pfCandidateRef().isNonnull())
+    if (patElectron.pfCandidateRef().isNonnull())
       ++iS;
 
-    unsigned nS = patElectron->numberOfSourceCandidatePtrs();
+    unsigned nS = patElectron.numberOfSourceCandidatePtrs();
     for (; iS != nS; ++iS) {
-      auto pfCand = pfCandMap->GetMit(patElectron->sourceCandidatePtr(iS));
+      auto pfCand = pfCandMap->GetMit(patElectron.sourceCandidatePtr(iS));
       pfCand->SetElectron(ele);
     }
   }

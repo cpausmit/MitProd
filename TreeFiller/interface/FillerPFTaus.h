@@ -37,10 +37,11 @@ namespace mithep
       typedef std::map<std::string, edm::EDGetTokenT<reco::PFTauDiscriminator> > DiscTokenMap;
       typedef std::map<std::string, edm::Handle<reco::PFTauDiscriminator> > DiscHandleMap;
 
-      const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
       void setHPSTokens(edm::ConsumesCollector&);
+      void setPFSpecific(mithep::PFTau*, TAU const&) const;
       void setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const;
       void setPFJetRef(mithep::PFTau*, TAU const&) const;
+      void setPFCandRefs(mithep::PFTau*, TAU const&) const;
 
       bool                            hpsActive_;      //=true if HPS discriminants are filled
       edm::EDGetTokenT<TauCollection> edmToken_;        //edm name of jets collection

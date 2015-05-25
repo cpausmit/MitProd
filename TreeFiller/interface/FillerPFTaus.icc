@@ -113,64 +113,22 @@ namespace mithep {
                         inTau.alternatLorentzVect().z(),
                         inTau.alternatLorentzVect().e());
 
-      // fill pftau-specific quantities
       outTau->SetCharge(inTau.charge());
-      outTau->SetBremRecoveryEOverP(inTau.bremsRecoveryEOverPLead());
-      outTau->SetCaloCompatibility(inTau.caloComp());
-      outTau->SetECalStripSumEOverP(inTau.ecalStripSumEOverPLead());
-      outTau->SetEMFraction(inTau.emFraction());
-      outTau->SetElectronPreIDDecision(inTau.electronPreIDDecision());
-      outTau->SetElectronPreIDOutput(inTau.electronPreIDOutput());
-      outTau->SetHCal3x3EOverP(inTau.hcal3x3OverPLead());
-      outTau->SetHCalMaxEOverP(inTau.hcalMaxOverPLead());
-      outTau->SetHCalTotalEOverP(inTau.hcalTotOverPLead());
-      outTau->SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
-      outTau->SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
-      outTau->SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
-      outTau->SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
-      outTau->SetMuonDecision(inTau.muonDecision());
-      outTau->SetSegmentCompatibility(inTau.segComp());
+
+      // fill pftau-specific quantities
+      setPFSpecific(outTau, inTau);
     
       // fill HPS discriminants
-      if(hpsActive_)
+      if (hpsActive_)
         setPFTauDiscriminators(outTau, hpsHandles, tRef);
-
-      if (inTau.electronPreIDTrack().isNonnull()) {
-        const mithep::Track *theTrack =
-          getMitTrack(edm::refToPtr(inTau.electronPreIDTrack()),allowMissingTrackRef_);
-        outTau->SetElectronTrack(theTrack);
-      }
 
       // add source pfjet reference
       if (jetMap_)
         setPFJetRef(outTau, inTau);
 
       // add pf candidate references
-      if (pfCandMap_) {
-        if (inTau.leadPFCand().isNonnull())
-          outTau->SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
-        
-        if (inTau.leadPFChargedHadrCand().isNonnull())
-          outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFChargedHadrCand())));
-        
-        if (inTau.leadPFNeutralCand().isNonnull())
-          outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFNeutralCand())));
-        
-        for (auto&& pfCandPtr : inTau.signalPFCands())
-          outTau->AddSignalPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
-
-        for (auto&& pfCandPtr : inTau.signalPFChargedHadrCands())
-          outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
-
-        for (auto&& pfCandPtr : inTau.signalPFNeutrHadrCands())
-          outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
-
-        for (auto&& pfCandPtr : inTau.signalPFGammaCands())
-          outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
-      
-        for (auto&& pfCandPtr : inTau.isolationPFCands())
-          outTau->AddIsoPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
-      }
+      if (pfCandMap_)
+        setPFCandRefs(outTau, inTau);
 
       // add outTau equivalent to the map
       tauMap_->Add(tPtr, outTau);
@@ -180,31 +138,16 @@ namespace mithep {
   }
 
   template<class TAU>
-  const mithep::Track *mithep::FillerPFTaus<TAU>::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing) const
-  {
-    // Return our particle referenced by the edm pointer.
-
-    mithep::Track *mitPart = 0;
-    for (auto&& trkMap : trackMaps_) {
-      mitPart = trkMap->GetMit(ptr, false); // no-throw version
-      if (mitPart)
-        return mitPart;
-    }
-  
-    if (!mitPart && !allowMissing)
-      throw edm::Exception(edm::errors::Configuration, "mithep::FillerPFTaus::FillDataBlock()\n")
-        << "Error! MITHEP Object " 
-        << "not found in AssociationMaps (" << typeid(*this).name() << ")." << std::endl;
-
-    return mitPart;
-  }
-
-  template<class TAU>
   void
   mithep::FillerPFTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
   {
   }
 
+  template<class TAU>
+  void
+  mithep::FillerPFTaus<TAU>::setPFSpecific(mithep::PFTau*, TAU const&) const
+  {
+  }
 
   template<class TAU>
   void
@@ -212,10 +155,15 @@ namespace mithep {
   {
   }
 
-
   template<class TAU>
   void
   mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
+  {
+  }
+
+  template<class TAU>
+  void
+  mithep::FillerPFTaus<TAU>::setPFCandRefs(mithep::PFTau*, TAU const&) const
   {
   }
 }
@@ -311,6 +259,66 @@ namespace mithep {
 
   template<>
   void
+  mithep::FillerPFTaus<reco::PFTau>::setPFSpecific(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  {
+    outTau->SetBremRecoveryEOverP(inTau.bremsRecoveryEOverPLead());
+    outTau->SetCaloCompatibility(inTau.caloComp());
+    outTau->SetECalStripSumEOverP(inTau.ecalStripSumEOverPLead());
+    outTau->SetEMFraction(inTau.emFraction());
+    outTau->SetElectronPreIDDecision(inTau.electronPreIDDecision());
+    outTau->SetElectronPreIDOutput(inTau.electronPreIDOutput());
+    outTau->SetHCal3x3EOverP(inTau.hcal3x3OverPLead());
+    outTau->SetHCalMaxEOverP(inTau.hcalMaxOverPLead());
+    outTau->SetHCalTotalEOverP(inTau.hcalTotOverPLead());
+    outTau->SetMuonDecision(inTau.muonDecision());
+    outTau->SetSegmentCompatibility(inTau.segComp());
+
+    outTau->SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
+    outTau->SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
+    outTau->SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
+    outTau->SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
+
+    if (inTau.electronPreIDTrack().isNonnull()) {
+      auto ptr = edm::refToPtr(inTau.electronPreIDTrack());
+
+      mithep::Track *track = 0;
+      for (auto&& trkMap : trackMaps_) {
+        track = trkMap->GetMit(ptr, false); // no-throw version
+        if (track)
+          break;
+      }
+
+      if (!track && !allowMissingTrackRef_)
+        throw edm::Exception(edm::errors::Configuration, "mithep::FillerPFTaus::FillDataBlock()\n")
+          << "Error! electronPreIDTrack not found in AssociationMaps";
+
+      outTau->SetElectronTrack(track);
+    }
+  }
+
+  template<>
+  void
+  mithep::FillerPFTaus<pat::Tau>::setPFSpecific(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  {
+    // Reference:
+    // RecoTauTag/RecoTau/src/HPSPFRecoTauAlgorithm.cc
+
+    double isolationPFChargedHadrCandsPtSum = 0.;
+    for (auto&& candPtr : inTau.isolationChargedHadrCands())
+      isolationPFChargedHadrCandsPtSum += candPtr->pt();
+    outTau->SetIsoChargedHadronPtSum(isolationPFChargedHadrCandsPtSum);
+
+    double isolationPFGammaCandsEtSum = 0.;
+    for (auto&& candPtr : inTau.isolationGammaCands())
+      isolationPFGammaCandsEtSum += candPtr->pt();
+    outTau->SetIsoGammaEtSum(isolationPFGammaCandsEtSum);
+
+    // leadPFChargedHadrCandsignedSipt not available (no jet reference)
+    // maximumHCALPFClusterEt not available (no hcal energy in packed candidate)
+  }
+
+  template<>
+  void
   mithep::FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
   {
     auto discVal = [&hpsHandles, &tRef](std::string const& discName)->double {
@@ -371,6 +379,64 @@ namespace mithep {
       throw edm::Exception(edm::errors::Configuration, "FillerPFTaus:FillDataBlock()\n")
         << "Error! Jet unmapped collection";
     }
+  }
+
+  template<>
+  void
+  mithep::FillerPFTaus<reco::PFTau>::setPFCandRefs(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  {
+    if (inTau.leadPFCand().isNonnull())
+      outTau->SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
+        
+    if (inTau.leadPFChargedHadrCand().isNonnull())
+      outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFChargedHadrCand())));
+        
+    if (inTau.leadPFNeutralCand().isNonnull())
+      outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFNeutralCand())));
+        
+    for (auto&& pfCandPtr : inTau.signalPFCands())
+      outTau->AddSignalPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+
+    for (auto&& pfCandPtr : inTau.signalPFChargedHadrCands())
+      outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+
+    for (auto&& pfCandPtr : inTau.signalPFNeutrHadrCands())
+      outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+
+    for (auto&& pfCandPtr : inTau.signalPFGammaCands())
+      outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      
+    for (auto&& pfCandPtr : inTau.isolationPFCands())
+      outTau->AddIsoPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+  }
+
+  template<>
+  void
+  mithep::FillerPFTaus<pat::Tau>::setPFCandRefs(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  {
+    if (inTau.leadCand().isNonnull())
+      outTau->SetLeadPFCand(pfCandMap_->GetMit(inTau.leadCand()));
+        
+    if (inTau.leadChargedHadrCand().isNonnull())
+      outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(inTau.leadChargedHadrCand()));
+        
+    if (inTau.leadNeutralCand().isNonnull())
+      outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(inTau.leadNeutralCand()));
+        
+    for (auto&& pfCandPtr : inTau.signalCands())
+      outTau->AddSignalPFCand(pfCandMap_->GetMit(pfCandPtr));
+
+    for (auto&& pfCandPtr : inTau.signalChargedHadrCands())
+      outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(pfCandPtr));
+
+    for (auto&& pfCandPtr : inTau.signalNeutrHadrCands())
+      outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(pfCandPtr));
+
+    for (auto&& pfCandPtr : inTau.signalGammaCands())
+      outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(pfCandPtr));
+      
+    for (auto&& pfCandPtr : inTau.isolationCands())
+      outTau->AddIsoPFCand(pfCandMap_->GetMit(pfCandPtr));
   }
 
   typedef FillerPFTaus<reco::PFTau> FillerPFTausFromPFTaus;

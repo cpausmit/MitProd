@@ -100,6 +100,11 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
   GetProduct(edmToken_, hMuonProduct, event);
   auto& inMuons = *hMuonProduct;
 
+  if (fillFromPAT_ && inMuons.size() != 0 &&
+      !dynamic_cast<pat::Muon const*>(&inMuons.at(0)))
+    throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()")
+      << "Error! Input muon is not PAT";
+
   edm::Handle<reco::VertexCollection> hVertex;
   if (!pvEdmToken_.isUninitialized())
     GetProduct(pvEdmToken_, hVertex, event);
@@ -392,21 +397,21 @@ mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const
     throw edm::Exception(edm::errors::Configuration, "FillerMuons:ResolveLinks()\n")
       << "Error! fillFromPAT set but PF Candidate map not found";
 
-  for (unsigned iE = 0; iE != muons_->GetEntries(); ++iE) {
-    auto mu = muons_->At(iE);
+  for (unsigned iM = 0; iM != muons_->GetEntries(); ++iM) {
+    auto mu = muons_->At(iM);
 
     auto mPtr = muonMap_->GetEdm(mu);
-    auto patMuon = dynamic_cast<pat::Muon const*>(mPtr.get());
-    if (!patMuon)
-      throw edm::Exception(edm::errors::Configuration, "FillerMuons:ResolveLinks()\n")
-        << "Error! fillFromPAT set on non-PAT input";
+    auto& patMuon = static_cast<pat::Muon const&>(*mPtr);
 
     unsigned iS = 0;
-    if (patMuon->pfCandidateRef().isNonnull())
+    if (patMuon.pfCandidateRef().isNonnull())
       ++iS;
 
-    auto pfCand = pfCandMap->GetMit(patMuon->sourceCandidatePtr(iS));
-    pfCand->SetMuon(mu);
+    auto ptr = patMuon.sourceCandidatePtr(iS);
+    if (ptr.isNonnull()) {
+      auto pfCand = pfCandMap->GetMit(ptr);
+      pfCand->SetMuon(mu);
+    }
   }
 }
 

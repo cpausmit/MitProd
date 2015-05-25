@@ -110,6 +110,11 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
   edm::Handle<PhotonView> hPhotonProduct;
   GetProduct(edmToken_, hPhotonProduct, event);
   auto& inPhotons = *hPhotonProduct;
+
+  if (fillFromPAT_ && inPhotons.size() != 0 &&
+      !dynamic_cast<pat::Photon const*>(&inPhotons.at(0)))
+    throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+      << "Error! fillFromPAT set on non-PAT input";
   
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
@@ -128,15 +133,11 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
   edm::ValueMap<bool> const* phidTightMap = 0;
   if (!fillFromPAT_) {
     edm::Handle<edm::ValueMap<bool> > hPhidLooseMap;
-    if (!phIDCutBasedLooseToken_.isUninitialized()) {
-      GetProduct(phIDCutBasedLooseToken_, hPhidLooseMap, event);
+    if (GetProductSafe(phIDCutBasedLooseToken_, hPhidLooseMap, event))
       phidLooseMap = hPhidLooseMap.product();
-    }
     edm::Handle<edm::ValueMap<bool> > hPhidTightMap;
-    if (!phIDCutBasedTightToken_.isUninitialized()) {
-      GetProduct(phIDCutBasedTightToken_, hPhidTightMap, event);
+    if (GetProductSafe(phIDCutBasedTightToken_, hPhidTightMap, event))
       phidTightMap = hPhidTightMap.product();
-    }
   }
 
   unsigned iPhoton = 0;
@@ -209,13 +210,9 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetIsLooseEM(true); //deprecated
 
     if (fillFromPAT_) {
-      auto patPhoton = dynamic_cast<pat::Photon const*>(&inPhoton);
-      if (!patPhoton)
-        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
-          << "Error! fillFromPAT set on non-PAT input";
-      
-      outPhoton->SetIsLoosePhoton(patPhoton->photonID(phIDCutBasedLooseName_));
-      outPhoton->SetIsTightPhoton(patPhoton->photonID(phIDCutBasedTightName_));
+      auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
+      outPhoton->SetIsLoosePhoton(patPhoton.photonID(phIDCutBasedLooseName_));
+      outPhoton->SetIsTightPhoton(patPhoton.photonID(phIDCutBasedTightName_));
     }
     else {
       if (phidLooseMap)
@@ -293,14 +290,20 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
 
     // make links to conversions
     if (conversionMap_) {
-      for (auto&& convRef : inPhoton.conversions())
-        outPhoton->AddConversionD(conversionMap_->GetMit(convRef));
+      for (auto&& convRef : inPhoton.conversions()) {
+        auto mitConv = conversionMap_->GetMit(convRef, false);
+        if (mitConv) // miniAOD photon might not have a valid conversion ref depending on quality
+          outPhoton->AddConversionD(mitConv);
+      }
     }
 
     // make links to conversions (single leg)
     if (oneLegConversionMap_) {
-      for (auto&& convRef : inPhoton.conversionsOneLeg())
-        outPhoton->AddConversionS(oneLegConversionMap_->GetMit(convRef));
+      for (auto&& convRef : inPhoton.conversionsOneLeg()) {
+        auto mitConv = oneLegConversionMap_->GetMit(convRef, false);
+        if (mitConv)
+          outPhoton->AddConversionS(mitConv);
+      }
     }
 
     // make link to supercluster
@@ -348,14 +351,11 @@ mithep::FillerPhotons::ResolveLinks(edm::Event const& event, edm::EventSetup con
     auto pho = photons_->At(iP);
 
     auto pPtr = photonMap_->GetEdm(pho);
-    auto patPhoton = dynamic_cast<pat::Photon const*>(pPtr.get());
-    if (!patPhoton)
-      throw edm::Exception(edm::errors::Configuration, "FillerPhotons:ResolveLinks()\n")
-        << "Error! fillFromPAT set on non-PAT input";
+    auto& patPhoton = static_cast<pat::Photon const&>(*pPtr);
 
-    unsigned nS = patPhoton->numberOfSourceCandidatePtrs();    
+    unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
     for (unsigned iS = 0; iS != nS; ++iS) {
-      auto pfCand = pfCandMap->GetMit(patPhoton->sourceCandidatePtr(iS));
+      auto pfCand = pfCandMap->GetMit(patPhoton.sourceCandidatePtr(iS));
       pfCand->SetPhoton(pho);
     }
   }
