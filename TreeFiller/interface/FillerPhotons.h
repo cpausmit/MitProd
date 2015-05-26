@@ -30,7 +30,6 @@ namespace mithep
 
     void BookDataBlock(mithep::TreeWriter &) override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
-    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::Photon> PhotonView;
 
@@ -62,8 +61,9 @@ namespace mithep
     std::string                       pfEcalBarrelSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
     std::string                       pfEcalEndcapSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
     std::string                       photonMapName_;             //name: exported photon map
-    std::string                       pfCandMapName_;             //name of PF candidate map when filling from PAT
+    std::string                       photonPFMapName_;           //name of exported PF->photon map
     mithep::PhotonMap*                photonMap_;                //exported photon map
+    mithep::CandidateMap*             photonPFMap_;              //exported PF->photon map
     mithep::PhotonArr*                photons_;                  //array of Photons
     mithep::ConversionDecayMap const* conversionMap_;            //imp. map wrt conver. electrons
     mithep::ConversionDecayMap const* oneLegConversionMap_;      //imp. map wrt conver. electrons

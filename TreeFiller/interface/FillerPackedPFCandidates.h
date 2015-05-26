@@ -17,24 +17,32 @@ namespace mithep
 {
   class FillerPackedPFCandidates : public BaseFiller
   {  
-    public:
-      FillerPackedPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
-      ~FillerPackedPFCandidates();
+  public:
+    FillerPackedPFCandidates(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* = "PackedPFCandidates", bool = true);
+    ~FillerPackedPFCandidates();
 
-      void                           BookDataBlock(TreeWriter &);
-      void                           FillDataBlock(edm::Event const&, edm::EventSetup const&);
+    void BookDataBlock(TreeWriter &) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
-    private:
-      edm::EDGetTokenT<pat::PackedCandidateCollection> edmToken_; //edm name of PFCandidates coll
-      std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
-      std::string                    pfCandMapName_;            //name: expo. pf candidate map
-      std::string                    pfNoPileupCandMapName_;    //name: expo. PFnoPU candidate map
-      bool                           fillPfNoPileup_;
+  private:
+    edm::EDGetTokenT<pat::PackedCandidateCollection> edmToken_; //edm name of PFCandidates coll
+    std::string                 mitName_;                  //name: PFCandidate branch in BAMBU
+    std::string                 pfCandMapName_;            //name: expo. pf candidate map
+    std::string                 pfNoPileupCandMapName_;    //name: expo. PFnoPU candidate map
+    bool                        fillPfNoPileup_;
+    std::string                 electronMapName_;
+    std::string                 muonMapName_;
+    std::string                 photonMapName_;
 
-      mithep::PFCandidateMap     *pfCandMap_;                //exported map
-      mithep::PFCandidateMap     *pfNoPileupCandMap_;        //exported map for pf no pileup
+    mithep::PFCandidateMap*     pfCandMap_;                //exported map
+    mithep::PFCandidateMap*     pfNoPileupCandMap_;        //exported map for pf no pileup
 
-      mithep::PFCandidateArr         *pfCands_;                  //array of PFCandidates
+    mithep::PFCandidateArr*     pfCands_;                  //array of PFCandidates
+
+    mithep::CandidateMap const* electronMap_;
+    mithep::CandidateMap const* muonMap_;
+    mithep::CandidateMap const* photonMap_;
   };
 }
 #endif

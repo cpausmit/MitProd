@@ -33,7 +33,6 @@ namespace mithep
 
     void BookDataBlock(mithep::TreeWriter &) override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
-    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::GsfElectron> GsfElectronView;                 //using View to deal with PAT electrons
 
@@ -54,6 +53,7 @@ namespace mithep
 
     std::string                    mitName_;                   //mit name of Electrons collection
     std::string                    electronMapName_;           //name of exported electron map
+    std::string                    electronPFMapName_;         //name of exported PF->electron map (PAT)
     std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
     std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
     std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
@@ -61,11 +61,11 @@ namespace mithep
     bool                           checkClusterActive_;
     std::string                    pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
     std::string                    pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
-    std::string                    pfCandMapName_;             //name of PF candidate map when filling from PAT
     bool                           recomputeConversionInfo_;   //recompute conversion info
     bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
     bool                           fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
     mithep::ElectronMap*           electronMap_;               //exported electron map
+    mithep::CandidateMap*          electronPFMap_;             //exported PF->electron map
     mithep::ElectronArr*           electrons_;                 //array of Electrons
     mithep::TrackMap const*        gsfTrackMap_;               //map wrt gsf tracks
     mithep::TrackMap const*        trackerTrackMap_;           //map wrt tracker tracks

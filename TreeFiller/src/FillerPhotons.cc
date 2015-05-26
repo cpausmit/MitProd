@@ -11,7 +11,6 @@
 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
-#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
@@ -32,8 +31,9 @@ mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::Consumes
   pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalEndcapSuperClusterMapName", "")),
   photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
-  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
+  photonPFMapName_          (Conf().getUntrackedParameter<std::string>("photonPFMapName", "")),
   photonMap_                (new mithep::PhotonMap),
+  photonPFMap_              (0),
   photons_                  (new mithep::PhotonArr(16)),
   conversionMap_            (0),
   oneLegConversionMap_      (0),
@@ -51,6 +51,7 @@ mithep::FillerPhotons::~FillerPhotons()
 
   delete photons_;
   delete photonMap_;
+  delete photonPFMap_;
 }
 
 void
@@ -91,10 +92,16 @@ mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
     if (pfEcalEndcapSuperClusterMap_)
       AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
+
   if (!photonMapName_.empty()) {
     photonMap_->SetBrName(mitName_);
-    OS()->add<PhotonMap>(photonMap_, photonMapName_);
-  }  
+    OS()->add(photonMap_, photonMapName_);
+  }
+  if (fillFromPAT_ && !photonPFMapName_.empty()) {
+    photonPFMap_ = new mithep::CandidateMap;
+    photonPFMap_->SetBrName(mitName_);
+    OS()->add(photonPFMap_, photonPFMapName_);
+  }
 }
 
 void
@@ -105,6 +112,8 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
   
   photons_->Delete();
   photonMap_->Reset();
+  if (photonPFMap_)
+    photonPFMap_->Reset();
 
   // get photon collection
   edm::Handle<PhotonView> hPhotonProduct;
@@ -332,33 +341,16 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
 
     // add photon to map
     photonMap_->Add(phPtr, outPhoton);
-  }
-  photons_->Trim();
-}
 
-void
-mithep::FillerPhotons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
-{
-  if (!fillFromPAT_ || pfCandMapName_.empty())
-    return;
+    if (photonPFMap_) {
+      auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
 
-  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
-  if (!pfCandMap)
-    throw edm::Exception(edm::errors::Configuration, "FillerPhotons:ResolveLinks()\n")
-      << "Error! fillFromPAT set but PF Candidate map not found";
-
-  for (unsigned iP = 0; iP != photons_->GetEntries(); ++iP) {
-    auto pho = photons_->At(iP);
-
-    auto pPtr = photonMap_->GetEdm(pho);
-    auto& patPhoton = static_cast<pat::Photon const&>(*pPtr);
-
-    unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
-    for (unsigned iS = 0; iS != nS; ++iS) {
-      auto pfCand = pfCandMap->GetMit(patPhoton.sourceCandidatePtr(iS));
-      pfCand->SetPhoton(pho);
+      unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
+      for (unsigned iS = 0; iS != nS; ++iS)
+        photonPFMap_->Add(patPhoton.sourceCandidatePtr(iS), outPhoton);
     }
   }
+  photons_->Trim();
 }
 
 void

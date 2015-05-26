@@ -28,7 +28,6 @@ namespace mithep
 
     void BookDataBlock(TreeWriter &) override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
-    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
     int  NumberOfSegments(reco::Muon const&, int, int,
                           reco::Muon::ArbitrationType = reco::Muon::SegmentAndTrackArbitration);
 
@@ -47,15 +46,16 @@ namespace mithep
     std::string                 staVtxTrackMapName_;    //name of imported map wrt sta vtx muons
     std::string                 trackerTrackMapName_;   //name of imported map wrt tracker muons
     std::string                 muonMapName_;           //name of exported muon map
-    std::string                 pfCandMapName_;         //name of PF candidate map when filling from PAT
+    std::string                 muonPFMapName_;         //name of exported PF candidate -> muon map (PAT)
     bool                        fitUnbiasedVertex_;     //recompute vertex position without muon track
     bool                        fillFromPAT_;           //true when filling from PAT (e.g. MiniAOD)
-    const mithep::TrackMap     *globalTrackMap_;        //map wrt global muons
-    const mithep::TrackMap     *standaloneTrackMap_;    //map wrt standalone muons
-    const mithep::TrackMap     *standaloneVtxTrackMap_; //map wrt standalone vertex muons
-    const mithep::TrackMap     *trackerTrackMap_;       //map wrt tracker track muons
-    mithep::MuonMap            *muonMap_;               //exported muon map
-    mithep::MuonArr            *muons_;                 //array of Muons
+    mithep::TrackMap const*     globalTrackMap_;        //map wrt global muons
+    mithep::TrackMap const*     standaloneTrackMap_;    //map wrt standalone muons
+    mithep::TrackMap const*     standaloneVtxTrackMap_; //map wrt standalone vertex muons
+    mithep::TrackMap const*     trackerTrackMap_;       //map wrt tracker track muons
+    mithep::MuonMap*            muonMap_;               //exported muon map
+    mithep::CandidateMap*       muonPFMap_;             //exported PF -> muon map (PAT)
+    mithep::MuonArr*            muons_;                 //array of Muons
   };
 }
 #endif

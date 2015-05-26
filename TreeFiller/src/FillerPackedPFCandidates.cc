@@ -8,13 +8,19 @@
 mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
   edmToken_(GetToken<pat::PackedCandidateCollection>(collector, "edmName", "packedPFCandidates")),
-  mitName_                  (Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
-  pfCandMapName_            (Conf().getUntrackedParameter<std::string>("pfCandMapName", "")),
-  pfNoPileupCandMapName_    (Conf().getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
-  fillPfNoPileup_           (Conf().getUntrackedParameter<bool>("fillPfNoPileup", true)),
-  pfCandMap_                (new mithep::PFCandidateMap),
-  pfNoPileupCandMap_        (new mithep::PFCandidateMap),
-  pfCands_                  (new mithep::PFCandidateArr(16))
+  mitName_              (Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
+  pfCandMapName_        (Conf().getUntrackedParameter<std::string>("pfCandMapName", "")),
+  pfNoPileupCandMapName_(Conf().getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
+  fillPfNoPileup_       (Conf().getUntrackedParameter<bool>("fillPfNoPileup", true)),
+  electronMapName_      (Conf().getUntrackedParameter<std::string>("electronMapName", "")),
+  muonMapName_          (Conf().getUntrackedParameter<std::string>("muonMapName", "")),
+  photonMapName_        (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
+  pfCandMap_            (new mithep::PFCandidateMap),
+  pfNoPileupCandMap_    (new mithep::PFCandidateMap),
+  pfCands_              (new mithep::PFCandidateArr(16)),
+  electronMap_          (0),
+  muonMap_              (0),
+  photonMap_            (0)
 {
   // Constructor.
 }
@@ -43,6 +49,22 @@ mithep::FillerPackedPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
   if (!pfNoPileupCandMapName_.empty()) {
     pfNoPileupCandMap_->SetBrName(mitName_);
     OS()->add(pfNoPileupCandMap_, pfNoPileupCandMapName_);
+  }
+
+  if (!electronMapName_.empty()) {
+    electronMap_ = OS()->get<mithep::CandidateMap>(electronMapName_);
+    if (electronMap_)
+      AddBranchDep(mitName_, electronMap_->GetBrName());
+  }
+  if (!muonMapName_.empty()) {
+    muonMap_ = OS()->get<mithep::CandidateMap>(muonMapName_);
+    if (muonMap_)
+      AddBranchDep(mitName_, muonMap_->GetBrName());
+  }
+  if (!photonMapName_.empty()) {
+    photonMap_ = OS()->get<mithep::CandidateMap>(photonMapName_);
+    if (photonMap_)
+      AddBranchDep(mitName_, photonMap_->GetBrName());
   }
 }
 
@@ -103,7 +125,7 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
     }
 
     outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, inPart.fromPV() > 0);
-    
+
     // add to exported pf candidate map
     pfCandMap_->Add(ptr, outPfCand);
     
@@ -113,4 +135,29 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
   }
 
   pfCands_->Trim();
+}
+
+void
+mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup const&)
+{
+  for (auto& ptrcand : pfCandMap_->FwdMap()) {
+    auto& ptr = ptrcand.first;
+    auto* outPfCand = ptrcand.second;
+    
+    if (electronMap_) {
+      mithep::Electron const* electron = static_cast<mithep::Electron const*>(electronMap_->GetMit(ptr));
+      if (electron)
+        outPfCand->SetElectron(electron);
+    }
+    if (muonMap_) {
+      mithep::Muon const* muon = static_cast<mithep::Muon const*>(muonMap_->GetMit(ptr));
+      if (muon)
+        outPfCand->SetMuon(muon);
+    }
+    if (photonMap_) {
+      mithep::Photon const* photon = static_cast<mithep::Photon const*>(photonMap_->GetMit(ptr));
+      if (photon)
+        outPfCand->SetPhoton(photon);
+    }
+  }
 }

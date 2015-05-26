@@ -14,7 +14,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "MitAna/DataTree/interface/ElectronCol.h"
-#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/Track.h"
 #include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
@@ -44,6 +43,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   eIDCutBasedLooseName_     (Conf().getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
   mitName_                  (Conf().getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
   electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName", "")),
+  electronPFMapName_        (Conf().getUntrackedParameter<string>("electronPFMapName", "")),
   gsfTrackMapName_          (Conf().getUntrackedParameter<string>("gsfTrackMapName", "")),
   trackerTrackMapName_      (Conf().getUntrackedParameter<string>("trackerTrackMapName", "")),
   barrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("barrelSuperClusterMapName", "")),
@@ -51,11 +51,11 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap", true)),
   pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName", "")),
-  pfCandMapName_            (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
   recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo", false)),  
   fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
   fillFromPAT_              (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
   electronMap_              (new mithep::ElectronMap),
+  electronPFMap_            (0),
   electrons_                (new mithep::ElectronArr(16)),
   gsfTrackMap_              (0),
   trackerTrackMap_          (0),
@@ -70,6 +70,7 @@ mithep::FillerElectrons::~FillerElectrons()
 {
   delete electrons_;
   delete electronMap_;
+  delete electronPFMap_;
 }
 
 void
@@ -83,6 +84,11 @@ mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
   if (!electronMapName_.empty()) {
     electronMap_->SetBrName(mitName_);
     OS()->add(electronMap_, electronMapName_);
+  }
+  if (fillFromPAT_ && electronPFMapName_.empty()) {
+    electronPFMap_ = new mithep::CandidateMap;
+    electronPFMap_->SetBrName(mitName_);
+    OS()->add(electronPFMap_, electronPFMapName_);
   }
 
   if (!gsfTrackMapName_.empty()) {
@@ -124,6 +130,8 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
 
   electrons_  ->Delete();
   electronMap_->Reset();
+  if (electronPFMap_)
+    electronPFMap_->Reset();
 
   edm::Handle<GsfElectronView> hElectronProduct;
   GetProduct(edmToken_, hElectronProduct, event);
@@ -603,6 +611,20 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     // add electron to map
     electronMap_->Add(ePtr, outElectron);
 
+    if (electronPFMap_) {
+      auto& patElectron = dynamic_cast<pat::Electron const&>(inElectron);
+
+      unsigned iS = 0;
+
+      // first sourceCandidatePtr may point to pfCandidates instead of packedPFCandidates
+      if (patElectron.pfCandidateRef().isNonnull())
+        ++iS;
+
+      unsigned nS = patElectron.numberOfSourceCandidatePtrs();
+      for (; iS != nS; ++iS)
+        electronPFMap_->Add(patElectron.sourceCandidatePtr(iS), outElectron);
+    }
+
     if (verbose_ > 1) {
       double recomass = sqrt(inElectron.energy()*inElectron.energy() - inElectron.p()*inElectron.p());
       printf(" mithep::Electron,    pt=%5f, eta=%5f, phi=%5f, energy=%5f, p=%5f, mass=%5f\n",
@@ -616,33 +638,4 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
 
   delete vtxReProducers[0];
   delete vtxReProducers[1];
-}
-
-void
-mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
-{
-  if (!fillFromPAT_ || pfCandMapName_.empty())
-    return;
-
-  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
-  if (!pfCandMap)
-    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:ResolveLinks()\n")
-      << "Error! fillFromPAT set but PF Candidate map not found";
-
-  for (unsigned iE = 0; iE != electrons_->GetEntries(); ++iE) {
-    auto ele = electrons_->At(iE);
-
-    auto ePtr = electronMap_->GetEdm(ele);
-    auto& patElectron = dynamic_cast<pat::Electron const&>(*ePtr);
-
-    unsigned iS = 0;
-    if (patElectron.pfCandidateRef().isNonnull())
-      ++iS;
-
-    unsigned nS = patElectron.numberOfSourceCandidatePtrs();
-    for (; iS != nS; ++iS) {
-      auto pfCand = pfCandMap->GetMit(patElectron.sourceCandidatePtr(iS));
-      pfCand->SetElectron(ele);
-    }
-  }
 }

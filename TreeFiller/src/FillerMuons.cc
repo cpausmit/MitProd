@@ -11,7 +11,6 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/MuonCol.h"
 #include "MitAna/DataTree/interface/Track.h"
-#include "MitAna/DataTree/interface/PFCandidate.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 
@@ -32,7 +31,7 @@ mithep::FillerMuons::FillerMuons(edm::ParameterSet const& cfg, edm::ConsumesColl
   staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName", "")),
   trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName", "")),
   muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName", "")),
-  pfCandMapName_        (Conf().getUntrackedParameter<string>("pfCandMapName", "")),
+  muonPFMapName_        (Conf().getUntrackedParameter<string>("muonPFMapName", "")),
   fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
   fillFromPAT_          (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
   globalTrackMap_       (0),
@@ -40,6 +39,7 @@ mithep::FillerMuons::FillerMuons(edm::ParameterSet const& cfg, edm::ConsumesColl
   standaloneVtxTrackMap_(0),
   trackerTrackMap_      (0),
   muonMap_              (new mithep::MuonMap),
+  muonPFMap_            (0),
   muons_                (new mithep::MuonArr(16))
 {
   // Constructor.
@@ -51,6 +51,7 @@ mithep::FillerMuons::~FillerMuons()
 
   delete muons_;
   delete muonMap_;
+  delete muonPFMap_;
 }
 
 void
@@ -58,32 +59,37 @@ mithep::FillerMuons::BookDataBlock(TreeWriter& tws)
 {
   // Add muons branch to tree and get pointers to maps.
 
-  tws.AddBranch(mitName_,&muons_);
-  OS()->add<mithep::MuonArr>(muons_,mitName_);
+  tws.AddBranch(mitName_, &muons_);
+  OS()->add(muons_, mitName_);
 
   if (!globalTrackMapName_.empty()) {
     globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
     if (globalTrackMap_)
-      AddBranchDep(mitName_,globalTrackMap_->GetBrName());
+      AddBranchDep(mitName_, globalTrackMap_->GetBrName());
   }
   if (!staTrackMapName_.empty()) {
     standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_);
     if (standaloneTrackMap_)
-      AddBranchDep(mitName_,standaloneTrackMap_->GetBrName());
+      AddBranchDep(mitName_, standaloneTrackMap_->GetBrName());
   }
   if (!staVtxTrackMapName_.empty()) {
     standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
     if (standaloneVtxTrackMap_)
-      AddBranchDep(mitName_,standaloneVtxTrackMap_->GetBrName());
+      AddBranchDep(mitName_, standaloneVtxTrackMap_->GetBrName());
   }
   if (!trackerTrackMapName_.empty()) {
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
     if (trackerTrackMap_)
-      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+      AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
   }
   if (!muonMapName_.empty()) {
     muonMap_->SetBrName(mitName_);
-    OS()->add<MuonMap>(muonMap_,muonMapName_);
+    OS()->add(muonMap_, muonMapName_);
+  }
+  if (fillFromPAT_ && !muonPFMapName_.empty()) {
+    muonPFMap_ = new mithep::CandidateMap;
+    muonPFMap_->SetBrName(mitName_);
+    OS()->add(muonPFMap_, muonPFMapName_);
   }
 }
 
@@ -95,6 +101,8 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
 
   muons_  ->Delete();
   muonMap_->Reset();
+  if (muonPFMap_)
+    muonPFMap_->Reset();
 
   edm::Handle<MuonView> hMuonProduct;
   GetProduct(edmToken_, hMuonProduct, event);
@@ -372,6 +380,20 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     // add muon to map
     muonMap_->Add(mPtr, outMuon);
 
+    if (muonPFMap_) {
+      auto& patMuon = static_cast<pat::Muon const&>(inMuon);
+
+      unsigned iS = 0;
+
+      // first sourceCandidatePtr may point to pfCandidates instead of packedPFCandidates
+      if (patMuon.pfCandidateRef().isNonnull())
+        ++iS;
+
+      auto pfPtr = patMuon.sourceCandidatePtr(iS);
+      if (pfPtr.isNonnull())
+        muonPFMap_->Add(pfPtr, outMuon);
+    }        
+
     if (verbose_>1) {
       if (!outMuon->HasGlobalTrk() && !outMuon->HasStandaloneTrk()) {
         printf("mithep::Muon, pt=%5f, eta=%5f, phi=%5f, mass=%5f\n",outMuon->Pt(),outMuon->Eta(),outMuon->Phi(), outMuon->Mass());
@@ -386,37 +408,8 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
   delete vtxReProducers[1];
 }
 
-void
-mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
-{
-  if (!fillFromPAT_ || pfCandMapName_.empty())
-    return;
-
-  auto pfCandMap = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
-  if (!pfCandMap)
-    throw edm::Exception(edm::errors::Configuration, "FillerMuons:ResolveLinks()\n")
-      << "Error! fillFromPAT set but PF Candidate map not found";
-
-  for (unsigned iM = 0; iM != muons_->GetEntries(); ++iM) {
-    auto mu = muons_->At(iM);
-
-    auto mPtr = muonMap_->GetEdm(mu);
-    auto& patMuon = static_cast<pat::Muon const&>(*mPtr);
-
-    unsigned iS = 0;
-    if (patMuon.pfCandidateRef().isNonnull())
-      ++iS;
-
-    auto ptr = patMuon.sourceCandidatePtr(iS);
-    if (ptr.isNonnull()) {
-      auto pfCand = pfCandMap->GetMit(ptr);
-      pfCand->SetMuon(mu);
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-int mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int muonSubdetId, reco::Muon::ArbitrationType type)
+int
+mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int muonSubdetId, reco::Muon::ArbitrationType type)
 {
   if (!inMuon.isMatchesValid())
     return 0;
@@ -437,31 +430,33 @@ int mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station,
     }
 
     for (auto&& segmentMatch : chamberMatch.segmentMatches) {
-      if (type == reco::Muon::SegmentArbitration)
-	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
-	  segments++;
-	  break;
-	}
-      if (type == reco::Muon::SegmentAndTrackArbitration)
-	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
-	  segments++;
-	  break;
-	}
-
-      if (type == reco::Muon::SegmentAndTrackArbitrationCleaned)
-	if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
-	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
-	    segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
-	  segments++;
-	  break;
-	}
-
-      if (type > 1<<7)
-	if (segmentMatch.isMask(type)) {
-	  segments++;
-	  break;
-	}
+      if (type == reco::Muon::SegmentArbitration) {
+        if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR)) {
+          ++segments;
+          break;
+        }
+      }
+      if (type == reco::Muon::SegmentAndTrackArbitration) {
+        if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+            segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) {
+          ++segments;
+          break;
+        }
+      }
+      if (type == reco::Muon::SegmentAndTrackArbitrationCleaned) {
+        if (segmentMatch.isMask(reco::MuonSegmentMatch::BestInChamberByDR) &&
+            segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) &&
+            segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning)) {
+          ++segments;
+          break;
+        }
+      }
+      if (type > 1<<7) {
+        if (segmentMatch.isMask(type)) {
+          ++segments;
+          break;
+        }
+      }
     }
   }
   return segments;
