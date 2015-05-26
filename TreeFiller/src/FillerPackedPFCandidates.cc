@@ -140,22 +140,25 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
 void
 mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup const&)
 {
+  if (!electronMap_ && !muonMap_ && !photonMap_)
+    return;
+  
   for (auto& ptrcand : pfCandMap_->FwdMap()) {
     auto& ptr = ptrcand.first;
     auto* outPfCand = ptrcand.second;
     
     if (electronMap_) {
-      mithep::Electron const* electron = static_cast<mithep::Electron const*>(electronMap_->GetMit(ptr));
+      mithep::Electron const* electron = static_cast<mithep::Electron const*>(electronMap_->GetMit(ptr, false));
       if (electron)
         outPfCand->SetElectron(electron);
     }
     if (muonMap_) {
-      mithep::Muon const* muon = static_cast<mithep::Muon const*>(muonMap_->GetMit(ptr));
+      mithep::Muon const* muon = static_cast<mithep::Muon const*>(muonMap_->GetMit(ptr, false));
       if (muon)
         outPfCand->SetMuon(muon);
     }
     if (photonMap_) {
-      mithep::Photon const* photon = static_cast<mithep::Photon const*>(photonMap_->GetMit(ptr));
+      mithep::Photon const* photon = static_cast<mithep::Photon const*>(photonMap_->GetMit(ptr, false));
       if (photon)
         outPfCand->SetPhoton(photon);
     }
