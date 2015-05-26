@@ -337,11 +337,12 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
   // Fill HLT trigger objects along triggered paths.
 
   // get HLT trigger information
-  edm::Handle<edm::TriggerResults> triggerResultsHLT;
-  GetProduct(hltResToken_, triggerResultsHLT, event);
+  edm::Handle<edm::TriggerResults> hTriggerResultsHLT;
+  GetProduct(hltResToken_, hTriggerResultsHLT, event);
+  auto& triggerResultsHLT = *hTriggerResultsHLT;
 
   if (verify_)
-    assert(triggerResultsHLT->size() == hltConfig_.size());
+    assert(triggerResultsHLT.size() == hltConfig_.size());
 
   // new bitmask
   mithep::BitMask1024 maskhlt;
@@ -351,7 +352,7 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
     if (verify_) 
       assert(iPath == hltConfig_.triggerIndex(hltConfig_.triggerName(iPath)));
 
-    if (triggerResultsHLT->accept(iPath))
+    if (triggerResultsHLT.accept(iPath))
       maskhlt.SetBit(iPath);
   }
 
@@ -455,11 +456,15 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
       GetProduct(triggerObjectsToken_, triggerObjectsHandle, event);
       auto& triggerObjects = *triggerObjectsHandle;
 
+      auto& triggerNames = event.triggerNames(triggerResultsHLT);
+
       unsigned iL1Extra = 0;
       unsigned iObj = 0;
 
-      for (auto& tobj : triggerObjects) {
+      for (auto tobj : triggerObjects) { // need to copy by value to call unpackPathNames
         short tnind = -1;
+
+        tobj.unpackPathNames(triggerNames);
         
         std::string const& collectionTag = tobj.collection();
         if (collectionTag.find("hltL1extraParticles") == 0) {
@@ -481,6 +486,14 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
 
         // TriggerObjectStandAlone provides the names of the paths and the filters but does not
         // relate the two - use paths and iterate over path modules as given by HLTConfigProvider.
+
+        // What corresponds to triggerEvent.filterIds(iFilter) is stored in individual pat::TriggerObject
+        // as a vector of trigger::TriggerObjectType, which is synched with filterLabels
+        // see PhysicsTools/PatAlgos/plugins/PATTriggerProducer.cc
+        auto&& objectTypes = tobj.triggerObjectTypes();
+
+        auto fbegin = tobj.filterLabels().begin();
+        auto fend = tobj.filterLabels().end();
 
         for (std::string& path : tobj.pathNames()) {
           auto iPath = hltConfig_.triggerIndex(path);
@@ -505,9 +518,14 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
             assert(riter != hltLabelMap_.end());
 
             short typeIndex = riter->second;
-            
+
+            auto fitr = std::find(fbegin, fend, mLabel);
+            assert(fitr != fend);
+
+            auto vid = objectTypes[fitr - fbegin];
+
             TriggerObjectRel* trigRel = hltRels_->Allocate();
-            new (trigRel) TriggerObjectRel(iPath, 0, iObj, modIndex, typeIndex);
+            new (trigRel) TriggerObjectRel(iPath, vid, iObj, modIndex, typeIndex);
           }
         }
 
