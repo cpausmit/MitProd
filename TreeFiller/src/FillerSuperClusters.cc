@@ -67,7 +67,7 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
   // Add super cluster branch to tree and get pointers to maps.
 
   tws.AddBranch(mitName_,&superClusters_);
-  OS()->add<SuperClusterArr>(superClusters_,mitName_);
+  OS()->add(superClusters_,mitName_);
 
   if (!basicClusterMapName_.empty()) {
     basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_);
@@ -101,11 +101,11 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
   
   if (!superClusterMapName_.empty()) {
     superClusterMap_->SetBrName(mitName_);
-    OS()->add<SuperClusterMap>(superClusterMap_,superClusterMapName_);
+    OS()->add(superClusterMap_,superClusterMapName_);
   }
   if (!superClusterIdMapName_.empty()) {
     superClusterIdMap_->SetBrName(mitName_);
-    OS()->add<SuperClusterIdMap>(superClusterIdMap_,superClusterIdMapName_);
+    OS()->add(superClusterIdMap_,superClusterIdMapName_);
   }
 }
 
