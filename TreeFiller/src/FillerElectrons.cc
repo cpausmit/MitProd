@@ -85,7 +85,7 @@ mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
     electronMap_->SetBrName(mitName_);
     OS()->add(electronMap_, electronMapName_);
   }
-  if (fillFromPAT_ && electronPFMapName_.empty()) {
+  if (fillFromPAT_ && !electronPFMapName_.empty()) {
     electronPFMap_ = new mithep::CandidateMap;
     electronPFMap_->SetBrName(mitName_);
     OS()->add(electronPFMap_, electronPFMapName_);
@@ -533,23 +533,23 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   
       if (gsfconvTrackRef.isNonnull() && gsfTrackMap_) {
         try {
-	  outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));
-	}
-	catch(...) { 
-	  if (checkClusterActive_)
-	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! GSF track unmapped collection";
-	}
+          outElectron->SetConvPartnerTrk(gsfTrackMap_->GetMit(edm::refToPtr(gsfconvTrackRef)));
+        }
+        catch(...) { 
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! GSF track unmapped collection";
+        }
       }
       else if (ckfconvTrackRef.isNonnull() && trackerTrackMap_) {
         try {
-	  outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef)));
-	}
-	catch(...) {
-	  if (checkClusterActive_)
-	    throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-	      << "Error! Conversion Tracker track unmapped collection";
-	}
+          outElectron->SetConvPartnerTrk(trackerTrackMap_->GetMit(edm::refToPtr(ckfconvTrackRef)));
+        }
+        catch(...) {
+          if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Conversion Tracker track unmapped collection";
+        }
       }
     }
     else {
@@ -561,25 +561,25 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       if (convTrackRef.isAvailable()) {
         if (dynamic_cast<const reco::GsfTrack*>(convTrackRef.get()) && gsfTrackMap_) {
           try{
-	    outElectron->
-	      SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
-	  }
-	  catch(...) { 
-	    if (checkClusterActive_)
-	      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-		<< "Error! GSF track unmapped collection";
-	  }
+            outElectron->
+              SetConvPartnerTrk(gsfTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+          }
+          catch(...) { 
+            if (checkClusterActive_)
+              throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+                << "Error! GSF track unmapped collection";
+          }
         }
         else if (trackerTrackMap_) {
           try{
-	    outElectron->
-	      SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
-	  }
-	  catch(...) {
-	    if (checkClusterActive_)
-	      throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-		<< "Error! Conversion track unmapped collection";
-	  }
+            outElectron->
+              SetConvPartnerTrk(trackerTrackMap_->GetMit(mitedm::refToBaseToPtr(convTrackRef)));
+          }
+          catch(...) {
+            if (checkClusterActive_)
+              throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+                << "Error! Conversion track unmapped collection";
+          }
         }
       }
     }
