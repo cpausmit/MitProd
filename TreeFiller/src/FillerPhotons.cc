@@ -156,6 +156,11 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     edm::Ptr<reco::Photon> phPtr(hPhotonProduct, iPhoton);
     ++iPhoton;
 
+    auto&& scRef = inPhoton.superCluster();
+    reco::SuperCluster const* sc = 0;
+    if (scRef.isAvailable())
+      sc = scRef.get();
+
     // book the new bambu photon
     mithep::Photon *outPhoton = photons_->Allocate();
     new (outPhoton) mithep::Photon(inPhoton.px(),inPhoton.py(),inPhoton.pz(),inPhoton.energy());
@@ -187,9 +192,10 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetHollowConeTrkIsoDr03(inPhoton.trkSumPtHollowConeDR03());
     outPhoton->SetSolidConeNTrkDr03(inPhoton.nTrkSolidConeDR03());
     outPhoton->SetHollowConeNTrkDr03(inPhoton.nTrkHollowConeDR03());
-    outPhoton->SetHCalIsoTowDr03(inPhoton.hcalTowerSumEtConeDR03() +
-				 (inPhoton.hadronicOverEm()-inPhoton.hadTowOverEm())
-				 *inPhoton.superCluster()->energy()/cosh(inPhoton.superCluster()->eta()));    
+    if (sc)
+      outPhoton->SetHCalIsoTowDr03(inPhoton.hcalTowerSumEtConeDR03() +
+                                   (inPhoton.hadronicOverEm() - inPhoton.hadTowOverEm())
+                                   * sc->energy() /cosh(sc->eta()));
 
     // isolation variables for dR=0.4
     outPhoton->SetEcalRecHitIsoDr04(inPhoton.ecalRecHitSumEtConeDR04());
@@ -200,9 +206,10 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetHollowConeTrkIsoDr04(inPhoton.trkSumPtHollowConeDR04());
     outPhoton->SetSolidConeNTrkDr04(inPhoton.nTrkSolidConeDR04());
     outPhoton->SetHollowConeNTrkDr04(inPhoton.nTrkHollowConeDR04());
-    outPhoton->SetHCalIsoTowDr04(inPhoton.hcalTowerSumEtConeDR04() +
-				 (inPhoton.hadronicOverEm()-inPhoton.hadTowOverEm())
-				 *inPhoton.superCluster()->energy()/cosh(inPhoton.superCluster()->eta()));    
+    if (sc)
+      outPhoton->SetHCalIsoTowDr04(inPhoton.hcalTowerSumEtConeDR04() +
+                                   (inPhoton.hadronicOverEm() - inPhoton.hadTowOverEm())
+                                   * sc->energy() / cosh(sc->eta()));
 
     // pflow isolation
     outPhoton->SetPFChargedHadronIso(inPhoton.chargedHadronIso());
@@ -316,24 +323,26 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     }
 
     // make link to supercluster
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
-        inPhoton.superCluster().isNonnull()) {
-      if (barrelSuperClusterMap_->HasMit(inPhoton.superCluster()))
-        outPhoton->SetSuperCluster(barrelSuperClusterMap_->GetMit(inPhoton.superCluster()));        
-      else if(endcapSuperClusterMap_->HasMit(inPhoton.superCluster())) 
-        outPhoton->SetSuperCluster(endcapSuperClusterMap_->GetMit(inPhoton.superCluster()));
-      else if (checkClusterActive_)
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && sc) {
+      auto mitSC = barrelSuperClusterMap_->GetMit(scRef, false);
+      if (!mitSC)
+        mitSC = endcapSuperClusterMap_->GetMit(scRef, false);
+
+      if (mitSC)
+        outPhoton->SetSuperCluster(mitSC);
+      else if(checkClusterActive_)
         throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
 
     // make link to pf supercluster (DOES NOT EXIST ANYMORE)
-    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ &&
-        inPhoton.parentSuperCluster().isNonnull()) {
-      if (pfEcalBarrelSuperClusterMap_->HasMit(inPhoton.parentSuperCluster())) 
-    	outPhoton->SetPFSuperCluster(pfEcalBarrelSuperClusterMap_->GetMit(inPhoton.parentSuperCluster()));
-      else if (pfEcalEndcapSuperClusterMap_->HasMit(inPhoton.parentSuperCluster())) 
-    	outPhoton->SetPFSuperCluster(pfEcalEndcapSuperClusterMap_->GetMit(inPhoton.parentSuperCluster()));
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ && sc) {
+      auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(scRef, false);
+      if (!mitSC)
+        pfEcalEndcapSuperClusterMap_->GetMit(scRef, false);
+
+      if (mitSC)
+    	outPhoton->SetPFSuperCluster(mitSC);
       else if (checkClusterActive_)
         throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
           << "Error! PFEcal SuperCluster reference in unmapped collection";
