@@ -247,7 +247,7 @@ mithep::FillMitTree::configure(edm::ParameterSet const& cfg)
     if (ftype == "FillerMetaInfos")
       filler = new FillerMetaInfos(cfg, collector, os_, name.c_str(), defactive_);
     else if (ftype == "FillerTrigger")
-      filler = new FillerMetaInfos(cfg, collector, os_, name.c_str(), defactive_);
+      filler = new FillerTrigger(cfg, collector, os_, name.c_str(), defactive_);
     else if (ftype == "FillerMCParticles")
       filler = new FillerMCParticles(cfg, collector, os_, name.c_str(), defactive_);
     else if (ftype == "FillerMCEventInfo")
