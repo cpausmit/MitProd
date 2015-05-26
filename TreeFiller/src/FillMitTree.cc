@@ -61,6 +61,7 @@ mithep::FillMitTree::FillMitTree(edm::ParameterSet const& cfg) :
 {
   // Constructor.
 
+  tws_->AddTree(mithep::Names::gkEvtTreeName);
   tws_->AddTree(mithep::Names::gkRunTreeName);
   tws_->SetAutoFill(mithep::Names::gkRunTreeName, false);
   tws_->AddTree(mithep::Names::gkLATreeName);
@@ -182,6 +183,14 @@ mithep::FillMitTree::beginJob()
   brtable_->SetOwner();
   os_->add(brtable_, mithep::Names::gkBranchTable);
 
+  // call branch ref for the event tree
+  tws_->GetTree(mithep::Names::gkEvtTreeName)->BranchRef();
+
+  evtLAHeader_ = new mithep::LAHeader;
+  tws_->AddBranchToTree(mithep::Names::gkLATreeName, mithep::Names::gkLAHeaderBrn,
+                        mithep::LAHeader::Class()->GetName(), &evtLAHeader_);
+  os_->add(evtLAHeader_, mithep::Names::gkLAHeaderBrn);
+
   // loop over the various components and book the branches
   for (auto filler : fillers_) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << filler->Name();
@@ -193,15 +202,6 @@ mithep::FillMitTree::beginJob()
       throw;
     }
   }
-
-  // call branch ref for the event tree
-  if (tws_->GetTree())
-    tws_->GetTree()->BranchRef();
-
-  evtLAHeader_ = new mithep::LAHeader;
-  tws_->AddBranchToTree(mithep::Names::gkLATreeName, mithep::Names::gkLAHeaderBrn,
-                        mithep::LAHeader::Class()->GetName(), &evtLAHeader_);
-  os_->add(evtLAHeader_, mithep::Names::gkLAHeaderBrn);
 }
 
 bool
