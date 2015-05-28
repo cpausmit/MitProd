@@ -7,16 +7,17 @@ def configureForMiniAOD(treeFiller):
 
     treeFiller.fillers = [
         'MetaInfos',
-#        'Trigger',
+        'Trigger',
         'MCParticles',
         'MCEventInfo',
         'PileupInfo',
-        #'PileupEnergyDensity',
-        #'EvtSelData',
+        'PileupEnergyDensity',
+        'EvtSelData',
         'BeamSpot',
-        #'BasicClusters',
-        #'PsClusters', # GED preshower clusters are of type CaloClusterCollection - either FillerPsClusters or FillerBasicClusters must be updated
+#        #'BasicClusters',
+#        #'PsClusters', # GED preshower clusters are of type CaloClusterCollection - either FillerPsClusters or FillerBasicClusters must be updated
         'SuperClusters',
+        'GeneralTracks',
         'PrimaryVertexes',
         'Muons',
         'Electrons',
@@ -27,12 +28,30 @@ def configureForMiniAOD(treeFiller):
         'AKt8PFJets',
         'PFMet',
         'HPSTaus',
-        'DCASig'
+        'DCASig',
+        'AKT4GenJets',
+        'AKT8GenJets',
+        'GenMet'
     ]
     treeFiller.Trigger.hltEvtEdmName = ''
     treeFiller.Trigger.hltObjsEdmName = 'selectedPatTrigger'
     treeFiller.MCParticles.genSource = 'PackedGenParticleCollection'
     treeFiller.MCParticles.genEdmName = 'packedGenParticles'
+    treeFiller.EvtSelData = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        mitName = cms.untracked.string('EvtSelData'),
+        patFilterResultsName = cms.untracked.string('TriggerResults::PAT'),
+        HBHENoiseFilterName = cms.untracked.string('Flag_HBHENoiseFilter'),
+        ECALDeadCellFilterName = cms.untracked.string('Flag_EcalDeadCellTriggerPrimitiveFilter'),  
+        trackingFailureFilterName = cms.untracked.string('Flag_trackingFailureFilter'),  
+        EEBadScFilterName = cms.untracked.string('Flag_eeBadScFilter'),  
+        ECALaserCorrFilterName = cms.untracked.string('Flag_ecalLaserCorrFilter'),  
+        tkManyStripClusName = cms.untracked.string('Flag_trkPOG_manystripclus53X'),  
+        tkTooManyStripClusName = cms.untracked.string('Flag_trkPOG_toomanystripclus53X'),  
+        tkLogErrorTooManyClustersName = cms.untracked.string('Flag_trkPOG_logErrorTooManyClusters'),  
+        BeamHaloSummaryName = cms.untracked.string('Flag_CSCTightHaloFilter'),  
+        fillerType = cms.untracked.string('FillerEvtSelData')
+    )
     treeFiller.SuperClusters = cms.untracked.PSet(
         active = cms.untracked.bool(True),
         mitName = cms.untracked.string('SuperClusters'),
@@ -45,6 +64,8 @@ def configureForMiniAOD(treeFiller):
         superClusterIdMapName = cms.untracked.string('superClusterIdMap'),
         fillerType = cms.untracked.string('FillerSuperClusters')
     )
+    treeFiller.GeneralTracks.edmName = 'unpackedTracksAndVertices'
+    treeFiller.GeneralTracks.edmSimAssociationName = ''
     treeFiller.PrimaryVertexes.edmName = 'offlineSlimmedPrimaryVertices'
     treeFiller.Muons = cms.untracked.PSet(
         active = cms.untracked.bool(True),
@@ -137,3 +158,5 @@ def configureForMiniAOD(treeFiller):
     treeFiller.DCASig.edmMuonName = 'slimmedMuons'
     treeFiller.DCASig.edmTauName = 'slimmedTaus'
     treeFiller.DCASig.edmTauType = 'PATTau'
+    treeFiller.GenMet.edmName = 'slimmedMETs'
+    treeFiller.GenMet.fillFromPAT = True

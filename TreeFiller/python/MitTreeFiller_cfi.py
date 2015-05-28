@@ -772,10 +772,11 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   ),
 
   GenMet = cms.untracked.PSet(
-    active     = cms.untracked.bool(False),
-    mitName    = cms.untracked.string('GenMet'),
-    edmName    = cms.untracked.string('genMetTrue'),
-    fillerType = cms.untracked.string('FillerGenMet')
+    active      = cms.untracked.bool(False),
+    mitName     = cms.untracked.string('GenMet'),
+    edmName     = cms.untracked.string('genMetTrue'),
+    fillFromPAT = cms.untracked.bool(False),
+    fillerType  = cms.untracked.string('FillerGenMet')
   ),
 
   PFMet = cms.untracked.PSet(
