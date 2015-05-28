@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerEvtSelData.h,v 1.2 2010/03/18 20:21:00 bendavid Exp $
-//
 // FillerEvtSelData
 //
 // Fill event selection data object.
@@ -21,36 +19,41 @@ namespace mithep
 
   class FillerEvtSelData : public BaseFiller
   {
-    public:
-      FillerEvtSelData(const edm::ParameterSet &cfg, 
-                       edm::ConsumesCollector&,
-                       ObjectService*,
-                       const char *name="EvtSelData", bool active=1);
-      ~FillerEvtSelData();
+  public:
+    FillerEvtSelData(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* = "EvtSelData", bool = true);
+    ~FillerEvtSelData();
 
-      void                     BookDataBlock(TreeWriter &tws);
-      void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+    void BookDataBlock(TreeWriter &) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
-    protected:
-      int                      GetMetFiltersWord (
-                               Bool_t HBHENoiseFilter, Bool_t ECALDeadCellFilter,
-                               Bool_t trackingFailureFilter, Bool_t EEBadScFilter,
-                               Bool_t ECALaserCorrFilter, Bool_t tkOddManyStripClusFilter,
-                               Bool_t tkOddTooManyStripClusFilter, Bool_t tkOddLogErrorTooManyClustersFilter,
-                               Bool_t CSCTightHaloFilter, Bool_t CSCLooseHaloFilter);
+    enum EvtSelFilter {
+      kHBHENoiseFilter,
+      kECALDeadCellFilter,
+      kTrackingFailureFilter,
+      kEEBadScFilter,
+      kECALaserCorrFilter,
+      kManyStripClusFilter,
+      kTooManyStripClusFilter,
+      kLogErrorTooManyClustersFilter,
+      kCSCTightHaloFilter,
+      kCSCLooseHaloFilter,
+      nEvtSelFilters
+    };
 
-    private:    
-      std::string              mitName_;                        //mit branch name
-      edm::EDGetTokenT<bool>   HBHENoiseFilterToken_;            //name: input edm HBHENoiseFilter decision 
-      edm::EDGetTokenT<bool>   ECALDeadCellFilterToken_;         //name: input edm ECALDeadCellFilter decision 
-      edm::EDGetTokenT<bool>   trackingFailureFilterToken_;      //name: input edm trackingFailureFilter decision 
-      edm::EDGetTokenT<bool>   EEBadScFilterToken_;              //name: input edm EEBadScFilter decision 
-      edm::EDGetTokenT<bool>   ECALaserCorrFilterToken_;         //name: input edm ECALaserCorrFilter decision 
-      edm::EDGetTokenT<bool>   tkManyStripClusToken_;            //name: input edm trackingOddFilter decision [1]
-      edm::EDGetTokenT<bool>   tkTooManyStripClusToken_;         //name: input edm trackingOddFilter decision [2]
-      edm::EDGetTokenT<bool>   tkLogErrorTooManyClustersToken_;  //name: input edm trackingOddFilter decision [3]
-      edm::EDGetTokenT<reco::BeamHaloSummary>   BeamHaloSummaryToken_;            //name: input edm BeamHalo summary 
-      EvtSelData               *evtSelData_;                    //event selection data object
+  private:    
+    std::string              mitName_;                        //mit branch name
+    std::string              filterLabels_[nEvtSelFilters];
+    edm::EDGetTokenT<bool>   HBHENoiseFilterToken_;            //input edm HBHENoiseFilter decision 
+    edm::EDGetTokenT<bool>   ECALDeadCellFilterToken_;         //input edm ECALDeadCellFilter decision 
+    edm::EDGetTokenT<bool>   TrackingFailureFilterToken_;      //input edm trackingFailureFilter decision 
+    edm::EDGetTokenT<bool>   EEBadScFilterToken_;              //input edm EEBadScFilter decision 
+    edm::EDGetTokenT<bool>   ECALaserCorrFilterToken_;         //input edm ECALaserCorrFilter decision 
+    edm::EDGetTokenT<bool>   ManyStripClusToken_;            //input edm trackingOddFilter decision [1]
+    edm::EDGetTokenT<bool>   TooManyStripClusToken_;         //input edm trackingOddFilter decision [2]
+    edm::EDGetTokenT<bool>   LogErrorTooManyClustersToken_;  //input edm trackingOddFilter decision [3]
+    edm::EDGetTokenT<reco::BeamHaloSummary>   BeamHaloSummaryToken_; //input edm BeamHalo summary 
+    edm::EDGetTokenT<edm::TriggerResults> patFilterResultsToken_; //filter results for MET filters already applied during PAT
+    EvtSelData*              evtSelData_;                    //event selection data object
   };
 }
 #endif
