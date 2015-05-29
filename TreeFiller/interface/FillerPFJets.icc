@@ -140,16 +140,16 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
   }
   
   // Handles to Jet-to-Vertex Association
-  edm::Handle<std::vector<double> > JV_alpha;  
-  edm::Handle<std::vector<double> > JV_beta;    
-  std::vector<double>::const_iterator it_jv_alpha;
-  std::vector<double>::const_iterator it_jv_beta;
+  std::vector<double> const* JV_alpha = 0;
+  std::vector<double> const* JV_beta = 0;
 
   if (jetToVertexActive_) {
-    GetProduct(jetToVertexAlphaToken_, JV_alpha, event); 
-    GetProduct(jetToVertexBetaToken_, JV_beta, event);  
-    it_jv_alpha = JV_alpha->begin();
-    it_jv_beta  = JV_beta->begin();    
+    edm::Handle<std::vector<double> > alphaHandle;
+    edm::Handle<std::vector<double> > betaHandle;
+    GetProduct(jetToVertexAlphaToken_, alphaHandle, event); 
+    GetProduct(jetToVertexBetaToken_, betaHandle, event);  
+    JV_alpha = alphaHandle.product();
+    JV_beta = betaHandle.product();
   }
 
   // Define Jet Correction Services
@@ -166,7 +166,6 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
     edm::Ref<JetCollection> jetRef(hJetProduct, iJet);
     reco::JetBaseRef jetBaseRef(jetRef);
     edm::Ptr<reco::Jet> jetPtr(hJetProduct, iJet);
-    ++iJet;
     
     mithep::PFJet *jet = jets_->Allocate();
 
@@ -191,8 +190,8 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
      
     // compute alpha and beta parameter for jets if vertex matching active
     if (jetToVertexActive_) {
-      jet->SetAlpha((*it_jv_alpha));
-      jet->SetBeta((*it_jv_beta));      
+      jet->SetAlpha(JV_alpha->at(iJet));
+      jet->SetBeta(JV_beta->at(iJet));
     }
 
     // fill the area anyway 
@@ -250,15 +249,25 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
 
     // add PFCandidate refs
     if (pfCandMap_) {
-      for (unsigned iD = 0; iD < inJet.numberOfDaughters(); ++iD)
-        jet->AddPFCand(pfCandMap_->GetMit(inJet.daughterPtr(iD)));
+      for (unsigned iD = 0; iD != inJet.numberOfDaughters(); ++iD) {
+        mithep::PFCandidate* pfCand = pfCandMap_->GetMit(inJet.daughterPtr(iD), false);
+        if (pfCand)
+          jet->AddPFCand(pfCand);
+        else {
+          // First two daughters of the AK8 jets in miniAOD are Soft Drop subjets.
+          // Being a bit general here..
+          reco::Jet const* subJet = dynamic_cast<reco::Jet const*>(inJet.daughter(iD));
+          if (!subJet)
+            throw edm::Exception(edm::errors::LogicError, "FillerPFJets::FillDataBlock()")
+              << "Daughter " << iD << " not in the list of PF Candidates but not a subjet";
+
+          for (unsigned iSD = 0; iSD != subJet->numberOfDaughters(); ++iSD)
+            jet->AddPFCand(pfCandMap_->GetMit(subJet->daughterPtr(iSD)));
+        }
+      }
     }
     
-    // add jet vertex information
-    if (jetToVertexActive_) {
-      it_jv_alpha++; 
-      it_jv_beta++;
-    }
+    ++iJet;
   }      
   jets_->Trim();
 }
