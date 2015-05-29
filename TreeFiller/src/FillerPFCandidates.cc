@@ -127,7 +127,7 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
   // get PF NoPileup Candidates
   edm::Handle<PFCollection> hPfNoPileupCandProduct;
-  GetProduct(edmToken_, hPfNoPileupCandProduct, event);  
+  GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
   PFCollection const& inPfNoPileupCands = *hPfNoPileupCandProduct;
 
   for (auto&& inPfPtr : inPfCands) {
