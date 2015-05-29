@@ -24,8 +24,8 @@ def configureForMiniAOD(treeFiller):
         'Conversions',
         'Photons',
         'PFCandidates',
-        'AKt4PFJets',
-        'AKt8PFJets',
+        'AKt4PFJetsCHS',
+        'AKt8PFJetsCHS',
         'PFMet',
         'HPSTaus',
         'DCASig',
@@ -146,10 +146,12 @@ def configureForMiniAOD(treeFiller):
         fillFromPAT = cms.untracked.bool(True),
         fillerType = cms.untracked.string('FillerPhotons')
     )
-    treeFiller.AKt4PFJets.edmName = 'slimmedJets'
-    treeFiller.AKt4PFJets.fillerType = 'FillerPFJetsFromPATJets'
-    treeFiller.AKt8PFJets.edmName = 'slimmedJetsAK8'
-    treeFiller.AKt8PFJets.fillerType = 'FillerPFJetsFromPATJets'
+    treeFiller.AKt4PFJetsCHS.edmName = 'slimmedJets'
+    treeFiller.AKt4PFJetsCHS.fillerType = 'FillerPFJetsFromPATJets'
+    treeFiller.AKt4PFJetsCHS.pfCandMapName = 'PFCandMapName'
+    treeFiller.AKt8PFJetsCHS.edmName = 'slimmedJetsAK8'
+    treeFiller.AKt8PFJetsCHS.fillerType = 'FillerPFJetsFromPATJets'
+    treeFiller.AKt8PFJetsCHS.pfCandMapName = 'PFCandMapName'
     treeFiller.PFMet.edmName = 'slimmedMETs'
     treeFiller.PFMet.fillerType = 'FillerPFMetFromPATMET'
     treeFiller.HPSTaus.edmName = 'slimmedTaus'
