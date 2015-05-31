@@ -50,6 +50,14 @@ namespace mithep
       edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexMVABJetTagsToken_;   //bjet algo discriminant
       edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighEffBJetTagsToken_;         //bjet algo discriminant
       edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighPurBJetTagsToken_;         //bjet algo discriminant
+      std::string       jetProbabilityBJetTagsName_;               //bjet algo discriminant
+      std::string       jetBProbabilityBJetTagsName_;              //bjet algo discriminant
+      std::string       simpleSecondaryVertexHighEffBJetTagsName_; //bjet algo discriminant
+      std::string       simpleSecondaryVertexHighPurBJetTagsName_; //bjet algo discriminant
+      std::string       combinedSecondaryVertexBJetTagsName_;      //bjet algo discriminant
+      std::string       combinedSecondaryVertexMVABJetTagsName_;   //bjet algo discriminant
+      std::string       trackCountingHighEffBJetTagsName_;         //bjet algo discriminant
+      std::string       trackCountingHighPurBJetTagsName_;         //bjet algo discriminant
       std::string       mitName_;                                  //mit name of jets collection
       std::string       L2JetCorrectorName_;                       //label of the L2JetCorrection service
       std::string       L3JetCorrectorName_;                       //label of the L3JetCorrection service
@@ -59,6 +67,8 @@ namespace mithep
       std::string       jetMapName_;                               //name of exported PFJetMap
       mithep::PFJetMap *jetMap_;                                   //export map
       mithep::PFJetArr *jets_;                                     //array of Jets
+
+      static bool fillFromPAT_;
   };
 }
 #endif

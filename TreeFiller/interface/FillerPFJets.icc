@@ -2,6 +2,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
@@ -32,14 +34,16 @@ mithep::FillerPFJets<JET>::FillerPFJets(edm::ParameterSet const& cfg, edm::Consu
   simpleSecondaryVertexHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName", "simpleSecondaryVertexHighPurBJetTags")),                   
   combinedSecondaryVertexBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName", "combinedSecondaryVertexBJetTags")),
   combinedSecondaryVertexMVABJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexMVABJetTagsName", "combinedSecondaryVertexMVABJetTags")),
-  //ghostTrackBJetTagsName_(Conf().getUntrackedParameter("GhostTrackBJetTagsName", std::string("ghostTrackBJetTags"))),
   trackCountingHighEffBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName", "trackCountingHighEffBJetTags")),
   trackCountingHighPurBJetTagsToken_(GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName", "trackCountingHighPurBJetTags")),
-  //softMuonBJetTagsName_(Conf().getUntrackedParameter("SoftMuonBJetTagsName", std::string("softMuonBJetTags"))),
-  //softMuonByIP3dBJetTagsName_(Conf().getUntrackedParameter("SoftMuonByIP3dBJetTagsName", std::string("softMuonByIP3dBJetTags"))),
-  //softMuonByPtBJetTagsName_(Conf().getUntrackedParameter("SoftMuonByPtBJetTagsName", std::string("softMuonByPtBJetTags"))),
-  //softElectronByIP3dBJetTagsName_(Conf().getUntrackedParameter("SoftElectronByIP3dBJetTagsName", std::string("softElectronByIP3dBJetTags"))),
-  //softElectronByPtBJetTagsName_(Conf().getUntrackedParameter("SoftElectronByPtBJetTagsName", std::string("softElectronByPtBJetTags"))),
+  jetProbabilityBJetTagsName_(Conf().getUntrackedParameter("JetProbabilityBJetTagsName", std::string("jetProbabilityBJetTags"))),
+  jetBProbabilityBJetTagsName_(Conf().getUntrackedParameter("JetBProbabilityBJetTagsName", std::string("jetBProbabilityBJetTags"))),
+  simpleSecondaryVertexHighEffBJetTagsName_(Conf().getUntrackedParameter("SimpleSecondaryVertexHighEffBJetTagsName", std::string("simpleSecondaryVertexHighEffBJetTags"))),                   
+  simpleSecondaryVertexHighPurBJetTagsName_(Conf().getUntrackedParameter("SimpleSecondaryVertexHighPurBJetTagsName", std::string("simpleSecondaryVertexHighPurBJetTags"))),                   
+  combinedSecondaryVertexBJetTagsName_(Conf().getUntrackedParameter("CombinedSecondaryVertexBJetTagsName", std::string("combinedSecondaryVertexBJetTags"))),
+  combinedSecondaryVertexMVABJetTagsName_(Conf().getUntrackedParameter("CombinedSecondaryVertexMVABJetTagsName", std::string("combinedSecondaryVertexMVABJetTags"))),
+  trackCountingHighEffBJetTagsName_(Conf().getUntrackedParameter("TrackCountingHighEffBJetTagsName", std::string("trackCountingHighEffBJetTags"))),
+  trackCountingHighPurBJetTagsName_(Conf().getUntrackedParameter("TrackCountingHighPurBJetTagsName", std::string("trackCountingHighPurBJetTags"))),
   mitName_(Conf().getUntrackedParameter("mitName", std::string("ItrCone5PFJets"))), 
   L2JetCorrectorName_(Conf().getUntrackedParameter("L2JetCorrectorName", std::string("L2JetCorrectorName"))),
   L3JetCorrectorName_(Conf().getUntrackedParameter("L3JetCorrectorName", std::string("L3JetCorrectorName"))),
@@ -128,7 +132,7 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
   //edm::Handle<reco::JetTagCollection> hSoftElectronByPtBJetTags;
   //edm::Handle<reco::JetTagCollection> hGhostTrackBJetTags;
 
-  if (bTaggingActive_) {
+  if (bTaggingActive_ && !fillFromPAT_) {
     GetProduct(jetProbabilityBJetTagsToken_, hJetProbabilityBJetTags, event);    
     GetProduct(jetBProbabilityBJetTagsToken_, hJetBProbabilityBJetTags, event);        
     GetProduct(simpleSecondaryVertexHighEffBJetTagsToken_,hSimpleSecondaryVertexHighEffBJetTags,event);
@@ -213,7 +217,19 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
       jet->EnableCorrection(mithep::PFJet::L3);     
     }
     
-    if (bTaggingActive_) {
+    if (bTaggingActive_ && fillFromPAT_) {
+      // next line needed for PFJet case
+      pat::Jet const& inJetCast(static_cast<pat::Jet const&>(static_cast<reco::Jet const&>(inJet)));
+      jet->SetJetProbabilityBJetTagsDisc(inJetCast.bDiscriminator(jetProbabilityBJetTagsName_));
+      jet->SetJetBProbabilityBJetTagsDisc(inJetCast.bDiscriminator(jetBProbabilityBJetTagsName_));
+      jet->SetSimpleSecondaryVertexHighEffBJetTagsDisc(inJetCast.bDiscriminator(simpleSecondaryVertexHighEffBJetTagsName_));
+      jet->SetSimpleSecondaryVertexHighPurBJetTagsDisc(inJetCast.bDiscriminator(simpleSecondaryVertexHighPurBJetTagsName_));
+      jet->SetCombinedSecondaryVertexBJetTagsDisc(inJetCast.bDiscriminator(combinedSecondaryVertexBJetTagsName_));
+      jet->SetCombinedSecondaryVertexMVABJetTagsDisc(inJetCast.bDiscriminator(combinedSecondaryVertexMVABJetTagsName_));
+      jet->SetTrackCountingHighEffBJetTagsDisc(inJetCast.bDiscriminator(trackCountingHighEffBJetTagsName_));
+      jet->SetTrackCountingHighPurBJetTagsDisc(inJetCast.bDiscriminator(trackCountingHighPurBJetTagsName_));
+    }
+    else {
       jet->SetJetProbabilityBJetTagsDisc((*(hJetProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetJetBProbabilityBJetTagsDisc((*(hJetBProbabilityBJetTags.product()))[jetBaseRef]);
       jet->SetSimpleSecondaryVertexHighEffBJetTagsDisc((*(hSimpleSecondaryVertexHighEffBJetTags.product()))[jetBaseRef]);       
@@ -272,8 +288,8 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event,
   jets_->Trim();
 }
 
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
 typedef mithep::FillerPFJets<reco::PFJet> FillerPFJetsFromPFJets;
 typedef mithep::FillerPFJets<pat::Jet> FillerPFJetsFromPATJets;
+
+template<> bool FillerPFJetsFromPFJets::fillFromPAT_(false);
+template<> bool FillerPFJetsFromPATJets::fillFromPAT_(true);

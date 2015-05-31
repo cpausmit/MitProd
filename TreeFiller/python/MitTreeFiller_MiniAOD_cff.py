@@ -146,9 +146,34 @@ def configureForMiniAOD(treeFiller):
         fillFromPAT = cms.untracked.bool(True),
         fillerType = cms.untracked.string('FillerPhotons')
     )
-    treeFiller.AKt4PFJetsCHS.edmName = 'slimmedJets'
-    treeFiller.AKt4PFJetsCHS.fillerType = 'FillerPFJetsFromPATJets'
-    treeFiller.AKt4PFJetsCHS.pfCandMapName = 'PFCandMapName'
+    AKt4PFJetsCHS = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        flavorMatchingActive = cms.untracked.bool(False),
+        bTaggingActive = cms.untracked.bool(True),
+        jetToVertexActive = cms.untracked.bool(False),
+        jetCorrectionsActive = cms.untracked.bool(False),
+        fastJetCorrectionsActive = cms.untracked.bool(False),
+        mitName = cms.untracked.string('AKt4PFJetsCHS'),
+        edmName = cms.untracked.string('slimmedJets'),
+        rhoName = cms.untracked.string(''),
+        jetToVertexAlphaName = cms.untracked.string(''),
+        jetToVertexBetaName = cms.untracked.string(''),
+        L2JetCorrectorName = cms.untracked.string(''),
+        L3JetCorrectorName = cms.untracked.string(''),
+        flavorMatchingByReferenceName = cms.untracked.string('AKT4PFbyRef'),
+        flavorMatchingDefinition = cms.untracked.string('Algorithmic'),
+        JetProbabilityBJetTagsName = cms.untracked.string('pfJetProbabilityBJetTags'),
+        JetBProbabilityBJetTagsName = cms.untracked.string('pfJetBProbabilityBJetTags'),
+        SimpleSecondaryVertexHighEffBJetTagsName = cms.untracked.string('pfSimpleSecondaryVertexHighEffBJetTags'),
+        SimpleSecondaryVertexHighPurBJetTagsName = cms.untracked.string('pfSimpleSecondaryVertexHighPurBJetTags'),
+        CombinedSecondaryVertexBJetTagsName = cms.untracked.string('pfCombinedSecondaryVertexV2BJetTags'),
+        CombinedSecondaryVertexMVABJetTagsName = cms.untracked.string('newCombinedMVABJetTags'),
+        TrackCountingHighEffBJetTagsName = cms.untracked.string('pfTrackCountingHighEffBJetTags'),
+        TrackCountingHighPurBJetTagsName = cms.untracked.string('pfTrackCountingHighPurBJetTags'),
+        pfCandMapName = cms.untracked.string('PFCandMapName'),
+        jetMapName = cms.untracked.string('AKt4PFJetCHSMap'),
+        fillerType = cms.untracked.string('FillerPFJetsFromPATJets')
+    ),
     treeFiller.AKt8PFJetsCHS.edmName = 'slimmedJetsAK8'
     treeFiller.AKt8PFJetsCHS.fillerType = 'FillerPFJetsFromPATJets'
     treeFiller.AKt8PFJetsCHS.pfCandMapName = 'PFCandMapName'
