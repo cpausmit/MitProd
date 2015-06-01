@@ -1,5 +1,3 @@
-// $Id: FillerPATMuons.cc,v 1.7 2009/09/25 08:42:51 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPATMuons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -86,7 +84,7 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
   
   edm::Handle<edm::View<pat::Muon> > muonHandle;
   GetProduct(edmToken_, muonHandle, event);
-  edm::View<pat::Muon> muons = *muonHandle;
+  edm::View<pat::Muon> const& muons = *muonHandle;
 
   for(edm::View<pat::Muon>::const_iterator iM = muons.begin(); iM!=muons.end(); ++iM){
 

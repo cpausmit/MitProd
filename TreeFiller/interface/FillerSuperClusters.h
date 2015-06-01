@@ -38,11 +38,11 @@ namespace mithep
 
     protected:
       std::vector<float>               getESHits(double X, double Y, double Z,
-						 std::map<DetId, EcalRecHit> rechits_map,
+						 std::map<DetId, EcalRecHit const*> const& rechits_map,
 						 const CaloGeometry& geometry,
 						 CaloSubdetectorTopology *topology_p, int row);     
       std::vector<float>               getESShape(std::vector<float> ESHits0);
-      void                             SCTimeSpanCalculator(const reco::SuperCluster* scl, 
+      void                             SCTimeSpanCalculator(std::vector<std::pair<DetId, float> > const&,
                                                             double xtalEnergyThr, double seedTime, 
                                                             double& SCLeadTimeSpan,
 							    double& SCSubLeadTimeSpan, 

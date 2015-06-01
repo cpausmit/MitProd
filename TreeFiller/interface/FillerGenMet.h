@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerGenMet.h,v 1.3 2009/09/25 08:42:50 loizides Exp $
-//
 // FillerGenMet
 //
 // Implementation of a filler to fill EDM missing ET objects into our mithep::Met data structure.
@@ -14,23 +12,30 @@
 #include "MitAna/DataTree/interface/GenMetFwd.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
-#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/Common/interface/View.h"
+
+namespace reco {
+  class MET;
+}
 
 namespace mithep 
 {
   class FillerGenMet : public BaseFiller
   {  
-    public:
-      FillerGenMet(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
-      ~FillerGenMet();
+  public:
+    FillerGenMet(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const*, bool = true);
+    ~FillerGenMet();
 
-      void                  BookDataBlock(TreeWriter &tws);
-      void 	            FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+    void BookDataBlock(TreeWriter &) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+
+    typedef edm::View<reco::MET> METView;
   
-    private:
-      edm::EDGetTokenT<reco::GenMETCollection> edmToken_;    //edm name of met collection
-      std::string           mitName_;    //mit name of met collection
-      mithep::GenMetArr    *genMets_;    //array of Mets
+  private:
+    edm::EDGetTokenT<METView> edmToken_;    //edm name of met collection
+    std::string               mitName_;     //mit name of met collection
+    bool                      fillFromPAT_; //true if filling from miniAOD
+    mithep::GenMetArr*        genMets_;     //array of Mets
   };
 }
 #endif

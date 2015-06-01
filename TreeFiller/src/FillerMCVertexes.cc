@@ -1,5 +1,3 @@
-// $Id: FillerMCVertexes.cc,v 1.1 2009/09/25 08:42:42 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerMCVertexes.h"
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/VertexCol.h"
@@ -69,7 +67,7 @@ void FillerMCVertexes::FillDataBlock(const edm::Event      &event,
   } else { /*useAodGen_*/
     Handle<reco::GenParticleCollection> hGenPProduct;
     GetProduct(genParticlesToken_, hGenPProduct, event);  
-    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
+    reco::GenParticleCollection const& genParticles = *hGenPProduct;
     for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
         pgen != genParticles.end(); ++pgen) {
 

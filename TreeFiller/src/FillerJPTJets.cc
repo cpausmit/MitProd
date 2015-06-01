@@ -1,5 +1,3 @@
-// $Id: FillerJPTJets.cc,v 1.4 2010/09/22 08:39:34 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerJPTJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -122,7 +120,7 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
     GetProduct(trackCountingHighPurBJetTagsToken_, hTrackCountingHighPurBJetTags, event);    
   }
   
-  const reco::JPTJetCollection inJets = *(hJetProduct.product());  
+  reco::JPTJetCollection const& inJets = *hJetProduct;
 
   //Handles to Jet to Vertex Association
   Handle<std::vector<double> > JV_alpha;  
@@ -159,7 +157,7 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().e());
 
     //add to map
-    edm::Ptr<reco::JPTJet> thePtr(hJetProduct, inJet - inJets.begin());
+    edm::Ptr<reco::Jet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
 
     //fill jet moments
@@ -245,7 +243,7 @@ void FillerJPTJets::FillDataBlock(const edm::Event      &event,
 
     // fill ref to original jet
     if (caloJetMap_ && inJet->getCaloJetRef().isNonnull()) {
-      const edm::Ptr<reco::CaloJet> caloJetPtr(mitedm::refToBaseToPtr(inJet->getCaloJetRef()));
+      const edm::Ptr<reco::Jet> caloJetPtr(mitedm::refToBaseToPtr(inJet->getCaloJetRef()));
       const mithep::Jet *originalJet = caloJetMap_->GetMit(caloJetPtr);
       jet->SetOriginalJet(originalJet);
     }

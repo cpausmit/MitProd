@@ -117,7 +117,7 @@ const T *mithep::ObjectService::get(const char *name) const
   if (!o) 
     return 0;
 
-  const NamedObject<T> *no = static_cast<const NamedObject<T>* >(o);
+  const NamedObject<T> *no = dynamic_cast<const NamedObject<T>* >(o);
   if (!no)
     return 0;
 
@@ -134,7 +134,7 @@ const T *mithep::ObjectService::getObjEvt(const char *name) const
   if (!o) 
     return 0;
 
-  const NamedObjectOwned<T> *no = static_cast<const NamedObjectOwned<T>* >(o);
+  const NamedObjectOwned<T> *no = dynamic_cast<const NamedObjectOwned<T>* >(o);
   if (!no)
     return 0;
 

@@ -1,5 +1,3 @@
-// $Id: FillerCaloMet.cc,v 1.13 2009/09/25 08:42:50 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerCaloMet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "MitAna/DataTree/interface/CaloMetCol.h"
@@ -48,7 +46,7 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
   Handle<reco::CaloMETCollection> hCaloMetProduct;
   GetProduct(edmToken_, hCaloMetProduct, event);
 
-  const reco::CaloMETCollection inCaloMets = *(hCaloMetProduct.product());  
+  reco::CaloMETCollection const& inCaloMets = *hCaloMetProduct;
 
   // loop through all mets
   for (reco::CaloMETCollection::const_iterator inCaloMet = inCaloMets.begin(); 

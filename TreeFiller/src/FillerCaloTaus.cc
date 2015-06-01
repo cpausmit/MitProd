@@ -1,5 +1,3 @@
-// $Id: FillerCaloTaus.cc,v 1.6 2009/09/25 08:42:50 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerCaloTaus.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
@@ -82,7 +80,7 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
   Handle<reco::CaloTauCollection> hTauProduct;
   GetProduct(edmToken_, hTauProduct, event);
   
-  const reco::CaloTauCollection inTaus = *(hTauProduct.product());  
+  reco::CaloTauCollection const& inTaus = *hTauProduct;
   // loop through all taus
   for (reco::CaloTauCollection::const_iterator inTau = inTaus.begin(); 
        inTau != inTaus.end(); ++inTau) {

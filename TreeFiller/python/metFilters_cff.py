@@ -17,7 +17,7 @@ from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 ecalLaserCorrFilter.taggingMode = cms.bool(True)
 
 #> The Good vertices collection needed by the tracking failure filter
-from MitProd.TreeFiller.goodVertices_cff import *
+from RecoMET.METFilters.metFilters_cff import goodVertices
 
 #> The tracking failure filter
 from RecoMET.METFilters.trackingFailureFilter_cfi import *

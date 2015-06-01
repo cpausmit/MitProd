@@ -22,30 +22,78 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg, os, name, active),
-  genActive_(Conf().getUntrackedParameter<bool>("genActive",true)),
-  useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
-  simActive_(Conf().getUntrackedParameter<bool>("simActive",true)),
-  trackingActive_(Conf().getUntrackedParameter<bool>("trackingActive",false)),
-  fillTracking_(Conf().getUntrackedParameter<bool>("fillTracking",false)),
-  hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, "genEdmName","genParticles")),
-  genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, "genEdmName","genParticles")),
-  genBarcodesToken_(GetToken<std::vector<int> >(collector, "genEdmName","genParticles")),
-  simTracksToken_(GetToken<edm::SimTrackContainer>(collector, "simEdmName","g4SimHits")),
-  simVerticesToken_(GetToken<std::vector<SimVertex> >(collector, "simEdmName","g4SimHits")),
-  trackingEdmToken_(GetToken<TrackingParticleCollection>(collector, "trackingEdmName", "mergedtruth:MergedTrackTruth")),
-  genMapName_(Conf().getUntrackedParameter<string>("genMapName","GenMap")),
-  simMapName_(Conf().getUntrackedParameter<string>("simMapName","SimMap")),
-  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMCPartBrn)),
-  mitTrackingName_(Conf().getUntrackedParameter<string>("mitTrackingName",Names::gkTrackingParticleBrn)),
+  genActive_(Conf().getUntrackedParameter("genActive", true)),
+  simActive_(Conf().getUntrackedParameter("simActive", true)),
+  trackingActive_(Conf().getUntrackedParameter("trackingActive", false)),
+  fillTracking_(Conf().getUntrackedParameter("fillTracking", false)),
+  genSource_(nGenSources),
+  hepMCProdToken_(),
+  genParticlesToken_(),
+  genBarcodesToken_(),
+  simTracksToken_(),
+  simVerticesToken_(),
+  trackingEdmToken_(),
+  packedGenParticlesToken_(),
+  genMapName_(Conf().getUntrackedParameter<string>("genMapName", "GenMap")),
+  simMapName_(Conf().getUntrackedParameter<string>("simMapName", "SimMap")),
+  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName", "TrackingMap")),
+  mitName_(Conf().getUntrackedParameter<string>("mitName", Names::gkMCPartBrn)),
+  mitTrackingName_(Conf().getUntrackedParameter<string>("mitTrackingName", Names::gkTrackingParticleBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
   trackingParticles_(new mithep::TrackingParticleArr(250)),
-  genMap_(genActive_?new mithep::GenParticleBarcodeMap:0),
-  aodGenMap_((genActive_&&useAodGen_)?new mithep::AODGenParticleMap:0),
-  simMap_(simActive_?new mithep::SimTrackTidMap:0),
-  trackingMap_(trackingActive_?new mithep::TrackingParticleMap:0)
+  genMap_(0),
+  aodGenMap_(0),
+  packedGenMap_(0),
+  simMap_(0),
+  trackingMap_(0)
 {
-  // Constructor.
+  std::string genSourceName(Conf().getUntrackedParameter("genSource", std::string("GenParticleCollection")));
+  if (genSourceName == "GenParticleCollection")
+    genSource_ = kGenParticles;
+  else if (genSourceName == "PackedGenParticleCollection")
+    genSource_ = kPackedGenParticles;
+  else if (genSourceName == "HepMCProduct")
+    genSource_ = kHepMCProduct;
+  else
+    throw edm::Exception(edm::errors::Configuration, "FillerMCParticles::Constructor")
+      << "Parameter genSource must be either one of GenParticleCollection, PackedGenParticleCollection,"
+      << " or HepMCProduct.";
+
+  if (genActive_) {
+    genMap_ = new mithep::GenParticleBarcodeMap;
+
+    switch (genSource_) {
+    case kGenParticles:
+      aodGenMap_ = new GenParticleMap;
+
+      genParticlesToken_ = GetToken<reco::GenParticleCollection>(collector, "genEdmName", "genParticles");
+      if (simActive_)
+        genBarcodesToken_ = GetToken<std::vector<int> >(collector, "genEdmName", "genParticles");
+      break;
+    case kPackedGenParticles:
+      packedGenMap_ = new PackedGenParticleMap;
+
+      packedGenParticlesToken_ = GetToken<pat::PackedGenParticleCollection>(collector, "genEdmName", "packedGenParticles");
+      break;
+    case kHepMCProduct:
+      hepMCProdToken_ = GetToken<edm::HepMCProduct>(collector, "genEdmName", "genParticles");
+      break;
+    default:
+      break;
+    }
+  }
+
+  if (simActive_) {
+    simMap_ = new mithep::SimTrackTidMap;
+
+    simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, "simEdmName", "g4SimHits");
+    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, "simEdmName", "g4SimHits");
+  }
+
+  if (trackingActive_)
+    trackingMap_ = new mithep::TrackingParticleMap;
+
+    trackingEdmToken_ = GetToken<TrackingParticleCollection>(collector, "trackingEdmName", "mergedtruth:MergedTrackTruth");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +105,7 @@ FillerMCParticles::~FillerMCParticles()
   delete trackingParticles_;
   delete genMap_;
   delete aodGenMap_;
+  delete packedGenMap_;
   delete simMap_;
   delete trackingMap_;
 }
@@ -107,132 +156,160 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
     trackingParticles_->Delete();
   }
 
-  if (genActive_)
+  if (genActive_) {
     genMap_->Reset();
   
-  if (genActive_ && !useAodGen_) {
-    Handle<edm::HepMCProduct> hHepMCProduct;
-    GetProduct(hepMCProdToken_, hHepMCProduct, event);  
+    if (genSource_ == kGenParticles) {
+      aodGenMap_->Reset();
   
-    const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
-
-    // loop over all hepmc particles and copy their information
-    for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
-        pgen != GenEvent.particles_end(); ++pgen) {
-  
-      HepMC::GenParticle *mcPart = (*pgen);
-      if(!mcPart) 
-        continue;
-  
-      mithep::MCParticle *genParticle = mcParticles_->Allocate();
-      new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
-                                           mcPart->momentum().z(),mcPart->momentum().e(),
-                                           mcPart->pdg_id(),mcPart->status());
-      genParticle->SetIsGenerated();                                          
-      genMap_->Add(mcPart->barcode(), genParticle);
-    }
-  }
-  
-  if (genActive_ && useAodGen_) {
- 
-    aodGenMap_->Reset();
-  
-    Handle<reco::GenParticleCollection> hGenPProduct;
-    GetProduct(genParticlesToken_, hGenPProduct, event);  
+      Handle<reco::GenParticleCollection> hGenPProduct;
+      GetProduct(genParticlesToken_, hGenPProduct, event);  
+      reco::GenParticleCollection const& genParticles = *hGenPProduct;
     
-    // element by element aligned collection of hepmc barcodes associated to
-    // the genparticles
-    Handle<std::vector<int> > genBarcodes;
-    if (simActive_)
-      GetProduct(genBarcodesToken_, genBarcodes, event);  
-  
-    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
-  
-    // loop over all genparticles and copy their information
-    for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
-        pgen != genParticles.end(); ++pgen) {
-        
-      mithep::MCParticle *mcPart = mcParticles_->Allocate();
-      new (mcPart) mithep::MCParticle(pgen->px(),pgen->py(),
-                                      pgen->pz(),pgen->energy(),
-                                      pgen->pdgId(),pgen->status());
-                                            
-      mcPart->SetIsGenerated();                                          
-      
-      // add hepmc barcode association, needed to merge in sim particles
+      // element by element aligned collection of hepmc barcodes associated to
+      // the genparticles
+      std::vector<int> const* genBarcodes = 0;
       if (simActive_) {
-        int genBarcode = genBarcodes->at(pgen - genParticles.begin());
-        genMap_->Add(genBarcode, mcPart);
+        Handle<std::vector<int> > hGenBarcodes;
+        GetProduct(genBarcodesToken_, hGenBarcodes, event);
+        genBarcodes = hGenBarcodes.product();
       }
+ 
+      // loop over all genparticles and copy their information
+      unsigned iPart = 0;
+      for (auto&& inPart : genParticles) {
+        mithep::MCParticle *mcPart = mcParticles_->Allocate();
+        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
+                                        inPart.pz(),inPart.energy(),
+                                        inPart.pdgId(),inPart.status());
+                                            
+        mcPart->SetIsGenerated();                                          
       
-      edm::Ptr<reco::GenParticle> thePtr(hGenPProduct, pgen - genParticles.begin());
-      aodGenMap_->Add(thePtr, mcPart);
+        // add hepmc barcode association, needed to merge in sim particles
+        if (simActive_) {
+          int genBarcode = genBarcodes->at(iPart);
+          genMap_->Add(genBarcode, mcPart);
+        }
+
+        reco::GenParticleRef ref(hGenPProduct, iPart);
+        aodGenMap_->Add(ref, mcPart);
+        
+        ++iPart;
+      }
+    }
+    else if (genSource_ == kPackedGenParticles) {
+      packedGenMap_->Reset();
+  
+      Handle<pat::PackedGenParticleCollection> hGenPProduct;
+      GetProduct(packedGenParticlesToken_, hGenPProduct, event);  
+      pat::PackedGenParticleCollection const& genParticles = *hGenPProduct;
+  
+      // loop over all genparticles and copy their information
+      unsigned iPart = 0;
+      for (auto&& inPart : genParticles) {
+        mithep::MCParticle *mcPart = mcParticles_->Allocate();
+        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
+                                        inPart.pz(),inPart.energy(),
+                                        inPart.pdgId(),inPart.status());
+                                            
+        mcPart->SetIsGenerated();                                          
+      
+        pat::PackedGenParticleRef ref(hGenPProduct, iPart);
+        packedGenMap_->Add(ref, mcPart);
+
+        ++iPart;
+      }
+    }
+    else if (genSource_ == kHepMCProduct) {
+      Handle<edm::HepMCProduct> hHepMCProduct;
+      GetProduct(hepMCProdToken_, hHepMCProduct, event);  
+      const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
+
+      // loop over all hepmc particles and copy their information
+      for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
+           pgen != GenEvent.particles_end(); ++pgen) {
+  
+        HepMC::GenParticle *mcPart = (*pgen);
+        if(!mcPart) 
+          continue;
+  
+        mithep::MCParticle *genParticle = mcParticles_->Allocate();
+        new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
+                                             mcPart->momentum().z(),mcPart->momentum().e(),
+                                             mcPart->pdg_id(),mcPart->status());
+        genParticle->SetIsGenerated();                                          
+        genMap_->Add(mcPart->barcode(), genParticle);
+      }
     }
   }
-  
+
   if (simActive_) {
     simMap_->Reset();
 
     Handle<edm::SimTrackContainer> hSimTrackProduct;
     GetProduct(simTracksToken_, hSimTrackProduct, event);
 
-    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
+    edm::SimTrackContainer const& simTracks = *hSimTrackProduct;
 
     // loop through all simParticles
-    for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
-        iM != simTracks.end(); ++iM) {
-
+    for (auto&& simTrack : simTracks) {
       mithep::MCParticle *outSimParticle = 0;
       
-      if (genActive_ && (iM->genpartIndex() >= 0) ) {
-        outSimParticle = genMap_->GetMit(iM->genpartIndex());
+      if (genActive_ && (simTrack.genpartIndex() >= 0) ) {
+        outSimParticle = genMap_->GetMit(simTrack.genpartIndex());
         if (verbose_>1) {
           printf("Sim px,py,pz,e = %f,%f,%f,%f\nGen px,py,pz,e = %f,%f,%f,%f\n",       
-                 iM->momentum().px(),iM->momentum().py(),
-                 iM->momentum().pz(),iM->momentum().e(),
+                 simTrack.momentum().px(),simTrack.momentum().py(),
+                 simTrack.momentum().pz(),simTrack.momentum().e(),
                  outSimParticle->Px(),outSimParticle->Py(),
                  outSimParticle->Pz(),outSimParticle->E());
         }
       } else {
         outSimParticle = mcParticles_->Allocate();
-        new (outSimParticle) mithep::MCParticle(iM->momentum().px(),
-                                                iM->momentum().py(),
-                                                iM->momentum().pz(),
-                                                iM->momentum().e(),
-                                                iM->type(), -99);
+        new (outSimParticle) mithep::MCParticle(simTrack.momentum().px(),
+                                                simTrack.momentum().py(),
+                                                simTrack.momentum().pz(),
+                                                simTrack.momentum().e(),
+                                                simTrack.type(), -99);
       }
       
       outSimParticle->SetIsSimulated();
-      simMap_->Add(iM->trackId(), outSimParticle);
+      simMap_->Add(simTrack.trackId(), outSimParticle);
     }
   }
 
   // loop through TrackingParticles and build association map to MCParticles
+
   if (trackingActive_) {
     trackingMap_->Reset();
   
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(trackingEdmToken_, hTrackingParticleProduct, event);
-    
-    const TrackingParticleCollection &trackingParticles = *(hTrackingParticleProduct.product());
+
+    TrackingParticleCollection const& trackingParticles = *hTrackingParticleProduct;
     
     // loop through all TrackingParticles
-    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin();
-        iM != trackingParticles.end(); ++iM) {
+    if (simActive_) {
+      unsigned iPart = -1;
+      for (auto&& inPart : trackingParticles) {
+        ++iPart;
 
-      if ( simActive_ && iM->g4Tracks().size() ) {
-	TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
-	const SimTrack &theSimTrack = iM->g4Tracks().back();
-	mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
-	trackingMap_->Add(theRef, outSimParticle);
+        if (inPart.g4Tracks().size() == 0)
+          continue;
+
+        TrackingParticleRef theRef(hTrackingParticleProduct, iPart);
+
+        const SimTrack &theSimTrack = inPart.g4Tracks().back();
+        mithep::MCParticle *outSimParticle = simMap_->GetMit(theSimTrack.trackId());
+        trackingMap_->Add(theRef, outSimParticle);
         
         if (fillTracking_) {
           mithep::TrackingParticle *outTracking = trackingParticles_->AddNew();
           
           // fill associated sim tracks
-          // ?? shouldn't we be adding iM->trackId()?? (Y.I. 18/03/2015)
-          for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
-                 iST != iM->g4Tracks().end(); ++iST) {
+          // ?? shouldn't we be adding inPart.trackId()?? (Y.I. 18/03/2015)
+          for (std::vector<SimTrack>::const_iterator iST = inPart.g4Tracks().begin();
+               iST != inPart.g4Tracks().end(); ++iST) {
 
             outTracking->AddMCPart(simMap_->GetMit(theSimTrack.trackId()));
           }
@@ -244,13 +321,13 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
           // fill hit information
           //YI reco::HitPattern hitPattern;
           
-	  //CP THIS NEEDS TO WORK --> pSimHits disappeared from TrackingParticle?!
-	  //CP --> turns out this is obsolete!! Will delete soon ;-)
+          //CP THIS NEEDS TO WORK --> pSimHits disappeared from TrackingParticle?!
+          //CP --> turns out this is obsolete!! Will delete soon ;-)
 
           //CP // loop through sim hits and construct intermediate reco::HitPattern
           //CP int nHits = 0;
-          //CP for (std::vector<PSimHit>::const_iterator iSimHit = iM->pSimHit_begin();
-          //CP       iSimHit != iM->pSimHit_end(); ++iSimHit) {
+          //CP for (std::vector<PSimHit>::const_iterator iSimHit = inPart.pSimHit_begin();
+          //CP       iSimHit != inPart.pSimHit_end(); ++iSimHit) {
           //CP   unsigned int detectorIdIndex = iSimHit->detUnitId();
           //CP   DetId detectorId = DetId(detectorIdIndex);
           //CP   InvalidTrackingRecHit tHit(detectorId,TrackingRecHit::valid);          
@@ -282,12 +359,12 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
           
         }
         
-        if (verbose_>1) {
-	  printf("trackId = %i\n",theSimTrack.trackId());
-          printf("Tracking particle has %i SimTracks\n",(int)iM->g4Tracks().size());
-          if (iM->g4Tracks().size()>1) {
-            for (std::vector<SimTrack>::const_iterator iST = iM->g4Tracks().begin();
-                 iST != iM->g4Tracks().end(); ++iST) {
+        if (verbose_ > 1) {
+          printf("trackId = %i\n",theSimTrack.trackId());
+          printf("Tracking particle has %i SimTracks\n",(int)inPart.g4Tracks().size());
+          if (inPart.g4Tracks().size()>1) {
+            for (std::vector<SimTrack>::const_iterator iST = inPart.g4Tracks().begin();
+                 iST != inPart.g4Tracks().end(); ++iST) {
               printf("g4 trackid = %i\n",iST->trackId());
             }
           }
@@ -305,73 +382,74 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
 {
   // Loop over generated and simulated particles and resolve their links.
 
-  if (genActive_ && !useAodGen_) {
+  if (genActive_) {
+    if (genSource_ == kGenParticles) {
+      Handle<reco::GenParticleCollection> hGenPProduct;
+      GetProduct(genParticlesToken_, hGenPProduct, event);  
   
-    Handle<edm::HepMCProduct> hHepMCProduct;
-    GetProduct(hepMCProdToken_, hHepMCProduct, event);
-    
-    const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
-  
-    for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
-        pgen != GenEvent.particles_end(); ++pgen) {
-  
-      HepMC::GenParticle *mcPart = (*pgen);
-      if(!mcPart) 
-        continue;
-      
-      // check if genpart has a decay vertex
-      HepMC::GenVertex *dVertex = mcPart->end_vertex();
-      if (!dVertex) 
-        continue;
+      reco::GenParticleCollection const& genParticles = *hGenPProduct;
 
-      // find corresponding mithep genparticle parent in association table
-      mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
-  
-      // set decay vertex
-      // division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
-      genParent->SetVertex(dVertex->point3d().x()/10.0,
-                           dVertex->point3d().y()/10.0,
-                           dVertex->point3d().z()/10.0);
-  
-      // loop through daugthers
-      for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
-             dVertex->particles_out_const_begin(); 
-           pgenD != dVertex->particles_out_const_end(); ++pgenD) {
-        HepMC::GenParticle *mcDaughter = (*pgenD);
-        mithep::MCParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
-        genParent->AddDaughter(genDaughter);
-        if (!(genDaughter->HasMother()))
-          genDaughter->SetMother(genParent);
-      }
-    }
-  }
-  
-  // loop over aod GenParticle candidates and resolve their links
-  if (genActive_ && useAodGen_) {
-  
-    Handle<reco::GenParticleCollection> hGenPProduct;
-    GetProduct(genParticlesToken_, hGenPProduct, event);  
-  
-    const reco::GenParticleCollection genParticles = *(hGenPProduct.product());  
-    // loop over all genparticles and copy their information
-    for (reco::GenParticleCollection::const_iterator pgen = genParticles.begin();
-        pgen != genParticles.end(); ++pgen) {
-  
-      int nDaughters = pgen->numberOfDaughters();
-      if (nDaughters>0) {
-        edm::Ptr<reco::GenParticle> thePtr(hGenPProduct, pgen - genParticles.begin());
-        MCParticle *mcMother = aodGenMap_->GetMit(thePtr);
-        for (int i=0; i<nDaughters; ++i) {
-          const reco::Candidate *genDaughter = pgen->daughter(i);
-          MCParticle *mcDaughter = aodGenMap_->GetMit(refToPtr(pgen->daughterRef(i)));
-          // set mother decay vertex
-          if (i==0)
-            mcMother->SetVertex(genDaughter->vx(),genDaughter->vy(),genDaughter->vz());
+      // loop over all genparticles and copy their information
+      unsigned iPart = 0;
+      for (auto&& inPart : genParticles) {
+        unsigned nDaughters = inPart.numberOfDaughters();
+        if (nDaughters == 0)
+          continue;
 
+        reco::GenParticleRef ref(hGenPProduct, iPart);
+        MCParticle *mcMother = aodGenMap_->GetMit(ref);
+
+        // set mother decay vertex
+        reco::Candidate const* genDaughter = inPart.daughter(0);
+        mcMother->SetVertex(genDaughter->vx(), genDaughter->vy(), genDaughter->vz());
+
+        for (unsigned iD = 0; iD < nDaughters; ++iD) {
+          MCParticle *mcDaughter = aodGenMap_->GetMit(inPart.daughterRef(iD));
           // set mother-daughter links
           mcMother->AddDaughter(mcDaughter);
           if (!mcDaughter->HasMother())
             mcDaughter->SetMother(mcMother);
+        }
+
+        ++iPart;
+      }
+    }
+    else if (genSource_ == kHepMCProduct) {
+      Handle<edm::HepMCProduct> hHepMCProduct;
+      GetProduct(hepMCProdToken_, hHepMCProduct, event);
+    
+      const HepMC::GenEvent &GenEvent = hHepMCProduct->getHepMCData();  
+  
+      for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
+           pgen != GenEvent.particles_end(); ++pgen) {
+  
+        HepMC::GenParticle *mcPart = (*pgen);
+        if(!mcPart) 
+          continue;
+      
+        // check if genpart has a decay vertex
+        HepMC::GenVertex *dVertex = mcPart->end_vertex();
+        if (!dVertex) 
+          continue;
+
+        // find corresponding mithep genparticle parent in association table
+        mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
+  
+        // set decay vertex
+        // division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
+        genParent->SetVertex(dVertex->point3d().x()/10.0,
+                             dVertex->point3d().y()/10.0,
+                             dVertex->point3d().z()/10.0);
+  
+        // loop through daugthers
+        for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
+               dVertex->particles_out_const_begin(); 
+             pgenD != dVertex->particles_out_const_end(); ++pgenD) {
+          HepMC::GenParticle *mcDaughter = (*pgenD);
+          mithep::MCParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
+          genParent->AddDaughter(genDaughter);
+          if (!(genDaughter->HasMother()))
+            genDaughter->SetMother(genParent);
         }
       }
     }
@@ -382,30 +460,28 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     Handle<edm::SimTrackContainer> hSimTrackProduct;
     GetProduct(simTracksToken_, hSimTrackProduct, event);
 
-    const edm::SimTrackContainer simTracks = *(hSimTrackProduct.product());
-   
+    edm::SimTrackContainer const& simTracks = *hSimTrackProduct;
+
     Handle<std::vector<SimVertex> > hSimVertexProduct;
     GetProduct(simVerticesToken_, hSimVertexProduct, event);
 
-    const edm::SimVertexContainer simVertexes = *(hSimVertexProduct.product());
+    edm::SimVertexContainer const& simVertexes = *hSimVertexProduct;
 
     // loop through all simParticles
-    for (SimTrackContainer::const_iterator iM = simTracks.begin(); 
-        iM != simTracks.end(); ++iM) {
-
-      if (iM->vertIndex()>=0) {
-        mithep::MCParticle *simDaughter = simMap_->GetMit(iM->trackId());
-        const SimVertex &theVertex = simVertexes.at(iM->vertIndex());
-        if (theVertex.parentIndex()>=0) {
+    for (auto&& simTrack : simTracks) {
+      if (simTrack.vertIndex() >= 0) {
+        mithep::MCParticle *simDaughter = simMap_->GetMit(simTrack.trackId());
+        const SimVertex &theVertex = simVertexes.at(simTrack.vertIndex());
+        if (theVertex.parentIndex() >= 0) {
           mithep::MCParticle *simParent = simMap_->GetMit(theVertex.parentIndex());
           simParent->SetVertex(theVertex.position().x(),
                                theVertex.position().y(),
                                theVertex.position().z());
           //make sure we don't double count the decay tree
-          if ( !simParent->HasDaughter(simDaughter) ) {
+          if (!simParent->HasDaughter(simDaughter)) {
             simParent->AddDaughter(simDaughter);
           }
-          if ( !simDaughter->HasMother() ) {
+          if (!simDaughter->HasMother()) {
             simDaughter->SetMother(simParent);
           }
         }
@@ -413,17 +489,17 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
 
-  if (verbose_>1 && trackingActive_) {
+  if (verbose_ > 1 && trackingActive_) {
     Handle<TrackingParticleCollection> hTrackingParticleProduct;
     GetProduct(trackingEdmToken_, hTrackingParticleProduct, event);
-    
-    const TrackingParticleCollection trackingParticles = *(hTrackingParticleProduct.product());  
-   
+
+    TrackingParticleCollection const& trackingParticles = *hTrackingParticleProduct;
+
     // loop through all simParticles
-    for (TrackingParticleCollection::const_iterator iM = trackingParticles.begin(); 
-         iM != trackingParticles.end(); ++iM) {
-      
-      TrackingParticleRef theRef(hTrackingParticleProduct, iM-trackingParticles.begin());
+    unsigned iPart = 0;
+    for (auto&& inPart : trackingParticles) {
+      TrackingParticleRef theRef(hTrackingParticleProduct, iPart);
+      ++iPart;
       
       mithep::MCParticle *simParent = trackingMap_->GetMit(theRef);
       printf("MCParticle pdg = %i, Daughter Pdgs: ", simParent->PdgId());
@@ -432,9 +508,9 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
       }
       printf("\n");
       
-      printf("TrackingParticle pdg = %i, Daughter Pdgs: ", iM->pdgId());
-      for (TrackingVertexRefVector::iterator v= iM->decayVertices().begin(); 
-           v != iM->decayVertices().end(); ++v) {
+      printf("TrackingParticle pdg = %i, Daughter Pdgs: ", inPart.pdgId());
+      for (TrackingVertexRefVector::iterator v= inPart.decayVertices().begin(); 
+           v != inPart.decayVertices().end(); ++v) {
         for (TrackingParticleRefVector::iterator pd = v->get()->daughterTracks().begin(); 
              pd != v->get()->daughterTracks().end(); ++pd) {
           printf("%i, ", pd->get()->pdgId());

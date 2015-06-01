@@ -1,5 +1,3 @@
-// $Id: FillerConversions.cc,v 1.23 2012/05/05 16:49:59 paus Exp $
-
 #include "MitProd/TreeFiller/interface/FillerConversions.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "MitEdm/DataFormats/interface/RefToBaseToPtr.h"
@@ -76,7 +74,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
 
   conversionMap_->SetEdmProductId(hConversionProduct.id().id());
         
-  const reco::ConversionCollection inConversions = *(hConversionProduct.product());  
+  reco::ConversionCollection const& inConversions = *hConversionProduct;
   
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {
@@ -101,7 +99,7 @@ void FillerConversions::FillDataBlock(const edm::Event      &event,
                                    inConversion->pairMomentum().z());
         
     if (stablePartMaps_.size()) {
-      std::vector<reco::TrackBaseRef> trackRefs = inConversion->tracks();
+      std::vector<reco::TrackBaseRef> const& trackRefs = inConversion->tracks();
       for (std::vector<reco::TrackBaseRef>::const_iterator trackRef = trackRefs.begin(); 
            trackRef != trackRefs.end(); ++trackRef) {
         if(GetMitParticle(mitedm::refToBaseToPtr(*trackRef))) outConversion->AddDaughter(GetMitParticle(mitedm::refToBaseToPtr(*trackRef)));

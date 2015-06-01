@@ -1,5 +1,3 @@
-// $Id: FillerDecayParts.cc,v 1.21 2010/06/23 09:02:45 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerDecayParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

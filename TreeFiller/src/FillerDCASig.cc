@@ -6,6 +6,9 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -22,9 +25,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller            (cfg,os,name,active),
-  edmElectronToken_      (GetToken<reco::GsfElectronCollection>(collector, "edmElectronName","gsfElectrons")),
-  edmMuonToken_          (GetToken<reco::MuonCollection>(collector, "edmMuonName",    "muons")),
-  edmTauToken_           (GetToken<reco::PFTauCollection>(collector, "edmTauName",     "hpsPFTauProducer")),
+  edmElectronToken_     (GetToken<GsfElectronView>(collector, "edmElectronName","gsfElectrons")),
+  edmMuonToken_         (GetToken<MuonView>(collector, "edmMuonName",    "muons")),
+  edmTauToken_          (GetToken<BaseTauView>(collector, "edmTauName",     "hpsPFTauProducer")),
+  edmTauType_           (nTauTypes),
   mitName_              (Conf().getUntrackedParameter<string>("mitName",        "DCASig")),
   electronMapName_      (Conf().getUntrackedParameter<string>("electronMapName","")),
   muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName",    "")),
@@ -36,6 +40,14 @@ FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& coll
   DCASigs_              (new mithep::DCASigArr),
   transientTrackBuilder_(0)
 {
+  std::string tauType(Conf().getUntrackedParameter<std::string>("edmTauType", "PFTau"));
+  if (tauType == "PFTau")
+    edmTauType_ = kPFTau;
+  else if (tauType == "PATTau")
+    edmTauType_ = kPATTau;
+  else
+    throw edm::Exception(edm::errors::Configuration, "FillerDCASig:Constructor\n")
+      << "Error! Invalid tau type";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +62,7 @@ void FillerDCASig::BookDataBlock(TreeWriter &tws)
 {
   // Add DCA to the tree
   tws.AddBranch(mitName_,&DCASigs_);
-  OS()->add<mithep::DCASigArr>(DCASigs_,mitName_);
+  OS()->add(DCASigs_,mitName_);
 
   //Load lepton maps
   if (!electronMapName_.empty()) {
@@ -89,19 +101,36 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
   transientTrackBuilder_ = builder.product();
 
   //handle for the electron collection
-  Handle<reco::GsfElectronCollection> hElectronProduct;
+  Handle<GsfElectronView> hElectronProduct;
   GetProduct(edmElectronToken_, hElectronProduct, event);
-  const reco::GsfElectronCollection inElectrons = *(hElectronProduct.product());
+  auto& inElectrons = *hElectronProduct;
 
   //handle for the muon collection
-  Handle<reco::MuonCollection> hMuonProduct;
+  Handle<MuonView> hMuonProduct;
   GetProduct(edmMuonToken_, hMuonProduct, event);
-  const reco::MuonCollection inMuons            = *(hMuonProduct.product());
+  auto& inMuons = *hMuonProduct;
 
   // handle for the tau collection
-  Handle<reco::PFTauCollection> hTauProduct;
+  Handle<BaseTauView> hTauProduct;
   GetProduct(edmTauToken_, hTauProduct, event);
-  const reco::PFTauCollection inTaus             = *(hTauProduct.product());
+  auto& inTaus = *hTauProduct;
+
+  if (inTaus.size() != 0) {
+    switch (edmTauType_) {
+    case kPFTau:
+      if (!dynamic_cast<reco::PFTau const*>(&inTaus.at(0)))
+        throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
+          << "Error! Input tau collection is not PF";
+      break;
+    case kPATTau:
+      if (!dynamic_cast<pat::Tau const*>(&inTaus.at(0)))
+        throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
+          << "Error! Input tau collection is not PAT";
+      break;
+    default:
+      break;
+    }
+  }
 
   //Declare some variables
   Double_t lDCA3D      = 0;     //3D x-y   DCA
@@ -114,20 +143,38 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
   Double_t lDCARPhi2DE = 0;     //2D r-phi DCA Err
 
   //Loop through the electrons
-  for (reco::GsfElectronCollection::const_iterator iElectron = inElectrons.begin();
-       iElectron != inElectrons.end(); ++iElectron) {
-    if (iElectron->pt() < electronPtMin_)
+  unsigned iElectron = -1;
+  for (auto&& inElectron : inElectrons) {
+    ++iElectron;
+
+    if (inElectron.pt() < electronPtMin_)
       continue;
 
+    if (!inElectron.gsfTrack().isAvailable())
+      continue;
+
+    edm::Ptr<reco::GsfElectron> pElectronPtr(hElectronProduct, iElectron);
+
+    auto trackElec = inElectron.gsfTrack().get(); // electron Track
+
     //E + Mu Objects
-    for (reco::MuonCollection::const_iterator iMuon = inMuons.begin(); iMuon != inMuons.end(); ++iMuon) {
-      if (iMuon->pt() < muonPtMin_)
+    unsigned iMuon = -1;
+    for (auto&& inMuon : inMuons) {
+      ++iMuon;
+
+      if (inMuon.pt() < muonPtMin_)
+        continue;
+
+      if (!inMuon.innerTrack().isAvailable())
         continue;
 
       //Declare the Object
-      const reco::Track * trackElec  = (const reco::Track*)(iElectron->gsfTrack().get()); // electron Track
-      const reco::Track * trackMuon  = (const reco::Track*)(iMuon->innerTrack()  .get());   // muon inner track
-      if (trackMuon == NULL || trackElec == NULL || trackElec == trackMuon) continue;
+      auto trackMuon = inMuon.innerTrack().get();   // muon inner track
+
+      if (trackElec == trackMuon) continue;
+
+      edm::Ptr<reco::Muon> pMuonPtr(hMuonProduct, iMuon);
+
       mithep::DCASig *outDCASig      = DCASigs_->AddNew();
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
                    lDCARPhi3D,lDCARPhi3DE,lDCARPhi2D,lDCARPhi2DE,
@@ -140,17 +187,17 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetType(DCASig::eEMu);
 
       //Now the references
-      edm::Ptr<reco::GsfElectron> pElectronPtr(hElectronProduct, iElectron - inElectrons.begin());
       try {
-	outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
+        outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
       }
       catch(...) {
-        if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
-                             << "Error! Electron unmapped collection";
+        if (checkDCARef_)
+          throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
+            << "Error! Electron unmapped collection";
       }
-      edm::Ptr<reco::Muon>        pMuonPtr(hMuonProduct, iMuon - inMuons.begin());
+
       try {
-	outDCASig->SetMuon     (muonMap_->GetMit(pMuonPtr));
+        outDCASig->SetMuon(muonMap_->GetMit(pMuonPtr));
       }
       catch(...) {
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
@@ -159,18 +206,42 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
     }
 
     //E + Tau objects
-    for (reco::PFTauCollection::const_iterator iTau = inTaus.begin(); iTau != inTaus.end(); ++iTau) {
-      if (iTau->pt() < tauPtMin_)
+    unsigned iTau = -1;
+    for (auto&& inTau : inTaus) {
+      ++iTau;
+
+      if (inTau.pt() < tauPtMin_)
         continue;
 
-      //declare the Object
-      const reco::Track * trackElec = (const reco::Track*)(iElectron->gsfTrack().get()); // electron Track
-      if (iTau->leadPFChargedHadrCand().isNull())
-        continue;
+      reco::Track const* trackTau = 0;
 
-      const reco::Track * trackTau = (const reco::Track*)(iTau->leadPFChargedHadrCand()->trackRef().get()); // Tau lead track
-      if (trackTau == NULL || trackElec == NULL || trackTau == trackElec)
-        continue;
+      if (edmTauType_ == kPFTau) {
+        reco::PFTau const& pfTau = static_cast<reco::PFTau const&>(inTau);
+
+        if (pfTau.leadPFChargedHadrCand().isNull())
+          continue;
+        if (!pfTau.leadPFChargedHadrCand()->trackRef().isAvailable())
+          continue;
+
+        trackTau = pfTau.leadPFChargedHadrCand()->trackRef().get(); // Tau lead track
+
+        if (trackTau == trackElec)
+          continue;
+      }
+      else if(edmTauType_ == kPATTau) {
+        pat::Tau const& patTau = static_cast<pat::Tau const&>(inTau);
+
+        if (patTau.leadChargedHadrCand().isNull())
+          continue;
+
+        pat::PackedCandidate const& leadChargedHadr = static_cast<pat::PackedCandidate const&>(*patTau.leadChargedHadrCand());
+
+        trackTau = &leadChargedHadr.pseudoTrack();
+
+        // no protection against track overlaps here..
+      }
+
+      edm::Ptr<reco::BaseTau> pTauPtr(hTauProduct, iTau);
 
       mithep::DCASig *outDCASig = DCASigs_->AddNew();
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
@@ -184,7 +255,6 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetType(DCASig::eETau);
 
       //references
-      edm::Ptr<reco::GsfElectron> pElectronPtr(hElectronProduct, iElectron-inElectrons.begin());
       try {
         outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
       }
@@ -192,7 +262,6 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
         if (checkDCARef_)  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
                              << "Error! Electron unmapped collection";
       }
-      edm::Ptr<reco::PFTau> pTauPtr(hTauProduct,iTau - inTaus.begin());
       try {
         outDCASig->SetTau(tauMap_->GetMit(pTauPtr));
       }
@@ -205,22 +274,28 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
     }
 
     //E + E Objects
-    for (reco::GsfElectronCollection::const_iterator iElectron1 = iElectron+1;
-         iElectron1 != inElectrons.end(); ++iElectron1) {
-      if (iElectron1->pt() < electronPtMin_)
+    unsigned iElectron1 = -1;
+    for (auto&& inElectron1 : inElectrons) {
+      ++iElectron1;
+
+      if (iElectron == iElectron1)
         continue;
+
+      if (inElectron1.pt() < electronPtMin_)
+        continue;
+
+      if (!inElectron1.gsfTrack().isAvailable())
+        continue;
+
+      edm::Ptr<reco::GsfElectron> pElectron1Ptr(hElectronProduct, iElectron1);
 
       //declare the Object
-      const reco::Track * trackElec0 = (const reco::Track*)(iElectron ->gsfTrack().get()); // electron Track
-      const reco::Track * trackElec1 = (const reco::Track*)(iElectron1->gsfTrack().get()); // electron Track
-
-      if (trackElec1 == NULL || trackElec0 == NULL || trackElec0 == trackElec1)
-        continue;
+      auto trackElec1 = inElectron1.gsfTrack().get(); // electron Track
 
       mithep::DCASig *outDCASig      = DCASigs_->AddNew();
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
                    lDCARPhi3D,lDCARPhi3DE,lDCARPhi2D,lDCARPhi2DE,
-                   trackElec0,trackElec1,DCASig::eEE);
+                   trackElec,trackElec1,DCASig::eEE);
 
       outDCASig->SetDCA2D    (lDCA2D);       outDCASig->SetDCA2DErr    (lDCA2DE);
       outDCASig->SetDCA3D    (lDCA3D);       outDCASig->SetDCA3DErr    (lDCA3DE);
@@ -229,7 +304,6 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetType(DCASig::eEE);
 
       //references
-      edm::Ptr<reco::GsfElectron> pElectronPtr(hElectronProduct, iElectron - inElectrons.begin());
       try {
         outDCASig->SetElectron(electronMap_->GetMit(pElectronPtr));
       }
@@ -238,7 +312,6 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
             << "Error! Electron unmapped collection";
       }
-      edm::Ptr<reco::GsfElectron> pElectron1Ptr(hElectronProduct, iElectron1 - inElectrons.begin());
       try {
         outDCASig->SetElectron(electronMap_->GetMit(pElectron1Ptr),true);
       }
@@ -251,23 +324,56 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
   }
 
   // Mu + Tau combination
-  for (reco::MuonCollection::const_iterator iMuon = inMuons.begin(); iMuon != inMuons.end();
-       ++iMuon) {
-    if (iMuon->pt() < muonPtMin_)
+  unsigned iMuon = -1;
+  for (auto&& inMuon : inMuons) {
+    ++iMuon;
+
+    if (inMuon.pt() < muonPtMin_)
       continue;
 
-    for (reco::PFTauCollection::const_iterator iTau = inTaus.begin();
-         iTau != inTaus.end(); ++iTau) {
-      if (iTau->pt() < tauPtMin_)
+    if (!inMuon.innerTrack().isAvailable())
+      continue;
+
+    edm::Ptr<reco::Muon> pMuonPtr(hMuonProduct, iMuon);
+
+    auto trackMuon = inMuon.innerTrack().get();   // muon inner track
+
+    unsigned iTau = -1;
+    for (auto&& inTau : inTaus) {
+      ++iTau;
+
+      if (inTau.pt() < tauPtMin_)
         continue;
 
-      const reco::Track * trackMuon  = (const reco::Track*)(iMuon->innerTrack().get());   // muon inner track
-      if (iTau->leadPFChargedHadrCand().isNull())
-        continue;
-      const reco::Track * trackTau = (const reco::Track*)(iTau->leadPFChargedHadrCand()->trackRef().get()); // Tau lead track
+      reco::Track const* trackTau = 0;
 
-      if (trackTau == NULL || trackMuon == NULL || trackTau == trackMuon)
-        continue;
+      if (edmTauType_ == kPFTau) {
+        reco::PFTau const& pfTau = static_cast<reco::PFTau const&>(inTau);
+
+        if (pfTau.leadPFChargedHadrCand().isNull())
+          continue;
+        if (!pfTau.leadPFChargedHadrCand()->trackRef().isAvailable())
+          continue;
+
+        trackTau = pfTau.leadPFChargedHadrCand()->trackRef().get(); // Tau lead track
+
+        if (trackTau == trackMuon)
+          continue;
+      }
+      else if(edmTauType_ == kPATTau) {
+        pat::Tau const& patTau = static_cast<pat::Tau const&>(inTau);
+
+        if (patTau.leadChargedHadrCand().isNull())
+          continue;
+
+        pat::PackedCandidate const& leadChargedHadr = static_cast<pat::PackedCandidate const&>(*patTau.leadChargedHadrCand());
+
+        trackTau = &leadChargedHadr.pseudoTrack();
+
+        // no protection against track overlaps here..
+      }
+
+      edm::Ptr<reco::BaseTau> pTauPtr(hTauProduct, iTau);
 
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
                    lDCARPhi3D,lDCARPhi3DE,lDCARPhi2D,lDCARPhi2DE,
@@ -281,7 +387,7 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetType(DCASig::eMuTau);
 
       //references
-      edm::Ptr<reco::Muon> pMuonPtr(hMuonProduct, iMuon - inMuons.begin());
+
       try {
         outDCASig->SetMuon(muonMap_->GetMit(pMuonPtr));
       }
@@ -290,7 +396,6 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
             << "Error! Muon unmapped collection";
       }
-      edm::Ptr<reco::PFTau> pTauPtr(hTauProduct, iTau - inTaus.begin());
       try {
         outDCASig->SetTau(tauMap_->GetMit(pTauPtr));
       }
@@ -302,20 +407,27 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
     }
 
     //Mu + Mu
-    for (reco::MuonCollection::const_iterator iMuon1 = iMuon+1;
-         iMuon1 != inMuons.end(); ++iMuon1) {
-      if (iMuon1->pt() < muonPtMin_)
+    unsigned iMuon1 = -1;
+    for (auto&& inMuon1 : inMuons) {
+      ++iMuon1;
+      
+      if (iMuon1 == iMuon)
         continue;
 
-      const reco::Track * trackMuon0 = (const reco::Track*)(iMuon ->innerTrack().get());   // muon inner track
-      const reco::Track * trackMuon1 = (const reco::Track*)(iMuon1->innerTrack().get());   // muon inner track
-
-      if (trackMuon1 == NULL || trackMuon0 == NULL || trackMuon0 == trackMuon1)
+      if (inMuon1.pt() < muonPtMin_)
         continue;
+
+      if (!inMuon1.innerTrack().isAvailable())
+        continue;
+
+      edm::Ptr<reco::Muon> pMuon1Ptr(hMuonProduct, iMuon1);
+
+      auto trackMuon = inMuon.innerTrack().get();   // muon inner track
+      auto trackMuon1 = inMuon1.innerTrack().get();   // muon inner track
 
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
                    lDCARPhi3D,lDCARPhi3DE,lDCARPhi2D,lDCARPhi2DE,
-                   trackMuon0,trackMuon1,DCASig::eMuMu);
+                   trackMuon,trackMuon1,DCASig::eMuMu);
 
       mithep::DCASig *outDCASig = DCASigs_->AddNew();
       outDCASig->SetDCA2D    (lDCA2D);       outDCASig->SetDCA2DErr    (lDCA2DE);
@@ -324,17 +436,14 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetDCA3DRPhi(lDCARPhi3D);   outDCASig->SetDCA3DRPhiErr(lDCARPhi3DE);
       outDCASig->SetType(DCASig::eMuMu);
 
-      //Now the references
-      edm::Ptr<reco::Muon> pMuon0Ptr(hMuonProduct, iMuon - inMuons.begin());
       try {
-        outDCASig->SetMuon(muonMap_->GetMit(pMuon0Ptr));
+        outDCASig->SetMuon(muonMap_->GetMit(pMuonPtr));
       }
       catch(...) {
         if (checkDCARef_)
           throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
             << "Error! Muon unmapped collection";
       }
-      edm::Ptr<reco::Muon> pMuon1Ptr(hMuonProduct, iMuon1 - inMuons.begin());
       try {
         outDCASig->SetMuon(muonMap_->GetMit(pMuon1Ptr),true);
       }
@@ -347,30 +456,76 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
   }
 
   // Tau + Tau combination
-  for (reco::PFTauCollection::const_iterator iTau0 = inTaus.begin();
-       iTau0 != inTaus.end(); ++iTau0) {
-    if (iTau0->pt() < tauPtMin_)
+  unsigned iTau = -1;
+  for (auto&& inTau : inTaus) {
+    ++iTau;
+
+    if (inTau.pt() < tauPtMin_)
       continue;
-    for (reco::PFTauCollection::const_iterator iTau1 = iTau0+1;
-         iTau1 != inTaus.end(); ++iTau1) {
-      if (iTau0 == iTau1)
+
+    reco::Track const* trackTau = 0;
+
+    if (edmTauType_ == kPFTau) {
+      reco::PFTau const& pfTau = static_cast<reco::PFTau const&>(inTau);
+
+      if (pfTau.leadPFChargedHadrCand().isNull())
         continue;
-      if (iTau1->pt() < tauPtMin_)
+      if (!pfTau.leadPFChargedHadrCand()->trackRef().isAvailable())
         continue;
 
-      if (iTau0->leadPFChargedHadrCand().isNull())
-        continue;
-      if (iTau1->leadPFChargedHadrCand().isNull())
-        continue;
-      const reco::Track *trackTau0 = (const reco::Track*)(iTau0->leadPFChargedHadrCand()->trackRef().get()); // Tau lead track
-      const reco::Track *trackTau1 = (const reco::Track*)(iTau1->leadPFChargedHadrCand()->trackRef().get()); // Tau lead track
+      trackTau = pfTau.leadPFChargedHadrCand()->trackRef().get(); // Tau lead track
+    }
+    else if(edmTauType_ == kPATTau) {
+      pat::Tau const& patTau = static_cast<pat::Tau const&>(inTau);
 
-      if (trackTau1 == NULL || trackTau0 == NULL || trackTau0 == trackTau1)
+      if (patTau.leadChargedHadrCand().isNull())
         continue;
+
+      pat::PackedCandidate const& leadChargedHadr = static_cast<pat::PackedCandidate const&>(*patTau.leadChargedHadrCand());
+
+      trackTau = &leadChargedHadr.pseudoTrack();
+    }
+
+    edm::Ptr<reco::BaseTau> pTauPtr(hTauProduct, iTau);
+
+    unsigned iTau1 = -1;
+    for (auto&& inTau1 : inTaus) {
+      ++iTau1;
+
+      if (iTau1 == iTau)
+        continue;
+
+      if (inTau1.pt() < tauPtMin_)
+        continue;
+
+      reco::Track const* trackTau1 = 0;
+
+      if (edmTauType_ == kPFTau) {
+        reco::PFTau const& pfTau1 = static_cast<reco::PFTau const&>(inTau1);
+
+        if (pfTau1.leadPFChargedHadrCand().isNull())
+          continue;
+        if (!pfTau1.leadPFChargedHadrCand()->trackRef().isAvailable())
+          continue;
+
+        trackTau1 = pfTau1.leadPFChargedHadrCand()->trackRef().get(); // Tau lead track
+      }
+      else if(edmTauType_ == kPATTau) {
+        pat::Tau const& patTau1 = static_cast<pat::Tau const&>(inTau1);
+
+        if (patTau1.leadChargedHadrCand().isNull())
+          continue;
+
+        pat::PackedCandidate const& leadChargedHadr = static_cast<pat::PackedCandidate const&>(*patTau1.leadChargedHadrCand());
+
+        trackTau1 = &leadChargedHadr.pseudoTrack();
+      }
+
+      edm::Ptr<reco::BaseTau> pTau1Ptr(hTauProduct, iTau1);
 
       calculateDCA(lDCA3D    ,lDCA3DE    ,lDCA2D    ,lDCA2DE,
                    lDCARPhi3D,lDCARPhi3DE,lDCARPhi2D,lDCARPhi2DE,
-                   trackTau0,trackTau1,DCASig::eTauTau);
+                   trackTau,trackTau1,DCASig::eTauTau);
 
       mithep::DCASig *outDCASig = DCASigs_->AddNew();
 
@@ -381,17 +536,16 @@ void FillerDCASig::FillDataBlock(const edm::Event      &event,
       outDCASig->SetType(DCASig::eTauTau);
 
       //references
-      edm::Ptr<reco::PFTau> pTau0Ptr(hTauProduct, iTau0 - inTaus.begin());
       try {
-	outDCASig->SetTau(tauMap_->GetMit(pTau0Ptr));}
+	outDCASig->SetTau(tauMap_->GetMit(pTauPtr));
+      }
       catch(...) {
         if (checkDCARef_)
 	  throw edm::Exception(edm::errors::Configuration, "FillerDCASig:FillDataBlock()\n")
 	    << "Error! Tau unmapped collection";
       }
-      edm::Ptr<reco::PFTau> pTau1Ptr(hTauProduct, iTau1 - inTaus.begin());
       try {
-	outDCASig->SetTau(tauMap_->GetMit(pTau1Ptr),true);
+	outDCASig->SetTau(tauMap_->GetMit(pTau1Ptr), true);
       }
       catch(...) {
         if (checkDCARef_)
@@ -448,11 +602,9 @@ void FillerDCASig::calculateDCA(Double_t &iDCA3D    ,Double_t &iDCA3DE    ,Doubl
   if (iType == DCASig::eMuMu  ) { mass_sigma1 = muon_sigma; mass_sigma2 = muon_sigma; }
   if (iType == DCASig::eTauTau) { mass_sigma1 = pion_sigma; mass_sigma2 = pion_sigma; }
 
-  reco::TransientTrack transientTrack1;
-  reco::TransientTrack transientTrack2;
+  reco::TransientTrack transientTrack1 = transientTrackBuilder_->build(*iTrack1);
+  reco::TransientTrack transientTrack2 = transientTrackBuilder_->build(*iTrack2);
 
-  transientTrack1 = transientTrackBuilder_->build(*iTrack1);
-  transientTrack2 = transientTrackBuilder_->build(*iTrack2);
   reco::TransientTrack * trk1Ptr = & transientTrack1;
   reco::TransientTrack * trk2Ptr = & transientTrack2;
 

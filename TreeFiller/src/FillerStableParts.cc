@@ -1,5 +1,3 @@
-// $Id: FillerStableParts.cc,v 1.16 2009/09/25 08:42:51 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerStableParts.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

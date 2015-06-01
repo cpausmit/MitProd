@@ -1,5 +1,3 @@
-// $Id: FillerCaloJets.cc,v 1.29 2011/03/09 17:32:53 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
@@ -127,8 +125,8 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
     GetProduct(ghostTrackBJetTagsToken_,hGhostTrackBJetTags, event);
   }
   
-  const reco::CaloJetCollection inJets = *(hJetProduct.product());  
-
+  reco::CaloJetCollection const& inJets = *hJetProduct;
+  
   // handle to Jet to Vertex association
   Handle<std::vector<double> > JV_alpha;  
   Handle<std::vector<double> > JV_beta;    
@@ -164,7 +162,7 @@ void FillerCaloJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().e());
 
     // add to map
-    edm::Ptr<reco::CaloJet> thePtr(hJetProduct, inJet - inJets.begin());
+    edm::Ptr<reco::Jet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
 
     //fill jet moments    

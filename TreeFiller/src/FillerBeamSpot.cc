@@ -1,5 +1,3 @@
-// $Id: FillerBeamSpot.cc,v 1.6 2009/11/30 13:43:03 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerBeamSpot.h"
 #include "MitAna/DataTree/interface/BeamSpotCol.h"
 #include "MitAna/DataTree/interface/Names.h"

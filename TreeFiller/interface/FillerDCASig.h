@@ -13,9 +13,10 @@
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/TauReco/interface/BaseTau.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace mithep 
 {
@@ -32,12 +33,23 @@ namespace mithep
 			Double_t &iDCARPhi3D,Double_t &iDCARPhi3DE,Double_t &iDCARPhi2D,Double_t &iDCARPhi2DE,
 			const reco::Track *iTrack1,const reco::Track *iTrack2,DCASig::EDCAType iType) ;
 
+      typedef edm::View<reco::GsfElectron> GsfElectronView;
+      typedef edm::View<reco::Muon> MuonView;
+      typedef edm::View<reco::BaseTau> BaseTauView;
+
+      enum TauType {
+        kPFTau,
+        kPATTau,
+        nTauTypes
+      };
+
     private:
       mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;
     
-      edm::EDGetTokenT<reco::GsfElectronCollection> edmElectronToken_;     //name of edm electrons
-      edm::EDGetTokenT<reco::MuonCollection> edmMuonToken_;         //name of edm muons
-      edm::EDGetTokenT<reco::PFTauCollection> edmTauToken_;          //name of edm Taus
+      edm::EDGetTokenT<GsfElectronView> edmElectronToken_;     //name of edm electrons
+      edm::EDGetTokenT<MuonView> edmMuonToken_;         //name of edm muons
+      edm::EDGetTokenT<BaseTauView> edmTauToken_;          //name of edm Taus
+      TauType                                  edmTauType_;
       std::string                              mitName_;             //mit name of Conversions
       std::string                              electronMapName_;     //name of imported electrons map
       std::string                              muonMapName_;         //name of imported muons map

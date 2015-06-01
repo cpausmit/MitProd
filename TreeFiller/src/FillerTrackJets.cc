@@ -1,5 +1,3 @@
-// $Id: FillerTrackJets.cc,v 1.3 2010/03/26 14:18:53 sixie Exp $
-
 #include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -122,7 +120,7 @@ void FillerTrackJets::FillDataBlock(const edm::Event      &event,
     GetProduct(trackCountingHighPurBJetTagsToken_, hTrackCountingHighPurBJetTags, event);    
   }
   
-  const reco::TrackJetCollection inJets = *(hJetProduct.product());  
+  reco::TrackJetCollection const& inJets = *hJetProduct;
 
   //Handles to Jet to Vertex Association
   Handle<std::vector<double> > JV_alpha;  
@@ -159,7 +157,7 @@ void FillerTrackJets::FillDataBlock(const edm::Event      &event,
                           inJet->p4().e());
 
     //add to map
-    edm::Ptr<reco::TrackJet> thePtr(hJetProduct, inJet - inJets.begin());
+    edm::Ptr<reco::Jet> thePtr(hJetProduct, inJet - inJets.begin());
     jetMap_->Add(thePtr, jet);
 
     //fill jet moments

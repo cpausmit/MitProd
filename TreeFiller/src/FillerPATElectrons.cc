@@ -1,5 +1,3 @@
-// $Id: FillerPATElectrons.cc,v 1.10 2010/03/18 20:21:00 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerPATElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -79,7 +77,7 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
   edm::Handle<edm::View<pat::Electron> > electronHandle;
   GetProduct(edmToken_, electronHandle, event);
 
-  edm::View<pat::Electron> electrons = *electronHandle;
+  edm::View<pat::Electron> const& electrons = *electronHandle;
 
   for(edm::View<pat::Electron>::const_iterator iM = electrons.begin(); 
       iM!=electrons.end(); ++iM){
@@ -89,9 +87,9 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
       mithep::Electron *outElectron = electrons_->AddNew();
       
       if (gsfTrackMap_ && iM->gsfTrack().isNonnull()) 
-	outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
+        outElectron->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(iM->gsfTrack())));
       if (trackerTrackMap_ && iM->track().isNonnull()) 
-	outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
+        outElectron->SetTrackerTrk(trackerTrackMap_->GetMit(refToPtr(iM->track())));
       
       outElectron->SetESuperClusterOverP(iM->eSuperClusterOverP());
       outElectron->SetESeedClusterOverPout(iM->eSeedClusterOverPout());

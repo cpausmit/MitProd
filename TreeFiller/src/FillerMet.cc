@@ -1,5 +1,3 @@
-// $Id: FillerMet.cc,v 1.4 2009/09/25 08:42:51 loizides Exp $
-
 #include "MitProd/TreeFiller/interface/FillerMet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -50,7 +48,7 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
   Handle<reco::METCollection> hMetProduct;
   GetProduct(edmToken_, hMetProduct, event);
 
-  const reco::METCollection inMets = *(hMetProduct.product());  
+  reco::METCollection const& inMets = *hMetProduct;
 
   // loop through all mets
   for (reco::METCollection::const_iterator inMet = inMets.begin(); 

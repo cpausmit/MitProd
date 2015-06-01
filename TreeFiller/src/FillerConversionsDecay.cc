@@ -103,8 +103,7 @@ void FillerConversionsDecay::FillDataBlock(const edm::Event      &event,
 
   conversionMap_->SetEdmProductId(hConversionProduct.id().id());
         
-  const reco::ConversionCollection inConversions = *(hConversionProduct.product());  
-  
+  reco::ConversionCollection const& inConversions = *hConversionProduct;
 
   for (reco::ConversionCollection::const_iterator inConversion = inConversions.begin(); 
       inConversion != inConversions.end(); ++inConversion) {

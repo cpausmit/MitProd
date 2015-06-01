@@ -1,5 +1,3 @@
-// $Id: FillerCaloTowers.cc,v 1.18 2010/08/18 01:36:11 bendavid Exp $
-
 #include "MitProd/TreeFiller/interface/FillerCaloTowers.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -72,7 +70,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
 
   Handle<CaloTowerCollection> hCaloTowerProduct;
   GetProduct(edmToken_, hCaloTowerProduct, event);
-  const CaloTowerCollection inCaloTowers = *(hCaloTowerProduct.product());  
+  CaloTowerCollection const& inCaloTowers = *hCaloTowerProduct;
 
   for (CaloTowerCollection::const_iterator inCaloTower = inCaloTowers.begin(); 
        inCaloTower != inCaloTowers.end(); ++inCaloTower) {
