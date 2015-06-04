@@ -1,118 +1,163 @@
 import FWCore.ParameterSet.Config as cms
-
-# b-tagging general configuration
-from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 
-# create a new jets and tracks association
-newJetTracksAssociatorAtVertex = ic5JetTracksAssociatorAtVertex.clone()
-newJetTracksAssociatorAtVertex.jets = "ak4PFJets"
-newJetTracksAssociatorAtVertex.tracks = "generalTracks"
+def setupBTag(process, jetCollection, suffix):
+    """
+    Configure the BTag sequence for the given jet collection.
+    EDM module names will be accompanied by the suffix to
+    distinguish sequences for multiple collections.
+    """
 
-# impact parameter b-tag
-newImpactParameterTagInfos = impactParameterTagInfos.clone()
-newImpactParameterTagInfos.jetTracks = "newJetTracksAssociatorAtVertex"
-newTrackCountingHighEffBJetTags = trackCountingHighEffBJetTags.clone()
-newTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"))
-newTrackCountingHighPurBJetTags = trackCountingHighPurBJetTags.clone()
-newTrackCountingHighPurBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"))
-newJetProbabilityBJetTags = jetProbabilityBJetTags.clone()
-newJetProbabilityBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"))
-newJetBProbabilityBJetTags = jetBProbabilityBJetTags.clone()
-newJetBProbabilityBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"))
+    # tag info
+    ipTagInfosName = 'pfImpactParameterTagInfos' + suffix
+    svTagInfosName = 'pfSecondaryVertexTagInfos' + suffix
+    ivfTagInfosName = 'pfInclusiveSecondaryVertexFinderTagInfos' + suffix
+    smTagInfosName = 'softPFMuonsTagInfos' + suffix
+    seTagInfosName = 'softPFElectronsTagInfos' + suffix
 
-newSecondaryVertexTagInfos = secondaryVertexTagInfos.clone()
-newSecondaryVertexTagInfos.trackIPTagInfos = "newImpactParameterTagInfos"
-newSimpleSecondaryVertexHighEffBJetTags = simpleSecondaryVertexHighEffBJetTags.clone()
-newSimpleSecondaryVertexHighEffBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newSecondaryVertexTagInfos"))
-newSimpleSecondaryVertexHighPurBJetTags = simpleSecondaryVertexHighPurBJetTags.clone()
-newSimpleSecondaryVertexHighPurBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newSecondaryVertexTagInfos"))
-newCombinedSecondaryVertexBJetTags = combinedSecondaryVertexBJetTags.clone()
-newCombinedSecondaryVertexBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
-                                                            cms.InputTag("newSecondaryVertexTagInfos") )
-# replacing CSVMVA with CSVv2 - is this correct? Y.I. Apr 3 2015
-newCombinedSecondaryVertexV2BJetTags = combinedSecondaryVertexV2BJetTags.clone()
-newCombinedSecondaryVertexV2BJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
-                                                              cms.InputTag("newSecondaryVertexTagInfos") )
+    newImpactParameterTagInfos = pfImpactParameterTagInfos.clone(
+        jets = jetCollection
+    )
+    newSecondaryVertexTagInfos = pfSecondaryVertexTagInfos.clone(
+        trackIPTagInfos = ipTagInfosName
+    )
+    newInclusiveSecondaryVertexFinderTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone(
+        trackIPTagInfos = ipTagInfosName
+    )
+    newSoftPFMuonsTagInfos = softPFMuonsTagInfos.clone(
+        jets = jetCollection
+    )
+    newSoftPFElectronsTagInfos = softPFElectronsTagInfos.clone(
+        jets = jetCollection
+    )
 
-# ghost track b-tag
-newGhostTrackVertexTagInfos = ghostTrackVertexTagInfos.clone()
-newGhostTrackVertexTagInfos.trackIPTagInfos = "newImpactParameterTagInfos"
-newGhostTrackBJetTags = ghostTrackBJetTags.clone()
-newGhostTrackBJetTags.tagInfos = cms.VInputTag(cms.InputTag("newImpactParameterTagInfos"),
-                                               cms.InputTag("newGhostTrackVertexTagInfos"))
-## soft electron b-tag
-#newSoftElectronTagInfos = softElectronTagInfos.clone()
-#newSoftElectronTagInfos.jets = "ak4PFJets"
-#newSoftElectronByIP3dBJetTags = softElectronByIP3dBJetTags.clone()
-#newSoftElectronByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
-#newSoftElectronByPtBJetTags = softElectronByPtBJetTags.clone()
-#newSoftElectronByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftElectronTagInfos") )
-#
-## soft muon b-tag
-#newSoftMuonTagInfos = softMuonTagInfos.clone()
-#newSoftMuonTagInfos.jets = "ak4PFJets"
-#newSoftMuonBJetTags = softMuonBJetTags.clone()
-#newSoftMuonBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
-#newSoftMuonByIP3dBJetTags = softMuonByIP3dBJetTags.clone()
-#newSoftMuonByIP3dBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
-#newSoftMuonByPtBJetTags = softMuonByPtBJetTags.clone()
-#newSoftMuonByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newSoftMuonTagInfos") )
+    # impact parameter b-tags
+    newTrackCountingHighEffBJetTags = pfTrackCountingHighEffBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
+    )
+    newTrackCountingHighPurBJetTags = pfTrackCountingHighPurBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
+    )
 
-# prepare a path running the new modules
-newJetTracksAssociator = cms.Sequence(
-  newJetTracksAssociatorAtVertex
-)
+    # jet probability b-tags
+    newJetProbabilityBJetTags = pfJetProbabilityBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
+    )
+    newJetBProbabilityBJetTags = pfJetBProbabilityBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
+    )
 
-newJetBtaggingIP = cms.Sequence(
-  newImpactParameterTagInfos * (
-    newTrackCountingHighEffBJetTags +
-    newTrackCountingHighPurBJetTags +
-    newJetProbabilityBJetTags +
-    newJetBProbabilityBJetTags
-  )
-)
+    # secondary vertex b-tags
+    newSimpleSecondaryVertexHighEffBJetTags = pfSimpleSecondaryVertexHighEffBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(svTagInfosName))
+    )
+    newSimpleSecondaryVertexHighPurBJetTags = pfSimpleSecondaryVertexHighPurBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(svTagInfosName))
+    )
 
-newJetBtaggingSV = cms.Sequence(
-  newImpactParameterTagInfos *
-  newSecondaryVertexTagInfos * (
-    newSimpleSecondaryVertexHighEffBJetTags +
-    newSimpleSecondaryVertexHighPurBJetTags +
-    newCombinedSecondaryVertexBJetTags +
-    newCombinedSecondaryVertexV2BJetTags
-  )
-)
+    # combined secondary vertex b-tags
+    newCombinedSecondaryVertexBJetTags = pfCombinedSecondaryVertexBJetTags.clone(
+        tagInfos = cms.VInputTag(
+            cms.InputTag(ipTagInfosName),
+            cms.InputTag(svTagInfosName)
+        )
+    )
+    newCombinedSecondaryVertexV2BJetTags = pfCombinedSecondaryVertexV2BJetTags.clone(
+        tagInfos = cms.VInputTag(
+            cms.InputTag(ipTagInfosName),
+            cms.InputTag(svTagInfosName)
+        )
+    )
 
-newJetBtaggingGhostTrack = cms.Sequence(
-  newGhostTrackVertexTagInfos *
-  newGhostTrackBJetTags
-)
+    # inclusive combined secondary vertex b-tags
+    newCombinedInclusiveSecondaryVertexV2BJetTags = pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
+        tagInfos = cms.VInputTag(
+            cms.InputTag(ipTagInfosName),
+            cms.InputTag(ivfTagInfosName)
+        )
+    )
 
-#newJetBtaggingEle = cms.Sequence(
-#  softElectronCands *
-#  newSoftElectronTagInfos *
-#  newSoftElectronByIP3dBJetTags *
-#  newSoftElectronByPtBJetTags
-#)
-#
-#newJetBtaggingMu = cms.Sequence(
-#  newSoftMuonTagInfos * (
-#    newSoftMuonBJetTags +
-#    newSoftMuonByIP3dBJetTags +
-#    newSoftMuonByPtBJetTags
-#  )
-#)
+    # soft lepton b-tags
+    newSoftPFMuonBJetTags = softPFMuonBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(smTagInfosName))
+    )
+    newSoftPFElectronBJetTags = softPFElectronBJetTags.clone(
+        tagInfos = cms.VInputTag(cms.InputTag(seTagInfosName))
+    )
 
-newJetBtagging = cms.Sequence(
-  newJetBtaggingIP +
-  newJetBtaggingSV +
-  newJetBtaggingGhostTrack
-#    +
-#    newJetBtaggingEle +
-#    newJetBtaggingMu
-)
+    # super-combined b-tags
+    newCombinedMVABJetTags = pfCombinedMVABJetTags.clone(
+        tagInfos = cms.VInputTag(
+            cms.InputTag(ipTagInfosName),
+            cms.InputTag(ivfTagInfosName),
+            cms.InputTag(smTagInfosName),
+            cms.InputTag(seTagInfosName)
+        )
+    )
+    newCombinedSecondaryVertexSoftLeptonBJetTags = pfCombinedSecondaryVertexSoftLeptonBJetTags.clone(
+        tagInfos = cms.VInputTag(
+            cms.InputTag(ipTagInfosName),
+            cms.InputTag(ivfTagInfosName),
+            cms.InputTag(smTagInfosName),
+            cms.InputTag(seTagInfosName)
+        )
+    )
+    
+    # sequence
+    sequence = cms.Sequence(
+        (
+            newImpactParameterTagInfos *
+            (
+                newTrackCountingHighEffBJetTags +
+                newTrackCountingHighPurBJetTags +
+                newJetProbabilityBJetTags +
+                newJetBProbabilityBJetTags +
+                newSecondaryVertexTagInfos *
+                (
+                    newSimpleSecondaryVertexHighEffBJetTags +
+                    newSimpleSecondaryVertexHighPurBJetTags +
+                    newCombinedSecondaryVertexBJetTags +
+                    newCombinedSecondaryVertexV2BJetTags
+                ) +
+                inclusiveCandidateVertexing *
+                newInclusiveSecondaryVertexFinderTagInfos *
+                newCombinedInclusiveSecondaryVertexV2BJetTags
+            ) +
+            newSoftPFMuonsTagInfos *
+            newSoftPFMuonBJetTags +
+            newSoftPFElectronsTagInfos *
+            newSoftPFElectronBJetTags
+        ) *
+        (
+            newCombinedMVABJetTags +
+            newCombinedSecondaryVertexSoftLeptonBJetTags
+        )
+    )
 
-newBtaggingAll = cms.Sequence(
-  newJetTracksAssociator *
-  newJetBtagging
-)
+    # configure process
+    # add candidate vertexing if not exists
+#    if ___:
+#        setattr(process, 'inclusiveCandidateVertexing', inclusiveCandidateVertexing)
+
+    setattr(process, ipTagInfosName, newImpactParameterTagInfos)
+    setattr(process, svTagInfosName, newSecondaryVertexTagInfos)
+    setattr(process, ivfTagInfosName, newInclusiveSecondaryVertexFinderTagInfos)
+    setattr(process, smTagInfosName, newSoftPFMuonsTagInfos)
+    setattr(process, seTagInfosName, newSoftPFElectronsTagInfos)
+    setattr(process, 'trackCountingHighEffBJetTags' + suffix, newTrackCountingHighEffBJetTags)
+    setattr(process, 'trackCountingHighPurBJetTags' + suffix, newTrackCountingHighPurBJetTags)
+    setattr(process, 'jetProbabilityBJetTags' + suffix, newJetProbabilityBJetTags)
+    setattr(process, 'jetBProbabilityBJetTags' + suffix, newJetBProbabilityBJetTags)
+    setattr(process, 'simpleSecondaryVertexHighEffBJetTags' + suffix, newSimpleSecondaryVertexHighEffBJetTags)
+    setattr(process, 'simpleSecondaryVertexHighPurBJetTags' + suffix, newSimpleSecondaryVertexHighPurBJetTags)
+    setattr(process, 'combinedSecondaryVertexBJetTags' + suffix, newCombinedSecondaryVertexBJetTags)
+    setattr(process, 'combinedSecondaryVertexV2BJetTags' + suffix, newCombinedSecondaryVertexV2BJetTags)
+    setattr(process, 'combinedInclusiveSecondaryVertexV2BJetTags' + suffix, newCombinedInclusiveSecondaryVertexV2BJetTags)
+    setattr(process, 'softPFMuonBJetTags' + suffix, newSoftPFMuonBJetTags)
+    setattr(process, 'softPFElectronBJetTags' + suffix, newSoftPFElectronBJetTags)
+    setattr(process, 'combinedMVABJetTags' + suffix, newCombinedMVABJetTags)
+    setattr(process, 'combinedSecondaryVertexSoftLeptonBJetTags   ' + suffix, newCombinedSecondaryVertexSoftLeptonBJetTags)
+
+    setattr(process, 'pfBTagging' + suffix, sequence)
+    
+    return sequence
