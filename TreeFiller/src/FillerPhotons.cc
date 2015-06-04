@@ -222,8 +222,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetIsEBGap(inPhoton.isEBGap());
     outPhoton->SetIsEEGap(inPhoton.isEEGap());
     outPhoton->SetIsEBEEGap(inPhoton.isEBEEGap());
-    //deprecated, identical to supercluster preselection in 3_1_X, so set to true
-    outPhoton->SetIsLooseEM(true); //deprecated
 
     if (fillFromPAT_) {
       auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
@@ -342,7 +340,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
         pfEcalEndcapSuperClusterMap_->GetMit(scRef, false);
 
       if (mitSC)
-    	outPhoton->SetPFSuperCluster(mitSC);
+    	outPhoton->SetECALOnlySuperCluster(mitSC);
       else if (checkClusterActive_)
         throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
           << "Error! PFEcal SuperCluster reference in unmapped collection";
