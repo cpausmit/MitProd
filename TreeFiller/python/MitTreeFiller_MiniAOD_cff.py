@@ -146,7 +146,7 @@ def configureForMiniAOD(treeFiller):
         fillFromPAT = cms.untracked.bool(True),
         fillerType = cms.untracked.string('FillerPhotons')
     )
-    AKt4PFJetsCHS = cms.untracked.PSet(
+    treeFiller.AKt4PFJetsCHS = cms.untracked.PSet(
         active = cms.untracked.bool(True),
         flavorMatchingActive = cms.untracked.bool(False),
         bTaggingActive = cms.untracked.bool(True),
@@ -167,13 +167,13 @@ def configureForMiniAOD(treeFiller):
         SimpleSecondaryVertexHighEffBJetTagsName = cms.untracked.string('pfSimpleSecondaryVertexHighEffBJetTags'),
         SimpleSecondaryVertexHighPurBJetTagsName = cms.untracked.string('pfSimpleSecondaryVertexHighPurBJetTags'),
         CombinedSecondaryVertexBJetTagsName = cms.untracked.string('pfCombinedSecondaryVertexV2BJetTags'),
-        CombinedSecondaryVertexMVABJetTagsName = cms.untracked.string('newCombinedMVABJetTags'),
+        CombinedSecondaryVertexMVABJetTagsName = cms.untracked.string('pfCombinedMVABJetTags'),
         TrackCountingHighEffBJetTagsName = cms.untracked.string('pfTrackCountingHighEffBJetTags'),
         TrackCountingHighPurBJetTagsName = cms.untracked.string('pfTrackCountingHighPurBJetTags'),
         pfCandMapName = cms.untracked.string('PFCandMapName'),
         jetMapName = cms.untracked.string('AKt4PFJetCHSMap'),
         fillerType = cms.untracked.string('FillerPFJetsFromPATJets')
-    ),
+    )
     treeFiller.AKt8PFJetsCHS.edmName = 'slimmedJetsAK8'
     treeFiller.AKt8PFJetsCHS.fillerType = 'FillerPFJetsFromPATJets'
     treeFiller.AKt8PFJetsCHS.pfCandMapName = 'PFCandMapName'
