@@ -118,7 +118,7 @@ process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.pfJets_cff')
+process.load('CommonTools.ParticleFlow.pfJets_cff') # pfJets = ak4CHS
 process.load('CommonTools.ParticleFlow.pfTaus_cff')
 process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
 process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
