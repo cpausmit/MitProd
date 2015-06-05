@@ -5,167 +5,166 @@
 
 #include "MitAna/DataTree/interface/Names.h"
 
-namespace mithep {
+template<class TAU>
+mithep::FillerPFTaus<TAU>::FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
+  BaseFiller(cfg, os, name, active),
+  hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
+  edmToken_(GetToken<TauCollection>(collector, "edmName", "")),
+  hpsTokens_(),
+  mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
+  trackMapNames_(Conf().getUntrackedParameter("trackMapNames", std::vector<std::string>())),
+  jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("JetMapName"))),
+  pfCandMapName_(Conf().getUntrackedParameter("pfCandMapName", std::string())),
+  tauMapName_(Conf().getUntrackedParameter("tauMapName", std::string())),
+  allowMissingTrackRef_(Conf().getUntrackedParameter("allowMissingTrackRef", false)),
+  jetMap_(0),
+  pfCandMap_(0),
+  tauMap_(new mithep::PFTauMap),
+  taus_(new mithep::PFTauArr(16))
+{
+  setHPSTokens(collector);
+}
 
-  template<class TAU>
-  mithep::FillerPFTaus<TAU>::FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
-    BaseFiller(cfg, os, name, active),
-    hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
-    edmToken_(GetToken<TauCollection>(collector, "edmName", "")),
-    hpsTokens_(),
-    mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
-    trackMapNames_(Conf().getUntrackedParameter("trackMapNames", std::vector<std::string>())),
-    jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("JetMapName"))),
-    pfCandMapName_(Conf().getUntrackedParameter("pfCandMapName", std::string())),
-    tauMapName_(Conf().getUntrackedParameter("tauMapName", std::string())),
-    allowMissingTrackRef_(Conf().getUntrackedParameter("allowMissingTrackRef", false)),
-    jetMap_(0),
-    pfCandMap_(0),
-    tauMap_(new mithep::PFTauMap),
-    taus_(new mithep::PFTauArr(16))
-  {
-    setHPSTokens(collector);
-  }
+template<class TAU>
+mithep::FillerPFTaus<TAU>::~FillerPFTaus()
+{
+  delete taus_;
+  delete tauMap_;
+}
 
-  template<class TAU>
-  mithep::FillerPFTaus<TAU>::~FillerPFTaus()
-  {
-    delete taus_;
-    delete tauMap_;
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
+{
+  // Add taus branch to tree.
 
-  template<class TAU>
-  void mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
-  {
-    // Add taus branch to tree.
+  ObjectService& os = *OS();
 
-    ObjectService& os = *OS();
+  tws.AddBranch(mitName_,&taus_);
+  os.add<mithep::PFTauArr>(taus_,mitName_);
 
-    tws.AddBranch(mitName_,&taus_);
-    os.add<mithep::PFTauArr>(taus_,mitName_);
-
-    for (auto&& bmapName : trackMapNames_) {
-      if (!bmapName.empty()) {
-        const mithep::TrackMap *map = os.get<TrackMap>(bmapName);
-        if (map) {
-          trackMaps_.push_back(map);
-          AddBranchDep(mitName_,map->GetBrName());
-        }
+  for (auto&& bmapName : trackMapNames_) {
+    if (!bmapName.empty()) {
+      const mithep::TrackMap *map = os.get<TrackMap>(bmapName);
+      if (map) {
+        trackMaps_.push_back(map);
+        AddBranchDep(mitName_,map->GetBrName());
       }
     }
-
-    if (!jetMapName_.empty()) {
-      jetMap_ = os.get<PFJetMap>(jetMapName_);
-      if (jetMap_)
-        AddBranchDep(mitName_, jetMap_->GetBrName());
-    }
-
-    if (!pfCandMapName_.empty()) {
-      pfCandMap_ = os.get<PFCandidateMap>(pfCandMapName_);
-      if (pfCandMap_)
-        AddBranchDep(mitName_, pfCandMap_->GetBrName());
-    }
-
-    if (!tauMapName_.empty()) {
-      tauMap_->SetBrName(mitName_);
-      os.add<PFTauMap>(tauMap_,tauMapName_);
-    }
   }
 
-  template<class TAU>
-  void mithep::FillerPFTaus<TAU>::FillDataBlock(const edm::Event &event, 
-                                              const edm::EventSetup &setup)
-  {
-    // Fill taus from edm collection into our collection.
+  if (!jetMapName_.empty()) {
+    jetMap_ = os.get<PFJetMap>(jetMapName_);
+    if (jetMap_)
+      AddBranchDep(mitName_, jetMap_->GetBrName());
+  }
 
-    taus_  ->Delete();
-    tauMap_->Reset();
+  if (!pfCandMapName_.empty()) {
+    pfCandMap_ = os.get<PFCandidateMap>(pfCandMapName_);
+    if (pfCandMap_)
+      AddBranchDep(mitName_, pfCandMap_->GetBrName());
+  }
+
+  if (!tauMapName_.empty()) {
+    tauMap_->SetBrName(mitName_);
+    os.add<PFTauMap>(tauMap_,tauMapName_);
+  }
+}
+
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::FillDataBlock(edm::Event const& event, 
+                                         edm::EventSetup const&)
+{
+  // Fill taus from edm collection into our collection.
+
+  taus_  ->Delete();
+  tauMap_->Reset();
   
-    // handle for the tau collection
-    edm::Handle<TauCollection> hTauProduct;
-    GetProduct(edmToken_, hTauProduct, event);
+  // handle for the tau collection
+  edm::Handle<TauCollection> hTauProduct;
+  GetProduct(edmToken_, hTauProduct, event);
 
-    // Handles for HPS discriminator
-    DiscHandleMap hpsHandles;
-    if (hpsActive_) {
-      for (auto&& hpsNameToken : hpsTokens_) {
-        // handle map entries created on the fly
-        GetProductSafe(hpsNameToken.second, hpsHandles[hpsNameToken.first], event);
-      }
+  // Handles for HPS discriminator
+  DiscHandleMap hpsHandles;
+  if (hpsActive_) {
+    for (auto&& hpsNameToken : hpsTokens_) {
+      // handle map entries created on the fly
+      GetProductSafe(hpsNameToken.second, hpsHandles[hpsNameToken.first], event);
     }
+  }
   
-    // grab the input tau collection from CMSSW
-    TauCollection const& inTaus = *hTauProduct;
+  // grab the input tau collection from CMSSW
+  TauCollection const& inTaus = *hTauProduct;
   
-    // loop through all CMSSW taus (input taus = inTaus)
-    unsigned iTau = 0;
-    for (auto&& inTau : inTaus) {
-      // grab a reference to our input tau
-      edm::Ref<TauCollection> tRef(hTauProduct, iTau);
-      edm::Ptr<reco::BaseTau> tPtr(hTauProduct, iTau);
-      ++iTau;
+  // loop through all CMSSW taus (input taus = inTaus)
+  unsigned iTau = 0;
+  for (auto&& inTau : inTaus) {
+    // grab a reference to our input tau
+    edm::Ref<TauCollection> tRef(hTauProduct, iTau);
+    edm::Ptr<reco::BaseTau> tPtr(hTauProduct, iTau);
+    ++iTau;
     
-      // make our output object including allocating space
-      mithep::PFTau *outTau = taus_->Allocate();
-      new (outTau) mithep::PFTau(inTau.px(),inTau.py(),inTau.pz(),inTau.energy());
-      outTau->SetMomAlt(inTau.alternatLorentzVect().x(),
-                        inTau.alternatLorentzVect().y(),
-                        inTau.alternatLorentzVect().z(),
-                        inTau.alternatLorentzVect().e());
+    // make our output object including allocating space
+    mithep::PFTau *outTau = taus_->Allocate();
+    new (outTau) mithep::PFTau(inTau.px(),inTau.py(),inTau.pz(),inTau.energy());
+    outTau->SetMomAlt(inTau.alternatLorentzVect().x(),
+                      inTau.alternatLorentzVect().y(),
+                      inTau.alternatLorentzVect().z(),
+                      inTau.alternatLorentzVect().e());
 
-      outTau->SetCharge(inTau.charge());
+    outTau->SetCharge(inTau.charge());
 
-      // fill pftau-specific quantities
-      setPFSpecific(outTau, inTau);
+    // fill pftau-specific quantities
+    setPFSpecific(outTau, inTau);
     
-      // fill HPS discriminants
-      if (hpsActive_)
-        setPFTauDiscriminators(outTau, hpsHandles, tRef);
+    // fill HPS discriminants
+    if (hpsActive_)
+      setPFTauDiscriminators(outTau, hpsHandles, tRef);
 
-      // add source pfjet reference
-      if (jetMap_)
-        setPFJetRef(outTau, inTau);
+    // add source pfjet reference
+    if (jetMap_)
+      setPFJetRef(outTau, inTau);
 
-      // add pf candidate references
-      if (pfCandMap_)
-        setPFCandRefs(outTau, inTau);
+    // add pf candidate references
+    if (pfCandMap_)
+      setPFCandRefs(outTau, inTau);
 
-      // add outTau equivalent to the map
-      tauMap_->Add(tPtr, outTau);
-    }
-    // make sure to trim off the unused memory
-    taus_->Trim();
+    // add outTau equivalent to the map
+    tauMap_->Add(tPtr, outTau);
   }
+  // make sure to trim off the unused memory
+  taus_->Trim();
+}
 
-  template<class TAU>
-  void
-  mithep::FillerPFTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
-  {
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
+{
+}
 
-  template<class TAU>
-  void
-  mithep::FillerPFTaus<TAU>::setPFSpecific(mithep::PFTau*, TAU const&) const
-  {
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::setPFSpecific(mithep::PFTau*, TAU const&) const
+{
+}
 
-  template<class TAU>
-  void
-  mithep::FillerPFTaus<TAU>::setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const
-  {
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const
+{
+}
 
-  template<class TAU>
-  void
-  mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
-  {
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
+{
+}
 
-  template<class TAU>
-  void
-  mithep::FillerPFTaus<TAU>::setPFCandRefs(mithep::PFTau*, TAU const&) const
-  {
-  }
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::setPFCandRefs(mithep::PFTau*, TAU const&) const
+{
 }
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -175,7 +174,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<reco::PFTau>::setHPSTokens(edm::ConsumesCollector& collector)
+  FillerPFTaus<reco::PFTau>::setHPSTokens(edm::ConsumesCollector& collector)
   {
     std::string hpsNames[][2] = {
       {"discriminationByLooseElectronRejectionName",
@@ -259,7 +258,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<reco::PFTau>::setPFSpecific(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<reco::PFTau>::setPFSpecific(mithep::PFTau* outTau, reco::PFTau const& inTau) const
   {
     outTau->SetBremRecoveryEOverP(inTau.bremsRecoveryEOverPLead());
     outTau->SetCaloCompatibility(inTau.caloComp());
@@ -289,7 +288,7 @@ namespace mithep {
       }
 
       if (!track && !allowMissingTrackRef_)
-        throw edm::Exception(edm::errors::Configuration, "mithep::FillerPFTaus::FillDataBlock()\n")
+        throw edm::Exception(edm::errors::Configuration, "FillerPFTaus::FillDataBlock()\n")
           << "Error! electronPreIDTrack not found in AssociationMaps";
 
       outTau->SetElectronTrack(track);
@@ -298,7 +297,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<pat::Tau>::setPFSpecific(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  FillerPFTaus<pat::Tau>::setPFSpecific(mithep::PFTau* outTau, pat::Tau const& inTau) const
   {
     // Reference:
     // RecoTauTag/RecoTau/src/HPSPFRecoTauAlgorithm.cc
@@ -319,7 +318,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
+  FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
   {
     auto discVal = [&hpsHandles, &tRef](std::string const& discName)->double {
       DiscHandleMap::const_iterator itr(hpsHandles.find(discName));
@@ -370,7 +369,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<reco::PFTau>::setPFJetRef(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<reco::PFTau>::setPFJetRef(mithep::PFTau* outTau, reco::PFTau const& inTau) const
   {
     try {
       outTau->SetPFJet(jetMap_->GetMit(edm::refToPtr(inTau.jetRef())));
@@ -383,7 +382,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<reco::PFTau>::setPFCandRefs(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<reco::PFTau>::setPFCandRefs(mithep::PFTau* outTau, reco::PFTau const& inTau) const
   {
     if (inTau.leadPFCand().isNonnull())
       outTau->SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
@@ -412,7 +411,7 @@ namespace mithep {
 
   template<>
   void
-  mithep::FillerPFTaus<pat::Tau>::setPFCandRefs(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  FillerPFTaus<pat::Tau>::setPFCandRefs(mithep::PFTau* outTau, pat::Tau const& inTau) const
   {
     if (inTau.leadCand().isNonnull())
       outTau->SetLeadPFCand(pfCandMap_->GetMit(inTau.leadCand()));
@@ -441,5 +440,4 @@ namespace mithep {
 
   typedef FillerPFTaus<reco::PFTau> FillerPFTausFromPFTaus;
   typedef FillerPFTaus<pat::Tau> FillerPFTausFromPATTaus;
-
 }
