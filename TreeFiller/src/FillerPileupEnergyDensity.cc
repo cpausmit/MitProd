@@ -5,114 +5,66 @@
 #include "MitAna/DataTree/interface/PileupEnergyDensityCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
-using namespace std;
-using namespace edm;
-using namespace mithep;
-
-//--------------------------------------------------------------------------------------------------
-FillerPileupEnergyDensity::FillerPileupEnergyDensity(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
-  BaseFiller                           (cfg,os,name,active),
-  edmToken_(GetToken<double>(collector, "edmName")),
-  edmNameLowEtaToken_(GetToken<double>(collector, "edmNameLowEta")),
-  edmNameRandomToken_(GetToken<double>(collector, "edmNameRandom")),
-  edmNameRandomLowEtaToken_(GetToken<double>(collector, "edmNameRandomLowEta")),
-  edmNameFixedGridAllToken_(GetToken<double>(collector, "edmNameFixedGridAll")),
-  edmNameFixedGridFastjetAllToken_(GetToken<double>(collector, "edmNameFixedGridFastjetAll")),
-  edmNameKt6CaloJetsToken_(GetToken<double>(collector, "edmNameKt6CaloJets")),
-  edmNameKt6CaloJetsCentralToken_(GetToken<double>(collector, "edmNameKt6CaloJetsCentral")),
-  edmNameKt6PFJetsToken_(GetToken<double>(collector, "edmNameKt6PFJets")),
-  edmNameKt6PFJetsCentralChargedPileUpToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralChargedPileUp")),
-  edmNameKt6PFJetsCentralNeutralToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutral")),
-  edmNameKt6PFJetsCentralNeutralTightToken_(GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutralTight")),
-  mitName_                             (Conf().getUntrackedParameter<string>("mitName",Names::gkPileupEnergyDensityBrn)),
-  rhos_                                (new mithep::PileupEnergyDensityArr)
+mithep::FillerPileupEnergyDensity::FillerPileupEnergyDensity(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
+  BaseFiller(cfg, os, name, active),
+  edmToken_{ // be careful with the ordering!
+    GetToken<double>(collector, "edmName"),
+    GetToken<double>(collector, "edmNameLowEta"),
+    GetToken<double>(collector, "edmNameRandom"),
+    GetToken<double>(collector, "edmNameRandomLowEta"),
+    GetToken<double>(collector, "edmNameFixedGridAll"),
+    GetToken<double>(collector, "edmNameFixedGridFastjetAll"),
+    GetToken<double>(collector, "edmNameKt6CaloJets"),
+    GetToken<double>(collector, "edmNameKt6CaloJetsCentral"),
+    GetToken<double>(collector, "edmNameKt6PFJets"),
+    GetToken<double>(collector, "edmNameKt6PFJetsCentralChargedPileUp"),
+    GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutral"),
+    GetToken<double>(collector, "edmNameKt6PFJetsCentralNeutralTight")
+  },
+  mitName_(Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPileupEnergyDensityBrn)),
+  rhos_(new mithep::PileupEnergyDensityArr)
 {
-  // Constructor.
 }
 
-//--------------------------------------------------------------------------------------------------
-FillerPileupEnergyDensity::~FillerPileupEnergyDensity()
+mithep::FillerPileupEnergyDensity::~FillerPileupEnergyDensity()
 {
-  // Destructor.
-
   delete rhos_;
 }
 
-//--------------------------------------------------------------------------------------------------
-void FillerPileupEnergyDensity::BookDataBlock(TreeWriter &tws)
+void
+mithep::FillerPileupEnergyDensity::BookDataBlock(TreeWriter& tws)
 {
   // Add pileup branch to tree.
-  tws.AddBranch(mitName_,&rhos_);
-  OS()->add<mithep::PileupEnergyDensityArr>(rhos_,mitName_);
+  tws.AddBranch(mitName_, &rhos_);
+  OS()->add(rhos_, mitName_);
 }
 
-//--------------------------------------------------------------------------------------------------
-void FillerPileupEnergyDensity::FillDataBlock(const edm::Event      &event,
-                                              const edm::EventSetup &setup)
+void 
+mithep::FillerPileupEnergyDensity::FillDataBlock(edm::Event const& event,
+                                                 edm::EventSetup const&)
 {
   // Fill missing energy from edm collection into our collection.
 
   rhos_->Delete();
 
-  Handle<double> hRho;
-  GetProduct(edmToken_, hRho, event);
+  edm::Handle<double> hRho[nTypes];
+  for (unsigned iT = 0; iT != nTypes; ++iT)
+    GetProduct(edmToken_[iT], hRho[iT], event);
 
-  Handle<double> hRhoLowEta;
-  GetProduct(edmNameLowEtaToken_, hRhoLowEta, event);
+  mithep::PileupEnergyDensity* rho = rhos_->AddNew();
 
-  Handle<double> hRhoRandom;
-  GetProduct(edmNameRandomToken_, hRhoRandom, event);
-
-  Handle<double> hRhoRandomLowEta;
-  GetProduct(edmNameRandomLowEtaToken_, hRhoRandomLowEta, event);
-
-  Handle<double> hRhoFixedGridAll;
-  GetProduct(edmNameFixedGridAllToken_, hRhoFixedGridAll, event);
-
-  Handle<double> hRhoFixedGridFastjetAll;
-  GetProduct(edmNameFixedGridFastjetAllToken_, hRhoFixedGridFastjetAll, event);
-
-  Handle<double> hRhoKt6CaloJets;
-  GetProduct(edmNameKt6CaloJetsToken_, hRhoKt6CaloJets, event);
-
-  Handle<double> hRhoKt6CaloJetsCentral;
-  GetProduct(edmNameKt6CaloJetsCentralToken_, hRhoKt6CaloJetsCentral, event);
-
-  Handle<double> hRhoKt6PFJets;
-  GetProduct(edmNameKt6PFJetsToken_, hRhoKt6PFJets, event);
-
-  Handle<double> hRhoKt6PFJetsCentralChargedPileUp;
-  GetProduct(edmNameKt6PFJetsCentralChargedPileUpToken_, hRhoKt6PFJetsCentralChargedPileUp, event);
-
-  Handle<double> hRhoKt6PFJetsCentralNeutral;
-  GetProduct(edmNameKt6PFJetsCentralNeutralToken_, hRhoKt6PFJetsCentralNeutral, event);
-
-  Handle<double> hRhoKt6PFJetsCentralNeutralTight;
-  GetProduct(edmNameKt6PFJetsCentralNeutralTightToken_, hRhoKt6PFJetsCentralNeutralTight, event);
-
-  mithep::PileupEnergyDensity *rho = rhos_->AddNew();
-
-  rho->SetRho(*hRho);
-  rho->SetRhoLowEta(*hRhoLowEta);
-  rho->SetRhoRandom(*hRhoRandom);
-  rho->SetRhoRandomLowEta(*hRhoRandomLowEta);
-
-  if (hRhoFixedGridAll.isValid())
-    rho->SetRhoFixedGridAll(*hRhoFixedGridAll);
-  else
-    rho->SetRhoFixedGridAll(-9999);
-
-  if (hRhoFixedGridFastjetAll.isValid())
-    rho->SetRhoFixedGridFastjetAll(*hRhoFixedGridFastjetAll);
-  else
-    rho->SetRhoFixedGridFastjetAll(-9999);
-
-  rho->SetRhoKt6CaloJets                  (*hRhoKt6CaloJets);
-  rho->SetRhoKt6CaloJetsCentral           (*hRhoKt6CaloJetsCentral);
-  rho->SetRhoKt6PFJets                    (*hRhoKt6PFJets);
-  rho->SetRhoKt6PFJetsCentralChargedPileUp(*hRhoKt6PFJetsCentralChargedPileUp);
-  rho->SetRhoKt6PFJetsCentralNeutral      (*hRhoKt6PFJetsCentralNeutral);
-  rho->SetRhoKt6PFJetsCentralNeutralTight (*hRhoKt6PFJetsCentralNeutralTight);
+  rho->SetRho(*hRho[kHighEta]);
+  rho->SetRhoLowEta(*hRho[kLowEta]);
+  rho->SetRhoRandom(*hRho[kRandom]);
+  rho->SetRhoRandomLowEta(*hRho[kRandomLowEta]);
+  rho->SetRhoFixedGridAll(*hRho[kFixedGridAll]);
+  rho->SetRhoFixedGridFastjetAll(*hRho[kFixedGridFastjetAll]);
+  rho->SetRhoKt6CaloJets(*hRho[kKt6CaloJets]);
+  rho->SetRhoKt6CaloJetsCentral(*hRho[kKt6CaloJetsCentral]);
+  rho->SetRhoKt6PFJets(*hRho[kKt6PFJets]);
+  rho->SetRhoKt6PFJetsCentralChargedPileUp(*hRho[kKt6PFJetsCentralChargedPileUp]);
+  rho->SetRhoKt6PFJetsCentralNeutral(*hRho[kKt6PFJetsCentralNeutral]);
+  rho->SetRhoKt6PFJetsCentralNeutralTight(*hRho[kKt6PFJetsCentralNeutralTight]);
 
   rhos_->Trim();
 }
