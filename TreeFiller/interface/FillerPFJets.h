@@ -31,18 +31,6 @@ namespace mithep
 
     typedef std::vector<JET> JetCollection;
 
-    enum BTagAlgo {
-      kJetProbability,
-      kJetBProbability,
-      kSimpleSecondaryVertexHighEff,
-      kSimpleSecondaryVertexHighPur,
-      kCombinedSecondaryVertex,
-      kCombinedSecondaryVertexMVA,
-      kTrackCountingHighEff,
-      kTrackCountingHighPur,
-      nBTagAlgos
-    };
-		        
   private:
     void initBJetTags(edm::Event const&);
     void setBJetTags(reco::JetBaseRef const&, mithep::PFJet&) const;
@@ -57,9 +45,9 @@ namespace mithep
     edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_; //edm name of jet to vertex beta coll
     edm::EDGetTokenT<double> rhoToken_; //edm name of Energy per unit area
     edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_; //source of flavor matching
-    edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[nBTagAlgos];
-    std::string bJetTagsName_[nBTagAlgos];
-    reco::JetTagCollection const* bJetTags_[nBTagAlgos];
+    edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[mithep::Jet::nBTagAlgos];
+    std::string bJetTagsName_[mithep::Jet::nBTagAlgos];
+    reco::JetTagCollection const* bJetTags_[mithep::Jet::nBTagAlgos];
     std::string mitName_; //mit name of jets collection
     std::string L2JetCorrectorName_; //label of the L2JetCorrection service
     std::string L3JetCorrectorName_; //label of the L3JetCorrection service

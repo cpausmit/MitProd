@@ -27,24 +27,30 @@ mithep::FillerPFJets<JET>::FillerPFJets(edm::ParameterSet const& cfg, edm::Consu
   rhoToken_(GetToken<double>(collector, "rhoName")),
   flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
   bJetTagsToken_{
-    GetToken<reco::JetTagCollection>(collector, "JetProbabilityBJetTagsName", "jetProbabilityBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "JetBProbabilityBJetTagsName", "jetBProbabilityBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighEffBJetTagsName", "simpleSecondaryVertexHighEffBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName", "simpleSecondaryVertexHighPurBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName", "combinedSecondaryVertexBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexMVABJetTagsName", "combinedSecondaryVertexMVABJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName", "trackCountingHighEffBJetTags"),
-    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName", "trackCountingHighPurBJetTags")
+    GetToken<reco::JetTagCollection>(collector, "JetProbabilityBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "JetBProbabilityBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighEffBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexV2BJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexSoftLeptonBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "CombinedInclusiveSecondaryVertexV2BJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "CombinedMVABJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName", "")
   },
   bJetTagsName_{
-    Conf().getUntrackedParameter("JetProbabilityBJetTagsName", std::string("jetProbabilityBJetTags")),
-    Conf().getUntrackedParameter("JetBProbabilityBJetTagsName", std::string("jetBProbabilityBJetTags")),
-    Conf().getUntrackedParameter("SimpleSecondaryVertexHighEffBJetTagsName", std::string("simpleSecondaryVertexHighEffBJetTags")),
-    Conf().getUntrackedParameter("SimpleSecondaryVertexHighPurBJetTagsName", std::string("simpleSecondaryVertexHighPurBJetTags")),
-    Conf().getUntrackedParameter("CombinedSecondaryVertexBJetTagsName", std::string("combinedSecondaryVertexBJetTags")),
-    Conf().getUntrackedParameter("CombinedSecondaryVertexMVABJetTagsName", std::string("combinedSecondaryVertexMVABJetTags")),
-    Conf().getUntrackedParameter("TrackCountingHighEffBJetTagsName", std::string("trackCountingHighEffBJetTags")),
-    Conf().getUntrackedParameter("TrackCountingHighPurBJetTagsName", std::string("trackCountingHighPurBJetTags"))
+    Conf().getUntrackedParameter("JetProbabilityBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("JetBProbabilityBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("SimpleSecondaryVertexHighEffBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("SimpleSecondaryVertexHighPurBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("CombinedSecondaryVertexBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("CombinedSecondaryVertexV2BJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("CombinedSecondaryVertexSoftLeptonBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("CombinedInclusiveSecondaryVertexV2BJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("CombinedMVABJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("TrackCountingHighEffBJetTagsName", std::string("")),
+    Conf().getUntrackedParameter("TrackCountingHighPurBJetTagsName", std::string(""))
   },
   bJetTags_{},
   mitName_(Conf().getUntrackedParameter("mitName", std::string("ItrCone5PFJets"))), 
@@ -106,9 +112,12 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event, edm::EventSetu
   JetCollection const& inJets = *hJetProduct;
 
   // handle for rho
-  edm::Handle<double> rho;
-  if (fastJetCorrectionsActive_)
-    GetProduct(rhoToken_, rho, event);
+  double rho = 0.;
+  if (fastJetCorrectionsActive_) {
+    edm::Handle<double> hRho;
+    GetProduct(rhoToken_, hRho, event);
+    rho = *hRho;
+  }
 
   // handles for jet flavour matching 
   edm::Handle<reco::JetMatchedPartonsCollection> hPartonMatchingProduct;  
@@ -182,18 +191,17 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event, edm::EventSetu
 
     // jet corrections
     if (fastJetCorrectionsActive_) {
-      double l1Scale = (inJet.pt() - (*rho)*inJet.jetArea())/inJet.pt();
-      l1Scale = (l1Scale>0) ? l1Scale : 0.0;
-      jet->SetL1OffsetCorrectionScale( l1Scale);
-      jet->EnableCorrection(mithep::PFJet::L1);
+      double L1Scale = std::max((inJet.pt() - rho * inJet.jetArea()) / inJet.pt(), 0.);
+      jet->SetL1OffsetCorrectionScale(L1Scale);
+      jet->EnableCorrection(mithep::Jet::L1);
     }
     if (jetCorrectionsActive_) {
       double L2Scale = correctorL2->correction(inJet.p4());
       double L3Scale = correctorL3->correction(inJet.p4()*L2Scale);
       jet->SetL2RelativeCorrectionScale(L2Scale);
       jet->SetL3AbsoluteCorrectionScale(L3Scale);     
-      jet->EnableCorrection(mithep::PFJet::L2);
-      jet->EnableCorrection(mithep::PFJet::L3);     
+      jet->EnableCorrection(mithep::Jet::L2);
+      jet->EnableCorrection(mithep::Jet::L3);     
     }
 
     if (bTaggingActive_)
@@ -264,11 +272,10 @@ namespace mithep {
   void
   FillerPFJets<reco::PFJet>::initBJetTags(edm::Event const& event)
   {
-    edm::Handle<reco::JetTagCollection> hBJetTags[nBTagAlgos];
-
-    for (unsigned iT = 0; iT != nBTagAlgos; ++iT) {
-      GetProduct(bJetTagsToken_[iT], hBJetTags[iT], event);
-      bJetTags_[iT] = hBJetTags[iT].product();
+    for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT) {
+      edm::Handle<reco::JetTagCollection> hBJetTags;
+      GetProduct(bJetTagsToken_[iT], hBJetTags, event);
+      bJetTags_[iT] = hBJetTags.product();
     }
   }
 
@@ -278,14 +285,8 @@ namespace mithep {
   {
     reco::PFJet const& inJet = static_cast<reco::PFJet const&>(*inJetRef);
 
-    outJet.SetJetProbabilityBJetTagsDisc((*bJetTags_[kJetProbability])[inJetRef]);
-    outJet.SetJetBProbabilityBJetTagsDisc((*bJetTags_[kJetBProbability])[inJetRef]);
-    outJet.SetSimpleSecondaryVertexHighEffBJetTagsDisc((*bJetTags_[kSimpleSecondaryVertexHighEff])[inJetRef]);
-    outJet.SetSimpleSecondaryVertexHighPurBJetTagsDisc((*bJetTags_[kSimpleSecondaryVertexHighPur])[inJetRef]);       
-    outJet.SetCombinedSecondaryVertexBJetTagsDisc((*bJetTags_[kCombinedSecondaryVertex])[inJetRef]);
-    outJet.SetCombinedSecondaryVertexMVABJetTagsDisc((*bJetTags_[kCombinedSecondaryVertexMVA])[inJetRef]);
-    outJet.SetTrackCountingHighEffBJetTagsDisc((*bJetTags_[kTrackCountingHighEff])[inJetRef]);
-    outJet.SetTrackCountingHighPurBJetTagsDisc((*bJetTags_[kTrackCountingHighPur])[inJetRef]);
+    for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT)
+      outJet.SetBJetTagsDisc((*bJetTags_[iT])[inJetRef], iT);
   }
 
   template<>
@@ -294,14 +295,8 @@ namespace mithep {
   {
     pat::Jet const& inJet = static_cast<pat::Jet const&>(*inJetRef);
 
-    outJet.SetJetProbabilityBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kJetProbability]));
-    outJet.SetJetBProbabilityBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kJetBProbability]));
-    outJet.SetSimpleSecondaryVertexHighEffBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kSimpleSecondaryVertexHighEff]));
-    outJet.SetSimpleSecondaryVertexHighPurBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kSimpleSecondaryVertexHighPur]));
-    outJet.SetCombinedSecondaryVertexBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kCombinedSecondaryVertex]));
-    outJet.SetCombinedSecondaryVertexMVABJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kCombinedSecondaryVertexMVA]));
-    outJet.SetTrackCountingHighEffBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kTrackCountingHighEff]));
-    outJet.SetTrackCountingHighPurBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[kTrackCountingHighPur]));
+    for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT)
+      outJet.SetBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[iT]), iT);
   }
 
   typedef FillerPFJets<reco::PFJet> FillerPFJetsFromPFJets;

@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerJPTJets.h,v 1.7 2010/03/18 20:21:00 bendavid Exp $
-//
 // FillerJPTJets
 //
 // Implementation of a filler to fill EDM particle flow jets into our mithep::PFJet data structure.
@@ -11,7 +9,7 @@
 #ifndef MITPROD_TREEFILLER_FILLERJPTJETS_H
 #define MITPROD_TREEFILLER_FILLERJPTJETS_H
 
-#include "MitAna/DataTree/interface/PFJetFwd.h"
+#include "MitAna/DataTree/interface/JPTJetCol.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
@@ -40,13 +38,7 @@ namespace mithep
       edm::EDGetTokenT<std::vector<double> > jetToVertexAlphaToken_;            //edm name of jet to vertex alpha coll
       edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_;             //edm name of jet to vertex beta coll
       edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_;   //source of flavor matching
-      edm::EDGetTokenT<reco::JetTagCollection> jetProbabilityBJetTagsToken_;             //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> jetBProbabilityBJetTagsToken_;            //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> simpleSecondaryVertexBJetTagsToken_;      //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexBJetTagsToken_;    //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexMVABJetTagsToken_; //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighEffBJetTagsToken_;       //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighPurBJetTagsToken_;       //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[mithep::Jet::nBTagAlgos];             //bjet algo discriminant
       std::string     mitName_;                         //mit name of jets collection
       std::string     flavorMatchingDefinition_;        //type of flavor matching
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
