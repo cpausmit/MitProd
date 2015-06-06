@@ -10,6 +10,7 @@
 #define MITPROD_TREEFILLER_FILLERPILEUPENERGYDENSITY_H
 
 #include "MitAna/DataTree/interface/PileupEnergyDensityFwd.h"
+#include "MitAna/DataTree/interface/PileupEnergyDensity.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
@@ -25,7 +26,7 @@ namespace mithep
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
   private:
-    edm::EDGetTokenT<double> edmToken_[nTypes]; //edm tokens of various rho values
+    edm::EDGetTokenT<double> edmToken_[mithep::PileupEnergyDensity::nAlgos]; //edm tokens of various rho values
 
     std::string mitName_; //mit name of PileupEnergyDensities
 
