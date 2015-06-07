@@ -6,11 +6,12 @@
 #include "MitAna/DataTree/interface/Names.h"
 
 template<class TAU>
-mithep::FillerPFTaus<TAU>::FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
+mithep::FillerPFTaus<TAU>::FillerPFTaus(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
   hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
   edmToken_(GetToken<TauCollection>(collector, "edmName", "")),
-  hpsTokens_(),
+  hpsTokens_{},
+  hpsNames_{},
   mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
   trackMapNames_(Conf().getUntrackedParameter("trackMapNames", std::vector<std::string>())),
   jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("JetMapName"))),
@@ -22,7 +23,11 @@ mithep::FillerPFTaus<TAU>::FillerPFTaus(const edm::ParameterSet &cfg, edm::Consu
   tauMap_(new mithep::PFTauMap),
   taus_(new mithep::PFTauArr(16))
 {
-  setHPSTokens(collector);
+  for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+    hpsNames_[iD] = Conf().getUntrackedParameter(std::string(mithep::PFTau::PFTauDiscriminatorName(iD)) + "Name", std::string(""));
+    if (!hpsNames_[iD].empty())
+      hpsTokens_[iD] = collector.consumes<reco::PFTauDiscriminator>(hpsNames_[iD]);
+  }
 }
 
 template<class TAU>
@@ -40,12 +45,12 @@ mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
 
   ObjectService& os = *OS();
 
-  tws.AddBranch(mitName_,&taus_);
-  os.add<mithep::PFTauArr>(taus_,mitName_);
+  tws.AddBranch(mitName_, &taus_);
+  os.add(taus_, mitName_);
 
   for (auto&& bmapName : trackMapNames_) {
     if (!bmapName.empty()) {
-      const mithep::TrackMap *map = os.get<TrackMap>(bmapName);
+      mithep::TrackMap const* map = os.get<TrackMap>(bmapName);
       if (map) {
         trackMaps_.push_back(map);
         AddBranchDep(mitName_,map->GetBrName());
@@ -67,7 +72,7 @@ mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
 
   if (!tauMapName_.empty()) {
     tauMap_->SetBrName(mitName_);
-    os.add<PFTauMap>(tauMap_,tauMapName_);
+    os.add(tauMap_,tauMapName_);
   }
 }
 
@@ -78,24 +83,19 @@ mithep::FillerPFTaus<TAU>::FillDataBlock(edm::Event const& event,
 {
   // Fill taus from edm collection into our collection.
 
-  taus_  ->Delete();
+  taus_->Delete();
   tauMap_->Reset();
   
   // handle for the tau collection
   edm::Handle<TauCollection> hTauProduct;
   GetProduct(edmToken_, hTauProduct, event);
-
-  // Handles for HPS discriminator
-  DiscHandleMap hpsHandles;
-  if (hpsActive_) {
-    for (auto&& hpsNameToken : hpsTokens_) {
-      // handle map entries created on the fly
-      GetProductSafe(hpsNameToken.second, hpsHandles[hpsNameToken.first], event);
-    }
-  }
-  
   // grab the input tau collection from CMSSW
   TauCollection const& inTaus = *hTauProduct;
+
+  // Handles for HPS discriminator
+  reco::PFTauDiscriminator const* discriminators[mithep::PFTau::nDiscriminators];
+  if (hpsActive_)
+    retrieveDiscriminators(discriminators, event);
   
   // loop through all CMSSW taus (input taus = inTaus)
   unsigned iTau = 0;
@@ -116,19 +116,19 @@ mithep::FillerPFTaus<TAU>::FillDataBlock(edm::Event const& event,
     outTau->SetCharge(inTau.charge());
 
     // fill pftau-specific quantities
-    setPFSpecific(outTau, inTau);
+    setPFSpecific(*outTau, inTau);
     
     // fill HPS discriminants
     if (hpsActive_)
-      setPFTauDiscriminators(outTau, hpsHandles, tRef);
+      setPFTauDiscriminators(*outTau, discriminators, tRef);
 
     // add source pfjet reference
     if (jetMap_)
-      setPFJetRef(outTau, inTau);
+      setPFJetRef(*outTau, inTau);
 
     // add pf candidate references
     if (pfCandMap_)
-      setPFCandRefs(outTau, inTau);
+      setPFCandRefs(*outTau, inTau);
 
     // add outTau equivalent to the map
     tauMap_->Add(tPtr, outTau);
@@ -139,31 +139,31 @@ mithep::FillerPFTaus<TAU>::FillDataBlock(edm::Event const& event,
 
 template<class TAU>
 void
-mithep::FillerPFTaus<TAU>::setHPSTokens(edm::ConsumesCollector&)
+mithep::FillerPFTaus<TAU>::retrieveDiscriminators(reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Event const&) const
 {
 }
 
 template<class TAU>
 void
-mithep::FillerPFTaus<TAU>::setPFSpecific(mithep::PFTau*, TAU const&) const
+mithep::FillerPFTaus<TAU>::setPFSpecific(mithep::PFTau&, TAU const&) const
 {
 }
 
 template<class TAU>
 void
-mithep::FillerPFTaus<TAU>::setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const
+mithep::FillerPFTaus<TAU>::setPFTauDiscriminators(mithep::PFTau&, reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const&) const
 {
 }
 
 template<class TAU>
 void
-mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau*, TAU const&) const
+mithep::FillerPFTaus<TAU>::setPFJetRef(mithep::PFTau&, TAU const&) const
 {
 }
 
 template<class TAU>
 void
-mithep::FillerPFTaus<TAU>::setPFCandRefs(mithep::PFTau*, TAU const&) const
+mithep::FillerPFTaus<TAU>::setPFCandRefs(mithep::PFTau&, TAU const&) const
 {
 }
 
@@ -174,108 +174,39 @@ namespace mithep {
 
   template<>
   void
-  FillerPFTaus<reco::PFTau>::setHPSTokens(edm::ConsumesCollector& collector)
+  FillerPFTaus<reco::PFTau>::retrieveDiscriminators(reco::PFTauDiscriminator const* discriminators[mithep::PFTau::nDiscriminators], edm::Event const& event) const
   {
-    std::string hpsNames[][2] = {
-      {"discriminationByLooseElectronRejectionName",
-       "hpsPFTauDiscriminationByLooseElectronRejection"},
-      {"discriminationByMediumElectronRejectionName",
-       "hpsPFTauDiscriminationByMediumElectronRejection"},
-      {"discriminationByTightElectronRejectionName",
-       "hpsPFTauDiscriminationByTightElectronRejection"},
-      {"discriminationByMVAElectronRejectionName",
-       "hpsPFTauDiscriminationByMVAElectronRejection"},
-      {"discriminationByLooseMuonRejectionName",
-       "hpsPFTauDiscriminationByLooseMuonRejection"},
-      {"discriminationByMediumMuonRejectionName",
-       "hpsPFTauDiscriminationByMediumMuonRejection"},
-      {"discriminationByTightMuonRejectionName",
-       "hpsPFTauDiscriminationByTightMuonRejection"},
-      {"discriminationByDecayModeFindingName",
-       "hpsPFTauDiscriminationByDecayModeFinding"},
-      {"discriminationByVLooseIsolationName",
-       "hpsPFTauDiscriminationByVLooseIsolation"},
-      {"discriminationByLooseIsolationName",
-       "hpsPFTauDiscriminationByLooseIsolation"},
-      {"discriminationByMediumIsolationName",
-       "hpsPFTauDiscriminationByMediumIsolation"},
-      {"discriminationByTightIsolationName",
-       "hpsPFTauDiscriminationByTightIsolation"},
-      {"discriminationByVLooseCombinedIsolationDBSumPtCorrName",
-       "hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"},
-      {"discriminationByLooseCombinedIsolationDBSumPtCorrName",
-       "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"},
-      {"discriminationByMediumCombinedIsolationDBSumPtCorrName",
-       "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"},
-      {"discriminationByTightCombinedIsolationDBSumPtCorrName",
-       "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"},
-      {"discriminationByRawCombinedIsolationDBSumPtCorrName",
-       "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr"},
-      {"mva2rawElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA2rawElectronRejection"},
-      {"mva2rawElectronRejectionCategoryName",
-       "hpsPFTauDiscriminationByMVA2rawElectronRejection:category"},
-      {"mva2LooseElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA2LooseElectronRejection"},
-      {"mva2MediumElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA2MediumElectronRejection"},
-      {"mva2TightElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA2TightElectronRejection"},
-      {"mva3rawElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA3rawElectronRejection"},
-      {"mva3rawElectronRejectionCategoryName",
-       "hpsPFTauDiscriminationByMVA3rawElectronRejection:category"},
-      {"mva3LooseElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA3LooseElectronRejection"},
-      {"mva3MediumElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA3MediumElectronRejection"},
-      {"mva3TightElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA3TightElectronRejection"},
-      {"mva3VTightElectronRejectionName",
-       "hpsPFTauDiscriminationByMVA3VTightElectronRejection"},
-      {"looseCombinedIsolationDBSumPtCorr3HitsName",
-       "hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"},
-      {"mediumCombinedIsolationDBSumPtCorr3HitsName",
-       "hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"},
-      {"tightCombinedIsolationDBSumPtCorr3HitsName",
-       "hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"},
-      {"rawCombinedIsolationDBSumPtCorr3HitsName",
-       "hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits"},
-      {"looseMuonRejection2Name",
-       "hpsPFTauDiscriminationByLooseMuonRejection2"},
-      {"mediumMuonRejection2Name",
-       "hpsPFTauDiscriminationByMediumMuonRejection2"},
-      {"tightMuonRejection2Name",
-       "hpsPFTauDiscriminationByTightMuonRejection2"}
-    };
-
-    for (unsigned iN = 0; iN != sizeof(hpsNames) / sizeof(std::string) / 2; ++iN) {
-      string& paramName = hpsNames[iN][0];
-      string& defaultEDMName = hpsNames[iN][1];
-      hpsTokens_[paramName] = GetToken<reco::PFTauDiscriminator>(collector, paramName, defaultEDMName, true);
+    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+      if (!hpsTokens_[iD].isUninitialized()) {
+        edm::Handle<reco::PFTauDiscriminator> handle;
+        GetProduct(hpsTokens_[iD], handle, event);
+        discriminators[iD] = handle.product();
+      }
+      else
+        discriminators[iD] = 0;
     }
   }
 
   template<>
   void
-  FillerPFTaus<reco::PFTau>::setPFSpecific(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<reco::PFTau>::setPFSpecific(mithep::PFTau& outTau, reco::PFTau const& inTau) const
   {
-    outTau->SetBremRecoveryEOverP(inTau.bremsRecoveryEOverPLead());
-    outTau->SetCaloCompatibility(inTau.caloComp());
-    outTau->SetECalStripSumEOverP(inTau.ecalStripSumEOverPLead());
-    outTau->SetEMFraction(inTau.emFraction());
-    outTau->SetElectronPreIDDecision(inTau.electronPreIDDecision());
-    outTau->SetElectronPreIDOutput(inTau.electronPreIDOutput());
-    outTau->SetHCal3x3EOverP(inTau.hcal3x3OverPLead());
-    outTau->SetHCalMaxEOverP(inTau.hcalMaxOverPLead());
-    outTau->SetHCalTotalEOverP(inTau.hcalTotOverPLead());
-    outTau->SetMuonDecision(inTau.muonDecision());
-    outTau->SetSegmentCompatibility(inTau.segComp());
+    outTau.SetBremRecoveryEOverP(inTau.bremsRecoveryEOverPLead());
+    outTau.SetCaloCompatibility(inTau.caloComp());
+    outTau.SetECalStripSumEOverP(inTau.ecalStripSumEOverPLead());
+    outTau.SetEMFraction(inTau.emFraction());
+    outTau.SetElectronPreIDDecision(inTau.electronPreIDDecision());
+    outTau.SetElectronPreIDOutput(inTau.electronPreIDOutput());
+    outTau.SetHCal3x3EOverP(inTau.hcal3x3OverPLead());
+    outTau.SetHCalMaxEOverP(inTau.hcalMaxOverPLead());
+    outTau.SetHCalTotalEOverP(inTau.hcalTotOverPLead());
+    outTau.SetMuonDecision(inTau.muonDecision());
+    outTau.SetSegmentCompatibility(inTau.segComp());
 
-    outTau->SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
-    outTau->SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
-    outTau->SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
-    outTau->SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
+    outTau.SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
+    outTau.SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
+    outTau.SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
+    outTau.SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
 
     if (inTau.electronPreIDTrack().isNonnull()) {
       auto ptr = edm::refToPtr(inTau.electronPreIDTrack());
@@ -291,13 +222,13 @@ namespace mithep {
         throw edm::Exception(edm::errors::Configuration, "FillerPFTaus::FillDataBlock()\n")
           << "Error! electronPreIDTrack not found in AssociationMaps";
 
-      outTau->SetElectronTrack(track);
+      outTau.SetElectronTrack(track);
     }
   }
 
   template<>
   void
-  FillerPFTaus<pat::Tau>::setPFSpecific(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  FillerPFTaus<pat::Tau>::setPFSpecific(mithep::PFTau& outTau, pat::Tau const& inTau) const
   {
     // Reference:
     // RecoTauTag/RecoTau/src/HPSPFRecoTauAlgorithm.cc
@@ -305,12 +236,12 @@ namespace mithep {
     double isolationPFChargedHadrCandsPtSum = 0.;
     for (auto&& candPtr : inTau.isolationChargedHadrCands())
       isolationPFChargedHadrCandsPtSum += candPtr->pt();
-    outTau->SetIsoChargedHadronPtSum(isolationPFChargedHadrCandsPtSum);
+    outTau.SetIsoChargedHadronPtSum(isolationPFChargedHadrCandsPtSum);
 
     double isolationPFGammaCandsEtSum = 0.;
     for (auto&& candPtr : inTau.isolationGammaCands())
       isolationPFGammaCandsEtSum += candPtr->pt();
-    outTau->SetIsoGammaEtSum(isolationPFGammaCandsEtSum);
+    outTau.SetIsoGammaEtSum(isolationPFGammaCandsEtSum);
 
     // leadPFChargedHadrCandsignedSipt not available (no jet reference)
     // maximumHCALPFClusterEt not available (no hcal energy in packed candidate)
@@ -318,61 +249,31 @@ namespace mithep {
 
   template<>
   void
-  FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau* outTau, DiscHandleMap const& hpsHandles, edm::Ref<TauCollection> const& tRef) const
+  FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau& outTau, reco::PFTauDiscriminator const* discriminators[mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const& tRef) const
   {
-    auto discVal = [&hpsHandles, &tRef](std::string const& discName)->double {
-      DiscHandleMap::const_iterator itr(hpsHandles.find(discName));
-      if(itr == hpsHandles.end()) return 0.;
-      edm::Handle<reco::PFTauDiscriminator> const& handle(itr->second);
-      if(handle.isValid())
-        return (*handle)[tRef];
-      else
-        return 0.;
-    };
-      
-    outTau->SetDiscriminationByLooseElectronRejection(discVal("discriminationByLooseElectronRejectionName"));
-    outTau->SetDiscriminationByMediumElectronRejection(discVal("discriminationByMediumElectronRejectionName"));
-    outTau->SetDiscriminationByTightElectronRejection(discVal("discriminationByTightElectronRejectionName"));
-    outTau->SetDiscriminationByMVAElectronRejection(discVal("discriminationByMVAElectronRejectionName"));
-    outTau->SetDiscriminationByLooseMuonRejection(discVal("discriminationByLooseMuonRejectionName"));
-    outTau->SetDiscriminationByMediumMuonRejection(discVal("discriminationByMediumMuonRejectionName"));
-    outTau->SetDiscriminationByTightMuonRejection(discVal("discriminationByTightMuonRejectionName"));
-    outTau->SetDiscriminationByDecayModeFinding(discVal("discriminationByDecayModeFindingName"));
-    outTau->SetDiscriminationByVLooseIsolation(discVal("discriminationByVLooseIsolationName"));
-    outTau->SetDiscriminationByLooseIsolation(discVal("discriminationByLooseIsolationName"));
-    outTau->SetDiscriminationByMediumIsolation(discVal("discriminationByMediumIsolationName"));
-    outTau->SetDiscriminationByTightIsolation(discVal("discriminationByTightIsolationName"));
-    outTau->SetDiscriminationByVLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByVLooseCombinedIsolationDBSumPtCorrName"));
-    outTau->SetDiscriminationByLooseCombinedIsolationDBSumPtCorr(discVal("discriminationByLooseCombinedIsolationDBSumPtCorrName"));
-    outTau->SetDiscriminationByMediumCombinedIsolationDBSumPtCorr(discVal("discriminationByMediumCombinedIsolationDBSumPtCorrName"));
-    outTau->SetDiscriminationByTightCombinedIsolationDBSumPtCorr(discVal("discriminationByTightCombinedIsolationDBSumPtCorrName"));
-    outTau->SetDiscriminationByRawCombinedIsolationDBSumPtCorr(discVal("discriminationByRawCombinedIsolationDBSumPtCorrName"));
-    outTau->SetMVA2rawElectronRejection(discVal("mva2rawElectronRejectionName"));
-    outTau->SetMVA2rawElectronRejectionCategory(discVal("mva2rawElectronRejectionCategoryName"));
-    outTau->SetMVA2LooseElectronRejection(discVal("mva2LooseElectronRejectionName"));
-    outTau->SetMVA2MediumElectronRejection(discVal("mva2MediumElectronRejectionName"));
-    outTau->SetMVA2TightElectronRejection(discVal("mva2TightElectronRejectionName"));
-    outTau->SetMVA3rawElectronRejection(discVal("mva3rawElectronRejectionName"));
-    outTau->SetMVA3rawElectronRejectionCategory(discVal("mva3rawElectronRejectionCategoryName"));
-    outTau->SetMVA3LooseElectronRejection(discVal("mva3LooseElectronRejectionName"));
-    outTau->SetMVA3MediumElectronRejection(discVal("mva3MediumElectronRejectionName"));
-    outTau->SetMVA3TightElectronRejection(discVal("mva3TightElectronRejectionName"));
-    outTau->SetMVA3VTightElectronRejection(discVal("mva3VTightElectronRejectionName"));
-    outTau->SetLooseCombinedIsolationDBSumPtCorr3Hits(discVal("looseCombinedIsolationDBSumPtCorr3HitsName"));
-    outTau->SetMediumCombinedIsolationDBSumPtCorr3Hits(discVal("mediumCombinedIsolationDBSumPtCorr3HitsName"));
-    outTau->SetTightCombinedIsolationDBSumPtCorr3Hits(discVal("tightCombinedIsolationDBSumPtCorr3HitsName"));
-    outTau->SetRawCombinedIsolationDBSumPtCorr3Hits(discVal("rawCombinedIsolationDBSumPtCorr3HitsName"));
-    outTau->SetLooseMuonRejection2(discVal("looseMuonRejection2Name"));
-    outTau->SetMediumMuonRejection2(discVal("mediumMuonRejection2Name"));
-    outTau->SetTightMuonRejection2(discVal("tightMuonRejection2Name"));
+    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+      if (discriminators[iD])
+        outTau.SetPFTauDiscriminator((*discriminators[iD])[tRef], iD);
+    }
   }
 
   template<>
   void
-  FillerPFTaus<reco::PFTau>::setPFJetRef(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<pat::Tau>::setPFTauDiscriminators(mithep::PFTau& outTau, reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const& tRef) const
+  {
+    pat::Tau const& inTau = *tRef;
+    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+      if (!hpsNames_[iD].empty())
+        outTau.SetPFTauDiscriminator(inTau.tauID(hpsNames_[iD]), iD);
+    }
+  }
+
+  template<>
+  void
+  FillerPFTaus<reco::PFTau>::setPFJetRef(mithep::PFTau& outTau, reco::PFTau const& inTau) const
   {
     try {
-      outTau->SetPFJet(jetMap_->GetMit(edm::refToPtr(inTau.jetRef())));
+      outTau.SetPFJet(jetMap_->GetMit(edm::refToPtr(inTau.jetRef())));
     }
     catch(...) { 
       throw edm::Exception(edm::errors::Configuration, "FillerPFTaus:FillDataBlock()\n")
@@ -382,60 +283,60 @@ namespace mithep {
 
   template<>
   void
-  FillerPFTaus<reco::PFTau>::setPFCandRefs(mithep::PFTau* outTau, reco::PFTau const& inTau) const
+  FillerPFTaus<reco::PFTau>::setPFCandRefs(mithep::PFTau& outTau, reco::PFTau const& inTau) const
   {
     if (inTau.leadPFCand().isNonnull())
-      outTau->SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
+      outTau.SetLeadPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFCand())));
         
     if (inTau.leadPFChargedHadrCand().isNonnull())
-      outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFChargedHadrCand())));
+      outTau.SetLeadChargedHadronPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFChargedHadrCand())));
         
     if (inTau.leadPFNeutralCand().isNonnull())
-      outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFNeutralCand())));
+      outTau.SetLeadNeutralPFCand(pfCandMap_->GetMit(reco::CandidatePtr(inTau.leadPFNeutralCand())));
         
     for (auto&& pfCandPtr : inTau.signalPFCands())
-      outTau->AddSignalPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      outTau.AddSignalPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
     for (auto&& pfCandPtr : inTau.signalPFChargedHadrCands())
-      outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      outTau.AddSignalPFChargedHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
     for (auto&& pfCandPtr : inTau.signalPFNeutrHadrCands())
-      outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      outTau.AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
 
     for (auto&& pfCandPtr : inTau.signalPFGammaCands())
-      outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      outTau.AddSignalPFGammaCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
       
     for (auto&& pfCandPtr : inTau.isolationPFCands())
-      outTau->AddIsoPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
+      outTau.AddIsoPFCand(pfCandMap_->GetMit(reco::CandidatePtr(pfCandPtr)));
   }
 
   template<>
   void
-  FillerPFTaus<pat::Tau>::setPFCandRefs(mithep::PFTau* outTau, pat::Tau const& inTau) const
+  FillerPFTaus<pat::Tau>::setPFCandRefs(mithep::PFTau& outTau, pat::Tau const& inTau) const
   {
     if (inTau.leadCand().isNonnull())
-      outTau->SetLeadPFCand(pfCandMap_->GetMit(inTau.leadCand()));
+      outTau.SetLeadPFCand(pfCandMap_->GetMit(inTau.leadCand()));
         
     if (inTau.leadChargedHadrCand().isNonnull())
-      outTau->SetLeadChargedHadronPFCand(pfCandMap_->GetMit(inTau.leadChargedHadrCand()));
+      outTau.SetLeadChargedHadronPFCand(pfCandMap_->GetMit(inTau.leadChargedHadrCand()));
         
     if (inTau.leadNeutralCand().isNonnull())
-      outTau->SetLeadNeutralPFCand(pfCandMap_->GetMit(inTau.leadNeutralCand()));
+      outTau.SetLeadNeutralPFCand(pfCandMap_->GetMit(inTau.leadNeutralCand()));
         
     for (auto&& pfCandPtr : inTau.signalCands())
-      outTau->AddSignalPFCand(pfCandMap_->GetMit(pfCandPtr));
+      outTau.AddSignalPFCand(pfCandMap_->GetMit(pfCandPtr));
 
     for (auto&& pfCandPtr : inTau.signalChargedHadrCands())
-      outTau->AddSignalPFChargedHadrCand(pfCandMap_->GetMit(pfCandPtr));
+      outTau.AddSignalPFChargedHadrCand(pfCandMap_->GetMit(pfCandPtr));
 
     for (auto&& pfCandPtr : inTau.signalNeutrHadrCands())
-      outTau->AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(pfCandPtr));
+      outTau.AddSignalPFNeutrHadrCand(pfCandMap_->GetMit(pfCandPtr));
 
     for (auto&& pfCandPtr : inTau.signalGammaCands())
-      outTau->AddSignalPFGammaCand(pfCandMap_->GetMit(pfCandPtr));
+      outTau.AddSignalPFGammaCand(pfCandMap_->GetMit(pfCandPtr));
       
     for (auto&& pfCandPtr : inTau.isolationCands())
-      outTau->AddIsoPFCand(pfCandMap_->GetMit(pfCandPtr));
+      outTau.AddIsoPFCand(pfCandMap_->GetMit(pfCandPtr));
   }
 
   typedef FillerPFTaus<reco::PFTau> FillerPFTausFromPFTaus;

@@ -19,45 +19,42 @@
 
 #include "MitAna/DataTree/interface/PFTauCol.h"
 
-namespace mithep
-{
+namespace mithep {
+
   template<class TAU>
-  class FillerPFTaus : public BaseFiller
-  {
-    public:
-      FillerPFTaus(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
-      ~FillerPFTaus();
+  class FillerPFTaus : public BaseFiller {
+  public:
+    FillerPFTaus(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const*, bool = true);
+    ~FillerPFTaus();
 
-      void                           BookDataBlock(TreeWriter &tws);
-      void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+    void BookDataBlock(TreeWriter&) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
-      typedef std::vector<TAU> TauCollection;
+    typedef std::vector<TAU> TauCollection;
 
-    private:
-      typedef std::map<std::string, edm::EDGetTokenT<reco::PFTauDiscriminator> > DiscTokenMap;
-      typedef std::map<std::string, edm::Handle<reco::PFTauDiscriminator> > DiscHandleMap;
+  private:
+    void retrieveDiscriminators(reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Event const&) const;
+    void setPFSpecific(mithep::PFTau&, TAU const&) const;
+    void setPFTauDiscriminators(mithep::PFTau&, reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const&) const;
+    void setPFJetRef(mithep::PFTau&, TAU const&) const;
+    void setPFCandRefs(mithep::PFTau&, TAU const&) const;
 
-      void setHPSTokens(edm::ConsumesCollector&);
-      void setPFSpecific(mithep::PFTau*, TAU const&) const;
-      void setPFTauDiscriminators(mithep::PFTau*, DiscHandleMap const&, edm::Ref<TauCollection> const&) const;
-      void setPFJetRef(mithep::PFTau*, TAU const&) const;
-      void setPFCandRefs(mithep::PFTau*, TAU const&) const;
-
-      bool                            hpsActive_;      //=true if HPS discriminants are filled
-      edm::EDGetTokenT<TauCollection> edmToken_;        //edm name of jets collection
-      DiscTokenMap                    hpsTokens_;
-      std::string                     mitName_;        //mit name of jets collection
-      std::vector<std::string>        trackMapNames_;   //name of imported TrackMap
-      std::string                     jetMapName_;     //name of imported PFJetMap
-      std::string                     pfCandMapName_;  //name of imported PFCandidateMap
-      std::string                     tauMapName_;     //name of exported PFTau Map
-      bool                            allowMissingTrackRef_; //allow missing track reference
-                                                            //-->needed for tau embedding samples
-      std::vector<const mithep::TrackMap*> trackMaps_;       //map wrt Tracks
-      const mithep::PFJetMap        *jetMap_;         //map wrt pfjets
-      const mithep::PFCandidateMap  *pfCandMap_;      //map wrt pf candidates
-      mithep::PFTauMap              *tauMap_; //exported PFTau map
-      mithep::PFTauArr              *taus_;           //array of taus
+    bool hpsActive_; //=true if HPS discriminants are filled
+    edm::EDGetTokenT<TauCollection> edmToken_; //edm name of jets collection
+    edm::EDGetTokenT<reco::PFTauDiscriminator> hpsTokens_[mithep::PFTau::nDiscriminators];
+    std::string hpsNames_[mithep::PFTau::nDiscriminators]; //edm name of jets collection
+    std::string mitName_; //mit name of jets collection
+    std::vector<std::string> trackMapNames_; //name of imported TrackMap
+    std::string jetMapName_; //name of imported PFJetMap
+    std::string pfCandMapName_; //name of imported PFCandidateMap
+    std::string tauMapName_; //name of exported PFTau Map
+    bool allowMissingTrackRef_; //allow missing track reference
+                                //-->needed for tau embedding samples
+    std::vector<mithep::TrackMap const*> trackMaps_; //map wrt Tracks
+    mithep::PFJetMap const* jetMap_; //map wrt pfjets
+    mithep::PFCandidateMap const* pfCandMap_; //map wrt pf candidates
+    mithep::PFTauMap* tauMap_; //exported PFTau map
+    mithep::PFTauArr* taus_; //array of taus
   };
 
 }
