@@ -124,9 +124,9 @@ def setupBTag(process, jetCollection, suffix):
                 newCombinedInclusiveSecondaryVertexV2BJetTags
             ) +
             newSoftPFMuonsTagInfos *
-            newSoftPFMuonBJetTags +
-            newSoftPFElectronsTagInfos *
-            newSoftPFElectronBJetTags
+#            newSoftPFMuonBJetTags +
+            newSoftPFElectronsTagInfos #*
+#            newSoftPFElectronBJetTags
         ) *
         (
             newCombinedMVABJetTags +
@@ -135,15 +135,17 @@ def setupBTag(process, jetCollection, suffix):
     )
 
     # configure process
-    # add candidate vertexing if not exists
-#    if ___:
-#        setattr(process, 'inclusiveCandidateVertexing', inclusiveCandidateVertexing)
+    # add candidate vertexing (might be a repeat but no problem)
+    setattr(process, 'inclusiveCandidateVertexing', inclusiveCandidateVertexing)
 
+    # add tag info calculators
     setattr(process, ipTagInfosName, newImpactParameterTagInfos)
     setattr(process, svTagInfosName, newSecondaryVertexTagInfos)
     setattr(process, ivfTagInfosName, newInclusiveSecondaryVertexFinderTagInfos)
     setattr(process, smTagInfosName, newSoftPFMuonsTagInfos)
     setattr(process, seTagInfosName, newSoftPFElectronsTagInfos)
+
+    # add btag calculators
     setattr(process, 'trackCountingHighEffBJetTags' + suffix, newTrackCountingHighEffBJetTags)
     setattr(process, 'trackCountingHighPurBJetTags' + suffix, newTrackCountingHighPurBJetTags)
     setattr(process, 'jetProbabilityBJetTags' + suffix, newJetProbabilityBJetTags)
@@ -158,6 +160,7 @@ def setupBTag(process, jetCollection, suffix):
     setattr(process, 'combinedMVABJetTags' + suffix, newCombinedMVABJetTags)
     setattr(process, 'combinedSecondaryVertexSoftLeptonBJetTags   ' + suffix, newCombinedSecondaryVertexSoftLeptonBJetTags)
 
+    # finally add sequence
     setattr(process, 'pfBTagging' + suffix, sequence)
     
     return sequence
