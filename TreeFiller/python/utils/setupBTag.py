@@ -102,7 +102,7 @@ def setupBTag(process, jetCollection, suffix):
             cms.InputTag(seTagInfosName)
         )
     )
-    
+
     # sequence
     sequence = cms.Sequence(
         (
@@ -136,7 +136,7 @@ def setupBTag(process, jetCollection, suffix):
 
     # configure process
     # add candidate vertexing (might be a repeat but no problem)
-    setattr(process, 'inclusiveCandidateVertexing', inclusiveCandidateVertexing)
+    process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
 
     # add tag info calculators
     setattr(process, ipTagInfosName, newImpactParameterTagInfos)
@@ -158,7 +158,7 @@ def setupBTag(process, jetCollection, suffix):
     setattr(process, 'softPFMuonBJetTags' + suffix, newSoftPFMuonBJetTags)
     setattr(process, 'softPFElectronBJetTags' + suffix, newSoftPFElectronBJetTags)
     setattr(process, 'combinedMVABJetTags' + suffix, newCombinedMVABJetTags)
-    setattr(process, 'combinedSecondaryVertexSoftLeptonBJetTags   ' + suffix, newCombinedSecondaryVertexSoftLeptonBJetTags)
+    setattr(process, 'combinedSecondaryVertexSoftLeptonBJetTags' + suffix, newCombinedSecondaryVertexSoftLeptonBJetTags)
 
     # finally add sequence
     setattr(process, 'pfBTagging' + suffix, sequence)
