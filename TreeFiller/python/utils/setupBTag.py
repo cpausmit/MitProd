@@ -135,7 +135,10 @@ def setupBTag(process, jetCollection, suffix):
     )
 
     # configure process
-    # add candidate vertexing (might be a repeat but no problem)
+
+    # ESProducers and vertexing sequences
+    # Will load as many times as the function is called but this is not a problem
+    process.load('RecoBTag.Configuration.RecoBTag_cff')
     process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
 
     # add tag info calculators
