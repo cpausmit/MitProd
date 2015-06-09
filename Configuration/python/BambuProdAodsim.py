@@ -33,12 +33,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'DESRUN1_74_V4::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_040'),
+  version    = cms.untracked.string('Mit_041'),
   annotation = cms.untracked.string('AODSIM')
 )
 
@@ -61,7 +61,7 @@ process.options = cms.untracked.PSet(
 
 
 # Import/Load the filler so all is already available for config changes
-from MitProd.TreeFiller.MitTreeFiller_cfi import *
+from MitProd.TreeFiller.MitTreeFiller_cfi import MitTreeFiller
 process.load('MitProd.TreeFiller.MitTreeFiller_cfi')
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -70,127 +70,83 @@ process.load('MitProd.TreeFiller.MitTreeFiller_cfi')
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-## Load jet reco producers
-from RecoJets.Configuration.RecoJets_cff import *
-process.load('RecoJets.Configuration.RecoJets_cff')
-
-## Load particle flow jet reco producers
-from RecoJets.Configuration.RecoPFJets_cff import *
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-
 ## Load stablePart producers
-from MitEdm.Producers.conversionElectronsStable_cfi import *
+from MitEdm.Producers.conversionElectronsStable_cfi import electronsStable
 process.load('MitEdm.Producers.conversionElectronsStable_cfi')
 
 # Load Mit Mvf Conversion producer
-from MitProd.TreeFiller.conversionProducer_cff import *
+# MultiVertexFitter is currently broken
+#from MitProd.TreeFiller.conversionProducer_cff import conversionProducer, addConversionFiller
+#process.load('MitProd.TreeFiller.conversionProducer_cff')
+#addConversionFiller(MitTreeFiller)
 
 # Electron likelihood-based id
-from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import *
+from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import eidLikelihoodExt
 process.load('RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi')
 MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
 
 # Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import *
+from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
 process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 
 # Load btagging
-from MitProd.TreeFiller.newbtagging_cff import *
-process.load('MitProd.TreeFiller.newbtagging_cff')
+from MitProd.TreeFiller.utils.setupBTag import setupBTag
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
+ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 
 # Load basic particle flow collections
-from CommonTools.ParticleFlow.pfMET_cfi  import *
-from CommonTools.ParticleFlow.pfParticleSelection_cff import *
-from CommonTools.ParticleFlow.pfNoPileUp_cff  import *
-from CommonTools.ParticleFlow.pfPhotons_cff import *
-from CommonTools.ParticleFlow.pfElectrons_cff import *
-from CommonTools.ParticleFlow.pfMuons_cff import *
-from CommonTools.ParticleFlow.pfJets_cff import *
-from CommonTools.ParticleFlow.pfTaus_cff import *
-from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import * 
-from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import * 
-from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cff import *
-from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cff import *
+# Used for rho calculation
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
+from CommonTools.ParticleFlow.pfParticleSelection_cff import pfParticleSelectionSequence, pfPileUp, pfNoPileUp, pfPileUpIso, pfNoPileUpIso
+from CommonTools.ParticleFlow.pfPhotons_cff import pfPhotonSequence
+from CommonTools.ParticleFlow.pfElectrons_cff import pfElectronSequence
+from CommonTools.ParticleFlow.pfMuons_cff import pfMuonSequence
+from CommonTools.ParticleFlow.pfJets_cff import pfJets
+from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import pfNoMuon
+from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import pfNoElectron
 
-process.load('CommonTools.ParticleFlow.pfMET_cfi')
+process.load('CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi')
 process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
-process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.pfJets_cff') # pfJets = ak4CHS
-process.load('CommonTools.ParticleFlow.pfTaus_cff')
 process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
 process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoJet_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoTau_cff')
-
-# Load the collections to remake more specialized jets
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import *
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadrons_cfi import *
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cfi import *
-process.load('CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi')
-process.load('CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadrons_cfi')
-process.load('CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
-# Load generator tools
-from CommonTools.ParticleFlow.genForPF2PAT_cff import *
-process.load('CommonTools.ParticleFlow.genForPF2PAT_cff')
-
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
 pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
-pfPileUpJME.PFCandidates = 'particleFlowPtrs' 
-pfNoPileUpJME.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
-pfJets.doAreaFastjet = True
-pfJets.doRhoFastjet = False
 
 #> Setup the met filters
-from MitProd.TreeFiller.metFilters_cff import *
+from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
   eidLikelihoodExt *
-  newBtaggingAll *
+#  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
-  pfNoPileUpSequence *
-  pfNoPileUpJMESequence *
   pfParticleSelectionSequence * 
   pfPhotonSequence *
   pfMuonSequence * 
   pfNoMuon *
-  pfNoMuonJME *
   pfElectronSequence *
   pfNoElectron *
-  pfNoElectronJME *
-  pfNoElectronJMEClones*
-  pfJetSequence *
-  pfNoJet * 
-  pfTauSequence *
-  pfNoTau *
-  pfMET *
-  pfAllNeutralHadrons *
-  pfAllChargedHadrons *
-  pfAllNeutralHadronsAndPhotons *
-  kt6PFJets *
-  kt6PFJetsCentralChargedPileUp *
-  kt6PFJetsCentralNeutral *
-  kt6PFJetsCentralNeutralTight *
-  ak4PFJets *
   l1FastJetSequence *
   l1FastJetSequenceCHS *
+  ak4PFBTagSequence *
+  ak4PFCHSBTagSequence *
   metFilters
 )
 
@@ -201,9 +157,9 @@ recoSequence = cms.Sequence(
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 # Import/Load genjets
-from RecoJets.Configuration.GenJetParticles_cff import *
+from RecoJets.Configuration.GenJetParticles_cff import genJetParticles
 process.load('RecoJets.Configuration.GenJetParticles_cff')
-from RecoJets.Configuration.RecoGenJets_cff import *
+from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
 process.load('RecoJets.Configuration.RecoGenJets_cff')
 
 genSequence = cms.Sequence(
@@ -247,3 +203,4 @@ process.path = cms.Path(
 )
 
 process.schedule = cms.Schedule(process.path)
+process.prune()
