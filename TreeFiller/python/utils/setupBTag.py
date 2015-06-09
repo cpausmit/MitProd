@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoBTag.Configuration.RecoBTag_cff import *
 
-def setupBTag(process, jetCollection, suffix):
+def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', primaryVertex = 'offlinePrimaryVertices', muons = 'muons', electrons = 'gedGsfElectrons'):
     """
     Configure the BTag sequence for the given jet collection.
     EDM module names will be accompanied by the suffix to
@@ -16,7 +16,9 @@ def setupBTag(process, jetCollection, suffix):
     seTagInfosName = 'softPFElectronsTagInfos' + suffix
 
     newImpactParameterTagInfos = pfImpactParameterTagInfos.clone(
-        jets = jetCollection
+        jets = jetCollection,
+        candidates = candidates,
+        primaryVertex = primaryVertex
     )
     newSecondaryVertexTagInfos = pfSecondaryVertexTagInfos.clone(
         trackIPTagInfos = ipTagInfosName
@@ -25,11 +27,20 @@ def setupBTag(process, jetCollection, suffix):
         trackIPTagInfos = ipTagInfosName
     )
     newSoftPFMuonsTagInfos = softPFMuonsTagInfos.clone(
-        jets = jetCollection
+        jets = jetCollection,
+        muons = muons,
+        primaryVertex = primaryVertex
     )
     newSoftPFElectronsTagInfos = softPFElectronsTagInfos.clone(
-        jets = jetCollection
+        jets = jetCollection,
+        electrons = electrons,
+        primaryVertex = primaryVertex
     )
+
+    inclusiveCandidateVertexFinder.primaryVertices = primaryVertex
+    inclusiveCandidateVertexFinder.tracks = candidates
+    candidateVertexArbitrator.primaryVertices = primaryVertex
+    candidateVertexArbitrator.tracks = candidates
 
     # impact parameter b-tags
     newTrackCountingHighEffBJetTags = pfTrackCountingHighEffBJetTags.clone(

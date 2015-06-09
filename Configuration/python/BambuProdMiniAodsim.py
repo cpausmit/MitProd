@@ -8,8 +8,8 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  #input = cms.untracked.int32(100)
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
+  #input = cms.untracked.int32(-1)
 )
 
 #>> input source
@@ -31,7 +31,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_040'),
+  version    = cms.untracked.string('Mit_041'),
   annotation = cms.untracked.string('AODSIM')
 )
 
@@ -51,10 +51,10 @@ process.options = cms.untracked.PSet(
 )
 
 # Import/Load the filler so all is already available for config changes
-from MitProd.TreeFiller.MitTreeFiller_cfi import *
+from MitProd.TreeFiller.MitTreeFiller_cfi import MitTreeFiller
 process.load('MitProd.TreeFiller.MitTreeFiller_cfi')
 
-from MitProd.TreeFiller.MitTreeFiller_MiniAOD_cff import configureForMiniAOD
+from MitProd.TreeFiller.utils.configureForMiniAOD import configureForMiniAOD
 configureForMiniAOD(MitTreeFiller)
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -63,41 +63,37 @@ configureForMiniAOD(MitTreeFiller)
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-## Load jet reco producers
-from RecoJets.Configuration.RecoJets_cff import *
-process.load('RecoJets.Configuration.RecoJets_cff')
-
-## Load particle flow jet reco producers
-from RecoJets.Configuration.RecoPFJets_cff import *
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-
-# must come before loading l1FastJetSequence
+# change of source on kt6 must come before loading l1FastJetSequence
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets, ak4PFJets, ak8PFJets
+ak4PFJets.src = 'packedPFCandidates'
+ak8PFJets.src = 'packedPFCandidates'
 kt6PFJets.src = 'packedPFCandidates'
-kt6PFJetsCentralChargedPileUp.src = 'packedPFCandidates'
-kt6PFJetsCentralNeutral.src = 'packedPFCandidates'
-kt6PFJetsCentralNeutralTight.src = 'packedPFCandidates'
 
 # Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import *
+from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
 process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 
 # Load PF CHS using PackedCandidates
-from MitProd.TreeFiller.pfCHSFromPacked_cff import *
+from MitProd.TreeFiller.pfCHSFromPacked_cff import pfCHSSequence
 process.load('MitProd.TreeFiller.pfCHSFromPacked_cff')
 
 # Load tracking off packedCandidates
-from PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi import *
+from PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi import unpackedTracksAndVertices
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
+
+# Load btagging
+from MitProd.TreeFiller.utils.setupBTag import setupBTag
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', candidates = 'packedPFCandidates', primaryVertex = 'offlineSlimmedPrimaryVertices', muons = 'slimmedMuons', electrons = 'slimmedElectrons')
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   unpackedTracksAndVertices *
   pfCHSSequence *
-  kt6PFJets *
-  kt6PFJetsCentralChargedPileUp *
-  kt6PFJetsCentralNeutral *
-  kt6PFJetsCentralNeutralTight *
-  l1FastJetSequence
+  l1FastJetSequence *
+  l1FastJetSequenceCHS *
+  ak4PFJets *
+  ak8PFJets *
+  ak4PFBTagSequence
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -155,3 +151,4 @@ process.path = cms.Path(
 )
 
 process.schedule = cms.Schedule(process.path)
+process.prune()

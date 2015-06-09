@@ -59,7 +59,6 @@ process.options = cms.untracked.PSet(
   fileMode = cms.untracked.string('NOMERGE'),
 )
 
-
 # Import/Load the filler so all is already available for config changes
 from MitProd.TreeFiller.MitTreeFiller_cfi import MitTreeFiller
 process.load('MitProd.TreeFiller.MitTreeFiller_cfi')
