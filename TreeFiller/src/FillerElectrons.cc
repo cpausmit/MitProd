@@ -36,7 +36,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName", "")),
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
-  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
+  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
   eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
