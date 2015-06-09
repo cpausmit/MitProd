@@ -12,7 +12,7 @@ mithep::FillerPileupEnergyDensity::FillerPileupEnergyDensity(edm::ParameterSet c
   rhos_(new mithep::PileupEnergyDensityArr)
 {
   for (unsigned iA = 0; iA != mithep::PileupEnergyDensity::nAlgos; ++iA)
-    edmToken_[iA] = GetToken<double>(collector, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA), "");
+    edmToken_[iA] = GetToken<double>(collector, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA));
 }
 
 mithep::FillerPileupEnergyDensity::~FillerPileupEnergyDensity()
@@ -36,11 +36,9 @@ mithep::FillerPileupEnergyDensity::FillDataBlock(edm::Event const& event,
 
   rhos_->Delete();
 
-  unsigned const nAlgos = mithep::PileupEnergyDensity::nAlgos;
-
   mithep::PileupEnergyDensity* rho = rhos_->AddNew();
 
-  for (unsigned iA = 0; iA != nAlgos; ++iA) {
+  for (unsigned iA = 0; iA != mithep::PileupEnergyDensity::nAlgos; ++iA) {
     if (edmToken_[iA].isUninitialized()) {
       rho->SetRho(-9999., iA);
       continue;
