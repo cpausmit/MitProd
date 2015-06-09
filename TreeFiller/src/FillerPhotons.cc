@@ -334,17 +334,20 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
 
-    // make link to pf supercluster (DOES NOT EXIST ANYMORE)
-    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ && sc) {
-      auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(scRef, false);
-      if (!mitSC)
-        pfEcalEndcapSuperClusterMap_->GetMit(scRef, false);
+    // make link to pf supercluster
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_) {
+      auto&& parentSCRef = inPhoton.parentSuperCluster();
+      if (parentSCRef.isAvailable()) {
+        auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(parentSCRef, false);
+        if (!mitSC)
+          mitSC = pfEcalEndcapSuperClusterMap_->GetMit(parentSCRef, false);
 
-      if (mitSC)
-    	outPhoton->SetECALOnlySuperCluster(mitSC);
-      else if (checkClusterActive_)
-        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
-          << "Error! PFEcal SuperCluster reference in unmapped collection";
+        if (mitSC)
+          outPhoton->SetECALOnlySuperCluster(mitSC);
+        else if (checkClusterActive_)
+          throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+            << "Error! PFEcal SuperCluster reference in unmapped collection";
+      }
     }
 
     // add photon to map
