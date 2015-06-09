@@ -9,7 +9,7 @@ template<class TAU>
 mithep::FillerPFTaus<TAU>::FillerPFTaus(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
   hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
-  edmToken_(GetToken<TauCollection>(collector, "edmName", "")),
+  edmToken_(GetToken<TauCollection>(collector, "edmName")),
   hpsTokens_{},
   hpsNames_{},
   mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
