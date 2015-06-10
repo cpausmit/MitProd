@@ -11,6 +11,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   fillers = cms.untracked.vstring(
     'MetaInfos',
     'Trigger',
+    'MCRunInfo',
     'MCParticles',
     'MCEventInfo',
     'MCVertexes',
@@ -92,6 +93,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     l1TechBitsMitName  = cms.untracked.string('L1TechBits'),
     l1AlgoBitsMitName  = cms.untracked.string('L1AlgoBits'),
     fillerType         = cms.untracked.string('FillerTrigger')
+  ),
+
+  MCRunInfo = cms.untracked.PSet(
+    active = cms.untracked.bool(True),
+    genRunInfoEdmName = cms.untracked.string('generator'),
+    lheRunInfoEdmName = cms.untracked.string('externalLHEProducer'),
+    fillFullInfo = cms.untracked.bool(False),
+    fillerType = cms.untracked.string('FillerMCRunInfo')
   ),
 
   MCParticles = cms.untracked.PSet(
