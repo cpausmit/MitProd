@@ -21,6 +21,7 @@
 #include "MitProd/TreeFiller/interface/FillerGenJets.h"
 #include "MitProd/TreeFiller/interface/FillerGenMet.h"
 #include "MitProd/TreeFiller/interface/FillerJPTJets.h"
+#include "MitProd/TreeFiller/interface/FillerMCRunInfo.h"
 #include "MitProd/TreeFiller/interface/FillerMCEventInfo.h"
 #include "MitProd/TreeFiller/interface/FillerMCParticles.h"
 #include "MitProd/TreeFiller/interface/FillerMCVertexes.h"
@@ -118,8 +119,18 @@ mithep::FillMitTree::beginRun(edm::Run const& run, edm::EventSetup const& setup)
 }
 
 void
-mithep::FillMitTree::endRun(edm::Run const&, edm::EventSetup const&)
+mithep::FillMitTree::endRun(edm::Run const& run, edm::EventSetup const& setup)
 {
+  for (auto filler : fillers_) {
+    try {
+      filler->FillPostRunBlock(run, setup);
+    }
+    catch (std::exception&) {
+      edm::LogError("Exception") << "Exception in " << filler->Name() << "::FillPostRunBlock()";
+      throw;
+    }
+  }
+
   tws_->GetTree(Names::gkRunTreeName)->Fill();
 }
 
@@ -251,6 +262,8 @@ mithep::FillMitTree::configure(edm::ParameterSet const& cfg)
         filler = new FillerTrigger(cfg, collector, os_, name.c_str(), defactive_);
       else if (ftype == "FillerMCParticles")
         filler = new FillerMCParticles(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMCRunInfo")
+        filler = new FillerMCRunInfo(cfg, collector, os_, name.c_str(), defactive_);
       else if (ftype == "FillerMCEventInfo")
         filler = new FillerMCEventInfo(cfg, collector, os_, name.c_str(), defactive_);
       else if (ftype == "FillerMCVertexes")

@@ -39,8 +39,9 @@ namespace mithep
       void                     AddBranchDep(const std::string &n, const std::string &d)
                                  { AddBranchDep(n.c_str(), d.c_str()); }
       virtual void             BookDataBlock(TreeWriter &tws)     = 0;
-      virtual void             FillDataBlock(const edm::Event &e, const edm::EventSetup &es) = 0;
-      virtual void             FillRunBlock(edm::Run const &r, edm::EventSetup const &es) {}
+      virtual void             FillDataBlock(edm::Event const&, edm::EventSetup const&) = 0;
+      virtual void             FillRunBlock(edm::Run const&, edm::EventSetup const&) {}
+      virtual void             FillPostRunBlock(edm::Run const&, edm::EventSetup const&) {}
       const std::string       &Name()    const { return name_;         }
       virtual void             ResolveLinks(const edm::Event &e, const edm::EventSetup &es)    {}
       int                      Verbose() const { return verbose_;      }
@@ -48,7 +49,7 @@ namespace mithep
 
     protected:
       const edm::ParameterSet &Conf()    const { return config_;       }
-      template<typename TYPE>
+      template<typename TYPE, edm::BranchType B = edm::InEvent>
       edm::EDGetTokenT<TYPE>   GetToken(edm::ConsumesCollector&, std::string const& paramName, std::string const& defVal = "", bool mayConsume = false);
       void                     PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
@@ -70,7 +71,7 @@ namespace mithep
   };
 }
 
-template<typename TYPE>
+template<typename TYPE, edm::BranchType B>
 edm::EDGetTokenT<TYPE>
 mithep::BaseFiller::GetToken(edm::ConsumesCollector& collector, std::string const& paramName, std::string const& defVal, bool mayConsume)
 {
@@ -83,9 +84,9 @@ mithep::BaseFiller::GetToken(edm::ConsumesCollector& collector, std::string cons
   if(!paramString.empty()){
     edm::InputTag tag(paramString);
     if(mayConsume)
-      return collector.mayConsume<TYPE>(tag);
+      return collector.mayConsume<TYPE, B>(tag);
     else
-      return collector.consumes<TYPE>(tag);
+      return collector.consumes<TYPE, B>(tag);
   }
   else
     return edm::EDGetTokenT<TYPE>();
@@ -102,10 +103,10 @@ inline void mithep::BaseFiller::GetProduct(const edm::EDGetTokenT<TYPE>& token, 
   try {
     event.getByToken(token,handle);
     if (!handle.product()) // throws here if handle is not valid
-      throw edm::Exception(edm::errors::Configuration, "BaseFiller::GetProduct()\n")
+      throw edm::Exception(edm::errors::Configuration, name_ + "::GetProduct()\n")
         << "Cannot get " << typeid(TYPE).name() << " for " << Name(); // there should be a better way to get object info..
   } catch (std::exception& e) {
-    edm::LogError("BaseFiller") << e.what();
+    edm::LogError(name_) << e.what();
     PrintErrorAndExit(e.what());
   }
 }
