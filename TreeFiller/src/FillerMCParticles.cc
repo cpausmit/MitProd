@@ -183,7 +183,11 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
                                         inPart.pz(),inPart.energy(),
                                         inPart.pdgId(),inPart.status());
                                             
-        mcPart->SetIsGenerated();                                          
+        mcPart->SetIsGenerated();
+
+        // need to keep an eye for updates
+        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
+          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
       
         // add hepmc barcode association, needed to merge in sim particles
         if (simActive_) {
@@ -213,6 +217,10 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
                                         inPart.pdgId(),inPart.status());
                                             
         mcPart->SetIsGenerated();                                          
+
+        // need to keep an eye for updates
+        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
+          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
       
         pat::PackedGenParticleRef ref(hGenPProduct, iPart);
         packedGenMap_->Add(ref, mcPart);
