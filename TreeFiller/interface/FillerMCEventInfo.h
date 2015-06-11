@@ -1,12 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerMCEventInfo.h,v 1.10 2009/09/25 08:42:50 loizides Exp $
-//
 // FillerMCEventInfo
 //
 // Implementation of a filler that stores MC related quantities, like the pdf info, in the
 // bambu records.
 //
-// Authors: C.Loizides
+// Authors: C.Loizides, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERMCEVENTINFO_H
@@ -16,30 +14,41 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 namespace mithep 
 {
   class MCEventInfo;
+  class MCRunInfo;
 
-  class FillerMCEventInfo : public BaseFiller
-  {
-    public:
-      FillerMCEventInfo(const edm::ParameterSet &cfg, 
-                        edm::ConsumesCollector&,
-                        ObjectService*,
-                        const char *name="MCEventInfo", bool active=1);
-      ~FillerMCEventInfo();
+  class FillerMCEventInfo : public BaseFiller {
+  public:
+    FillerMCEventInfo(edm::ParameterSet const&, edm::ConsumesCollector&, mithep::ObjectService*, char const* = "MCEventInfo", bool = true);
+    ~FillerMCEventInfo();
 
-      void                     BookDataBlock(TreeWriter &tws);
-      void                     FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+    void BookDataBlock(mithep::TreeWriter&) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+    void FillPostRunBlock(edm::Run const&, edm::EventSetup const&) override;
 
-    private:
-      std::string              evtName_;              //mit event branch name
-      edm::EDGetTokenT<edm::HepMCProduct> genHepMCEvToken_;       //hepmc branch name (if present)
-      edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken_;       //edm event info name 
-      bool                     flavorHistoryActive_;  //=true if flavor history is filled
-      edm::EDGetTokenT<unsigned int> flavorHistToken_;       //edm flavor history name
-      MCEventInfo             *eventInfo_;            //event info
+  private:
+    void setWeightGroups(std::vector<std::string> const&);
+
+    std::string evtName_; //mit event branch name
+    std::string runName_; //mit event branch name
+
+    edm::EDGetTokenT<edm::HepMCProduct> genHepMCEvToken_; //hepmc branch name (if present)
+    edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken_; //edm event info name 
+    edm::EDGetTokenT<LHEEventProduct> lheEventToken_;
+    edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
+    edm::EDGetTokenT<unsigned int> flavorHistToken_;       //edm flavor history name
+
+    bool flavorHistoryActive_;  //=true if flavor history is filled
+
+    mithep::MCEventInfo* eventInfo_;            //event info
+    mithep::MCRunInfo* runInfo_;
+
+    std::map<TString, unsigned> weightIds_;
   };
 }
 #endif
