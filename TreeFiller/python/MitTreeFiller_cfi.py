@@ -11,7 +11,6 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   fillers = cms.untracked.vstring(
     'MetaInfos',
     'Trigger',
-    'MCRunInfo',
     'MCEventInfo',
     'MCParticles',
     'MCVertexes',
@@ -95,17 +94,12 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fillerType         = cms.untracked.string('FillerTrigger')
   ),
 
-  MCRunInfo = cms.untracked.PSet(
-    active = cms.untracked.bool(True),
-    lheRunInfoEdmName = cms.untracked.string('externalLHEProducer'),
-    fillerType = cms.untracked.string('FillerMCRunInfo')
-  ),
-
   MCEventInfo = cms.untracked.PSet(
     active                = cms.untracked.bool(False),
     genHepMCEventEdmName  = cms.untracked.string('generator'),
     genEvtInfoEdmName     = cms.untracked.string('generator'),
     lheEventEdmName       = cms.untracked.string('externalLHEProducer'),
+    lheRunInfoEdmName = cms.untracked.string('externalLHEProducer'),
     flavorHistoryActive   = cms.untracked.bool(False),
     flavorHistEdmName     = cms.untracked.string('flavorHistoryFilter'),
     fillerType            = cms.untracked.string('FillerMCEventInfo')
