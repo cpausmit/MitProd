@@ -41,7 +41,7 @@ namespace mithep
     edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken_; //edm event info name 
     edm::EDGetTokenT<LHEEventProduct> lheEventToken_;
     edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
-    edm::EDGetTokenT<unsigned int> flavorHistToken_;       //edm flavor history name
+    edm::EDGetTokenT<unsigned> flavorHistToken_;       //edm flavor history name
 
     bool flavorHistoryActive_;  //=true if flavor history is filled
 
