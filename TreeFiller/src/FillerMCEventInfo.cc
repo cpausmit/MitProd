@@ -19,7 +19,7 @@ mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::
   genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, "genHepMCEventEdmName", "generator")), 
   genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, "genEvtInfoEdmName", "generator")), 
   lheEventToken_(GetToken<LHEEventProduct>(collector, "lheEventEdmName", "externalLHEProducer")),
-  lheRunInfoToken_(GetToken<LHERunInfoProduct>(collector, "lheRunInfoEdmName", "externalLHEProducer")),
+  lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, "lheRunInfoEdmName", "externalLHEProducer")),
   flavorHistToken_(GetToken<unsigned>(collector, "flavorHistEdmName", "flavorHistoryFilter")), 
   flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive", false)), 
   eventInfo_(new mithep::MCEventInfo()), 
@@ -43,7 +43,7 @@ mithep::FillerMCEventInfo::BookDataBlock(mithep::TreeWriter& tws)
   // Book our branch.
 
   tws.AddBranch(evtName_, &eventInfo_);
-  OS()->add<mithep::MCEventInfo>(eventInfo_, evtName_);
+  OS()->add(eventInfo_, evtName_);
 
   // add branches to run info tree
   tws.AddBranchToTree(mithep::Names::gkRunTreeName, mithep::Names::gkMCRunInfoBrn, 
