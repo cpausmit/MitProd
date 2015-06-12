@@ -3,7 +3,7 @@
 //
 // Implementation of a filler to fill EDM missing ET objects into our mithep::PFMet data structure.
 //
-// Authors: C.Loizides
+// Authors: C.Loizides, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERPFMET_H
@@ -16,22 +16,23 @@
 namespace mithep 
 {
   template<class MET>
-  class FillerPFMet : public BaseFiller
-  {  
-    public:
-      FillerPFMet(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = 1);
-      ~FillerPFMet();
+  class FillerPFMet : public BaseFiller {  
+  public:
+    FillerPFMet(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
+    ~FillerPFMet();
 
-      void                  BookDataBlock(TreeWriter &);
-      void                  FillDataBlock(edm::Event const&, edm::EventSetup const&);
+    void BookDataBlock(TreeWriter&) override;
+    void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
-      typedef std::vector<MET> MetCollection;
+    typedef std::vector<MET> MetCollection;
   
-    private:
-      edm::EDGetTokenT<MetCollection> edmToken_;       //edm name of met collection
-      edm::EDGetTokenT<MET>           edmSingleToken_; //edm name of met collection
-      std::string                     mitName_;        //mit name of met collection
-      mithep::PFMetArr*               pfMets_;         //array of Mets
+  private:
+    mithep::PFMet* FillBasicData(MET const*);
+
+    edm::EDGetTokenT<MetCollection> edmToken_;       //edm name of met collection
+    edm::EDGetTokenT<MET>           edmSingleToken_; //edm name of met collection
+    std::string                     mitName_;        //mit name of met collection
+    mithep::PFMetArr*               pfMets_;         //array of Mets
   };
 }
 #endif

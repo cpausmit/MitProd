@@ -244,90 +244,96 @@ mithep::FillMitTree::configure(edm::ParameterSet const& cfg)
 
     BaseFiller* filler = 0;
 
-    if (ftype == "FillerMetaInfos")
-      filler = new FillerMetaInfos(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerTrigger")
-      filler = new FillerTrigger(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerMCParticles")
-      filler = new FillerMCParticles(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerMCEventInfo")
-      filler = new FillerMCEventInfo(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerMCVertexes")
-      filler = new FillerMCVertexes(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerEvtSelData")
-      filler = new FillerEvtSelData(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerBeamSpot")
-      filler = new FillerBeamSpot(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerVertexes")
-      filler = new FillerVertexes(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerCaloTowers")
-      filler = new FillerCaloTowers(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerGenJets")
-      filler = new FillerGenJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerCaloJets")
-      filler = new FillerCaloJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerMet")
-      filler = new FillerMet(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerGenMet")
-      filler = new FillerGenMet(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerCaloMet")
-      filler = new FillerCaloMet(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFMet")
-      filler = new FillerPFMetFromPFMET(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFMetFromPATMET")
-      filler = new FillerPFMetFromPATMET(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerBasicClusters")
-      filler = new FillerBasicClusters(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPsClusters")
-      filler = new FillerPsClusters(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerSuperClusters")
-      filler = new FillerSuperClusters(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPixelHits")
-      filler = new FillerPixelHits(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPileupInfo")
-      filler = new FillerPileupInfo(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPileupEnergyDensity")
-      filler = new FillerPileupEnergyDensity(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerStripHits")
-      filler = new FillerStripHits(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerTracks")
-      filler = new FillerTracks(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerMuons")
-      filler = new FillerMuons(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerElectrons")
-      filler = new FillerElectrons(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerConversions")
-      filler = new FillerConversions(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerConversionsDecay")
-      filler = new FillerConversionsDecay(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPhotons") 
-      filler = new FillerPhotons(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerStableParts")
-      filler = new FillerStableParts(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerDecayParts")
-      filler = new FillerDecayParts(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFCandidates")
-      filler = new FillerPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPackedPFCandidates")
-      filler = new FillerPackedPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFJets")
-      filler = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFJetsFromPATJets")
-      filler = new FillerPFJetsFromPATJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerJPTJets")
-      filler = new FillerJPTJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerCaloTaus")
-      filler = new FillerCaloTaus(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFTaus")
-      filler = new FillerPFTausFromPFTaus(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerPFTausFromPATTaus")
-      filler = new FillerPFTausFromPATTaus(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerTrackJets")
-      filler = new FillerTrackJets(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerEmbedWeight")
-      filler = new FillerEmbedWeight(cfg, collector, os_, name.c_str(), defactive_);
-    else if (ftype == "FillerDCASig")
-      filler = new FillerDCASig(cfg, collector, os_, name.c_str(), defactive_);
+    try {
+      if (ftype == "FillerMetaInfos")
+        filler = new FillerMetaInfos(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerTrigger")
+        filler = new FillerTrigger(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMCParticles")
+        filler = new FillerMCParticles(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMCEventInfo")
+        filler = new FillerMCEventInfo(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMCVertexes")
+        filler = new FillerMCVertexes(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerEvtSelData")
+        filler = new FillerEvtSelData(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerBeamSpot")
+        filler = new FillerBeamSpot(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerVertexes")
+        filler = new FillerVertexes(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerCaloTowers")
+        filler = new FillerCaloTowers(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerGenJets")
+        filler = new FillerGenJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerCaloJets")
+        filler = new FillerCaloJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMet")
+        filler = new FillerMet(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerGenMet")
+        filler = new FillerGenMet(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerCaloMet")
+        filler = new FillerCaloMet(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFMet")
+        filler = new FillerPFMetFromPFMET(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFMetFromPATMET")
+        filler = new FillerPFMetFromPATMET(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerBasicClusters")
+        filler = new FillerBasicClusters(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPsClusters")
+        filler = new FillerPsClusters(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerSuperClusters")
+        filler = new FillerSuperClusters(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPixelHits")
+        filler = new FillerPixelHits(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPileupInfo")
+        filler = new FillerPileupInfo(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPileupEnergyDensity")
+        filler = new FillerPileupEnergyDensity(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerStripHits")
+        filler = new FillerStripHits(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerTracks")
+        filler = new FillerTracks(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerMuons")
+        filler = new FillerMuons(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerElectrons")
+        filler = new FillerElectrons(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerConversions")
+        filler = new FillerConversions(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerConversionsDecay")
+        filler = new FillerConversionsDecay(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPhotons") 
+        filler = new FillerPhotons(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerStableParts")
+        filler = new FillerStableParts(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerDecayParts")
+        filler = new FillerDecayParts(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFCandidates")
+        filler = new FillerPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPackedPFCandidates")
+        filler = new FillerPackedPFCandidates(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFJets")
+        filler = new FillerPFJetsFromPFJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFJetsFromPATJets")
+        filler = new FillerPFJetsFromPATJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerJPTJets")
+        filler = new FillerJPTJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerCaloTaus")
+        filler = new FillerCaloTaus(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFTaus")
+        filler = new FillerPFTausFromPFTaus(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerPFTausFromPATTaus")
+        filler = new FillerPFTausFromPATTaus(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerTrackJets")
+        filler = new FillerTrackJets(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerEmbedWeight")
+        filler = new FillerEmbedWeight(cfg, collector, os_, name.c_str(), defactive_);
+      else if (ftype == "FillerDCASig")
+        filler = new FillerDCASig(cfg, collector, os_, name.c_str(), defactive_);
+    }
+    catch (std::exception& ex) {
+      edm::LogError("FIllMitTree") << "Configuration error in " << ftype << "::" << name;
+      throw;
+    }
 
     if (filler)
       addActiveFiller(filler);

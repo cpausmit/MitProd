@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FillerTrackJets.h,v 1.1 2010/02/24 17:38:25 bendavid Exp $
-//
 // FillerTrackJets
 //
 // Implementation of a filler to fill EDM track jets into our mithep::TrackJet data structure.
@@ -11,7 +9,7 @@
 #ifndef MITPROD_TREEFILLER_FILLERTRACKJETS_H
 #define MITPROD_TREEFILLER_FILLERTRACKJETS_H
 
-#include "MitAna/DataTree/interface/PFJetFwd.h"
+#include "MitAna/DataTree/interface/TrackJetCol.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 
@@ -39,13 +37,7 @@ namespace mithep
       edm::EDGetTokenT<std::vector<double> > jetToVertexAlphaToken_;            //edm name of jet to vertex alpha coll
       edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_;             //edm name of jet to vertex beta coll
       edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_;   //source of flavor matching
-      edm::EDGetTokenT<reco::JetTagCollection> jetProbabilityBJetTagsToken_;             //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> jetBProbabilityBJetTagsToken_;            //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> simpleSecondaryVertexBJetTagsToken_;      //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexBJetTagsToken_;    //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> combinedSecondaryVertexMVABJetTagsToken_; //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighEffBJetTagsToken_;       //bjet algo discriminant
-      edm::EDGetTokenT<reco::JetTagCollection> trackCountingHighPurBJetTagsToken_;       //bjet algo discriminant
+      edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[mithep::Jet::nBTagAlgos];             //bjet algo discriminant
 
       std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
       std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service

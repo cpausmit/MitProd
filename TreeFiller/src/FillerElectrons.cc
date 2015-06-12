@@ -36,7 +36,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, "eIDLikelihoodName", "")),
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, "gsfTracksName", "electronGsfTracks")),
-  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName", "mvfConversionRemoval")),
+  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, "conversionsName")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
   eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
@@ -284,6 +284,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     outElectron->SetE55(inElectron.e5x5());
     outElectron->SetCovEtaEta(inElectron.sigmaEtaEta());
     outElectron->SetCoviEtaiEta(inElectron.sigmaIetaIeta());
+    outElectron->SetCoviEtaiEta5x5(inElectron.full5x5_sigmaIetaIeta());
     outElectron->SetHadronicOverEm(inElectron.hcalOverEcal());
     outElectron->SetHcalDepth1OverEcal(inElectron.hcalDepth1OverEcal());
     outElectron->SetHcalDepth2OverEcal(inElectron.hcalDepth2OverEcal());
@@ -408,7 +409,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
               << "Error! PFEcal SuperCluster reference in unmapped collection";
         }
         if (sc)
-          outElectron->SetPFSuperCluster(sc);
+          outElectron->SetECALOnlySuperCluster(sc);
       }
     }
 

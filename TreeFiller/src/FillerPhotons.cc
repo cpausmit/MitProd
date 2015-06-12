@@ -181,6 +181,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetE55(inPhoton.e5x5());
     outPhoton->SetCovEtaEta(inPhoton.sigmaEtaEta());
     outPhoton->SetCoviEtaiEta(inPhoton.sigmaIetaIeta());
+    outPhoton->SetCoviEtaiEta5x5(inPhoton.full5x5_sigmaIetaIeta());
     outPhoton->SetHadOverEmTow(inPhoton.hadTowOverEm());
 
     // isolation variables for dR=0.3
@@ -222,8 +223,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetIsEBGap(inPhoton.isEBGap());
     outPhoton->SetIsEEGap(inPhoton.isEEGap());
     outPhoton->SetIsEBEEGap(inPhoton.isEBEEGap());
-    //deprecated, identical to supercluster preselection in 3_1_X, so set to true
-    outPhoton->SetIsLooseEM(true); //deprecated
 
     if (fillFromPAT_) {
       auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
@@ -335,17 +334,20 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
 
-    // make link to pf supercluster (DOES NOT EXIST ANYMORE)
-    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_ && sc) {
-      auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(scRef, false);
-      if (!mitSC)
-        pfEcalEndcapSuperClusterMap_->GetMit(scRef, false);
+    // make link to pf supercluster
+    if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_) {
+      auto&& parentSCRef = inPhoton.parentSuperCluster();
+      if (parentSCRef.isAvailable()) {
+        auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(parentSCRef, false);
+        if (!mitSC)
+          mitSC = pfEcalEndcapSuperClusterMap_->GetMit(parentSCRef, false);
 
-      if (mitSC)
-    	outPhoton->SetPFSuperCluster(mitSC);
-      else if (checkClusterActive_)
-        throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
-          << "Error! PFEcal SuperCluster reference in unmapped collection";
+        if (mitSC)
+          outPhoton->SetECALOnlySuperCluster(mitSC);
+        else if (checkClusterActive_)
+          throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
+            << "Error! PFEcal SuperCluster reference in unmapped collection";
+      }
     }
 
     // add photon to map
