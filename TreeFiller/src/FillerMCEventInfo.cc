@@ -11,6 +11,8 @@
 
 #include "TPRegexp.h"
 
+#include <set>
+
 //--------------------------------------------------------------------------------------------------
 mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) : 
   BaseFiller(cfg, os, "MCEventInfo", active), 
@@ -55,7 +57,6 @@ mithep::FillerMCEventInfo::BookDataBlock(mithep::TreeWriter& tws)
 void
 mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetup const&)
 {
-  return;
   // Fill our data structures.
 
   if (event.isRealData()) {
@@ -219,14 +220,13 @@ mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetu
 void
 mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup const&)
 {
-  return;
   // LHERunInfoProduct (and GenRunInfoProduct FWIW) have mergeProduct method which forbids them
   // from being fetched in beginRun
 
   edm::Handle<LHERunInfoProduct> hLHERunInfo;
   run.getByToken(lheRunInfoToken_, hLHERunInfo);
 
-  if (hLHERunInfo.product()) {
+  if (hLHERunInfo.isValid()) {
     auto& lheRunInfo = *hLHERunInfo;
     auto& heprup = lheRunInfo.heprup();
 
@@ -249,6 +249,11 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
 
     runInfo_->SetNWeightDefinitions(0);
 
+    // eliminate duplicate tags - at the moment of writing, the only case where the same tag is
+    // repeated is for MGRunCard, where cards for all the MC generation runs that went into the
+    // AOD file is saved. These cards differ only by the random number seeds.
+    std::set<std::string> tags;
+
     for (auto&& hItr = lheRunInfo.headers_begin(); hItr != lheRunInfo.headers_end(); ++hItr) {
       auto& lheHdr = *hItr;
 
@@ -256,6 +261,11 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
         setWeightGroups(lheHdr.lines());
         continue;
       }
+
+      if (tags.find(lheHdr.tag()) != tags.end())
+        continue;
+
+      tags.insert(lheHdr.tag());
 
       unsigned iB = runInfo_->NHeaderBlocks();
       runInfo_->SetNHeaderBlocks(iB + 1);
@@ -336,7 +346,7 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
         }
         else if (tag.back() == "weight") {
           if (currentWG == runInfo_->NWeightGroups())
-            throw edm::Exception(edm::errors::Configuration, name_ + "::FillRunBlock\n")
+            throw edm::Exception(edm::errors::Configuration, name_ + "::FillPostRunBlock\n")
               << "<weight> tag found outside of <weightgroup> in LHE header";
           
           wid = attrs["id"];
@@ -354,7 +364,7 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
         delete matches;
 
         if (thisTag != tag.back())
-          throw edm::Exception(edm::errors::Configuration, name_ + "::FillRunBlock\n")
+          throw edm::Exception(edm::errors::Configuration, name_ + "::FillPostRunBlock\n")
             << "Unmatched close tag found in LHE header";
 
         if (thisTag == "weightgroup") {
@@ -362,7 +372,7 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
         }
         else if (thisTag == "weight") {
           if (currentWG == runInfo_->NWeightGroups() || wid.Length() == 0)
-            throw edm::Exception(edm::errors::Configuration, name_ + "::FillRunBlock\n")
+            throw edm::Exception(edm::errors::Configuration, name_ + "::FillPostRunBlock\n")
               << "Unmatched close tag found in LHE header";
 
           auto idItr = weightIds_.find(wid);
