@@ -136,3 +136,5 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   }
   caloTowers_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerCaloTowers);

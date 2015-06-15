@@ -528,3 +528,5 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMCParticles);

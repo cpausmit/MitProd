@@ -164,3 +164,5 @@ mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetu
     }
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPackedPFCandidates);

@@ -61,3 +61,24 @@ void BaseFiller::PrintErrorAndExit(const char *msg) const
   Error("PrintErrorAndExit", msg);
   gSystem->Exit(1);
 }
+
+
+
+mithep::BaseFiller*
+mithep::FillerFactoryStore::makeFiller(char const* className, edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, ObjectService* os, char const* name, bool active) const
+{
+  try {
+    return fillerFactories_.at(className)(cfg, collector, os, name, active);
+  }
+  catch (std::out_of_range& ex) {
+    return 0;
+  }
+}
+
+/*static*/
+mithep::FillerFactoryStore*
+FillerFactoryStore::singleton()
+{
+  static FillerFactoryStore fillerFactoryStore;
+  return &fillerFactoryStore;
+}

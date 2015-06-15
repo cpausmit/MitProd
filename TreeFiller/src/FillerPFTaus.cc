@@ -342,3 +342,6 @@ namespace mithep {
   typedef FillerPFTaus<reco::PFTau> FillerPFTausFromPFTaus;
   typedef FillerPFTaus<pat::Tau> FillerPFTausFromPATTaus;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFTausFromPFTaus);
+DEFINE_MITHEP_TREEFILLER(FillerPFTausFromPATTaus);

@@ -91,3 +91,5 @@ void FillerVertexes::FillDataBlock(const edm::Event      &event,
   }
   vertexes_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerVertexes);

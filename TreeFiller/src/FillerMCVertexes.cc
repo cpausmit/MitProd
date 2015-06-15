@@ -91,3 +91,5 @@ void FillerMCVertexes::FillDataBlock(const edm::Event      &event,
   new (newvtx) mithep::Vertex(vtx, vty, vtz);
   vertexes_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMCVertexes);

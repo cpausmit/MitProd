@@ -129,3 +129,5 @@ void FillerPATMuons::FillDataBlock(const edm::Event      &event,
   }
   muons_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPATMuons);

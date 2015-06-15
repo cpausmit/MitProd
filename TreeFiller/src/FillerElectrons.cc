@@ -640,3 +640,5 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   delete vtxReProducers[0];
   delete vtxReProducers[1];
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerElectrons);

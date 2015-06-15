@@ -253,3 +253,5 @@ mithep::Particle *FillerConversionsDecay::GetMitParticle(edm::Ptr<reco::Track> p
 
   return mitPart;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerConversionsDecay);

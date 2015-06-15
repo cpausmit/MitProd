@@ -120,3 +120,5 @@ mithep::Track *FillerStableParts::GetMitTrack(const mitedm::TrackPtr &ptr) const
     
   return mitTrack;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerStableParts);

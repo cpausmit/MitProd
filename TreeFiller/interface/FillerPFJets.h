@@ -10,6 +10,7 @@
 #define MITPROD_TREEFILLER_FILLERPFJETS_H
 
 #include "MitAna/DataTree/interface/PFJetFwd.h"
+#include "MitAna/DataTree/interface/Jet.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
 

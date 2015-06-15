@@ -108,3 +108,5 @@ void FillerPATElectrons::FillDataBlock(const edm::Event      &event,
   }
   electrons_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPATElectrons);

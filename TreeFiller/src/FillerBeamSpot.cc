@@ -62,3 +62,5 @@ void FillerBeamSpot::FillDataBlock(const edm::Event      &event,
   bs->SetDyDzErr(inBeamSpot->dydzError());
 
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerBeamSpot);

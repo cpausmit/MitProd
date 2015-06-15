@@ -69,3 +69,5 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
   }
   mets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMet);

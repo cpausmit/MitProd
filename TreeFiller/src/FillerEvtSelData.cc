@@ -125,3 +125,5 @@ mithep::FillerEvtSelData::FillDataBlock(edm::Event const& event,
   //Store the bit word in the container
   evtSelData_->SetFiltersWord(selWord);
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerEvtSelData);

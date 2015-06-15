@@ -83,3 +83,5 @@ mithep::FillerGenMet::FillDataBlock(edm::Event const& event,
   }
   genMets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerGenMet);

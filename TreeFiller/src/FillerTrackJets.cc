@@ -228,3 +228,5 @@ void FillerTrackJets::FillDataBlock(const edm::Event      &event,
   }      
   jets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerTrackJets);

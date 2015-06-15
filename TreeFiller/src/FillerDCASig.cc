@@ -730,3 +730,4 @@ void FillerDCASig::calculateDCA(Double_t &iDCA3D    ,Double_t &iDCA3DE    ,Doubl
   }
 }
 
+DEFINE_MITHEP_TREEFILLER(FillerDCASig);

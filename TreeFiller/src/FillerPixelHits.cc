@@ -117,3 +117,5 @@ void FillerPixelHits::FillDataBlock(const edm::Event      &event,
   }
   phits_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPixelHits);

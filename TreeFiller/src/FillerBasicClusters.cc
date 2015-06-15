@@ -205,3 +205,5 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   }
   basicClusters_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerBasicClusters);

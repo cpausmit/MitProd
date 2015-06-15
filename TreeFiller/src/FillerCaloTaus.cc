@@ -149,3 +149,5 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
   }      
   taus_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerCaloTaus);

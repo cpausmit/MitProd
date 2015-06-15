@@ -389,3 +389,5 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
     }
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMCEventInfo);

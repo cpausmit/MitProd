@@ -305,3 +305,5 @@ mithep::FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing)
     
   return 0;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFCandidates);

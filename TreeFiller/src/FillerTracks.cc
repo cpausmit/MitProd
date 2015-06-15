@@ -306,3 +306,5 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   }
   tracks_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerTracks);

@@ -19,6 +19,8 @@
 #include "MitAna/DataUtil/interface/TreeWriter.h"
 #include <TString.h>
 
+#include "tbb/concurrent_unordered_map.h"
+
 #include <typeinfo>
 
 namespace mithep 
@@ -69,6 +71,7 @@ namespace mithep
       BranchTable             *brtable_; //branch dependency table
       ObjectService           *os_;      //object repository passed by the EDAnalyzer
   };
+
 }
 
 template<typename TYPE, edm::BranchType B>
@@ -128,4 +131,54 @@ inline bool mithep::BaseFiller::GetProductSafe(const edm::EDGetTokenT<TYPE>& tok
   }
   return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+// FillerFactory: a trick to register individual fillers as "plugin modules"
+//--------------------------------------------------------------------------------------------------
+
+namespace mithep {
+  // We call a function that takes a ParameterSet, a ConsumesCollector, an ObjectService, a name string, and a boolean and returns
+  // a BaseFiller pointer as FillerFactory
+  typedef BaseFiller* (*FillerFactory)(edm::ParameterSet const&, edm::ConsumesCollector&, mithep::ObjectService*, char const*, bool);
+
+  // A singleton class to store information of the filler plugins
+  class FillerFactoryStore {
+  public:
+    // A utility class whose instantiation triggers the registration of a filler plugin
+    template<class Filler>
+    struct Registration {
+      Registration(char const* _name)
+      {
+        FillerFactoryStore::singleton()->registerFactory(_name,
+                                                         [](edm::ParameterSet const& cfg,
+                                                            edm::ConsumesCollector& collector,
+                                                            mithep::ObjectService* os,
+                                                            char const* name, bool active)->BaseFiller*
+                                                         {
+                                                           return new Filler(cfg, collector, os, name, active);
+                                                         });
+      }
+    };
+
+    // Register a FillerFactory (filler generator function) under a given name
+    void registerFactory(char const* _name, FillerFactory _f)
+    {
+      fillerFactories_[_name] = _f;
+    }
+
+    // Retrieve the FillerFactory and instantiate the filler
+    BaseFiller* makeFiller(char const* className, edm::ParameterSet const&, edm::ConsumesCollector&, mithep::ObjectService*, char const* name, bool active) const;
+
+    static FillerFactoryStore* singleton();
+
+  private:
+    tbb::concurrent_unordered_map<std::string, FillerFactory> fillerFactories_;
+  };
+
+}
+
+// A macro that instantiates FillerFactoryStore::Registration for the class TYPE
+#define DEFINE_MITHEP_TREEFILLER(TYPE) \
+  mithep::FillerFactoryStore::Registration<mithep::TYPE> mithep##TYPE##Registration(#TYPE)
+
 #endif

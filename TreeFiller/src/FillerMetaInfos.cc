@@ -111,3 +111,5 @@ mithep::FillerMetaInfos::FillRunBlock(edm::Run const& run, edm::EventSetup const
   runInfo_->SetRunNum(run.run());
   runInfo_->SetHltEntry(-1);
 }  
+
+DEFINE_MITHEP_TREEFILLER(FillerMetaInfos);

@@ -625,3 +625,5 @@ mithep::FillerTrigger::FillL1t(edm::Event const& event)
     tArr->SetBx(fdlWord.bxInEvent());
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerTrigger);

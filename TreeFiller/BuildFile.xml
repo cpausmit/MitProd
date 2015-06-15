@@ -1,3 +1,5 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="DataFormats/CaloTowers"/>
@@ -11,29 +13,25 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="HLTrigger/HLTcore"/>
-<use   name="JetMETCorrections/Objects"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="JetMETCorrections/Objects"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoCaloTools/Navigation"/>
+<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoVertex/GaussianSumVertexFit"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/IPTools"/>
-<use   name="RecoVertex/GaussianSumVertexFit"/>
-<use   name="RecoVertex/KalmanVertexFit"/>
-<use   name="RecoVertex/KinematicFitPrimitives"/>
-<use   name="RecoEgamma/EgammaTools"/>
 <use   name="MagneticField/UniformEngine"/>
-<use   name="RecoCaloTools/Navigation"/>
-<use   name="Geometry/EcalAlgo"/>
-<use   name="root"/>
 <use   name="MitCommon/MathTools"/>
 <use   name="MitCommon/OptIO"/>
 <use   name="MitAna/DataTree"/>
@@ -43,5 +41,7 @@
 <use   name="MitEdm/ConversionRejection"/>
 <use   name="MitProd/ObjectService"/>
 <use   name="MitEdm/Tools"/>
-<use   name="HiggsAnalysis/HiggsToGammaGamma"/>
-<flags   EDM_PLUGIN="1"/>
+<use   name="root"/>
+<export>
+  <lib name="1"/>
+</export>

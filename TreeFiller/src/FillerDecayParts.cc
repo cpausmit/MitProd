@@ -243,3 +243,5 @@ mithep::Particle *FillerDecayParts::getMitParticle(mitedm::BasePartPtr ptr) cons
     
   return mitPart;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerDecayParts);

@@ -51,3 +51,5 @@ mithep::FillerPileupEnergyDensity::FillDataBlock(edm::Event const& event,
 
   rhos_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPileupEnergyDensity);

@@ -85,3 +85,5 @@ void FillerCaloMet::FillDataBlock(const edm::Event      &event,
   }
   caloMets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerCaloMet);

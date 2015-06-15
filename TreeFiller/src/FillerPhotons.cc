@@ -427,3 +427,5 @@ mithep::FillerPhotons::HERecHitMatcher(reco::Photon const& pho, int zSide,
     } 
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPhotons);

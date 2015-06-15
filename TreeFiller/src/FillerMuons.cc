@@ -461,3 +461,5 @@ mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int
   }
   return segments;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMuons);

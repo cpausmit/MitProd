@@ -95,3 +95,5 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
 
   genjets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerGenJets);

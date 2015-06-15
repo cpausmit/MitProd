@@ -125,3 +125,6 @@ namespace mithep
   typedef mithep::FillerPFMet<reco::PFMET> FillerPFMetFromPFMET;
   typedef mithep::FillerPFMet<pat::MET> FillerPFMetFromPATMET;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFMetFromPFMET);
+DEFINE_MITHEP_TREEFILLER(FillerPFMetFromPATMET);

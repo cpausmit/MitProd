@@ -109,3 +109,5 @@ void FillerStripHits::FillDataBlock(const edm::Event      &event,
   }
   shits_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerStripHits);

@@ -283,3 +283,7 @@ namespace mithep {
   typedef FillerPFJets<reco::PFJet> FillerPFJetsFromPFJets;
   typedef FillerPFJets<pat::Jet> FillerPFJetsFromPATJets;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFJetsFromPFJets);
+DEFINE_MITHEP_TREEFILLER(FillerPFJetsFromPATJets);
+

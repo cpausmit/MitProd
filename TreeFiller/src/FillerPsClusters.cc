@@ -83,3 +83,5 @@ void FillerPsClusters::FillDataBlock(const edm::Event      &event,
   }
   psClusters_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPsClusters);

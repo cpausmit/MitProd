@@ -78,3 +78,5 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
   puInfos_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPileupInfo);

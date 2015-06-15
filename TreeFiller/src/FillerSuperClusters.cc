@@ -631,3 +631,5 @@ void  FillerSuperClusters::SCTimeSpanCalculator(std::vector<std::pair<DetId, flo
   
   return;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerSuperClusters);

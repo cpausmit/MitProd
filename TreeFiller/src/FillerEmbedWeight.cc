@@ -195,3 +195,5 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
   if(recHit_) embedWeight->SetWeight();
   embedWeight_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerEmbedWeight);
