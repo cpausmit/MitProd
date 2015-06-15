@@ -55,6 +55,7 @@ mithep::FillerMCEventInfo::BookDataBlock(mithep::TreeWriter& tws)
 void
 mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetup const&)
 {
+  return;
   // Fill our data structures.
 
   if (event.isRealData()) {
@@ -218,6 +219,7 @@ mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetu
 void
 mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup const&)
 {
+  return;
   // LHERunInfoProduct (and GenRunInfoProduct FWIW) have mergeProduct method which forbids them
   // from being fetched in beginRun
 
@@ -245,7 +247,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
 
     runInfo_->SetNHeaderBlocks(0);
 
-    runInfo_->ClearWeightData();
+    runInfo_->SetNWeightDefinitions(0);
 
     for (auto&& hItr = lheRunInfo.headers_begin(); hItr != lheRunInfo.headers_end(); ++hItr) {
       auto& lheHdr = *hItr;
@@ -267,7 +269,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
 
     runInfo_->ClearLHEComments();
     for (auto&& cItr = lheRunInfo.comments_begin(); cItr != lheRunInfo.comments_end(); ++cItr)
-      runInfo_->AddLHECommentLine(*cItr);
+      runInfo_->AddLHECommentLine(cItr->c_str());
   }
   else{
     runInfo_->SetHasLHEInfo(false);
@@ -279,7 +281,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
     
     runInfo_->SetNProcesses(0);
     runInfo_->SetNHeaderBlocks(0);
-    runInfo_->ClearWeightData();
+    runInfo_->SetNWeightDefinitions(0);
     runInfo_->ClearLHEComments();
   }
 }  
@@ -368,7 +370,7 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
             content += line(pos, line.Index(fullMatch.Data(), pos) - pos);
             content = content.Strip(TString::kBoth);
 
-            runInfo_->AddWeightData(currentWG, wid, content, idItr->second);
+            runInfo_->AddWeightDefinition(wid, content, currentWG, idItr->second);
           }
 
           wid = "";
