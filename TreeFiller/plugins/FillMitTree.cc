@@ -295,4 +295,5 @@ mithep::FillMitTree::endJob()
   edm::LogInfo("FillMitTree::endJob") << "Ending Job";
 }
 
-DEFINE_FWK_MODULE(mithep::FillMitTree);
+using mithep::FillMitTree;
+DEFINE_FWK_MODULE(FillMitTree);
