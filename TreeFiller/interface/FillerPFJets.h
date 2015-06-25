@@ -6,8 +6,8 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_TREEFILLER_FILLERPFJETS_H
-#define MITPROD_TREEFILLER_FILLERPFJETS_H
+// reverse header protection - this file should be included only by FillerPFJets.cc
+#ifdef MITPROD_TREEFILLER_FILLERPFJETS
 
 #include "MitAna/DataTree/interface/PFJetFwd.h"
 #include "MitAna/DataTree/interface/Jet.h"

@@ -75,8 +75,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   for (CaloTowerCollection::const_iterator inCaloTower = inCaloTowers.begin(); 
        inCaloTower != inCaloTowers.end(); ++inCaloTower) {
     
-    mithep::CaloTower *outCaloTower = caloTowers_->Allocate();
-    new (outCaloTower) mithep::CaloTower();
+    mithep::CaloTower *outCaloTower = caloTowers_->AddNew();
        
     double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
        

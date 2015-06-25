@@ -67,8 +67,10 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
     
     reco::GenJetRef jetRef(hGenJetProduct, inJet - inJets.begin());    
     
-    mithep::GenJet *jet = genjets_->Allocate();
-    new (jet) mithep::GenJet(inJet->p4().x(),inJet->p4().y(),inJet->p4().z(),inJet->p4().e());
+    mithep::GenJet *jet = genjets_->AddNew();
+
+    jet->SetPtEtaPhiM(inJet->p4().pt(), inJet->p4().eta(), inJet->p4().phi(), inJet->p4().mass());
+
     jet->SetHadEnergy(inJet->hadEnergy());
     jet->SetEmEnergy(inJet->emEnergy());
     jet->SetInvisibleEnergy(inJet->invisibleEnergy());

@@ -178,11 +178,11 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       // loop over all genparticles and copy their information
       unsigned iPart = 0;
       for (auto&& inPart : genParticles) {
-        mithep::MCParticle *mcPart = mcParticles_->Allocate();
-        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
-                                        inPart.pz(),inPart.energy(),
-                                        inPart.pdgId(),inPart.status());
-                                            
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
+        mcPart->SetPdgId(inPart.pdgId());
+        mcPart->SetStatus(inPart.status());
         mcPart->SetIsGenerated();
 
         // need to keep an eye for updates
@@ -211,12 +211,12 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       // loop over all genparticles and copy their information
       unsigned iPart = 0;
       for (auto&& inPart : genParticles) {
-        mithep::MCParticle *mcPart = mcParticles_->Allocate();
-        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
-                                        inPart.pz(),inPart.energy(),
-                                        inPart.pdgId(),inPart.status());
-                                            
-        mcPart->SetIsGenerated();                                          
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
+        mcPart->SetPdgId(inPart.pdgId());
+        mcPart->SetStatus(inPart.status());
+        mcPart->SetIsGenerated();
 
         // need to keep an eye for updates
         for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
@@ -237,16 +237,18 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
            pgen != GenEvent.particles_end(); ++pgen) {
   
-        HepMC::GenParticle *mcPart = (*pgen);
-        if(!mcPart) 
+        HepMC::GenParticle *genParticle = (*pgen);
+        if(!genParticle) 
           continue;
   
-        mithep::MCParticle *genParticle = mcParticles_->Allocate();
-        new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
-                                             mcPart->momentum().z(),mcPart->momentum().e(),
-                                             mcPart->pdg_id(),mcPart->status());
-        genParticle->SetIsGenerated();                                          
-        genMap_->Add(mcPart->barcode(), genParticle);
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(genParticle->momentum().perp(), genParticle->momentum().eta(), genParticle->momentum().phi(), genParticle->momentum().m());
+        mcPart->SetPdgId(genParticle->pdg_id());
+        mcPart->SetStatus(genParticle->status());
+        mcPart->SetIsGenerated();
+
+        genMap_->Add(genParticle->barcode(), mcPart);
       }
     }
   }
@@ -273,12 +275,11 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
                  outSimParticle->Pz(),outSimParticle->E());
         }
       } else {
-        outSimParticle = mcParticles_->Allocate();
-        new (outSimParticle) mithep::MCParticle(simTrack.momentum().px(),
-                                                simTrack.momentum().py(),
-                                                simTrack.momentum().pz(),
-                                                simTrack.momentum().e(),
-                                                simTrack.type(), -99);
+        outSimParticle = mcParticles_->AddNew();
+
+        outSimParticle->SetPtEtaPhiM(simTrack.momentum().pt(), simTrack.momentum().eta(), simTrack.momentum().phi(), simTrack.momentum().mass());
+        outSimParticle->SetPdgId(simTrack.type());
+        outSimParticle->SetStatus(-99);
       }
       
       outSimParticle->SetIsSimulated();

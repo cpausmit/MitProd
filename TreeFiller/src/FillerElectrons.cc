@@ -31,17 +31,17 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
                                                               "offlinePrimaryVertices")),
   pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName",
                                                               "offlinePrimaryVerticesWithBS")),  
-  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", "eidTight")),
-  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", "eidLoose")),
-  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", "")),
   generalTracksToken_       (GetToken<reco::TrackCollection>(collector, cfg, "generalTracksName", "generalTracks")),
   gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, cfg, "gsfTracksName", "electronGsfTracks")),
   conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, cfg, "conversionsName")),
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", "offlineBeamSpot")),
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", "offlineBeamSpot")),
+  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName")),
+  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", "eidTight")),
+  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", "eidLoose")),
+  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", "")),
   eIDCutBasedTightName_     (cfg.getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
   eIDCutBasedLooseName_     (cfg.getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
-  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName")),
   mitName_                  (cfg.getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
   electronMapName_          (cfg.getUntrackedParameter<string>("electronMapName", "")),
   electronPFMapName_        (cfg.getUntrackedParameter<string>("electronPFMapName", "")),
@@ -224,17 +224,22 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
   }
 
   VertexReProducer* vtxReProducers[] = {0, 0};
+  reco::VertexCollection const* vertexCols[2] = {};
   if (fitUnbiasedVertex_) {
-    if (hVertex.isValid())
+    if (hVertex.isValid()) {
       vtxReProducers[0] = new VertexReProducer(hVertex, event);
-    if (hVertexBS.isValid())
+      vertexCols[0] = hVertex.product();
+    }
+    if (hVertexBS.isValid()) {
       vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+      vertexCols[1] = hVertexBS.product();
+    }
   }
+
+  reco::BeamSpot const* beamspots[] = {pvbeamspot, pvbsbeamspot};
 
   typedef std::function<void(mithep::Electron&, double)> Setter;
 
-  edm::Handle<reco::VertexCollection>* pvcHandles[] = {&hVertex, &hVertexBS};
-  reco::BeamSpot const* beamspots[] = {pvbeamspot, pvbsbeamspot};
   Setter d0pvSetters[] = {
     &mithep::Electron::SetD0PV, &mithep::Electron::SetD0PVBS,
     &mithep::Electron::SetD0PVUB, &mithep::Electron::SetD0PVUBBS
@@ -372,20 +377,17 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       reco::TransientTrack ttckf = ctfAvailable ? transientTrackBuilder->build(ctfTrackRef) : reco::TransientTrack();
 
       for (unsigned iPVType : {0, 1}) {
-        if (!pvcHandles[iPVType]->isValid())
+        if (!vertexCols[iPVType])
           continue;
 
-        if (!beamspots[iPVType])
-          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-            << "Null Beamspot pointer";
-
-        auto& pvcHandle = *pvcHandles[iPVType];
-        auto& bs = *beamspots[iPVType];
-
-        reco::Vertex const& pv = pvcHandle->at(0);
-        reco::Vertex pvub = pvcHandle->at(0);
+        reco::Vertex const& pv = vertexCols[iPVType]->at(0);
+        reco::Vertex pvub = vertexCols[iPVType]->at(0);
 
         if (fitUnbiasedVertex_ && ctfTrackRef.isNonnull() && inElectron.shFracInnerHits() > 0.5) {
+          if (!beamspots[iPVType])
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Null Beamspot pointer";
+
           reco::TrackCollection newTkCollection;
           bool foundMatch = false;
           for (auto itk = pv.tracks_begin(); itk != pv.tracks_end(); ++itk) {
@@ -397,7 +399,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
           }
 
           if (foundMatch) {
-            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, bs, setup);
+            auto&& pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, *beamspots[iPVType], setup);
             if (pvs.size() > 0)
               pvub = pvs.front();      // take the first in the list
           }

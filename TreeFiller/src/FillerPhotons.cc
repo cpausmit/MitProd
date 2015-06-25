@@ -175,8 +175,9 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
       sc = scRef.get();
 
     // book the new bambu photon
-    mithep::Photon *outPhoton = photons_->Allocate();
-    new (outPhoton) mithep::Photon(inPhoton.px(),inPhoton.py(),inPhoton.pz(),inPhoton.energy());
+    mithep::Photon *outPhoton = photons_->AddNew();
+    
+    outPhoton->SetPtEtaPhi(inPhoton.pt(), inPhoton.eta(), inPhoton.phi());
 
     // set standard variables
     outPhoton->SetIsConverted(inPhoton.hasConversionTracks());

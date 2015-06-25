@@ -86,8 +86,9 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
 
   unsigned iPart = 0;
   for (auto&& inPart : inPackedCands) {
-    mithep::PFCandidate *outPfCand = pfCands_->Allocate();
-    new (outPfCand) mithep::PFCandidate(inPart.px(), inPart.py(), inPart.pz(), inPart.energy());
+    mithep::PFCandidate *outPfCand = pfCands_->AddNew();
+
+    outPfCand->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
 
     reco::CandidatePtr ptr(hPackedCandProduct, iPart);
     ++iPart;

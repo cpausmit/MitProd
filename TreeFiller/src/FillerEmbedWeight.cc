@@ -172,8 +172,7 @@ void FillerEmbedWeight::FillDataBlock(const edm::Event      &event,
   const double inGenTau2EtaVsGenTau1EtaRec      = inGenTau2EtaVsGenTau1EtaRecValue;
   const double inDiTauMassVsGenDiTauPtRec       = inDiTauMassVsGenDiTauPtRecValue;
   
-  mithep::EmbedWeight *embedWeight = embedWeight_->Allocate();
-  new (embedWeight) mithep::EmbedWeight();
+  mithep::EmbedWeight *embedWeight = embedWeight_->AddNew();
 
   embedWeight->SetGenWeight                (inEmbedWeight);
   embedWeight->SetSpinnerWeight            (inSpinnerWeight);

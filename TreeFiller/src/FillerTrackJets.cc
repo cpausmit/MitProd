@@ -150,11 +150,9 @@ void FillerTrackJets::FillDataBlock(const edm::Event      &event,
     reco::TrackJetRef jetRef(hJetProduct, inJet - inJets.begin());    
     reco::JetBaseRef jetBaseRef(jetRef);
     
-    mithep::TrackJet *jet = jets_->Allocate();
-    new (jet) mithep::TrackJet(inJet->p4().x(),
-                          inJet->p4().y(),
-                          inJet->p4().z(),
-                          inJet->p4().e());
+    mithep::TrackJet *jet = jets_->AddNew();
+
+    jet->SetRawPtEtaPhiM(inJet->p4().pt(), inJet->p4().eta(), inJet->p4().phi(), inJet->p4().mass());
 
     //add to map
     edm::Ptr<reco::Jet> thePtr(hJetProduct, inJet - inJets.begin());

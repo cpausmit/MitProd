@@ -1,3 +1,4 @@
+#define MITPROD_TREEFILLER_FILLERPFJETS
 #include "MitProd/TreeFiller/interface/FillerPFJets.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -140,9 +141,9 @@ mithep::FillerPFJets<JET>::FillDataBlock(edm::Event const& event, edm::EventSetu
     reco::JetBaseRef jetBaseRef(jetRef);
     edm::Ptr<reco::Jet> jetPtr(hJetProduct, iJet);
     
-    mithep::PFJet *jet = jets_->Allocate();
+    mithep::PFJet *jet = jets_->AddNew();
 
-    new (jet) mithep::PFJet(inJet.p4().x(),inJet.p4().y(),inJet.p4().z(),inJet.p4().e());
+    jet->SetRawPtEtaPhiM(inJet.p4().pt(), inJet.p4().eta(), inJet.p4().phi(), inJet.p4().mass());
 
     // add to map
     jetMap_->Add(jetPtr,jet);

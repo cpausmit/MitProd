@@ -98,8 +98,7 @@ void FillerBasicClusters::FillDataBlock(const edm::Event      &event,
   for (reco::CaloClusterCollection::const_iterator inBC = inBasicClusters.begin(); 
        inBC != inBasicClusters.end(); ++inBC) {
 
-    mithep::BasicCluster *outBasicCluster = basicClusters_->Allocate();
-    new (outBasicCluster) mithep::BasicCluster();
+    mithep::BasicCluster *outBasicCluster = basicClusters_->AddNew();
 
     outBasicCluster->SetXYZ   (inBC->x(),inBC->y(),inBC->z());
     outBasicCluster->SetEnergy(inBC->energy());   

@@ -139,8 +139,9 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
   for (auto&& inPfPtr : inPfCands) {
     reco::PFCandidate const& inPf = *inPfPtr;
 
-    mithep::PFCandidate *outPfCand = pfCands_->Allocate();
-    new (outPfCand) mithep::PFCandidate(inPf.px(), inPf.py(), inPf.pz(), inPf.energy());
+    mithep::PFCandidate *outPfCand = pfCands_->AddNew();
+
+    outPfCand->SetPtEtaPhiM(inPf.pt(), inPf.eta(), inPf.phi(), inPf.mass());
 
     // fill standard variables
     outPfCand->SetCharge(inPf.charge());

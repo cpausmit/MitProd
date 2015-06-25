@@ -67,8 +67,7 @@ void FillerPsClusters::FillDataBlock(const edm::Event      &event,
   for (reco::PreshowerClusterCollection::const_iterator inBC = inPsClusters.begin(); 
        inBC != inPsClusters.end(); ++inBC) {
 
-    mithep::PsCluster *outPsCluster = psClusters_->Allocate();
-    new (outPsCluster) mithep::PsCluster();
+    mithep::PsCluster *outPsCluster = psClusters_->AddNew();
 
     outPsCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
     outPsCluster->SetEnergy(inBC->energy());   

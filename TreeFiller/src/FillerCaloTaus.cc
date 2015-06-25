@@ -87,11 +87,9 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
     
     reco::CaloTauRef tauRef(hTauProduct, inTau - inTaus.begin());
     
-    mithep::CaloTau *tau = taus_->Allocate();
-    new (tau) mithep::CaloTau(inTau->px(),
-                              inTau->py(),
-                              inTau->pz(),
-                              inTau->energy());
+    mithep::CaloTau *tau = taus_->AddNew();
+
+    tau->SetPtEtaPhiM(inTau->pt(), inTau->eta(), inTau->phi(), inTau->mass());
 
     tau->SetMomAlt(inTau->alternatLorentzVect().x(),
                    inTau->alternatLorentzVect().y(),

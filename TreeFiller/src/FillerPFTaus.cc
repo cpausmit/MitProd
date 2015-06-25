@@ -1,3 +1,4 @@
+#define MITPROD_TREEFILLER_FILLERPFTAUS
 #include "MitProd/TreeFiller/interface/FillerPFTaus.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
@@ -106,8 +107,10 @@ mithep::FillerPFTaus<TAU>::FillDataBlock(edm::Event const& event,
     ++iTau;
     
     // make our output object including allocating space
-    mithep::PFTau *outTau = taus_->Allocate();
-    new (outTau) mithep::PFTau(inTau.px(),inTau.py(),inTau.pz(),inTau.energy());
+    mithep::PFTau *outTau = taus_->AddNew();
+
+    outTau->SetPtEtaPhiM(inTau.pt(), inTau.eta(), inTau.phi(), inTau.mass());
+
     outTau->SetMomAlt(inTau.alternatLorentzVect().x(),
                       inTau.alternatLorentzVect().y(),
                       inTau.alternatLorentzVect().z(),
