@@ -60,6 +60,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   electronPFMap_            (0),
   electrons_                (new mithep::ElectronArr(16)),
   gsfTrackMap_              (0),
+  gsfEleTrackMap_           (0),
   trackerTrackMap_          (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
@@ -81,8 +82,8 @@ mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
 {
   // Add electron branch to our tree and get our maps.
 
-  tws.AddBranch(mitName_,&electrons_);
-  OS()->add(electrons_,mitName_);
+  tws.AddBranch(mitName_, &electrons_);
+  OS()->add(electrons_, mitName_);
 
   if (!electronMapName_.empty()) {
     electronMap_->SetBrName(mitName_);
@@ -99,9 +100,16 @@ void
 mithep::FillerElectrons::PrepareLinks()
 {
   if (!gsfTrackMapName_.empty()) {
-    gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-    if (gsfTrackMap_)
-      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    if (fillFromPAT_) {
+      gsfEleTrackMap_ = OS()->get<ElectronTrackMap>(gsfTrackMapName_);
+      if (gsfEleTrackMap_)
+        AddBranchDep(mitName_, gsfEleTrackMap_->GetBrName());
+    }
+    else {
+      gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
+      if (gsfTrackMap_)
+        AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    }
   }
   if (!trackerTrackMapName_.empty()) {
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
@@ -550,24 +558,16 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
     footprintMap = hFootprintMap.product();
   }
 
-  edm::Handle<reco::TrackCollection> hGeneralTracks;
-  edm::Handle<reco::GsfTrackCollection> hGsfTracks;
-  if (recomputeConversionInfo_) {
-    GetProduct(generalTracksToken_, hGeneralTracks, event);
-    GetProduct(gsfTracksToken_, hGsfTracks, event);
-  }
-
   for (auto& mapElem : electronMap_->FwdMap()) {
     auto&& ePtr = mapElem.first;
     auto& inElectron = static_cast<reco::GsfElectron const&>(*ePtr);
     auto* outElectron = mapElem.second;
+    auto&& gsfTrackRef = inElectron.gsfTrack();
 
     // make proper links to Tracks and Super Clusters
     if (gsfTrackMap_) {
-      auto&& gsfTrackRef = inElectron.gsfTrack();
-
       if (gsfTrackRef.isNonnull()) {
-        mithep::Track const* trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef), false);
+        auto* trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef), false);
 
         if (trk)
           outElectron->SetGsfTrk(trk);
@@ -586,6 +586,16 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
           throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
             << "Error! Ambiguous GSF track unmapped collection";
       }
+    }
+
+    if (gsfEleTrackMap_) {
+      auto* trk = gsfEleTrackMap_->GetMit(ePtr, false);
+
+      if (trk)
+        outElectron->SetGsfTrk(trk);
+      else if (checkClusterActive_)
+        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+          << "Error! GSF track unmapped collection";
     }
 
     // make tracker track links

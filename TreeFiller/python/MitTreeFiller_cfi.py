@@ -382,6 +382,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     endcapSuperClusterMapName = cms.untracked.string('superClusterMap'),
     trackMapName              = cms.untracked.string('GsfTracksMapName'),
     edmSimAssociationName     = cms.untracked.string('assoc2GsfTracks'),
+    fromPATElectron           = cms.untracked.bool(False),
     fillerType                = cms.untracked.string('FillerTracks')
   ),
 

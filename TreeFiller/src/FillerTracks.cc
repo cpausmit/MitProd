@@ -20,8 +20,8 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  ecalAssocActive_(cfg.getUntrackedParameter<bool>("ecalAssocActive",0)),
-  edmToken_(GetToken<edm::View<reco::Track> >(collector, cfg, "edmName","generalTracks")),
+  fromPATElectron_(cfg.getUntrackedParameter<bool>("fromPATElectron", false)),
+  ecalAssocActive_(cfg.getUntrackedParameter<bool>("ecalAssocActive", false)),
   edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, cfg, "edmSimAssociationName","")),
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
   trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName","TrackingMap")),
@@ -33,9 +33,13 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
                                                      Form("%sMapName",mitName_.c_str()))),
   trackingMap_(0),
   tracks_(new mithep::TrackArr(250)), 
-  trackMap_(new mithep::TrackMap)
+  trackMap_(0),
+  eleTrackMap_(0)
 {
-  // Constructor.
+  if (fromPATElectron_)
+    edmElectronToken_ = GetToken<edm::View<reco::GsfElectron> >(collector, cfg, "edmName", "slimmedElectrons");
+  else
+    edmToken_ = GetToken<edm::View<reco::Track> >(collector, cfg, "edmName", "generalTracks");
   
   if (ecalAssocActive_) // initialize track associator configuration if needed
     assocParams_.loadParameters(cfg.getUntrackedParameterSet("TrackAssociatorParameters"), collector);
@@ -44,10 +48,9 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
 //--------------------------------------------------------------------------------------------------
 FillerTracks::~FillerTracks()
 {
-  // Destructor.
-
   delete tracks_;
   delete trackMap_;
+  delete eleTrackMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +59,7 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
   // Add tracks branch to tree, publish and get our objects.
 
   tws.AddBranch(mitName_,&tracks_);
-  OS()->add<TrackArr>(tracks_,mitName_);
+  OS()->add(tracks_,mitName_);
 
   if (!trackingMapName_.empty()) {
     trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_);
@@ -73,9 +76,18 @@ void FillerTracks::BookDataBlock(TreeWriter &tws)
     if (endcapSuperClusterIdMap_)
       AddBranchDep(mitName_,endcapSuperClusterIdMap_->GetBrName());
   }
+
   if (!trackMapName_.empty()) {
-    trackMap_->SetBrName(mitName_);
-    OS()->add<TrackMap>(trackMap_,trackMapName_);
+    if (fromPATElectron_) {
+      eleTrackMap_ = new mithep::ElectronTrackMap;
+      eleTrackMap_->SetBrName(mitName_);
+      OS()->add(eleTrackMap_, trackMapName_);
+    }
+    else {
+      trackMap_ = new mithep::TrackMap;
+      trackMap_->SetBrName(mitName_);
+      OS()->add(trackMap_, trackMapName_);
+    }
   }
 }
 
@@ -86,21 +98,34 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
   // Fill tracks from edm collection into our collection.
 
   tracks_  ->Delete();
-  trackMap_->Reset();
+  if (trackMap_)
+    trackMap_->Reset();
+  if (eleTrackMap_)
+    eleTrackMap_->Reset();
 
   // initialize handle and get product,
   // this usage allows also to get collections of classes which inherit from reco::Track
-  Handle<View<reco::Track> > hTrackProduct;
-  GetProduct(edmToken_, hTrackProduct, event);  
-	
-  //printf("edmName = %s, product id = %i\n",edmName_.c_str(),hTrackProduct.id().id());
-  
-  trackMap_->SetEdmProductId(hTrackProduct.id().id());
-  View<reco::Track> const& inTracks = *hTrackProduct;
-  
-  if (verbose_>1)
-    printf("Track Collection: id=%i\n", hTrackProduct.id().id());
-  
+  std::vector<reco::Track const*> inTracks;
+  View<reco::GsfElectron> const* electronsView = 0;
+  View<reco::Track> const* tracksView = 0;
+
+  if (fromPATElectron_) {
+    Handle<View<reco::GsfElectron> > hElectrons;
+    GetProduct(edmElectronToken_, hElectrons, event);
+    electronsView = hElectrons.product();
+    for (auto&& ele : *electronsView)
+      inTracks.push_back(ele.gsfTrack().get());
+  }
+  else {
+    Handle<View<reco::Track> > hTrackProduct;
+    GetProduct(edmToken_, hTrackProduct, event);  
+    tracksView = hTrackProduct.product();
+    for (auto&& trk : *tracksView)
+      inTracks.push_back(&trk);
+
+    trackMap_->SetEdmProductId(hTrackProduct.id().id());
+  }
+
   // for MC SimParticle association (reco->sim mappings)
   reco::RecoToSimCollection simAssociation;
   if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
@@ -119,15 +144,51 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     setup.get<IdealMagneticFieldRecord>().get(bField);
   }  
 
-
   // loop through all tracks and fill the information
-  for (View<reco::Track>::const_iterator it = inTracks.begin();
-         it != inTracks.end(); ++it) {
-         
+  unsigned iEl = 0;
+  for (auto* it : inTracks) {
     mithep::Track *outTrack = tracks_->Allocate();
     // create track and set the core parameters
     new (outTrack) mithep::Track(it->qoverp(),it->lambda(),
                                  it->phi(),it->dxy(),it->dsz());
+
+    // add reference between mithep and edm object
+    if (fromPATElectron_) {
+      if (eleTrackMap_) {
+        edm::Ptr<reco::GsfElectron> thePtr = electronsView->ptrAt(iEl);
+        eleTrackMap_->Add(thePtr, outTrack);
+      }
+    }
+    else {
+      if (trackMap_) {
+        mitedm::TrackPtr thePtr = tracksView->ptrAt(iEl);
+        trackMap_->Add(thePtr, outTrack);
+      }
+
+      //do sim associations
+      if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
+        if (verbose_>1)
+          printf("Trying Track-Sim association\n");
+        reco::TrackBaseRef theBaseRef = tracksView->refAt(iEl);
+        vector<pair<TrackingParticleRef, double> > simRefs;
+
+        try {
+          simRefs = simAssociation[theBaseRef]; //try to get the sim references if existing
+
+          if (verbose_>1)
+            printf("Applying track-sim association\n");
+          for (vector<pair<TrackingParticleRef, double> >::const_iterator simRefPair=simRefs.begin(); 
+               simRefPair != simRefs.end(); ++simRefPair) 
+            if (simRefPair->second > 0.5) // require more than 50% shared hits between reco and sim
+              outTrack->SetMCPart(trackingMap_->GetMit(simRefPair->first)); //add reco->sim reference
+        }
+        catch (edm::Exception &ex) {
+        }
+      }
+    }
+
+    ++iEl;
+
     outTrack->SetErrors(it->qoverpError(),it->lambdaError(),
                         it->phiError(),it->dxyError(),it->dszError());
                         
@@ -149,7 +210,7 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
     }
     
     //fill gsf flag, some type gymastics needed...
-    if (typeid(*it)==typeid(reco::GsfTrack))
+    if (dynamic_cast<reco::GsfTrack const*>(it))
       outTrack->SetIsGsf(kTRUE);
     else
       outTrack->SetIsGsf(kFALSE);
@@ -273,37 +334,8 @@ void FillerTracks::FillDataBlock(const edm::Event      &event,
           outTrack->SetSCluster(cluster);
       }
     }
-    
-    // add reference between mithep and edm object
-    if (trackMap_) {
-      mitedm::TrackPtr thePtr = inTracks.ptrAt(it - inTracks.begin());
-      trackMap_->Add(thePtr, outTrack);
-    }
-
-    //do sim associations
-    if (trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
-      if (verbose_>1)
-        printf("Trying Track-Sim association\n");
-      reco::TrackBaseRef theBaseRef = inTracks.refAt(it - inTracks.begin());
-      vector<pair<TrackingParticleRef, double> > simRefs;
-      Bool_t noSimParticle = 0;
-      try {
-        simRefs = simAssociation[theBaseRef]; //try to get the sim references if existing
-      }
-      catch (edm::Exception &ex) {
-        noSimParticle = 1;
-      }
-
-      if (!noSimParticle) { //loop through sim match candidates
-        if (verbose_>1)
-          printf("Applying track-sim association\n");
-        for (vector<pair<TrackingParticleRef, double> >::const_iterator simRefPair=simRefs.begin(); 
-             simRefPair != simRefs.end(); ++simRefPair) 
-          if (simRefPair->second > 0.5) // require more than 50% shared hits between reco and sim
-            outTrack->SetMCPart(trackingMap_->GetMit(simRefPair->first)); //add reco->sim reference
-      }
-    }
   }
+
   tracks_->Trim();
 }
 

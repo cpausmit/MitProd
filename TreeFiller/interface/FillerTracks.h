@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 namespace mithep 
 {
@@ -37,8 +38,10 @@ namespace mithep
       static void                         InitLayerMap(std::map<uint32_t,
                                                        mithep::Track::EHitLayer> &layerMap);
 
+      bool                                fromPATElectron_;             //when filling from embedded tracks in PAT electron
       bool                                ecalAssocActive_;             //do track-ecal associations
       edm::EDGetTokenT<edm::View<reco::Track> > edmToken_;                     //edm name of tracks coll
+      edm::EDGetTokenT<edm::View<reco::GsfElectron> > edmElectronToken_; //when filling from embedded tracks in PAT electron
       edm::EDGetTokenT<reco::RecoToSimCollection> edmSimAssocToken_;             //edm name of sim assoc map
       std::string                         mitName_;                     //mit name of Tracks
       std::string                         trackingMapName_;             //name of imp. map wrt sim
@@ -54,6 +57,7 @@ namespace mithep
 
     private:
       mithep::TrackMap                   *trackMap_;                    //map wrt tracks
+      mithep::ElectronTrackMap           *eleTrackMap_;                 //map GsfElectron -> GsfTrack (when filling from PAT)
   };
 }
 #endif

@@ -74,6 +74,7 @@ namespace mithep
     mithep::CandidateMap*          electronPFMap_;             //exported PF->electron map
     mithep::ElectronArr*           electrons_;                 //array of Electrons
     mithep::TrackMap const*        gsfTrackMap_;               //map wrt gsf tracks
+    mithep::ElectronTrackMap const* gsfEleTrackMap_;           //map wrt gsf tracks (when filling from PAT)
     mithep::TrackMap const*        trackerTrackMap_;           //map wrt tracker tracks
     mithep::SuperClusterMap const* barrelSuperClusterMap_;     //map wrt barrel super clusters
     mithep::SuperClusterMap const* endcapSuperClusterMap_;     //map wrt endcap super clusters

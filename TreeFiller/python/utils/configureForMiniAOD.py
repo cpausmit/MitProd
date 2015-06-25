@@ -18,6 +18,7 @@ def configureForMiniAOD(treeFiller):
 #        #'PsClusters', # GED preshower clusters are of type CaloClusterCollection - either FillerPsClusters or FillerBasicClusters must be updated
         'SuperClusters',
         'GeneralTracks',
+        'GsfTracks',
         'PrimaryVertexes',
         'Muons',
         'Electrons',
@@ -61,6 +62,9 @@ def configureForMiniAOD(treeFiller):
     treeFiller.GeneralTracks.edmName = 'unpackedTracksAndVertices'
     treeFiller.GeneralTracks.edmSimAssociationName = ''
 
+    treeFiller.GsfTracks.edmName = 'slimmedElectrons'
+    treeFiller.GsfTracks.fromPATElectron = True
+
     treeFiller.PrimaryVertexes.edmName = 'offlineSlimmedPrimaryVertices'
 
     treeFiller.Muons.edmName = 'slimmedMuons'
@@ -81,7 +85,6 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Electrons.conversionsName = ''
     treeFiller.Electrons.pvbsBeamSpotName = ''
     treeFiller.Electrons.footprintName = ''
-    treeFiller.Electrons.gsfTrackMapName = ''
     treeFiller.Electrons.trackerTrackMapName = ''
     treeFiller.Electrons.pfEcalBarrelSuperClusterMapName = ''
     treeFiller.Electrons.pfEcalEndcapSuperClusterMapName = ''
