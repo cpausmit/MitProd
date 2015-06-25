@@ -41,6 +41,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
   eIDCutBasedTightName_     (Conf().getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
   eIDCutBasedLooseName_     (Conf().getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
+  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, "footprintName")),
   mitName_                  (Conf().getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
   electronMapName_          (Conf().getUntrackedParameter<string>("electronMapName", "")),
   electronPFMapName_        (Conf().getUntrackedParameter<string>("electronPFMapName", "")),
@@ -51,6 +52,7 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   checkClusterActive_       (Conf().getUntrackedParameter<bool>("requireClusterAndGsfMap", true)),
   pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName", "")),
+  pfCandidateMapName_       (Conf().getUntrackedParameter<std::string>("pfCandidateMapName", "")),
   recomputeConversionInfo_  (Conf().getUntrackedParameter<bool>("recomputeConversionInfo", false)),  
   fitUnbiasedVertex_        (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
   fillFromPAT_              (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
@@ -62,7 +64,8 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
   pfEcalBarrelSuperClusterMap_(0),
-  pfEcalEndcapSuperClusterMap_(0)
+  pfEcalEndcapSuperClusterMap_(0),
+  pfCandidateMap_(0)
 {
 }
 
@@ -121,6 +124,11 @@ mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
     if (pfEcalEndcapSuperClusterMap_)
       AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
   }
+  if (!pfCandidateMapName_.empty()) {
+    pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
+    if (pfCandidateMap_)
+      AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
+  }
 }
 
 void
@@ -144,11 +152,21 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       << "Error! fillFromPAT set on non-PAT input";
 
   // handles to get the electron ID information
-  edm::Handle<edm::ValueMap<float> > eidLooseMap;
-  edm::Handle<edm::ValueMap<float> > eidTightMap;
+  edm::ValueMap<float> const* eidLooseMap = 0;
+  edm::ValueMap<float> const* eidTightMap = 0;
+  edm::ValueMap<PFCandRefV> const* footprintMap = 0;
   if (!fillFromPAT_) {
-    GetProduct(eIDCutBasedLooseToken_, eidLooseMap, event);
-    GetProduct(eIDCutBasedTightToken_, eidTightMap, event);
+    edm::Handle<edm::ValueMap<float> > hEidLooseMap;
+    GetProduct(eIDCutBasedLooseToken_, hEidLooseMap, event);
+    eidLooseMap = hEidLooseMap.product();
+    edm::Handle<edm::ValueMap<float> > hEidTightMap;
+    GetProduct(eIDCutBasedTightToken_, hEidTightMap, event);
+    eidTightMap = hEidTightMap.product();
+    if (pfCandidateMap_) {
+      edm::Handle<edm::ValueMap<PFCandRefV> > hFootprintMap;
+      GetProduct(footprintToken_, hFootprintMap, event);
+      footprintMap = hFootprintMap.product();
+    }
   }
 
   edm::Handle<edm::ValueMap<float> > eidLikelihoodMap;
@@ -581,6 +599,25 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
               throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
                 << "Error! Conversion track unmapped collection";
           }
+        }
+      }
+    }
+
+    // make link to footprint PFCandidates
+    if (pfCandidateMap_) {
+      if (fillFromPAT_) {
+        auto& patElectron = static_cast<pat::Electron const&>(inElectron);
+        auto&& footprint = patElectron.associatedPackedPFCandidates();
+        for (auto& candRef : footprint) {
+          auto* mitCand = pfCandidateMap_->GetMit(reco::CandidatePtr(edm::refToPtr(candRef)));
+          outElectron->AddFootprintCandidate(mitCand);
+        }
+      }
+      else { // footprintMap must exist
+        auto& footprint = (*footprintMap)[ePtr];
+        for (auto& candRef : footprint) {
+          auto* mitCand = pfCandidateMap_->GetMit(reco::CandidatePtr(edm::refToPtr(candRef)));
+          outElectron->AddFootprintCandidate(mitCand);
         }
       }
     }

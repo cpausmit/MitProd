@@ -3,7 +3,7 @@
 //
 // Implementation of a filler to fill EDM PFCandidates into our mithep::PFCandidate data structure.
 //
-// Authors: J.Bendavid
+// Authors: J.Bendavid, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 #ifndef MITPROD_TREEFILLER_FILLERPFCANDIDATES_H
 #define MITPROD_TREEFILLER_FILLERPFCANDIDATES_H
@@ -20,11 +20,11 @@ namespace mithep
     public:
       typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
 
-      FillerPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
+      FillerPFCandidates(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
       ~FillerPFCandidates();
 
-      void                           BookDataBlock(TreeWriter &tws);
-      void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void BookDataBlock(TreeWriter&) override;
+      void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
     private:
 

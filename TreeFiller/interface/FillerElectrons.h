@@ -35,6 +35,7 @@ namespace mithep
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::GsfElectron> GsfElectronView;                 //using View to deal with PAT electrons
+    typedef std::vector<reco::PFCandidateRef> PFCandRefV;
 
   private:
     edm::EDGetTokenT<GsfElectronView> edmToken_;              //edm name of electrons collection
@@ -50,6 +51,7 @@ namespace mithep
     edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
     std::string eIDCutBasedTightName_;
     std::string eIDCutBasedLooseName_;
+    edm::EDGetTokenT<edm::ValueMap<PFCandRefV> > footprintToken_;
 
     std::string                    mitName_;                   //mit name of Electrons collection
     std::string                    electronMapName_;           //name of exported electron map
@@ -61,6 +63,7 @@ namespace mithep
     bool                           checkClusterActive_;
     std::string                    pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
     std::string                    pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
+    std::string                    pfCandidateMapName_;
     bool                           recomputeConversionInfo_;   //recompute conversion info
     bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
     bool                           fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
@@ -73,6 +76,7 @@ namespace mithep
     mithep::SuperClusterMap const* endcapSuperClusterMap_;     //map wrt endcap super clusters
     mithep::SuperClusterMap const* pfEcalBarrelSuperClusterMap_;     //map wrt pflow super clusters
     mithep::SuperClusterMap const* pfEcalEndcapSuperClusterMap_;     //map wrt pflow super clusters
+    mithep::PFCandidateMap const*  pfCandidateMap_;
   };
 }
 #endif

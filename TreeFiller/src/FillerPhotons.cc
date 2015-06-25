@@ -5,6 +5,7 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -12,6 +13,8 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PhotonCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+
+#include <iostream>
 
 mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
@@ -21,6 +24,7 @@ mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::Consumes
   phIDCutBasedLooseToken_   (GetToken<edm::ValueMap<bool> >(collector, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
   phIDCutBasedTightName_    (Conf().getUntrackedParameter<std::string>("phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (Conf().getUntrackedParameter<std::string>("phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
+  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, "footprintName")),
   mitName_                  (Conf().getUntrackedParameter<std::string>("mitName", Names::gkPhotonBrn)),
   conversionMapName_        (Conf().getUntrackedParameter<std::string>("conversionMapName", "")),
   oneLegConversionMapName_  (Conf().getUntrackedParameter<std::string>("oneLegConversionMapName", "")),
@@ -30,6 +34,7 @@ mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::Consumes
   fillFromPAT_              (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
   pfEcalBarrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("pfEcalEndcapSuperClusterMapName", "")),
+  pfCandidateMapName_       (Conf().getUntrackedParameter<std::string>("pfCandidateMapName", "")),
   photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
   photonPFMapName_          (Conf().getUntrackedParameter<std::string>("photonPFMapName", "")),
   photonMap_                (new mithep::PhotonMap),
@@ -40,15 +45,13 @@ mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::Consumes
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
   pfEcalBarrelSuperClusterMap_(0),
-  pfEcalEndcapSuperClusterMap_(0)
+  pfEcalEndcapSuperClusterMap_(0),
+  pfCandidateMap_(0)
 {
-  // Constructor.
 }
 
 mithep::FillerPhotons::~FillerPhotons()
 {
-  // Destructor.
-
   delete photons_;
   delete photonMap_;
   delete photonPFMap_;
@@ -92,11 +95,19 @@ mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
     if (pfEcalEndcapSuperClusterMap_)
       AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
+  if (!pfCandidateMapName_.empty()) {
+    pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
+    std::cout << pfCandidateMapName_ << std::endl;
+    if (pfCandidateMap_)
+      AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
+    std::cout << pfCandidateMap_ << std::endl;
+  }
 
   if (!photonMapName_.empty()) {
     photonMap_->SetBrName(mitName_);
     OS()->add(photonMap_, photonMapName_);
   }
+
   if (fillFromPAT_ && !photonPFMapName_.empty()) {
     photonPFMap_ = new mithep::CandidateMap;
     photonPFMap_->SetBrName(mitName_);
@@ -124,7 +135,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
       !dynamic_cast<pat::Photon const*>(&inPhotons.at(0)))
     throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
       << "Error! fillFromPAT set on non-PAT input";
-  
+ 
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
   auto& caloGeom = *pGeometry;
@@ -140,6 +151,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
   // handles to get the photon ID information
   edm::ValueMap<bool> const* phidLooseMap = 0;
   edm::ValueMap<bool> const* phidTightMap = 0;
+  edm::ValueMap<PFCandRefV> const* footprintMap = 0;
   if (!fillFromPAT_) {
     edm::Handle<edm::ValueMap<bool> > hPhidLooseMap;
     if (GetProductSafe(phIDCutBasedLooseToken_, hPhidLooseMap, event))
@@ -147,6 +159,11 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     edm::Handle<edm::ValueMap<bool> > hPhidTightMap;
     if (GetProductSafe(phIDCutBasedTightToken_, hPhidTightMap, event))
       phidTightMap = hPhidTightMap.product();
+    if (pfCandidateMap_) {
+      edm::Handle<edm::ValueMap<PFCandRefV> > hFootprintMap;
+      GetProduct(footprintToken_, hFootprintMap, event);
+      footprintMap = hFootprintMap.product();
+    }
   }
 
   unsigned iPhoton = 0;
@@ -306,7 +323,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     // make links to conversions
     if (conversionMap_) {
       for (auto&& convRef : inPhoton.conversions()) {
-        auto mitConv = conversionMap_->GetMit(convRef, false);
+        auto* mitConv = conversionMap_->GetMit(convRef, false);
         if (mitConv) // miniAOD photon might not have a valid conversion ref depending on quality
           outPhoton->AddConversionD(mitConv);
       }
@@ -315,7 +332,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     // make links to conversions (single leg)
     if (oneLegConversionMap_) {
       for (auto&& convRef : inPhoton.conversionsOneLeg()) {
-        auto mitConv = oneLegConversionMap_->GetMit(convRef, false);
+        auto* mitConv = oneLegConversionMap_->GetMit(convRef, false);
         if (mitConv)
           outPhoton->AddConversionS(mitConv);
       }
@@ -323,7 +340,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
 
     // make link to supercluster
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && sc) {
-      auto mitSC = barrelSuperClusterMap_->GetMit(scRef, false);
+      auto* mitSC = barrelSuperClusterMap_->GetMit(scRef, false);
       if (!mitSC)
         mitSC = endcapSuperClusterMap_->GetMit(scRef, false);
 
@@ -338,7 +355,7 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     if (pfEcalBarrelSuperClusterMap_ && pfEcalEndcapSuperClusterMap_) {
       auto&& parentSCRef = inPhoton.parentSuperCluster();
       if (parentSCRef.isAvailable()) {
-        auto mitSC = pfEcalBarrelSuperClusterMap_->GetMit(parentSCRef, false);
+        auto* mitSC = pfEcalBarrelSuperClusterMap_->GetMit(parentSCRef, false);
         if (!mitSC)
           mitSC = pfEcalEndcapSuperClusterMap_->GetMit(parentSCRef, false);
 
@@ -347,6 +364,27 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
         else if (checkClusterActive_)
           throw edm::Exception(edm::errors::Configuration, "FillerPhotons:FillDataBlock()\n")
             << "Error! PFEcal SuperCluster reference in unmapped collection";
+      }
+    }
+
+    // make link to footprint PFCandidates
+    if (pfCandidateMap_) {
+      if (fillFromPAT_) {
+        auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
+        auto&& footprint = patPhoton.associatedPackedPFCandidates();
+        for (auto& candRef : footprint) {
+          auto* mitCand = pfCandidateMap_->GetMit(reco::CandidatePtr(edm::refToPtr(candRef)));
+          outPhoton->AddFootprintCandidate(mitCand);
+        }
+      }
+      else { // footprintMap must exist
+        auto& footprint = (*footprintMap)[phPtr];
+        std::cout << "filling footprint" << std::endl;
+        for (auto& candRef : footprint) {
+          std::cout << candRef->pt() << std::endl;
+          auto* mitCand = pfCandidateMap_->GetMit(reco::CandidatePtr(edm::refToPtr(candRef)));
+          outPhoton->AddFootprintCandidate(mitCand);
+        }
       }
     }
 

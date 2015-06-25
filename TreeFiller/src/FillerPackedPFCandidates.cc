@@ -3,6 +3,8 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFCandidateCol.h"
 #include "MitAna/DataTree/interface/Photon.h"
+#include "MitAna/DataTree/interface/Electron.h"
+#include "MitAna/DataTree/interface/Muon.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
