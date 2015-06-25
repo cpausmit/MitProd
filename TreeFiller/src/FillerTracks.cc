@@ -20,16 +20,16 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  ecalAssocActive_(Conf().getUntrackedParameter<bool>("ecalAssocActive",0)),
-  edmToken_(GetToken<edm::View<reco::Track> >(collector, "edmName","generalTracks")),
-  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, "edmSimAssociationName","")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
-  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName","TrackingMap")),
-  barrelSuperClusterIdMapName_(Conf().getUntrackedParameter<string>
+  ecalAssocActive_(cfg.getUntrackedParameter<bool>("ecalAssocActive",0)),
+  edmToken_(GetToken<edm::View<reco::Track> >(collector, cfg, "edmName","generalTracks")),
+  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, cfg, "edmSimAssociationName","")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkTrackBrn)),
+  trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName","TrackingMap")),
+  barrelSuperClusterIdMapName_(cfg.getUntrackedParameter<string>
                                ("superClusterIdMapName","barrelSuperClusterIdMap")),
-  endcapSuperClusterIdMapName_(Conf().getUntrackedParameter<string>
+  endcapSuperClusterIdMapName_(cfg.getUntrackedParameter<string>
                                ("endcapClusterIdMapName","endcapSuperClusterIdMap")),
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName",
+  trackMapName_(cfg.getUntrackedParameter<string>("trackMapName",
                                                      Form("%sMapName",mitName_.c_str()))),
   trackingMap_(0),
   tracks_(new mithep::TrackArr(250)), 

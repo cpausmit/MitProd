@@ -7,9 +7,9 @@
 
 mithep::FillerGenMet::FillerGenMet(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<METView>(collector, "edmName", "genMetTrue")),
-  mitName_(Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkGenMetBrn)),
-  fillFromPAT_(Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
+  edmToken_(GetToken<METView>(collector, cfg, "edmName", "genMetTrue")),
+  mitName_(cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkGenMetBrn)),
+  fillFromPAT_(cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
   genMets_(new mithep::GenMetArr)
 {
 }

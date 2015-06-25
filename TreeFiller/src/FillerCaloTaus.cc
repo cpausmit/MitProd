@@ -12,12 +12,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::CaloTauCollection>(collector, "edmName","recoCaloTaus:iterativeCone5CaloTaus")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
-  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
-  barrelBCMapName_(Conf().getUntrackedParameter<string>("barrelBCMapName","")), 
-  endcapBCMapName_(Conf().getUntrackedParameter<string>("endcapBCMapName","")), 
+  edmToken_(GetToken<reco::CaloTauCollection>(collector, cfg, "edmName","recoCaloTaus:iterativeCone5CaloTaus")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
+  trackMapName_(cfg.getUntrackedParameter<string>("trackMapName","TracksMapName")), 
+  jetMapName_(cfg.getUntrackedParameter<string>("jetMapName","JetMapName")), 
+  barrelBCMapName_(cfg.getUntrackedParameter<string>("barrelBCMapName","")), 
+  endcapBCMapName_(cfg.getUntrackedParameter<string>("endcapBCMapName","")), 
   trackMap_(0),
   jetMap_(0),
   barrelBCMap_(0),

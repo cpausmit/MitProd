@@ -17,37 +17,37 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerTrackJets::FillerTrackJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
-  bTaggingActive_(Conf().getUntrackedParameter<bool>("bTaggingActive",true)),
-  jetToVertexActive_(Conf().getUntrackedParameter<bool>("jetToVertexActive",true)),
-  jetCorrectionsActive_(Conf().getUntrackedParameter<bool>("jetCorrectionsActive",true)),
-  edmToken_(GetToken<reco::TrackJetCollection>(collector, "edmName","recoPFJets:iterativeCone5PFJets")),
-  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, "jetToVertexAlphaName","jetToVertexAlpha")),
-  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, "jetToVertexBetaName","jetToVertexBetaName")),
-  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName","srcByReference")),
+  flavorMatchingActive_(cfg.getUntrackedParameter<bool>("flavorMatchingActive",true)),
+  bTaggingActive_(cfg.getUntrackedParameter<bool>("bTaggingActive",true)),
+  jetToVertexActive_(cfg.getUntrackedParameter<bool>("jetToVertexActive",true)),
+  jetCorrectionsActive_(cfg.getUntrackedParameter<bool>("jetCorrectionsActive",true)),
+  edmToken_(GetToken<reco::TrackJetCollection>(collector, cfg, "edmName","recoPFJets:iterativeCone5PFJets")),
+  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, cfg, "jetToVertexAlphaName","jetToVertexAlpha")),
+  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, cfg, "jetToVertexBetaName","jetToVertexBetaName")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, cfg, "flavorMatchingByReferenceName","srcByReference")),
   bJetTagsToken_{
-    GetToken<reco::JetTagCollection>(collector, "JetProbabilityBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "JetBProbabilityBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighEffBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "SimpleSecondaryVertexHighPurBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexV2BJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "CombinedSecondaryVertexSoftLeptonBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "CombinedInclusiveSecondaryVertexV2BJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "CombinedMVABJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighEffBJetTagsName", ""),
-    GetToken<reco::JetTagCollection>(collector, "TrackCountingHighPurBJetTagsName", "")
+    GetToken<reco::JetTagCollection>(collector, cfg, "JetProbabilityBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "JetBProbabilityBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "SimpleSecondaryVertexHighEffBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "SimpleSecondaryVertexHighPurBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "CombinedSecondaryVertexBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "CombinedSecondaryVertexV2BJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "CombinedSecondaryVertexSoftLeptonBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "CombinedInclusiveSecondaryVertexV2BJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "CombinedMVABJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "TrackCountingHighEffBJetTagsName", ""),
+    GetToken<reco::JetTagCollection>(collector, cfg, "TrackCountingHighPurBJetTagsName", "")
   },
-  L2JetCorrectorName_(Conf().getUntrackedParameter<string>
+  L2JetCorrectorName_(cfg.getUntrackedParameter<string>
                       ("L2JetCorrectorName","L2JetCorrectorName")),
-  L3JetCorrectorName_(Conf().getUntrackedParameter<string>
+  L3JetCorrectorName_(cfg.getUntrackedParameter<string>
                       ("L3JetCorrectorName","L3JetCorrectorName")),
-  flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
+  flavorMatchingDefinition_(cfg.getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","ItrCone5PFJets")), 
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","trackMapName")),
-  vertexMapName_(Conf().getUntrackedParameter<string>("vertexMapName","")),
-  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","TrackJetMap")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName","ItrCone5PFJets")), 
+  trackMapName_(cfg.getUntrackedParameter<string>("trackMapName","trackMapName")),
+  vertexMapName_(cfg.getUntrackedParameter<string>("vertexMapName","")),
+  jetMapName_(cfg.getUntrackedParameter<string>("jetMapName","TrackJetMap")),
   trackMap_(0),
   vertexMap_(0),
   jetMap_(new mithep::TrackJetMap),

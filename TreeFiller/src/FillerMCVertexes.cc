@@ -10,10 +10,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMCVertexes::FillerMCVertexes(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg, os, name, active),
-  useAodGen_(Conf().getUntrackedParameter<bool>("useAodGen",true)),
-  hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, "edmName","genParticles", true)),
-  genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, "edmName","genParticles")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","MCVertexes")),
+  useAodGen_(cfg.getUntrackedParameter<bool>("useAodGen",true)),
+  hepMCProdToken_(GetToken<edm::HepMCProduct>(collector, cfg, "edmName","genParticles", true)),
+  genParticlesToken_(GetToken<reco::GenParticleCollection>(collector, cfg, "edmName","genParticles")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName","MCVertexes")),
   vertexes_(new mithep::VertexArr(1))
 {
   // Constructor.

@@ -16,9 +16,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPsClusters::FillerPsClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller       (cfg,os,name,active),
-  edmToken_        (GetToken<reco::PreshowerClusterCollection>(collector, "edmName","hybridSuperClusters")),
-  mitName_         (Conf().getUntrackedParameter<string>("mitName","PsClusters")),
-  psClusterMapName_(Conf().getUntrackedParameter<string>("psClusterMapName",
+  edmToken_        (GetToken<reco::PreshowerClusterCollection>(collector, cfg, "edmName","hybridSuperClusters")),
+  mitName_         (cfg.getUntrackedParameter<string>("mitName","PsClusters")),
+  psClusterMapName_(cfg.getUntrackedParameter<string>("psClusterMapName",
 							 "PsClusterMap")),
   psClusters_      (new mithep::PsClusterArr(100)),
   psClusterMap_    (new mithep::PsClusterMap)

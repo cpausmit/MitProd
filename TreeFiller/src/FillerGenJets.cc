@@ -14,11 +14,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerGenJets::FillerGenJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
-  edmToken_(GetToken<reco::GenJetCollection>(collector, "edmName", "genjets")),
-  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","GenJets")), 
-  flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
+  flavorMatchingActive_(cfg.getUntrackedParameter<bool>("flavorMatchingActive",true)),
+  edmToken_(GetToken<reco::GenJetCollection>(collector, cfg, "edmName", "genjets")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, cfg, "flavorMatchingByReferenceName", "srcByReference")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName","GenJets")), 
+  flavorMatchingDefinition_(cfg.getUntrackedParameter<string>
                    ("flavorMatchingDefinition","Algorithmic")),
   genjets_(new mithep::GenJetArr(16))
 {

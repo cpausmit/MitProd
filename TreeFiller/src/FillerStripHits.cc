@@ -22,8 +22,8 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerStripHits::FillerStripHits(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<SiStripMatchedRecHit2DCollection>(collector, "edmName","siStripMatchedRecHits:stereoRecHit")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkStripHitBrn)),
+  edmToken_(GetToken<SiStripMatchedRecHit2DCollection>(collector, cfg, "edmName","siStripMatchedRecHits:stereoRecHit")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkStripHitBrn)),
   shits_(new mithep::StripHitArr(1000))
 {
   // Constructor.

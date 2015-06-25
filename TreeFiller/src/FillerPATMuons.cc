@@ -21,12 +21,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,"PATMuons",active),
-  edmToken_(GetToken<edm::View<pat::Muon> >(collector, "edmName","selectedLayer1Muons")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
-  globalTrackMapName_(Conf().getUntrackedParameter<string>("globalTrackMapName","")),
-  staTrackMapName_(Conf().getUntrackedParameter<string>("staTrackMapName","")),
-  staVtxTrackMapName_(Conf().getUntrackedParameter<string>("staVtxTrackMapName","")),
-  trackerTrackMapName_(Conf().getUntrackedParameter<string>("trackerTrackMapName","")),
+  edmToken_(GetToken<edm::View<pat::Muon> >(collector, cfg, "edmName","selectedLayer1Muons")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
+  globalTrackMapName_(cfg.getUntrackedParameter<string>("globalTrackMapName","")),
+  staTrackMapName_(cfg.getUntrackedParameter<string>("staTrackMapName","")),
+  staVtxTrackMapName_(cfg.getUntrackedParameter<string>("staVtxTrackMapName","")),
+  trackerTrackMapName_(cfg.getUntrackedParameter<string>("trackerTrackMapName","")),
   globalTrackMap_(0), 
   standaloneTrackMap_(0), 
   standaloneVtxTrackMap_(0), 

@@ -6,9 +6,9 @@
 template<class MET>
 mithep::FillerPFMet<MET>::FillerPFMet(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active) : 
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<MetCollection>(collector, "edmName")),
-  edmSingleToken_(GetToken<MET>(collector, "edmName")),
-  mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkCaloMetBrn))),
+  edmToken_(GetToken<MetCollection>(collector, cfg, "edmName")),
+  edmSingleToken_(GetToken<MET>(collector, cfg, "edmName")),
+  mitName_(cfg.getUntrackedParameter("mitName", std::string(Names::gkCaloMetBrn))),
   pfMets_(new mithep::PFMetArr)
 {
   // Constructor.

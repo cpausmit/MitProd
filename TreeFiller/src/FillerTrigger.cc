@@ -15,17 +15,17 @@
 mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, ObjectService* os, char const* name/* = "HLT"*/, bool active/* = true*/) : 
   BaseFiller(cfg, os, name, active),
   hltEvtToken_(), // set below
-  triggerObjectsToken_(GetToken<pat::TriggerObjectStandAloneCollection>(collector, "hltObjsEdmName", "")),
+  triggerObjectsToken_(GetToken<pat::TriggerObjectStandAloneCollection>(collector, cfg, "hltObjsEdmName", "")),
   hltResToken_(), // set below
-  l1GtMenuLiteTag_(Conf().getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite")),
-  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, "l1GtReadRecEdmName", "")),
-  hltProcName_(Conf().getUntrackedParameter<std::string>("hltProcName", "")),
-  hltTreeName_(Conf().getUntrackedParameter<std::string>("hltTreeMitName", mithep::Names::gkHltTreeName)),
-  hltTableName_(Conf().getUntrackedParameter<std::string>("hltTableMitName", mithep::Names::gkHltTableBrn)),
-  hltLabelName_(Conf().getUntrackedParameter<std::string>("hltLabelMitName", mithep::Names::gkHltLabelBrn)),
-  hltMenuName_(Conf().getUntrackedParameter<std::string>("hltMenuMitName", mithep::Names::gkHltMenuBrn)),
-  hltBitsName_(Conf().getUntrackedParameter<std::string>("hltBitsMitName", mithep::Names::gkHltBitBrn)),
-  hltObjsName_(Conf().getUntrackedParameter<std::string>("hltObjsMitName", mithep::Names::gkHltObjBrn)),
+  l1GtMenuLiteTag_(cfg.getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite")),
+  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", "")),
+  hltProcName_(cfg.getUntrackedParameter<std::string>("hltProcName", "")),
+  hltTreeName_(cfg.getUntrackedParameter<std::string>("hltTreeMitName", mithep::Names::gkHltTreeName)),
+  hltTableName_(cfg.getUntrackedParameter<std::string>("hltTableMitName", mithep::Names::gkHltTableBrn)),
+  hltLabelName_(cfg.getUntrackedParameter<std::string>("hltLabelMitName", mithep::Names::gkHltLabelBrn)),
+  hltMenuName_(cfg.getUntrackedParameter<std::string>("hltMenuMitName", mithep::Names::gkHltMenuBrn)),
+  hltBitsName_(cfg.getUntrackedParameter<std::string>("hltBitsMitName", mithep::Names::gkHltBitBrn)),
+  hltObjsName_(cfg.getUntrackedParameter<std::string>("hltObjsMitName", mithep::Names::gkHltObjBrn)),
   tws_(0),
   hltEntry_(-1),
   hltMenuMap_(),
@@ -38,10 +38,10 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   hltRels_(new mithep::TriggerObjectRelArr),
   hltTree_(0),
   hltConfig_(),
-  l1Active_(Conf().getUntrackedParameter<bool>("l1Active", true)),
+  l1Active_(cfg.getUntrackedParameter<bool>("l1Active", true)),
   l1GtUtils_(),
-  l1TBitsName_(Conf().getUntrackedParameter<string>("l1TechBitsMitName", mithep::Names::gkL1TechBitsBrn)),
-  l1ABitsName_(Conf().getUntrackedParameter<string>("l1AlgoBitsMitName", mithep::Names::gkL1AlgoBitsBrn)),
+  l1TBitsName_(cfg.getUntrackedParameter<string>("l1TechBitsMitName", mithep::Names::gkL1TechBitsBrn)),
+  l1ABitsName_(cfg.getUntrackedParameter<string>("l1AlgoBitsMitName", mithep::Names::gkL1AlgoBitsBrn)),
   l1TBits_(l1Active_ ? new mithep::L1TriggerMask : 0),
   l1ABits_(l1Active_ ? new mithep::L1TriggerMask : 0),
   l1TBits2_(l1Active_ ? new mithep::L1TriggerMask : 0),
@@ -51,7 +51,7 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   fileNum_(0)
 {
   // Constructor.
-  std::string hltResName(Conf().getUntrackedParameter<std::string>("hltResEdmName", "TriggerResults"));  
+  std::string hltResName(cfg.getUntrackedParameter<std::string>("hltResEdmName", "TriggerResults"));  
      
   //force a particular process name for trigger output if required
   //otherwise the trigger results last stored will be used (behavior dictated in the CMSSW framework)
@@ -70,7 +70,7 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
 
   hltResToken_ = collector.consumes<edm::TriggerResults>(edm::InputTag(hltResName));
 
-  std::string hltEvtName(Conf().getUntrackedParameter<std::string>("hltEvtEdmName", "hltTriggerSummaryAOD"));
+  std::string hltEvtName(cfg.getUntrackedParameter<std::string>("hltEvtEdmName", "hltTriggerSummaryAOD"));
   
   if (!hltEvtName.empty()) {
     if (!triggerObjectsToken_.isUninitialized())
@@ -341,16 +341,18 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
   GetProduct(hltResToken_, hTriggerResultsHLT, event);
   auto& triggerResultsHLT = *hTriggerResultsHLT;
 
-  if (verify_)
-    assert(triggerResultsHLT.size() == hltConfig_.size());
+  if (triggerResultsHLT.size() != hltConfig_.size())
+    throw edm::Exception(edm::errors::LogicError, "FillerTrigger::FillHlt")
+      << "triggerResults and hltConfig size do not match";
 
   // new bitmask
   mithep::BitMask1024 maskhlt;
 
   // loop over trigger paths
   for (unsigned iPath = 0; iPath != hltConfig_.size(); ++iPath) {
-    if (verify_) 
-      assert(iPath == hltConfig_.triggerIndex(hltConfig_.triggerName(iPath)));
+    if (iPath != hltConfig_.triggerIndex(hltConfig_.triggerName(iPath)))
+      throw edm::Exception(edm::errors::LogicError, "FillerTrigger::FillHlt")
+        << "Path index from hltConfig does not match";
 
     if (triggerResultsHLT.accept(iPath))
       maskhlt.SetBit(iPath);

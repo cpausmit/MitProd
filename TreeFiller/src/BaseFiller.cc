@@ -1,67 +1,45 @@
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 #include "MitProd/TreeFiller/interface/BaseFiller.h"
+
 #include "MitAna/DataTree/interface/BranchName.h"
 #include "MitAna/DataTree/interface/BranchTable.h"
 #include "MitAna/DataTree/interface/Names.h"
-#include "MitProd/TreeFiller/interface/FillMitTree.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include <TSystem.h>
 #include <TError.h>
 
-using namespace std;
-using namespace edm;
-using namespace mithep;
-
-//--------------------------------------------------------------------------------------------------
-BaseFiller::BaseFiller(const ParameterSet &cfg, ObjectService* os, const char *name, bool active) :
+mithep::BaseFiller::BaseFiller(edm::ParameterSet const& cfg, mithep::ObjectService* os, char const* name, bool active) :
   name_(name),
-  brtname_(cfg.getUntrackedParameter<string>("brTabName",Names::gkBranchTable)),
-  config_(cfg.exists(name) ? cfg.getUntrackedParameter<ParameterSet>(name) : ParameterSet()),
-  active_(config_.getUntrackedParameter<bool>("active",active)),
-  verify_(config_.getUntrackedParameter<bool>("verify",false)),
-  verbose_(config_.getUntrackedParameter<int>("verbose",0)),
+  active_(cfg.getUntrackedParameter<bool>("active", active)),
+  verbose_(cfg.getUntrackedParameter<int>("verbose", 0)),
   brtable_(0),
   os_(os)
 {
-  // Constructor.
 }
 
-//--------------------------------------------------------------------------------------------------
-void BaseFiller::AddBranchDep(const char *n, const char *d)
+void
+mithep::BaseFiller::AddBranchDep(std::string const& name, std::string const& dep)
 {
   // Add dependency between to given branch names to branch table if present.
 
-  if (!n || !d)
+  if (name.empty() || dep.empty())
     return;
 
   if (!brtable_) {
-    brtable_ = OS()->mod<BranchTable>(brtname_.c_str());
+    brtable_ = OS()->mod<BranchTable>(mithep::Names::gkBranchTable);
     if (!brtable_)
       return; 
   }
 
-  std::string nstr(n);
-  if (nstr.empty())
-    return;
-
-  std::string dstr(d);
-  if (dstr.empty())
-    return;
-
-  if (!brtable_->Find(n,d))
-    brtable_->Add(new BranchName(n,d));
+  if (!brtable_->Find(name.c_str(), dep.c_str()))
+    brtable_->Add(new BranchName(name.c_str(), dep.c_str()));
 }
 
-//--------------------------------------------------------------------------------------------------
-void BaseFiller::PrintErrorAndExit(const char *msg) const
+void
+mithep::BaseFiller::PrintErrorAndExit(std::string const& msg) const
 {
-  // Print error message, and then terminate.
-
-  Error("PrintErrorAndExit", msg);
+  Error("PrintErrorAndExit", msg.c_str());
   gSystem->Exit(1);
 }
-
 
 
 mithep::BaseFiller*
@@ -77,7 +55,7 @@ mithep::FillerFactoryStore::makeFiller(char const* className, edm::ParameterSet 
 
 /*static*/
 mithep::FillerFactoryStore*
-FillerFactoryStore::singleton()
+mithep::FillerFactoryStore::singleton()
 {
   static FillerFactoryStore fillerFactoryStore;
   return &fillerFactoryStore;

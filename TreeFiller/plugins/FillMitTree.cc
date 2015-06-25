@@ -199,17 +199,17 @@ mithep::FillMitTree::configure(edm::ParameterSet const& cfg)
 
   // loop over psets
   for (auto&& name : pars) {
-    std::string ftype("Filler" + name);
-    if (cfg.existsAs<edm::ParameterSet>(name, 0)) {
-      auto& next = cfg.getUntrackedParameterSet(name);
-
-      if (!next.exists("fillerType")) {
-        edm::LogError("FillMitTree") << "Cannot determine fillerType for pset named " << name;
+    if (!cfg.existsAs<edm::ParameterSet>(name, 0))
         throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure")
-          << "Cannot determine fillerType for pset named " << name;
-      }
-      ftype = next.getUntrackedParameter<std::string>("fillerType");
-    }
+          << "No configuration for " << name << " found";
+
+    auto& fillerCfg = cfg.getUntrackedParameterSet(name);
+
+    if (!fillerCfg.exists("fillerType"))
+      throw edm::Exception(edm::errors::Configuration, "FillMitTree::configure")
+        << "Cannot determine fillerType for pset named " << name;
+
+    std::string ftype(fillerCfg.getUntrackedParameter<std::string>("fillerType"));
 
     edm::LogInfo("FillMitTree") << "Attempting to configure '" << ftype 
                                 << "' for '" << name << "'";
@@ -217,7 +217,7 @@ mithep::FillMitTree::configure(edm::ParameterSet const& cfg)
     BaseFiller* filler = 0;
 
     try {
-      filler = mithep::FillerFactoryStore::singleton()->makeFiller(ftype.c_str(), cfg, collector, os_, name.c_str(), defactive_);
+      filler = mithep::FillerFactoryStore::singleton()->makeFiller(ftype.c_str(), fillerCfg, collector, os_, name.c_str(), defactive_);
     }
     catch (std::exception& ex) {
       edm::LogError("FIllMitTree") << "Configuration error in " << ftype << "::" << name;

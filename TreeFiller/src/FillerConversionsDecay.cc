@@ -24,15 +24,15 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerConversionsDecay::FillerConversionsDecay(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::ConversionCollection>(collector, "edmName","conversions")),
-  beamspotToken_(GetToken<reco::BeamSpot>(collector, "beamspotName", "offlineBeamSpot")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","Conversions")),
-  checkTrackRef_(Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
+  edmToken_(GetToken<reco::ConversionCollection>(collector, cfg, "edmName","conversions")),
+  beamspotToken_(GetToken<reco::BeamSpot>(collector, cfg, "beamspotName", "offlineBeamSpot")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName","Conversions")),
+  checkTrackRef_(cfg.getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
   stableDataName_(mitName_ + "_StableDatas"),  
-  stablePartMapNames_(Conf().exists("stablePartMaps") ? 
-		      Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
+  stablePartMapNames_(cfg.exists("stablePartMaps") ? 
+		      cfg.getUntrackedParameter<vector<string> >("stablePartMaps") : 
 		      vector<string>()),
-  conversionMapName_(Conf().getUntrackedParameter<string>("conversionMapName",
+  conversionMapName_(cfg.getUntrackedParameter<string>("conversionMapName",
                                                           Form("%sMapName",mitName_.c_str()))),
   decays_(new mithep::DecayParticleArr(250)),
   stableData_(new mithep::StableDataArr(500)),

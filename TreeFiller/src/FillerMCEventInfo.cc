@@ -16,14 +16,14 @@
 //--------------------------------------------------------------------------------------------------
 mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) : 
   BaseFiller(cfg, os, "MCEventInfo", active), 
-  evtName_(Conf().getUntrackedParameter<std::string>("evtName", Names::gkMCEvtInfoBrn)), 
-  runName_(Conf().getUntrackedParameter<std::string>("runName", Names::gkMCRunInfoBrn)), 
-  genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, "genHepMCEventEdmName", "generator")), 
-  genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, "genEvtInfoEdmName", "generator")), 
-  lheEventToken_(GetToken<LHEEventProduct>(collector, "lheEventEdmName", "externalLHEProducer")),
-  lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, "lheRunInfoEdmName", "externalLHEProducer")),
-  flavorHistToken_(GetToken<unsigned>(collector, "flavorHistEdmName", "flavorHistoryFilter")), 
-  flavorHistoryActive_(Conf().getUntrackedParameter<bool>("flavorHistoryActive", false)), 
+  evtName_(cfg.getUntrackedParameter<std::string>("evtName", Names::gkMCEvtInfoBrn)), 
+  runName_(cfg.getUntrackedParameter<std::string>("runName", Names::gkMCRunInfoBrn)), 
+  genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, cfg, "genHepMCEventEdmName", "generator")), 
+  genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, cfg, "genEvtInfoEdmName", "generator")), 
+  lheEventToken_(GetToken<LHEEventProduct>(collector, cfg, "lheEventEdmName", "externalLHEProducer")),
+  lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, cfg, "lheRunInfoEdmName", "externalLHEProducer")),
+  flavorHistToken_(GetToken<unsigned>(collector, cfg, "flavorHistEdmName", "flavorHistoryFilter")), 
+  flavorHistoryActive_(cfg.getUntrackedParameter<bool>("flavorHistoryActive", false)), 
   eventInfo_(new mithep::MCEventInfo()), 
   runInfo_(new mithep::MCRunInfo()),
   weightIds_()

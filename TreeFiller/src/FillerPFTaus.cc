@@ -8,23 +8,23 @@
 template<class TAU>
 mithep::FillerPFTaus<TAU>::FillerPFTaus(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
-  hpsActive_(Conf().getUntrackedParameter("hpsActive", false)),
-  edmToken_(GetToken<TauCollection>(collector, "edmName")),
+  hpsActive_(cfg.getUntrackedParameter("hpsActive", false)),
+  edmToken_(GetToken<TauCollection>(collector, cfg, "edmName")),
   hpsTokens_{},
   hpsNames_{},
-  mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
-  trackMapNames_(Conf().getUntrackedParameter("trackMapNames", std::vector<std::string>())),
-  jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("JetMapName"))),
-  pfCandMapName_(Conf().getUntrackedParameter("pfCandMapName", std::string())),
-  tauMapName_(Conf().getUntrackedParameter("tauMapName", std::string())),
-  allowMissingTrackRef_(Conf().getUntrackedParameter("allowMissingTrackRef", false)),
+  mitName_(cfg.getUntrackedParameter("mitName", std::string(Names::gkPFTauBrn))),
+  trackMapNames_(cfg.getUntrackedParameter("trackMapNames", std::vector<std::string>())),
+  jetMapName_(cfg.getUntrackedParameter("jetMapName", std::string("JetMapName"))),
+  pfCandMapName_(cfg.getUntrackedParameter("pfCandMapName", std::string())),
+  tauMapName_(cfg.getUntrackedParameter("tauMapName", std::string())),
+  allowMissingTrackRef_(cfg.getUntrackedParameter("allowMissingTrackRef", false)),
   jetMap_(0),
   pfCandMap_(0),
   tauMap_(new mithep::PFTauMap),
   taus_(new mithep::PFTauArr(16))
 {
   for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
-    hpsNames_[iD] = Conf().getUntrackedParameter(std::string(mithep::PFTau::PFTauDiscriminatorName(iD)) + "Name", std::string(""));
+    hpsNames_[iD] = cfg.getUntrackedParameter(std::string(mithep::PFTau::PFTauDiscriminatorName(iD)) + "Name", std::string(""));
     if (!hpsNames_[iD].empty())
       hpsTokens_[iD] = collector.consumes<reco::PFTauDiscriminator>(hpsNames_[iD]);
   }

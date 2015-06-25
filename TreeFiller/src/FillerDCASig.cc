@@ -25,22 +25,22 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerDCASig::FillerDCASig(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller            (cfg,os,name,active),
-  edmElectronToken_     (GetToken<GsfElectronView>(collector, "edmElectronName","gsfElectrons")),
-  edmMuonToken_         (GetToken<MuonView>(collector, "edmMuonName",    "muons")),
-  edmTauToken_          (GetToken<BaseTauView>(collector, "edmTauName",     "hpsPFTauProducer")),
+  edmElectronToken_     (GetToken<GsfElectronView>(collector, cfg, "edmElectronName","gsfElectrons")),
+  edmMuonToken_         (GetToken<MuonView>(collector, cfg, "edmMuonName",    "muons")),
+  edmTauToken_          (GetToken<BaseTauView>(collector, cfg, "edmTauName",     "hpsPFTauProducer")),
   edmTauType_           (nTauTypes),
-  mitName_              (Conf().getUntrackedParameter<string>("mitName",        "DCASig")),
-  electronMapName_      (Conf().getUntrackedParameter<string>("electronMapName","")),
-  muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName",    "")),
-  tauMapName_           (Conf().getUntrackedParameter<string>("tauMapName",     "")),
-  electronPtMin_        (Conf().getUntrackedParameter<double>("electronPtMin",  5.)),
-  muonPtMin_            (Conf().getUntrackedParameter<double>("muonPtMin",      5.)),
-  tauPtMin_             (Conf().getUntrackedParameter<double>("tauPtMin",       10.)),
-  checkDCARef_          (Conf().getUntrackedParameter<bool>("checkDCARef",      "False")),
+  mitName_              (cfg.getUntrackedParameter<string>("mitName",        "DCASig")),
+  electronMapName_      (cfg.getUntrackedParameter<string>("electronMapName","")),
+  muonMapName_          (cfg.getUntrackedParameter<string>("muonMapName",    "")),
+  tauMapName_           (cfg.getUntrackedParameter<string>("tauMapName",     "")),
+  electronPtMin_        (cfg.getUntrackedParameter<double>("electronPtMin",  5.)),
+  muonPtMin_            (cfg.getUntrackedParameter<double>("muonPtMin",      5.)),
+  tauPtMin_             (cfg.getUntrackedParameter<double>("tauPtMin",       10.)),
+  checkDCARef_          (cfg.getUntrackedParameter<bool>("checkDCARef",      "False")),
   DCASigs_              (new mithep::DCASigArr),
   transientTrackBuilder_(0)
 {
-  std::string tauType(Conf().getUntrackedParameter<std::string>("edmTauType", "PFTau"));
+  std::string tauType(cfg.getUntrackedParameter<std::string>("edmTauType", "PFTau"));
   if (tauType == "PFTau")
     edmTauType_ = kPFTau;
   else if (tauType == "PATTau")

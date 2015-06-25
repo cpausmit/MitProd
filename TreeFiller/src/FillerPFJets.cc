@@ -16,31 +16,31 @@
 template<class JET>
 mithep::FillerPFJets<JET>::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  flavorMatchingActive_(Conf().getUntrackedParameter("flavorMatchingActive", true)),
-  bTaggingActive_(Conf().getUntrackedParameter("bTaggingActive", true)),
-  jetToVertexActive_(Conf().getUntrackedParameter("jetToVertexActive", true)),
-  jetCorrectionsActive_(Conf().getUntrackedParameter("jetCorrectionsActive", true)),
-  fastJetCorrectionsActive_(Conf().getUntrackedParameter("fastJetCorrectionsActive", false)),
-  edmToken_(GetToken<JetCollection>(collector, "edmName", "recoPFJets:iterativeCone5PFJets")),
-  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, "jetToVertexAlphaName", "jetToVertexAlpha")),
-  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, "jetToVertexBetaName", "jetToVertexBetaName")),
-  rhoToken_(GetToken<double>(collector, "rhoName")),
-  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
+  flavorMatchingActive_(cfg.getUntrackedParameter("flavorMatchingActive", true)),
+  bTaggingActive_(cfg.getUntrackedParameter("bTaggingActive", true)),
+  jetToVertexActive_(cfg.getUntrackedParameter("jetToVertexActive", true)),
+  jetCorrectionsActive_(cfg.getUntrackedParameter("jetCorrectionsActive", true)),
+  fastJetCorrectionsActive_(cfg.getUntrackedParameter("fastJetCorrectionsActive", false)),
+  edmToken_(GetToken<JetCollection>(collector, cfg, "edmName", "recoPFJets:iterativeCone5PFJets")),
+  jetToVertexAlphaToken_(GetToken<std::vector<double> >(collector, cfg, "jetToVertexAlphaName", "jetToVertexAlpha")),
+  jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, cfg, "jetToVertexBetaName", "jetToVertexBetaName")),
+  rhoToken_(GetToken<double>(collector, cfg, "rhoName")),
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, cfg, "flavorMatchingByReferenceName", "srcByReference")),
   bJetTagsToken_{},
   bJetTagsName_{},
   bJetTags_{},
-  mitName_(Conf().getUntrackedParameter("mitName", std::string("ItrCone5PFJets"))), 
-  L2JetCorrectorName_(Conf().getUntrackedParameter("L2JetCorrectorName", std::string("L2JetCorrectorName"))),
-  L3JetCorrectorName_(Conf().getUntrackedParameter("L3JetCorrectorName", std::string("L3JetCorrectorName"))),
-  flavorMatchingDefinition_(Conf().getUntrackedParameter("flavorMatchingDefinition", std::string("Algorithmic"))),
-  pfCandMapName_(Conf().getUntrackedParameter("pfCandMapName", std::string("pfCandMapName"))),
+  mitName_(cfg.getUntrackedParameter("mitName", std::string("ItrCone5PFJets"))), 
+  L2JetCorrectorName_(cfg.getUntrackedParameter("L2JetCorrectorName", std::string("L2JetCorrectorName"))),
+  L3JetCorrectorName_(cfg.getUntrackedParameter("L3JetCorrectorName", std::string("L3JetCorrectorName"))),
+  flavorMatchingDefinition_(cfg.getUntrackedParameter("flavorMatchingDefinition", std::string("Algorithmic"))),
+  pfCandMapName_(cfg.getUntrackedParameter("pfCandMapName", std::string("pfCandMapName"))),
   pfCandMap_(0),
-  jetMapName_(Conf().getUntrackedParameter("jetMapName", std::string("PFJetMap"))),
+  jetMapName_(cfg.getUntrackedParameter("jetMapName", std::string("PFJetMap"))),
   jetMap_(new mithep::PFJetMap),
   jets_(new mithep::PFJetArr(16))
 {
   for (unsigned iA = 0; iA != mithep::Jet::nBTagAlgos; ++iA) {
-    bJetTagsName_[iA] = Conf().getUntrackedParameter(mithep::Jet::BTagAlgoName(iA) + std::string("BJetTagsName"), std::string(""));
+    bJetTagsName_[iA] = cfg.getUntrackedParameter(mithep::Jet::BTagAlgoName(iA) + std::string("BJetTagsName"), std::string(""));
     if (!bJetTagsName_[iA].empty())
       bJetTagsToken_[iA] = collector.consumes<reco::JetTagCollection>(bJetTagsName_[iA]);
   }

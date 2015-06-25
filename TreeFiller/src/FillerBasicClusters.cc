@@ -19,11 +19,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerBasicClusters::FillerBasicClusters(const ParameterSet &cfg, ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::CaloClusterCollection>(collector, "edmName", "hybridSuperClusters")),
-  barrelEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "barrelEcalRecHitName","")),
-  endcapEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, "endcapEcalRecHitName","")),
-  mitName_             (Conf().getUntrackedParameter<string>("mitName","BasicClusters")),
-  basicClusterMapName_ (Conf().getUntrackedParameter<string>("basicClusterMapName",
+  edmToken_(GetToken<reco::CaloClusterCollection>(collector, cfg, "edmName", "hybridSuperClusters")),
+  barrelEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, cfg, "barrelEcalRecHitName","")),
+  endcapEcalRecHitToken_(GetToken<EcalRecHitCollection>(collector, cfg, "endcapEcalRecHitName","")),
+  mitName_             (cfg.getUntrackedParameter<string>("mitName","BasicClusters")),
+  basicClusterMapName_ (cfg.getUntrackedParameter<string>("basicClusterMapName",
 							     "BasicClusterMap")),
   basicClusters_       (new mithep::BasicClusterArr(100)),
   basicClusterMap_     (new mithep::BasicClusterMap)
