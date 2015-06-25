@@ -104,10 +104,10 @@ mithep::FillMitTree::analyze(edm::Event const& event,
   //tree writer begin event actions
   tws_->BeginEvent(kTRUE);
 
-  // first step: Loop over the data fillers of the various components
+  // first step: Loop over the data fillers of the filler modules
   for (auto filler : fillers_) {
     try {
-      filler->FillDataBlock(event,setup);
+      filler->FillDataBlock(event, setup);
     }
     catch (std::exception&) {
       edm::LogError("Exception") << "Exception in " << filler->Name() << "::FillDataBlock()";
@@ -115,10 +115,10 @@ mithep::FillMitTree::analyze(edm::Event const& event,
     }
   }
 
-  // second step: Loop over the link resolution of the various components
+  // second step: Loop over the link resolution of the filler modules
   for (auto filler : fillers_) {
     try {
-      filler->ResolveLinks(event,setup);
+      filler->ResolveLinks(event, setup);
     }
     catch (std::exception&) {
       edm::LogError("Exception") << "Exception in " << filler->Name() << "::ResolveLinks()";
@@ -163,7 +163,7 @@ mithep::FillMitTree::beginJob()
                         mithep::LAHeader::Class()->GetName(), &evtLAHeader_);
   os_->add(evtLAHeader_, mithep::Names::gkLAHeaderBrn);
 
-  // loop over the various components and book the branches
+  // loop over the filler modules and book the branches
   for (auto filler : fillers_) {
     edm::LogInfo("FillMitTree::beginJob") << "Booking for " << filler->Name();
     try {
@@ -171,6 +171,18 @@ mithep::FillMitTree::beginJob()
     }
     catch (std::exception&) {
       edm::LogError("Exception") << "Exception in " << filler->Name() << "::BookDataBlock()";
+      throw;
+    }
+  }
+
+  // loop over the filler modules and prepare cross references (get maps from ObjectService)
+  for (auto filler : fillers_) {
+    edm::LogInfo("FillMitTree::beginJob") << "Preparing refs for " << filler->Name();
+    try {
+      filler->PrepareLinks();
+    }
+    catch (std::exception&) {
+      edm::LogError("Exception") << "Exception in " << filler->Name() << "::PrepareLinks()";
       throw;
     }
   }

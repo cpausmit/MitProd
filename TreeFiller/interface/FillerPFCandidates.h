@@ -24,7 +24,9 @@ namespace mithep
       ~FillerPFCandidates();
 
       void BookDataBlock(TreeWriter&) override;
+      void PrepareLinks() override;
       void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+      void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     private:
 
@@ -48,7 +50,7 @@ namespace mithep
       bool                           allowMissingPhotonRef_;     //allow missing photon ref (tau emb)
       bool                           fillPfNoPileup_;
 
-      std::vector<const mithep::TrackMap*>
+      std::vector<mithep::TrackMap const*>
                                      trackerTrackMaps_;         //maps wrt tracker tracks
       const mithep::TrackMap        *gsfTrackMap_;              //map wrt pf gsf tracks
       const mithep::MuonMap         *muonMap_;                  //map wrt muons

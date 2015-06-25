@@ -28,8 +28,10 @@ namespace mithep
     FillerPhotons(edm::ParameterSet const&, edm::ConsumesCollector&, mithep::ObjectService*, char const*, bool = true);
     ~FillerPhotons();
 
-    void BookDataBlock(mithep::TreeWriter &) override;
+    void BookDataBlock(mithep::TreeWriter&) override;
+    void PrepareLinks() override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::Photon> PhotonView;
     typedef std::vector<reco::PFCandidateRef> PFCandRefV;

@@ -60,11 +60,26 @@ mithep::FillerPhotons::~FillerPhotons()
 void
 mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
 {
-  // Add photon branch to tree and get the map.
+  // Add photon branch to tree
 
   tws.AddBranch(mitName_, &photons_);
   OS()->add(photons_, mitName_);
 
+  if (!photonMapName_.empty()) {
+    photonMap_->SetBrName(mitName_);
+    OS()->add(photonMap_, photonMapName_);
+  }
+
+  if (fillFromPAT_ && !photonPFMapName_.empty()) {
+    photonPFMap_ = new mithep::CandidateMap;
+    photonPFMap_->SetBrName(mitName_);
+    OS()->add(photonPFMap_, photonPFMapName_);
+  }
+}
+
+void
+mithep::FillerPhotons::PrepareLinks()
+{
   if (!conversionMapName_.empty()) {
     conversionMap_ = OS()->get<ConversionDecayMap>(conversionMapName_);
     if (conversionMap_)
@@ -97,21 +112,8 @@ mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
   }
   if (!pfCandidateMapName_.empty()) {
     pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
-    std::cout << pfCandidateMapName_ << std::endl;
     if (pfCandidateMap_)
       AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
-    std::cout << pfCandidateMap_ << std::endl;
-  }
-
-  if (!photonMapName_.empty()) {
-    photonMap_->SetBrName(mitName_);
-    OS()->add(photonMap_, photonMapName_);
-  }
-
-  if (fillFromPAT_ && !photonPFMapName_.empty()) {
-    photonPFMap_ = new mithep::CandidateMap;
-    photonPFMap_->SetBrName(mitName_);
-    OS()->add(photonPFMap_, photonPFMapName_);
   }
 }
 
@@ -151,7 +153,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
   // handles to get the photon ID information
   edm::ValueMap<bool> const* phidLooseMap = 0;
   edm::ValueMap<bool> const* phidTightMap = 0;
-  edm::ValueMap<PFCandRefV> const* footprintMap = 0;
   if (!fillFromPAT_) {
     edm::Handle<edm::ValueMap<bool> > hPhidLooseMap;
     if (GetProductSafe(phIDCutBasedLooseToken_, hPhidLooseMap, event))
@@ -159,11 +160,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     edm::Handle<edm::ValueMap<bool> > hPhidTightMap;
     if (GetProductSafe(phIDCutBasedTightToken_, hPhidTightMap, event))
       phidTightMap = hPhidTightMap.product();
-    if (pfCandidateMap_) {
-      edm::Handle<edm::ValueMap<PFCandRefV> > hFootprintMap;
-      GetProduct(footprintToken_, hFootprintMap, event);
-      footprintMap = hFootprintMap.product();
-    }
   }
 
   unsigned iPhoton = 0;
@@ -320,6 +316,37 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
       outPhoton->SetMatchHeMinusTimeDR15(matchedRhTime);
     }
 
+    // add photon to map
+    photonMap_->Add(phPtr, outPhoton);
+
+    if (photonPFMap_) {
+      auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
+
+      unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
+      for (unsigned iS = 0; iS != nS; ++iS)
+        photonPFMap_->Add(patPhoton.sourceCandidatePtr(iS), outPhoton);
+    }
+  }
+
+  photons_->Trim();
+}
+
+void
+mithep::FillerPhotons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+{
+  edm::ValueMap<PFCandRefV> const* footprintMap = 0;
+
+  if (!fillFromPAT_ && pfCandidateMap_) {
+    edm::Handle<edm::ValueMap<PFCandRefV> > hFootprintMap;
+    GetProduct(footprintToken_, hFootprintMap, event);
+    footprintMap = hFootprintMap.product();
+  }
+
+  for (auto& mapElem : photonMap_->FwdMap()) {
+    auto& phPtr = mapElem.first;
+    auto& inPhoton = static_cast<reco::Photon const&>(*phPtr);
+    auto* outPhoton = mapElem.second;
+
     // make links to conversions
     if (conversionMap_) {
       for (auto&& convRef : inPhoton.conversions()) {
@@ -339,7 +366,8 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     }
 
     // make link to supercluster
-    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && sc) {
+    auto&& scRef = inPhoton.superCluster();
+    if (barrelSuperClusterMap_ && endcapSuperClusterMap_ && scRef.isAvailable()) {
       auto* mitSC = barrelSuperClusterMap_->GetMit(scRef, false);
       if (!mitSC)
         mitSC = endcapSuperClusterMap_->GetMit(scRef, false);
@@ -379,27 +407,13 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
       }
       else { // footprintMap must exist
         auto& footprint = (*footprintMap)[phPtr];
-        std::cout << "filling footprint" << std::endl;
         for (auto& candRef : footprint) {
-          std::cout << candRef->pt() << std::endl;
           auto* mitCand = pfCandidateMap_->GetMit(reco::CandidatePtr(edm::refToPtr(candRef)));
           outPhoton->AddFootprintCandidate(mitCand);
         }
       }
     }
-
-    // add photon to map
-    photonMap_->Add(phPtr, outPhoton);
-
-    if (photonPFMap_) {
-      auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
-
-      unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
-      for (unsigned iS = 0; iS != nS; ++iS)
-        photonPFMap_->Add(patPhoton.sourceCandidatePtr(iS), outPhoton);
-    }
   }
-  photons_->Trim();
 }
 
 void

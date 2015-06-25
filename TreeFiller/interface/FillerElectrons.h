@@ -22,6 +22,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionInfo.h"
 
 namespace mithep
 {
@@ -32,7 +33,9 @@ namespace mithep
     ~FillerElectrons();
 
     void BookDataBlock(mithep::TreeWriter &) override;
+    void PrepareLinks() override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::GsfElectron> GsfElectronView;                 //using View to deal with PAT electrons
     typedef std::vector<reco::PFCandidateRef> PFCandRefV;
@@ -77,6 +80,7 @@ namespace mithep
     mithep::SuperClusterMap const* pfEcalBarrelSuperClusterMap_;     //map wrt pflow super clusters
     mithep::SuperClusterMap const* pfEcalEndcapSuperClusterMap_;     //map wrt pflow super clusters
     mithep::PFCandidateMap const*  pfCandidateMap_;
+    std::map<mithep::Electron*, ConversionInfo> conversionInfoStore_; //temporary storage to avoid recomputing conversionInfo in FillDataBlock and ResolveRefs
   };
 }
 #endif
