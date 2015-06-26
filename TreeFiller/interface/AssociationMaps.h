@@ -78,6 +78,7 @@ namespace mithep
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>          MuonMap;
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Electron*>      ElectronMap;
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Track*>         ElectronTrackMap;
+  typedef AssociationMap<const edm::Ptr<reco::Muon>, mithep::Track*>                MuonTrackMap;
   typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::BaseTau>,     mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::CandidatePtr,          mithep::PFCandidate*>   PFCandidateMap;

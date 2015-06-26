@@ -18,6 +18,13 @@ def configureForMiniAOD(treeFiller):
 #        #'PsClusters', # GED preshower clusters are of type CaloClusterCollection - either FillerPsClusters or FillerBasicClusters must be updated
         'SuperClusters',
         'GeneralTracks',
+        'MuonTracks', # miniAOD-specific
+        'StandaloneMuonTracks',
+        'GlobalMuonTracks',
+        'FirstHitMuonTracks',
+        'PickyMuonTracks',
+        'DYTMuonTracks',
+        'ElectronTracks', # miniAOD-specific
         'GsfTracks',
         'PrimaryVertexes',
         'Muons',
@@ -62,8 +69,41 @@ def configureForMiniAOD(treeFiller):
     treeFiller.GeneralTracks.edmName = 'unpackedTracksAndVertices'
     treeFiller.GeneralTracks.edmSimAssociationName = ''
 
+    treeFiller.MuonTracks = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        sourceType = cms.untracked.uint32(3),
+        mitName = cms.untracked.string('MuonTracks'),
+        edmName = cms.untracked.string('slimmedMuons'),
+        trackMapName = cms.untracked.string('MuonTracksMapName'),
+        fillerType = cms.untracked.string('FillerTracks')
+    )
+
+    treeFiller.StandaloneMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.StandaloneMuonTracks.sourceType = 4
+
+    treeFiller.GlobalMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.GlobalMuonTracks.sourceType = 5
+
+    treeFiller.FirstHitMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.FirstHitMuonTracks.sourceType = 6
+
+    treeFiller.PickyMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.PickyMuonTracks.sourceType = 7
+
+    treeFiller.DYTMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.DYTMuonTracks.sourceType = 8
+
+    treeFiller.ElectronTracks = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        sourceType = cms.untracked.uint32(2),
+        mitName = cms.untracked.string('ElectronTracks'),
+        edmName = cms.untracked.string('slimmedElectrons'),
+        trackMapName = cms.untracked.string('ElectronTracksMapName'),
+        fillerType = cms.untracked.string('FillerTracks')
+    )
+
     treeFiller.GsfTracks.edmName = 'slimmedElectrons'
-    treeFiller.GsfTracks.fromPATElectron = True
+    treeFiller.GsfTracks.sourceType = 1
 
     treeFiller.PrimaryVertexes.edmName = 'offlineSlimmedPrimaryVertices'
 
