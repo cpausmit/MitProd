@@ -35,6 +35,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     'GsfTracks',
     'PrimaryVertexes',
     'PrimaryVertexesBS',
+    'InclusiveSecondaryVertexes',
     'Muons',
     'CosmicMuons',
     'Electrons',
@@ -167,6 +168,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     mitName       = cms.untracked.string('PrimaryVertexesBeamSpot'),
     edmName       = cms.untracked.string('offlinePrimaryVerticesWithBS'),
     vertexMapName = cms.untracked.string('PrimaryVertexBSMap'),
+    trackMapName  = cms.untracked.string('TracksMapName'),
+    fillerType    = cms.untracked.string('FillerVertexes')
+  ),
+
+  InclusiveSecondaryVertexes = cms.untracked.PSet(
+    active        = cms.untracked.bool(True),
+    mitName       = cms.untracked.string('InclusiveSecondaryVertexes'),
+    edmName       = cms.untracked.string('inclusiveSecondaryVertices'),
+    vertexMapName = cms.untracked.string('InclusiveSecondaryVertexMap'),
     trackMapName  = cms.untracked.string('TracksMapName'),
     fillerType    = cms.untracked.string('FillerVertexes')
   ),
