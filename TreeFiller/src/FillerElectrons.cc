@@ -60,8 +60,9 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   electronPFMap_            (0),
   electrons_                (new mithep::ElectronArr(16)),
   gsfTrackMap_              (0),
-  gsfEleTrackMap_           (0),
   trackerTrackMap_          (0),
+  eleGsfTrackMap_           (0),
+  eleTrackerTrackMap_       (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
   pfEcalBarrelSuperClusterMap_(0),
@@ -99,42 +100,49 @@ mithep::FillerElectrons::BookDataBlock(TreeWriter &tws)
 void
 mithep::FillerElectrons::PrepareLinks()
 {
-  if (!gsfTrackMapName_.empty()) {
-    if (fillFromPAT_) {
-      gsfEleTrackMap_ = OS()->get<ElectronTrackMap>(gsfTrackMapName_);
-      if (gsfEleTrackMap_)
-        AddBranchDep(mitName_, gsfEleTrackMap_->GetBrName());
+  if (fillFromPAT_) {
+    if (!gsfTrackMapName_.empty()) {
+      eleGsfTrackMap_ = OS()->get<ElectronTrackMap>(gsfTrackMapName_);
+      if (eleGsfTrackMap_)
+        AddBranchDep(mitName_, eleGsfTrackMap_->GetBrName());
     }
-    else {
-      gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-      if (gsfTrackMap_)
-        AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    if (!trackerTrackMapName_.empty()) {
+      eleTrackerTrackMap_ = OS()->get<ElectronTrackMap>(trackerTrackMapName_);
+      if (eleTrackerTrackMap_)
+        AddBranchDep(mitName_, eleTrackerTrackMap_->GetBrName());
     }
   }
-  if (!trackerTrackMapName_.empty()) {
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-    if (trackerTrackMap_)
-      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+  else {
+    if (!gsfTrackMapName_.empty()) {
+      gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
+      if (gsfTrackMap_)
+        AddBranchDep(mitName_, gsfTrackMap_->GetBrName());
+    }
+    if (!trackerTrackMapName_.empty()) {
+      trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
+      if (trackerTrackMap_)
+        AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
+    }
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
     if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
     if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
   }
   if (!pfEcalBarrelSuperClusterMapName_.empty()) {
     pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
     if (pfEcalBarrelSuperClusterMap_)
-      AddBranchDep(mitName_,pfEcalBarrelSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
   }
   if (!pfEcalEndcapSuperClusterMapName_.empty()) {
     pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
     if (pfEcalEndcapSuperClusterMap_)
-      AddBranchDep(mitName_,pfEcalEndcapSuperClusterMap_->GetBrName());
+      AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
   if (!pfCandidateMapName_.empty()) {
     pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
@@ -558,17 +566,16 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
     footprintMap = hFootprintMap.product();
   }
 
+  // make proper links to Tracks and Super Clusters
+
   for (auto& mapElem : electronMap_->FwdMap()) {
     auto&& ePtr = mapElem.first;
     auto& inElectron = static_cast<reco::GsfElectron const&>(*ePtr);
     auto* outElectron = mapElem.second;
-    auto&& gsfTrackRef = inElectron.gsfTrack();
 
-    // make proper links to Tracks and Super Clusters
-    if (gsfTrackMap_) {
-      if (gsfTrackRef.isNonnull()) {
-        auto* trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef), false);
-
+    if (fillFromPAT_) {
+      if (eleGsfTrackMap_) {
+        auto* trk = eleGsfTrackMap_->GetMit(ePtr, false);
         if (trk)
           outElectron->SetGsfTrk(trk);
         else if (checkClusterActive_)
@@ -576,40 +583,48 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
             << "Error! GSF track unmapped collection";
       }
 
-      // make links to ambigous gsf tracks
-      for (auto&& agsfi = inElectron.ambiguousGsfTracksBegin(); agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
-        mithep::Track const* trk = gsfTrackMap_->GetMit(edm::refToPtr(*agsfi), false);
-
-        if (trk)
-          outElectron->AddAmbiguousGsfTrack(trk);
-        else if (checkClusterActive_)
-          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-            << "Error! Ambiguous GSF track unmapped collection";
-      }
-    }
-
-    if (gsfEleTrackMap_) {
-      auto* trk = gsfEleTrackMap_->GetMit(ePtr, false);
-
-      if (trk)
-        outElectron->SetGsfTrk(trk);
-      else if (checkClusterActive_)
-        throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-          << "Error! GSF track unmapped collection";
-    }
-
-    // make tracker track links
-    if (trackerTrackMap_) {
-      auto&& ctfTrackRef = inElectron.closestCtfTrackRef();
-
-      if (ctfTrackRef.isNonnull()) {
-        mithep::Track const* trk = trackerTrackMap_->GetMit(edm::refToPtr(ctfTrackRef), false);
-
+      if (eleTrackerTrackMap_) {
+        auto* trk = eleTrackerTrackMap_->GetMit(ePtr, false);
         if (trk)
           outElectron->SetTrackerTrk(trk);
         else if (checkClusterActive_)
           throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
             << "Error! Tracker track unmapped collection";
+      }
+    }
+    else {
+      if (gsfTrackMap_) {
+        auto&& gsfTrackRef = inElectron.gsfTrack();
+        if (gsfTrackRef.isNonnull()) {
+          auto* trk = gsfTrackMap_->GetMit(edm::refToPtr(gsfTrackRef), false);
+          if (trk)
+            outElectron->SetGsfTrk(trk);
+          else if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! GSF track unmapped collection";
+        }
+        // make links to ambigous gsf tracks
+        for (auto&& agsfi = inElectron.ambiguousGsfTracksBegin(); agsfi != inElectron.ambiguousGsfTracksEnd(); ++agsfi) {
+          mithep::Track const* trk = gsfTrackMap_->GetMit(edm::refToPtr(*agsfi), false);
+
+          if (trk)
+            outElectron->AddAmbiguousGsfTrack(trk);
+          else if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Ambiguous GSF track unmapped collection";
+        }
+      }
+      // make tracker track links
+      if (trackerTrackMap_) {
+        auto&& ctfTrackRef = inElectron.closestCtfTrackRef();
+        if (ctfTrackRef.isNonnull()) {
+          mithep::Track const* trk = trackerTrackMap_->GetMit(edm::refToPtr(ctfTrackRef), false);
+          if (trk)
+            outElectron->SetTrackerTrk(trk);
+          else if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Tracker track unmapped collection";
+        }
       }
     }
 

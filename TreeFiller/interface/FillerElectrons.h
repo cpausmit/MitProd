@@ -56,31 +56,32 @@ namespace mithep
     std::string eIDCutBasedTightName_;
     std::string eIDCutBasedLooseName_;
 
-    std::string                    mitName_;                   //mit name of Electrons collection
-    std::string                    electronMapName_;           //name of exported electron map
-    std::string                    electronPFMapName_;         //name of exported PF->electron map (PAT)
-    std::string                    gsfTrackMapName_;           //name of imported map wrt gsf trks
-    std::string                    trackerTrackMapName_;       //name of imported map wrt trk trks
-    std::string                    barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
-    std::string                    endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
-    bool                           checkClusterActive_;
-    std::string                    pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
-    std::string                    pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
-    std::string                    pfCandidateMapName_;
-    bool                           recomputeConversionInfo_;   //recompute conversion info
-    bool                           fitUnbiasedVertex_;         //recompute vertex position without electron
-    bool                           fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
-    mithep::ElectronMap*           electronMap_;               //exported electron map
-    mithep::CandidateMap*          electronPFMap_;             //exported PF->electron map
-    mithep::ElectronArr*           electrons_;                 //array of Electrons
-    mithep::TrackMap const*        gsfTrackMap_;               //map wrt gsf tracks
-    mithep::ElectronTrackMap const* gsfEleTrackMap_;           //map wrt gsf tracks (when filling from PAT)
-    mithep::TrackMap const*        trackerTrackMap_;           //map wrt tracker tracks
-    mithep::SuperClusterMap const* barrelSuperClusterMap_;     //map wrt barrel super clusters
-    mithep::SuperClusterMap const* endcapSuperClusterMap_;     //map wrt endcap super clusters
-    mithep::SuperClusterMap const* pfEcalBarrelSuperClusterMap_;     //map wrt pflow super clusters
-    mithep::SuperClusterMap const* pfEcalEndcapSuperClusterMap_;     //map wrt pflow super clusters
-    mithep::PFCandidateMap const*  pfCandidateMap_;
+    std::string                     mitName_;                   //mit name of Electrons collection
+    std::string                     electronMapName_;           //name of exported electron map
+    std::string                     electronPFMapName_;         //name of exported PF->electron map (PAT)
+    std::string                     gsfTrackMapName_;           //name of imported map wrt gsf trks
+    std::string                     trackerTrackMapName_;       //name of imported map wrt trk trks
+    std::string                     barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
+    std::string                     endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
+    bool                            checkClusterActive_;
+    std::string                     pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
+    std::string                     pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
+    std::string                     pfCandidateMapName_;
+    bool                            recomputeConversionInfo_;   //recompute conversion info
+    bool                            fitUnbiasedVertex_;         //recompute vertex position without electron
+    bool                            fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
+    mithep::ElectronMap*            electronMap_;               //exported electron map
+    mithep::CandidateMap*           electronPFMap_;             //exported PF->electron map
+    mithep::ElectronArr*            electrons_;                 //array of Electrons
+    mithep::TrackMap const*         gsfTrackMap_;               //map wrt gsf tracks
+    mithep::TrackMap const*         trackerTrackMap_;           //map wrt tracker tracks
+    mithep::ElectronTrackMap const* eleGsfTrackMap_;           //map wrt gsf tracks (when filling from PAT)
+    mithep::ElectronTrackMap const* eleTrackerTrackMap_;           //map wrt gsf tracks (when filling from PAT)
+    mithep::SuperClusterMap const*  barrelSuperClusterMap_;     //map wrt barrel super clusters
+    mithep::SuperClusterMap const*  endcapSuperClusterMap_;     //map wrt endcap super clusters
+    mithep::SuperClusterMap const*  pfEcalBarrelSuperClusterMap_;     //map wrt pflow super clusters
+    mithep::SuperClusterMap const*  pfEcalEndcapSuperClusterMap_;     //map wrt pflow super clusters
+    mithep::PFCandidateMap const*   pfCandidateMap_;
     std::map<mithep::Electron*, ConversionInfo> conversionInfoStore_; //temporary storage to avoid recomputing conversionInfo in FillDataBlock and ResolveRefs
   };
 }
