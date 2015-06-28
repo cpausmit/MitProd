@@ -13,7 +13,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMet::FillerMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::METCollection>(collector, cfg, "edmName","met")),
+  edmToken_(GetToken<reco::METCollection>(collector, cfg, "edmName")), //met
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   mets_(new mithep::MetArr)
 {

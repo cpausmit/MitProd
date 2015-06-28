@@ -47,6 +47,8 @@ namespace mithep
                          CaloGeometry const&); 
 
   private:		               
+    bool                              fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
+
     edm::EDGetTokenT<PhotonView>           edmToken_;                   //photon collection
     edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //input edm HCAL HE rec hits collection  
     edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //tight cut phID algo
@@ -61,7 +63,6 @@ namespace mithep
     std::string                       barrelSuperClusterMapName_; //name: imp. map wrt barrel sclus
     std::string                       endcapSuperClusterMapName_; //name: imp. map wrt endcap sclus
     bool                              checkClusterActive_;
-    bool                              fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
     std::string                       pfEcalBarrelSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
     std::string                       pfEcalEndcapSuperClusterMapName_;     //name: imp. map wrt pflow sclus
     std::string                       pfCandidateMapName_;        //name: imp. map wrt pflow candidates

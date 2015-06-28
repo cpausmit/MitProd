@@ -15,10 +15,10 @@
 mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, ObjectService* os, char const* name/* = "HLT"*/, bool active/* = true*/) : 
   BaseFiller(cfg, os, name, active),
   hltEvtToken_(), // set below
-  triggerObjectsToken_(GetToken<pat::TriggerObjectStandAloneCollection>(collector, cfg, "hltObjsEdmName", "")),
+  triggerObjectsToken_(GetToken<pat::TriggerObjectStandAloneCollection>(collector, cfg, "hltObjsEdmName", false)),
   hltResToken_(), // set below
   l1GtMenuLiteTag_(cfg.getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite")),
-  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", "")),
+  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", false)),
   hltProcName_(cfg.getUntrackedParameter<std::string>("hltProcName", "")),
   hltTreeName_(cfg.getUntrackedParameter<std::string>("hltTreeMitName", mithep::Names::gkHltTreeName)),
   hltTableName_(cfg.getUntrackedParameter<std::string>("hltTableMitName", mithep::Names::gkHltTableBrn)),
@@ -74,8 +74,8 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   
   if (!hltEvtName.empty()) {
     if (!triggerObjectsToken_.isUninitialized())
-    throw edm::Exception(edm::errors::Configuration, "FillerTrigger::Constructor")
-      << "Cannot configure TriggerEvent and TriggerObjectCollection at the same time";
+      throw edm::Exception(edm::errors::Configuration, "FillerTrigger::Constructor")
+        << "Cannot configure TriggerEvent and TriggerObjectCollection at the same time";
 
     if (!hltProcName_.empty()) {
       auto firstColon = hltEvtName.find(':');

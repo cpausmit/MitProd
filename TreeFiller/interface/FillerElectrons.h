@@ -41,6 +41,10 @@ namespace mithep
     typedef std::vector<reco::PFCandidateRef> PFCandRefV;
 
   private:
+    bool                            recomputeConversionInfo_;   //recompute conversion info
+    bool                            fitUnbiasedVertex_;         //recompute vertex position without electron
+    bool                            fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
+
     edm::EDGetTokenT<GsfElectronView> edmToken_;              //edm name of electrons collection
     edm::EDGetTokenT<reco::VertexCollection> pvEdmToken_;                 //name of primary vertex collection
     edm::EDGetTokenT<reco::VertexCollection> pvBSEdmToken_;               //name of bs-constrained pv collection
@@ -67,9 +71,6 @@ namespace mithep
     std::string                     pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
     std::string                     pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
     std::string                     pfCandidateMapName_;
-    bool                            recomputeConversionInfo_;   //recompute conversion info
-    bool                            fitUnbiasedVertex_;         //recompute vertex position without electron
-    bool                            fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
     mithep::ElectronMap*            electronMap_;               //exported electron map
     mithep::CandidateMap*           electronPFMap_;             //exported PF->electron map
     mithep::ElectronArr*            electrons_;                 //array of Electrons

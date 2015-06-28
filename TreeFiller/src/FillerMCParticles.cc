@@ -65,19 +65,20 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
     switch (genSource_) {
     case kGenParticles:
       aodGenMap_ = new GenParticleMap;
-
-      genParticlesToken_ = GetToken<reco::GenParticleCollection>(collector, cfg, "genEdmName", "genParticles");
+      genParticlesToken_ = GetToken<reco::GenParticleCollection>(collector, cfg, "genEdmName"); //genParticles
       if (simActive_)
-        genBarcodesToken_ = GetToken<std::vector<int> >(collector, cfg, "genEdmName", "genParticles");
+        genBarcodesToken_ = GetToken<std::vector<int> >(collector, cfg, "genEdmName"); //genParticles
       break;
+
     case kPackedGenParticles:
       packedGenMap_ = new PackedGenParticleMap;
+      packedGenParticlesToken_ = GetToken<pat::PackedGenParticleCollection>(collector, cfg, "genEdmName"); //packedGenParticles
+      break;
 
-      packedGenParticlesToken_ = GetToken<pat::PackedGenParticleCollection>(collector, cfg, "genEdmName", "packedGenParticles");
-      break;
     case kHepMCProduct:
-      hepMCProdToken_ = GetToken<edm::HepMCProduct>(collector, cfg, "genEdmName", "genParticles");
+      hepMCProdToken_ = GetToken<edm::HepMCProduct>(collector, cfg, "genEdmName"); //genParticles
       break;
+
     default:
       break;
     }
@@ -85,15 +86,14 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
 
   if (simActive_) {
     simMap_ = new mithep::SimTrackTidMap;
-
-    simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, cfg, "simEdmName", "g4SimHits");
-    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, cfg, "simEdmName", "g4SimHits");
+    simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, cfg, "simEdmName"); //g4SimHits
+    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, cfg, "simEdmName"); //g4SimHits
   }
 
-  if (trackingActive_)
+  if (trackingActive_) {
     trackingMap_ = new mithep::TrackingParticleMap;
-
-    trackingEdmToken_ = GetToken<TrackingParticleCollection>(collector, cfg, "trackingEdmName", "mergedtruth:MergedTrackTruth");
+    trackingEdmToken_ = GetToken<TrackingParticleCollection>(collector, cfg, "trackingEdmName"); //mergedtruth:MergedTrackTruth
+  }
 }
 
 //--------------------------------------------------------------------------------------------------

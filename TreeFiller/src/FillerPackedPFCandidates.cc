@@ -9,7 +9,7 @@
 
 mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<pat::PackedCandidateCollection>(collector, cfg, "edmName", "packedPFCandidates")),
+  edmToken_(GetToken<pat::PackedCandidateCollection>(collector, cfg, "edmName")), //packedPFCandidates
   mitName_              (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   pfCandMapName_        (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_(cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),

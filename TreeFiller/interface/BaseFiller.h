@@ -50,12 +50,12 @@ namespace mithep
       void PrintErrorAndExit(std::string const& msg) const;
       ObjectService* OS() { return os_; }
 
-      template<typename TYPE, edm::BranchType B = edm::InEvent>
-      edm::EDGetTokenT<TYPE>   GetToken(edm::ConsumesCollector&, edm::ParameterSet const&, std::string const& paramName, std::string const& defVal = "", bool mayConsume = false);
-      template <typename TYPE>
-      void                     GetProduct(edm::EDGetTokenT<TYPE> const&, edm::Handle<TYPE>&, edm::Event const&) const;    
-      template <typename TYPE>
-      bool                     GetProductSafe(edm::EDGetTokenT<TYPE> const&, edm::Handle<TYPE>&, edm::Event const&) const;    
+      template<class Product, edm::BranchType B = edm::InEvent>
+      edm::EDGetTokenT<Product> GetToken(edm::ConsumesCollector&, edm::ParameterSet const&, std::string const& paramName, bool required = true);
+      template <class Product, class Source = edm::Event>
+      void                      GetProduct(edm::EDGetTokenT<Product> const&, edm::Handle<Product>&, Source const&) const;
+      template <class Product, class Source = edm::Event>
+      bool                      GetProductSafe(edm::EDGetTokenT<Product> const&, edm::Handle<Product>&, Source const&) const;
 
       std::string               name_ = "";               //name of this filler
       std::string               brtname_ = "BranchTable"; //name of branch table
@@ -67,42 +67,48 @@ namespace mithep
 
 }
 
-template<typename TYPE, edm::BranchType B>
-edm::EDGetTokenT<TYPE>
-mithep::BaseFiller::GetToken(edm::ConsumesCollector& collector, edm::ParameterSet const& cfg, std::string const& paramName, std::string const& defVal, bool mayConsume)
+template<class Product, edm::BranchType B/* = edm::InEvent*/>
+edm::EDGetTokenT<Product>
+mithep::BaseFiller::GetToken(edm::ConsumesCollector& collector, edm::ParameterSet const& cfg, std::string const& paramName, bool required/* = true*/)
 {
   std::string paramString;
-  if(defVal.empty())
+
+  if (required)
     paramString = cfg.getUntrackedParameter<string>(paramName);
   else
-    paramString = cfg.getUntrackedParameter<string>(paramName, defVal);
+    paramString = cfg.getUntrackedParameter<string>(paramName, "");
 
-  if(!paramString.empty()){
-    edm::InputTag tag(paramString);
-    if(mayConsume)
-      return collector.mayConsume<TYPE, B>(tag);
+  if (paramString.empty()) {
+    if (required)
+      throw edm::Exception(edm::errors::Configuration, name_ + "::GetToken")
+        << "Required product name empty";
     else
-      return collector.consumes<TYPE, B>(tag);
+      return edm::EDGetTokenT<Product>();
   }
-  else
-    return edm::EDGetTokenT<TYPE>();
+  else {
+    edm::InputTag tag(paramString);
+    if (required)
+      return collector.consumes<Product, B>(tag);
+    else
+      return collector.mayConsume<Product, B>(tag);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
-template <typename TYPE>
+template <class Product, class Source/* = edm::Event*/>
 inline
 void
-mithep::BaseFiller::GetProduct(edm::EDGetTokenT<TYPE> const& token, edm::Handle<TYPE>& handle,
-                               edm::Event const& event) const
+mithep::BaseFiller::GetProduct(edm::EDGetTokenT<Product> const& token, edm::Handle<Product>& handle,
+                               Source const& source) const
 {
   // Try to access data collection from EDM file. We check if we really get just one
   // product with the given name. If not we print an error and exit.
 
   try {
-    event.getByToken(token,handle);
+    source.getByToken(token,handle);
     if (!handle.product()) // throws here if handle is not valid
       throw edm::Exception(edm::errors::Configuration, name_ + "::GetProduct()\n")
-        << "Cannot get " << typeid(TYPE).name() << " for " << Name(); // there should be a better way to get object info..
+        << "Cannot get " << typeid(Product).name() << " for " << Name(); // there should be a better way to get object info..
   } catch (std::exception& e) {
     edm::LogError(name_) << e.what();
     PrintErrorAndExit(e.what());
@@ -110,22 +116,24 @@ mithep::BaseFiller::GetProduct(edm::EDGetTokenT<TYPE> const& token, edm::Handle<
 }
 
 //--------------------------------------------------------------------------------------------------
-template <typename TYPE>
+template <class Product, class Source/* = edm::Event*/>
 inline
 bool
-mithep::BaseFiller::GetProductSafe(edm::EDGetTokenT<TYPE> const& token, edm::Handle<TYPE>& handle,
-                                   edm::Event const& event) const
+mithep::BaseFiller::GetProductSafe(edm::EDGetTokenT<Product> const& token, edm::Handle<Product>& handle,
+                                   Source const& source) const
 {
   // Try to safely access data collection from EDM file. We check if we really get just one
   // product with the given name. If not, we return false.
 
   try {
-    event.getByToken(token,handle);
+    source.getByToken(token, handle);
     if (!handle.isValid()) 
       return false;
-  } catch (...) {
+  }
+  catch (...) {
     return false;
   }
+
   return true;
 }
 
@@ -174,8 +182,8 @@ namespace mithep {
 
 }
 
-// A macro that instantiates FillerFactoryStore::Registration for the class TYPE
-#define DEFINE_MITHEP_TREEFILLER(TYPE) \
-  mithep::FillerFactoryStore::Registration<mithep::TYPE> mithep##TYPE##Registration(#TYPE)
+// A macro that instantiates FillerFactoryStore::Registration for the class FILLER
+#define DEFINE_MITHEP_TREEFILLER(FILLER) \
+  mithep::FillerFactoryStore::Registration<mithep::FILLER> mithep##FILLER##Registration(#FILLER)
 
 #endif

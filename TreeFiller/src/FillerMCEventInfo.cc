@@ -16,14 +16,14 @@
 //--------------------------------------------------------------------------------------------------
 mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) : 
   BaseFiller(cfg, os, "MCEventInfo", active), 
+  flavorHistoryActive_(cfg.getUntrackedParameter<bool>("flavorHistoryActive", false)), 
   evtName_(cfg.getUntrackedParameter<std::string>("evtName", Names::gkMCEvtInfoBrn)), 
   runName_(cfg.getUntrackedParameter<std::string>("runName", Names::gkMCRunInfoBrn)), 
-  genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, cfg, "genHepMCEventEdmName", "generator")), 
-  genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, cfg, "genEvtInfoEdmName", "generator")), 
-  lheEventToken_(GetToken<LHEEventProduct>(collector, cfg, "lheEventEdmName", "externalLHEProducer")),
-  lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, cfg, "lheRunInfoEdmName", "externalLHEProducer")),
-  flavorHistToken_(GetToken<unsigned>(collector, cfg, "flavorHistEdmName", "flavorHistoryFilter")), 
-  flavorHistoryActive_(cfg.getUntrackedParameter<bool>("flavorHistoryActive", false)), 
+  genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, cfg, "genHepMCEventEdmName", false)), //generator
+  genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, cfg, "genEvtInfoEdmName", false)), //generator
+  lheEventToken_(GetToken<LHEEventProduct>(collector, cfg, "lheEventEdmName", false)), //externalLHEProducer
+  lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, cfg, "lheRunInfoEdmName", false)), //externalLHEProducer
+  flavorHistToken_(GetToken<unsigned>(collector, cfg, "flavorHistEdmName", flavorHistoryActive_)), //flavorHistoryFilter
   eventInfo_(new mithep::MCEventInfo()), 
   runInfo_(new mithep::MCRunInfo()),
   weightIds_()
@@ -224,9 +224,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
   // from being fetched in beginRun
 
   edm::Handle<LHERunInfoProduct> hLHERunInfo;
-  run.getByToken(lheRunInfoToken_, hLHERunInfo);
-
-  if (hLHERunInfo.isValid()) {
+  if (GetProductSafe(lheRunInfoToken_, hLHERunInfo, run)) {
     auto& lheRunInfo = *hLHERunInfo;
     auto& heprup = lheRunInfo.heprup();
 

@@ -43,7 +43,7 @@ mithep::FillerPFMet<MET>::FillDataBlock(edm::Event const& event, edm::EventSetup
   std::vector<MET const*> inMets;
   
   edm::Handle<MetCollection> hPFMetProduct;
-  if(GetProductSafe(edmToken_, hPFMetProduct, event)){
+  if (GetProductSafe(edmToken_, hPFMetProduct, event)){
     MetCollection const& inMetCollection = *hPFMetProduct;
     for (auto&& met : inMetCollection)
       inMets.push_back(&met);

@@ -18,50 +18,35 @@
 
 mithep::FillerMuons::FillerMuons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
-  edmToken_                 (GetToken<MuonView>(collector, cfg, "edmName","muons")),
-  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, cfg, "pvEdmName",
-                                                              "offlinePrimaryVertices")),
-  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName",
-                                                              "offlinePrimaryVerticesWithBS")),
-  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", "offlineBeamSpot")),
-  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", "offlineBeamSpot")),
-  mitName_                  (cfg.getUntrackedParameter<string>("mitName", Names::gkMuonBrn)),
-  globalTrackMapName_       (cfg.getUntrackedParameter<string>("globalTrackMapName", "")),
-  staTrackMapName_          (cfg.getUntrackedParameter<string>("staTrackMapName", "")),
-  staVtxTrackMapName_       (cfg.getUntrackedParameter<string>("staVtxTrackMapName", "")),
-  trackerTrackMapName_      (cfg.getUntrackedParameter<string>("trackerTrackMapName", "")),
-  firstHitTrackMapName_     (cfg.getUntrackedParameter<string>("firstHitTrackMapName", "")),
-  pickyTrackMapName_        (cfg.getUntrackedParameter<string>("pickyTrackMapName", "")),
-  dytTrackMapName_          (cfg.getUntrackedParameter<string>("dytTrackMapName", "")),
-  muonMapName_              (cfg.getUntrackedParameter<string>("muonMapName", "")),
-  muonPFMapName_            (cfg.getUntrackedParameter<string>("muonPFMapName", "")),
   fitUnbiasedVertex_        (cfg.getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
   fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
-  globalTrackMap_           (0),
-  standaloneTrackMap_       (0),
-  standaloneVtxTrackMap_    (0),
-  trackerTrackMap_          (0),
-  firstHitTrackMap_         (0),
-  pickyTrackMap_            (0),
-  dytTrackMap_              (0),
-  muonGlobalTrackMap_       (0),
-  muonStandaloneTrackMap_   (0),
-  muonStandaloneVtxTrackMap_(0),
-  muonTrackerTrackMap_      (0),
-  muonFirstHitTrackMap_     (0),
-  muonPickyTrackMap_        (0),
-  muonDytTrackMap_          (0),
+  edmToken_                 (GetToken<MuonView>(collector, cfg, "edmName")), //muons
+  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, cfg, "pvEdmName", false)), //offlinePrimaryVertices
+  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName", false)), //offlinePrimaryVerticesWithBS
+  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", !pvEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", !pvBSEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", Names::gkMuonBrn)),
+  trackMapName_             {},
+  staVtxTrackMapName_       (cfg.getUntrackedParameter<std::string>("staVtxTrackMapName", "")),
+  muonMapName_              (cfg.getUntrackedParameter<std::string>("muonMapName", "")),
+  muonPFMapName_            (cfg.getUntrackedParameter<std::string>("muonPFMapName", "")),
+  trackMap_                 {},
+  staVtxTrackMap_           (0),
+  muonTrackMap_             {},
   muonMap_                  (new mithep::MuonMap),
   muonPFMap_                (0),
   muons_                    (new mithep::MuonArr(16))
 {
-  // Constructor.
+  trackMapName_[kInnerTrack] = cfg.getUntrackedParameter<std::string>("trackerTrackMapName", "");
+  trackMapName_[kOuterTrack] = cfg.getUntrackedParameter<std::string>("staTrackMapName", "");
+  trackMapName_[kCombinedTrack] = cfg.getUntrackedParameter<std::string>("globalTrackMapName", "");
+  trackMapName_[kTPFMS] = cfg.getUntrackedParameter<std::string>("firstHitTrackMapName", "");
+  trackMapName_[kPicky] = cfg.getUntrackedParameter<std::string>("pickyTrackMapName", "");
+  trackMapName_[kDYT] = cfg.getUntrackedParameter<std::string>("dytTrackMapName", "");
 }
 
 mithep::FillerMuons::~FillerMuons()
 {
-  // Destructor.
-
   delete muons_;
   delete muonMap_;
   delete muonPFMap_;
@@ -90,72 +75,26 @@ void
 mithep::FillerMuons::PrepareLinks()
 {
   if (fillFromPAT_) {
-    if (!globalTrackMapName_.empty()) {
-      muonGlobalTrackMap_ = OS()->get<MuonTrackMap>(globalTrackMapName_);
-      if (muonGlobalTrackMap_)
-        AddBranchDep(mitName_, muonGlobalTrackMap_->GetBrName());
-    }
-    if (!staTrackMapName_.empty()) {
-      muonStandaloneTrackMap_ = OS()->get<MuonTrackMap>(staTrackMapName_);
-      if (muonStandaloneTrackMap_)
-        AddBranchDep(mitName_, muonStandaloneTrackMap_->GetBrName());
-    }
-    if (!trackerTrackMapName_.empty()) {
-      muonTrackerTrackMap_ = OS()->get<MuonTrackMap>(trackerTrackMapName_);
-      if (muonTrackerTrackMap_)
-        AddBranchDep(mitName_, muonTrackerTrackMap_->GetBrName());
-    }
-    if (!firstHitTrackMapName_.empty()) {
-      muonFirstHitTrackMap_ = OS()->get<MuonTrackMap>(firstHitTrackMapName_);
-      if (muonFirstHitTrackMap_)
-        AddBranchDep(mitName_, muonFirstHitTrackMap_->GetBrName());
-    }
-    if (!pickyTrackMapName_.empty()) {
-      muonPickyTrackMap_ = OS()->get<MuonTrackMap>(pickyTrackMapName_);
-      if (muonPickyTrackMap_)
-        AddBranchDep(mitName_, muonPickyTrackMap_->GetBrName());
-    }
-    if (!dytTrackMapName_.empty()) {
-      muonDytTrackMap_ = OS()->get<MuonTrackMap>(dytTrackMapName_);
-      if (muonDytTrackMap_)
-        AddBranchDep(mitName_, muonDytTrackMap_->GetBrName());
+    for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+      if (!trackMapName_[iT].empty()) {
+        muonTrackMap_[iT] = OS()->get<MuonTrackMap>(trackMapName_[iT]);
+        if (muonTrackMap_[iT])
+          AddBranchDep(mitName_, muonTrackMap_[iT]->GetBrName());
+      }
     }
   }
   else {
-    if (!globalTrackMapName_.empty()) {
-      globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
-      if (globalTrackMap_)
-        AddBranchDep(mitName_, globalTrackMap_->GetBrName());
-    }
-    if (!staTrackMapName_.empty()) {
-      standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_);
-      if (standaloneTrackMap_)
-        AddBranchDep(mitName_, standaloneTrackMap_->GetBrName());
+    for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+      if (!trackMapName_[iT].empty()) {
+        trackMap_[iT] = OS()->get<TrackMap>(trackMapName_[iT]);
+        if (trackMap_[iT])
+          AddBranchDep(mitName_, trackMap_[iT]->GetBrName());
+      }
     }
     if (!staVtxTrackMapName_.empty()) {
-      standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
-      if (standaloneVtxTrackMap_)
-        AddBranchDep(mitName_, standaloneVtxTrackMap_->GetBrName());
-    }
-    if (!trackerTrackMapName_.empty()) {
-      trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-      if (trackerTrackMap_)
-        AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
-    }
-    if (!firstHitTrackMapName_.empty()) {
-      firstHitTrackMap_ = OS()->get<TrackMap>(firstHitTrackMapName_);
-      if (firstHitTrackMap_)
-        AddBranchDep(mitName_, firstHitTrackMap_->GetBrName());
-    }
-    if (!pickyTrackMapName_.empty()) {
-      pickyTrackMap_ = OS()->get<TrackMap>(pickyTrackMapName_);
-      if (pickyTrackMap_)
-        AddBranchDep(mitName_, pickyTrackMap_->GetBrName());
-    }
-    if (!dytTrackMapName_.empty()) {
-      dytTrackMap_ = OS()->get<TrackMap>(dytTrackMapName_);
-      if (dytTrackMap_)
-        AddBranchDep(mitName_, dytTrackMap_->GetBrName());
+      staVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
+      if (staVtxTrackMap_)
+        AddBranchDep(mitName_, staVtxTrackMap_->GetBrName());
     }
   }
 }
@@ -179,51 +118,42 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()")
       << "Error! Input muon is not PAT";
 
-  edm::Handle<reco::VertexCollection> hVertex;
-  if (!pvEdmToken_.isUninitialized())
-    GetProduct(pvEdmToken_, hVertex, event);
-
-  edm::Handle<reco::VertexCollection> hVertexBS;
-  if (!pvBSEdmToken_.isUninitialized())
-    GetProduct(pvBSEdmToken_, hVertexBS, event);
-
-  reco::BeamSpot const* pvbeamspot = 0;
-  if (fitUnbiasedVertex_ && !pvBeamSpotToken_.isUninitialized()) {
-    edm::Handle<reco::BeamSpot> pvbeamspotH;
-    GetProduct(pvBeamSpotToken_, pvbeamspotH, event);
-    pvbeamspot = pvbeamspotH.product();
-  }
-  
-  reco::BeamSpot const* pvbsbeamspot = 0;
-  if (fitUnbiasedVertex_ && !pvbsBeamSpotToken_.isUninitialized()) {
-    edm::Handle<reco::BeamSpot> pvbsbeamspotH;
-    GetProduct(pvbsBeamSpotToken_, pvbsbeamspotH, event);
-    pvbsbeamspot = pvbsbeamspotH.product();
-  }
-
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
   auto transientTrackBuilder = hTransientTrackBuilder.product();
 
   KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
 
-  VertexReProducer* vtxReProducers[] = {0, 0};
-  if (fitUnbiasedVertex_) {
-    if (hVertex.isValid())
+  reco::VertexCollection const* vertexCols[2] = {};
+  reco::BeamSpot const* beamspots[2] = {};
+  VertexReProducer* vtxReProducers[2] = {};
+
+  if (!pvEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertex;
+    GetProduct(pvEdmToken_, hVertex, event);
+    vertexCols[0] = hVertex.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbeamspotH;
+      GetProduct(pvBeamSpotToken_, pvbeamspotH, event);
+      beamspots[0] = pvbeamspotH.product();
       vtxReProducers[0] = new VertexReProducer(hVertex, event);
-    if (hVertexBS.isValid())
+    }
+  }
+
+  if (!pvBSEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertexBS;
+    GetProduct(pvBSEdmToken_, hVertexBS, event);
+    vertexCols[1] = hVertexBS.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbsbeamspotH;
+      GetProduct(pvbsBeamSpotToken_, pvbsbeamspotH, event);
+      beamspots[1] = pvbsbeamspotH.product();
       vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+    }
   }
 
   typedef std::function<void(mithep::Muon&, double)> Setter;
 
-  reco::VertexCollection const* vertexCols[2] = {0, 0};
-  if (hVertex.isValid())
-    vertexCols[0] = hVertex.product();
-  if (hVertexBS.isValid())
-    vertexCols[1] = hVertexBS.product();
-  
-  reco::BeamSpot const* bses[] = {pvbeamspot, pvbsbeamspot};
   Setter d0pvSetters[] = {
     &mithep::Muon::SetD0PV, &mithep::Muon::SetD0PVBS,
     &mithep::Muon::SetD0PVUB, &mithep::Muon::SetD0PVUBBS
@@ -344,13 +274,14 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
         if (!vertexCols[iPVType])
           continue;
 
-        auto& vertices = *vertexCols[iPVType];
-        auto& bs = *bses[iPVType];
-
-        reco::Vertex const& pv = vertices.at(0);
-        reco::Vertex pvub = vertices.at(0);
+        reco::Vertex const& pv = vertexCols[iPVType]->at(0);
+        reco::Vertex pvub = pv;
 
         if (fitUnbiasedVertex_) {
+          if (!beamspots[iPVType])
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Null Beamspot pointer";
+
           reco::TrackCollection newTkCollection;
           bool foundMatch = false;
           for (auto itk = pv.tracks_begin(); itk != pv.tracks_end(); ++itk) {
@@ -362,7 +293,7 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
           }
 
           if (foundMatch) {
-            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, bs, setup);
+            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, *beamspots[iPVType], setup);
             if (pvs.size() > 0)
               pvub = pvs.front();      // take the first in the list
           }
@@ -479,59 +410,49 @@ mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const
   // Fill from pat::Muon:
   //  - xyzMuTrackMap_->GetMit(mPtr)
 
+  std::function<void(mithep::Muon*, mithep::Track const*)> setters[nMuonTrackTypes];
+  setters[kInnerTrack] = &mithep::Muon::SetTrackerTrk;
+  setters[kOuterTrack] = &mithep::Muon::SetStandaloneTrk;
+  setters[kCombinedTrack] = &mithep::Muon::SetGlobalTrk;
+  setters[kTPFMS] = &mithep::Muon::SetTrackerPlusFirstStationTrk;
+  setters[kPicky] = &mithep::Muon::SetPickyTrk;
+  setters[kDYT] = &mithep::Muon::SetDYTTrk;
+
   for (auto& mapElem : muonMap_->FwdMap()) {
     auto&& mPtr = mapElem.first;
     auto& inMuon = static_cast<reco::Muon const&>(*mPtr);
+    bool inHasBest = inMuon.muonBestTrack().isAvailable();
+    bool inHasTunePBest = inMuon.tunePMuonBestTrack().isAvailable();
     auto* outMuon = mapElem.second;
 
     if (fillFromPAT_) {
-      if (muonGlobalTrackMap_)
-          outMuon->SetGlobalTrk(muonGlobalTrackMap_->GetMit(mPtr));
-
-      if (muonStandaloneTrackMap_)
-        outMuon->SetStandaloneTrk(muonStandaloneTrackMap_->GetMit(mPtr));
-
-      if (muonTrackerTrackMap_)
-          outMuon->SetTrackerTrk(muonTrackerTrackMap_->GetMit(mPtr));
-
-      if (muonFirstHitTrackMap_)
-          outMuon->SetTrackerPlusFirstStationTrk(muonFirstHitTrackMap_->GetMit(mPtr));
-
-      if (muonPickyTrackMap_)
-          outMuon->SetPickyTrk(muonPickyTrackMap_->GetMit(mPtr));
-
-      if (muonDytTrackMap_)
-          outMuon->SetTrackerPlusFirstStationTrk(muonDytTrackMap_->GetMit(mPtr));
+      for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+        auto recoType = reco::Muon::MuonTrackType(iT + 1);
+        if (muonTrackMap_[iT] &&
+            (inMuon.muonTrack(recoType).isAvailable() || // MuonTrackType in reco::Muon is shifted by 1
+             (inMuon.muonBestTrackType() == recoType && inHasBest) ||
+             (inMuon.tunePMuonBestTrackType() == recoType && inHasTunePBest)))
+          setters[iT](outMuon, muonTrackMap_[iT]->GetMit(mPtr));
+      }
     }
     else {
-      auto&& combinedMuonRef = inMuon.combinedMuon();
-      auto&& standaloneMuonRef = inMuon.standAloneMuon();
-      auto&& trackRef = inMuon.track();
-      auto&& firstHitTrackRef = inMuon.tpfmsTrack();
-      auto&& pickyTrackRef = inMuon.pickyTrack();
-      auto&& dytTrackRef = inMuon.dytTrack();
+      for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+        auto recoType = reco::Muon::MuonTrackType(iT + 1);
+        auto&& ref = inMuon.muonTrack(recoType);
 
-      if (globalTrackMap_ && combinedMuonRef.isNonnull())
-          outMuon->SetGlobalTrk(globalTrackMap_->GetMit(edm::refToPtr(combinedMuonRef)));
-
-      if ((standaloneTrackMap_ || standaloneVtxTrackMap_) && standaloneMuonRef.isNonnull()) {
-        if (standaloneVtxTrackMap_)
-          outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(edm::refToPtr(standaloneMuonRef)));
-        else if (standaloneTrackMap_)
-          outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(edm::refToPtr(standaloneMuonRef)));
+        if (iT == kOuterTrack) {
+          if (ref.isNonnull()) {
+            if (staVtxTrackMap_)
+              outMuon->SetStandaloneTrk(staVtxTrackMap_->GetMit(edm::refToPtr(ref)));
+            else if (trackMap_[iT])
+              outMuon->SetStandaloneTrk(trackMap_[iT]->GetMit(edm::refToPtr(ref)));
+          }
+        }
+        else {
+          if (trackMap_[iT] && ref.isNonnull())
+            setters[iT](outMuon, trackMap_[iT]->GetMit(edm::refToPtr(ref)));
+        }
       }
-
-      if (trackerTrackMap_ && trackRef.isNonnull())
-          outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(edm::refToPtr(trackRef)));
-
-      if (firstHitTrackMap_ && firstHitTrackRef.isNonnull())
-          outMuon->SetTrackerPlusFirstStationTrk(firstHitTrackMap_->GetMit(edm::refToPtr(firstHitTrackRef)));
-
-      if (pickyTrackMap_ && pickyTrackRef.isNonnull())
-          outMuon->SetPickyTrk(pickyTrackMap_->GetMit(edm::refToPtr(pickyTrackRef)));
-
-      if (dytTrackMap_ && dytTrackRef.isNonnull())
-          outMuon->SetTrackerPlusFirstStationTrk(dytTrackMap_->GetMit(edm::refToPtr(dytTrackRef)));
     }
   }
 }

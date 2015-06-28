@@ -18,20 +18,20 @@
 
 mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
-  edmToken_                 (GetToken<PhotonView>(collector, cfg, "edmName", "photons")),
-  HBHERecHitsEdmToken_      (GetToken<HBHERecHitCollection>(collector, cfg, "HBHERecHitsEdmName", "reducedHcalRecHits:hbhereco")),
-  phIDCutBasedTightToken_   (GetToken<edm::ValueMap<bool> >(collector, cfg, "phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
-  phIDCutBasedLooseToken_   (GetToken<edm::ValueMap<bool> >(collector, cfg, "phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
+  fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
+  edmToken_                 (GetToken<PhotonView>(collector, cfg, "edmName")), //photons
+  HBHERecHitsEdmToken_      (GetToken<HBHERecHitCollection>(collector, cfg, "HBHERecHitsEdmName", false)), //reducedHcalRecHits:hbhereco
+  phIDCutBasedTightToken_   (GetToken<edm::ValueMap<bool> >(collector, cfg, "phIDCutBasedTightName", false)), //PhotonIDProd:PhotonCutBasedIDTight
+  phIDCutBasedLooseToken_   (GetToken<edm::ValueMap<bool> >(collector, cfg, "phIDCutBasedLooseName", false)), //PhotonIDProd:PhotonCutBasedIDLoose
   phIDCutBasedTightName_    (cfg.getUntrackedParameter<std::string>("phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (cfg.getUntrackedParameter<std::string>("phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
-  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName")),
+  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName", !fillFromPAT_)),
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", Names::gkPhotonBrn)),
   conversionMapName_        (cfg.getUntrackedParameter<std::string>("conversionMapName", "")),
   oneLegConversionMapName_  (cfg.getUntrackedParameter<std::string>("oneLegConversionMapName", "")),
   barrelSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
   checkClusterActive_       (cfg.getUntrackedParameter<bool>("requireClusterMap", true)),
-  fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
   pfEcalBarrelSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("pfEcalEndcapSuperClusterMapName", "")),
   pfCandidateMapName_       (cfg.getUntrackedParameter<std::string>("pfCandidateMapName", "")),

@@ -34,6 +34,8 @@ namespace mithep
   private:
     void setWeightGroups(std::vector<std::string> const&);
 
+    bool flavorHistoryActive_;  //=true if flavor history is filled
+
     std::string evtName_; //mit event branch name
     std::string runName_; //mit event branch name
 
@@ -42,8 +44,6 @@ namespace mithep
     edm::EDGetTokenT<LHEEventProduct> lheEventToken_;
     edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
     edm::EDGetTokenT<unsigned> flavorHistToken_;       //edm flavor history name
-
-    bool flavorHistoryActive_;  //=true if flavor history is filled
 
     mithep::MCEventInfo* eventInfo_;            //event info
     mithep::MCRunInfo* runInfo_;

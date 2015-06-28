@@ -27,7 +27,7 @@ FillerPATElectrons::FillerPATElectrons(const edm::ParameterSet &cfg,
                                        ObjectService* os,
                                        const char *name, bool active) :
   BaseFiller(cfg,os,"PATElectrons",active),
-  edmToken_(GetToken<edm::View<pat::Electron> >(collector, cfg, "edmName","selectedLayer1Electrons")),
+  edmToken_(GetToken<edm::View<pat::Electron> >(collector, cfg, "edmName")), //selectedLayer1Electrons
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkElectronBrn)),
   gsfTrackMapName_(cfg.getUntrackedParameter<string>("gsfTrackMapName","")),
   trackerTrackMapName_(cfg.getUntrackedParameter<string>("trackerTrackMapName","")),

@@ -21,7 +21,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPATMuons::FillerPATMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,"PATMuons",active),
-  edmToken_(GetToken<edm::View<pat::Muon> >(collector, cfg, "edmName","selectedLayer1Muons")),
+  edmToken_(GetToken<edm::View<pat::Muon> >(collector, cfg, "edmName")), //selectedLayer1Muons
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkMuonBrn)),
   globalTrackMapName_(cfg.getUntrackedParameter<string>("globalTrackMapName","")),
   staTrackMapName_(cfg.getUntrackedParameter<string>("staTrackMapName","")),

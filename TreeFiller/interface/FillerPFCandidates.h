@@ -32,6 +32,8 @@ namespace mithep
 
       const mithep::Track *getMitTrack(mitedm::TrackPtr ptr, bool allowmissing) const;
 
+      bool                           fillPfNoPileup_;
+
       edm::EDGetTokenT<PFCollection> edmToken_;                  //edm name of PFCandidates coll
       edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;        //edm name of PFNoPileup  coll
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
@@ -48,7 +50,6 @@ namespace mithep
       bool                           allowMissingTrackRef_;     //allow missing track ref (tau emb)
       bool                           allowMissingClusterRef_;   //allow missing supercluster ref
       bool                           allowMissingPhotonRef_;     //allow missing photon ref (tau emb)
-      bool                           fillPfNoPileup_;
 
       std::vector<mithep::TrackMap const*>
                                      trackerTrackMaps_;         //maps wrt tracker tracks

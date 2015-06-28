@@ -16,15 +16,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerStableParts::FillerStableParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<mitedm::StablePartCol>(collector, cfg, "edmName","")),
+  edmToken_(GetToken<mitedm::StablePartCol>(collector, cfg, "edmName")),
   mitName_(cfg.getUntrackedParameter<string>("mitName","")),
-  trackMapNames_(cfg.exists("trackMapNames") ? 
-                    cfg.getUntrackedParameter<vector<string> >("trackMapNames") : 
-                    vector<string>()),
-  basePartMapName_(cfg.getUntrackedParameter<string>("basePartMap",
-                                                        Form("%sMapName",mitName_.c_str()))),
-  trackPartMapName_(cfg.getUntrackedParameter<string>("trackPartMap",
-                                                        Form("%sTrackMapName",mitName_.c_str()))),
+  trackMapNames_(cfg.getUntrackedParameter<vector<string> >("trackMapNames", vector<string>())),
+  basePartMapName_(cfg.getUntrackedParameter<string>("basePartMap", mitName_ + "MapName")),
+  trackPartMapName_(cfg.getUntrackedParameter<string>("trackPartMap", mitName_ + "TrackMapName")),
   stables_(new mithep::StableParticleArr(250)),
   basePartMap_(new mithep::BasePartMap),
   trackPartMap_(new mithep::TrackPartMap)

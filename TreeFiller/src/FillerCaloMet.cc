@@ -11,7 +11,7 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerCaloMet::FillerCaloMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::CaloMETCollection>(collector, cfg, "edmName","met")),
+  edmToken_(GetToken<reco::CaloMETCollection>(collector, cfg, "edmName")), //met
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   caloMets_(new mithep::CaloMetArr)
 {

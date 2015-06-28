@@ -260,7 +260,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   GeneralTracks  = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('Tracks'),
     edmName                   = cms.untracked.string('generalTracks'),
     trackingMapName           = cms.untracked.string('TrackingMap'),
@@ -271,7 +271,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   ConversionStepTracks  = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('ConversionStepTracks'),
     edmName                   = cms.untracked.string('conversionStepTracks'),
     trackMapName              = cms.untracked.string('ConversionTracksMapName'),
@@ -280,7 +280,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   StandaloneMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('StandaloneMuonTracks'),
     edmName                   = cms.untracked.string('standAloneMuons'),
     trackMapName              = cms.untracked.string('StandaloneMuonTracksMapName'),
@@ -289,7 +289,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   StandaloneMuonTracksWVtxConstraint = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('StandaloneMuonTracksWVtxConstraint'),
     edmName                   = cms.untracked.string('standAloneMuons:UpdatedAtVtx'),
     trackMapName              = cms.untracked.string('StandaloneMuonTracksWVtxConstraintMapName'),
@@ -298,7 +298,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   StandaloneCosmicMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('StandaloneCosmicMuonTracks'),
     edmName                   = cms.untracked.string('cosmicMuons'),
     trackMapName              = cms.untracked.string('StandaloneCosmicMuonTracksMapName'),
@@ -307,7 +307,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   GlobalMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('GlobalMuonTracks'),
     edmName                   = cms.untracked.string('globalMuons'),
     trackMapName              = cms.untracked.string('GlobalMuonTracksMapName'),
@@ -316,7 +316,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   GlobalCosmicMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('GlobalCosmicMuonTracks'),
     edmName                   = cms.untracked.string('displacedGlobalMuons'),
     trackMapName              = cms.untracked.string('GlobalCosmicMuonTracksMapName'),
@@ -325,7 +325,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   FirstHitMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('FirstHitMuonTracks'),
     edmName                   = cms.untracked.string('tevMuons:firstHit'),
     trackMapName              = cms.untracked.string('FirstHitMuonTracksMapName'),
@@ -334,7 +334,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   PickyMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('PickyMuonTracks'),
     edmName                   = cms.untracked.string('tevMuons:firstHit'),
     trackMapName              = cms.untracked.string('PickyMuonTracksMapName'),
@@ -343,7 +343,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   DYTMuonTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('DYTMuonTracks'),
     edmName                   = cms.untracked.string('tevMuons:firstHit'),
     trackMapName              = cms.untracked.string('DYTMuonTracksMapName'),
@@ -352,7 +352,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   ConversionInOutTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('ConversionInOutTracks'),
     edmName                   = cms.untracked.string('ckfInOutTracksFromConversions'),
     trackingMapName           = cms.untracked.string('TrackingMap'),
@@ -363,7 +363,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   ConversionOutInTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('ConversionOutInTracks'),
     edmName                   = cms.untracked.string('ckfOutInTracksFromConversions'),
     trackingMapName           = cms.untracked.string('TrackingMap'),
@@ -374,7 +374,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
 
   GsfTracks = cms.untracked.PSet(
     active                    = cms.untracked.bool(True),
-    sourceType                = cms.untracked.uint32(0),
+    sourceType                = cms.untracked.string('Tracks'),
     mitName                   = cms.untracked.string('GsfTracks'),
     edmName                   = cms.untracked.string('electronGsfTracks'),
     trackingMapName           = cms.untracked.string('TrackingMap'),
@@ -559,6 +559,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     active              = cms.untracked.bool(True),
     mitName             = cms.untracked.string('Conversions'),
     edmName             = cms.untracked.string('allConversions'),
+    beamspotName        = cms.untracked.string('offlineBeamSpot'),
     stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
                                                 'ConversionInOutElectronsStableTrackMapName',
                                                 'ConversionOutInElectronsStableTrackMapName',
@@ -572,6 +573,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     active              = cms.untracked.bool(True),
     mitName             = cms.untracked.string('PFPhotonConversions'),
     edmName             = cms.untracked.string('gedPhotonCore'),
+    beamspotName        = cms.untracked.string('offlineBeamSpot'),
     stablePartMaps      = cms.untracked.vstring('ElectronsStableTrackMapName',
                                                 'ConversionInOutElectronsStableTrackMapName',
                                                 'ConversionOutInElectronsStableTrackMapName',

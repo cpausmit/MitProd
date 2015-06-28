@@ -9,45 +9,26 @@
 #ifndef MITPROD_TREEFILLER_FILLERJPTJETS_H
 #define MITPROD_TREEFILLER_FILLERJPTJETS_H
 
-#include "MitAna/DataTree/interface/JPTJetCol.h"
+#include "MitProd/TreeFiller/interface/FillerJets.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
-#include "MitProd/TreeFiller/interface/BaseFiller.h"
+#include "MitAna/DataTree/interface/JPTJetCol.h"
 
-#include "DataFormats/JetReco/interface/JPTJetCollection.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+namespace mithep {
 
-namespace mithep 
-{
-  class FillerJPTJets : public BaseFiller
-  {  
-    public:
-      FillerJPTJets(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
-      ~FillerJPTJets();
+  class FillerJPTJets : public FillerJets<mithep::JPTJet> {  
+  public:
+    FillerJPTJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
+    ~FillerJPTJets();
 
-      void            BookDataBlock(TreeWriter &tws);
-      void 	      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+    void PrepareLinks() override;
+    void FillSpecific(mithep::JPTJet&, reco::JetBaseRef const&) override;
+    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
   
-    private:
-      bool            flavorMatchingActive_;            //=true if flavor matching is done  
-      bool            bTaggingActive_;                  //=true if bTagging info is filled
-      bool            jetToVertexActive_;               //=true if jet to vertex info is done
-      bool            jetCorrectionsActive_;            //=true if jet corrections are done
-      edm::EDGetTokenT<reco::JPTJetCollection> edmToken_;                         //edm name of jets collection
-      edm::EDGetTokenT<reco::JPTJetCollection> edmFallbackToken_;                         //edm name of jets collection
-      edm::EDGetTokenT<std::vector<double> > jetToVertexAlphaToken_;            //edm name of jet to vertex alpha coll
-      edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_;             //edm name of jet to vertex beta coll
-      edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_;   //source of flavor matching
-      edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[mithep::Jet::nBTagAlgos];             //bjet algo discriminant
-      std::string     mitName_;                         //mit name of jets collection
-      std::string     flavorMatchingDefinition_;        //type of flavor matching
-      std::string     L2JetCorrectorName_;              //label of the L2JetCorrection service
-      std::string     L3JetCorrectorName_;              //label of the L3JetCorrection service
-      std::string     caloJetMapName_;                   //name of imported CaloJetMap
-      std::string     jetMapName_;                      //name of exported PFJetMap
-      const mithep::CaloJetMap            *caloJetMap_;   //map wrt CaloJets
-      mithep::JPTJetMap                   *jetMap_;      //export map
-      mithep::JPTJetArr                   *jets_;        //array of Jets
+  private:
+    std::string caloJetMapName_;           //name of imported CaloJetMap
+    mithep::CaloJetMap const* caloJetMap_; //map wrt CaloJets
   };
+
 }
+
 #endif

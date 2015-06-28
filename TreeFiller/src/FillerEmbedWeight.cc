@@ -10,27 +10,27 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerEmbedWeight::FillerEmbedWeight(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  genWeightToken_(GetToken<double>(collector, cfg, "genWeightName", "generator_weight:weight:EmbeddedRECO")),
-  genInfoToken_(GetToken<GenFilterInfo>(collector, cfg, "genInfoName", "generator_weight:minVisPtFilter:EmbeddedRECO", true)),
-  spinnerWeightToken_(GetToken<double>(collector, cfg, "spinnerWeightName", "TauSpinnerRec:TauSpinnerWT:EmbeddedSPIN")),
-  spinnerWeightFlipToken_(GetToken<double>(collector, cfg, "spinnerWeightFlipName", "TauSpinnerRec:TauSpinnerWTFlip:EmbeddedSPIN")),
-  spinnerWeightMinusToken_(GetToken<double>(collector, cfg, "spinnerWeightMinusName", "TauSpinnerRec:TauSpinnerWThplus:EmbeddedSPIN")),
-  spinnerWeightPlusToken_(GetToken<double>(collector, cfg, "spinnerWeightPlusName", "TauSpinnerRec:TauSpinnerWThminus:EmbeddedSPIN")),
-  muEffWeightToken_(GetToken<double>(collector, cfg, "muEffWeightName", "ZmumuEvtSelEffCorrWeightProducer:weight:EmbeddedRECO")),
-  muEffWeightUpToken_(GetToken<double>(collector, cfg, "muEffWeightUpName", "ZmumuEvtSelEffCorrWeightProducer:weightUp:EmbeddedRECO")),
-  muEffWeightDownToken_(GetToken<double>(collector, cfg, "muEffWeightDownName", "ZmumuEvtSelEffCorrWeightProducer:weightDown:EmbeddedRECO")),
-  muRadWeightToken_(GetToken<double>(collector, cfg, "muRadWeightName", "muonRadiationCorrWeightProducer:weight:EmbeddedRECO")),
-  muRadWeightUpToken_(GetToken<double>(collector, cfg, "muRadWeightUpName", "muonRadiationCorrWeightProducer:weightUp:EmbeddedRECO")),
-  muRadWeightDownToken_(GetToken<double>(collector, cfg, "muRadWeightDownName", "muonRadiationCorrWeightProducer:weightDown:EmbeddedRECO")),
-  genTau2PtVsGenTau1PtGenToken_(GetToken<double>(collector, cfg, "genTau2PtVsGenTau1PtGenName", "embeddingKineReweightGENembedding:genTau2PtVsGenTau1Pt")),
-  genTau2EtaVsGenTau1EtaGenToken_(GetToken<double>(collector, cfg, "genTau2EtaVsGenTau1EtaGenName", "embeddingKineReweightGENembedding:genTau2EtaVsGenTau1Eta")),
-  diTauMassVsGenDiTauPtGenToken_(GetToken<double>(collector, cfg, "diTauMassVsGenDiTauPtGenName", "embeddingKineReweightGENembedding:genDiTauMassVsGenDiTauPt")),
-  genTau2PtVsGenTau1PtRecToken_(GetToken<double>(collector, cfg, "genTau2PtVsGenTau1PtRecName", "embeddingKineReweightRECembedding:genTau2PtVsGenTau1Pt")),
-  genTau2EtaVsGenTau1EtaRecToken_(GetToken<double>(collector, cfg, "genTau2EtaVsGenTau1EtaRecName", "embeddingKineReweightRECembedding:genTau2EtaVsGenTau1Eta")),
-  diTauMassVsGenDiTauPtRecToken_(GetToken<double>(collector, cfg, "diTauMassVsGenDiTauPtRecName", "embeddingKineReweightRECembedding:genDiTauMassVsGenDiTauPt")),
-  genInfo_(cfg.getUntrackedParameter<bool>  ("useGenInfo","True")),
-  recHit_ (cfg.getUntrackedParameter<bool>  ("useRecHit","True")),
-  useMuRad_ (cfg.getUntrackedParameter<bool>  ("useMuonRad","True")),
+  genInfo_(cfg.getUntrackedParameter<bool>  ("useGenInfo", true)),
+  recHit_ (cfg.getUntrackedParameter<bool>  ("useRecHit", true)),
+  useMuRad_ (cfg.getUntrackedParameter<bool>  ("useMuonRad", true)),
+  genWeightToken_(GetToken<double>(collector, cfg, "genWeightName", !genInfo_)), //generator_weight:weight:EmbeddedRECO
+  genInfoToken_(GetToken<GenFilterInfo>(collector, cfg, "genInfoName", genInfo_)), //generator_weight:minVisPtFilter:EmbeddedRECO
+  spinnerWeightToken_(GetToken<double>(collector, cfg, "spinnerWeightName", recHit_)), //TauSpinnerRec:TauSpinnerWT:EmbeddedSPIN
+  spinnerWeightFlipToken_(GetToken<double>(collector, cfg, "spinnerWeightFlipName", recHit_)), //TauSpinnerRec:TauSpinnerWTFlip:EmbeddedSPIN
+  spinnerWeightMinusToken_(GetToken<double>(collector, cfg, "spinnerWeightMinusName", recHit_)), //TauSpinnerRec:TauSpinnerWThplus:EmbeddedSPIN
+  spinnerWeightPlusToken_(GetToken<double>(collector, cfg, "spinnerWeightPlusName", recHit_)), //TauSpinnerRec:TauSpinnerWThminus:EmbeddedSPIN
+  muEffWeightToken_(GetToken<double>(collector, cfg, "muEffWeightName", recHit_)), //ZmumuEvtSelEffCorrWeightProducer:weight:EmbeddedRECO
+  muEffWeightUpToken_(GetToken<double>(collector, cfg, "muEffWeightUpName", recHit_)), //ZmumuEvtSelEffCorrWeightProducer:weightUp:EmbeddedRECO
+  muEffWeightDownToken_(GetToken<double>(collector, cfg, "muEffWeightDownName", recHit_)), //ZmumuEvtSelEffCorrWeightProducer:weightDown:EmbeddedRECO
+  muRadWeightToken_(GetToken<double>(collector, cfg, "muRadWeightName", recHit_ && useMuRad_)), //muonRadiationCorrWeightProducer:weight:EmbeddedRECO
+  muRadWeightUpToken_(GetToken<double>(collector, cfg, "muRadWeightUpName", recHit_ && useMuRad_)), //muonRadiationCorrWeightProducer:weightUp:EmbeddedRECO
+  muRadWeightDownToken_(GetToken<double>(collector, cfg, "muRadWeightDownName", recHit_ && useMuRad_)), //muonRadiationCorrWeightProducer:weightDown:EmbeddedRECO
+  genTau2PtVsGenTau1PtGenToken_(GetToken<double>(collector, cfg, "genTau2PtVsGenTau1PtGenName", recHit_)), //embeddingKineReweightGENembedding:genTau2PtVsGenTau1Pt
+  genTau2EtaVsGenTau1EtaGenToken_(GetToken<double>(collector, cfg, "genTau2EtaVsGenTau1EtaGenName", recHit_)), //embeddingKineReweightGENembedding:genTau2EtaVsGenTau1Eta
+  diTauMassVsGenDiTauPtGenToken_(GetToken<double>(collector, cfg, "diTauMassVsGenDiTauPtGenName", recHit_)), //embeddingKineReweightGENembedding:genDiTauMassVsGenDiTauPt
+  genTau2PtVsGenTau1PtRecToken_(GetToken<double>(collector, cfg, "genTau2PtVsGenTau1PtRecName", recHit_)), //embeddingKineReweightRECembedding:genTau2PtVsGenTau1Pt
+  genTau2EtaVsGenTau1EtaRecToken_(GetToken<double>(collector, cfg, "genTau2EtaVsGenTau1EtaRecName", recHit_)), //embeddingKineReweightRECembedding:genTau2EtaVsGenTau1Eta
+  diTauMassVsGenDiTauPtRecToken_(GetToken<double>(collector, cfg, "diTauMassVsGenDiTauPtRecName", recHit_)),  //embeddingKineReweightRECembedding:genDiTauMassVsGenDiTauPt
   mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkEmbedWeightBrn)),
   embedWeight_(new mithep::EmbedWeightArr)
 {

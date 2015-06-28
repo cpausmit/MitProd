@@ -12,7 +12,7 @@ mithep::FillerPileupEnergyDensity::FillerPileupEnergyDensity(edm::ParameterSet c
   rhos_(new mithep::PileupEnergyDensityArr)
 {
   for (unsigned iA = 0; iA != mithep::PileupEnergyDensity::nAlgos; ++iA)
-    edmToken_[iA] = GetToken<double>(collector, cfg, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA));
+    edmToken_[iA] = GetToken<double>(collector, cfg, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA), false);
 }
 
 mithep::FillerPileupEnergyDensity::~FillerPileupEnergyDensity()

@@ -71,7 +71,7 @@ def configureForMiniAOD(treeFiller):
 
     treeFiller.MuonTracks = cms.untracked.PSet(
         active = cms.untracked.bool(True),
-        sourceType = cms.untracked.uint32(3),
+        sourceType = cms.untracked.string('MuonInner'),
         mitName = cms.untracked.string('MuonTracks'),
         edmName = cms.untracked.string('slimmedMuons'),
         trackMapName = cms.untracked.string('MuonTracksMapName'),
@@ -79,23 +79,23 @@ def configureForMiniAOD(treeFiller):
     )
 
     treeFiller.StandaloneMuonTracks.edmName = 'slimmedMuons'
-    treeFiller.StandaloneMuonTracks.sourceType = 4
+    treeFiller.StandaloneMuonTracks.sourceType = 'MuonStandalone'
 
     treeFiller.GlobalMuonTracks.edmName = 'slimmedMuons'
-    treeFiller.GlobalMuonTracks.sourceType = 5
+    treeFiller.GlobalMuonTracks.sourceType = 'MuonCombined'
 
     treeFiller.FirstHitMuonTracks.edmName = 'slimmedMuons'
-    treeFiller.FirstHitMuonTracks.sourceType = 6
+    treeFiller.FirstHitMuonTracks.sourceType = 'MuonTPFMS'
 
     treeFiller.PickyMuonTracks.edmName = 'slimmedMuons'
-    treeFiller.PickyMuonTracks.sourceType = 7
+    treeFiller.PickyMuonTracks.sourceType = 'MuonPicky'
 
     treeFiller.DYTMuonTracks.edmName = 'slimmedMuons'
-    treeFiller.DYTMuonTracks.sourceType = 8
+    treeFiller.DYTMuonTracks.sourceType = 'MuonDYT'
 
     treeFiller.ElectronTracks = cms.untracked.PSet(
         active = cms.untracked.bool(True),
-        sourceType = cms.untracked.uint32(2),
+        sourceType = cms.untracked.string('ElectronCtf'),
         mitName = cms.untracked.string('ElectronTracks'),
         edmName = cms.untracked.string('slimmedElectrons'),
         trackMapName = cms.untracked.string('ElectronTracksMapName'),
@@ -103,7 +103,9 @@ def configureForMiniAOD(treeFiller):
     )
 
     treeFiller.GsfTracks.edmName = 'slimmedElectrons'
-    treeFiller.GsfTracks.sourceType = 1
+    treeFiller.GsfTracks.sourceType = 'ElectronGsf'
+    treeFiller.GsfTracks.trackingMapName = ''
+    treeFiller.GsfTracks.edmSimAssociationName = ''
 
     treeFiller.PrimaryVertexes.edmName = 'offlineSlimmedPrimaryVertices'
 

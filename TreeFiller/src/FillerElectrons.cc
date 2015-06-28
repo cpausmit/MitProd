@@ -25,21 +25,21 @@
 
 mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active/* = true*/) :
   BaseFiller(cfg,os,name,active),
-  edmToken_                 (GetToken<GsfElectronView>(collector, cfg, "edmName",
-                                                       "pixelMatchGsfElectrons")),
-  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, cfg, "pvEdmName",
-                                                              "offlinePrimaryVertices")),
-  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName",
-                                                              "offlinePrimaryVerticesWithBS")),  
-  generalTracksToken_       (GetToken<reco::TrackCollection>(collector, cfg, "generalTracksName", "generalTracks")),
-  gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, cfg, "gsfTracksName", "electronGsfTracks")),
-  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, cfg, "conversionsName")),
-  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", "offlineBeamSpot")),
-  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", "offlineBeamSpot")),
-  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName")),
-  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", "eidTight")),
-  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", "eidLoose")),
-  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", "")),
+  recomputeConversionInfo_  (cfg.getUntrackedParameter<bool>("recomputeConversionInfo", false)),
+  fitUnbiasedVertex_        (cfg.getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
+  fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
+  edmToken_                 (GetToken<GsfElectronView>(collector, cfg, "edmName")), //pixelMatchGsfElectrons
+  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, cfg, "pvEdmName", false)), //offlinePrimaryVertices
+  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName", false)), //offlinePrimaryVerticesWithBS
+  generalTracksToken_       (GetToken<reco::TrackCollection>(collector, cfg, "generalTracksName", recomputeConversionInfo_)), //generalTracks
+  gsfTracksToken_           (GetToken<reco::GsfTrackCollection>(collector, cfg, "gsfTracksName", recomputeConversionInfo_)), //electronGsfTracks
+  conversionsToken_         (GetToken<mitedm::DecayPartCol>(collector, cfg, "conversionsName", false)), //
+  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", !pvEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", !pvBSEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName", !fillFromPAT_)),
+  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", !fillFromPAT_)), //eidTight
+  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", !fillFromPAT_)), //eidLoose
+  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", false)),
   eIDCutBasedTightName_     (cfg.getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
   eIDCutBasedLooseName_     (cfg.getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
   mitName_                  (cfg.getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
@@ -53,9 +53,6 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   pfEcalBarrelSuperClusterMapName_(cfg.getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(cfg.getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName", "")),
   pfCandidateMapName_       (cfg.getUntrackedParameter<std::string>("pfCandidateMapName", "")),
-  recomputeConversionInfo_  (cfg.getUntrackedParameter<bool>("recomputeConversionInfo", false)),  
-  fitUnbiasedVertex_        (cfg.getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
-  fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
   electronMap_              (new mithep::ElectronMap),
   electronPFMap_            (0),
   electrons_                (new mithep::ElectronArr(16)),
@@ -165,7 +162,6 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
 
   edm::Handle<GsfElectronView> hElectronProduct;
   GetProduct(edmToken_, hElectronProduct, event);
-
   auto& inElectrons = *hElectronProduct;
 
   if (fillFromPAT_ && inElectrons.size() != 0 &&
@@ -190,28 +186,6 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     edm::Handle<edm::ValueMap<float> > eidLikelihoodMapH;
     GetProduct(eIDLikelihoodToken_, eidLikelihoodMapH, event);
     eidLikelihoodMap = eidLikelihoodMapH.product();
-  }
-
-  edm::Handle<reco::VertexCollection> hVertex;
-  if (!pvEdmToken_.isUninitialized())
-    GetProduct(pvEdmToken_, hVertex, event);
-
-  edm::Handle<reco::VertexCollection> hVertexBS;
-  if (!pvBSEdmToken_.isUninitialized())
-    GetProduct(pvBSEdmToken_, hVertexBS, event);
-
-  reco::BeamSpot const* pvbeamspot = 0;
-  if (fitUnbiasedVertex_ && !pvBeamSpotToken_.isUninitialized()) {
-    edm::Handle<reco::BeamSpot> pvbeamspotH;
-    GetProduct(pvBeamSpotToken_, pvbeamspotH, event);
-    pvbeamspot = pvbeamspotH.product();
-  }
-
-  reco::BeamSpot const* pvbsbeamspot = 0;
-  if (fitUnbiasedVertex_ && !pvbsBeamSpotToken_.isUninitialized()) {
-    edm::Handle<reco::BeamSpot> pvbsbeamspotH;
-    GetProduct(pvbsBeamSpotToken_, pvbsbeamspotH, event);
-    pvbsbeamspot = pvbsbeamspotH.product();
   }
 
   edm::Handle<reco::TrackCollection> hGeneralTracks;
@@ -239,20 +213,33 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
   }
 
-  VertexReProducer* vtxReProducers[] = {0, 0};
   reco::VertexCollection const* vertexCols[2] = {};
-  if (fitUnbiasedVertex_) {
-    if (hVertex.isValid()) {
+  reco::BeamSpot const* beamspots[2] = {};
+  VertexReProducer* vtxReProducers[2] = {};
+
+  if (!pvEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertex;
+    GetProduct(pvEdmToken_, hVertex, event);
+    vertexCols[0] = hVertex.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbeamspotH;
+      GetProduct(pvBeamSpotToken_, pvbeamspotH, event);
+      beamspots[0] = pvbeamspotH.product();
       vtxReProducers[0] = new VertexReProducer(hVertex, event);
-      vertexCols[0] = hVertex.product();
-    }
-    if (hVertexBS.isValid()) {
-      vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
-      vertexCols[1] = hVertexBS.product();
     }
   }
 
-  reco::BeamSpot const* beamspots[] = {pvbeamspot, pvbsbeamspot};
+  if (!pvBSEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertexBS;
+    GetProduct(pvBSEdmToken_, hVertexBS, event);
+    vertexCols[1] = hVertexBS.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbsbeamspotH;
+      GetProduct(pvbsBeamSpotToken_, pvbsbeamspotH, event);
+      beamspots[1] = pvbsbeamspotH.product();
+      vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+    }
+  }
 
   typedef std::function<void(mithep::Electron&, double)> Setter;
 
@@ -397,7 +384,7 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
           continue;
 
         reco::Vertex const& pv = vertexCols[iPVType]->at(0);
-        reco::Vertex pvub = vertexCols[iPVType]->at(0);
+        reco::Vertex pvub = pv;
 
         if (fitUnbiasedVertex_ && ctfTrackRef.isNonnull() && inElectron.shFracInnerHits() > 0.5) {
           if (!beamspots[iPVType])

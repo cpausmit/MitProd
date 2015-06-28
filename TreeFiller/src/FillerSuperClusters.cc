@@ -26,11 +26,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::SuperClusterCollection>(collector, cfg, "edmName","hybridSuperClusters")),
-  //YI caloTowerToken_(GetToken<CaloTowerCollection>(collector, cfg, "caloTowerName","towerMaker")),
-  ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "ebRecHitsName", "reducedEcalRecHitsEB")),
-  eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "eeRecHitsName", "reducedEcalRecHitsEE")),
-  esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "esRecHitsName", "reducedEcalRecHitsES")),
+  edmToken_(GetToken<reco::SuperClusterCollection>(collector, cfg, "edmName")), //hybridSuperClusters
+  //YI caloTowerToken_(GetToken<CaloTowerCollection>(collector, cfg, "caloTowerName")), //towerMaker
+  ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "ebRecHitsName", false)), //reducedEcalRecHitsEB
+  eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "eeRecHitsName", false)), //reducedEcalRecHitsEE
+  esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "esRecHitsName", false)), //reducedEcalRecHitsES
   mitName_              (cfg.getUntrackedParameter<string>("mitName","SuperClusters")),
   basicClusterMapName_  (cfg.getUntrackedParameter<string>("basicClusterMapName", "BasicClusterMap")),
   psClusterMapName_     (cfg.getUntrackedParameter<string>("psClusterMapName", "")),
@@ -148,10 +148,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   // mustache id
   reco::Mustache mustache;
 
-  // es shape variables
-  edm::Handle<EcalRecHitCollection> hESRecHits;
-  GetProductSafe(esRecHitsToken_, hESRecHits, event);
-
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
@@ -164,7 +160,11 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
   // map of preshower rechits for shape calculations
   std::map<DetId, EcalRecHit const*> esmap;
-  if (hESRecHits.isValid()) {
+  if (!esRecHitsToken_.isUninitialized()) {
+    // es shape variables
+    edm::Handle<EcalRecHitCollection> hESRecHits;
+    GetProduct(esRecHitsToken_, hESRecHits, event);
+
     auto& esRecHits = *hESRecHits;
     EcalRecHitCollection::const_iterator it;
     for (auto esHit : esRecHits) {

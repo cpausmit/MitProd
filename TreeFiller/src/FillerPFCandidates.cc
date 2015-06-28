@@ -9,8 +9,9 @@
 
 mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<PFCollection>(collector, cfg, "edmName", "particleFlow")),
-  edmPfNoPileupToken_(GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", "pfNoElectrons")),
+  fillPfNoPileup_           (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
+  edmToken_(GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
+  edmPfNoPileupToken_(GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
   gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
@@ -25,7 +26,6 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
   allowMissingClusterRef_   (cfg.getUntrackedParameter<bool>("allowMissingClusterRef", false)),
   allowMissingPhotonRef_    (cfg.getUntrackedParameter<bool>("allowMissingPhotonRef", false)),
-  fillPfNoPileup_           (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
   gsfTrackMap_              (0),
   muonMap_                  (0),
   electronMap_              (0),

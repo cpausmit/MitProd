@@ -46,15 +46,15 @@ namespace mithep
       typedef edm::View<reco::Muon> MuonView;
 
       enum SourceType {
-        kTracks,        // 0
-        kElectronGsf,   // 1
-        kElectronCtf,   // 2
-        kMuonInner,     // 3
-        kMuonStandalone,// 4
-        kMuonCombined,  // 5
-        kMuonTPFMS,     // 6
-        kMuonPicky,     // 7
-        kMuonDYT,       // 8
+        kTracks,
+        kElectronGsf,
+        kElectronCtf,
+        kMuonInner,
+        kMuonStandalone,
+        kMuonCombined,
+        kMuonTPFMS,
+        kMuonPicky,
+        kMuonDYT,
         nSourceTypes
       };        
 

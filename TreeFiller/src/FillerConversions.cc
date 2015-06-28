@@ -12,14 +12,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerConversions::FillerConversions(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller         (cfg,os,name,active),
-  edmToken_           (GetToken<reco::ConversionCollection>(collector, cfg, "edmName","conversions")),
+  edmToken_          (GetToken<reco::ConversionCollection>(collector, cfg, "edmName")), //conversions
   mitName_           (cfg.getUntrackedParameter<string>("mitName","Conversions")),
   checkTrackRef_     (cfg.getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
-  stablePartMapNames_(cfg.exists("stablePartMaps") ? 
-		      cfg.getUntrackedParameter<vector<string> >("stablePartMaps") : 
-		      vector<string>()),
-  conversionMapName_ (cfg.getUntrackedParameter<string>("conversionMapName",
-							   Form("%sMapName",mitName_.c_str()))),
+  stablePartMapNames_(cfg.getUntrackedParameter<vector<string> >("stablePartMaps", vector<string>())),
+  conversionMapName_ (cfg.getUntrackedParameter<string>("conversionMapName", mitName_ + "MapName")),
   conversions_       (new mithep::ConversionArr(16)),
   conversionMap_     (new mithep::ConversionMap)
 {

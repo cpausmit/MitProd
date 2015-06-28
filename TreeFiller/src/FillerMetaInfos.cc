@@ -12,7 +12,7 @@
 
 mithep::FillerMetaInfos::FillerMetaInfos(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, ObjectService* os, char const* name/* = "MetaInfos"*/, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
-  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", "")),
+  l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", false)),
   evtName_(cfg.getUntrackedParameter<string>("evtMitName", mithep::Names::gkEvtHeaderBrn)),
   tws_(0),
   eventHeader_(new EventHeader()),

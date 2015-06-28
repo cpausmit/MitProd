@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -16,21 +17,16 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 
-using namespace std;
-using namespace edm;
-using namespace mithep;
-
-//--------------------------------------------------------------------------------------------------
-FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
+mithep::FillerTracks::FillerTracks(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  sourceType_(SourceType(cfg.getUntrackedParameter<unsigned>("sourceType", kTracks))),
+  sourceType_(nSourceTypes),
   ecalAssocActive_(cfg.getUntrackedParameter<bool>("ecalAssocActive", false)),
-  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, cfg, "edmSimAssociationName")),
-  mitName_(cfg.getUntrackedParameter<string>("mitName", Names::gkTrackBrn)),
-  trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName", "")),
-  barrelSuperClusterIdMapName_(cfg.getUntrackedParameter<string>("superClusterIdMapName", "")),
-  endcapSuperClusterIdMapName_(cfg.getUntrackedParameter<string>("endcapClusterIdMapName", "")),
-  trackMapName_(cfg.getUntrackedParameter<string>("trackMapName", mitName_ + "MapName")),
+  edmSimAssocToken_(GetToken<reco::RecoToSimCollection>(collector, cfg, "edmSimAssociationName", false)),
+  mitName_(cfg.getUntrackedParameter<std::string>("mitName", Names::gkTrackBrn)),
+  trackingMapName_(cfg.getUntrackedParameter<std::string>("trackingMapName", "")),
+  barrelSuperClusterIdMapName_(cfg.getUntrackedParameter<std::string>("superClusterIdMapName", "")),
+  endcapSuperClusterIdMapName_(cfg.getUntrackedParameter<std::string>("endcapClusterIdMapName", "")),
+  trackMapName_(cfg.getUntrackedParameter<std::string>("trackMapName", mitName_ + "MapName")),
   trackingMap_(0),
   tracks_(new mithep::TrackArr(250)),
   hitReader_(),
@@ -39,6 +35,29 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
   eleTrackMap_(0),
   muTrackMap_(0)
 {
+  std::string sourceType(cfg.getUntrackedParameter<std::string>("sourceType", "Tracks"));
+  if (sourceType == "Tracks")
+    sourceType_ = kTracks;
+  else if (sourceType == "ElectronGsf")
+    sourceType_ = kElectronGsf;
+  else if (sourceType == "ElectronCtf")
+    sourceType_ = kElectronCtf;
+  else if (sourceType == "MuonInner")
+    sourceType_ = kMuonInner;
+  else if (sourceType == "MuonStandalone")
+    sourceType_ = kMuonStandalone;
+  else if (sourceType == "MuonCombined")
+    sourceType_ = kMuonCombined;
+  else if (sourceType == "MuonTPFMS")
+    sourceType_ = kMuonTPFMS;
+  else if (sourceType == "MuonPicky")
+    sourceType_ = kMuonPicky;
+  else if (sourceType == "MuonDYT")
+    sourceType_ = kMuonDYT;
+  else
+    throw edm::Exception(edm::errors::Configuration, "FillerTracks::Ctor")
+      << "Invalid source type " << sourceType;
+
   if (trackMapName_.empty()) {
     throw edm::Exception(edm::errors::Configuration, "FillerTracks::Ctor")
       << "trackMapName cannot be empty";
@@ -51,11 +70,11 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
 
   switch (sourceType_) {
   case kTracks:
-    edmToken_ = GetToken<TrackView>(collector, cfg, "edmName", "generalTracks");
+    edmToken_ = GetToken<TrackView>(collector, cfg, "edmName"); //generalTracks
     break;
   case kElectronGsf:
   case kElectronCtf:
-    edmElectronToken_ = GetToken<ElectronView>(collector, cfg, "edmName", "slimmedElectrons");
+    edmElectronToken_ = GetToken<ElectronView>(collector, cfg, "edmName"); //slimmedElectrons
     break;
   case kMuonInner:
   case kMuonStandalone:
@@ -63,7 +82,8 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
   case kMuonTPFMS:
   case kMuonPicky:
   case kMuonDYT:
-    edmMuonToken_ = GetToken<MuonView>(collector, cfg, "edmName", "slimmedMuons");
+    edmMuonToken_ = GetToken<MuonView>(collector, cfg, "edmName"); //slimmedMuons
+    break;
   default:
     break;
   }
@@ -76,7 +96,7 @@ FillerTracks::FillerTracks(const ParameterSet &cfg, edm::ConsumesCollector& coll
 }
 
 //--------------------------------------------------------------------------------------------------
-FillerTracks::~FillerTracks()
+mithep::FillerTracks::~FillerTracks()
 {
   delete tracks_;
   delete assocParams_;
@@ -87,7 +107,7 @@ FillerTracks::~FillerTracks()
 
 //--------------------------------------------------------------------------------------------------
 void
-FillerTracks::BookDataBlock(TreeWriter& tws)
+mithep::FillerTracks::BookDataBlock(TreeWriter& tws)
 {
   // Add tracks branch to tree, publish and get our objects.
 
@@ -122,7 +142,7 @@ FillerTracks::BookDataBlock(TreeWriter& tws)
 }
 
 void
-FillerTracks::PrepareLinks()
+mithep::FillerTracks::PrepareLinks()
 {
   if (!trackingMapName_.empty()) {
     trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_);
@@ -143,7 +163,7 @@ FillerTracks::PrepareLinks()
 
 //--------------------------------------------------------------------------------------------------
 void
-FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setup)
+mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setup)
 {
   // Fill tracks from edm collection into our collection.
   tracks_->Delete();
@@ -161,7 +181,7 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
   switch (sourceType_) {
   case kTracks:
     {
-      Handle<TrackView> hTrackProduct;
+      edm::Handle<TrackView> hTrackProduct;
       GetProduct(edmToken_, hTrackProduct, event);
       tracksView = hTrackProduct.product();
       trackMap_->SetEdmProductId(hTrackProduct.id().id());
@@ -170,7 +190,7 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
   case kElectronGsf:
   case kElectronCtf:
     {
-      Handle<ElectronView> hElectrons;
+      edm::Handle<ElectronView> hElectrons;
       GetProduct(edmElectronToken_, hElectrons, event);
       electronsView = hElectrons.product();
     }
@@ -182,7 +202,7 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
   case kMuonPicky:
   case kMuonDYT:
     {
-      Handle<MuonView> hMuons;
+      edm::Handle<MuonView> hMuons;
       GetProduct(edmMuonToken_, hMuons, event);
       muonsView = hMuons.product();
     }
@@ -199,12 +219,24 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
     [this, muonsView, &inOutPairs](reco::Muon::MuonTrackType type) {
     for (auto&& mPtr : muonsView->ptrs()) {
       auto& mu = *mPtr;
-      if (mu.isAValidMuonTrack(type) ||
-          (mu.muonBestTrackType() == type && mu.muonBestTrack().isNonnull()) ||
-          (mu.tunePMuonBestTrackType() == type && mu.tunePMuonBestTrack().isNonnull())) {
-        auto* outTrack = this->ProduceTrack(*mu.muonTrack(type));
+      reco::Track const* inTrack = 0;
+      auto&& ref = mu.muonTrack(type);
+      if (ref.isAvailable())
+        inTrack = ref.get();
+      else if (mu.muonBestTrackType() == type) {
+        auto&& bestRef = mu.muonBestTrack();
+        if (bestRef.isAvailable())
+          inTrack = bestRef.get();
+        else if(mu.tunePMuonBestTrackType() == type) {
+          auto&& tunePBestRef = mu.tunePMuonBestTrack();
+          if (tunePBestRef.isAvailable())
+            inTrack = tunePBestRef.get();
+        }
+      }
+      if (inTrack) {
+        auto* outTrack = this->ProduceTrack(*inTrack);
         this->muTrackMap_->Add(mPtr, outTrack);
-        inOutPairs.push_back(InOutPair(mu.muonTrack(type).get(), outTrack));
+        inOutPairs.push_back(InOutPair(inTrack, outTrack));
       }
     }
   };
@@ -228,7 +260,14 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
 
   case kElectronCtf:
     for (auto&& ePtr : electronsView->ptrs()) {
-      auto&& trkRef = ePtr->closestCtfTrackRef();
+      reco::TrackRef trkRef;
+      // bug? in reco::GsfElectron: closestCtfTrackRef is not virtual!
+      auto* patE = dynamic_cast<pat::Electron const*>(ePtr.get());
+      if (patE)
+        trkRef = patE->closestCtfTrackRef();
+      else
+        trkRef = ePtr->closestCtfTrackRef();
+
       if (trkRef.isNonnull()) {
         auto* outTrack = ProduceTrack(*trkRef);
         eleTrackMap_->Add(ePtr, outTrack);
@@ -282,16 +321,16 @@ FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup const& setu
 }
 
 void
-FillerTracks::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+mithep::FillerTracks::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
 {
   if (sourceType_ == kTracks && trackingMap_ && !edmSimAssocToken_.isUninitialized()) {
     // for MC SimParticle association (reco->sim mappings)
 
-    Handle<TrackView> hTrackProduct;
+    edm::Handle<TrackView> hTrackProduct;
     GetProduct(edmToken_, hTrackProduct, event);
     auto& trackView = *hTrackProduct;
 
-    Handle<reco::RecoToSimCollection> simAssociationProduct;
+    edm::Handle<reco::RecoToSimCollection> simAssociationProduct;
     GetProduct(edmSimAssocToken_, simAssociationProduct, event);  
     auto& simAssociation = *simAssociationProduct;
     if (verbose_>1)
