@@ -571,12 +571,22 @@ mithep::FillerElectrons::ResolveLinks(edm::Event const& event, edm::EventSetup c
       }
 
       if (eleTrackerTrackMap_) {
-        auto* trk = eleTrackerTrackMap_->GetMit(ePtr, false);
-        if (trk)
-          outElectron->SetTrackerTrk(trk);
-        else if (checkClusterActive_)
-          throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
-            << "Error! Tracker track unmapped collection";
+        reco::TrackRef trkRef;
+        // bug in reco::GsfElectron: closestCtfTrackRef is not virtual!
+        auto* patE = dynamic_cast<pat::Electron const*>(ePtr.get());
+        if (patE)
+          trkRef = patE->closestCtfTrackRef();
+        else
+          trkRef = ePtr->closestCtfTrackRef();
+
+        if (trkRef.isNonnull()) {
+          auto* trk = eleTrackerTrackMap_->GetMit(ePtr, false);
+          if (trk)
+            outElectron->SetTrackerTrk(trk);
+          else if (checkClusterActive_)
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Error! Tracker track unmapped collection";
+        }
       }
     }
     else {

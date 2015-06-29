@@ -261,7 +261,7 @@ mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup con
   case kElectronCtf:
     for (auto&& ePtr : electronsView->ptrs()) {
       reco::TrackRef trkRef;
-      // bug? in reco::GsfElectron: closestCtfTrackRef is not virtual!
+      // bug in reco::GsfElectron: closestCtfTrackRef is not virtual!
       auto* patE = dynamic_cast<pat::Electron const*>(ePtr.get());
       if (patE)
         trkRef = patE->closestCtfTrackRef();

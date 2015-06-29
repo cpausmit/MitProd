@@ -114,10 +114,8 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Muons.pvBSEdmName = ''
     treeFiller.Muons.pvBeamSpotName = 'offlineBeamSpot'
     treeFiller.Muons.pvbsBeamSpotName = ''
-    treeFiller.Muons.globalTrackMapName = ''
-    treeFiller.Muons.staTrackMapName = ''
     treeFiller.Muons.staVtxTrackMapName = ''
-    treeFiller.Muons.trackerTrackMapName = ''
+    treeFiller.Muons.trackerTrackMapName = 'MuonTracksMapName'
     treeFiller.Muons.muonPFMapName = 'muonPFMap'
     treeFiller.Muons.fillFromPAT = True
 
@@ -127,7 +125,7 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Electrons.conversionsName = ''
     treeFiller.Electrons.pvbsBeamSpotName = ''
     treeFiller.Electrons.footprintName = ''
-    treeFiller.Electrons.trackerTrackMapName = ''
+    treeFiller.Electrons.trackerTrackMapName = 'ElectronTracksMapName'
     treeFiller.Electrons.pfEcalBarrelSuperClusterMapName = ''
     treeFiller.Electrons.pfEcalEndcapSuperClusterMapName = ''
     treeFiller.Electrons.electronPFMapName = 'electronPFMap'

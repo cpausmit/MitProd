@@ -33,6 +33,10 @@ namespace mithep
     typedef edm::View<reco::Muon> MuonView;
 
   private:
+    // because someone decided that it's a good idea to have track types ordered differently
+    unsigned char RecoToMithep(unsigned char) const;
+    unsigned char MithepToReco(unsigned char) const;
+
     int  NumberOfSegments(reco::Muon const&, int, int,
                           reco::Muon::ArbitrationType = reco::Muon::SegmentAndTrackArbitration);
 

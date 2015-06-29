@@ -172,17 +172,15 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
   };
   Setter pvcompatSetters[] = {&mithep::Muon::SetPVCompatibility, &mithep::Muon::SetPVBSCompatibility};
 
-  unsigned iMuon = 0;
-  for (auto&& inMuon : inMuons) {
-    edm::Ptr<reco::Muon> mPtr(hMuonProduct, iMuon);
-    ++iMuon;
+  for (auto&& mPtr : inMuons.ptrs()) {
+    auto& inMuon = *mPtr;
+    auto* outMuon = muons_->AddNew();
 
-    auto outMuon = muons_->AddNew();
+    outMuon->SetBestTrkType     (RecoToMithep(inMuon.muonBestTrackType()));
+    outMuon->SetTunePBestTrkType(RecoToMithep(inMuon.tunePMuonBestTrackType()));
 
     outMuon->SetPtEtaPhi        (inMuon.pt(),inMuon.eta(),inMuon.phi());
     outMuon->SetCharge          (inMuon.charge());
-    outMuon->SetBestTrkType     (inMuon.muonBestTrackType());
-    outMuon->SetTunePBestTrkType(inMuon.tunePMuonBestTrackType());
     outMuon->SetIsoR03SumPt     (inMuon.isolationR03().sumPt);
     outMuon->SetIsoR03EmEt      (inMuon.isolationR03().emEt);
     outMuon->SetIsoR03HadEt     (inMuon.isolationR03().hadEt);
@@ -427,9 +425,10 @@ mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const
 
     if (fillFromPAT_) {
       for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+        // MuonTrackType in reco::Muon is shifted by 1
         auto recoType = reco::Muon::MuonTrackType(iT + 1);
         if (muonTrackMap_[iT] &&
-            (inMuon.muonTrack(recoType).isAvailable() || // MuonTrackType in reco::Muon is shifted by 1
+            (inMuon.muonTrack(recoType).isAvailable() ||
              (inMuon.muonBestTrackType() == recoType && inHasBest) ||
              (inMuon.tunePMuonBestTrackType() == recoType && inHasTunePBest)))
           setters[iT](outMuon, muonTrackMap_[iT]->GetMit(mPtr));
@@ -454,6 +453,48 @@ mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const
         }
       }
     }
+  }
+}
+
+unsigned char
+mithep::FillerMuons::RecoToMithep(unsigned char recoType) const
+{
+  switch (recoType) {
+  case reco::Muon::InnerTrack:
+    return mithep::Muon::kTracker;
+  case reco::Muon::OuterTrack:
+    return mithep::Muon::kSta;
+  case reco::Muon::CombinedTrack:
+    return mithep::Muon::kGlobal;
+  case reco::Muon::TPFMS:
+    return mithep::Muon::kTrackerPlusFirstStation;
+  case reco::Muon::Picky:
+    return mithep::Muon::kPicky;
+  case reco::Muon::DYT:
+    return mithep::Muon::kDYT;
+  default:
+    return mithep::Muon::kNone;
+  }
+}
+
+unsigned char
+mithep::FillerMuons::MithepToReco(unsigned char mitType) const
+{
+  switch (mitType) {
+  case mithep::Muon::kTracker:
+    return reco::Muon::InnerTrack;
+  case mithep::Muon::kSta:
+    return reco::Muon::OuterTrack;
+  case mithep::Muon::kGlobal:
+    return reco::Muon::CombinedTrack;
+  case mithep::Muon::kTrackerPlusFirstStation:
+    return reco::Muon::TPFMS;
+  case mithep::Muon::kPicky:
+    return reco::Muon::Picky;
+  case mithep::Muon::kDYT:
+    return reco::Muon::DYT;
+  default:
+    return reco::Muon::None;
   }
 }
 
