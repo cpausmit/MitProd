@@ -1,4 +1,6 @@
+#define MITPROD_TREEFILLER_FILLERPFMET
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
+
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFMetCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
