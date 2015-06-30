@@ -12,14 +12,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerConversions::FillerConversions(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller         (cfg,os,name,active),
-  edmToken_           (GetToken<reco::ConversionCollection>(collector, "edmName","conversions")),
-  mitName_           (Conf().getUntrackedParameter<string>("mitName","Conversions")),
-  checkTrackRef_     (Conf().getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
-  stablePartMapNames_(Conf().exists("stablePartMaps") ? 
-		      Conf().getUntrackedParameter<vector<string> >("stablePartMaps") : 
-		      vector<string>()),
-  conversionMapName_ (Conf().getUntrackedParameter<string>("conversionMapName",
-							   Form("%sMapName",mitName_.c_str()))),
+  edmToken_          (GetToken<reco::ConversionCollection>(collector, cfg, "edmName")), //conversions
+  mitName_           (cfg.getUntrackedParameter<string>("mitName","Conversions")),
+  checkTrackRef_     (cfg.getUntrackedParameter<bool>  ("checkTrackRef" ,true  )),
+  stablePartMapNames_(cfg.getUntrackedParameter<vector<string> >("stablePartMaps", vector<string>())),
+  conversionMapName_ (cfg.getUntrackedParameter<string>("conversionMapName", mitName_ + "MapName")),
   conversions_       (new mithep::ConversionArr(16)),
   conversionMap_     (new mithep::ConversionMap)
 {
@@ -134,3 +131,5 @@ mithep::Particle *FillerConversions::GetMitParticle(edm::Ptr<reco::Track> ptr) c
     
   return mitPart;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerConversions);

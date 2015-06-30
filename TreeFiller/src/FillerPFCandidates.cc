@@ -7,25 +7,25 @@
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 
-mithep::FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
+mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<PFCollection>(collector, "edmName", "particleFlow")),
-  edmPfNoPileupToken_(GetToken<PFCollection>(collector, "edmPfNoPileupName", "pfNoElectrons")),
-  mitName_                  (Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
-  trackerTrackMapNames_     (Conf().getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
-  gsfTrackMapName_          (Conf().getUntrackedParameter<std::string>("gsfTrackMapName", "")),
-  muonMapName_              (Conf().getUntrackedParameter<std::string>("muonMapName", "")),
-  electronMapName_          (Conf().getUntrackedParameter<std::string>("electronMapName", "")),
-  photonMapName_            (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
-  barrelSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
-  endcapSuperClusterMapName_(Conf().getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
-  conversionMapName_        (Conf().getUntrackedParameter<std::string>("conversionMapName", "")),
-  pfCandMapName_            (Conf().getUntrackedParameter<std::string>("pfCandMapName", "")),
-  pfNoPileupCandMapName_    (Conf().getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
-  allowMissingTrackRef_     (Conf().getUntrackedParameter<bool>("allowMissingTrackRef", false)),
-  allowMissingClusterRef_   (Conf().getUntrackedParameter<bool>("allowMissingClusterRef", false)),
-  allowMissingPhotonRef_    (Conf().getUntrackedParameter<bool>("allowMissingPhotonRef", false)),
-  fillPfNoPileup_           (Conf().getUntrackedParameter<bool>("fillPfNoPileup", true)),
+  fillPfNoPileup_           (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
+  edmToken_(GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
+  edmPfNoPileupToken_(GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
+  mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
+  trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
+  gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
+  muonMapName_              (cfg.getUntrackedParameter<std::string>("muonMapName", "")),
+  electronMapName_          (cfg.getUntrackedParameter<std::string>("electronMapName", "")),
+  photonMapName_            (cfg.getUntrackedParameter<std::string>("photonMapName", "")),
+  barrelSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
+  endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
+  conversionMapName_        (cfg.getUntrackedParameter<std::string>("conversionMapName", "")),
+  pfCandMapName_            (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
+  pfNoPileupCandMapName_    (cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
+  allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
+  allowMissingClusterRef_   (cfg.getUntrackedParameter<bool>("allowMissingClusterRef", false)),
+  allowMissingPhotonRef_    (cfg.getUntrackedParameter<bool>("allowMissingPhotonRef", false)),
   gsfTrackMap_              (0),
   muonMap_                  (0),
   electronMap_              (0),
@@ -34,32 +34,43 @@ mithep::FillerPFCandidates::FillerPFCandidates(const edm::ParameterSet &cfg, edm
   endcapSuperClusterMap_    (0),
   conversionMap_            (0),
   pfCandMap_                (new mithep::PFCandidateMap),
-  pfNoPileupCandMap_        (new mithep::PFCandidateMap),
+  pfNoPileupCandMap_        (0),
   pfCands_                  (new mithep::PFCandidateArr(16))
 {
-  // Constructor.
 }
 
 mithep::FillerPFCandidates::~FillerPFCandidates() 
 {
-  // Destructor.
-
   delete pfCands_;
   delete pfCandMap_;
   delete pfNoPileupCandMap_;
 }
 
 void
-mithep::FillerPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
+mithep::FillerPFCandidates::BookDataBlock(mithep::TreeWriter& tws)
 { 
   // Add particle-flow candidate branch to tree and get pointers to maps.
 
   tws.AddBranch(mitName_, &pfCands_);
-  OS()->add<mithep::PFCandidateArr>(pfCands_, mitName_);
-  // book all tracker maps
+  OS()->add(pfCands_, mitName_);
+
+  if (!pfCandMapName_.empty()) {
+    pfCandMap_->SetBrName(mitName_);
+    OS()->add(pfCandMap_,pfCandMapName_);
+  }
+  if (fillPfNoPileup_ && !pfNoPileupCandMapName_.empty()) {
+    pfNoPileupCandMap_ = new mithep::PFCandidateMap;
+    pfNoPileupCandMap_->SetBrName(mitName_);
+    OS()->add(pfNoPileupCandMap_,pfNoPileupCandMapName_);
+  }
+}
+
+void
+mithep::FillerPFCandidates::PrepareLinks()
+{
   for (auto&& bmapName : trackerTrackMapNames_) {
     if (!bmapName.empty()) {
-      const TrackMap *map = OS()->get<TrackMap>(bmapName);
+      auto* map = OS()->get<TrackMap>(bmapName);
       if (map) {
         trackerTrackMaps_.push_back(map);
         AddBranchDep(mitName_,map->GetBrName());
@@ -101,14 +112,6 @@ mithep::FillerPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
     if (conversionMap_)
       AddBranchDep(mitName_,conversionMap_->GetBrName());
   }
-  if (!pfCandMapName_.empty()) {
-    pfCandMap_->SetBrName(mitName_);
-    OS()->add<PFCandidateMap>(pfCandMap_,pfCandMapName_);
-  }
-  if (!pfNoPileupCandMapName_.empty()) {
-    pfNoPileupCandMap_->SetBrName(mitName_);
-    OS()->add<PFCandidateMap>(pfNoPileupCandMap_,pfNoPileupCandMapName_);
-  }
 }
 
 void
@@ -126,15 +129,19 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
   PFCollection const& inPfCands = *hPfCandProduct;
 
   // get PF NoPileup Candidates
-  edm::Handle<PFCollection> hPfNoPileupCandProduct;
-  GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
-  PFCollection const& inPfNoPileupCands = *hPfNoPileupCandProduct;
+  PFCollection const* inPfNoPileupCands = 0;
+  if (fillPfNoPileup_) {
+    edm::Handle<PFCollection> hPfNoPileupCandProduct;
+    GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
+    inPfNoPileupCands = hPfNoPileupCandProduct.product();
+  }
 
   for (auto&& inPfPtr : inPfCands) {
     reco::PFCandidate const& inPf = *inPfPtr;
 
-    mithep::PFCandidate *outPfCand = pfCands_->Allocate();
-    new (outPfCand) mithep::PFCandidate(inPf.px(), inPf.py(), inPf.pz(), inPf.energy());
+    mithep::PFCandidate *outPfCand = pfCands_->AddNew();
+
+    outPfCand->SetPtEtaPhiM(inPf.pt(), inPf.eta(), inPf.phi(), inPf.mass());
 
     // fill standard variables
     outPfCand->SetCharge(inPf.charge());
@@ -210,17 +217,52 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
                        inPf.flag(reco::PFCandidate::T_FROM_GAMMACONV));
     outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
                        inPf.flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
-                       
+
+    // add to exported pf candidate map
+    pfCandMap_->Add(reco::CandidatePtr(inPfPtr.ptr()), outPfCand);
+
+    // add pf No Pileup map
+    if (fillPfNoPileup_) { 
+      // initially set the candidate to be not part of the NoPilup collection
+      outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
+
+      bool found = false;
+      // try to find match with the no-pileup map
+      for (auto&& inPfNpPtr : *inPfNoPileupCands) {
+    	if (inPfNpPtr != inPfPtr)
+          continue;
+
+        if (found)
+          edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
+            << "PF No Pileup was double linked!! ";
+
+        found = true;
+
+        // set the candidate to be part of the NoPilup collection
+        outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, true);
+        // add it to our map
+
+        pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
+      }
+    }
+  }
+
+  pfCands_->Trim();
+}
+
+void
+mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup const&)
+{
+  for (auto& ptrcand : pfCandMap_->FwdMap()) {
+    auto& inPf = static_cast<reco::PFCandidate const&>(*ptrcand.first);
+    auto* outPfCand = ptrcand.second;
+
     // fill references to other branches
     if (inPf.trackRef().isNonnull()) {
-      if (false)  // for debugging
-    	printf("track: process = %i, product = %i, algo = %i, highPurity = %i\n",
-    	       inPf.trackRef().id().processIndex(),inPf.trackRef().id().productIndex(),
-    	       inPf.trackRef()->algo(),inPf.trackRef()->quality(reco::TrackBase::highPurity));
-      const mithep::Track *thetrack = getMitTrack(refToPtr(inPf.trackRef()), allowMissingTrackRef_);
+      auto* thetrack = getMitTrack(refToPtr(inPf.trackRef()), allowMissingTrackRef_);
       outPfCand->SetTrackerTrk(thetrack);
     }    
-    
+
     // linking with the GfsTracks
     if (gsfTrackMap_ && inPf.gsfTrackRef().isNonnull()) 
       outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(inPf.gsfTrackRef())));
@@ -234,56 +276,26 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
       outPfCand->SetElectron(electronMap_->GetMit(refToPtr(inPf.gsfElectronRef())));
     
     // linking with the Photons
-    if (photonMap_ && inPf.photonRef().isNonnull()) {
-      mithep::Photon const* mitPhoton = photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_);
-      if (mitPhoton)
-        outPfCand->SetPhoton(mitPhoton);
-    }
+    if (photonMap_ && inPf.photonRef().isNonnull())
+      outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_));
     
     // linking with the SuperClusters
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
     	inPf.superClusterRef().isNonnull()) {
-      if (barrelSuperClusterMap_->HasMit(inPf.superClusterRef()))
-        outPfCand->SetSCluster(barrelSuperClusterMap_->GetMit(inPf.superClusterRef()));
-      else if (endcapSuperClusterMap_->HasMit(inPf.superClusterRef()))
-        outPfCand->SetSCluster(endcapSuperClusterMap_->GetMit(inPf.superClusterRef()));
-      else if (!allowMissingClusterRef_)
+      auto* sc = barrelSuperClusterMap_->GetMit(inPf.superClusterRef(), false);
+      if (!sc)
+        sc = endcapSuperClusterMap_->GetMit(inPf.superClusterRef(), false);
+
+      if (sc)
+        outPfCand->SetSCluster(sc);
+      else if(!allowMissingClusterRef_)
         throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
     
     if (conversionMap_ && inPf.conversionRef().isNonnull()) 
       outPfCand->SetConversion(conversionMap_->GetMit(inPf.conversionRef()));
-    
-    // add to exported pf candidate map
-    pfCandMap_->Add(reco::CandidatePtr(inPfPtr.ptr()), outPfCand);
-    
-    // add pf No Pileup map
-    if (fillPfNoPileup_) { 
-      // initially set the candidate to be not part of the NoPilup collection
-      outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
-
-      bool found = false;
-      // try to find match with the no-pileup map
-      for (auto&& inPfNpPtr : inPfNoPileupCands) {
-    	if (inPfNpPtr != inPfPtr)
-          continue;
-
-        // set the candidate to be part of the NoPilup collection
-        outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, true);
-        // add it to our map
-
-        pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
-
-        if (found)
-          edm::Exception(edm::errors::Configuration, "FillerPFCandidates:FillDataBlock()\n")
-            << "PF No Pileup was double linked!! ";
-        found = true;
-      }
-    }
-  }
-
-  pfCands_->Trim();
+  }    
 }
 
 mithep::Track const*
@@ -305,3 +317,5 @@ mithep::FillerPFCandidates::getMitTrack(mitedm::TrackPtr ptr, bool allowMissing)
     
   return 0;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFCandidates);

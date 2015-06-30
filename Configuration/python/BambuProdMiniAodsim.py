@@ -25,8 +25,8 @@ process.source.inputCommands = cms.untracked.vstring(
 #>> configurations
 
 # determine the global tag to use
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -85,6 +85,9 @@ process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', candidates = 'packedPFCandidates', primaryVertex = 'offlineSlimmedPrimaryVertices', muons = 'slimmedMuons', electrons = 'slimmedElectrons')
 
+#> Setup jet corrections
+process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   unpackedTracksAndVertices *
@@ -103,9 +106,9 @@ recoSequence = cms.Sequence(
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 # Import/Load genjets
-from RecoJets.Configuration.GenJetParticles_cff import *
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
 process.load('RecoJets.Configuration.GenJetParticles_cff')
-from RecoJets.Configuration.RecoGenJets_cff import *
+from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
 process.load('RecoJets.Configuration.RecoGenJets_cff')
 
 genParticlesForJets.src = 'packedGenParticles'

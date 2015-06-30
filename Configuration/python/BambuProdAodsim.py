@@ -34,8 +34,8 @@ process.source.inputCommands = cms.untracked.vstring(
 #>> configurations
 
 # determine the global tag to use
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -129,6 +129,9 @@ pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
+
+#> Setup jet corrections
+process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters

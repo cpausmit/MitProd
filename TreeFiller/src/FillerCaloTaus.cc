@@ -12,12 +12,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerCaloTaus::FillerCaloTaus(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::CaloTauCollection>(collector, "edmName","recoCaloTaus:iterativeCone5CaloTaus")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
-  trackMapName_(Conf().getUntrackedParameter<string>("trackMapName","TracksMapName")), 
-  jetMapName_(Conf().getUntrackedParameter<string>("jetMapName","JetMapName")), 
-  barrelBCMapName_(Conf().getUntrackedParameter<string>("barrelBCMapName","")), 
-  endcapBCMapName_(Conf().getUntrackedParameter<string>("endcapBCMapName","")), 
+  edmToken_(GetToken<reco::CaloTauCollection>(collector, cfg, "edmName")), //recoCaloTaus:iterativeCone5CaloTaus
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkCaloTauBrn)), 
+  trackMapName_(cfg.getUntrackedParameter<string>("trackMapName","TracksMapName")), 
+  jetMapName_(cfg.getUntrackedParameter<string>("jetMapName","JetMapName")), 
+  barrelBCMapName_(cfg.getUntrackedParameter<string>("barrelBCMapName","")), 
+  endcapBCMapName_(cfg.getUntrackedParameter<string>("endcapBCMapName","")), 
   trackMap_(0),
   jetMap_(0),
   barrelBCMap_(0),
@@ -87,11 +87,9 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
     
     reco::CaloTauRef tauRef(hTauProduct, inTau - inTaus.begin());
     
-    mithep::CaloTau *tau = taus_->Allocate();
-    new (tau) mithep::CaloTau(inTau->px(),
-                              inTau->py(),
-                              inTau->pz(),
-                              inTau->energy());
+    mithep::CaloTau *tau = taus_->AddNew();
+
+    tau->SetPtEtaPhiM(inTau->pt(), inTau->eta(), inTau->phi(), inTau->mass());
 
     tau->SetMomAlt(inTau->alternatLorentzVect().x(),
                    inTau->alternatLorentzVect().y(),
@@ -149,3 +147,5 @@ void FillerCaloTaus::FillDataBlock(const edm::Event      &event,
   }      
   taus_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerCaloTaus);

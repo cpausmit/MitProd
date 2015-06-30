@@ -14,12 +14,11 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerGenJets::FillerGenJets(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  flavorMatchingActive_(Conf().getUntrackedParameter<bool>("flavorMatchingActive",true)),
-  edmToken_(GetToken<reco::GenJetCollection>(collector, "edmName", "genjets")),
-  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, "flavorMatchingByReferenceName", "srcByReference")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","GenJets")), 
-  flavorMatchingDefinition_(Conf().getUntrackedParameter<string>
-                   ("flavorMatchingDefinition","Algorithmic")),
+  flavorMatchingActive_(cfg.getUntrackedParameter<bool>("flavorMatchingActive",true)),
+  edmToken_(GetToken<reco::GenJetCollection>(collector, cfg, "edmName")), //genjets
+  flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, cfg, "flavorMatchingByReferenceName", flavorMatchingActive_)), //srcByReference
+  mitName_(cfg.getUntrackedParameter<string>("mitName","GenJets")), 
+  flavorMatchingDefinition_(cfg.getUntrackedParameter<string>("flavorMatchingDefinition","Algorithmic")),
   genjets_(new mithep::GenJetArr(16))
 {
   // Constructor.
@@ -67,8 +66,10 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
     
     reco::GenJetRef jetRef(hGenJetProduct, inJet - inJets.begin());    
     
-    mithep::GenJet *jet = genjets_->Allocate();
-    new (jet) mithep::GenJet(inJet->p4().x(),inJet->p4().y(),inJet->p4().z(),inJet->p4().e());
+    mithep::GenJet *jet = genjets_->AddNew();
+
+    jet->SetPtEtaPhiM(inJet->p4().pt(), inJet->p4().eta(), inJet->p4().phi(), inJet->p4().mass());
+
     jet->SetHadEnergy(inJet->hadEnergy());
     jet->SetEmEnergy(inJet->emEnergy());
     jet->SetInvisibleEnergy(inJet->invisibleEnergy());
@@ -95,3 +96,5 @@ void FillerGenJets::FillDataBlock(const edm::Event      &event,
 
   genjets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerGenJets);

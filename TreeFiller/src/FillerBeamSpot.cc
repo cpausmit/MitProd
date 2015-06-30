@@ -10,8 +10,8 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerBeamSpot::FillerBeamSpot(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::BeamSpot>(collector, "edmName","offlineBeamSpot")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","BeamSpot")),
+  edmToken_(GetToken<reco::BeamSpot>(collector, cfg, "edmName")), //offlineBeamSpot
+  mitName_(cfg.getUntrackedParameter<string>("mitName","BeamSpot")),
   beamSpots_(new mithep::BeamSpotArr)
 {
   // Constructor.
@@ -62,3 +62,5 @@ void FillerBeamSpot::FillDataBlock(const edm::Event      &event,
   bs->SetDyDzErr(inBeamSpot->dydzError());
 
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerBeamSpot);

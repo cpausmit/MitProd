@@ -19,14 +19,12 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerDecayParts::FillerDecayParts(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<mitedm::DecayPartCol>(collector, "edmName","")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","")),
+  edmToken_(GetToken<mitedm::DecayPartCol>(collector, cfg, "edmName")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName","")),
   stableDataName_(mitName_ + "_StableDatas"),
   decayDataName_(mitName_ + "_DecayDatas"),
-  vertexMapName_(Conf().getUntrackedParameter<string>("vertexMap","")),
-  basePartMapNames_(Conf().exists("basePartMaps") ? 
-                    Conf().getUntrackedParameter<vector<string> >("basePartMaps") : 
-                    vector<string>()),
+  vertexMapName_(cfg.getUntrackedParameter<string>("vertexMap","")),
+  basePartMapNames_(cfg.getUntrackedParameter<vector<string> >("basePartMaps", vector<string>())),
   vertexMap_(0),
   decays_(new mithep::DecayParticleArr(250)),
   stableData_(new mithep::StableDataArr(500)),
@@ -243,3 +241,5 @@ mithep::Particle *FillerDecayParts::getMitParticle(mitedm::BasePartPtr ptr) cons
     
   return mitPart;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerDecayParts);

@@ -8,8 +8,8 @@
 // Authors: C.Loizides, J.Bendavid, C.Paus, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_TREEFILLER_FILLERPFTAUS_H
-#define MITPROD_TREEFILLER_FILLERPFTAUS_H
+// reverse header protection - this file should be included only by FillerPFTaus.cc
+#ifdef MITPROD_TREEFILLER_FILLERPFTAUS
 
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitProd/TreeFiller/interface/BaseFiller.h"

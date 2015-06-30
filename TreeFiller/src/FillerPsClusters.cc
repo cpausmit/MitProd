@@ -16,9 +16,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPsClusters::FillerPsClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller       (cfg,os,name,active),
-  edmToken_        (GetToken<reco::PreshowerClusterCollection>(collector, "edmName","hybridSuperClusters")),
-  mitName_         (Conf().getUntrackedParameter<string>("mitName","PsClusters")),
-  psClusterMapName_(Conf().getUntrackedParameter<string>("psClusterMapName",
+  edmToken_        (GetToken<reco::PreshowerClusterCollection>(collector, cfg, "edmName")), //hybridSuperClusters
+  mitName_         (cfg.getUntrackedParameter<string>("mitName","PsClusters")),
+  psClusterMapName_(cfg.getUntrackedParameter<string>("psClusterMapName",
 							 "PsClusterMap")),
   psClusters_      (new mithep::PsClusterArr(100)),
   psClusterMap_    (new mithep::PsClusterMap)
@@ -67,8 +67,7 @@ void FillerPsClusters::FillDataBlock(const edm::Event      &event,
   for (reco::PreshowerClusterCollection::const_iterator inBC = inPsClusters.begin(); 
        inBC != inPsClusters.end(); ++inBC) {
 
-    mithep::PsCluster *outPsCluster = psClusters_->Allocate();
-    new (outPsCluster) mithep::PsCluster();
+    mithep::PsCluster *outPsCluster = psClusters_->AddNew();
 
     outPsCluster->SetXYZ(inBC->x(),inBC->y(),inBC->z());
     outPsCluster->SetEnergy(inBC->energy());   
@@ -83,3 +82,5 @@ void FillerPsClusters::FillDataBlock(const edm::Event      &event,
   }
   psClusters_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPsClusters);

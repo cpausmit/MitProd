@@ -8,11 +8,11 @@
 mithep::FillerPileupEnergyDensity::FillerPileupEnergyDensity(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
   edmToken_{},
-  mitName_(Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPileupEnergyDensityBrn)),
+  mitName_(cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPileupEnergyDensityBrn)),
   rhos_(new mithep::PileupEnergyDensityArr)
 {
   for (unsigned iA = 0; iA != mithep::PileupEnergyDensity::nAlgos; ++iA)
-    edmToken_[iA] = GetToken<double>(collector, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA));
+    edmToken_[iA] = GetToken<double>(collector, cfg, std::string("edmName") + mithep::PileupEnergyDensity::AlgoName(iA), false);
 }
 
 mithep::FillerPileupEnergyDensity::~FillerPileupEnergyDensity()
@@ -51,3 +51,5 @@ mithep::FillerPileupEnergyDensity::FillDataBlock(edm::Event const& event,
 
   rhos_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPileupEnergyDensity);

@@ -1,4 +1,6 @@
+#define MITPROD_TREEFILLER_FILLERPFMET
 #include "MitProd/TreeFiller/interface/FillerPFMet.h"
+
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFMetCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
@@ -6,9 +8,9 @@
 template<class MET>
 mithep::FillerPFMet<MET>::FillerPFMet(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active) : 
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<MetCollection>(collector, "edmName")),
-  edmSingleToken_(GetToken<MET>(collector, "edmName")),
-  mitName_(Conf().getUntrackedParameter("mitName", std::string(Names::gkCaloMetBrn))),
+  edmToken_(GetToken<MetCollection>(collector, cfg, "edmName")),
+  edmSingleToken_(GetToken<MET>(collector, cfg, "edmName")),
+  mitName_(cfg.getUntrackedParameter("mitName", std::string(Names::gkCaloMetBrn))),
   pfMets_(new mithep::PFMetArr)
 {
   // Constructor.
@@ -43,7 +45,7 @@ mithep::FillerPFMet<MET>::FillDataBlock(edm::Event const& event, edm::EventSetup
   std::vector<MET const*> inMets;
   
   edm::Handle<MetCollection> hPFMetProduct;
-  if(GetProductSafe(edmToken_, hPFMetProduct, event)){
+  if (GetProductSafe(edmToken_, hPFMetProduct, event)){
     MetCollection const& inMetCollection = *hPFMetProduct;
     for (auto&& met : inMetCollection)
       inMets.push_back(&met);
@@ -125,3 +127,6 @@ namespace mithep
   typedef mithep::FillerPFMet<reco::PFMET> FillerPFMetFromPFMET;
   typedef mithep::FillerPFMet<pat::MET> FillerPFMetFromPATMET;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPFMetFromPFMET);
+DEFINE_MITHEP_TREEFILLER(FillerPFMetFromPATMET);

@@ -22,10 +22,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg, os, name, active),
-  genActive_(Conf().getUntrackedParameter("genActive", true)),
-  simActive_(Conf().getUntrackedParameter("simActive", true)),
-  trackingActive_(Conf().getUntrackedParameter("trackingActive", false)),
-  fillTracking_(Conf().getUntrackedParameter("fillTracking", false)),
+  genActive_(cfg.getUntrackedParameter("genActive", true)),
+  simActive_(cfg.getUntrackedParameter("simActive", true)),
+  trackingActive_(cfg.getUntrackedParameter("trackingActive", false)),
+  fillTracking_(cfg.getUntrackedParameter("fillTracking", false)),
   genSource_(nGenSources),
   hepMCProdToken_(),
   genParticlesToken_(),
@@ -34,11 +34,11 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
   simVerticesToken_(),
   trackingEdmToken_(),
   packedGenParticlesToken_(),
-  genMapName_(Conf().getUntrackedParameter<string>("genMapName", "GenMap")),
-  simMapName_(Conf().getUntrackedParameter<string>("simMapName", "SimMap")),
-  trackingMapName_(Conf().getUntrackedParameter<string>("trackingMapName", "TrackingMap")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName", Names::gkMCPartBrn)),
-  mitTrackingName_(Conf().getUntrackedParameter<string>("mitTrackingName", Names::gkTrackingParticleBrn)),
+  genMapName_(cfg.getUntrackedParameter<string>("genMapName", "GenMap")),
+  simMapName_(cfg.getUntrackedParameter<string>("simMapName", "SimMap")),
+  trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName", "TrackingMap")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName", Names::gkMCPartBrn)),
+  mitTrackingName_(cfg.getUntrackedParameter<string>("mitTrackingName", Names::gkTrackingParticleBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
   trackingParticles_(new mithep::TrackingParticleArr(250)),
   genMap_(0),
@@ -47,7 +47,7 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
   simMap_(0),
   trackingMap_(0)
 {
-  std::string genSourceName(Conf().getUntrackedParameter("genSource", std::string("GenParticleCollection")));
+  std::string genSourceName(cfg.getUntrackedParameter("genSource", std::string("GenParticleCollection")));
   if (genSourceName == "GenParticleCollection")
     genSource_ = kGenParticles;
   else if (genSourceName == "PackedGenParticleCollection")
@@ -65,19 +65,20 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
     switch (genSource_) {
     case kGenParticles:
       aodGenMap_ = new GenParticleMap;
-
-      genParticlesToken_ = GetToken<reco::GenParticleCollection>(collector, "genEdmName", "genParticles");
+      genParticlesToken_ = GetToken<reco::GenParticleCollection>(collector, cfg, "genEdmName"); //genParticles
       if (simActive_)
-        genBarcodesToken_ = GetToken<std::vector<int> >(collector, "genEdmName", "genParticles");
+        genBarcodesToken_ = GetToken<std::vector<int> >(collector, cfg, "genEdmName"); //genParticles
       break;
+
     case kPackedGenParticles:
       packedGenMap_ = new PackedGenParticleMap;
+      packedGenParticlesToken_ = GetToken<pat::PackedGenParticleCollection>(collector, cfg, "genEdmName"); //packedGenParticles
+      break;
 
-      packedGenParticlesToken_ = GetToken<pat::PackedGenParticleCollection>(collector, "genEdmName", "packedGenParticles");
-      break;
     case kHepMCProduct:
-      hepMCProdToken_ = GetToken<edm::HepMCProduct>(collector, "genEdmName", "genParticles");
+      hepMCProdToken_ = GetToken<edm::HepMCProduct>(collector, cfg, "genEdmName"); //genParticles
       break;
+
     default:
       break;
     }
@@ -85,15 +86,14 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
 
   if (simActive_) {
     simMap_ = new mithep::SimTrackTidMap;
-
-    simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, "simEdmName", "g4SimHits");
-    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, "simEdmName", "g4SimHits");
+    simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, cfg, "simEdmName"); //g4SimHits
+    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, cfg, "simEdmName"); //g4SimHits
   }
 
-  if (trackingActive_)
+  if (trackingActive_) {
     trackingMap_ = new mithep::TrackingParticleMap;
-
-    trackingEdmToken_ = GetToken<TrackingParticleCollection>(collector, "trackingEdmName", "mergedtruth:MergedTrackTruth");
+    trackingEdmToken_ = GetToken<TrackingParticleCollection>(collector, cfg, "trackingEdmName"); //mergedtruth:MergedTrackTruth
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,12 +178,16 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       // loop over all genparticles and copy their information
       unsigned iPart = 0;
       for (auto&& inPart : genParticles) {
-        mithep::MCParticle *mcPart = mcParticles_->Allocate();
-        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
-                                        inPart.pz(),inPart.energy(),
-                                        inPart.pdgId(),inPart.status());
-                                            
-        mcPart->SetIsGenerated();                                          
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
+        mcPart->SetPdgId(inPart.pdgId());
+        mcPart->SetStatus(inPart.status());
+        mcPart->SetIsGenerated();
+
+        // need to keep an eye for updates
+        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
+          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
       
         // add hepmc barcode association, needed to merge in sim particles
         if (simActive_) {
@@ -207,12 +211,16 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       // loop over all genparticles and copy their information
       unsigned iPart = 0;
       for (auto&& inPart : genParticles) {
-        mithep::MCParticle *mcPart = mcParticles_->Allocate();
-        new (mcPart) mithep::MCParticle(inPart.px(),inPart.py(),
-                                        inPart.pz(),inPart.energy(),
-                                        inPart.pdgId(),inPart.status());
-                                            
-        mcPart->SetIsGenerated();                                          
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
+        mcPart->SetPdgId(inPart.pdgId());
+        mcPart->SetStatus(inPart.status());
+        mcPart->SetIsGenerated();
+
+        // need to keep an eye for updates
+        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
+          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
       
         pat::PackedGenParticleRef ref(hGenPProduct, iPart);
         packedGenMap_->Add(ref, mcPart);
@@ -229,16 +237,18 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
       for (HepMC::GenEvent::particle_const_iterator pgen = GenEvent.particles_begin();
            pgen != GenEvent.particles_end(); ++pgen) {
   
-        HepMC::GenParticle *mcPart = (*pgen);
-        if(!mcPart) 
+        HepMC::GenParticle *genParticle = (*pgen);
+        if(!genParticle) 
           continue;
   
-        mithep::MCParticle *genParticle = mcParticles_->Allocate();
-        new (genParticle) mithep::MCParticle(mcPart->momentum().x(),mcPart->momentum().y(),
-                                             mcPart->momentum().z(),mcPart->momentum().e(),
-                                             mcPart->pdg_id(),mcPart->status());
-        genParticle->SetIsGenerated();                                          
-        genMap_->Add(mcPart->barcode(), genParticle);
+        mithep::MCParticle *mcPart = mcParticles_->AddNew();
+
+        mcPart->SetPtEtaPhiM(genParticle->momentum().perp(), genParticle->momentum().eta(), genParticle->momentum().phi(), genParticle->momentum().m());
+        mcPart->SetPdgId(genParticle->pdg_id());
+        mcPart->SetStatus(genParticle->status());
+        mcPart->SetIsGenerated();
+
+        genMap_->Add(genParticle->barcode(), mcPart);
       }
     }
   }
@@ -265,12 +275,11 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
                  outSimParticle->Pz(),outSimParticle->E());
         }
       } else {
-        outSimParticle = mcParticles_->Allocate();
-        new (outSimParticle) mithep::MCParticle(simTrack.momentum().px(),
-                                                simTrack.momentum().py(),
-                                                simTrack.momentum().pz(),
-                                                simTrack.momentum().e(),
-                                                simTrack.type(), -99);
+        outSimParticle = mcParticles_->AddNew();
+
+        outSimParticle->SetPtEtaPhiM(simTrack.momentum().pt(), simTrack.momentum().eta(), simTrack.momentum().phi(), simTrack.momentum().mass());
+        outSimParticle->SetPdgId(simTrack.type());
+        outSimParticle->SetStatus(-99);
       }
       
       outSimParticle->SetIsSimulated();
@@ -520,3 +529,5 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     }
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMCParticles);

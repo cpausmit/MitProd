@@ -3,19 +3,20 @@
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFCandidateCol.h"
 #include "MitAna/DataTree/interface/Photon.h"
+#include "MitAna/DataTree/interface/Electron.h"
 #include "MitAna/DataTree/interface/Muon.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 
 mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterSet &cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
-  edmToken_(GetToken<pat::PackedCandidateCollection>(collector, "edmName", "packedPFCandidates")),
-  mitName_              (Conf().getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
-  pfCandMapName_        (Conf().getUntrackedParameter<std::string>("pfCandMapName", "")),
-  pfNoPileupCandMapName_(Conf().getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
-  fillPfNoPileup_       (Conf().getUntrackedParameter<bool>("fillPfNoPileup", true)),
-  electronMapName_      (Conf().getUntrackedParameter<std::string>("electronMapName", "")),
-  muonMapName_          (Conf().getUntrackedParameter<std::string>("muonMapName", "")),
-  photonMapName_        (Conf().getUntrackedParameter<std::string>("photonMapName", "")),
+  edmToken_(GetToken<pat::PackedCandidateCollection>(collector, cfg, "edmName")), //packedPFCandidates
+  mitName_              (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
+  pfCandMapName_        (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
+  pfNoPileupCandMapName_(cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
+  fillPfNoPileup_       (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
+  electronMapName_      (cfg.getUntrackedParameter<std::string>("electronMapName", "")),
+  muonMapName_          (cfg.getUntrackedParameter<std::string>("muonMapName", "")),
+  photonMapName_        (cfg.getUntrackedParameter<std::string>("photonMapName", "")),
   pfCandMap_            (new mithep::PFCandidateMap),
   pfNoPileupCandMap_    (new mithep::PFCandidateMap),
   pfCands_              (new mithep::PFCandidateArr(16)),
@@ -85,8 +86,9 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
 
   unsigned iPart = 0;
   for (auto&& inPart : inPackedCands) {
-    mithep::PFCandidate *outPfCand = pfCands_->Allocate();
-    new (outPfCand) mithep::PFCandidate(inPart.px(), inPart.py(), inPart.pz(), inPart.energy());
+    mithep::PFCandidate *outPfCand = pfCands_->AddNew();
+
+    outPfCand->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
 
     reco::CandidatePtr ptr(hPackedCandProduct, iPart);
     ++iPart;
@@ -165,3 +167,5 @@ mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetu
     }
   }
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPackedPFCandidates);

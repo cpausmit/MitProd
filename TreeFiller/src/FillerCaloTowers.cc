@@ -14,10 +14,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerCaloTowers::FillerCaloTowers(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<CaloTowerCollection>(collector, "edmName","towerMaker")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName","CaloTowers")),
-  caloTowerMapName_(Conf().getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),
-  caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
+  edmToken_(GetToken<CaloTowerCollection>(collector, cfg, "edmName")), //towerMaker
+  mitName_(cfg.getUntrackedParameter<string>("mitName","CaloTowers")),
+  caloTowerMapName_(cfg.getUntrackedParameter<string>("caloTowerMapName", "CaloTowerMap")),
+  caloTowerDetIdMapName_(cfg.getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
   caloTowers_(new mithep::CaloTowerArr(1000)),
   caloTowerMap_(new mithep::CaloTowerMap),
   caloTowerDetIdMap_(new mithep::CaloTowerDetIdMap)
@@ -75,8 +75,7 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   for (CaloTowerCollection::const_iterator inCaloTower = inCaloTowers.begin(); 
        inCaloTower != inCaloTowers.end(); ++inCaloTower) {
     
-    mithep::CaloTower *outCaloTower = caloTowers_->Allocate();
-    new (outCaloTower) mithep::CaloTower();
+    mithep::CaloTower *outCaloTower = caloTowers_->AddNew();
        
     double deltaE = inCaloTower->energy() - inCaloTower->emEnergy() - inCaloTower->hadEnergy();
        
@@ -136,3 +135,5 @@ void FillerCaloTowers::FillDataBlock(const edm::Event      &event,
   }
   caloTowers_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerCaloTowers);
