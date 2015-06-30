@@ -30,17 +30,15 @@ namespace mithep {
     ~FillerPFJets();
 
     void PrepareLinks() override;
-    void PrepareSpecific(edm::Event const&, edm::EventSetup const&);
     void FillSpecific(mithep::PFJet&, reco::JetBaseRef const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
   private:
+    void fillPFJetVariables(mithep::PFJet&, PFJET const&);
     void initBJetTags(edm::Event const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) override;
     void setBJetTags(mithep::Jet&, reco::JetBaseRef const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) const override;
-    
-    bool fastJetCorrectionsActive_; //=true if fastjet corrections are done
-    edm::EDGetTokenT<double> rhoToken_; //edm name of Energy per unit area
-    double rho_;
+    void initCorrections(edm::Event const&, edm::EventSetup const&) override;
+    void setCorrections(mithep::Jet&, reco::Jet const&) override;
 
     std::string bJetTagsName_[mithep::Jet::nBTagAlgos];
 

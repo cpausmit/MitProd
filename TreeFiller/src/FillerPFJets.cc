@@ -6,9 +6,6 @@
 template<class PFJET>
 mithep::FillerPFJets<PFJET>::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) : 
   FillerJets<mithep::PFJet>(cfg, collector, os, name, active),
-  fastJetCorrectionsActive_(cfg.getUntrackedParameter("fastJetCorrectionsActive", false)),
-  rhoToken_(GetToken<double>(collector, cfg, "rhoName", fastJetCorrectionsActive_)),
-  rho_(0.),
   bJetTagsName_{},
   pfCandMapName_(cfg.getUntrackedParameter("pfCandMapName", std::string("pfCandMapName"))),
   pfCandMap_(0)
@@ -43,40 +40,13 @@ mithep::FillerPFJets<PFJET>::PrepareLinks()
 
 template<class PFJET>
 void
-mithep::FillerPFJets<PFJET>::PrepareSpecific(edm::Event const& event, edm::EventSetup const&)
-{
-  rho_ = 0.;
-  if (fastJetCorrectionsActive_) {
-    edm::Handle<double> hRho;
-    GetProduct(rhoToken_, hRho, event);
-    rho_ = *hRho;
-  }
-}
-
-template<class PFJET>
-void
 mithep::FillerPFJets<PFJET>::FillSpecific(mithep::PFJet& outJet, reco::JetBaseRef const& inJetRef)
 {
   auto* inPFJet = dynamic_cast<PFJET const*>(inJetRef.get());
   if (!inPFJet)
     return;
 
-  // fill pfjet-specific quantities
-  outJet.SetChargedHadronEnergy(inPFJet->chargedHadronEnergy());
-  outJet.SetNeutralHadronEnergy(inPFJet->neutralHadronEnergy());
-  outJet.SetChargedEmEnergy(inPFJet->chargedEmEnergy());
-  outJet.SetChargedMuEnergy(inPFJet->chargedMuEnergy());
-  outJet.SetNeutralEmEnergy(inPFJet->neutralEmEnergy());
-  outJet.SetChargedMultiplicity(inPFJet->chargedMultiplicity());
-  outJet.SetNeutralMultiplicity(inPFJet->neutralMultiplicity());
-  outJet.SetMuonMultiplicity(inPFJet->muonMultiplicity());
-
-  // jet corrections
-  if (fastJetCorrectionsActive_) {
-    double L1Scale = std::max((inPFJet->pt() - rho_ * inPFJet->jetArea()) / inPFJet->pt(), 0.);
-    outJet.SetL1OffsetCorrectionScale(L1Scale);
-    outJet.EnableCorrection(mithep::Jet::L1);
-  }
+  fillPFJetVariables(outJet, *inPFJet);
 }
 
 template<class PFJET>
@@ -113,6 +83,21 @@ mithep::FillerPFJets<PFJET>::ResolveLinks(edm::Event const& event, edm::EventSet
 
 template<class PFJET>
 void
+mithep::FillerPFJets<PFJET>::fillPFJetVariables(mithep::PFJet& outJet, PFJET const& inPFJet)
+{
+  // fill pfjet-specific quantities
+  outJet.SetChargedHadronEnergy(inPFJet.chargedHadronEnergy());
+  outJet.SetNeutralHadronEnergy(inPFJet.neutralHadronEnergy());
+  outJet.SetChargedEmEnergy(inPFJet.chargedEmEnergy());
+  outJet.SetChargedMuEnergy(inPFJet.chargedMuEnergy());
+  outJet.SetNeutralEmEnergy(inPFJet.neutralEmEnergy());
+  outJet.SetChargedMultiplicity(inPFJet.chargedMultiplicity());
+  outJet.SetNeutralMultiplicity(inPFJet.neutralMultiplicity());
+  outJet.SetMuonMultiplicity(inPFJet.muonMultiplicity());
+}
+
+template<class PFJET>
+void
 mithep::FillerPFJets<PFJET>::initBJetTags(edm::Event const& event, reco::JetTagCollection const* bJetTags[mithep::Jet::nBTagAlgos])
 {
   FillerJets<mithep::PFJet>::initBJetTags(event, bJetTags);
@@ -125,10 +110,40 @@ mithep::FillerPFJets<PFJET>::setBJetTags(mithep::Jet& outJet, reco::JetBaseRef c
   FillerJets<mithep::PFJet>::setBJetTags(outJet, baseRef, bJetTags);
 }
 
+template<class PFJET>
+void
+mithep::FillerPFJets<PFJET>::initCorrections(edm::Event const& event, edm::EventSetup const& setup)
+{
+  FillerJets<mithep::PFJet>::initCorrections(event, setup);
+}
+
+template<class PFJET>
+void
+mithep::FillerPFJets<PFJET>::setCorrections(mithep::Jet& outJet, reco::Jet const& inJet)
+{
+  FillerJets<mithep::PFJet>::setCorrections(outJet, inJet);
+}
+
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 namespace mithep {
+
+  template<>
+  void
+  mithep::FillerPFJets<pat::Jet>::FillSpecific(mithep::PFJet& outJet, reco::JetBaseRef const& inJetRef)
+  {
+    auto* inPATJet = dynamic_cast<pat::Jet const*>(inJetRef.get());
+    if (!inPATJet)
+      return;
+
+    // pat::Jet::p4() returns a corrected p4. Uncorrect here
+    double toRaw = inPATJet->jecFactor("Uncorrected");
+    auto&& rawP4 = inPATJet->p4() * toRaw;
+    outJet.SetRawPtEtaPhiM(rawP4.pt(), rawP4.eta(), rawP4.phi(), rawP4.mass());
+
+    fillPFJetVariables(outJet, *inPATJet);
+  }
 
   template<>
   void
@@ -144,6 +159,33 @@ namespace mithep {
 
     for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT)
       outJet.SetBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[iT]), iT);
+  }
+
+  template<>
+  void
+  mithep::FillerPFJets<pat::Jet>::initCorrections(edm::Event const& event, edm::EventSetup const& setup)
+  {
+  }
+
+  template<>
+  void
+  mithep::FillerPFJets<pat::Jet>::setCorrections(mithep::Jet& outJet, reco::Jet const& inJet)
+  {
+    auto& inPATJet = static_cast<pat::Jet const&>(inJet);
+
+    double toRaw = inPATJet.jecFactor("Uncorrected");
+    double toL1 = inPATJet.jecFactor("L1FastJet");
+    double toL2 = inPATJet.jecFactor("L2Relative");
+    double toL3 = inPATJet.jecFactor("L3Absolute");
+
+    outJet.SetL1OffsetCorrectionScale(toL1 / toRaw);
+    outJet.EnableCorrection(mithep::Jet::L1);
+
+    outJet.SetL2RelativeCorrectionScale(toL2 / toL1);
+    outJet.EnableCorrection(mithep::Jet::L2);
+
+    outJet.SetL3AbsoluteCorrectionScale(toL3 / toL2);
+    outJet.EnableCorrection(mithep::Jet::L3);
   }
 
   typedef FillerPFJets<reco::PFJet> FillerPFJetsFromPFJets;

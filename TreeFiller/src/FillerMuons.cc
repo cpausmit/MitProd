@@ -441,7 +441,8 @@ mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const
 
         if (iT == kOuterTrack) {
           if (ref.isNonnull()) {
-            if (staVtxTrackMap_)
+            // outer track can come from either vertex-constrained or unconstrained tracks
+            if (staVtxTrackMap_ && ref.id().id() == staVtxTrackMap_->GetEdmProductId())
               outMuon->SetStandaloneTrk(staVtxTrackMap_->GetMit(edm::refToPtr(ref)));
             else if (trackMap_[iT])
               outMuon->SetStandaloneTrk(trackMap_[iT]->GetMit(edm::refToPtr(ref)));

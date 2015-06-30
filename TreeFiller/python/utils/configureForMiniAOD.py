@@ -114,7 +114,6 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Muons.pvBSEdmName = ''
     treeFiller.Muons.pvBeamSpotName = 'offlineBeamSpot'
     treeFiller.Muons.pvbsBeamSpotName = ''
-    treeFiller.Muons.staVtxTrackMapName = ''
     treeFiller.Muons.trackerTrackMapName = 'MuonTracksMapName'
     treeFiller.Muons.muonPFMapName = 'muonPFMap'
     treeFiller.Muons.fillFromPAT = True
@@ -151,10 +150,6 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Photons.pfEcalEndcapSuperClusterMapName = ''
     treeFiller.Photons.photonPFMapName = 'photonPFMap'
     treeFiller.Photons.fillFromPAT = True
-
-    treeFiller.AKt4PFJets.edmName = 'ak4PFJets'
-
-    treeFiller.AKt8PFJets.edmName = 'ak8PFJets'
 
     treeFiller.AKt4PFJetsCHS.edmName = 'slimmedJets'
     treeFiller.AKt4PFJetsCHS.JetProbabilityBJetTagsName = 'pfJetProbabilityBJetTags'

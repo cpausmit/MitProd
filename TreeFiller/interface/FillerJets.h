@@ -53,23 +53,30 @@ namespace mithep {
 
     virtual void initBJetTags(edm::Event const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]);
     virtual void setBJetTags(mithep::Jet&, reco::JetBaseRef const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) const;
+    virtual void initCorrections(edm::Event const&, edm::EventSetup const&);
+    virtual void setCorrections(mithep::Jet&, reco::Jet const&);
 
-    bool flavorMatchingActive_; //=true if flavor matching is done  
-    bool bTaggingActive_;       //=true if bTagging info is filled
-    bool jetToVertexActive_;    //=true if jet to vertex info is done
-    bool jetCorrectionsActive_; //=true if jet corrections are done
+    bool flavorMatchingActive_;     //=true if flavor matching is done  
+    bool bTaggingActive_;           //=true if bTagging info is filled
+    bool jetToVertexActive_;        //=true if jet to vertex info is done
+    bool fastJetCorrectionsActive_; //=true if L1 corrections are done
+    bool jetCorrectionsActive_;     //=true if L2 & L3 corrections are done
 
     edm::EDGetTokenT<reco::JetView> edmToken_; //edm name of jets collection
     edm::EDGetTokenT<std::vector<double> > jetToVertexAlphaToken_; //edm name of jet to vertex alpha coll
     edm::EDGetTokenT<std::vector<double> > jetToVertexBetaToken_; //edm name of jet to vertex beta coll
     edm::EDGetTokenT<reco::JetMatchedPartonsCollection> flavorMatchingByReferenceToken_; //source of flavor matching
     edm::EDGetTokenT<reco::JetTagCollection> bJetTagsToken_[mithep::Jet::nBTagAlgos]; //bjet algo discriminant
+    edm::EDGetTokenT<double> rhoToken_; //pileup energy density
 
     std::string mitName_;                         //mit name of jets collection
     std::string L2JetCorrectorName_;              //label of the L2JetCorrection service
     std::string L3JetCorrectorName_;              //label of the L3JetCorrection service
     std::string jetMapName_;                      //name of exported PFJetMap
     FlavorMatchingDef flavorMatchingDefinition_;        //type of flavor matching
+    double rho_;
+    JetCorrector const* L2Corrector_;
+    JetCorrector const* L3Corrector_;
 
     JetAssociationMap* jetMap_;      //export map
     ProductArray* jets_;        //array of Jets
@@ -89,10 +96,15 @@ mithep::FillerJets<MITJET>::FillerJets(edm::ParameterSet const& cfg, edm::Consum
   jetToVertexBetaToken_(GetToken<std::vector<double> >(collector, cfg, "jetToVertexBetaName", jetToVertexActive_)), //jetToVertexBetaName
   flavorMatchingByReferenceToken_(GetToken<reco::JetMatchedPartonsCollection>(collector, cfg, "flavorMatchingByReferenceName", flavorMatchingActive_)), //srcByReference
   bJetTagsToken_{},
+  rhoToken_(GetToken<double>(collector, cfg, "rhoName", jetCorrectionsActive_)),
   mitName_(cfg.getUntrackedParameter<string>("mitName")),
   L2JetCorrectorName_(cfg.getUntrackedParameter<std::string>("L2JetCorrectorName", "L2JetCorrectorName")),
   L3JetCorrectorName_(cfg.getUntrackedParameter<std::string>("L3JetCorrectorName", "L3JetCorrectorName")),
   jetMapName_(cfg.getUntrackedParameter<string>("jetMapName")),
+  flavorMatchingDefinition_{},
+  rho_(0.),
+  L2Corrector_(0),
+  L3Corrector_(0),
   jetMap_(new JetAssociationMap),
   jets_(new ProductArray(16))
 {
@@ -156,6 +168,9 @@ mithep::FillerJets<MITJET>::FillDataBlock(edm::Event const& event, edm::EventSet
 
   if (bTaggingActive_)
     initBJetTags(event, bJetTags);
+
+  if (jetCorrectionsActive_)
+    initCorrections(event, setup);
   
   std::vector<double> const* jvAlpha = 0; 
   std::vector<double> const* jvBeta = 0;
@@ -166,14 +181,6 @@ mithep::FillerJets<MITJET>::FillDataBlock(edm::Event const& event, edm::EventSet
     GetProduct(jetToVertexBetaToken_, jvBetaH, event);  
     jvAlpha = jvAlphaH.product();
     jvBeta = jvBetaH.product();
-  }
-
-  //Define Jet Correction Services
-  JetCorrector const* correctorL2 = 0; 
-  JetCorrector const* correctorL3 = 0; 
-  if (jetCorrectionsActive_) {
-    correctorL2 = JetCorrector::getJetCorrector(L2JetCorrectorName_, setup);
-    correctorL3 = JetCorrector::getJetCorrector(L3JetCorrectorName_, setup);
   }
 
   PrepareSpecific(event, setup);
@@ -187,6 +194,7 @@ mithep::FillerJets<MITJET>::FillDataBlock(edm::Event const& event, edm::EventSet
 
     jetMap_->Add(inJets.ptrAt(iJ), outJet);
 
+    // for pat::Jets, p4() is already corrected - fixed in FillSpecific
     outJet->SetRawPtEtaPhiM(inJet.p4().pt(), inJet.p4().eta(), inJet.p4().phi(), inJet.p4().mass());
 
     //fill jet moments
@@ -196,24 +204,19 @@ mithep::FillerJets<MITJET>::FillDataBlock(edm::Event const& event, edm::EventSet
     //fill jet area
     outJet->SetJetArea(inJet.jetArea());
 
+    FillSpecific(*outJet, baseRef);
+
     if (jetToVertexActive_) {
       //compute alpha and beta parameter for jets
       outJet->SetAlpha(jvAlpha->at(iJ));
       outJet->SetBeta(jvBeta->at(iJ));      
     }
 
-    //Jet Corrections
-    if (jetCorrectionsActive_) {
-      double L2Scale = correctorL2->correction(inJet.p4());
-      double L3Scale = correctorL3->correction(inJet.p4() * L2Scale);
-      outJet->SetL2RelativeCorrectionScale(L2Scale);
-      outJet->SetL3AbsoluteCorrectionScale(L3Scale);     
-      outJet->EnableCorrection(mithep::Jet::L2);
-      outJet->EnableCorrection(mithep::Jet::L3);     
-    }
-    
     if (bTaggingActive_)
       setBJetTags(*outJet, baseRef, bJetTags);
+
+    if (jetCorrectionsActive_)
+      setCorrections(*outJet, inJet);
 
     // get the Monte Carlo flavour matching information
     if (flavorMatchingActive_) {
@@ -235,8 +238,6 @@ mithep::FillerJets<MITJET>::FillDataBlock(edm::Event const& event, edm::EventSet
         break;
       }
     }
-
-    FillSpecific(*outJet, baseRef);
   }
 
   jets_->Trim();
@@ -263,6 +264,43 @@ mithep::FillerJets<MITJET>::setBJetTags(mithep::Jet& outJet, reco::JetBaseRef co
     if (bJetTags[iT])
       outJet.SetBJetTagsDisc((*bJetTags[iT])[baseRef], iT);
   }
+}
+
+template<class MITJET>
+void
+mithep::FillerJets<MITJET>::initCorrections(edm::Event const& event, edm::EventSetup const& setup)
+{
+  edm::Handle<double> hRho;
+  GetProduct(rhoToken_, hRho, event);
+  rho_ = *hRho;
+
+  L2Corrector_ = JetCorrector::getJetCorrector(L2JetCorrectorName_, setup);
+  L3Corrector_ = JetCorrector::getJetCorrector(L3JetCorrectorName_, setup);
+}
+
+template<class MITJET>
+void
+mithep::FillerJets<MITJET>::setCorrections(mithep::Jet& outJet, reco::Jet const&)
+{
+  // jet corrections
+
+  double L1Scale = std::max((outJet.RawMom().pt() - rho_ * outJet.JetArea()) / outJet.RawMom().pt(), 0.);
+  outJet.SetL1OffsetCorrectionScale(L1Scale);
+  outJet.EnableCorrection(mithep::Jet::L1);
+
+  FourVector p4(outJet.RawMom().Px(), outJet.RawMom().Py(), outJet.RawMom().Pz(), outJet.RawMom().E());
+
+  p4 *= L1Scale;
+
+  double L2Scale = L2Corrector_->correction(p4);
+  outJet.SetL2RelativeCorrectionScale(L2Scale);
+  outJet.EnableCorrection(mithep::Jet::L2);
+
+  p4 *= L2Scale;
+
+  double L3Scale = L3Corrector_->correction(p4);
+  outJet.SetL3AbsoluteCorrectionScale(L3Scale);
+  outJet.EnableCorrection(mithep::Jet::L3);
 }
 
 #endif
