@@ -26,7 +26,7 @@ MitTreeFiller.PileupEnergyDensity.active = True
 
 
 from MitProd.TreeFiller.newbtagging_cff import *
-MitTreeFiller.AKt5PFJets.bTaggingActive = True
+MitTreeFiller.AKt4PFJets.bTaggingActive = True
 
 # Load Clustered PF-MET producer
 #from CommonTools.ClusteredPFMetProducer.ClusteredPFMetProducer_cfi import *
@@ -121,7 +121,7 @@ metFilters = cms.Sequence(       HBHENoiseFilterResultProducer *
 BambuRecoSequence = cms.Sequence(electronsStable*
                                  eidLikelihoodExt*
                                  l1FastJetSequence*
-                                 newBtaggingAll*
+                                 # newBtaggingAll*
 				 #ClusteredPFMetProducer*
                                  goodOfflinePrimaryVertices*
                                  particleFlowPtrs*

@@ -8,8 +8,8 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  #input = cms.untracked.int32(100)
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(10)
+  # input = cms.untracked.int32(-1)
 )
 
 #>> input source
@@ -18,9 +18,11 @@ process.source = cms.Source(
   "PoolSource",
   # make sure this is for the right version
   # nEvt 1 - segv in EcalClusterLazyTools -> BasicClusterSeedTime
-  fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/2A79B05B-05E8-E311-B84E-002481E1070E.root'),
+  # fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/2A79B05B-05E8-E311-B84E-002481E1070E.root'),
+  # fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/DoubleMuParked/USER/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/0000/1AB39CBC-B7B0-E211-BDE0-00266CF3DFE0.root'),
   # nEvt 659 - basic cluster neg. energy bug
   # fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/00165B45-82E6-E311-B68D-002590AC4FEC.root'),
+  fileNames = cms.untracked.vstring('file:/scratch5/snarayan/00BA30CE-9001-E511-AA08-0025905A60D0.root')
   #skipEvents=cms.untracked.uint32(657)
 )
 process.source.inputCommands = cms.untracked.vstring(
@@ -52,6 +54,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi')
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
+# process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
 
 # define sequence for ProductNotFound
 process.options = cms.untracked.PSet(
@@ -116,6 +119,8 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
+process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
 pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
@@ -138,6 +143,7 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
+  process.inclusiveVertexing*process.inclusiveCandidateVertexing *
   particleFlowPtrs *
   pfParticleSelectionSequence * 
   pfPhotonSequence *
