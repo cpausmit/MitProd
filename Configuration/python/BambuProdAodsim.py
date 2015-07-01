@@ -119,6 +119,8 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
+# Load btagging
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
 process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
@@ -143,7 +145,8 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  process.inclusiveVertexing*process.inclusiveCandidateVertexing *
+  inclusiveVertexing *
+  inclusiveCandidateVertexing *
   particleFlowPtrs *
   pfParticleSelectionSequence * 
   pfPhotonSequence *

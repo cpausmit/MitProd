@@ -85,6 +85,10 @@ process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', candidates = 'packedPFCandidates', primaryVertex = 'offlineSlimmedPrimaryVertices', muons = 'slimmedMuons', electrons = 'slimmedElectrons')
 
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
+
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
@@ -96,7 +100,9 @@ recoSequence = cms.Sequence(
   l1FastJetSequenceCHS *
   ak4PFJets *
   ak8PFJets *
-  ak4PFBTagSequence
+  ak4PFBTagSequence *
+  inclusiveVertexing *
+  inclusiveCandidateVertexing
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
