@@ -18,37 +18,35 @@
 
 mithep::FillerMuons::FillerMuons(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   BaseFiller(cfg, os, name, active),
-  edmToken_             (GetToken<MuonView>(collector, "edmName","muons")),
-  pvEdmToken_           (GetToken<reco::VertexCollection>(collector, "pvEdmName",
-                                                          "offlinePrimaryVertices")),
-  pvBSEdmToken_         (GetToken<reco::VertexCollection>(collector, "pvBSEdmName",
-                                                          "offlinePrimaryVerticesWithBS")),
-  pvBeamSpotToken_      (GetToken<reco::BeamSpot>(collector, "pvBeamSpotName", "offlineBeamSpot")),
-  pvbsBeamSpotToken_    (GetToken<reco::BeamSpot>(collector, "pvbsBeamSpotName", "offlineBeamSpot")),
-  mitName_              (Conf().getUntrackedParameter<string>("mitName", Names::gkMuonBrn)),
-  globalTrackMapName_   (Conf().getUntrackedParameter<string>("globalTrackMapName", "")),
-  staTrackMapName_      (Conf().getUntrackedParameter<string>("staTrackMapName", "")),
-  staVtxTrackMapName_   (Conf().getUntrackedParameter<string>("staVtxTrackMapName", "")),
-  trackerTrackMapName_  (Conf().getUntrackedParameter<string>("trackerTrackMapName", "")),
-  muonMapName_          (Conf().getUntrackedParameter<string>("muonMapName", "")),
-  muonPFMapName_        (Conf().getUntrackedParameter<string>("muonPFMapName", "")),
-  fitUnbiasedVertex_    (Conf().getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
-  fillFromPAT_          (Conf().getUntrackedParameter<bool>("fillFromPAT", false)),
-  globalTrackMap_       (0),
-  standaloneTrackMap_   (0),
-  standaloneVtxTrackMap_(0),
-  trackerTrackMap_      (0),
-  muonMap_              (new mithep::MuonMap),
-  muonPFMap_            (0),
-  muons_                (new mithep::MuonArr(16))
+  fitUnbiasedVertex_        (cfg.getUntrackedParameter<bool>("fitUnbiasedVertex", true)),
+  fillFromPAT_              (cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
+  edmToken_                 (GetToken<MuonView>(collector, cfg, "edmName")), //muons
+  pvEdmToken_               (GetToken<reco::VertexCollection>(collector, cfg, "pvEdmName", false)), //offlinePrimaryVertices
+  pvBSEdmToken_             (GetToken<reco::VertexCollection>(collector, cfg, "pvBSEdmName", false)), //offlinePrimaryVerticesWithBS
+  pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", !pvEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", !pvBSEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
+  mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", Names::gkMuonBrn)),
+  trackMapName_             {},
+  staVtxTrackMapName_       (cfg.getUntrackedParameter<std::string>("staVtxTrackMapName", "")),
+  muonMapName_              (cfg.getUntrackedParameter<std::string>("muonMapName", "")),
+  muonPFMapName_            (cfg.getUntrackedParameter<std::string>("muonPFMapName", "")),
+  trackMap_                 {},
+  staVtxTrackMap_           (0),
+  muonTrackMap_             {},
+  muonMap_                  (new mithep::MuonMap),
+  muonPFMap_                (0),
+  muons_                    (new mithep::MuonArr(16))
 {
-  // Constructor.
+  trackMapName_[kInnerTrack] = cfg.getUntrackedParameter<std::string>("trackerTrackMapName", "");
+  trackMapName_[kOuterTrack] = cfg.getUntrackedParameter<std::string>("staTrackMapName", "");
+  trackMapName_[kCombinedTrack] = cfg.getUntrackedParameter<std::string>("globalTrackMapName", "");
+  trackMapName_[kTPFMS] = cfg.getUntrackedParameter<std::string>("firstHitTrackMapName", "");
+  trackMapName_[kPicky] = cfg.getUntrackedParameter<std::string>("pickyTrackMapName", "");
+  trackMapName_[kDYT] = cfg.getUntrackedParameter<std::string>("dytTrackMapName", "");
 }
 
 mithep::FillerMuons::~FillerMuons()
 {
-  // Destructor.
-
   delete muons_;
   delete muonMap_;
   delete muonPFMap_;
@@ -62,26 +60,6 @@ mithep::FillerMuons::BookDataBlock(TreeWriter& tws)
   tws.AddBranch(mitName_, &muons_);
   OS()->add(muons_, mitName_);
 
-  if (!globalTrackMapName_.empty()) {
-    globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
-    if (globalTrackMap_)
-      AddBranchDep(mitName_, globalTrackMap_->GetBrName());
-  }
-  if (!staTrackMapName_.empty()) {
-    standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_);
-    if (standaloneTrackMap_)
-      AddBranchDep(mitName_, standaloneTrackMap_->GetBrName());
-  }
-  if (!staVtxTrackMapName_.empty()) {
-    standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
-    if (standaloneVtxTrackMap_)
-      AddBranchDep(mitName_, standaloneVtxTrackMap_->GetBrName());
-  }
-  if (!trackerTrackMapName_.empty()) {
-    trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-    if (trackerTrackMap_)
-      AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
-  }
   if (!muonMapName_.empty()) {
     muonMap_->SetBrName(mitName_);
     OS()->add(muonMap_, muonMapName_);
@@ -94,11 +72,38 @@ mithep::FillerMuons::BookDataBlock(TreeWriter& tws)
 }
 
 void
+mithep::FillerMuons::PrepareLinks()
+{
+  if (fillFromPAT_) {
+    for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+      if (!trackMapName_[iT].empty()) {
+        muonTrackMap_[iT] = OS()->get<MuonTrackMap>(trackMapName_[iT]);
+        if (muonTrackMap_[iT])
+          AddBranchDep(mitName_, muonTrackMap_[iT]->GetBrName());
+      }
+    }
+  }
+  else {
+    for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+      if (!trackMapName_[iT].empty()) {
+        trackMap_[iT] = OS()->get<TrackMap>(trackMapName_[iT]);
+        if (trackMap_[iT])
+          AddBranchDep(mitName_, trackMap_[iT]->GetBrName());
+      }
+    }
+    if (!staVtxTrackMapName_.empty()) {
+      staVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
+      if (staVtxTrackMap_)
+        AddBranchDep(mitName_, staVtxTrackMap_->GetBrName());
+    }
+  }
+}
+
+void
 mithep::FillerMuons::FillDataBlock(edm::Event const& event,
                                    edm::EventSetup const& setup)
 {
   // Fill muon information.
-
   muons_  ->Delete();
   muonMap_->Reset();
   if (muonPFMap_)
@@ -113,40 +118,42 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()")
       << "Error! Input muon is not PAT";
 
-  edm::Handle<reco::VertexCollection> hVertex;
-  if (!pvEdmToken_.isUninitialized())
-    GetProduct(pvEdmToken_, hVertex, event);
-
-  edm::Handle<reco::VertexCollection> hVertexBS;
-  if (!pvBSEdmToken_.isUninitialized())
-    GetProduct(pvBSEdmToken_, hVertexBS, event);
-
-  edm::Handle<reco::BeamSpot> pvbeamspot;
-  if (fitUnbiasedVertex_ && !pvBeamSpotToken_.isUninitialized())
-    GetProduct(pvBeamSpotToken_, pvbeamspot, event);
-
-  edm::Handle<reco::BeamSpot> pvbsbeamspot;
-  if (fitUnbiasedVertex_ && !pvbsBeamSpotToken_.isUninitialized())
-    GetProduct(pvbsBeamSpotToken_, pvbsbeamspot, event);
-
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
   auto transientTrackBuilder = hTransientTrackBuilder.product();
 
   KalmanVertexTrackCompatibilityEstimator<5> kalmanEstimator;
 
-  VertexReProducer* vtxReProducers[] = {0, 0};
-  if (fitUnbiasedVertex_) {
-    if (hVertex.isValid())
+  reco::VertexCollection const* vertexCols[2] = {};
+  reco::BeamSpot const* beamspots[2] = {};
+  VertexReProducer* vtxReProducers[2] = {};
+
+  if (!pvEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertex;
+    GetProduct(pvEdmToken_, hVertex, event);
+    vertexCols[0] = hVertex.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbeamspotH;
+      GetProduct(pvBeamSpotToken_, pvbeamspotH, event);
+      beamspots[0] = pvbeamspotH.product();
       vtxReProducers[0] = new VertexReProducer(hVertex, event);
-    if (hVertexBS.isValid())
+    }
+  }
+
+  if (!pvBSEdmToken_.isUninitialized()) {
+    edm::Handle<reco::VertexCollection> hVertexBS;
+    GetProduct(pvBSEdmToken_, hVertexBS, event);
+    vertexCols[1] = hVertexBS.product();
+    if (fitUnbiasedVertex_) {
+      edm::Handle<reco::BeamSpot> pvbsbeamspotH;
+      GetProduct(pvbsBeamSpotToken_, pvbsbeamspotH, event);
+      beamspots[1] = pvbsbeamspotH.product();
       vtxReProducers[1] = new VertexReProducer(hVertexBS, event);
+    }
   }
 
   typedef std::function<void(mithep::Muon&, double)> Setter;
 
-  edm::Handle<reco::VertexCollection>* pvcHandles[] = {&hVertex, &hVertexBS};
-  edm::Handle<reco::BeamSpot>* bsHandles[] = {&pvbeamspot, &pvbsbeamspot};
   Setter d0pvSetters[] = {
     &mithep::Muon::SetD0PV, &mithep::Muon::SetD0PVBS,
     &mithep::Muon::SetD0PVUB, &mithep::Muon::SetD0PVUBBS
@@ -165,12 +172,12 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
   };
   Setter pvcompatSetters[] = {&mithep::Muon::SetPVCompatibility, &mithep::Muon::SetPVBSCompatibility};
 
-  unsigned iMuon = 0;
-  for (auto&& inMuon : inMuons) {
-    edm::Ptr<reco::Muon> mPtr(hMuonProduct, iMuon);
-    ++iMuon;
+  for (auto&& mPtr : inMuons.ptrs()) {
+    auto& inMuon = *mPtr;
+    auto* outMuon = muons_->AddNew();
 
-    auto outMuon = muons_->AddNew();
+    outMuon->SetBestTrkType     (RecoToMithep(inMuon.muonBestTrackType()));
+    outMuon->SetTunePBestTrkType(RecoToMithep(inMuon.tunePMuonBestTrackType()));
 
     outMuon->SetPtEtaPhi        (inMuon.pt(),inMuon.eta(),inMuon.phi());
     outMuon->SetCharge          (inMuon.charge());
@@ -249,29 +256,12 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     if (muon::isGoodMuon(inMuon,muon::TMLastStationOptimizedBarrelLowPtTight))
       outMuon->Quality().SetQuality(MuonQuality::TMLastStationOptimizedBarrelLowPtTight);
 
-    auto combinedMuonRef = inMuon.combinedMuon();
-    auto standaloneMuonRef = inMuon.standAloneMuon();
-    auto trackRef = inMuon.track();
+    auto&& combinedMuonRef = inMuon.combinedMuon();
 
-    if (globalTrackMap_ && combinedMuonRef.isNonnull()) {
-      outMuon->SetGlobalTrk (globalTrackMap_->GetMit(edm::refToPtr(combinedMuonRef)));
+    if (combinedMuonRef.isNonnull())
       outMuon->SetNValidHits(combinedMuonRef->hitPattern().numberOfValidMuonHits());
-    }
-    if (standaloneTrackMap_ && standaloneVtxTrackMap_ && standaloneMuonRef.isNonnull()) {
-      auto ptr = edm::refToPtr(standaloneMuonRef);
 
-      Int_t refProductId = standaloneMuonRef.id().id();
-      if (refProductId == standaloneVtxTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrk(standaloneVtxTrackMap_->GetMit(ptr));
-      else if (refProductId == standaloneTrackMap_->GetEdmProductId())
-        outMuon->SetStandaloneTrk(standaloneTrackMap_->GetMit(ptr));
-      else
-        throw edm::Exception(edm::errors::Configuration, "FillerMuons:FillDataBlock()")
-          << "Error! Track reference in unmapped collection";
-    }
-    if (trackerTrackMap_ && trackRef.isNonnull()) {
-      outMuon->SetTrackerTrk(trackerTrackMap_->GetMit(edm::refToPtr(trackRef)));
-    }
+    auto&& trackRef = inMuon.track();
 
     // compute impact parameter with respect to PV
     if (trackRef.isNonnull()) {
@@ -279,16 +269,17 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
       auto& track = *trackRef.get();
 
       for (unsigned iPVType : {0, 1}) {
-        if (!pvcHandles[iPVType]->isValid())
+        if (!vertexCols[iPVType])
           continue;
 
-        auto& pvcHandle = *pvcHandles[iPVType];
-        auto& bs = **bsHandles[iPVType];
-
-        reco::Vertex const& pv = pvcHandle->at(0);
-        reco::Vertex pvub = pvcHandle->at(0);
+        reco::Vertex const& pv = vertexCols[iPVType]->at(0);
+        reco::Vertex pvub = pv;
 
         if (fitUnbiasedVertex_) {
+          if (!beamspots[iPVType])
+            throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
+              << "Null Beamspot pointer";
+
           reco::TrackCollection newTkCollection;
           bool foundMatch = false;
           for (auto itk = pv.tracks_begin(); itk != pv.tracks_end(); ++itk) {
@@ -300,7 +291,7 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
           }
 
           if (foundMatch) {
-            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, bs, setup);
+            auto pvs = vtxReProducers[iPVType]->makeVertices(newTkCollection, *beamspots[iPVType], setup);
             if (pvs.size() > 0)
               pvub = pvs.front();      // take the first in the list
           }
@@ -408,6 +399,106 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
   delete vtxReProducers[1];
 }
 
+void
+mithep::FillerMuons::ResolveLinks(edm::Event const& event, edm::EventSetup const&)
+{
+  // Supported patterns
+  // Fill from reco::MuonCollection:
+  //  - xyzTrackMap_->GetMit(xyzRef)
+  // Fill from pat::Muon:
+  //  - xyzMuTrackMap_->GetMit(mPtr)
+
+  std::function<void(mithep::Muon*, mithep::Track const*)> setters[nMuonTrackTypes];
+  setters[kInnerTrack] = &mithep::Muon::SetTrackerTrk;
+  setters[kOuterTrack] = &mithep::Muon::SetStandaloneTrk;
+  setters[kCombinedTrack] = &mithep::Muon::SetGlobalTrk;
+  setters[kTPFMS] = &mithep::Muon::SetTrackerPlusFirstStationTrk;
+  setters[kPicky] = &mithep::Muon::SetPickyTrk;
+  setters[kDYT] = &mithep::Muon::SetDYTTrk;
+
+  for (auto& mapElem : muonMap_->FwdMap()) {
+    auto&& mPtr = mapElem.first;
+    auto& inMuon = static_cast<reco::Muon const&>(*mPtr);
+    bool inHasBest = inMuon.muonBestTrack().isAvailable();
+    bool inHasTunePBest = inMuon.tunePMuonBestTrack().isAvailable();
+    auto* outMuon = mapElem.second;
+
+    if (fillFromPAT_) {
+      for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+        // MuonTrackType in reco::Muon is shifted by 1
+        auto recoType = reco::Muon::MuonTrackType(iT + 1);
+        if (muonTrackMap_[iT] &&
+            (inMuon.muonTrack(recoType).isAvailable() ||
+             (inMuon.muonBestTrackType() == recoType && inHasBest) ||
+             (inMuon.tunePMuonBestTrackType() == recoType && inHasTunePBest)))
+          setters[iT](outMuon, muonTrackMap_[iT]->GetMit(mPtr));
+      }
+    }
+    else {
+      for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
+        auto recoType = reco::Muon::MuonTrackType(iT + 1);
+        auto&& ref = inMuon.muonTrack(recoType);
+
+        if (iT == kOuterTrack) {
+          if (ref.isNonnull()) {
+            // outer track can come from either vertex-constrained or unconstrained tracks
+            if (staVtxTrackMap_ && ref.id().id() == staVtxTrackMap_->GetEdmProductId())
+              outMuon->SetStandaloneTrk(staVtxTrackMap_->GetMit(edm::refToPtr(ref)));
+            else if (trackMap_[iT])
+              outMuon->SetStandaloneTrk(trackMap_[iT]->GetMit(edm::refToPtr(ref)));
+          }
+        }
+        else {
+          if (trackMap_[iT] && ref.isNonnull())
+            setters[iT](outMuon, trackMap_[iT]->GetMit(edm::refToPtr(ref)));
+        }
+      }
+    }
+  }
+}
+
+unsigned char
+mithep::FillerMuons::RecoToMithep(unsigned char recoType) const
+{
+  switch (recoType) {
+  case reco::Muon::InnerTrack:
+    return mithep::Muon::kTracker;
+  case reco::Muon::OuterTrack:
+    return mithep::Muon::kSta;
+  case reco::Muon::CombinedTrack:
+    return mithep::Muon::kGlobal;
+  case reco::Muon::TPFMS:
+    return mithep::Muon::kTrackerPlusFirstStation;
+  case reco::Muon::Picky:
+    return mithep::Muon::kPicky;
+  case reco::Muon::DYT:
+    return mithep::Muon::kDYT;
+  default:
+    return mithep::Muon::kNone;
+  }
+}
+
+unsigned char
+mithep::FillerMuons::MithepToReco(unsigned char mitType) const
+{
+  switch (mitType) {
+  case mithep::Muon::kTracker:
+    return reco::Muon::InnerTrack;
+  case mithep::Muon::kSta:
+    return reco::Muon::OuterTrack;
+  case mithep::Muon::kGlobal:
+    return reco::Muon::CombinedTrack;
+  case mithep::Muon::kTrackerPlusFirstStation:
+    return reco::Muon::TPFMS;
+  case mithep::Muon::kPicky:
+    return reco::Muon::Picky;
+  case mithep::Muon::kDYT:
+    return reco::Muon::DYT;
+  default:
+    return reco::Muon::None;
+  }
+}
+
 int
 mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int muonSubdetId, reco::Muon::ArbitrationType type)
 {
@@ -461,3 +552,5 @@ mithep::FillerMuons::NumberOfSegments(reco::Muon const& inMuon, int station, int
   }
   return segments;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMuons);

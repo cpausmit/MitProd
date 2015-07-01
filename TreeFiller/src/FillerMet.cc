@@ -13,8 +13,8 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerMet::FillerMet(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::METCollection>(collector, "edmName","met")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
+  edmToken_(GetToken<reco::METCollection>(collector, cfg, "edmName")), //met
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkCaloMetBrn)),
   mets_(new mithep::MetArr)
 {
   // Constructor.
@@ -69,3 +69,5 @@ void FillerMet::FillDataBlock(const edm::Event      &event,
   }
   mets_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerMet);

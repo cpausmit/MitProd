@@ -10,29 +10,33 @@
 
 mithep::FillerEvtSelData::FillerEvtSelData(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "EvtSelData"*/,  bool active/* = true*/) : 
   BaseFiller(cfg, os, "EvtSelData",active),
-  mitName_(Conf().getUntrackedParameter<string>("mitName", mithep::Names::gkEvtSelDataBrn)),
-  HBHENoiseFilterToken_(GetToken<bool>(collector, "HBHENoiseFilterName", "")),
-  ECALDeadCellFilterToken_(GetToken<bool>(collector, "ECALDeadCellFilterName", "")),
-  TrackingFailureFilterToken_(GetToken<bool>(collector, "trackingFailureFilterName", "")),
-  EEBadScFilterToken_(GetToken<bool>(collector, "EEBadScFilterName", "")),
-  ECALaserCorrFilterToken_(GetToken<bool>(collector, "ECALaserCorrFilterName", "")),
-  ManyStripClusToken_(GetToken<bool>(collector, "tkManyStripClusName", "")),
-  TooManyStripClusToken_(GetToken<bool>(collector, "tkTooManyStripClusName", "")),
-  LogErrorTooManyClustersToken_(GetToken<bool>(collector, "tkLogErrorTooManyClustersName", "")),
-  BeamHaloSummaryToken_(GetToken<reco::BeamHaloSummary>(collector, "BeamHaloSummaryName", "")),
-  patFilterResultsToken_(GetToken<edm::TriggerResults>(collector, "patFilterResultsName", "TriggerResults::PAT")),
+  mitName_(cfg.getUntrackedParameter<string>("mitName", mithep::Names::gkEvtSelDataBrn)),
+  filterLabels_{},
+  patFilterResultsToken_(GetToken<edm::TriggerResults>(collector, cfg, "patFilterResultsName", false)), //TriggerResults::PAT
   evtSelData_(new EvtSelData())
 {
-  filterLabels_[kHBHENoiseFilter] = Conf().getUntrackedParameter<std::string>("HBHENoiseFilterName", "");
-  filterLabels_[kECALDeadCellFilter] = Conf().getUntrackedParameter<std::string>("ECALDeadCellFilterName", "");
-  filterLabels_[kTrackingFailureFilter] = Conf().getUntrackedParameter<std::string>("trackingFailureFilterName", "");
-  filterLabels_[kEEBadScFilter] = Conf().getUntrackedParameter<std::string>("EEBadScFilterName", "");
-  filterLabels_[kECALaserCorrFilter] = Conf().getUntrackedParameter<std::string>("ECALaserCorrFilterName", "");
-  filterLabels_[kManyStripClusFilter] = Conf().getUntrackedParameter<std::string>("tkManyStripClusName", "");
-  filterLabels_[kTooManyStripClusFilter] = Conf().getUntrackedParameter<std::string>("tkTooManyStripClusName", "");
-  filterLabels_[kLogErrorTooManyClustersFilter] = Conf().getUntrackedParameter<std::string>("tkLogErrorTooManyClustersName", "");
-  filterLabels_[kCSCTightHaloFilter] = Conf().getUntrackedParameter<std::string>("BeamHaloSummaryName", "");
-  filterLabels_[kCSCLooseHaloFilter] = Conf().getUntrackedParameter<std::string>("BeamHaloSummaryName", "");
+  if (patFilterResultsToken_.isUninitialized()) {
+    HBHENoiseFilterToken_ = GetToken<bool>(collector, cfg, "HBHENoiseFilterName");
+    ECALDeadCellFilterToken_ = GetToken<bool>(collector, cfg, "ECALDeadCellFilterName");
+    TrackingFailureFilterToken_ = GetToken<bool>(collector, cfg, "trackingFailureFilterName");
+    EEBadScFilterToken_ = GetToken<bool>(collector, cfg, "EEBadScFilterName");
+    ECALaserCorrFilterToken_ = GetToken<bool>(collector, cfg, "ECALaserCorrFilterName");
+    ManyStripClusToken_ = GetToken<bool>(collector, cfg, "tkManyStripClusName");
+    TooManyStripClusToken_ = GetToken<bool>(collector, cfg, "tkTooManyStripClusName");
+    LogErrorTooManyClustersToken_ = GetToken<bool>(collector, cfg, "tkLogErrorTooManyClustersName");
+    BeamHaloSummaryToken_ = GetToken<reco::BeamHaloSummary>(collector, cfg, "BeamHaloSummaryName");
+  }
+  else {
+    filterLabels_[kHBHENoiseFilter] = cfg.getUntrackedParameter<std::string>("HBHENoiseFilterName", "");
+    filterLabels_[kECALDeadCellFilter] = cfg.getUntrackedParameter<std::string>("ECALDeadCellFilterName", "");
+    filterLabels_[kTrackingFailureFilter] = cfg.getUntrackedParameter<std::string>("trackingFailureFilterName", "");
+    filterLabels_[kEEBadScFilter] = cfg.getUntrackedParameter<std::string>("EEBadScFilterName", "");
+    filterLabels_[kECALaserCorrFilter] = cfg.getUntrackedParameter<std::string>("ECALaserCorrFilterName", "");
+    filterLabels_[kManyStripClusFilter] = cfg.getUntrackedParameter<std::string>("tkManyStripClusName", "");
+    filterLabels_[kTooManyStripClusFilter] = cfg.getUntrackedParameter<std::string>("tkTooManyStripClusName", "");
+    filterLabels_[kLogErrorTooManyClustersFilter] = cfg.getUntrackedParameter<std::string>("tkLogErrorTooManyClustersName", "");
+    filterLabels_[kCSCTightHaloFilter] = cfg.getUntrackedParameter<std::string>("BeamHaloSummaryName", "");
+  }
 }
 
 mithep::FillerEvtSelData::~FillerEvtSelData()
@@ -51,11 +55,10 @@ void
 mithep::FillerEvtSelData::FillDataBlock(edm::Event const& event, 
                                         edm::EventSetup const&)
 {
-  bool pass[nEvtSelFilters];
-  std::fill_n(pass, nEvtSelFilters, false);
+  bool pass[nEvtSelFilters] = {};
 
   if (patFilterResultsToken_.isUninitialized()) {
-  // PAT filters not applied -> Read the MET filters boolean decisions
+    // PAT filters not applied -> Read the MET filters boolean decisions
     edm::Handle<bool> HBHENoiseFilterHandle;
     GetProduct(HBHENoiseFilterToken_, HBHENoiseFilterHandle, event);
     pass[kHBHENoiseFilter] = *HBHENoiseFilterHandle;
@@ -125,3 +128,5 @@ mithep::FillerEvtSelData::FillDataBlock(edm::Event const& event,
   //Store the bit word in the container
   evtSelData_->SetFiltersWord(selWord);
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerEvtSelData);

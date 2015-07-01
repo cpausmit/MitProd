@@ -28,10 +28,13 @@ namespace mithep
     FillerPhotons(edm::ParameterSet const&, edm::ConsumesCollector&, mithep::ObjectService*, char const*, bool = true);
     ~FillerPhotons();
 
-    void BookDataBlock(mithep::TreeWriter &) override;
+    void BookDataBlock(mithep::TreeWriter&) override;
+    void PrepareLinks() override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
+    void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
     typedef edm::View<reco::Photon> PhotonView;
+    typedef std::vector<reco::PFCandidateRef> PFCandRefV;
 
   protected:		               
     void HERecHitMatcher(reco::Photon const&, int zSide,
@@ -44,12 +47,15 @@ namespace mithep
                          CaloGeometry const&); 
 
   private:		               
-    edm::EDGetTokenT<PhotonView>           edmToken_;                   //edm name: photon collection
-    edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //name: input edm HCAL HE rec hits collection  
-    edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //name: tight cut phID algo
-    edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedLooseToken_;     //name: loose cut phID algo
+    bool                              fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
+
+    edm::EDGetTokenT<PhotonView>           edmToken_;                   //photon collection
+    edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitsEdmToken_;        //input edm HCAL HE rec hits collection  
+    edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedTightToken_;     //tight cut phID algo
+    edm::EDGetTokenT<edm::ValueMap<bool> > phIDCutBasedLooseToken_;     //loose cut phID algo
     std::string                            phIDCutBasedTightName_;
     std::string                            phIDCutBasedLooseName_;
+    edm::EDGetTokenT<edm::ValueMap<PFCandRefV> > footprintToken_;       //PF candidates associated to photon footprint
 
     std::string                       mitName_;                   //mit name: photon collection
     std::string                       conversionMapName_;         //name: imp. map wrt conv. elecs
@@ -57,9 +63,9 @@ namespace mithep
     std::string                       barrelSuperClusterMapName_; //name: imp. map wrt barrel sclus
     std::string                       endcapSuperClusterMapName_; //name: imp. map wrt endcap sclus
     bool                              checkClusterActive_;
-    bool                              fillFromPAT_;               //true when filling from PAT (e.g. MiniAOD)
     std::string                       pfEcalBarrelSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
-    std::string                       pfEcalEndcapSuperClusterMapName_;     //name: imp. map wrt pflow sclus 
+    std::string                       pfEcalEndcapSuperClusterMapName_;     //name: imp. map wrt pflow sclus
+    std::string                       pfCandidateMapName_;        //name: imp. map wrt pflow candidates
     std::string                       photonMapName_;             //name: exported photon map
     std::string                       photonPFMapName_;           //name of exported PF->photon map
     mithep::PhotonMap*                photonMap_;                //exported photon map
@@ -71,6 +77,7 @@ namespace mithep
     mithep::SuperClusterMap const*    endcapSuperClusterMap_;    //map wrt endcap super clusters
     mithep::SuperClusterMap const*    pfEcalBarrelSuperClusterMap_;        //map wrt pflow super clusters  
     mithep::SuperClusterMap const*    pfEcalEndcapSuperClusterMap_;        //map wrt pflow super clusters  
+    mithep::PFCandidateMap const*     pfCandidateMap_;        //map wrt pflow candidates
 
     EGEnergyCorrector                 ecorr_;
   };

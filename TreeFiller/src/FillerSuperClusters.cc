@@ -26,19 +26,19 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<reco::SuperClusterCollection>(collector, "edmName","hybridSuperClusters")),
-  //YI caloTowerToken_(GetToken<CaloTowerCollection>(collector, "caloTowerName","towerMaker")),
-  ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "ebRecHitsName", "reducedEcalRecHitsEB")),
-  eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "eeRecHitsName", "reducedEcalRecHitsEE")),
-  esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, "esRecHitsName", "reducedEcalRecHitsES")),
-  mitName_              (Conf().getUntrackedParameter<string>("mitName","SuperClusters")),
-  basicClusterMapName_  (Conf().getUntrackedParameter<string>("basicClusterMapName", "BasicClusterMap")),
-  psClusterMapName_     (Conf().getUntrackedParameter<string>("psClusterMapName", "")),
-  psXClusterMapName_    (Conf().getUntrackedParameter<string>("psXClusterMapName", "")),
-  psYClusterMapName_    (Conf().getUntrackedParameter<string>("psYClusterMapName", "")),
-  caloTowerDetIdMapName_(Conf().getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
-  superClusterMapName_  (Conf().getUntrackedParameter<string>("superClusterMapName", "SuperClusterMap")),
-  superClusterIdMapName_(Conf().getUntrackedParameter<string>("superClusterIdMapName", "SuperClusterIdMap")),
+  edmToken_(GetToken<reco::SuperClusterCollection>(collector, cfg, "edmName")), //hybridSuperClusters
+  //YI caloTowerToken_(GetToken<CaloTowerCollection>(collector, cfg, "caloTowerName")), //towerMaker
+  ebRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "ebRecHitsName", false)), //reducedEcalRecHitsEB
+  eeRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "eeRecHitsName", false)), //reducedEcalRecHitsEE
+  esRecHitsToken_(GetToken<EcalRecHitCollection>(collector, cfg, "esRecHitsName", false)), //reducedEcalRecHitsES
+  mitName_              (cfg.getUntrackedParameter<string>("mitName","SuperClusters")),
+  basicClusterMapName_  (cfg.getUntrackedParameter<string>("basicClusterMapName", "BasicClusterMap")),
+  psClusterMapName_     (cfg.getUntrackedParameter<string>("psClusterMapName", "")),
+  psXClusterMapName_    (cfg.getUntrackedParameter<string>("psXClusterMapName", "")),
+  psYClusterMapName_    (cfg.getUntrackedParameter<string>("psYClusterMapName", "")),
+  caloTowerDetIdMapName_(cfg.getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
+  superClusterMapName_  (cfg.getUntrackedParameter<string>("superClusterMapName", "SuperClusterMap")),
+  superClusterIdMapName_(cfg.getUntrackedParameter<string>("superClusterIdMapName", "SuperClusterIdMap")),
   basicClusterMap_      (0),
   psClusterMap_         (0),
   psXClusterMap_        (0),
@@ -148,10 +148,6 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
   // mustache id
   reco::Mustache mustache;
 
-  // es shape variables
-  edm::Handle<EcalRecHitCollection> hESRecHits;
-  GetProductSafe(esRecHitsToken_, hESRecHits, event);
-
   edm::ESHandle<CaloGeometry> pGeometry;
   setup.get<CaloGeometryRecord>().get(pGeometry);
  
@@ -164,7 +160,11 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
 
   // map of preshower rechits for shape calculations
   std::map<DetId, EcalRecHit const*> esmap;
-  if (hESRecHits.isValid()) {
+  if (!esRecHitsToken_.isUninitialized()) {
+    // es shape variables
+    edm::Handle<EcalRecHitCollection> hESRecHits;
+    GetProduct(esRecHitsToken_, hESRecHits, event);
+
     auto& esRecHits = *hESRecHits;
     EcalRecHitCollection::const_iterator it;
     for (auto esHit : esRecHits) {
@@ -631,3 +631,5 @@ void  FillerSuperClusters::SCTimeSpanCalculator(std::vector<std::pair<DetId, flo
   
   return;
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerSuperClusters);

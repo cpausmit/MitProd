@@ -12,9 +12,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 FillerPileupInfo::FillerPileupInfo(const ParameterSet &cfg, edm::ConsumesCollector& collector, ObjectService* os, const char *name, bool active) : 
   BaseFiller(cfg,os,name,active),
-  edmToken_(GetToken<std::vector<PileupSummaryInfo> >(collector, "edmName","addPileupInfo")),
-  edmSingleToken_(GetToken<PileupSummaryInfo>(collector, "edmName","addPileupInfo")),
-  mitName_(Conf().getUntrackedParameter<string>("mitName",Names::gkPileupInfoBrn)),
+  edmToken_(GetToken<std::vector<PileupSummaryInfo> >(collector, cfg, "edmName")), //addPileupInfo
+  edmSingleToken_(GetToken<PileupSummaryInfo>(collector, cfg, "edmName")), //addPileupInfo
+  mitName_(cfg.getUntrackedParameter<string>("mitName",Names::gkPileupInfoBrn)),
   puInfos_(new mithep::PileupInfoArr)
 {
   // Constructor.
@@ -33,7 +33,7 @@ void FillerPileupInfo::BookDataBlock(TreeWriter &tws)
 {
   // Add pileup branch to tree.
   tws.AddBranch(mitName_,&puInfos_);
-  OS()->add<mithep::PileupInfoArr>(puInfos_,mitName_);
+  OS()->add(puInfos_,mitName_);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,3 +78,5 @@ void FillerPileupInfo::FillDataBlock(const edm::Event      &event,
 
   puInfos_->Trim();
 }
+
+DEFINE_MITHEP_TREEFILLER(FillerPileupInfo);

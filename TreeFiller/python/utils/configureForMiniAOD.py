@@ -18,6 +18,14 @@ def configureForMiniAOD(treeFiller):
 #        #'PsClusters', # GED preshower clusters are of type CaloClusterCollection - either FillerPsClusters or FillerBasicClusters must be updated
         'SuperClusters',
         'GeneralTracks',
+        'MuonTracks', # miniAOD-specific
+        'StandaloneMuonTracks',
+        'GlobalMuonTracks',
+        'FirstHitMuonTracks',
+        'PickyMuonTracks',
+        'DYTMuonTracks',
+        'ElectronTracks', # miniAOD-specific
+        'GsfTracks',
         'PrimaryVertexes',
         'Muons',
         'Electrons',
@@ -61,6 +69,44 @@ def configureForMiniAOD(treeFiller):
     treeFiller.GeneralTracks.edmName = 'unpackedTracksAndVertices'
     treeFiller.GeneralTracks.edmSimAssociationName = ''
 
+    treeFiller.MuonTracks = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        sourceType = cms.untracked.string('MuonInner'),
+        mitName = cms.untracked.string('MuonTracks'),
+        edmName = cms.untracked.string('slimmedMuons'),
+        trackMapName = cms.untracked.string('MuonTracksMapName'),
+        fillerType = cms.untracked.string('FillerTracks')
+    )
+
+    treeFiller.StandaloneMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.StandaloneMuonTracks.sourceType = 'MuonStandalone'
+
+    treeFiller.GlobalMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.GlobalMuonTracks.sourceType = 'MuonCombined'
+
+    treeFiller.FirstHitMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.FirstHitMuonTracks.sourceType = 'MuonTPFMS'
+
+    treeFiller.PickyMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.PickyMuonTracks.sourceType = 'MuonPicky'
+
+    treeFiller.DYTMuonTracks.edmName = 'slimmedMuons'
+    treeFiller.DYTMuonTracks.sourceType = 'MuonDYT'
+
+    treeFiller.ElectronTracks = cms.untracked.PSet(
+        active = cms.untracked.bool(True),
+        sourceType = cms.untracked.string('ElectronCtf'),
+        mitName = cms.untracked.string('ElectronTracks'),
+        edmName = cms.untracked.string('slimmedElectrons'),
+        trackMapName = cms.untracked.string('ElectronTracksMapName'),
+        fillerType = cms.untracked.string('FillerTracks')
+    )
+
+    treeFiller.GsfTracks.edmName = 'slimmedElectrons'
+    treeFiller.GsfTracks.sourceType = 'ElectronGsf'
+    treeFiller.GsfTracks.trackingMapName = ''
+    treeFiller.GsfTracks.edmSimAssociationName = ''
+
     treeFiller.PrimaryVertexes.edmName = 'offlineSlimmedPrimaryVertices'
 
     treeFiller.Muons.edmName = 'slimmedMuons'
@@ -68,10 +114,7 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Muons.pvBSEdmName = ''
     treeFiller.Muons.pvBeamSpotName = 'offlineBeamSpot'
     treeFiller.Muons.pvbsBeamSpotName = ''
-    treeFiller.Muons.globalTrackMapName = ''
-    treeFiller.Muons.staTrackMapName = ''
-    treeFiller.Muons.staVtxTrackMapName = ''
-    treeFiller.Muons.trackerTrackMapName = ''
+    treeFiller.Muons.trackerTrackMapName = 'MuonTracksMapName'
     treeFiller.Muons.muonPFMapName = 'muonPFMap'
     treeFiller.Muons.fillFromPAT = True
 
@@ -80,8 +123,8 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Electrons.gsfTracksName = ''
     treeFiller.Electrons.conversionsName = ''
     treeFiller.Electrons.pvbsBeamSpotName = ''
-    treeFiller.Electrons.gsfTrackMapName = ''
-    treeFiller.Electrons.trackerTrackMapName = ''
+    treeFiller.Electrons.footprintName = ''
+    treeFiller.Electrons.trackerTrackMapName = 'ElectronTracksMapName'
     treeFiller.Electrons.pfEcalBarrelSuperClusterMapName = ''
     treeFiller.Electrons.pfEcalEndcapSuperClusterMapName = ''
     treeFiller.Electrons.electronPFMapName = 'electronPFMap'
@@ -102,14 +145,11 @@ def configureForMiniAOD(treeFiller):
     treeFiller.Photons.HBHERecHitsEdmName = ''
     treeFiller.Photons.phIDCutBasedTightName = 'PhotonCutBasedIDTight'
     treeFiller.Photons.phIDCutBasedLooseName = 'PhotonCutBasedIDLoose'
+    treeFiller.Photons.footprintName = ''
     treeFiller.Photons.pfEcalBarrelSuperClusterMapName = ''
     treeFiller.Photons.pfEcalEndcapSuperClusterMapName = ''
     treeFiller.Photons.photonPFMapName = 'photonPFMap'
     treeFiller.Photons.fillFromPAT = True
-
-    treeFiller.AKt4PFJets.edmName = 'ak4PFJets'
-
-    treeFiller.AKt8PFJets.edmName = 'ak8PFJets'
 
     treeFiller.AKt4PFJetsCHS.edmName = 'slimmedJets'
     treeFiller.AKt4PFJetsCHS.JetProbabilityBJetTagsName = 'pfJetProbabilityBJetTags'

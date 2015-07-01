@@ -1,0 +1,4 @@
+<use name="MitProd/TreeFiller"/>
+<library file="*.cc" name="MitProdTreeFillerPlugins">
+   <flags EDM_PLUGIN="1"/>
+</library>

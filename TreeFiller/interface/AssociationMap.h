@@ -24,6 +24,7 @@ namespace mithep
     ~AssociationMap() {}
     
     void              Add(EdmClass edmObj, MitClass mitObj);
+    void              Set(EdmClass edmObj, MitClass mitObj);
     EdmClass          GetEdm(MitClass mitObj, bool throwOnFail = kTRUE) const;
     Int_t             GetEdmProductId()          const { return edmProductId_;  }
     Int_t             GetEntries()               const { return fwdMap_.size(); }
@@ -50,14 +51,30 @@ template <class EdmClass, class MitClass>
 inline void mithep::AssociationMap<EdmClass,MitClass>::Add(EdmClass edmObj, MitClass mitObj) 
 {
   fwdMap_[edmObj]=mitObj;
-  revMap_.insert(std::pair<MitClass, EdmClass>(mitObj,edmObj));
+  revMap_.emplace(mitObj, edmObj);
+}
+
+template <class EdmClass, class MitClass>
+inline void mithep::AssociationMap<EdmClass,MitClass>::Set(EdmClass edmObj, MitClass mitObj) 
+{
+  auto iter = fwdMap_.find(edmObj);
+  if (iter == fwdMap_.end())
+    throw edm::Exception(edm::errors::Configuration, "AssociationMap::Set()\n")
+      << "Error! EDM Object (" << typeid(edmObj).name() 
+      << ") not found in AssociationMap (" << typeid(*this).name() << ").";
+  else {
+    auto current = iter->second;
+    iter->second = mitObj;
+    revMap_.erase(current);
+    revMap_.emplace(mitObj, edmObj);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 template <class EdmClass, class MitClass>
 inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmObj, bool throwOnFail/* = kTRUE*/) const
 {
-  typename fwdMapType::const_iterator iter = fwdMap_.find(edmObj);
+  auto iter = fwdMap_.find(edmObj);
 
   if (iter != fwdMap_.end())
     return iter->second;
@@ -73,7 +90,7 @@ inline MitClass mithep::AssociationMap<EdmClass,MitClass>::GetMit(EdmClass edmOb
 template <class EdmClass, class MitClass>
 inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitObj, bool throwOnFail/* = kTRUE*/) const
 {
-  typename revMapType::const_iterator iter = revMap_.find(mitObj);
+  auto iter = revMap_.find(mitObj);
 
   if (iter != revMap_.end())
     return iter->second;
@@ -89,7 +106,7 @@ inline EdmClass mithep::AssociationMap<EdmClass,MitClass>::GetEdm(MitClass mitOb
 template <class EdmClass, class MitClass>
 inline bool mithep::AssociationMap<EdmClass,MitClass>::HasMit(EdmClass edmObj) const
 {
-  typename fwdMapType::const_iterator iter = fwdMap_.find(edmObj);
+  auto iter = fwdMap_.find(edmObj);
 
   if (iter != fwdMap_.end())
     return true;

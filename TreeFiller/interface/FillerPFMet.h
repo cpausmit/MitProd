@@ -6,8 +6,8 @@
 // Authors: C.Loizides, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITPROD_TREEFILLER_FILLERPFMET_H
-#define MITPROD_TREEFILLER_FILLERPFMET_H
+// reverse header protection - this file should be included only by FillerPFMet.cc
+#ifdef MITPROD_TREEFILLER_FILLERPFMET
 
 #include "MitAna/DataTree/interface/PFMetFwd.h"
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"

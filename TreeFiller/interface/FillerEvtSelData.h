@@ -43,6 +43,7 @@ namespace mithep
   private:    
     std::string              mitName_;                        //mit branch name
     std::string              filterLabels_[nEvtSelFilters];
+    edm::EDGetTokenT<edm::TriggerResults> patFilterResultsToken_; //filter results for MET filters already applied during PAT
     edm::EDGetTokenT<bool>   HBHENoiseFilterToken_;            //input edm HBHENoiseFilter decision 
     edm::EDGetTokenT<bool>   ECALDeadCellFilterToken_;         //input edm ECALDeadCellFilter decision 
     edm::EDGetTokenT<bool>   TrackingFailureFilterToken_;      //input edm trackingFailureFilter decision 
@@ -52,7 +53,6 @@ namespace mithep
     edm::EDGetTokenT<bool>   TooManyStripClusToken_;         //input edm trackingOddFilter decision [2]
     edm::EDGetTokenT<bool>   LogErrorTooManyClustersToken_;  //input edm trackingOddFilter decision [3]
     edm::EDGetTokenT<reco::BeamHaloSummary>   BeamHaloSummaryToken_; //input edm BeamHalo summary 
-    edm::EDGetTokenT<edm::TriggerResults> patFilterResultsToken_; //filter results for MET filters already applied during PAT
     EvtSelData*              evtSelData_;                    //event selection data object
   };
 }
