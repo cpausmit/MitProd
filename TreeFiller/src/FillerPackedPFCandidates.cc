@@ -17,20 +17,19 @@ mithep::FillerPackedPFCandidates::FillerPackedPFCandidates(const edm::ParameterS
   electronMapName_      (cfg.getUntrackedParameter<std::string>("electronMapName", "")),
   muonMapName_          (cfg.getUntrackedParameter<std::string>("muonMapName", "")),
   photonMapName_        (cfg.getUntrackedParameter<std::string>("photonMapName", "")),
+  trackMapName_         (cfg.getUntrackedParameter<std::string>("trackMapName", "")),
   pfCandMap_            (new mithep::PFCandidateMap),
   pfNoPileupCandMap_    (new mithep::PFCandidateMap),
   pfCands_              (new mithep::PFCandidateArr(16)),
   electronMap_          (0),
   muonMap_              (0),
-  photonMap_            (0)
+  photonMap_            (0),
+  trackMap_             (0)
 {
-  // Constructor.
 }
 
 mithep::FillerPackedPFCandidates::~FillerPackedPFCandidates() 
 {
-  // Destructor.
-
   delete pfCands_;
   delete pfCandMap_;
   delete pfNoPileupCandMap_;
@@ -52,7 +51,11 @@ mithep::FillerPackedPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
     pfNoPileupCandMap_->SetBrName(mitName_);
     OS()->add(pfNoPileupCandMap_, pfNoPileupCandMapName_);
   }
+}
 
+void
+mithep::FillerPackedPFCandidates::PrepareLinks()
+{
   if (!electronMapName_.empty()) {
     electronMap_ = OS()->get<mithep::CandidateMap>(electronMapName_);
     if (electronMap_)
@@ -67,6 +70,12 @@ mithep::FillerPackedPFCandidates::BookDataBlock(mithep::TreeWriter &tws)
     photonMap_ = OS()->get<mithep::CandidateMap>(photonMapName_);
     if (photonMap_)
       AddBranchDep(mitName_, photonMap_->GetBrName());
+  }
+
+  if (!trackMapName_.empty()) {
+    trackMap_ = OS()->get<mithep::CandidateMap>(trackMapName_);
+    if (trackMap_)
+      AddBranchDep(mitName_, trackMap_->GetBrName());
   }
 }
 
@@ -143,7 +152,7 @@ mithep::FillerPackedPFCandidates::FillDataBlock(edm::Event const& event, edm::Ev
 void
 mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup const&)
 {
-  if (!electronMap_ && !muonMap_ && !photonMap_)
+  if (!electronMap_ && !muonMap_ && !photonMap_ && !trackMap_)
     return;
   
   for (auto& ptrcand : pfCandMap_->FwdMap()) {
@@ -164,6 +173,11 @@ mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetu
       mithep::Photon const* photon = static_cast<mithep::Photon const*>(photonMap_->GetMit(ptr, false));
       if (photon)
         outPfCand->SetPhoton(photon);
+    }
+    if (trackMap_) {
+      mithep::Track const* track = static_cast<mithep::Track const*>(trackMap_->GetMit(ptr, false));
+      if (track)
+        outPfCand->SetTrackerTrk(track);
     }
   }
 }
