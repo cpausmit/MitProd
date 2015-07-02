@@ -1,17 +1,16 @@
-#define FILLERJETS_INSTANCE
-
 #include "MitProd/TreeFiller/interface/FillerCaloJets.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 mithep::FillerCaloJets::FillerCaloJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) : 
-  FillerJets<mithep::CaloJet>(cfg, collector, os, name, active),
+  FillerJets(cfg, collector, os, name, active),
   jetIDActive_(cfg.getUntrackedParameter<bool>("jetIDActive", false)),
   jetIDToken_(GetToken<reco::JetIDValueMap>(collector, cfg, "jetIDName", jetIDActive_)), //jetIDName
   jetIDMap_(0),
   caloTowerMapName_(cfg.getUntrackedParameter<std::string>("caloTowerMapName", "CaloTowerMap")),
   caloTowerMap_(0)
 {
+  jets_ = new mithep::CaloJetArr(32);
 }
 
 mithep::FillerCaloJets::~FillerCaloJets()
@@ -40,11 +39,13 @@ mithep::FillerCaloJets::PrepareSpecific(edm::Event const& event, edm::EventSetup
 }
 
 void
-mithep::FillerCaloJets::FillSpecific(mithep::CaloJet& outJet, reco::JetBaseRef const& inJetRef)
+mithep::FillerCaloJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef const& inJetRef)
 {
   auto* inCaloJet(dynamic_cast<reco::CaloJet const*>(inJetRef.get()));
   if (!inCaloJet)
     return;
+
+  mithep::CaloJet& outJet(static_cast<mithep::CaloJet&>(outBaseJet));
 
   // fill calojet-specific quantities
   outJet.SetMaxEInEmTowers (inCaloJet->maxEInEmTowers());	 
@@ -93,7 +94,7 @@ mithep::FillerCaloJets::ResolveLinks(edm::Event const&, edm::EventSetup const&)
   for (auto& mapElem : jetMap_->FwdMap()) {
     auto&& jPtr = mapElem.first;
     auto& inJet = static_cast<reco::CaloJet const&>(*jPtr);
-    auto& outJet = *mapElem.second;
+    auto& outJet = static_cast<mithep::CaloJet&>(*mapElem.second);
 
     auto&& ctidVector = inJet.getTowerIndices();
     for (auto&& towerId : inJet.getTowerIndices())

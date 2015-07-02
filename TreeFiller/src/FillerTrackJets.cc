@@ -1,5 +1,3 @@
-#define FILLERJETS_INSTANCE
-
 #include "MitProd/TreeFiller/interface/FillerTrackJets.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -8,12 +6,13 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 mithep::FillerTrackJets::FillerTrackJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) : 
-  FillerJets<mithep::TrackJet>(cfg, collector, os, name, active),
+  FillerJets(cfg, collector, os, name, active),
   trackMapName_(cfg.getUntrackedParameter<string>("trackMapName","trackMapName")),
   vertexMapName_(cfg.getUntrackedParameter<string>("vertexMapName","")),
   trackMap_(0),
   vertexMap_(0)
 {
+  jets_ = new mithep::TrackJetArr(32);
 }
 
 mithep::FillerTrackJets::~FillerTrackJets()
@@ -44,7 +43,7 @@ mithep::FillerTrackJets::ResolveLinks(edm::Event const& event, edm::EventSetup c
   for (auto& mapElem : jetMap_->FwdMap()) {
     auto&& jPtr = mapElem.first;
     auto& inJet = static_cast<reco::TrackJet const&>(*jPtr);
-    auto& outJet = *mapElem.second;
+    auto& outJet = static_cast<mithep::TrackJet&>(*mapElem.second);
 
     //fill primary vertex reference
     if (vertexMap_ && inJet.primaryVertex().isNonnull())
