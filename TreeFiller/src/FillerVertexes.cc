@@ -114,8 +114,24 @@ void FillerVertexes::ResolveLinks(const edm::Event& event, const edm::EventSetup
         if (vtxRef.isNull() || vtxRef.get() != &inVertex)
           continue;
 
+        double weight = -1.;
+        switch (cand.pvAssociationQuality()) {
+        case pat::PackedCandidate::CompatibilityBTag:
+        case pat::PackedCandidate::CompatibilityDz:
+          weight = 0.;
+          break;
+        case pat::PackedCandidate::UsedInFitLoose:
+          weight = 0.5;
+          break;
+        case pat::PackedCandidate::UsedInFitTight:
+          weight = 1.;
+          break;
+        default:
+          break;
+        }
+
         mithep::Track const* track = static_cast<mithep::Track const*>(pfTrackElem.second);
-        outVertex->AddTrack(track);
+        outVertex->AddTrack(track, weight);
       }
     }
   }

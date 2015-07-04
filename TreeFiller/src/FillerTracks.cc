@@ -325,7 +325,7 @@ mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup con
   case kPackedCandidates:
     for (auto&& cPtr : packedCandView->ptrs()) {
       auto& cand(*cPtr);
-      if (cand.charge() == 0 || cand.numberOfHits() <= 0)
+      if (cand.charge() == 0 || cand.numberOfHits() == 0)
         continue;
 
       auto* outTrack = ProduceTrack(cand.pseudoTrack());
