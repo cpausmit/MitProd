@@ -6,12 +6,6 @@
 // Authors: C.Loizides, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
 
-// reverse header protection - this file should be included only by FillerPFJets.cc
-#ifndef FILLERPFJETS_INSTANCE
-#warning This header is protected from accidental inclusions.
-#abort // there is no such preprocessor - will therefore abort.
-#endif
-
 #ifndef MITPROD_TREEFILLER_FILLERPFJETS_H
 #define MITPROD_TREEFILLER_FILLERPFJETS_H
 
@@ -19,26 +13,34 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitAna/DataTree/interface/PFJetCol.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
+namespace reco {
+  class PFJet;
+}
+namespace pat {
+  class Jet;
+}
 
 namespace mithep {
 
-  template<class PFJET>
-  class FillerPFJets : public FillerJets<mithep::PFJet> {
+  class FillerPFJets : public FillerJets {
   public:
     FillerPFJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const*, bool = true);
     ~FillerPFJets();
 
     void PrepareLinks() override;
-    void FillSpecific(mithep::PFJet&, reco::JetBaseRef const&) override;
+    mithep::Jet* AddNew() override { return static_cast<mithep::PFJetArr*>(jets_)->AddNew(); }
+    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
   private:
-    void fillPFJetVariables(mithep::PFJet&, PFJET const&);
+    void fillPFJetVariables(mithep::PFJet&, reco::PFJet const&);
+    void fillPATJetVariables(mithep::PFJet&, pat::Jet const&);
     void initBJetTags(edm::Event const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) override;
     void setBJetTags(mithep::Jet&, reco::JetBaseRef const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) const override;
     void initCorrections(edm::Event const&, edm::EventSetup const&) override;
     void setCorrections(mithep::Jet&, reco::Jet const&) override;
+
+    bool fillFromPAT_;
 
     std::string bJetTagsName_[mithep::Jet::nBTagAlgos];
 

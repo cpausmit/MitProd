@@ -33,7 +33,8 @@ mithep::FillerTracks::FillerTracks(edm::ParameterSet const& cfg, edm::ConsumesCo
   assocParams_(0),
   trackMap_(0),
   eleTrackMap_(0),
-  muTrackMap_(0)
+  muTrackMap_(0),
+  pfTrackMap_(0)
 {
   std::string sourceType(cfg.getUntrackedParameter<std::string>("sourceType", "Tracks"));
   if (sourceType == "Tracks")
@@ -54,6 +55,8 @@ mithep::FillerTracks::FillerTracks(edm::ParameterSet const& cfg, edm::ConsumesCo
     sourceType_ = kMuonPicky;
   else if (sourceType == "MuonDYT")
     sourceType_ = kMuonDYT;
+  else if (sourceType == "PackedCandidates")
+    sourceType_ = kPackedCandidates;
   else
     throw edm::Exception(edm::errors::Configuration, "FillerTracks::Ctor")
       << "Invalid source type " << sourceType;
@@ -84,6 +87,9 @@ mithep::FillerTracks::FillerTracks(edm::ParameterSet const& cfg, edm::ConsumesCo
   case kMuonDYT:
     edmMuonToken_ = GetToken<MuonView>(collector, cfg, "edmName"); //slimmedMuons
     break;
+  case kPackedCandidates:
+    edmPackedCandToken_ = GetToken<PackedCandView>(collector, cfg, "edmName"); //packedCandidates
+    break;
   default:
     break;
   }
@@ -103,6 +109,7 @@ mithep::FillerTracks::~FillerTracks()
   delete trackMap_;
   delete eleTrackMap_;
   delete muTrackMap_;
+  delete pfTrackMap_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,6 +142,11 @@ mithep::FillerTracks::BookDataBlock(TreeWriter& tws)
     muTrackMap_ = new mithep::MuonTrackMap;
     muTrackMap_->SetBrName(mitName_);
     OS()->add(muTrackMap_, trackMapName_);
+    break;
+  case kPackedCandidates:
+    pfTrackMap_ = new mithep::CandidateMap;
+    pfTrackMap_->SetBrName(mitName_);
+    OS()->add(pfTrackMap_, trackMapName_);
     break;
   default:
     break;
@@ -173,10 +185,13 @@ mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup con
     eleTrackMap_->Reset();
   if (muTrackMap_)
     muTrackMap_->Reset();
+  if (pfTrackMap_)
+    pfTrackMap_->Reset();
 
   TrackView const* tracksView = 0;
   ElectronView const* electronsView = 0;
   MuonView const* muonsView = 0;
+  PackedCandView const* packedCandView = 0;
 
   switch (sourceType_) {
   case kTracks:
@@ -205,6 +220,13 @@ mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup con
       edm::Handle<MuonView> hMuons;
       GetProduct(edmMuonToken_, hMuons, event);
       muonsView = hMuons.product();
+    }
+    break;
+  case kPackedCandidates:
+    {
+      edm::Handle<PackedCandView> hCands;
+      GetProduct(edmPackedCandToken_, hCands, event);
+      packedCandView = hCands.product();
     }
     break;
   default:
@@ -298,6 +320,18 @@ mithep::FillerTracks::FillDataBlock(edm::Event const& event, edm::EventSetup con
 
   case kMuonDYT:
     fillMuonMap(reco::Muon::DYT);
+    break;
+
+  case kPackedCandidates:
+    for (auto&& cPtr : packedCandView->ptrs()) {
+      auto& cand(*cPtr);
+      if (cand.charge() == 0 || cand.numberOfHits() == 0)
+        continue;
+
+      auto* outTrack = ProduceTrack(cand.pseudoTrack());
+      pfTrackMap_->Add(cPtr, outTrack);
+      inOutPairs.push_back(InOutPair(&cand.pseudoTrack(), outTrack));
+    }
     break;
 
   default:

@@ -22,6 +22,7 @@ namespace mithep
     ~FillerPackedPFCandidates();
 
     void BookDataBlock(TreeWriter &) override;
+    void PrepareLinks() override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
@@ -34,6 +35,7 @@ namespace mithep
     std::string                 electronMapName_;
     std::string                 muonMapName_;
     std::string                 photonMapName_;
+    std::string                 trackMapName_;
 
     mithep::PFCandidateMap*     pfCandMap_;                //exported map
     mithep::PFCandidateMap*     pfNoPileupCandMap_;        //exported map for pf no pileup
@@ -43,6 +45,7 @@ namespace mithep
     mithep::CandidateMap const* electronMap_;
     mithep::CandidateMap const* muonMap_;
     mithep::CandidateMap const* photonMap_;
+    mithep::CandidateMap const* trackMap_;
   };
 }
 #endif

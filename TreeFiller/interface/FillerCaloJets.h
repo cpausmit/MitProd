@@ -17,14 +17,15 @@
 
 namespace mithep {
 
-  class FillerCaloJets : public FillerJets<mithep::CaloJet> {
+  class FillerCaloJets : public FillerJets {
   public:
     FillerCaloJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
     ~FillerCaloJets();
 
     void PrepareLinks() override;
+    mithep::Jet* AddNew() override { return static_cast<mithep::CaloJetArr*>(jets_)->AddNew(); }
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
-    void FillSpecific(mithep::CaloJet&, reco::JetBaseRef const&) override;
+    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
   private:
