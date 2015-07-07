@@ -46,7 +46,8 @@ echo " "; echo "Initialize CMSSW"; echo " "
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 #cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
 #cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
-cd     ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
+#cd     ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
+cd     ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 
@@ -74,7 +75,7 @@ echo "               $CMSSW_BASE/src/MitProd/Processing/root/${CATALOG_MACRO} \ 
 echo "               ($dataDir,$dataFile) \ "
 echo "               >& $logFile "
 
-root -l -b -q \
+root -l -b -q -n \
      $CMSSW_BASE/src/MitProd/Processing/root/rootlogon.C \
      $CMSSW_BASE/src/MitProd/Processing/root/${CATALOG_MACRO}\(\"$dataDir\",\"$dataFile\"\) \
      >& $logFile
@@ -92,7 +93,7 @@ then
   echo "  File  $dataDir/$dataFile  looks healthy, make entry into cataloging database."
   echo " "
   echo -n " XX-CATALOG-XX "
-  tail -1 $logFile 
+  cat $logFile | grep ^0000
 else
   echo " ==== DUMPING LOGFILE NOW ===="
   cat $logFile
@@ -100,6 +101,7 @@ else
   echo "  File  $dataDir/$dataFile  looks corrupted, remove it."
 fi
 
-rm -f $logFile
+echo "rm -f $logFile"
+## rm -f $logFile
 
 exit 0

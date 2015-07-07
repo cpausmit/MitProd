@@ -7,20 +7,29 @@
 import sys,os,subprocess,getopt,time
 import MySQLdb
 
-def convertSizeToGb(size,units):
+def convertSizeToGb(sizeTxt):
 
-    sizeGb = -1.0
+    # first make sure string has proper basic format
+    if len(sizeTxt) < 3:
+        print ' ERROR - string for sample size (%s) not compliant. EXIT.'%(sizeTxt)
+        sys.exit(1)
 
-    # decide what to do for the given unit
-    if   units == 'MB':
-        sizeGb = size/1000.
-    elif units == 'GB':
-        sizeGb = size
-    elif units == 'TB':
-        sizeGb = size*1000.
-    else:
-        print ' ERROR - Could not identify units. EXIT!'
-        sys.exit(0)
+    if sizeTxt.isdigit(): # DAS decides to give back size in bytes
+        sizeGb = int(sizeTxt)/1000./1000./1000.        
+    else:              # DAS gives human readable size with unit integrated
+        # this is the text including the size units, that need to be converted
+        sizeGb  = float(sizeTxt[0:-2])
+        units   = sizeTxt[-2:]
+        # decide what to do for the given unit
+        if   units == 'MB':
+            sizeGb = sizeGb/1000.
+        elif units == 'GB':
+            pass
+        elif units == 'TB':
+            sizeGb = sizeGb*1000.
+        else:
+            print ' ERROR - Could not identify size. EXIT!'
+            sys.exit(0)
 
     # return the size in GB as a float
     return sizeGb
@@ -64,14 +73,15 @@ def testLocalSetup(dataset,debug=0):
         print ' Error - das_client.py in your path, please find it and add it to PATH. EXIT!'
         sys.exit(1)
 
-def findDatasetProperties(dataset,debug=0):
+def findDatasetProperties(dataset,dbs,debug=0):
     # test whether this is a legitimate dataset by asking DAS and determine size and number of files
 
     cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
-	  dataset + ' | count(file), sum(file.size)"| sort -u'
+	  dataset + ' instance=' + dbs + ' | count(file), sum(file.size)"| sort -u'
     nFiles = ''
     size = ''
-    units = ''
+    units = 'GB'
+    #print "CMD " + cmd
     for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
         line    = line[:-1]
         f = line.split('=')
@@ -82,16 +92,17 @@ def findDatasetProperties(dataset,debug=0):
 
     if line != '':
         try:
-            units = size[-2:]
-            size = float(size[:-2])
-            # this is the text including the size units, that need to be converted
-            sizeGb = convertSizeToGb(size,units)
+            #print ' SIZE %s  NFILES: %s'%(size,nFiles)
+                # this is the text including the size units, that need to be converted
+            sizeGb = convertSizeToGb(size)
+            #print ' SIZE %f'%(sizeGb)
             nFiles = int(nFiles)
+            #print ' NFiles %d'%(nFiles)
         except:
             print '\n Error - could not convert size and number of files (%s %s / %s).'\
                 %(size,units,nFiles)
             sys.exit(1)
-        print '\n DAS - %s --> %.1f %s (nFiles: %d)\n'%(dataset,size,units,nFiles)
+        print '\n DAS - %s --> %.1f %s (nFiles: %d)\n'%(dataset,sizeGb,units,nFiles)
     else:
 	print '\n Error - dataset not found with das_client.py.\n'
 	sys.exit(1)
@@ -103,10 +114,11 @@ def findDatasetProperties(dataset,debug=0):
 #===================================================================================================
 # Define string to explain usage of the script
 usage =  " Usage: addDataset.py  --dataset=<name>\n"
+usage += "                     [ --dbs='prod/global' ]\n"
 usage += "                     [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['dataset=','help']
+valid = ['dataset=','dbs=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -120,6 +132,7 @@ except getopt.GetoptError, ex:
 # Set defaults for each command line parameter/option
 debug = 0
 dataset  = ''
+dbs = 'prod/global'
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -127,10 +140,12 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--dataset":
-        dataset  = arg
+        dataset = arg
+    if opt == "--dbs":
+        dbs = arg
 
 testLocalSetup(dataset,debug)
-(sizeGb, nFiles) = findDatasetProperties(dataset,debug)
+(sizeGb, nFiles) = findDatasetProperties(dataset,dbs,debug)
 
 # Decompose dataset into the three pieces (process, setup, tier)
 f = dataset.split('/')
@@ -163,12 +178,13 @@ if len(results) == 1:
         process = row[1]
         setup = row[2]
         tier = row[3]
-        dbSizeGb = float(row[4])
-        dbNFiles = int(row[5])
+        dbs = row[4]
+        dbSizeGb = float(row[5])
+        dbNFiles = int(row[6])
     # check whether information correct and adjust if needed
     if dbSizeGb != sizeGb or dbNFiles != nFiles:
         sql = "update Datasets set DatasetSizeGb=%f, DatasetNFiles=%d where "%(sizeGb,nFiles) + \
-            "DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
+            " DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
         print " Try SQL: " + sql
         try:
             # Execute the SQL command
@@ -184,16 +200,16 @@ if len(results) == 1:
     else:
         print " Database is up to date.\n"
 
-    sys.exit(1)
+    sys.exit(0)
 
 elif len(results) > 1:
     print ' Dataset exists already multiple times in database. ERROR please fix.'
     sys.exit(0)
 
 # Prepare SQL query to INSERT a new record into the database.
-sql = "insert into Datasets(DatasetProcess, DatasetSetup, DatasetTier)" + \
-      " values('%s','%s','%s')"% \
-        (process,setup,tier)
+sql = "insert into Datasets(" \
+    + "DatasetProcess,DatasetSetup,DatasetTier,DatasetDbsInstance,DatasetSizeGb,DatasetNFiles" + \
+      ") values('%s','%s','%s','%s',%f,%d)"%(process,setup,tier,dbs,sizeGb,nFiles)
 
 if debug>0:
     print ' insert: ' + sql

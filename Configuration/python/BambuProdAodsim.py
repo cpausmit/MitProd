@@ -188,7 +188,7 @@ genSequence = cms.Sequence(
 # remember the bambu sequence has been imported and loaded already in the beginning
 
 # configure the filler
-MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
