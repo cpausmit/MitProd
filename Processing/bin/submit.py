@@ -296,7 +296,11 @@ cmd = "date +crab_0_%y%m%d_%H%M%S"
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     crabId = line
+print ""
+print " o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o"
 print "\n This job will be CrabId: " + crabId + "\n"
+print " o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o"
+print ""
 # other non command line parameters
 fastCreate       = 0
 # Set defaults for each command line parameter/option
@@ -306,7 +310,7 @@ cmssw            = "cmssw"
 mitCfg           = "filefi"
 version          = os.environ['MIT_VERS']
 #dbs              = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
-dbs              = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
+dbs              = "instance=prod/global"
 #sched            = "glite"
 sched            = "remoteGlidein"
 blacklist        = "T1_TW_ASGC"
@@ -394,7 +398,7 @@ if crabTask.mitDataset == 'undefined' or crabTask.cmsDataset == 'undefined':
 else:
     mitDataset = crabTask.mitDataset
     cmsDataset = crabTask.cmsDataset
-    dbs        = crabTask.dbs
+    #dbs        = crabTask.dbs
 
 # Deal with obvious problems
 if cmsDataset == None or mitDataset == None:
@@ -668,6 +672,9 @@ for subTask in crabTask.subTasks:
     # perfrom the submission block by block (using the merged blocks of course)
     nSubmission = len(mergedBlocks)
     idx = 0
+
+    nFail = 0
+    nSuccess = 0
     print '\n Submit the merged blocks:'
     for block in mergedBlocks:
         print '   Merged Block ' + block + '  process:  %d  to  %d'\
@@ -681,16 +688,36 @@ for subTask in crabTask.subTasks:
         cmd = 'crab -submit %s -continue %s -GRID.se_white_list=%s'%(nSubmit,tag,mergedSites[idx])
         print '  ' + cmd + '\n'
         status = os.system(cmd)
+
+        # keep track of success (failure only after second try)
+        if status == 0:
+            nSuccess += 1
+
         retry = False
         while status != 0 and not retry:
             retry = True
             print ' Submission failed  (%s) --> retry once!'%(cmd)
             status = os.system(cmd)
 
+            # keep track of success and failure
+            if status == 0:
+                nSuccess += 1
+            else:
+                nFail += 1
+
         # last action in the loop: increment the merged blocks
         idx += 1
     
     print '  Number of blocks submitted: %d' % nSubmission
+
+    # cleanup in case of total failure
+    print " Submission summary: %d successes  %d failures"%(nSuccess,nFail)
+    if nSuccess == 0 and nFail > 0:
+        cmd = "rm -rf crab_" + tag
+        print " TOTAL FAILURE -- removing: " + tag
+        os.system(cmd)
+        
+
 
 # and cleanup the temporary file for the task
 cmd = "rm -f crab_" + crabTask.tag + ".cfg crab_" + crabTask.tag + ".cfg-Template " \

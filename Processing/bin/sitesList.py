@@ -23,7 +23,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 dataset = None
-dbs     = ''
+dbs     = 'prod/global'
 private = False
 
 # Read new values from the command line
@@ -57,7 +57,8 @@ if private:
 
 # dbs 3 interface
 # - find all relevant blocks
-cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + dataset + '"'
+cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + dataset + ' instance=' \
+    + dbs + '"'
 #print 'BLOCKS: ' + cmd
 blocks = []
 for line in os.popen(cmd).readlines():
@@ -71,7 +72,8 @@ sites = {}
 for block in blocks:
     siteString = ''
     #cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
-    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + '"'
+    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block  + ' instance=' \
+        + dbs + '"'
     #print 'BLOCK: ' + cmd
     for line in os.popen(cmd).readlines():
         line = line[:-1]

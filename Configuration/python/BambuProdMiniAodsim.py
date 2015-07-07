@@ -31,7 +31,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
   version    = cms.untracked.string('Mit_041'),
-  annotation = cms.untracked.string('AODSIM')
+  annotation = cms.untracked.string('MINIAODSIM')
 )
 
 #>> standard sequences
@@ -78,7 +78,11 @@ process.load('MitProd.TreeFiller.pfCHSFromPacked_cff')
 
 # Load btagging
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
-ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', candidates = 'packedPFCandidates', primaryVertex = 'offlineSlimmedPrimaryVertices', muons = 'slimmedMuons', electrons = 'slimmedElectrons')
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF',
+                              candidates = 'packedPFCandidates',
+                              primaryVertex = 'offlineSlimmedPrimaryVertices',
+                              muons = 'slimmedMuons',
+                              electrons = 'slimmedElectrons')
 
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
@@ -100,7 +104,7 @@ recoSequence = cms.Sequence(
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 # Import/Load genjets
-from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+from RecoJets.Configuration.GenJetParticles_cff import *
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
 process.load('RecoJets.Configuration.RecoGenJets_cff')
@@ -123,7 +127,7 @@ genSequence = cms.Sequence(
 # remember the bambu sequence has been imported and loaded already in the beginning
 
 # configure the filler
-MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
+MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True

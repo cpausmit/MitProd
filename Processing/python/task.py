@@ -136,7 +136,7 @@ class Sample:
     nEvents        = 'undefined'
     status         = 'undefined'
     localPath      = 'undefined'
-    dbs            = 'undefined'
+    dbs            = 'instance=prod/global'
     fixSites       = 'undefined'
     allLfns        = -1
     doneLfns       = -1
@@ -144,8 +144,8 @@ class Sample:
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
     def __init__(self,cmsDataset='undefined',mitDataset='undefined',
-                 nEvents='undefined',status='undefined',localPath='undefined',dbs='undefined',
-                 fixSites='undefined'):
+                 nEvents='undefined',status='undefined',localPath='undefined',
+                 dbs='instance=prod/global',fixSites='undefined'):
         self.cmsDataset = cmsDataset
         self.mitDataset = mitDataset
         self.nEvents    = nEvents
@@ -262,7 +262,7 @@ class Task:
     mitDataset     = 'undefined'
     cmssw          = 'undefined'
     localPath      = 'undefined'
-    dbs            = 'undefined'
+    dbs            = 'instance=prod/global'
     fixSites       = 'undefined'
     # status of task as a whole and each individual job
     status         = 'undefined'           # 'undefined', ....
@@ -588,7 +588,7 @@ class Task:
         self.failingSites  = {}
         cmd = 'crab -status -continue ' + self.tag
 
-        #print ' DEBUG Access Crab Job Stati, now!'
+        print ' DEBUG Access Crab Job Stati, now! CMD: ' + cmd
 
         for line in os.popen(cmd).readlines():  # run command
             line       = line[:-1]              # strip '\n'
@@ -619,13 +619,14 @@ class Task:
                     status.exitStatus = int(tmp)
                 self.jobStati.append(status)
 
+        print ' DEBUG crab interaction complete '
+
         # review job output so far
         if len(self.jobStati) > 0:
             self.makeInventory()
         else:
             print ' ERROR - This task has not jobs stati assigned to it. Something is wrong.'
             print '         crab task id: ' + self.tag
-
 
         # Make sure certain cases get fixed to avoid deletion
         for status in self.jobStati:

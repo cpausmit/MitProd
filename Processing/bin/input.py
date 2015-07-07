@@ -40,7 +40,7 @@ except getopt.GetoptError, ex:
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each option
 db      = None
-dbs     = None
+dbs     = 'prod/global'
 dataset = None
 option  = 'lfn'
 private = False
@@ -141,7 +141,7 @@ elif not db:
 #    cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
 #          dataset + ' | grep file.block_name, file.name, file.nevents" | grep store | sort'
     cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + \
-          dataset + ' | grep block.name" | sort'
+          dataset + ' instance=' + dbs + ' | grep block.name" | sort'
     blocks = []
     for line in os.popen(cmd).readlines():
         line  = line[:-1]
@@ -152,7 +152,7 @@ elif not db:
 
     for block in blocks:
         cmd = 'das_client.py --format=plain --limit=0 --query="file block=' + \
-              block + ' | grep file.name, file.nevents" | grep store | sort'
+              block + ' instance=' + dbs + ' | grep file.name, file.nevents" | grep store | sort'
 
         iJob = 1
         for line in os.popen(cmd).readlines():

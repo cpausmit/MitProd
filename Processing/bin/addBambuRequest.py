@@ -8,7 +8,7 @@
 import sys,os,subprocess,getopt,time
 import MySQLdb
 
-def testLocalSetup(dataset,config,version,py,debug=0):
+def testLocalSetup(dataset,config,version,dbs,py,debug=0):
     # test all relevant components and exit is something is off
 
     # check the input parameters
@@ -30,7 +30,7 @@ def testLocalSetup(dataset,config,version,py,debug=0):
         sys.exit(1)
 
     # check that the dataset exists in bambu database
-    cmd = 'addDatasetToBambu.py --dataset=' + dataset
+    cmd = 'addDatasetToBambu.py --dataset=' + dataset + ' --dbs=' + dbs
     rc = os.system(cmd)
     if rc != 0:
         print ' Error - dataset seems not to be valid. EXIT!\n'
@@ -43,11 +43,12 @@ def testLocalSetup(dataset,config,version,py,debug=0):
 usage =  " Usage: addDataset.py  --dataset=<name>\n"
 usage += "                       --config=<name>\n"
 usage += "                       --version=<name>\n"
+usage += "                     [ --dbs=prod/global ]\n"
 usage += "                     [ --py=<name> ]\n"
 usage += "                     [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['dataset=','config=','version=','py=','help']
+valid = ['dataset=','config=','version=',"dbs=",'py=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -59,10 +60,11 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each command line parameter/option
-debug = 0
+debug = 1
 dataset = ''
 config = ''
 version = ''
+dbs = 'prod/global'
 py = 'mc'
 
 # Read new values from the command line
@@ -76,10 +78,12 @@ for opt, arg in opts:
         config = arg
     if opt == "--version":
         version = arg
+    if opt == "--dbs":
+        dbs = arg
     if opt == "--py":
         py = arg
 
-testLocalSetup(dataset,config,version,py,debug)
+testLocalSetup(dataset,config,version,dbs,py,debug)
 
 # Open database connection
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
@@ -94,8 +98,8 @@ setup   = f[2]
 tier    = f[3]
 
 # First get the dataset id
-sql = "select DatasetId from Datasets where DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s';"\
-      %(process,setup,tier)
+sql = "select DatasetId from Datasets where " \
+    + "DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s';"%(process,setup,tier)
 if debug>0:
     print ' select: ' + sql
 try:

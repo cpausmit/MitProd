@@ -18,7 +18,7 @@
 # 
 # Author: C.Paus                                                                  (November 08 2008)
 #---------------------------------------------------------------------------------------------------
-import os,sys,getopt,re,string
+import os,sys,socket,getopt,re,string
 
 def move(srcFile,source,target):
     # determine whether we are at MIT
@@ -265,7 +265,8 @@ for line in os.popen(cmd).readlines():  # run command
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
 
-    hostname = os.environ['HOSTNAME']
+    #hostname = os.environ['HOSTNAME']
+    hostname = socket.gethostname()
     if re.search('cern.ch',hostname):
         machine = "fgrep cern.ch " + procDir + '/' + file + '.out | head -1 | sed "s/^/Machine: /"' 
     else:

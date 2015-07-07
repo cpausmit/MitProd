@@ -72,7 +72,7 @@ def findStartedDatasets(path,debug=0):
 
     return datasetList
 
-def findOngoingDatasets(path,debug=0):
+def findOngoingDatasets(path,mitCfg,version,debug=0):
     # Make a list of all datasets that are presently active and being worked on AKA: ongoing
 
     if debug == 1:
@@ -84,8 +84,16 @@ def findOngoingDatasets(path,debug=0):
         line    = line[:-1]                  # strip '\n'
         f       = line.split("/")
         dataset = f[-1]
+        ver     = f[-2]
+        cfg     = f[-3]
+
         if re.search('crab_0',dataset):
             dataset = f[-2]
+            ver     = f[-3]
+            cfg     = f[-4]
+
+        if cfg != mitCfg or ver != version:
+            continue
 
         if not inList(dataset,datasetList):
             if debug == 1:
@@ -288,6 +296,14 @@ for opt, arg in opts:
     if opt == "--debug":
         debug = True
 
+# Initial message 
+print ''
+print ' @-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@'
+print ''
+print '                    S T A R T I N G   R E V I E W    C Y L E '
+print ''
+print ' @-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@'
+
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)
 updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
@@ -303,13 +319,14 @@ path = findPath(mitCfg,version)
 
 # Find all started samples
 startedDsetList  = findStartedDatasets(path,debug)
-ongoingDsetList  = findOngoingDatasets(path,debug)
+ongoingDsetList  = findOngoingDatasets(path,mitCfg,version,debug)
 
 # Access the database to determine all requests
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
 cursor = db.cursor()
 sql = 'select ' + \
-    'Datasets.DatasetProcess,Datasets.DatasetSetup,Datasets.DatasetTier,Datasets.DatasetNFiles,' + \
+    'Datasets.DatasetProcess,Datasets.DatasetSetup,Datasets.DatasetTier,'+\
+    'Datasets.DatasetDbsInstance,Datasets.DatasetNFiles,' + \
     'RequestConfig,RequestVersion,RequestPy,RequestId,RequestNFilesDone from Requests ' + \
     'left join Datasets on Requests.DatasetId = Datasets.DatasetId '+ \
     'where RequestConfig="' + mitCfg + '" and RequestVersion = "' + version + \
@@ -335,9 +352,10 @@ for row in results:
     process = row[0]
     setup = row[1]
     tier = row[2]
-    nFiles = int(row[3])
-    requestId = int(row[7])
-    dbNFilesDone = int(row[8])
+    dbs = row[3]
+    nFiles = int(row[4])
+    requestId = int(row[8])
+    dbNFilesDone = int(row[9])
 
     # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
@@ -352,7 +370,12 @@ for row in results:
         %(nFilesDone,dbNFilesDone,datasetName)
 
     # what to do when the two numbers disagree
-    if dbNFilesDone != nFilesDone:
+    if dbNFilesDone == -1:
+        # this is a new dataset
+        print '\n INFO - this seems to be a new dataset.'
+        pass
+        
+    elif dbNFilesDone != nFilesDone:
         lUpdate = False
 
         # assume more files have been found
@@ -388,18 +411,19 @@ for row in results:
     # did we already complete the job?
 
     if nFilesDone == nFiles:   # this is the case when all is done
-        print '\n DONE all files have been produced.\n'
+        print ' DONE all files have been produced.\n'
         continue
     elif nFilesDone < nFiles:  # second most frequent case: work started but not completed
-        print '\n files missing, submit the missing ones.\n'
+        print ' files missing, submit the missing ones.\n'
     else:                      # weird, more files found than available               
-        print '\n ERROR more files found than available in dataset.\n'
+        print '\n ERROR more files found than available in dataset. NO ACTION on this dataset\n'
         continue
 
 
     # if work not complete submit the remainder
     print '# Submit new dataset: ' + datasetName
-    cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version
+    cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
+        ' --dbs=' + dbs
 
     # make sure to use existing cache if requested
     if useExistingLfns:
