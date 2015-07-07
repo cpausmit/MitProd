@@ -160,21 +160,23 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   ),
 
   PrimaryVertexes = cms.untracked.PSet(
-    active        = cms.untracked.bool(True),
-    mitName       = cms.untracked.string('PrimaryVertexes'),
-    edmName       = cms.untracked.string('offlinePrimaryVertices'),
-    vertexMapName = cms.untracked.string('PrimaryVertexMap'),
-    trackMapName  = cms.untracked.string('TracksMapName'),
-    fillerType    = cms.untracked.string('FillerVertexes')
+    active           = cms.untracked.bool(True),
+    mitName          = cms.untracked.string('PrimaryVertexes'),
+    edmName          = cms.untracked.string('offlinePrimaryVertices'),
+    vertexMapName    = cms.untracked.string('PrimaryVertexMap'),
+    trackMapName     = cms.untracked.string('TracksMapName'),
+    trkAssocByPacked = cms.untracked.bool(False),
+    fillerType       = cms.untracked.string('FillerVertexes')
   ),
 
   PrimaryVertexesBS = cms.untracked.PSet(
-    active        = cms.untracked.bool(True),
-    mitName       = cms.untracked.string('PrimaryVertexesBeamSpot'),
-    edmName       = cms.untracked.string('offlinePrimaryVerticesWithBS'),
-    vertexMapName = cms.untracked.string('PrimaryVertexBSMap'),
-    trackMapName  = cms.untracked.string('TracksMapName'),
-    fillerType    = cms.untracked.string('FillerVertexes')
+    active           = cms.untracked.bool(True),
+    mitName          = cms.untracked.string('PrimaryVertexesBeamSpot'),
+    edmName          = cms.untracked.string('offlinePrimaryVerticesWithBS'),
+    vertexMapName    = cms.untracked.string('PrimaryVertexBSMap'),
+    trackMapName     = cms.untracked.string('TracksMapName'),
+    trkAssocByPacked = cms.untracked.bool(False),
+    fillerType       = cms.untracked.string('FillerVertexes')
   ),
 
   InclusiveSecondaryVertexes = cms.untracked.PSet(
@@ -183,6 +185,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     edmName       = cms.untracked.string('inclusiveSecondaryVertices'),
     vertexMapName = cms.untracked.string('InclusiveSecondaryVertexMap'),
     trackMapName  = cms.untracked.string('TracksMapName'),
+    trkAssocByPacked = cms.untracked.bool(False),
     fillerType    = cms.untracked.string('FillerVertexes')
   ),
 
@@ -664,6 +667,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     bTaggingActive                           = cms.untracked.bool(True),
     jetToVertexActive                        = cms.untracked.bool(False),
     jetCorrectionsActive                     = cms.untracked.bool(True),
+    fillFromPAT                              = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt4PFJets'),
     edmName                                  = cms.untracked.string('ak4PFJets'),
     rhoName                                  = cms.untracked.string('fixedGridRhoFastjetAll'),
@@ -686,7 +690,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     TrackCountingHighPurBJetTagsName         = cms.untracked.string('trackCountingHighPurBJetTagsAKt4PF'),
     pfCandMapName                            = cms.untracked.string('PFCandMapName'),
     jetMapName                               = cms.untracked.string('AKt4PFJetMap'),
-    fillerType                               = cms.untracked.string('FillerPFJetsFromPFJets')
+    fillerType                               = cms.untracked.string('FillerPFJets')
   ),
 
   AKt4PFJetsCHS = cms.untracked.PSet(
@@ -695,6 +699,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     bTaggingActive                           = cms.untracked.bool(True),
     jetToVertexActive                        = cms.untracked.bool(False),
     jetCorrectionsActive                     = cms.untracked.bool(True),
+    fillFromPAT                              = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt4PFJetsCHS'),
     edmName                                  = cms.untracked.string('ak4PFJetsCHS'),
     rhoName                                  = cms.untracked.string('fixedGridRhoFastjetAll'),
@@ -717,7 +722,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     TrackCountingHighPurBJetTagsName         = cms.untracked.string('trackCountingHighPurBJetTagsAKt4PFCHS'),
     pfCandMapName                            = cms.untracked.string('PFCandMapName'),
     jetMapName                               = cms.untracked.string('AKt4PFJetCHSMap'),
-    fillerType                               = cms.untracked.string('FillerPFJetsFromPFJets')
+    fillerType                               = cms.untracked.string('FillerPFJets')
   ),
 
   AKt8PFJets = cms.untracked.PSet(
@@ -726,6 +731,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     bTaggingActive                           = cms.untracked.bool(False),
     jetToVertexActive                        = cms.untracked.bool(False),
     jetCorrectionsActive                     = cms.untracked.bool(False),
+    fillFromPAT                              = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt8PFJets'),
     edmName                                  = cms.untracked.string('ak8PFJets'),
     rhoName                                  = cms.untracked.string(''),
@@ -737,7 +743,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     flavorMatchingDefinition                 = cms.untracked.string('Algorithmic'),
     pfCandMapName                            = cms.untracked.string('PFCandMapName'),
     jetMapName                               = cms.untracked.string('AKT8PFJetMap'),
-    fillerType                               = cms.untracked.string('FillerPFJetsFromPFJets')
+    fillerType                               = cms.untracked.string('FillerPFJets')
   ),
 
   AKt8PFJetsCHS = cms.untracked.PSet(
@@ -746,6 +752,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     bTaggingActive                           = cms.untracked.bool(False),
     jetToVertexActive                        = cms.untracked.bool(False),
     jetCorrectionsActive                     = cms.untracked.bool(False),
+    fillFromPAT                              = cms.untracked.bool(False),
     mitName                                  = cms.untracked.string('AKt8PFJetsCHS'),
     edmName                                  = cms.untracked.string('ak8PFJetsCHS'),
     rhoName                                  = cms.untracked.string(''),
@@ -757,7 +764,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     flavorMatchingDefinition                 = cms.untracked.string('Algorithmic'),
     pfCandMapName                            = cms.untracked.string('PFCandMapName'), # ak8 CHS is not redone in BAMBU production
     jetMapName                               = cms.untracked.string('AKt8PFJetCHSMap'),
-    fillerType                               = cms.untracked.string('FillerPFJetsFromPFJets')
+    fillerType                               = cms.untracked.string('FillerPFJets')
   ),
 
   GenMet = cms.untracked.PSet(

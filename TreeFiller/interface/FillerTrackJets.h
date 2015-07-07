@@ -15,12 +15,13 @@
 
 namespace mithep {
 
-  class FillerTrackJets : public FillerJets<mithep::TrackJet> {  
+  class FillerTrackJets : public FillerJets {  
   public:
     FillerTrackJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
     ~FillerTrackJets();
 
     void PrepareLinks() override;
+    mithep::Jet* AddNew() override { return static_cast<mithep::TrackJetArr*>(jets_)->AddNew(); }
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
   private:

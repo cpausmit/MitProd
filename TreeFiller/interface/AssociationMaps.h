@@ -49,6 +49,7 @@
 #include "MitAna/DataTree/interface/VertexFwd.h"
 #include "MitAna/DataTree/interface/PFCandidateFwd.h"
 #include "MitAna/DataTree/interface/PhotonFwd.h"
+#include "MitAna/DataTree/interface/JetFwd.h"
 #include "MitAna/DataTree/interface/CaloJetFwd.h"
 #include "MitAna/DataTree/interface/JPTJetFwd.h"
 #include "MitAna/DataTree/interface/PFJetFwd.h"
@@ -82,6 +83,7 @@ namespace mithep
   typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::BaseTau>,     mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::CandidatePtr,          mithep::PFCandidate*>   PFCandidateMap;
+  typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::Jet*>           JetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::CaloJet*>       CaloJetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::JPTJet*>        JPTJetMap;
   typedef AssociationMap<const edm::Ptr<reco::Jet>,         mithep::PFJet*>         PFJetMap;

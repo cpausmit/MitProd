@@ -8,8 +8,7 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
-  #input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 #>> input source
@@ -77,10 +76,6 @@ process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 from MitProd.TreeFiller.pfCHSFromPacked_cff import pfCHSSequence
 process.load('MitProd.TreeFiller.pfCHSFromPacked_cff')
 
-# Load tracking off packedCandidates
-from PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi import unpackedTracksAndVertices
-process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
-
 # Load btagging
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF',
@@ -89,24 +84,17 @@ ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF',
                               muons = 'slimmedMuons',
                               electrons = 'slimmedElectrons')
 
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
-
-
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
-  unpackedTracksAndVertices *
   pfCHSSequence *
   l1FastJetSequence *
   l1FastJetSequenceCHS *
   ak4PFJets *
   ak8PFJets *
-  ak4PFBTagSequence *
-  inclusiveVertexing *
-  inclusiveCandidateVertexing
+  ak4PFBTagSequence
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
