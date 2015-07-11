@@ -1,0 +1,15 @@
+Installation of the Agents
+===========================
+
+  # login to the main production server and become root
+
+  ssh t3serv015.mit.edu
+  su -
+
+  # carefully read and adjust the setupAgents.sh script
+  emacs -nw ./setupAgents.sh
+
+  # go to the agent directory and call install script
+
+  cd ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src/MitProd/Processing/agents/
+  ./installAgents.sh

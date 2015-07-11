@@ -5,13 +5,13 @@
 #
 #---------------------------------------------------------------------------------------------------
 # Environment: CMSSW, CRAB etc.
-export MIT_VERS=040
-export MIT_TAG=Mit_040
+export MIT_VERS=041
+export MIT_TAG=Mit_041
 export TICKET_HOLDER="paus"
 export TIER2_USER="paus"
 export CRAB_VERS="2_11_1_patch1"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-cd ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
+cd ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src
 eval `scram runtime -sh`
 cd -
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
@@ -27,6 +27,8 @@ export MIT_PROD_AGENTS_WWW="/home/cmsprod/public_html/MitProd/agents"
 # review process
 
 export MIT_PROD_REVIEW_CYCLE_HOURS=1
+export MIT_PROD_REVIEW_PYS="data mc mc-notrig"
+#export MIT_PROD_REVIEW_PYS="mc-notrig"
 
 # catalog process
 

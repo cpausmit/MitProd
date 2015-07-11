@@ -370,6 +370,8 @@ for row in results:
         %(nFilesDone,dbNFilesDone,datasetName)
 
     # what to do when the two numbers disagree
+
+    lUpdate = True
     if dbNFilesDone == -1:
         # this is a new dataset
         print '\n INFO - this seems to be a new dataset.'
@@ -392,21 +394,21 @@ for row in results:
                 print '\n WARNING -- files have all disappeared, very suspicious (%d -> %d now)'\
                     %(dbNFilesDone,nFilesDone)
 
-        # 
-        if lUpdate:
-            sql = 'update Requests set RequestNFilesDone=%d'%(nFilesDone) + \
-                ' where RequestId=%d'%(requestId)
-            if debug:
-                print ' SQL: ' + sql
+    # 
+    if lUpdate:
+        sql = 'update Requests set RequestNFilesDone=%d'%(nFilesDone) + \
+            ' where RequestId=%d'%(requestId)
+        if debug:
+            print ' SQL: ' + sql
 
-            # Try to access the database
-            try:
-                # Execute the SQL command
-                cursor.execute(sql)
-                results = cursor.fetchall()      
-            except:
-                print " Error (%s): unable to update the database."%(sql)
-                sys.exit(0)
+        # Try to access the database
+        try:
+            # Execute the SQL command
+            cursor.execute(sql)
+            results = cursor.fetchall()      
+        except:
+            print " Error (%s): unable to update the database."%(sql)
+            sys.exit(0)
         
     # did we already complete the job?
 
