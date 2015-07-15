@@ -96,6 +96,7 @@ from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 
+
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -112,20 +113,24 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
-# Load btagging
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+# # Load inclusive vertices
+# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import reclusterFatJets
+process.load('MitProd.TreeFiller.pfCHSFromPatJets_cff')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -145,12 +150,12 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  inclusiveVertexing *
-  inclusiveCandidateVertexing *
+  # inclusiveVertexing *
+  # inclusiveCandidateVertexing *
   particleFlowPtrs *
-  pfParticleSelectionSequence * 
+  pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence * 
+  pfMuonSequence *
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
