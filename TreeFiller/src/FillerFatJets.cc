@@ -5,26 +5,27 @@
 
 mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   FillerPFJets(cfg, collector, os, name, active),
-  fR0(cfg.getUntrackedParameter<bool>("R0", false)),
+  fR0(cfg.getUntrackedParameter<double>("R0", .8))
 {
 
   fillFromPAT_ = true;
   jets_ = new mithep::FatJetArr(32);
-  fSubjetCollectionsTags = iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("SubJets");
-  fSubjetNames         = iConfig.getUntrackedParameter<std::vector<std::string> >("SubJetLabels");
-  unsigned int nSubjetTypes = fSubjetNames.size();
-  fSubjetCollections.resize( nSubjetTypes );
-  for ( size_t i = 0; i < nSubjetTypes; ++i )
-    iEvent.getByLabel(fSubjetCollectionsTags[i], fSubjetCollections[i]);
-
-
+  fSubjetCollectionTags = cfg.getUntrackedParameter<std::vector<edm::InputTag> >("SubJets");
+  fSubjetNames         = cfg.getUntrackedParameter<std::vector<std::string> >("SubJetLabels");
 }
 
 mithep::FillerFatJets::~FillerFatJets()
 {
+  delete[] fBJetTags;
 }
 
-void
+void mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  unsigned int nSubjetTypes = fSubjetNames.size();
+  fSubjetCollections.resize( nSubjetTypes );
+  for ( size_t i = 0; i < nSubjetTypes; ++i )
+    iEvent.getByLabel(fSubjetCollectionTags[i], fSubjetCollections[i]);
+
+}
 
 void
 mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef const& inJetRef)
@@ -44,11 +45,18 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
   fillPATFatJetVariables(outJet, *inJet);
 }
 
+void 
+mithep::FillerFatJets::FillSpecificSubjet(mithep::XlSubJet& outBaseJet, edm::Ptr<pat::Jet> inJet) {
+    double toRaw = inJet->jecFactor("Uncorrected");
+    auto&& rawP4 = inJet->p4() * toRaw;
+    outBaseJet.SetRawPtEtaPhiM(rawP4.pt(), rawP4.eta(), rawP4.phi(), rawP4.mass());
+
+}
 
 void
 mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet const& inPFJet)
 {
-  fillPatJetVariables(outJet,inPFJet);
+  fillPATJetVariables(outJet,inPFJet);
   outJet.SetCharge();
   // get the easy user floats out of the way
   TString suffix = TString::Format("%i",int(fR0*10));
@@ -68,20 +76,20 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
                             inPFJet.userFloat(trimmed+suffix+":Mass")));
 
   // now let's save subjets
-  unsigned int eSubjetType = 0; // to map to XlSubJet::SubJetType enum
+  int eSubjetType = 0; // to map to XlSubJet::SubJetType enum
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inPFJet.subjets(subjetName);
-    for (auto & inSubjet : subjets) {
+    for (auto & inSubjetPtr : subjets) {
+      pat::Jet inSubjet = *inSubjetPtr;
       XlSubJet * outSubjet = new XlSubJet();
       outSubjet->SetRawPtEtaPhiM(inSubjet.p4().pt(), inSubjet.p4().eta(), inSubjet.p4().phi(), inSubjet.p4().mass());
       outSubjet->SetSigmaEta(TMath::Sqrt(inSubjet.etaetaMoment()));
       outSubjet->SetSigmaPhi(TMath::Sqrt(inSubjet.phiphiMoment()));
       outSubjet->SetJetArea(inSubjet.jetArea());
-      FillerPFJets::FillSpecific(*outSubjet,inSubjet); // this is only a PF jet, not a fatjet
-      setBJetTags(*outSubjet, baseRef, bJetTags);
+      FillSpecificSubjet(*outSubjet,inSubjetPtr); // this is only a subjet, not a PF jet
       setCorrections(*outSubjet, inSubjet);
-      outSubjet->SetSubJetType(eSubjetType);
-      outJet.AddSubjet(outSubjet,eSubjetType);
+      outSubjet->SetSubJetType((XlSubJet::ESubJetType)eSubjetType);
+      outJet.AddSubJet(outSubjet);
     }
     ++eSubjetType;
   }

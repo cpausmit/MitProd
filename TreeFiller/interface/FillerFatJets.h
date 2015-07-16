@@ -14,9 +14,6 @@
 #include "MitProd/TreeFiller/interface/AssociationMaps.h"
 #include "MitAna/DataTree/interface/FatJetCol.h"
 
-namespace reco {
-  class FatJet;
-}
 namespace pat {
   class Jet;
 }
@@ -32,11 +29,12 @@ namespace mithep {
     ~FillerFatJets();
 
     mithep::Jet* AddNew() override { return static_cast<mithep::FatJetArr*>(jets_)->AddNew(); }
-    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
-
+    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&);
+    void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet>);
+    void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
+    reco::JetTagCollection const* fBJetTags;
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
-    void GetSetupInfo(edm::EventSetup const&) override;
 
     double fR0;
     std::vector<std::string> fSubjetNames;

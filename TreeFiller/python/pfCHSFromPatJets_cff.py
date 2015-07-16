@@ -432,7 +432,7 @@ def makeFatJets(process,isMC):
         src = cms.InputTag("PFJetsCHS8"),
         matched = cms.InputTag("selectedPatJetsPrunedPFCHSPacked8"),
         distMax = cms.double(.8),
-        values = cms.vstring('mass','pt','eta','phi',
+        values = cms.vstring('mass','pt','eta','phi'),
         valueLabels = cms.vstring('Mass','Pt','Eta','Phi'),
         lazyParser = cms.bool(True)
     )
@@ -632,7 +632,7 @@ def makeFatJets(process,isMC):
         src = cms.InputTag("PFJetsCHS15"),
         matched = cms.InputTag("selectedPatJetsPrunedPFCHSPacked15"),
         distMax = cms.double(1.5),
-        values = cms.vstring('mass','pt','eta','phi',
+        values = cms.vstring('mass','pt','eta','phi'),
         valueLabels = cms.vstring('Mass','Pt','Eta','Phi'),
         lazyParser = cms.bool(True)
     )
