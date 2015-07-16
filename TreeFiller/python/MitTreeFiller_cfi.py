@@ -768,6 +768,31 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fillerType                               = cms.untracked.string('FillerPFJets')
   ),
 
+  CA8PFFatJetsCHS = cms.untracked.PSet(
+    active                                   = cms.untracked.bool(True),
+    flavorMatchingActive                     = cms.untracked.bool(False),
+    bTaggingActive                           = cms.untracked.bool(False),
+    jetToVertexActive                        = cms.untracked.bool(False),
+    jetCorrectionsActive                     = cms.untracked.bool(False),
+    fillFromPAT                              = cms.untracked.bool(True),
+    mitName                                  = cms.untracked.string('CA8PFFatJetsCHS'),
+    edmName                                  = cms.untracked.string('packedPatJetsPFCHS8'),
+    rhoName                                  = cms.untracked.string(''),
+    jetToVertexAlphaName                     = cms.untracked.string('jetVertexAlphaAKT8PF:Var'),
+    jetToVertexBetaName                      = cms.untracked.string('jetVertexBetaAKT8PF:Var'),
+    L2JetCorrectorName                       = cms.untracked.string('L2RelativeJetCorrectorAKT8PF'),
+    L3JetCorrectorName                       = cms.untracked.string('L3AbsoluteJetCorrectorAKT8PF'),
+    flavorMatchingByReferenceName            = cms.untracked.string('AKT8PFbyRef'),
+    flavorMatchingDefinition                 = cms.untracked.string('Algorithmic'),
+    pfCandMapName                            = cms.untracked.string('PFCandMapName'), # ak8 CHS is not redone in BAMBU production
+    jetMapName                               = cms.untracked.string('CA8PFJetCHSMap'),
+    Subjets                                  = cms.untracked.VInputTag(cms.InputTag('selectedPatJetsSoftDropPFCHSPacked8','SubJets'),
+                                                                        cms.InputTag('selectedPatJetsPrunedPFCHSPacked8','SubJets'),
+                                                                        cms.InputTag('selectedPatJetsTrimmedPFCHSPacked8','SubJets')),
+    SubjetNames                              = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important
+    fillerType                               = cms.untracked.string('FillerFatJets')
+  ),
+
   GenMet = cms.untracked.PSet(
     active      = cms.untracked.bool(False),
     mitName     = cms.untracked.string('GenMet'),
