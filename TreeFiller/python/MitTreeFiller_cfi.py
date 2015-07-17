@@ -789,7 +789,9 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     Subjets                                  = cms.untracked.VInputTag(cms.InputTag('selectedPatJetsSoftDropPFCHSPacked8','SubJets'),
                                                                         cms.InputTag('selectedPatJetsPrunedPFCHSPacked8','SubJets'),
                                                                         cms.InputTag('selectedPatJetsTrimmedPFCHSPacked8','SubJets')),
-    SubjetNames                              = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important
+    SubjetNames                              = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important,
+    R0                                       = cms.untracked.double(.8),
+    edmPrimaryVertices                       = cms.untracked.string('offlinePrimaryVertices'),
     fillerType                               = cms.untracked.string('FillerFatJets')
   ),
 

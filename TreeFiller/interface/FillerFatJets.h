@@ -35,14 +35,13 @@ namespace mithep {
     reco::JetTagCollection const* fBJetTags;
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
-
-    double fR0;
-    std::vector<std::string> fSubjetNames;
-    std::vector<edm::InputTag> fSubjetCollectionTags;
-    std::vector<edm::Handle<PatJetCollection> > fSubjetCollections;
-
-
-
+    void mithep::FillerFatJets::recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
+    double fR0;                                                       //cone size
+    std::vector<std::string> fSubjetNames;                            //labels of subjets
+    std::vector<edm::InputTag> fSubjetCollectionTags;                 //subjet input tags
+    std::vector<edm::Handle<PatJetCollection> > fSubjetCollections;   //vector of vector of pat subjets
+    edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
+    edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
   };
 }
 
