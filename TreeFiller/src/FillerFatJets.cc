@@ -127,6 +127,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   // now let's tag some bs
   const IPTagInfo * ipTagInfo = inJet.tagInfoCandIP("pfImpactParameter");
   const SVTagInfo * svTagInfo = inJet.tagInfoCandSecondaryVertex("pfInclusiveSecondaryVertexFinder");
+  const reco::Vertex *pv = &(*fPVs->begin());
 
   std::vector<fastjet::PseudoJet> currentAxes;
   recalcNsubjettiness(inJet,*svTagInfo,outJet,currentAxes);
@@ -140,7 +141,6 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     TrackData* trackData = new TrackData;
     const reco::Track & ptrack = *(reco::btag::toTrack(selectedTracks[itt]));
     const TrackRef ptrackRef = selectedTracks[itt];
-
 
     trackData->length = (ipTagInfo->impactParameterData()[itt].closestToJetAxis - RecoVertex::convertPos(pv->position())).mag();
     trackData->dist = ipTagInfo->impactParameterData()[itt].distanceToJetAxis.value();
@@ -176,8 +176,8 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     trackData->nHitPXF  = ptrack.hitPattern().numberOfValidPixelEndcapHits();
     trackData->isHitL1  = ptrack.hitPattern().hasValidHitInFirstPixelBarrel();
 
-    setTracksPV(ptrackRef, primaryVertex, trackData->PV, trackData->PVWeight);
-    if (!trackPV && trackPVWeight > 0)
+    setTracksPV(ptrackRef, fPVs, trackData->PV, trackData->PVWeight);
+    if (!trackData->PV && trackData->PVWeight > 0)
       allKinematics.add(ptrack,trackData->PVWeight);
     if (inJet.hasTagInfo("pfInclusiveSecondaryVertexFinder")) {
       setTracksSV(ptrackRef,svTagInfo,trackData->fromSV, trackData->SV, trackData->SVWeight);
@@ -196,7 +196,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   edm::RefToBase<reco::Jet> rJet = ipTagInfo->jet();
   math::XYZVector jetDir = rJet->momentum().Unit();
   for (unsigned int vtx = 0; vtx < svTagInfo->nVertices(); ++vtx)  {
-    const RecoVertex &vertex = svTagInfo->secondaryVertex(vtx);
+    const recoVertex &vertex = svTagInfo->secondaryVertex(vtx);
     float mass = vertex.p4().mass();
     GlobalVector flightDir = svTagInfo->flightDirection(vtx);
     if (reco::deltaR2(flightDir, jetDir)<maxSVDeltaR2ToJet) {
@@ -205,7 +205,6 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     }
   }
 
-  const reco::Vertex *pv = &(*fPVs->begin());
   GlobalVector flightDir0, flightDir1;
   int cont=0;
   reco::Candidate::LorentzVector svP4_0 , svP4_1;
@@ -214,7 +213,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     ++cont;
     SVData * svData = new SVData;
     unsigned int idx = iVtx->second;
-    const RecoVertex &vertex = svTagInfo->secondaryVertex(idx);
+    const recoVertex &vertex = svTagInfo->secondaryVertex(idx);
 
     svData->mass = iVtx->first;                                              //svx kinematics
     svData->pt = vertex.p4().pt();
@@ -271,7 +270,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 
 }
 
-void mithep::FillerFatJets::vertexKinematicsAndCharge(const RecoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)
+void mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)
 {
   const std::vector<reco::CandidatePtr> & tracks = vertex.daughterPtrVector();
 
@@ -282,7 +281,7 @@ void mithep::FillerFatJets::vertexKinematicsAndCharge(const RecoVertex & vertex,
   }
 }
 
-void mithep::FillerFatJets::setTracksSVt (TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight)
+void mithep::FillerFatJets::setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight)
 {
   isFromSV = 0;
   iSV = -1;
@@ -290,7 +289,7 @@ void mithep::FillerFatJets::setTracksSVt (TrackRef & trackRef, const SVTagInfo *
   typedef std::vector<reco::CandidatePtr>::const_iterator IT;
   size_t nSV = svTagInfo->nVertices();
   for(size_t iv=0; iv<nSV; ++iv)  {
-    const Vertex & vtx = svTagInfo->secondaryVertex(iv);
+    const recoVertex & vtx = svTagInfo->secondaryVertex(iv);
     // one of the tracks in the vertex is the same as the track considered in the function
     const std::vector<reco::CandidatePtr> & tracks = vtx.daughterPtrVector();
     if( std::find(tracks.begin(),tracks.end(),trackRef) != tracks.end() )    {
@@ -305,7 +304,7 @@ void mithep::FillerFatJets::setTracksSVt (TrackRef & trackRef, const SVTagInfo *
   }
 }
 
-void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
+void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
 {
   iPV = -1;
   PVweight = 0.;
@@ -313,7 +312,7 @@ void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Ha
   setTracksPVBase(pfcand->trackRef(), pvHandle, iPV, PVweight);
 }
 
-void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
+void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
 {
   iPV = -1;
   PVweight = 0.;

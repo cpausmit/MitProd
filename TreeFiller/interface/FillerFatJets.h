@@ -38,8 +38,8 @@ namespace mithep {
     typedef mithep::FatJet::TrackData TrackData;
     typedef mithep::FatJet::SVData SVData;
     typedef reco::CandIPTagInfo IPTagInfo;
-    typedef reco::VertexCompositePtrCandidate RecoVertex;
-    typedef reco::TemplatedSecondaryVertexTagInfo<IPTagInfo,RecoVertex> SVTagInfo;
+    typedef reco::VertexCompositePtrCandidate recoVertex;
+    typedef reco::TemplatedSecondaryVertexTagInfo<IPTagInfo,recoVertex> SVTagInfo;
     typedef typename IPTagInfo::input_container Tracks;
     typedef typename IPTagInfo::input_container::value_type TrackRef;
 
@@ -54,9 +54,10 @@ namespace mithep {
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
-    void vertexKinematicsAndCharge(const RecoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
-    void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
-    void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
+    void vertexKinematicsAndCharge(const recoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
+    void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
+    void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
+    void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight);
 
     double fR0;                                                       //cone size
     std::vector<std::string> fSubjetNames;                            //labels of subjets
