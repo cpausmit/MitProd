@@ -131,17 +131,61 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   std::vector<fastjet::PseudoJet> currentAxes;
   recalcNsubjettiness(inJet,*svTagInfo,outJet,currentAxes);
 
+
+  int nSelTracks=0;
   const Tracks & selectedTracks( ipTagInfo->selectedTracks() );
   reco::TrackKinematics allKinematics;
   unsigned int trackSize = selectedTracks.size();
   for (unsigned int itt=0; itt < trackSize; ++itt) {
+    TrackData* trackData = new TrackData;
     const reco::Track & ptrack = *(reco::btag::toTrack(selectedTracks[itt]));
     const TrackRef ptrackRef = selectedTracks[itt];
-    int trackPV;
-    float trackPVWeight;
-    setTracksPV(ptrackRef,fPVs,trackPV, trackPVWeight);
+
+
+    trackData->length = (ipTagInfo->impactParameterData()[itt].closestToJetAxis - RecoVertex::convertPos(pv->position())).mag();
+    trackData->dist = ipTagInfo->impactParameterData()[itt].distanceToJetAxis.value();
+    trackData->dxy = ptrack.dxy(pv->position());
+    trackData->dz = ptrack.dz(pv->position());
+
+    float deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
+    if(deltaR<0.3) nSelTracks++;
+
+    trackData->IP2D     = ipTagInfo->impactParameterData()[itt].ip2d.value();
+    trackData->IP2Dsig  = ipTagInfo->impactParameterData()[itt].ip2d.significance();
+    trackData->IP       = ipTagInfo->impactParameterData()[itt].ip3d.value();
+    trackData->IPsig    = ipTagInfo->impactParameterData()[itt].ip3d.significance();
+    trackData->IP2Derr  = ipTagInfo->impactParameterData()[itt].ip2d.error();
+    trackData->IPerr    = ipTagInfo->impactParameterData()[itt].ip3d.error();
+    trackData->prob     = ipTagInfo->probabilities(0)[itt];
+
+    trackData->p        = ptrack.p();
+    trackData->pt       = ptrack.pt();
+    trackData->eta      = ptrack.eta();
+    trackData->phi      = ptrack.phi();
+    trackData->chi2     = ptrack.normalizedChi2();
+    trackData->charge   = ptrack.charge();
+
+    trackData->nHitAll  = ptrack.numberOfValidHits();
+    trackData->nHitPixel= ptrack.hitPattern().numberOfValidPixelHits();
+    trackData->nHitStrip= ptrack.hitPattern().numberOfValidStripHits();
+    trackData->nHitTIB  = ptrack.hitPattern().numberOfValidStripTIBHits();
+    trackData->nHitTID  = ptrack.hitPattern().numberOfValidStripTIDHits();
+    trackData->nHitTOB  = ptrack.hitPattern().numberOfValidStripTOBHits();
+    trackData->nHitTEC  = ptrack.hitPattern().numberOfValidStripTECHits();
+    trackData->nHitPXB  = ptrack.hitPattern().numberOfValidPixelBarrelHits();
+    trackData->nHitPXF  = ptrack.hitPattern().numberOfValidPixelEndcapHits();
+    trackData->isHitL1  = ptrack.hitPattern().hasValidHitInFirstPixelBarrel();
+
+    setTracksPV(ptrackRef, primaryVertex, trackData->PV, trackData->PVWeight);
     if (!trackPV && trackPVWeight > 0)
-      allKinematics.add(ptrack,trackPVWeight);
+      allKinematics.add(ptrack,trackData->PVWeight);
+    if (inJet.hasTagInfo("pfInclusiveSecondaryVertexFinder")) {
+      setTracksSV(ptrackRef,svTagInfo,trackData->fromSV, trackData->SV, trackData->SVWeight);
+    } else {
+      trackData->fromSV = 0;
+      trackData->SV = -1;
+      trackData->SVWeight = 0;
+    }
   }
   math::XYZTLorentzVector allSum =  allKinematics.weightedVectorSum() ; //allKinematics.vectorSum()
 
@@ -163,49 +207,68 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 
   const reco::Vertex *pv = &(*fPVs->begin());
   GlobalVector flightDir0, flightDir1;
-//  int cont=0;
+  int cont=0;
   reco::Candidate::LorentzVector svP4_0 , svP4_1;
   // fill FatJet::fSVData in order of decreasing secondary vertex mass
   for ( std::map<double, unsigned int>::reverse_iterator iVtx=VTXmass.rbegin(); iVtx!=VTXmass.rend(); ++iVtx) {
-      SVData * svData = new SVData;
-      unsigned int idx = iVtx->second;
-      const RecoVertex &vertex = svTagInfo->secondaryVertex(idx);
+    ++cont;
+    SVData * svData = new SVData;
+    unsigned int idx = iVtx->second;
+    const RecoVertex &vertex = svTagInfo->secondaryVertex(idx);
 
-      svData->mass = iVtx->first;                                              //svx kinematics
-      svData->pt = vertex.p4().pt();
-      svData->eta = vertex.p4().eta();
-      svData->phi = vertex.p4().phi();
+    svData->mass = iVtx->first;                                              //svx kinematics
+    svData->pt = vertex.p4().pt();
+    svData->eta = vertex.p4().eta();
+    svData->phi = vertex.p4().phi();
 
-      Int_t totcharge=0;                                                             //find svx energy fraction and charge
-      reco::TrackKinematics vertexKinematics;
-      vertexKinematicsAndCharge(vertex, vertexKinematics, totcharge);
-      math::XYZTLorentzVector vertexSum = vertexKinematics.weightedVectorSum();
-      svData->energyRatio = vertexSum.E()/allSum.E();
-      svData->totCharge = totcharge;
+    Int_t totcharge=0;                                                             //find svx energy fraction and charge
+    reco::TrackKinematics vertexKinematics;
+    vertexKinematicsAndCharge(vertex, vertexKinematics, totcharge);
+    math::XYZTLorentzVector vertexSum = vertexKinematics.weightedVectorSum();
+    svData->energyRatio = vertexSum.E()/allSum.E();
+    svData->totCharge = totcharge;
 
-      GlobalVector flightDir = svTagInfo->flightDirection(idx);
-      svData->dirX = flightDir.x();
-      svData->dirY = flightDir.y();
-      svData->dirZ = flightDir.z();
-      svData->deltaRJet = reco::deltaR(flightDir, jetDir);
-      svData->deltaRSumJet = reco::deltaR(vertexSum, jetDir);
-      svData->deltaRSumDir = reco::deltaR(vertexSum, flightDir);
+    GlobalVector flightDir = svTagInfo->flightDirection(idx);
+    svData->dirX = flightDir.x();
+    svData->dirY = flightDir.y();
+    svData->dirZ = flightDir.z();
+    svData->deltaRJet = reco::deltaR(flightDir, jetDir);
+    svData->deltaRSumJet = reco::deltaR(vertexSum, jetDir);
+    svData->deltaRSumDir = reco::deltaR(vertexSum, flightDir);
 
+    Line::PositionType pos(GlobalPoint(vertex.position().x(),vertex.position().y(),vertex.position().z()));
+    Line trackline(pos,flightDir);
+    Line::PositionType pos2(GlobalPoint(pv->x(),pv->y(),pv->z()));
+    Line::DirectionType dir2(GlobalVector(jetDir.x(),jetDir.y(),jetDir.z()));
+    Line jetline(pos2,dir2);
+    svData->vtxDistJetAxis = (jetline.distance(trackline)).mag();
 
-      Line::PositionType pos(GlobalPoint(vertex.position().x(),vertex.position().y(),vertex.position().z()));
-      Line trackline(pos,flightDir);
-      Line::PositionType pos2(GlobalPoint(pv->x(),pv->y(),pv->z()));
-      Line::DirectionType dir2(GlobalVector(jetDir.x(),jetDir.y(),jetDir.z()));
-      Line jetline(pos2,dir2);
-      svData->vtxDistJetAxis = (jetline.distance(trackline)).mag();
+    svData->flight = svTagInfo->flightDistance(idx).value();
+    svData->flightErr = svTagInfo->flightDistance(idx).error();
+    svData->flight2D = svTagInfo->flightDistance(idx, true).value();
+    svData->flight2DErr = svTagInfo->flightDistance(idx, true).error();
+    svData->nTrk = svTagInfo->secondaryVertex(idx).numberOfSourceCandidatePtrs();
+    outJet.AddSVData(svData);
 
-      svData->flight = svTagInfo->flightDistance(idx).value();
-      svData->flightErr = svTagInfo->flightDistance(idx).error();
-      svData->flight2D = svTagInfo->flightDistance(idx, true).value();
-      svData->flight2DErr = svTagInfo->flightDistance(idx, true).error();
-      svData->nTrk = svTagInfo->secondaryVertex(idx).numberOfSourceCandidatePtrs();
-      outJet.AddSVData(svData);
+    if (cont==1)
+    {
+      flightDir0 = svTagInfo->flightDirection(iVtx->second);
+      svP4_0= vertex.p4();
+      float tauDot_tmp;
+      if (reco::deltaR2(flightDir0,currentAxes[1])<reco::deltaR2(flightDir0,currentAxes[0]))
+        tauDot_tmp = (currentAxes[1].px()*flightDir0.x()+currentAxes[1].py()*flightDir0.y()+currentAxes[1].pz()*flightDir0.z())/(sqrt(currentAxes[1].modp2())*flightDir0.mag());
+      else
+        tauDot_tmp = (currentAxes[0].px()*flightDir0.x()+currentAxes[0].py()*flightDir0.y()+currentAxes[0].pz()*flightDir0.z())/(sqrt(currentAxes[0].modp2())*flightDir0.mag());
+      outJet.SetTauDot(tauDot_tmp);
+    }
+    if (cont==2)
+    {
+      flightDir1 = svTagInfo->flightDirection(iVtx->second);
+      svP4_1 = vertex.p4();
+      outJet.SetZRatio(reco::deltaR(flightDir0,flightDir1)*(svP4_0.pt())/(svP4_0+svP4_1).mass());
+    }
   }
+
 }
 
 void mithep::FillerFatJets::vertexKinematicsAndCharge(const RecoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)
@@ -216,6 +279,29 @@ void mithep::FillerFatJets::vertexKinematicsAndCharge(const RecoVertex & vertex,
     const reco::Track& mytrack = *(*track)->bestTrack();
     vertexKinematics.add(mytrack, 1.0);
     charge+=mytrack.charge();
+  }
+}
+
+void mithep::FillerFatJets::setTracksSVt (TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight)
+{
+  isFromSV = 0;
+  iSV = -1;
+  SVweight = 0.;
+  typedef std::vector<reco::CandidatePtr>::const_iterator IT;
+  size_t nSV = svTagInfo->nVertices();
+  for(size_t iv=0; iv<nSV; ++iv)  {
+    const Vertex & vtx = svTagInfo->secondaryVertex(iv);
+    // one of the tracks in the vertex is the same as the track considered in the function
+    const std::vector<reco::CandidatePtr> & tracks = vtx.daughterPtrVector();
+    if( std::find(tracks.begin(),tracks.end(),trackRef) != tracks.end() )    {
+      SVweight = 1.;
+      isFromSV = 1;
+      iSV = iv;
+    // select the first vertex for which the track is used in the fit
+    }
+    // (reco::VertexCompositePtrCandidate does not store track weights so can't select the vertex for which the track has the highest weight)
+    if(iSV>=0)
+      break;
   }
 }
 
