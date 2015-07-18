@@ -125,14 +125,18 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   }
 
   // now let's tag some bs
+  // first grab pointers to info
   const IPTagInfo * ipTagInfo = inJet.tagInfoCandIP("pfImpactParameter");
   const SVTagInfo * svTagInfo = inJet.tagInfoCandSecondaryVertex("pfInclusiveSecondaryVertexFinder");
+  const reco::CandSoftLeptonTagInfo *softPFMuTagInfo = inJet.tagInfoCandSoftLepton();
+  const reco::CandSoftLeptonTagInfo *softPFElTagInfo = inJet.tagInfoCandSoftLepton();
   const reco::Vertex *pv = &(*fPVs->begin());
 
+  // recalculate nsubjettiness after grouping svx tracks into one subjet
   std::vector<fastjet::PseudoJet> currentAxes;
   recalcNsubjettiness(inJet,*svTagInfo,outJet,currentAxes);
 
-
+  // now let's store tracking info
   int nSelTracks=0;
   const Tracks & selectedTracks( ipTagInfo->selectedTracks() );
   reco::TrackKinematics allKinematics;
@@ -149,7 +153,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 
     float deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
     if(deltaR<0.3) nSelTracks++;
-
+    // first impact parameter
     trackData->IP2D     = ipTagInfo->impactParameterData()[itt].ip2d.value();
     trackData->IP2Dsig  = ipTagInfo->impactParameterData()[itt].ip2d.significance();
     trackData->IP       = ipTagInfo->impactParameterData()[itt].ip3d.value();
@@ -157,14 +161,13 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     trackData->IP2Derr  = ipTagInfo->impactParameterData()[itt].ip2d.error();
     trackData->IPerr    = ipTagInfo->impactParameterData()[itt].ip3d.error();
     trackData->prob     = ipTagInfo->probabilities(0)[itt];
-
+    // then track kinematics and hits
     trackData->p        = ptrack.p();
     trackData->pt       = ptrack.pt();
     trackData->eta      = ptrack.eta();
     trackData->phi      = ptrack.phi();
     trackData->chi2     = ptrack.normalizedChi2();
     trackData->charge   = ptrack.charge();
-
     trackData->nHitAll  = ptrack.numberOfValidHits();
     trackData->nHitPixel= ptrack.hitPattern().numberOfValidPixelHits();
     trackData->nHitStrip= ptrack.hitPattern().numberOfValidStripHits();
@@ -186,9 +189,11 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       trackData->SV = -1;
       trackData->SVWeight = 0;
     }
+    outJet.AddTrackData(trackData);
   }
   math::XYZTLorentzVector allSum =  allKinematics.weightedVectorSum() ; //allKinematics.vectorSum()
 
+  // organize secondary vertices by mass
   std::map<double, unsigned int> VTXmass;
   unsigned int nSelectedSV = 0;
   float maxSVDeltaR2ToJet = fR0-0.1+(fR0-0.8)*0.1/0.7;  //linear interpolation
@@ -196,10 +201,11 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   edm::RefToBase<reco::Jet> rJet = ipTagInfo->jet();
   math::XYZVector jetDir = rJet->momentum().Unit();
   for (unsigned int vtx = 0; vtx < svTagInfo->nVertices(); ++vtx)  {
-    const recoVertex &vertex = svTagInfo->secondaryVertex(vtx);
+    const recoVertexPtr &vertex = svTagInfo->secondaryVertex(vtx);
     float mass = vertex.p4().mass();
     GlobalVector flightDir = svTagInfo->flightDirection(vtx);
     if (reco::deltaR2(flightDir, jetDir)<maxSVDeltaR2ToJet) {
+      // only keep nearby svxs
       VTXmass[mass]=vtx;
       ++nSelectedSV;
     }
@@ -213,14 +219,14 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     ++cont;
     SVData * svData = new SVData;
     unsigned int idx = iVtx->second;
-    const recoVertex &vertex = svTagInfo->secondaryVertex(idx);
-
-    svData->mass = iVtx->first;                                              //svx kinematics
+    const recoVertexPtr &vertex = svTagInfo->secondaryVertex(idx);
+    //svx kinematics
+    svData->mass = iVtx->first;
     svData->pt = vertex.p4().pt();
     svData->eta = vertex.p4().eta();
     svData->phi = vertex.p4().phi();
-
-    Int_t totcharge=0;                                                             //find svx energy fraction and charge
+    //find svx energy fraction and charge
+    Int_t totcharge=0;
     reco::TrackKinematics vertexKinematics;
     vertexKinematicsAndCharge(vertex, vertexKinematics, totcharge);
     math::XYZTLorentzVector vertexSum = vertexKinematics.weightedVectorSum();
@@ -268,9 +274,40 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     }
   }
 
+  // muons!
+  int nSM = softPFMuonTagInfos->leptons();
+  for (size_t leptIdx = 0; leptIdx < (size_t)nSM; ++leptIdx) {
+    LeptonData * muonData = new LeptonData;
+    muonData->pt        = softPFMuTagInfo->lepton(leptIdx)->pt();
+    muonData->eta       = softPFMuTagInfo->lepton(leptIdx)->eta();
+    muonData->phi       = softPFMuTagInfo->lepton(leptIdx)->phi();
+    muonData->ptRel     = (softPFMuTagInfo->properties(leptIdx).ptRel);
+    muonData->ratio     = (softPFMuTagInfo->properties(leptIdx).ratio);
+    muonData->ratioRel  = (softPFMuTagInfo->properties(leptIdx).ratioRel);
+    muonData->IP        = (softPFMuTagInfo->properties(leptIdx).sip3d);
+    muonData->IP2D      = (softPFMuTagInfo->properties(leptIdx).sip2d);
+    outJet.AddMuonData(muonData);
+  }
+
+  // electrons!
+  int nSE = softPFElectronTagInfos->leptons();
+  for (size_t leptIdx = 0; leptIdx < (size_t)nSE; ++leptIdx) {
+    LeptonData * electronData = new LeptonData;
+    electronData->pt        = softPFElectronTagInfo->lepton(leptIdx)->pt();
+    electronData->eta       = softPFElectronTagInfo->lepton(leptIdx)->eta();
+    electronData->phi       = softPFElectronTagInfo->lepton(leptIdx)->phi();
+    electronData->ptRel     = (softPFElectronTagInfo->properties(leptIdx).ptRel);
+    electronData->ratio     = (softPFElectronTagInfo->properties(leptIdx).ratio);
+    electronData->ratioRel  = (softPFElectronTagInfo->properties(leptIdx).ratioRel);
+    electronData->IP        = (softPFElectronTagInfo->properties(leptIdx).sip3d);
+    electronData->IP2D      = (softPFElectronTagInfo->properties(leptIdx).sip2d);
+    outJet.AddElectronData(electronData);
+  }
+
+
 }
 
-void mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)
+void mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)
 {
   const std::vector<reco::CandidatePtr> & tracks = vertex.daughterPtrVector();
 
@@ -289,7 +326,7 @@ void mithep::FillerFatJets::setTracksSV (const TrackRef & trackRef, const SVTagI
   typedef std::vector<reco::CandidatePtr>::const_iterator IT;
   size_t nSV = svTagInfo->nVertices();
   for(size_t iv=0; iv<nSV; ++iv)  {
-    const recoVertex & vtx = svTagInfo->secondaryVertex(iv);
+    const recoVertexPtr & vtx = svTagInfo->secondaryVertex(iv);
     // one of the tracks in the vertex is the same as the track considered in the function
     const std::vector<reco::CandidatePtr> & tracks = vtx.daughterPtrVector();
     if( std::find(tracks.begin(),tracks.end(),trackRef) != tracks.end() )    {
@@ -342,7 +379,6 @@ void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, con
   }
 }
 
-
 void mithep::FillerFatJets::recalcNsubjettiness(const pat::Jet &jet,
                                                 const SVTagInfo &svTagInfo,
                                                 mithep::FatJet &outJet,
@@ -382,8 +418,11 @@ void mithep::FillerFatJets::recalcNsubjettiness(const pat::Jet &jet,
   // re-calculate N-subjettiness
   outJet.SetTau1IVF(njettiness.getTau(1, fjParticles));
   outJet.SetTau2IVF(njettiness.getTau(2, fjParticles));
-  outJet.SetTau3IVF(njettiness.getTau(3, fjParticles));
   currentAxes = njettiness.currentAxes();
+  outJet.SetTau3IVF(njettiness.getTau(3, fjParticles));
+  for (auto & axis : njettiness.currentAxes()) {
+    outJet.AddTauIVFAxis(Vect3(axis.px(),axis.py(),axis.pz()));
+  }
 }
 
 DEFINE_MITHEP_TREEFILLER(FillerFatJets);

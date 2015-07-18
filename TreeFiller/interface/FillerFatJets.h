@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
 // FillerFatJets
 //
-// Implementation of a filler to fill EDM particle flow jets into our mithep::PFJet data structure.
+// Implementation of a filler to fill EDM PAT jets into our mithep::FatJet data structure.
 //
-// Authors: C.Loizides, Y.Iiyama
+// Authors: C.Loizides, Y.Iiyama, S.Narayanan
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITPROD_TREEFILLER_FILLERFATJETS_H
@@ -37,9 +37,10 @@ namespace mithep {
   public:
     typedef mithep::FatJet::TrackData TrackData;
     typedef mithep::FatJet::SVData SVData;
+    typedef mithep::FatJet::LeptonData LeptonData;
     typedef reco::CandIPTagInfo IPTagInfo;
-    typedef reco::VertexCompositePtrCandidate recoVertex;
-    typedef reco::TemplatedSecondaryVertexTagInfo<IPTagInfo,recoVertex> SVTagInfo;
+    typedef reco::VertexCompositePtrCandidate recoVertexPtr;
+    typedef reco::TemplatedSecondaryVertexTagInfo<IPTagInfo,recoVertexPtr> SVTagInfo;
     typedef typename IPTagInfo::input_container Tracks;
     typedef typename IPTagInfo::input_container::value_type TrackRef;
 
@@ -50,16 +51,16 @@ namespace mithep {
     void FillSpecific(mithep::Jet&, reco::JetBaseRef const&);
     void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet>);
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
-    reco::JetTagCollection const* fBJetTags;
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
-    void vertexKinematicsAndCharge(const recoVertex & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
+    void vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
     void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
     void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
     void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight);
 
     double fR0;                                                       //cone size
+    reco::JetTagCollection const* fBJetTags;
     std::vector<std::string> fSubjetNames;                            //labels of subjets
     std::vector<edm::InputTag> fSubjetCollectionTags;                 //subjet input tags
     std::vector<edm::Handle<PatJetCollection> > fSubjetCollections;   //vector of vector of pat subjets
