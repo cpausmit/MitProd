@@ -275,7 +275,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   }
 
   // muons!
-  int nSM = softPFMuonTagInfos->leptons();
+  int nSM = softPFMuTagInfo->leptons();
   for (size_t leptIdx = 0; leptIdx < (size_t)nSM; ++leptIdx) {
     LeptonData * muonData = new LeptonData;
     muonData->pt        = softPFMuTagInfo->lepton(leptIdx)->pt();
@@ -290,17 +290,17 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   }
 
   // electrons!
-  int nSE = softPFElectronTagInfos->leptons();
+  int nSE = softPFElTagInfo->leptons();
   for (size_t leptIdx = 0; leptIdx < (size_t)nSE; ++leptIdx) {
     LeptonData * electronData = new LeptonData;
-    electronData->pt        = softPFElectronTagInfo->lepton(leptIdx)->pt();
-    electronData->eta       = softPFElectronTagInfo->lepton(leptIdx)->eta();
-    electronData->phi       = softPFElectronTagInfo->lepton(leptIdx)->phi();
-    electronData->ptRel     = (softPFElectronTagInfo->properties(leptIdx).ptRel);
-    electronData->ratio     = (softPFElectronTagInfo->properties(leptIdx).ratio);
-    electronData->ratioRel  = (softPFElectronTagInfo->properties(leptIdx).ratioRel);
-    electronData->IP        = (softPFElectronTagInfo->properties(leptIdx).sip3d);
-    electronData->IP2D      = (softPFElectronTagInfo->properties(leptIdx).sip2d);
+    electronData->pt        = softPFElTagInfo->lepton(leptIdx)->pt();
+    electronData->eta       = softPFElTagInfo->lepton(leptIdx)->eta();
+    electronData->phi       = softPFElTagInfo->lepton(leptIdx)->phi();
+    electronData->ptRel     = (softPFElTagInfo->properties(leptIdx).ptRel);
+    electronData->ratio     = (softPFElTagInfo->properties(leptIdx).ratio);
+    electronData->ratioRel  = (softPFElTagInfo->properties(leptIdx).ratioRel);
+    electronData->IP        = (softPFElTagInfo->properties(leptIdx).sip3d);
+    electronData->IP2D      = (softPFElTagInfo->properties(leptIdx).sip2d);
     outJet.AddElectronData(electronData);
   }
 
