@@ -128,8 +128,8 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   // first grab pointers to info
   const IPTagInfo * ipTagInfo = inJet.tagInfoCandIP("pfImpactParameter");
   const SVTagInfo * svTagInfo = inJet.tagInfoCandSecondaryVertex("pfInclusiveSecondaryVertexFinder");
-  const reco::CandSoftLeptonTagInfo *softPFMuTagInfo = inJet.tagInfoCandSoftLepton();
-  const reco::CandSoftLeptonTagInfo *softPFElTagInfo = inJet.tagInfoCandSoftLepton();
+  const reco::CandSoftLeptonTagInfo *softPFMuTagInfo = inJet.tagInfoCandSoftLepton("softPFMuonsTagInfos");
+  const reco::CandSoftLeptonTagInfo *softPFElTagInfo = inJet.tagInfoCandSoftLepton("softPFElectronsTagInfos");
   const reco::Vertex *pv = &(*fPVs->begin());
 
   // recalculate nsubjettiness after grouping svx tracks into one subjet
