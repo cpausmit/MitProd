@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # create the process
 process = cms.Process('FILEFI')
 
+
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)
@@ -98,6 +99,7 @@ from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 
+
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -114,8 +116,8 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
@@ -131,7 +133,7 @@ fatjetSequence = makeFatJets(process,True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -140,6 +142,15 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# # Load inclusive vertices
+# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import *
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
+fatjetSequence = makeFatJets(process,True)
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
@@ -157,9 +168,9 @@ recoSequence = cms.Sequence(
   # inclusiveVertexing *
   # inclusiveCandidateVertexing *
   particleFlowPtrs *
-  pfParticleSelectionSequence * 
+  pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence * 
+  pfMuonSequence *
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
@@ -223,5 +234,5 @@ process.path = cms.Path(
   bambuFillerSequence
 )
 
-process.schedule = cms.Schedule(process.path)
-process.prune()
+# process.schedule = cms.Schedule(process.path)
+# process.prune()

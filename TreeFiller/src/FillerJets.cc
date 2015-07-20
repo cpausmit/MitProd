@@ -69,12 +69,12 @@ mithep::FillerJets::FillDataBlock(edm::Event const& event, edm::EventSetup const
   // with MustDelete bit set, Reset() is equivalent to Delete()
   jets_->Reset();
   jetMap_->Reset();
-  
+
   edm::Handle<reco::JetView> hJetsH;
   GetProduct(edmToken_, hJetsH, event);
   auto& inJets = *hJetsH;
-  
-  // handles for jet flavour matching 
+
+  // handles for jet flavour matching
   reco::JetMatchedPartonsCollection const* matchedPartons = 0;
   if (flavorMatchingActive_) {
     edm::Handle<reco::JetMatchedPartonsCollection> hMatchH;
@@ -89,14 +89,14 @@ mithep::FillerJets::FillDataBlock(edm::Event const& event, edm::EventSetup const
 
   if (jetCorrectionsActive_)
     initCorrections(event, setup);
-  
-  std::vector<double> const* jvAlpha = 0; 
+
+  std::vector<double> const* jvAlpha = 0;
   std::vector<double> const* jvBeta = 0;
   if (jetToVertexActive_) {
     edm::Handle<std::vector<double>> jvAlphaH;
     edm::Handle<std::vector<double>> jvBetaH;
-    GetProduct(jetToVertexAlphaToken_, jvAlphaH, event); 
-    GetProduct(jetToVertexBetaToken_, jvBetaH, event);  
+    GetProduct(jetToVertexAlphaToken_, jvAlphaH, event);
+    GetProduct(jetToVertexBetaToken_, jvBetaH, event);
     jvAlpha = jvAlphaH.product();
     jvBeta = jvBetaH.product();
   }
@@ -107,7 +107,7 @@ mithep::FillerJets::FillDataBlock(edm::Event const& event, edm::EventSetup const
   for (unsigned iJ = 0; iJ != inJets.size(); ++iJ) {
     auto& inJet = inJets.at(iJ);
     auto&& baseRef = inJets.refAt(iJ);
-    
+
     mithep::Jet* outJet = AddNew();
 
     jetMap_->Add(inJets.ptrAt(iJ), outJet);
@@ -127,7 +127,7 @@ mithep::FillerJets::FillDataBlock(edm::Event const& event, edm::EventSetup const
     if (jetToVertexActive_) {
       //compute alpha and beta parameter for jets
       outJet->SetAlpha(jvAlpha->at(iJ));
-      outJet->SetBeta(jvBeta->at(iJ));      
+      outJet->SetBeta(jvBeta->at(iJ));
     }
 
     if (bTaggingActive_)
@@ -140,7 +140,7 @@ mithep::FillerJets::FillDataBlock(edm::Event const& event, edm::EventSetup const
     if (flavorMatchingActive_) {
       auto&& matchedParton = (*matchedPartons)[matchedPartons->key(iJ)];
 
-      outJet->SetMatchedMCFlavor(0);      
+      outJet->SetMatchedMCFlavor(0);
       switch (flavorMatchingDefinition_) {
       case kAlgorithmic:
         if (matchedParton.algoDefinitionParton().isNonnull())
