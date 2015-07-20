@@ -119,6 +119,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       FillSpecificSubjet(*outSubjet,inSubjetPtr); // this is only a subjet, not a PF jet
       setCorrections(*outSubjet, inSubjet);
       outSubjet->SetSubJetType((XlSubJet::ESubJetType)eSubjetType);
+      setBTagDiscriminators(*outSubjet,inSubjet);
       outJet.AddSubJet(outSubjet);
     }
     ++eSubjetType;
@@ -304,7 +305,43 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     outJet.AddElectronData(electronData);
   }
 
+  // set btags for fatjet
+  setBTagDiscriminators(outJet,inJet);
 
+
+}
+
+void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const& inJet) {
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetProbability);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityNegative);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfPositiveOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityPositive);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetBProbability);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeOnlyJetBProbabilityBJetTags"), Jet::kJetBProbabilityNegative);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfPositiveOnlyJetBProbabilityBJetTags"), Jet::kJetBProbabilityPositive);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfSimpleSecondaryVertexHighEffBJetTags"), Jet::kSimpleSecondaryVertexHighEff);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeSimpleSecondaryVertexHighEffBJetTags"), Jet::kSimpleSecondaryVertexHighEffNegative);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfSimpleSecondaryVertexHighPurBJetTags"), Jet::kSimpleSecondaryVertexHighPur);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeSimpleSecondaryVertexHighPurBJetTags"), Jet::kSimpleSecondaryVertexHighPurNegative);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfPositiveCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2Positive);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2Negative);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2Positive);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2Negative);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("softPFMuonBJetTags"), Jet::kSoftPFMuon);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("negativeSoftPFMuonBJetTags"), Jet::kSoftPFMuonNegative);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("positiveSoftPFMuonBJetTags"), Jet::kSoftPFMuonPositive);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("softPFElectronBJetTags"), Jet::kSoftPFElectron);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("negativeSoftPFElectronBJetTags"), Jet::kSoftPFElectronNegative);
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("positiveSoftPFElectronBJetTags"), Jet::kSoftPFElectronPositive);
+
+  outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"), Jet::kDoubleSecondaryVertex);
 }
 
 void mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge)

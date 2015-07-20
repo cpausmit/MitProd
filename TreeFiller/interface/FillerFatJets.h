@@ -58,6 +58,7 @@ namespace mithep {
     void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
     void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
     void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight);
+    void setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet);
 
     double fR0;                                                       //cone size
     reco::JetTagCollection const* fBJetTags;
