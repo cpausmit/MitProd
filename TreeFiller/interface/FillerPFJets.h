@@ -28,11 +28,11 @@ namespace mithep {
     ~FillerPFJets();
 
     void PrepareLinks() override;
-    mithep::Jet* AddNew() override { return static_cast<mithep::PFJetArr*>(jets_)->AddNew(); }
-    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
+    virtual mithep::Jet* AddNew() override { return static_cast<mithep::PFJetArr*>(jets_)->AddNew(); }
+    virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
-  private:
+  protected:
     void fillPFJetVariables(mithep::PFJet&, reco::PFJet const&);
     void fillPATJetVariables(mithep::PFJet&, pat::Jet const&);
     void initBJetTags(edm::Event const&, reco::JetTagCollection const* [mithep::Jet::nBTagAlgos]) override;

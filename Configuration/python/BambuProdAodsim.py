@@ -60,6 +60,8 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
+  wantSummary = cms.untracked.bool(False),
+  allowUnscheduled = cms.untracked.bool(True)
 )
 
 # Import/Load the filler so all is already available for config changes
@@ -120,8 +122,12 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import *
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
+fatjetSequence = makeFatJets(process,True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -139,14 +145,17 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
 
+del(process.tobtecfakesfilter) # these are being loaded due to allowUnscheduled, but do not want
+del(process.particleFlow)
+
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  inclusiveVertexing *
-  inclusiveCandidateVertexing *
+  # inclusiveVertexing *
+  # inclusiveCandidateVertexing *
   particleFlowPtrs *
   pfParticleSelectionSequence * 
   pfPhotonSequence *
@@ -158,6 +167,7 @@ recoSequence = cms.Sequence(
   l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
+  fatjetSequence *
   metFilters
 )
 

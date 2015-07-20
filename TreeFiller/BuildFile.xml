@@ -27,6 +27,8 @@
 <use   name="RecoVertex/GaussianSumVertexFit"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/KinematicFitPrimitives"/>
+<use   name="RecoBTau/JetTagComputer"/>
+<use   name="RecoBTag/SecondaryVertex"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackingTools/TransientTrack"/>
@@ -41,6 +43,8 @@
 <use   name="MitEdm/ConversionRejection"/>
 <use   name="MitProd/ObjectService"/>
 <use   name="MitEdm/Tools"/>
+<use   name="fastjet"/>
+<use   name="fastjet-contrib"/>
 <use   name="root"/>
 <export>
   <lib name="1"/>
