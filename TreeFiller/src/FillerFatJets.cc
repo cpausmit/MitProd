@@ -60,6 +60,7 @@ void mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::Event
 void
 mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef const& inJetRef)
 {
+  fprintf(stderr,"FILLING FATJET\n"); exit(-1);
   assert(fillFromPAT_);
   auto& outJet = static_cast<mithep::FatJet&>(outBaseJet);
   auto* inJet = dynamic_cast<pat::Jet const*>(inJetRef.get());
@@ -119,7 +120,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       FillSpecificSubjet(*outSubjet,inSubjetPtr); // this is only a subjet, not a PF jet
       setCorrections(*outSubjet, inSubjet);
       outSubjet->SetSubJetType((XlSubJet::ESubJetType)eSubjetType);
-      setBTagDiscriminators(*outSubjet,inSubjet);
+      setBTagDiscriminators(*outSubjet, inSubjet);
       outJet.AddSubJet(outSubjet);
     }
     ++eSubjetType;
@@ -306,12 +307,12 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   }
 
   // set btags for fatjet
-  setBTagDiscriminators(outJet,inJet);
+  setBTagDiscriminators(outJet, inJet);
 
 
 }
 
-void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const& inJet) {
+void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet) {
   outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetProbability);
   outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfNegativeOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityNegative);
   outJet.SetBJetTagsDisc( inJet.bDiscriminator("pfPositiveOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityPositive);

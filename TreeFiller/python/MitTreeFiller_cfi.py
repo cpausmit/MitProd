@@ -786,10 +786,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     flavorMatchingDefinition                 = cms.untracked.string('Algorithmic'),
     pfCandMapName                            = cms.untracked.string('PFCandMapName'), # ak8 CHS is not redone in BAMBU production
     jetMapName                               = cms.untracked.string('CA8PFJetCHSMap'),
-    Subjets                                  = cms.untracked.VInputTag(cms.InputTag('selectedPatJetsSoftDropPFCHSPacked8','SubJets'),
+    SubJets                                  = cms.untracked.VInputTag(cms.InputTag('selectedPatJetsSoftDropPFCHSPacked8','SubJets'),
                                                                         cms.InputTag('selectedPatJetsPrunedPFCHSPacked8','SubJets'),
                                                                         cms.InputTag('selectedPatJetsTrimmedPFCHSPacked8','SubJets')),
-    SubjetNames                              = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important,
+    SubJetLabels                             = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important,
     R0                                       = cms.untracked.double(.8),
     edmPrimaryVertices                       = cms.untracked.string('offlinePrimaryVertices'),
     fillerType                               = cms.untracked.string('FillerFatJets')
