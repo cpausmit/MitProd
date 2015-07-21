@@ -48,9 +48,10 @@ namespace mithep {
     ~FillerFatJets();
 
     mithep::Jet* AddNew() override { return static_cast<mithep::FatJetArr*>(jets_)->AddNew(); }
-    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&);
+    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet>);
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
+    void BookAdditional(TreeWriter&);
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
@@ -68,6 +69,8 @@ namespace mithep {
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
     edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
+    Array<XlSubJet> * fSubjets[3];
+    //Array<XlSubJet> ** fSubjets;
 
   };
 }

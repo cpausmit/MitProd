@@ -29,7 +29,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
-
+#define N_MAX_SUBJETS 16
 
 mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   FillerPFJets(cfg, collector, os, name, active),
@@ -42,12 +42,23 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   fSubjetCollectionTags = cfg.getUntrackedParameter<std::vector<edm::InputTag> >("SubJets");
   fSubjetNames         = cfg.getUntrackedParameter<std::vector<std::string> >("SubJetLabels");
   fPVToken = GetToken<reco::VertexCollection>(collector,cfg,"edmPrimaryVertices");
+//  fSubjets = new (Array<XlSubJet>*)[3];
+  for (int i=0; i<3; i++)
+    fSubjets[i] = new Array<XlSubJet>(N_MAX_SUBJETS);
 }
 
 mithep::FillerFatJets::~FillerFatJets()
 {
   delete[] fBJetTags;
 }
+
+void
+mithep::FillerFatJets::BookAdditional(TreeWriter &tws) {
+  tws.AddBranch("SDSubjets",&fSubjets[0]);
+  tws.AddBranch("prunedSubjets",&fSubjets[1]);
+  tws.AddBranch("trimmedSubjets",&fSubjets[2]);
+}
+
 
 void mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   unsigned int nSubjetTypes = fSubjetNames.size();
@@ -60,7 +71,6 @@ void mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::Event
 void
 mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef const& inJetRef)
 {
-  fprintf(stderr,"FILLING FATJET\n"); exit(-1);
   assert(fillFromPAT_);
   auto& outJet = static_cast<mithep::FatJet&>(outBaseJet);
   auto* inJet = dynamic_cast<pat::Jet const*>(inJetRef.get());
@@ -112,7 +122,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet inSubjet = *inSubjetPtr;
-      XlSubJet * outSubjet = new XlSubJet();
+      XlSubJet * outSubjet = fSubjets[eSubjetType]->AddNew();
       outSubjet->SetRawPtEtaPhiM(inSubjet.p4().pt(), inSubjet.p4().eta(), inSubjet.p4().phi(), inSubjet.p4().mass());
       outSubjet->SetSigmaEta(TMath::Sqrt(inSubjet.etaetaMoment()));
       outSubjet->SetSigmaPhi(TMath::Sqrt(inSubjet.phiphiMoment()));
@@ -164,22 +174,9 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     trackData->IPerr    = ipTagInfo->impactParameterData()[itt].ip3d.error();
     trackData->prob     = ipTagInfo->probabilities(0)[itt];
     // then track kinematics and hits
-    trackData->p        = ptrack.p();
     trackData->pt       = ptrack.pt();
     trackData->eta      = ptrack.eta();
     trackData->phi      = ptrack.phi();
-    trackData->chi2     = ptrack.normalizedChi2();
-    trackData->charge   = ptrack.charge();
-    trackData->nHitAll  = ptrack.numberOfValidHits();
-    trackData->nHitPixel= ptrack.hitPattern().numberOfValidPixelHits();
-    trackData->nHitStrip= ptrack.hitPattern().numberOfValidStripHits();
-    trackData->nHitTIB  = ptrack.hitPattern().numberOfValidStripTIBHits();
-    trackData->nHitTID  = ptrack.hitPattern().numberOfValidStripTIDHits();
-    trackData->nHitTOB  = ptrack.hitPattern().numberOfValidStripTOBHits();
-    trackData->nHitTEC  = ptrack.hitPattern().numberOfValidStripTECHits();
-    trackData->nHitPXB  = ptrack.hitPattern().numberOfValidPixelBarrelHits();
-    trackData->nHitPXF  = ptrack.hitPattern().numberOfValidPixelEndcapHits();
-    trackData->isHitL1  = ptrack.hitPattern().hasValidHitInFirstPixelBarrel();
 
     setTracksPV(ptrackRef, fPVs, trackData->PV, trackData->PVWeight);
     if (!trackData->PV && trackData->PVWeight > 0)

@@ -644,7 +644,6 @@ def makeFatJets(process,isMC):
         R0  = cms.double(1.5)
     )
     getattr(process,'patJetsPFCHS15'+postfix).userData.userFloats.src += ['Njettiness15:tau1','Njettiness15:tau2','Njettiness15:tau3','Njettiness15:tau4']
-    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
     process.Qjets15 = QJetsAdder.clone(
         src = cms.InputTag("PFJetsCHS15"),
         jetRad = cms.double(1.5),

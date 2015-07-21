@@ -148,7 +148,6 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 # process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 
 # recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.pfCHSFromPatJets_cff import *
 from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
 fatjetSequence = makeFatJets(process,True)
 
@@ -165,8 +164,6 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  # inclusiveVertexing *
-  # inclusiveCandidateVertexing *
   particleFlowPtrs *
   pfParticleSelectionSequence *
   pfPhotonSequence *
