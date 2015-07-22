@@ -171,8 +171,8 @@ recoSequence = cms.Sequence(
 
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
-MitTreeFiller.PileupInfo.active = True
 # remove Monte Carlo information
+MitTreeFiller.PileupInfo.active = False
 MitTreeFiller.MCParticles.active = False
 MitTreeFiller.MCEventInfo.active = False
 MitTreeFiller.MCVertexes.active = False

@@ -23,7 +23,7 @@
 
 namespace mithep {
 
-  class FillerJets : public BaseFiller {  
+  class FillerJets : public BaseFiller {
   public:
     FillerJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
     ~FillerJets();
@@ -32,10 +32,10 @@ namespace mithep {
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
     void FillPostRunBlock(edm::Run const&, edm::EventSetup const&) override;
     virtual mithep::Jet* AddNew() = 0;
-    virtual void BookAdditional(TreeWriter&) {}
-    virtual void PrepareSpecific(edm::Event const&, edm::EventSetup const&) {}
-    virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) {}
- 
+    inline virtual void BookAdditional(TreeWriter&) {}
+    inline virtual void PrepareSpecific(edm::Event const&, edm::EventSetup const&) {}
+    inline virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) {}
+
   protected:
     enum FlavorMatchingDef {
       kAlgorithmic,
@@ -48,7 +48,7 @@ namespace mithep {
     virtual void initCorrections(edm::Event const&, edm::EventSetup const&);
     virtual void setCorrections(mithep::Jet&, reco::Jet const&);
 
-    bool flavorMatchingActive_;     //=true if flavor matching is done  
+    bool flavorMatchingActive_;     //=true if flavor matching is done
     bool bTaggingActive_;           //=true if bTagging info is filled
     bool jetToVertexActive_;        //=true if jet to vertex info is done
     bool fastJetCorrectionsActive_; //=true if L1 corrections are done
