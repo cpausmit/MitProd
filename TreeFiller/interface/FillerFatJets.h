@@ -69,8 +69,7 @@ namespace mithep {
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
     edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
-    Array<XlSubJet> * fSubjets[3];
-    //Array<XlSubJet> ** fSubjets;
+    Array<XlSubJet> *fSubjets[3];
 
   };
 }
