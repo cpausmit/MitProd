@@ -28,12 +28,11 @@ process.source.inputCommands = cms.untracked.vstring(
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.GlobalTag.globaltag = 'GR_P_V56'
-#process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_041'),
+  version    = cms.untracked.string('Mit_042'),
   annotation = cms.untracked.string('AOD')
 )
 
@@ -112,8 +111,8 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing, inclusiveCandidateVertexing
+process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
