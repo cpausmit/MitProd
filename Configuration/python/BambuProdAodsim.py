@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # create the process
 process = cms.Process('FILEFI')
 
+
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)
@@ -60,6 +61,8 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
+  wantSummary = cms.untracked.bool(False),
+  allowUnscheduled = cms.untracked.bool(True)
 )
 
 # Import/Load the filler so all is already available for config changes
@@ -96,6 +99,7 @@ from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 
+
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -112,20 +116,24 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import *
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
+fatjetSequence = makeFatJets(process,True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -135,9 +143,20 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
+# # Load inclusive vertices
+# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
+# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
+fatjetSequence = makeFatJets(process,True)
+
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
+
+del(process.tobtecfakesfilter) # these are being loaded due to allowUnscheduled, but do not want
+del(process.particleFlow)
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
@@ -145,12 +164,10 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  inclusiveVertexing *
-  inclusiveCandidateVertexing *
   particleFlowPtrs *
-  pfParticleSelectionSequence * 
+  pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence * 
+  pfMuonSequence *
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
@@ -158,6 +175,7 @@ recoSequence = cms.Sequence(
   l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
+  fatjetSequence *
   metFilters
 )
 
@@ -213,5 +231,5 @@ process.path = cms.Path(
   bambuFillerSequence
 )
 
-process.schedule = cms.Schedule(process.path)
-process.prune()
+# process.schedule = cms.Schedule(process.path)
+# process.prune()

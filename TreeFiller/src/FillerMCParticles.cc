@@ -402,8 +402,10 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
       unsigned iPart = 0;
       for (auto&& inPart : genParticles) {
         unsigned nDaughters = inPart.numberOfDaughters();
-        if (nDaughters == 0)
+        if (nDaughters == 0) {
+          ++iPart;
           continue;
+        }
 
         reco::GenParticleRef ref(hGenPProduct, iPart);
         MCParticle *mcMother = aodGenMap_->GetMit(ref);

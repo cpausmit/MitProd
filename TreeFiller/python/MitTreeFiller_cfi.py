@@ -38,7 +38,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     'GsfTracks',
     'PrimaryVertexes',
     'PrimaryVertexesBS',
-    'InclusiveSecondaryVertexes',
+#     'InclusiveSecondaryVertexes',
     'PFCandidates',
     'Muons',
     'CosmicMuons',
@@ -58,6 +58,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     'AKt4PFJetsCHS',
     'AKt8PFJets',
     'AKt8PFJetsCHS',
+    'CA8FatJetsCHS',
     'GenMet',
     'PFMet',
     'TCMet',
@@ -139,14 +140,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     active                        = cms.untracked.bool(True),
     mitName                       = cms.untracked.string('EvtSelData'),
     HBHENoiseFilterName           = cms.untracked.string('HBHENoiseFilterResultProducer:'+
-                                                         'HBHENoiseFilterResult'),  
-    ECALDeadCellFilterName        = cms.untracked.string('EcalDeadCellTriggerPrimitiveFilter'),  
-    trackingFailureFilterName     = cms.untracked.string('trackingFailureFilter'),  
-    EEBadScFilterName             = cms.untracked.string('eeBadScFilter'),  
-    ECALaserCorrFilterName        = cms.untracked.string('ecalLaserCorrFilter'),  
-    tkManyStripClusName           = cms.untracked.string('manystripclus53X'),  
-    tkTooManyStripClusName        = cms.untracked.string('toomanystripclus53X'),  
-    tkLogErrorTooManyClustersName = cms.untracked.string('logErrorTooManyClusters'),  
+                                                         'HBHENoiseFilterResult'),
+    ECALDeadCellFilterName        = cms.untracked.string('EcalDeadCellTriggerPrimitiveFilter'),
+    trackingFailureFilterName     = cms.untracked.string('trackingFailureFilter'),
+    EEBadScFilterName             = cms.untracked.string('eeBadScFilter'),
+    ECALaserCorrFilterName        = cms.untracked.string('ecalLaserCorrFilter'),
+    tkManyStripClusName           = cms.untracked.string('manystripclus53X'),
+    tkTooManyStripClusName        = cms.untracked.string('toomanystripclus53X'),
+    tkLogErrorTooManyClustersName = cms.untracked.string('logErrorTooManyClusters'),
     BeamHaloSummaryName           = cms.untracked.string('BeamHaloSummary'),
     patFilterResultsName          = cms.untracked.string(''), # set when filling from miniAOD
     fillerType                    = cms.untracked.string('FillerEvtSelData')
@@ -179,15 +180,15 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fillerType       = cms.untracked.string('FillerVertexes')
   ),
 
-  InclusiveSecondaryVertexes = cms.untracked.PSet(
-    active        = cms.untracked.bool(True),
-    mitName       = cms.untracked.string('InclusiveSecondaryVertexes'),
-    edmName       = cms.untracked.string('inclusiveSecondaryVertices'),
-    vertexMapName = cms.untracked.string('InclusiveSecondaryVertexMap'),
-    trackMapName  = cms.untracked.string('TracksMapName'),
-    trkAssocByPacked = cms.untracked.bool(False),
-    fillerType    = cms.untracked.string('FillerVertexes')
-  ),
+#  InclusiveSecondaryVertexes = cms.untracked.PSet(
+#    active        = cms.untracked.bool(True),
+#    mitName       = cms.untracked.string('InclusiveSecondaryVertexes'),
+#    edmName       = cms.untracked.string('inclusiveSecondaryVertices'),
+#    vertexMapName = cms.untracked.string('InclusiveSecondaryVertexMap'),
+#    trackMapName  = cms.untracked.string('TracksMapName'),
+#    trkAssocByPacked = cms.untracked.bool(False),
+#    fillerType    = cms.untracked.string('FillerVertexes')
+#  ),
 
   PFEcalBarrelSuperClusters = cms.untracked.PSet(
     active                = cms.untracked.bool(True),
@@ -765,6 +766,27 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     pfCandMapName                            = cms.untracked.string('PFCandMapName'), # ak8 CHS is not redone in BAMBU production
     jetMapName                               = cms.untracked.string('AKt8PFJetCHSMap'),
     fillerType                               = cms.untracked.string('FillerPFJets')
+  ),
+
+  CA8FatJetsCHS = cms.untracked.PSet(
+    active                                   = cms.untracked.bool(True),
+    flavorMatchingActive                     = cms.untracked.bool(False),
+    bTaggingActive                           = cms.untracked.bool(False),
+    jetToVertexActive                        = cms.untracked.bool(False),
+    jetCorrectionsActive                     = cms.untracked.bool(False),
+    fillFromPAT                              = cms.untracked.bool(True),
+    mitName                                  = cms.untracked.string('CA8FatJetsCHS'),
+    edmName                                  = cms.untracked.string('packedPatJetsPFCHS8'),
+    rhoName                                  = cms.untracked.string(''),
+    pfCandMapName                            = cms.untracked.string('PFCandMapName'), # ak8 CHS is not redone in BAMBU production
+    jetMapName                               = cms.untracked.string('CA8PFJetCHSMap'),
+    SubJets                                  = cms.untracked.VInputTag(cms.InputTag('selectedPatJetsSoftDropPFCHSPacked8','SubJets'),
+                                                                        cms.InputTag('selectedPatJetsPrunedPFCHSPacked8','SubJets'),
+                                                                        cms.InputTag('selectedPatJetsTrimmedPFCHSPacked8','SubJets')),
+    SubJetLabels                             = cms.untracked.vstring('SoftDrop','Pruned','Trimmed'), # this order is important,
+    R0                                       = cms.untracked.double(.8),
+    edmPrimaryVertices                       = cms.untracked.string('offlinePrimaryVertices'),
+    fillerType                               = cms.untracked.string('FillerFatJets')
   ),
 
   GenMet = cms.untracked.PSet(
