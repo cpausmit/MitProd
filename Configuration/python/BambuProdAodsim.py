@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring()
+  fileNames = cms.untracked.vstring('file:/scratch5/snarayan/ttbar_AOD.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
