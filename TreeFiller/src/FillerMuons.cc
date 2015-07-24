@@ -204,9 +204,13 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     outMuon->SetIsStandaloneMuon(inMuon.isStandAloneMuon());
     outMuon->SetIsPFMuon        (inMuon.isPFMuon());
     outMuon->SetIsCaloMuon      (inMuon.isCaloMuon());
+    auto&& muonQuality(inMuon.combinedQuality());
     //kink algorithm
-    outMuon->SetTrkKink         (inMuon.combinedQuality().trkKink);
-    outMuon->SetGlbKink         (inMuon.combinedQuality().glbKink);
+    outMuon->SetTrkKink         (muonQuality.trkKink);
+    outMuon->SetGlbKink         (muonQuality.glbKink);
+    //chi2 values for trk-standalone matching
+    outMuon->SetChi2LocalPosition(muonQuality.chi2LocalPosition);
+    outMuon->SetChi2LocalMomentum(muonQuality.chi2LocalMomentum);
     //save results from the muon selector in the MuonQuality bitmask
     outMuon->Quality().SetQuality(MuonQuality::All);
     if (muon::isGoodMuon(inMuon,muon::AllGlobalMuons))
@@ -337,6 +341,7 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     outMuon->SetNChambers  (inMuon.numberOfChambers());
     outMuon->SetStationMask(inMuon.stationMask(reco::Muon::SegmentAndTrackArbitration));
     outMuon->SetNMatches   (inMuon.numberOfMatches());
+    outMuon->SetNMatchedStations(inMuon.numberOfMatchedStations());
     for (int i0 = 0; i0 < 4; i0++) {
       // DTs
       outMuon->SetDX(i0,            inMuon.dX(i0+1,1));
