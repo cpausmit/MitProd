@@ -115,7 +115,7 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # Load btagging
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
-fatjetSequence = makeFatJets(process, True)
+fatjetSequence = makeFatJets(process, False)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -132,6 +132,7 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
+
 # these are being loaded due to allowUnscheduled, but do not want
 del(process.tobtecfakesfilter)
 del(process.particleFlow)

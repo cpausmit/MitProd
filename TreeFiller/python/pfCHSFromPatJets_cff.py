@@ -8,8 +8,10 @@ from RecoJets.JetProducers.ak4PFJetsSoftDrop_cfi import ak4PFJetsSoftDrop
 from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 from RecoJets.JetProducers.qjetsadder_cfi import QJetsAdder
 
-def makeFatJets(process,isMC):
+def makeFatJets(process,isData):
 
+    isData = not isMC
+    
     ########################################
     ##         INITIAL SETUP              ##
     ########################################

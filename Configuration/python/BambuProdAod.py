@@ -51,6 +51,8 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
+  wantSummary = cms.untracked.bool(False),
+  allowUnscheduled = cms.untracked.bool(True)
 )
 
 # Import/Load the filler so all is already available for config changes
@@ -103,20 +105,21 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing, inclusiveCandidateVertexing
-process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
+# recluster fat jets, subjets, btagging
+from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
+fatjetSequence = makeFatJets(process, True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -130,6 +133,10 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
 
+# these are being loaded due to allowUnscheduled, but do not want
+del(process.tobtecfakesfilter)
+del(process.particleFlow)
+
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
@@ -139,9 +146,9 @@ recoSequence = cms.Sequence(
   inclusiveVertexing *
   inclusiveCandidateVertexing *
   particleFlowPtrs *
-  pfParticleSelectionSequence * 
+  pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence * 
+  pfMuonSequence *
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
@@ -149,6 +156,7 @@ recoSequence = cms.Sequence(
   l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
+  fatjetSequence *
   metFilters
 )
 
