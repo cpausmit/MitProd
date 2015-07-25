@@ -294,7 +294,6 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       muonData.ratioRel  = (softPFMuTagInfo->properties(leptIdx).ratioRel);
       muonData.IP        = (softPFMuTagInfo->properties(leptIdx).sip3d);
       muonData.IP2D      = (softPFMuTagInfo->properties(leptIdx).sip2d);
-      fprintf(stderr,"Hello\n"); exit(-1);
       outJet.AddMuonData(&muonData);
     }
   } 
