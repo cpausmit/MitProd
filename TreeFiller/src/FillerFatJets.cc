@@ -58,13 +58,13 @@ mithep::FillerFatJets::~FillerFatJets()
 void
 mithep::FillerFatJets::BookAdditional(TreeWriter &tws)
 {
-  tws.AddBranch("SDSubjets", &fSubjets[0]);
-  tws.AddBranch("prunedSubjets", &fSubjets[1]);
-  tws.AddBranch("trimmedSubjets", &fSubjets[2]);
+  tws.AddBranch(mitName_ + "SDSubjets", &fSubjets[0]);
+  tws.AddBranch(mitName_ + "PrunedSubjets", &fSubjets[1]);
+  tws.AddBranch(mitName_ + "TrimmedSubjets", &fSubjets[2]);
 
-  AddBranchDep(mitName_, "SDSubjets");
-  AddBranchDep(mitName_, "prunedSubjets");
-  AddBranchDep(mitName_, "trimmedSubjets");
+  AddBranchDep(mitName_, mitName_ + "SDSubjets");
+  AddBranchDep(mitName_, mitName_ + "PrunedSubjets");
+  AddBranchDep(mitName_, mitName_ + "TrimmedSubjets");
 }
 
 void
@@ -80,7 +80,6 @@ mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::EventSetup
 void
 mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef const& inJetRef)
 {
-  assert(fillFromPAT_);
   auto& outJet = static_cast<mithep::FatJet&>(outBaseJet);
   auto* inJet = dynamic_cast<pat::Jet const*>(inJetRef.get());
   if (!inJet)

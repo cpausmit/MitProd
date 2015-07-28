@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('')
+    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/AsymptFlat10to50bx25Raw_MCRUN2_74_V9-v1/10000/00BA30CE-9001-E511-AA08-0025905A60D0.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -114,8 +114,8 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
 # recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
-fatjetSequence = makeFatJets(process, False)
+from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
+fatjetSequence = makeFatJets(process, isData = False)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'

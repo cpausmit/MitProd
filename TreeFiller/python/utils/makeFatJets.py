@@ -1,5 +1,6 @@
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
 from PhysicsTools.PatAlgos.tools.pfTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from RecoJets.JetProducers.SubJetParameters_cfi import SubJetParameters
@@ -17,6 +18,9 @@ def makeFatJets(process,isData):
     ########################################
     jetCorrectionsAK4 = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
     jetCorrectionsAK8 = ('AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
+    if isData:
+        jetCorrectionsAK4[1].append('L2L3Residual')
+        jetCorrectionsAK8[1].append('L2L3Residual')
 
     algoLabel = 'CA'
     jetAlgo = 'CambridgeAachen'
@@ -37,7 +41,7 @@ def makeFatJets(process,isData):
     PFjetAlgo="AK4"
 
     usePF2PAT(process,runPF2PAT=True, jetAlgo=PFjetAlgo, runOnMC=isMC, postfix=postfix,
-          jetCorrections=jetCorrectionsAK4, pvCollection=cms.InputTag(pvSource))
+              jetCorrections=jetCorrectionsAK4, pvCollection=cms.InputTag(pvSource), outputModules = [])
 
     ## Top projections in PF2PAT
     getattr(process,"pfPileUpJME"+postfix).checkClosestZVertex = False
@@ -702,4 +706,8 @@ def makeFatJets(process,isData):
 
                         process.packedPatJetsPFCHS15
     )
+
+    if isData:
+        removeMCMatching(process, ['All'], outputModules = [])
+
     return process.fatjetSequence
