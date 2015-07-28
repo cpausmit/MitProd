@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015A/DoubleMuon/AOD/PromptReco-v1/000/248/036/00000/62D24D3F-5714-E511-B9D7-02163E011913.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMuon/AOD/PromptReco-v1/000/252/126/00000/F633749A-F530-E511-820B-02163E0133F2.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,7 +27,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = 'GR_P_V56'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -114,8 +114,8 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
 # recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
-fatjetSequence = makeFatJets(process, True)
+from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
+fatjetSequence = makeFatJets(process, isData = True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -143,8 +143,6 @@ recoSequence = cms.Sequence(
   eidLikelihoodExt *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
-  inclusiveVertexing *
-  inclusiveCandidateVertexing *
   particleFlowPtrs *
   pfParticleSelectionSequence *
   pfPhotonSequence *
@@ -179,17 +177,18 @@ recoSequence = cms.Sequence(
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 # remove Monte Carlo information
-MitTreeFiller.PileupInfo.active = False
-MitTreeFiller.MCParticles.active = False
 MitTreeFiller.MCEventInfo.active = False
+MitTreeFiller.MCParticles.active = False
 MitTreeFiller.MCVertexes.active = False
+MitTreeFiller.PileupInfo.active = False
+MitTreeFiller.AKT4GenJets.active = False
+MitTreeFiller.AKT8GenJets.active = False
 
 # define fill bambu filler sequence
 
 bambuFillerSequence = cms.Sequence(
   MitTreeFiller
 )
-
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -201,6 +200,3 @@ process.path = cms.Path(
   recoSequence *
   bambuFillerSequence
 )
-
-process.schedule = cms.Schedule(process.path)
-process.prune()
