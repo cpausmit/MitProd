@@ -32,9 +32,9 @@ namespace mithep {
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
     void FillPostRunBlock(edm::Run const&, edm::EventSetup const&) override;
     virtual mithep::Jet* AddNew() = 0;
-    inline virtual void BookAdditional(TreeWriter&) {}
-    inline virtual void PrepareSpecific(edm::Event const&, edm::EventSetup const&) {}
-    inline virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) {}
+    virtual void BookAdditional(TreeWriter&) {}
+    virtual void PrepareSpecific(edm::Event const&, edm::EventSetup const&) {}
+    virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) {}
 
   protected:
     enum FlavorMatchingDef {

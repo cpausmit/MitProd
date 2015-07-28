@@ -28,8 +28,8 @@ namespace mithep {
     ~FillerPFJets();
 
     void PrepareLinks() override;
-    virtual mithep::Jet* AddNew() override { return static_cast<mithep::PFJetArr*>(jets_)->AddNew(); }
-    virtual void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
+    mithep::Jet* AddNew() override { return static_cast<mithep::PFJetArr*>(jets_)->AddNew(); }
+    void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void ResolveLinks(edm::Event const&, edm::EventSetup const&) override;
 
   protected:

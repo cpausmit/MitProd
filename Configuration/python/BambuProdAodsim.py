@@ -6,25 +6,16 @@ import FWCore.ParameterSet.Config as cms
 # create the process
 process = cms.Process('FILEFI')
 
-
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(10)
-  # input = cms.untracked.int32(-1)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  # make sure this is for the right version
-  # nEvt 1 - segv in EcalClusterLazyTools -> BasicClusterSeedTime
-  # fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/2A79B05B-05E8-E311-B84E-002481E1070E.root'),
-  # fileNames = cms.untracked.vstring('/store/results/higgs/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/DoubleMuParked/USER/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau115_ptelec1_20had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/0000/1AB39CBC-B7B0-E211-BDE0-00266CF3DFE0.root'),
-  # nEvt 659 - basic cluster neg. energy bug
-  # fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/00165B45-82E6-E311-B68D-002590AC4FEC.root'),
-  fileNames = cms.untracked.vstring('file:/scratch5/snarayan/00BA30CE-9001-E511-AA08-0025905A60D0.root')
-  #skipEvents=cms.untracked.uint32(657)
+  fileNames = cms.untracked.vstring('file:/scratch5/ballen/AOD/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8+RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v3+AODSIM/002F7FDD-BA13-E511-AA63-0026189437F5.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -41,7 +32,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_041'),
+  version    = cms.untracked.string('Mit_042'),
   annotation = cms.untracked.string('AODSIM')
 )
 
@@ -55,7 +46,6 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi')
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
-# process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
 
 # define sequence for ProductNotFound
 process.options = cms.untracked.PSet(
@@ -99,7 +89,6 @@ from MitProd.TreeFiller.utils.setupBTag import setupBTag
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 
-
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -124,12 +113,9 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load btagging
-# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 # recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.pfCHSFromPatJets_cff import *
 from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
-fatjetSequence = makeFatJets(process,True)
+fatjetSequence = makeFatJets(process, False)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -143,19 +129,12 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
-# # Load inclusive vertices
-# from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import inclusiveVertexing,inclusiveCandidateVertexing
-# process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
-
-# recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.pfCHSFromPatJets_cff import makeFatJets
-fatjetSequence = makeFatJets(process,True)
-
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
 
-del(process.tobtecfakesfilter) # these are being loaded due to allowUnscheduled, but do not want
+# these are being loaded due to allowUnscheduled, but do not want
+del(process.tobtecfakesfilter)
 del(process.particleFlow)
 
 #> The bambu reco sequence
@@ -218,7 +197,6 @@ bambuFillerSequence = cms.Sequence(
   MitTreeFiller
 )
 
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #                               C M S S W  P A T H
@@ -230,6 +208,3 @@ process.path = cms.Path(
   genSequence *
   bambuFillerSequence
 )
-
-# process.schedule = cms.Schedule(process.path)
-# process.prune()

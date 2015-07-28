@@ -8,7 +8,9 @@ from RecoJets.JetProducers.ak4PFJetsSoftDrop_cfi import ak4PFJetsSoftDrop
 from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 from RecoJets.JetProducers.qjetsadder_cfi import QJetsAdder
 
-def makeFatJets(process,isMC):
+def makeFatJets(process,isData):
+
+    isMC = not isData 
 
     ########################################
     ##         INITIAL SETUP              ##
@@ -436,7 +438,7 @@ def makeFatJets(process,isMC):
         valueLabels = cms.vstring('Mass','Pt','Eta','Phi'),
         lazyParser = cms.bool(True)
     )
-    getattr(process,'patJetsPFCHS8'+postfix).userData.userFloats.src += ['SoftDrop8:Mass','SoftDrop8:Pt','SoftDrop8:Eta','SoftDrop8:Phi','SoftDrop8:jecFactor0',
+    getattr(process,'patJetsPFCHS8'+postfix).userData.userFloats.src += ['SoftDrop8:Mass','SoftDrop8:Pt','SoftDrop8:Eta','SoftDrop8:Phi',
                                                                         'Pruned8:Mass'  ,'Pruned8:Pt'  ,'Pruned8:Eta'  ,'Pruned8:Phi',
                                                                         'Trimmed8:Mass', 'Trimmed8:Pt', 'Trimmed8:Eta', 'Trimmed8:Phi']
     process.Njettiness8 = Njettiness.clone(
@@ -451,7 +453,7 @@ def makeFatJets(process,isMC):
         jetAlgo = cms.string(algoLabel),
     )
     getattr(process,'patJetsPFCHS8'+postfix).userData.userFloats.src += ['Qjets8:QjetsVolatility']
-    setattr(process.RandomNumberGeneratorService, "Qjets", cms.PSet(initialSeed = cms.untracked.uint32(42),
+    setattr(process.RandomNumberGeneratorService, "Qjets8", cms.PSet(initialSeed = cms.untracked.uint32(42),
                                                                     engineName = cms.untracked.string('TRandom3')))
 
     ## CA15
@@ -636,7 +638,7 @@ def makeFatJets(process,isMC):
         valueLabels = cms.vstring('Mass','Pt','Eta','Phi'),
         lazyParser = cms.bool(True)
     )
-    getattr(process,'patJetsPFCHS15'+postfix).userData.userFloats.src += ['SoftDrop15:Mass','SoftDrop15:Pt','SoftDrop15:Eta','SoftDrop15:Phi','SoftDrop15:jecFactor0',
+    getattr(process,'patJetsPFCHS15'+postfix).userData.userFloats.src += ['SoftDrop15:Mass','SoftDrop15:Pt','SoftDrop15:Eta','SoftDrop15:Phi',
                                                                         'Pruned15:Mass'  ,'Pruned15:Pt'  ,'Pruned15:Eta'  ,'Pruned15:Phi',
                                                                         'Trimmed15:Mass', 'Trimmed15:Pt', 'Trimmed15:Eta', 'Trimmed15:Phi']
     process.Njettiness15 = Njettiness.clone(
@@ -650,7 +652,7 @@ def makeFatJets(process,isMC):
         jetAlgo = cms.string(algoLabel),
     )
     getattr(process,'patJetsPFCHS15'+postfix).userData.userFloats.src += ['Qjets15:QjetsVolatility']
-    setattr(process.RandomNumberGeneratorService, "Qjets", cms.PSet(initialSeed = cms.untracked.uint32(42),
+    setattr(process.RandomNumberGeneratorService, "Qjets15", cms.PSet(initialSeed = cms.untracked.uint32(42),
                                                                     engineName = cms.untracked.string('TRandom3')))
 
     ## Add full JetFlavourInfo and TagInfos to PAT jets

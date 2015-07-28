@@ -22,8 +22,6 @@
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/Njettiness.hh"
 
-
-
 namespace pat {
   class Jet;
 }
@@ -44,12 +42,15 @@ namespace mithep {
     typedef typename IPTagInfo::input_container Tracks;
     typedef typename IPTagInfo::input_container::value_type TrackRef;
 
+    typedef edm::EDGetTokenT<PatJetCollection> JetColToken;
+    typedef edm::Handle<PatJetCollection> JetColHandle;
+
     FillerFatJets(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const*, bool = true);
     ~FillerFatJets();
 
     mithep::Jet* AddNew() override { return static_cast<mithep::FatJetArr*>(jets_)->AddNew(); }
     void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
-    void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet>);
+    void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet> const&);
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
     void BookAdditional(TreeWriter&);
   private:
@@ -62,16 +63,14 @@ namespace mithep {
     void setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet);
 
     double fR0;                                                       //cone size
-    reco::JetTagCollection const* fBJetTags;
     std::vector<std::string> fSubjetNames;                            //labels of subjets
-    std::vector<edm::InputTag> fSubjetCollectionTags;                 //subjet input tags
-    std::vector<edm::Handle<PatJetCollection> > fSubjetCollections;   //vector of vector of pat subjets
+    std::vector<JetColToken> fSubjetCollectionTokens;                 //subjet input tags
+    std::vector<JetColHandle> fSubjetCollections;                 //subjet input tags
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
     edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
-    Array<XlSubJet> * fSubjets[3];
-    //Array<XlSubJet> ** fSubjets;
 
+    Array<XlSubJet>* fSubjets[3];
   };
 }
 
