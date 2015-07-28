@@ -14,17 +14,17 @@
 #include <set>
 
 //--------------------------------------------------------------------------------------------------
-mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) : 
-  BaseFiller(cfg, os, "MCEventInfo", active), 
-  flavorHistoryActive_(cfg.getUntrackedParameter<bool>("flavorHistoryActive", false)), 
-  evtName_(cfg.getUntrackedParameter<std::string>("evtName", Names::gkMCEvtInfoBrn)), 
-  runName_(cfg.getUntrackedParameter<std::string>("runName", Names::gkMCRunInfoBrn)), 
+mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) :
+  BaseFiller(cfg, os, "MCEventInfo", active),
+  flavorHistoryActive_(cfg.getUntrackedParameter<bool>("flavorHistoryActive", false)),
+  evtName_(cfg.getUntrackedParameter<std::string>("evtName", Names::gkMCEvtInfoBrn)),
+  runName_(cfg.getUntrackedParameter<std::string>("runName", Names::gkMCRunInfoBrn)),
   genHepMCEvToken_(GetToken<edm::HepMCProduct>(collector, cfg, "genHepMCEventEdmName", false)), //generator
   genEvtInfoToken_(GetToken<GenEventInfoProduct>(collector, cfg, "genEvtInfoEdmName", false)), //generator
   lheEventToken_(GetToken<LHEEventProduct>(collector, cfg, "lheEventEdmName", false)), //externalLHEProducer
   lheRunInfoToken_(GetToken<LHERunInfoProduct, edm::InRun>(collector, cfg, "lheRunInfoEdmName", false)), //externalLHEProducer
   flavorHistToken_(GetToken<unsigned>(collector, cfg, "flavorHistEdmName", flavorHistoryActive_)), //flavorHistoryFilter
-  eventInfo_(new mithep::MCEventInfo()), 
+  eventInfo_(new mithep::MCEventInfo()),
   runInfo_(new mithep::MCRunInfo()),
   weightIds_()
 {
@@ -48,7 +48,7 @@ mithep::FillerMCEventInfo::BookDataBlock(mithep::TreeWriter& tws)
   OS()->add(eventInfo_, evtName_);
 
   // add branches to run info tree
-  tws.AddBranchToTree(mithep::Names::gkRunTreeName, mithep::Names::gkMCRunInfoBrn, 
+  tws.AddBranchToTree(mithep::Names::gkRunTreeName, mithep::Names::gkMCRunInfoBrn,
                       mithep::MCRunInfo::Class()->GetName(), &runInfo_);
 
   OS()->add(runInfo_, mithep::Names::gkMCRunInfoBrn);
@@ -62,7 +62,7 @@ mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetu
   if (event.isRealData()) {
     PrintErrorAndExit("Expected monte-carlo record, but did not get it. Aborting.");
   }
-  
+
   edm::Handle<GenEventInfoProduct> hEvtInfo;
   bool pdfFilled = false;
 
@@ -97,7 +97,7 @@ mithep::FillerMCEventInfo::FillDataBlock(edm::Event const& event, edm::EventSetu
     eventInfo_->SetProcessId(genEvt->signal_process_id());
     HepMC::WeightContainer wc = genEvt->weights();
     Double_t weight = 0;
-    for (unsigned int i = 0; i< wc.size(); ++i) 
+    for (unsigned int i = 0; i< wc.size(); ++i)
       weight *= wc[i];
     eventInfo_->SetWeight(weight);
 
@@ -234,7 +234,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
     runInfo_->SetPdfGroup(heprup.PDFGUP.first); // Who uses different PDF for the two protons?
     runInfo_->SetPdfId(heprup.PDFSUP.first);
     runInfo_->SetWeightMode(heprup.IDWTUP);
-    
+
     runInfo_->SetNProcesses(heprup.NPRUP);
     for (int iP = 0; iP != heprup.NPRUP; ++iP) {
       runInfo_->SetProcessXSec(iP, heprup.XSECUP.at(iP));
@@ -281,25 +281,25 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
   }
   else{
     runInfo_->SetHasLHEInfo(false);
-    
+
     runInfo_->SetBeamEnergy(0.); // Go rewrite this if you want to use this for Belle..
     runInfo_->SetPdfGroup(0); // Who uses different PDF for the two protons?
     runInfo_->SetPdfId(0);
     runInfo_->SetWeightMode(0);
-    
+
     runInfo_->SetNProcesses(0);
     runInfo_->SetNHeaderBlocks(0);
     runInfo_->SetNWeightDefinitions(0);
     runInfo_->ClearLHEComments();
   }
-}  
+}
 
 void
 mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& blockLines)
 {
   // Probably not the best idea to implement an original xml parser and also in C++..
-  
-  TPRegexp openTag("<([^ ]+) +((?:[^ =>]+=[^ >]+ *)*)>");
+
+  TPRegexp openTag("<([^ ]+) +((?:[^ =>]+=([^ >]+ *)*)*)>");
   TPRegexp closeTag("</([^ >]+)>");
   TPRegexp attribute("([^ =]+)=['\"]?([^ '\"]+)['\"]?");
 
@@ -335,7 +335,6 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
 
           attrpos += attributes.Index(fullattr, attrpos) + fullattr.Length();
         }
-
         if (tag.back() == "weightgroup") {
           runInfo_->SetNWeightGroups(currentWG + 1);
 
@@ -346,10 +345,10 @@ mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& block
           if (currentWG == runInfo_->NWeightGroups())
             throw edm::Exception(edm::errors::Configuration, name_ + "::FillPostRunBlock\n")
               << "<weight> tag found outside of <weightgroup> in LHE header";
-          
+
           wid = attrs["id"];
         }
-        
+
         content = "";
         pos = line.Index(fullMatch, pos) + fullMatch.Length();
 
