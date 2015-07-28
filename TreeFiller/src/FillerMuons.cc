@@ -206,11 +206,16 @@ mithep::FillerMuons::FillDataBlock(edm::Event const& event,
     outMuon->SetIsCaloMuon      (inMuon.isCaloMuon());
     auto&& muonQuality(inMuon.combinedQuality());
     //kink algorithm
-    outMuon->SetTrkKink         (muonQuality.trkKink);
-    outMuon->SetGlbKink         (muonQuality.glbKink);
+    outMuon->SetTrkKink            (muonQuality.trkKink);
+    outMuon->SetGlbKink            (muonQuality.glbKink);
     //chi2 values for trk-standalone matching
-    outMuon->SetChi2LocalPosition(muonQuality.chi2LocalPosition);
-    outMuon->SetChi2LocalMomentum(muonQuality.chi2LocalMomentum);
+    outMuon->SetTrkRelChi2         (muonQuality.trkRelChi2);
+    outMuon->SetStaRelChi2         (muonQuality.staRelChi2);
+    outMuon->SetChi2LocalPosition  (muonQuality.chi2LocalPosition);
+    outMuon->SetChi2LocalMomentum  (muonQuality.chi2LocalMomentum);
+    outMuon->SetTightMatch         (muonQuality.tightMatch);
+    outMuon->SetGlbTrackProbability(muonQuality.glbTrackProbability);
+    
     //save results from the muon selector in the MuonQuality bitmask
     outMuon->Quality().SetQuality(MuonQuality::All);
     if (muon::isGoodMuon(inMuon,muon::AllGlobalMuons))
