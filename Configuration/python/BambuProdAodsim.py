@@ -8,14 +8,14 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/AsymptFlat10to50bx25Raw_MCRUN2_74_V9-v1/10000/00BA30CE-9001-E511-AA08-0025905A60D0.root')
+  fileNames = cms.untracked.vstring('file:/home/snarayan/scratch5/mc/ttbar_AOD.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",

@@ -3,6 +3,7 @@ from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
 from PhysicsTools.PatAlgos.tools.pfTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from RecoJets.JetProducers.SubJetParameters_cfi import SubJetParameters
 from RecoJets.JetProducers.ak4PFJetsPruned_cfi import ak4PFJetsPruned
 from RecoJets.JetProducers.ak4PFJetsSoftDrop_cfi import ak4PFJetsSoftDrop
@@ -39,6 +40,7 @@ def makeFatJets(process,isData):
 
     # from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
     PFjetAlgo="AK4"
+    process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
     usePF2PAT(process,runPF2PAT=True, jetAlgo=PFjetAlgo, runOnMC=isMC, postfix=postfix,
               jetCorrections=jetCorrectionsAK4, pvCollection=cms.InputTag(pvSource), outputModules = [])
@@ -663,49 +665,154 @@ def makeFatJets(process,isData):
     for r0 in ['8','15']:
         for m in ['patJetsPFCHS'+r0+postfix, 'patJetsSoftDropSubjetsPFCHS'+r0+postfix, 'patJetsPrunedSubjetsPFCHS'+r0+postfix]:
             if hasattr(process,m) and getattr( getattr(process,m), 'addBTagInfo' ):
-                print "Switching 'addTagInfos' for " + m + " to 'True'"
+                # print "Switching 'addTagInfos' for " + m + " to 'True'"
                 setattr( getattr(process,m), 'addTagInfos', cms.bool(True) )
             if hasattr(process,m):
-                print "Switching 'addJetFlavourInfo' for " + m + " to 'True'"
+                # print "Switching 'addJetFlavourInfo' for " + m + " to 'True'"
                 setattr( getattr(process,m), 'addJetFlavourInfo', cms.bool(True) )
 
 
     process.fatjetSequence = cms.Sequence(
-                        # process.patJetCorrFactorsPFCHS8PFlow*
-                        # process.patJetsPFCHS8PFlow*
-                        # process.selectedPatJetsPFCHS8PFlow*
-                        #
-                        # process.selectedPatJetsSoftDropPFCHS8PFlow*
-                        # process.selectedPatJetsSoftDropSubjetsPFCHS8PFlow*
-                        # process.selectedPatJetsSoftDropPFCHSPacked8*
-                        #
-                        # process.selectedPatJetsPrunedPFCHS8PFlow*
-                        # process.selectedPatJetsPrunedSubjetsPFCHS8PFlow*
-                        # process.selectedPatJetsPrunedPFCHSPacked8*
-                        #
-                        # process.selectedPatJetsTrimmedPFCHS8PFlow*
-                        # process.selectedPatJetsTrimmedSubjetsPFCHS8PFlow*
-                        # process.selectedPatJetsTrimmedPFCHSPacked8*
 
                         process.packedPatJetsPFCHS8*
 
-                        # process.patJetsPFCHS15PFlow*
-                        # process.selectedPatJetsPFCHS15PFlow*
-                        #
-                        # process.selectedPatJetsSoftDropPFCHS15PFlow*
-                        # process.selectedPatJetsSoftDropSubjetsPFCHS15PFlow*
-                        # process.selectedPatJetsSoftDropPFCHSPacked15*
-                        #
-                        # process.selectedPatJetsPrunedPFCHS15PFlow*
-                        # process.selectedPatJetsPrunedSubjetsPFCHS15PFlow*
-                        # process.selectedPatJetsPrunedPFCHSPacked15*
-                        #
-                        # process.selectedPatJetsTrimmedPFCHS15PFlow*
-                        # process.selectedPatJetsTrimmedSubjetsPFCHS15PFlow*
-                        # process.selectedPatJetsTrimmedPFCHSPacked15*
+                        process.packedPatJetsPFCHS15
+    )
+    '''
+    process.fatjetSequence = cms.Sequence(
+                        process.particleFlowPtrsPFlow*
+                        process.pfPileUpIsoPFBRECOPFlow*
+                        process.pfNoPileUpIsoPFBRECOPFlow*
+                        process.pfPileUpPFBRECOPFlow*
+                        process.pfNoPileUpPFBRECOPFlow*
+                        process.pfPileUpJMEPFlow*
+                        process.pfNoPileUpJMEPFlow*
+                        process.pfAllMuonsPFBRECOPFlow*
+                        process.pfMuonsFromVertexPFBRECOPFlow*
+                        process.pfIsolatedMuonsPFBRECOPFlow*
+                        process.pfNoMuonJMEPFBRECOPFlow*
+                        process.pfNoMuonPFBRECOPFlow*
+                        process.pfAllElectronsPFBRECOPFlow*
+                        process.pfElectronsFromVertexPFBRECOPFlow*
+                        process.pfIsolatedElectronsPFBRECOPFlow*
+                        process.pfNoElectronJMEPFBRECOPFlow*
+
+                        process.genParticlesForJetsNoNuPFlow*
+                        process.genJetsNoNu8*
+                        process.genJetsNoNu15*
+
+                        process.PFJetsCHS8*
+                        process.patJetCorrFactorsPFCHS8PFlow*
+                        process.patJetsPFCHS8PFlow*
+                        process.selectedPatJetsPFCHS8PFlow*
+                        
+                        process.PFJetsCHSSoftDrop8*
+                        process.patJetCorrFactorsSoftDropPFCHS8PFlow*
+                        process.patJetsSoftDropPFCHS8PFlow* 
+                        process.selectedPatJetsSoftDropPFCHS8PFlow*
+                        process.patJetCorrFactorsSoftDropSubjetsPFCHS8PFlow*
+                        process.patJetsSoftDropSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsSoftDropSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsSoftDropPFCHSPacked8*
+
+                        process.PFJetsCHSPruned8*
+                        process.patJetCorrFactorsPrunedPFCHS8PFlow*
+                        process.patJetsPrunedPFCHS8PFlow* 
+                        process.selectedPatJetsPrunedPFCHS8PFlow*
+                        process.patJetCorrFactorsPrunedSubjetsPFCHS8PFlow*
+                        process.patJetsPrunedSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsPrunedSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsPrunedPFCHSPacked8*
+                      
+                        process.PFJetsCHSTrimmed8*
+                        process.patJetCorrFactorsTrimmedPFCHS8PFlow*
+                        process.patJetsTrimmedPFCHS8PFlow* 
+                        process.selectedPatJetsTrimmedPFCHS8PFlow*
+                        process.patJetCorrFactorsTrimmedSubjetsPFCHS8PFlow*
+                        process.patJetsTrimmedSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsTrimmedSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsTrimmedPFCHSPacked8*
+
+                        process.packedPatJetsPFCHS8*
+
+                        process.PFJetsCHS15*
+                        process.patJetCorrFactorsPFCHS15PFlow*
+                        process.patJetPartonsPFlow*
+                        process.patJetFlavourAssociationPFCHS15PFlow*
+                        process.patJetPartonMatchPFCHS15PFlow*
+                        process.genJetsNoNu15*
+                        process.patJetGenJetMatchPFCHS15PFlow*
+                        process.pfImpactParameterTagInfosPFCHS15PFlow*
+                        process.pfJetBProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfJetProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetBProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetBProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetProbabilityBJetTagsPFCHS15PFlow*
+                        process.pfTrackCountingHighPurBJetTagsPFCHS15PFlow*
+                        process.pfTrackCountingHighEffBJetTagsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighPurBJetTagsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighEffBJetTagsPFCHS15PFlow*
+                        process.pfSecondaryVertexTagInfosPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighEffBJetTagsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighPurBJetTagsPFCHS15PFlow*
+                        process.pfSecondaryVertexNegativeTagInfosPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighEffBJetTagsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighPurBJetTagsPFCHS15PFlow*
+                        process.pfCombinedSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.pfPositiveCombinedSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.pfNegativeCombinedSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderTagInfosPFCHS15PFlow*
+                        process.pfCombinedInclusiveSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderNegativeTagInfosPFCHS15PFlow*
+                        process.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTagsPFCHS15PFlow*
+                        process.softPFMuonsTagInfosPFCHS15PFlow*
+                        process.softPFMuonBJetTagsPFCHS15PFlow*
+                        process.positiveSoftPFMuonBJetTagsPFCHS15PFlow*
+                        process.negativeSoftPFMuonBJetTagsPFCHS15PFlow*
+                        process.softPFElectronsTagInfosPFCHS15PFlow*
+                        process.softPFElectronBJetTagsPFCHS15PFlow*
+                        process.positiveSoftPFElectronBJetTagsPFCHS15PFlow*
+                        process.negativeSoftPFElectronBJetTagsPFCHS15PFlow*
+
+                        process.PFJetsCHSSoftDrop15*
+                        process.patJetCorrFactorsSoftDropPFCHS15PFlow*
+                        process.patJetPartonMatchSoftDropPFCHS15PFlow*
+                        process.patJetsSoftDropPFCHS15PFlow* 
+                        process.selectedPatJetsSoftDropPFCHS15PFlow*
+                        process.patJetCorrFactorsSoftDropSubjetsPFCHS15PFlow*
+                        process.patJetsSoftDropSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsSoftDropSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsSoftDropPFCHSPacked15*
+
+                        process.PFJetsCHSPruned15*
+                        process.patJetCorrFactorsPrunedPFCHS15PFlow*
+                        process.patJetsPrunedPFCHS15PFlow* 
+                        process.selectedPatJetsPrunedPFCHS15PFlow*
+                        process.patJetCorrFactorsPrunedSubjetsPFCHS15PFlow*
+                        process.patJetsPrunedSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsPrunedSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsPrunedPFCHSPacked15*
+                      
+                        process.PFJetsCHSTrimmed15*
+                        process.patJetCorrFactorsTrimmedPFCHS15PFlow*
+                        process.patJetsTrimmedPFCHS15PFlow* 
+                        process.selectedPatJetsTrimmedPFCHS15PFlow*
+                        process.patJetCorrFactorsTrimmedSubjetsPFCHS15PFlow*
+                        process.patJetsTrimmedSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsTrimmedSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsTrimmedPFCHSPacked15*
+                        
+                        process.SoftDrop15*
+                        process.Pruned15*
+                        process.Trimmed15*
+                        process.patJetsPFCHS15PFlow*
+                        process.selectedPatJetsPFCHS15PFlow*
 
                         process.packedPatJetsPFCHS15
     )
+    '''
 
     if isData:
         removeMCMatching(process, ['All'], outputModules = [])

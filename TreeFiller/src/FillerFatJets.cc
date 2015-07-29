@@ -107,7 +107,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 {
   fillPATJetVariables(outJet,inJet);
   outJet.SetCharge();
-  // get the easy user floats out of the way
+  // get the easy user doubles out of the way
   TString suffix = TString::Format("%i",int(fR0*10));
   TString njettiness("Njettiness");
   TString pruned("Pruned");
@@ -172,7 +172,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     trackData.dxy = ptrack.dxy(pv->position());
     trackData.dz = ptrack.dz(pv->position());
 
-    float deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
+    double deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
     if(deltaR<0.3) nSelTracks++;
     // first impact parameter
     trackData.IP2D     = ipTagInfo->impactParameterData()[itt].ip2d.value();
@@ -204,13 +204,13 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   // organize secondary vertices by mass
   std::map<double, unsigned int> VTXmass;
   unsigned int nSelectedSV = 0;
-  float maxSVDeltaR2ToJet = fR0-0.1+(fR0-0.8)*0.1/0.7;  //linear interpolation
+  double maxSVDeltaR2ToJet = fR0-0.1+(fR0-0.8)*0.1/0.7;  //linear interpolation
   maxSVDeltaR2ToJet = maxSVDeltaR2ToJet*maxSVDeltaR2ToJet;
   edm::RefToBase<reco::Jet> rJet = ipTagInfo->jet();
   math::XYZVector jetDir = rJet->momentum().Unit();
   for (unsigned int vtx = 0; vtx < svTagInfo->nVertices(); ++vtx)  {
     const recoVertexPtr &vertex = svTagInfo->secondaryVertex(vtx);
-    float mass = vertex.p4().mass();
+    double mass = vertex.p4().mass();
     GlobalVector flightDir = svTagInfo->flightDirection(vtx);
     if (reco::deltaR2(flightDir, jetDir)<maxSVDeltaR2ToJet) {
       // only keep nearby svxs
@@ -266,7 +266,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     if (cont==1) {
       flightDir0 = svTagInfo->flightDirection(iVtx->second);
       svP4_0= vertex.p4();
-      float tauDot_tmp;
+      double tauDot_tmp;
       if (reco::deltaR2(flightDir0,currentAxes[1])<reco::deltaR2(flightDir0,currentAxes[0]))
         tauDot_tmp = (currentAxes[1].px()*flightDir0.x()+currentAxes[1].py()*flightDir0.y()+currentAxes[1].pz()*flightDir0.z())/(sqrt(currentAxes[1].modp2())*flightDir0.mag());
       else
@@ -365,7 +365,7 @@ mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertexPtr & vertex, r
 }
 
 void
-mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight)
+mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight)
 {
   isFromSV = 0;
   iSV = -1;
@@ -388,7 +388,7 @@ mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * 
   }
 }
 
-void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
+void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
 {
   iPV = -1;
   PVweight = 0.;
@@ -396,7 +396,7 @@ void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Ha
   setTracksPVBase(pfcand->trackRef(), pvHandle, iPV, PVweight);
 }
 
-void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
+void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
 {
   iPV = -1;
   PVweight = 0.;
@@ -409,7 +409,7 @@ void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, con
       const reco::TrackBaseRef & baseRef = *it;
       // one of the tracks in the vertex is the same as the track considered in the function
       if(baseRef == trackBaseRef) {
-        float w = vtx.trackWeight(baseRef);
+        double w = vtx.trackWeight(baseRef);
         // select the vertex for which the track has the highest weight
         if(w > PVweight) {
           PVweight = w;
