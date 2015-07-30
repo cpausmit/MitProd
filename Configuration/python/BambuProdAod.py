@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMuon/AOD/PromptReco-v1/000/252/126/00000/F633749A-F530-E511-820B-02163E0133F2.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/JetHT/AOD/PromptReco-v1/000/251/168/00000/2E00BE66-DB26-E511-A3F0-02163E0135AC.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -175,7 +175,7 @@ recoSequence = cms.Sequence(
 # remember the bambu sequence has been imported and loaded already in the beginning
 
 # configure the filler
-MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
+MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp-data'
 # remove Monte Carlo information
 MitTreeFiller.MCEventInfo.active = False
 MitTreeFiller.MCParticles.active = False

@@ -359,14 +359,6 @@ def makeFatJets(process,isData):
                 # print "Switching 'addJetFlavourInfo' for " + m + " to 'True'"
                 setattr( getattr(process,m), 'addJetFlavourInfo', cms.bool(True) )
 
-    '''
-    process.fatjetSequence = cms.Sequence(
-
-                        process.packedPatJetsPFCHS8*
-
-                        process.packedPatJetsPFCHS15
-    )
-    '''
 
     btag8Seq = makeBtagSequence(process,bTagDiscriminators,bTagInfos,"PFCHS8"+postfix)
     btag8SoftDropSeq = makeBtagSequence(process,bTagDiscriminators,bTagInfos,"SoftDropSubjetsPFCHS8"+postfix)

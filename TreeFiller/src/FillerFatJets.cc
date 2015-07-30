@@ -88,13 +88,16 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 {
   fillPATJetVariables(outJet,inJet);
   outJet.SetCharge();
+  std::map<float,float> btagMap; // maps pT to btag
   // now let's save subjet btag
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      outJet.AddSubJetBtag(inSubjet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags"));
+      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags");
     }
+    for(std::map<float,float>::reverse_iterator iBtag=btagMap.rbegin(); iBtag!=btagMap.rend(); ++iBtag)
+      outJet.AddSubJetBtag(iBtag->second);
   }
 
   // now let's tag some bs
