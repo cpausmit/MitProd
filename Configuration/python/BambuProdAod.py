@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('file:/home/snarayan/scratch5/mc/data_AOD.root')
+  fileNames = cms.untracked.vstring('')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -170,7 +170,7 @@ recoSequence = cms.Sequence(
 # remember the bambu sequence has been imported and loaded already in the beginning
 
 # configure the filler
-MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp-data'
+MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 # remove Monte Carlo information
 MitTreeFiller.MCEventInfo.active = False
 MitTreeFiller.MCParticles.active = False
