@@ -671,7 +671,7 @@ def makeFatJets(process,isData):
                 # print "Switching 'addJetFlavourInfo' for " + m + " to 'True'"
                 setattr( getattr(process,m), 'addJetFlavourInfo', cms.bool(True) )
 
-
+    '''
     process.fatjetSequence = cms.Sequence(
 
                         process.packedPatJetsPFCHS8*
@@ -700,6 +700,12 @@ def makeFatJets(process,isData):
                         process.genParticlesForJetsNoNuPFlow*
                         process.genJetsNoNu8*
                         process.genJetsNoNu15*
+                        process.genJetsNoNuSoftDrop8*
+                        process.genJetsNoNuSoftDrop15*
+                        process.genJetsNoNuPruned8*
+                        process.genJetsNoNuPruned15*
+                        process.genJetsNoNuTrimmed8*
+                        process.genJetsNoNuTrimmed15*
 
                         process.PFJetsCHS8*
                         process.patJetCorrFactorsPFCHS8PFlow*
@@ -742,6 +748,7 @@ def makeFatJets(process,isData):
                         process.patJetPartonMatchPFCHS15PFlow*
                         process.genJetsNoNu15*
                         process.patJetGenJetMatchPFCHS15PFlow*
+
                         process.pfImpactParameterTagInfosPFCHS15PFlow*
                         process.pfJetBProbabilityBJetTagsPFCHS15PFlow*
                         process.pfJetProbabilityBJetTagsPFCHS15PFlow*
@@ -779,27 +786,140 @@ def makeFatJets(process,isData):
                         process.PFJetsCHSSoftDrop15*
                         process.patJetCorrFactorsSoftDropPFCHS15PFlow*
                         process.patJetPartonMatchSoftDropPFCHS15PFlow*
+                        process.patJetGenJetMatchSoftDropPFCHS15PFlow*
                         process.patJetsSoftDropPFCHS15PFlow* 
                         process.selectedPatJetsSoftDropPFCHS15PFlow*
                         process.patJetCorrFactorsSoftDropSubjetsPFCHS15PFlow*
+                        process.patJetFlavourAssociationSoftDropSubjetsPFCHS15PFlow*
+                        process.patJetPartonMatchSoftDropSubjetsPFCHS15PFlow*
+                        process.patJetGenJetMatchSoftDropSubjetsPFCHS15PFlow*
+                        process.pfImpactParameterTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.pfJetBProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfJetProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetBProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetBProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetProbabilityBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighPurBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighEffBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighPurBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighEffBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighEffBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighPurBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexNegativeTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighEffBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighPurBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfCombinedSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.pfCombinedInclusiveSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderNegativeTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.softPFMuonsTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.softPFMuonBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFMuonBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFMuonBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.softPFElectronsTagInfosSoftDropSubjetsPFCHS15PFlow*
+                        process.softPFElectronBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFElectronBJetTagsSoftDropSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFElectronBJetTagsSoftDropSubjetsPFCHS15PFlow*
                         process.patJetsSoftDropSubjetsPFCHS15PFlow*
                         process.selectedPatJetsSoftDropSubjetsPFCHS15PFlow*
                         process.selectedPatJetsSoftDropPFCHSPacked15*
 
                         process.PFJetsCHSPruned15*
                         process.patJetCorrFactorsPrunedPFCHS15PFlow*
+                        process.patJetPartonMatchPrunedPFCHS15PFlow*
+                        process.patJetGenJetMatchPrunedPFCHS15PFlow*
                         process.patJetsPrunedPFCHS15PFlow* 
                         process.selectedPatJetsPrunedPFCHS15PFlow*
                         process.patJetCorrFactorsPrunedSubjetsPFCHS15PFlow*
+                        process.patJetFlavourAssociationPrunedSubjetsPFCHS15PFlow*
+                        process.patJetPartonMatchPrunedSubjetsPFCHS15PFlow*
+                        process.patJetGenJetMatchPrunedSubjetsPFCHS15PFlow*
+                        process.pfImpactParameterTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.pfJetBProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfJetProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetBProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetBProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetProbabilityBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighPurBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighEffBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighPurBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighEffBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighEffBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighPurBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexNegativeTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighEffBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighPurBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfCombinedSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.pfCombinedInclusiveSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderNegativeTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.softPFMuonsTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.softPFMuonBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFMuonBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFMuonBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.softPFElectronsTagInfosPrunedSubjetsPFCHS15PFlow*
+                        process.softPFElectronBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFElectronBJetTagsPrunedSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFElectronBJetTagsPrunedSubjetsPFCHS15PFlow*
                         process.patJetsPrunedSubjetsPFCHS15PFlow*
                         process.selectedPatJetsPrunedSubjetsPFCHS15PFlow*
                         process.selectedPatJetsPrunedPFCHSPacked15*
-                      
+                     
                         process.PFJetsCHSTrimmed15*
                         process.patJetCorrFactorsTrimmedPFCHS15PFlow*
+                        process.patJetPartonMatchTrimmedPFCHS15PFlow*
+                        process.patJetGenJetMatchTrimmedPFCHS15PFlow*
                         process.patJetsTrimmedPFCHS15PFlow* 
                         process.selectedPatJetsTrimmedPFCHS15PFlow*
                         process.patJetCorrFactorsTrimmedSubjetsPFCHS15PFlow*
+                        process.patJetFlavourAssociationTrimmedSubjetsPFCHS15PFlow*
+                        process.patJetPartonMatchTrimmedSubjetsPFCHS15PFlow*
+                        process.patJetGenJetMatchTrimmedSubjetsPFCHS15PFlow*
+                        process.pfImpactParameterTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.pfJetBProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfJetProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetBProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfPositiveOnlyJetProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetBProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeOnlyJetProbabilityBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighPurBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfTrackCountingHighEffBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighPurBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeTrackCountingHighEffBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighEffBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfSimpleSecondaryVertexHighPurBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfSecondaryVertexNegativeTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighEffBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeSimpleSecondaryVertexHighPurBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfCombinedSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.pfCombinedInclusiveSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.pfInclusiveSecondaryVertexFinderNegativeTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.softPFMuonsTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.softPFMuonBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFMuonBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFMuonBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.softPFElectronsTagInfosTrimmedSubjetsPFCHS15PFlow*
+                        process.softPFElectronBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.positiveSoftPFElectronBJetTagsTrimmedSubjetsPFCHS15PFlow*
+                        process.negativeSoftPFElectronBJetTagsTrimmedSubjetsPFCHS15PFlow*
                         process.patJetsTrimmedSubjetsPFCHS15PFlow*
                         process.selectedPatJetsTrimmedSubjetsPFCHS15PFlow*
                         process.selectedPatJetsTrimmedPFCHSPacked15*
@@ -807,12 +927,13 @@ def makeFatJets(process,isData):
                         process.SoftDrop15*
                         process.Pruned15*
                         process.Trimmed15*
+                        process.Njettiness15*
+                        process.Qjets15*
                         process.patJetsPFCHS15PFlow*
                         process.selectedPatJetsPFCHS15PFlow*
 
                         process.packedPatJetsPFCHS15
     )
-    '''
 
     if isData:
         removeMCMatching(process, ['All'], outputModules = [])

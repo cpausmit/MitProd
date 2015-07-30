@@ -8,7 +8,7 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(10)
 )
 
 #>> input source
@@ -52,7 +52,7 @@ process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
   wantSummary = cms.untracked.bool(False),
-  allowUnscheduled = cms.untracked.bool(True)
+  #allowUnscheduled = cms.untracked.bool(True)
 )
 
 # Import/Load the filler so all is already available for config changes
