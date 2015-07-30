@@ -365,7 +365,19 @@ def makeFatJets(process,isData):
     btag15Seq = makeBtagSequence(process,bTagDiscriminators,bTagInfos,"PFCHS15"+postfix)
     btag15SoftDropSeq = makeBtagSequence(process,bTagDiscriminators,bTagInfos,"SoftDropSubjetsPFCHS15"+postfix)
 
-    process.fatjetSequence = cms.Sequence(
+    if isMC:
+      genSequence = cms.Sequence(
+                        process.genParticlesForJetsNoNuPFlow*
+                        process.genJetsNoNu8*
+                        process.genJetsNoNu15*
+                        process.genJetsNoNuSoftDrop8*
+                        process.genJetsNoNuSoftDrop15
+                    )
+    else:
+      genSequence = cms.Sequence( )
+
+    if isMC:
+      process.fatjetSequence = cms.Sequence(
                         process.particleFlowPtrsPFlow*
                         process.pfPileUpIsoPFBRECOPFlow*
                         process.pfNoPileUpIsoPFBRECOPFlow*
@@ -383,11 +395,7 @@ def makeFatJets(process,isData):
                         process.pfIsolatedElectronsPFBRECOPFlow*
                         process.pfNoElectronJMEPFBRECOPFlow*
 
-                        process.genParticlesForJetsNoNuPFlow*
-                        process.genJetsNoNu8*
-                        process.genJetsNoNu15*
-                        process.genJetsNoNuSoftDrop8*
-                        process.genJetsNoNuSoftDrop15*
+                        genSequence*
 
                         process.PFJetsCHS8*
                         process.patJetCorrFactorsPFCHS8PFlow*
@@ -423,7 +431,6 @@ def makeFatJets(process,isData):
 
                         process.PFJetsCHS15*
                         process.patJetCorrFactorsPFCHS15PFlow*
-                        process.patJetPartonsPFlow*
                         process.patJetFlavourAssociationPFCHS15PFlow*
                         process.patJetPartonMatchPFCHS15PFlow*
                         process.genJetsNoNu15*
@@ -451,7 +458,69 @@ def makeFatJets(process,isData):
                         process.selectedPatJetsPFCHS15PFlow*
 
                         process.packedPatJetsPFCHS15
-    )
+      )
+    else:
+      process.fatjetSequence = cms.Sequence(
+                        process.particleFlowPtrsPFlow*
+                        process.pfPileUpIsoPFBRECOPFlow*
+                        process.pfNoPileUpIsoPFBRECOPFlow*
+                        process.pfPileUpPFBRECOPFlow*
+                        process.pfNoPileUpPFBRECOPFlow*
+                        process.pfPileUpJMEPFlow*
+                        process.pfNoPileUpJMEPFlow*
+                        process.pfAllMuonsPFBRECOPFlow*
+                        process.pfMuonsFromVertexPFBRECOPFlow*
+                        process.pfIsolatedMuonsPFBRECOPFlow*
+                        process.pfNoMuonJMEPFBRECOPFlow*
+                        process.pfNoMuonPFBRECOPFlow*
+                        process.pfAllElectronsPFBRECOPFlow*
+                        process.pfElectronsFromVertexPFBRECOPFlow*
+                        process.pfIsolatedElectronsPFBRECOPFlow*
+                        process.pfNoElectronJMEPFBRECOPFlow*
+
+                        process.PFJetsCHS8*
+                        process.patJetCorrFactorsPFCHS8PFlow*
+
+                        btag8Seq*
+
+                        process.PFJetsCHSSoftDrop8*
+                        process.patJetCorrFactorsSoftDropPFCHS8PFlow*
+                        process.patJetsSoftDropPFCHS8PFlow*
+                        process.selectedPatJetsSoftDropPFCHS8PFlow*
+                        process.patJetCorrFactorsSoftDropSubjetsPFCHS8PFlow*
+
+                        btag8SoftDropSeq*
+
+                        process.patJetsSoftDropSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsSoftDropSubjetsPFCHS8PFlow*
+                        process.selectedPatJetsSoftDropPFCHSPacked8*
+
+                        process.patJetsPFCHS8PFlow*
+                        process.selectedPatJetsPFCHS8PFlow*
+
+                        process.packedPatJetsPFCHS8*
+
+                        process.PFJetsCHS15*
+                        process.patJetCorrFactorsPFCHS15PFlow*
+
+                        btag15Seq*
+
+                        process.PFJetsCHSSoftDrop15*
+                        process.patJetCorrFactorsSoftDropPFCHS15PFlow*
+                        process.patJetsSoftDropPFCHS15PFlow*
+                        process.selectedPatJetsSoftDropPFCHS15PFlow*
+                        process.patJetCorrFactorsSoftDropSubjetsPFCHS15PFlow*
+
+                        btag15SoftDropSeq*
+
+                        process.patJetsSoftDropSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsSoftDropSubjetsPFCHS15PFlow*
+                        process.selectedPatJetsSoftDropPFCHSPacked15*
+                        process.patJetsPFCHS15PFlow*
+                        process.selectedPatJetsPFCHS15PFlow*
+
+                        process.packedPatJetsPFCHS15
+      )
 
     if isData:
         removeMCMatching(process, ['All'], outputModules = [])

@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/JetHT/AOD/PromptReco-v1/000/251/168/00000/2E00BE66-DB26-E511-A3F0-02163E0135AC.root')
+  fileNames = cms.untracked.vstring('file:/home/snarayan/scratch5/mc/data_AOD.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,7 +27,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v0'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
