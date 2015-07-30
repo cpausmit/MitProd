@@ -29,7 +29,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
-unsigned const N_MAX_SUBJETS = 16;
+unsigned const N_MAX_SUBJETS = 4;
 
 mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   FillerPFJets(cfg, collector, os, name, active),
@@ -39,32 +39,21 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(1.0,fR0))
 {
   fillFromPAT_ = true;
-  jets_ = new mithep::FatJetArr(32);
+  jets_ = new mithep::FatJetArr(4);
 
   auto subjetTags(cfg.getUntrackedParameter<std::vector<std::string> >("SubJets"));
   for (auto& tag : subjetTags)
     fSubjetCollectionTokens.push_back(collector.consumes<PatJetCollection>(edm::InputTag(tag)));
 
-  for (int i=0; i<3; i++)
-    fSubjets[i] = new Array<XlSubJet>(N_MAX_SUBJETS);
 }
 
 mithep::FillerFatJets::~FillerFatJets()
 {
-  for (int i=0; i<3; i++)
-    delete fSubjets[i];
 }
 
 void
 mithep::FillerFatJets::BookAdditional(TreeWriter &tws)
 {
-  tws.AddBranch(mitName_ + "SDSubjets", &fSubjets[0]);
-  tws.AddBranch(mitName_ + "PrunedSubjets", &fSubjets[1]);
-  tws.AddBranch(mitName_ + "TrimmedSubjets", &fSubjets[2]);
-
-  AddBranchDep(mitName_, mitName_ + "SDSubjets");
-  AddBranchDep(mitName_, mitName_ + "PrunedSubjets");
-  AddBranchDep(mitName_, mitName_ + "TrimmedSubjets");
 }
 
 void
@@ -95,54 +84,17 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
 }
 
 void
-mithep::FillerFatJets::FillSpecificSubjet(mithep::XlSubJet& outBaseJet, edm::Ptr<pat::Jet> const& inJet)
-{
-  double toRaw = inJet->jecFactor("Uncorrected");
-  auto&& rawP4 = inJet->p4() * toRaw;
-  outBaseJet.SetRawPtEtaPhiM(rawP4.pt(), rawP4.eta(), rawP4.phi(), rawP4.mass());
-}
-
-void
 mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet const& inJet)
 {
   fillPATJetVariables(outJet,inJet);
   outJet.SetCharge();
-  // get the easy user doubles out of the way
-  TString suffix = TString::Format("%i",int(fR0*10));
-  TString njettiness("Njettiness");
-  TString pruned("Pruned");
-  TString trimmed("Trimmed");
-  outJet.SetTau1(inJet.userFloat(njettiness+suffix+":tau1"));
-  outJet.SetTau2(inJet.userFloat(njettiness+suffix+":tau2"));
-  outJet.SetTau3(inJet.userFloat(njettiness+suffix+":tau3"));
-  outJet.SetTau4(inJet.userFloat(njettiness+suffix+":tau4"));
-  outJet.SetQJetVol(inJet.userFloat(TString("Qjets")+suffix+":QjetsVolatility"));
-  outJet.SetPrunedP(Vect4M(inJet.userFloat(pruned+suffix+":Pt"),
-                           inJet.userFloat(pruned+suffix+":Eta"),
-                           inJet.userFloat(pruned+suffix+":Phi"),
-                           inJet.userFloat(pruned+suffix+":Mass")));
-  outJet.SetTrimmedP(Vect4M(inJet.userFloat(trimmed+suffix+":Pt"),
-                            inJet.userFloat(trimmed+suffix+":Eta"),
-                            inJet.userFloat(trimmed+suffix+":Phi"),
-                            inJet.userFloat(trimmed+suffix+":Mass")));
-  // now let's save subjets
-  int eSubjetType = 0; // to map to XlSubJet::SubJetType enum
+  // now let's save subjet btag
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      XlSubJet* outSubjet = fSubjets[eSubjetType]->AddNew();
-      outSubjet->SetRawPtEtaPhiM(inSubjet.p4().pt(), inSubjet.p4().eta(), inSubjet.p4().phi(), inSubjet.p4().mass());
-      outSubjet->SetSigmaEta(TMath::Sqrt(inSubjet.etaetaMoment()));
-      outSubjet->SetSigmaPhi(TMath::Sqrt(inSubjet.phiphiMoment()));
-      outSubjet->SetJetArea(inSubjet.jetArea());
-      FillSpecificSubjet(*outSubjet,inSubjetPtr); // this is only a subjet, not a PF jet
-      setCorrections(*outSubjet, inSubjet);
-      outSubjet->SetSubJetType((XlSubJet::ESubJetType)eSubjetType);
-      setBTagDiscriminators(*outSubjet, inSubjet);
-      outJet.AddSubJet(outSubjet);
+      outJet.AddSubJetBtag(inSubjet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags"));
     }
-    ++eSubjetType;
   }
 
   // now let's tag some bs
@@ -295,7 +247,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       muonData.IP2D      = (softPFMuTagInfo->properties(leptIdx).sip2d);
       outJet.AddMuonData(&muonData);
     }
-  } 
+  }
   // electrons!
   if (softPFElTagInfo) {
     int nSE = softPFElTagInfo->leptons();
@@ -311,7 +263,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       electronData.IP2D      = (softPFElTagInfo->properties(leptIdx).sip2d);
       outJet.AddElectronData(&electronData);
     }
-  } 
+  }
 
   // set btags for fatjet
   setBTagDiscriminators(outJet, inJet);
@@ -321,7 +273,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet)
 {
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetProbability);
-/*  
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfPositiveOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityPositive);
 */
