@@ -24,8 +24,10 @@ def makeFatJets(process,isData):
         jetCorrectionsAK4[1].append('L2L3Residual')
         jetCorrectionsAK8[1].append('L2L3Residual')
 
-    algoLabel = 'CA'
-    jetAlgo = 'CambridgeAachen'
+    algoLabel8 = 'AK'              # let's clean this mess up later...
+    algoLabel15 = 'CA'
+    jetAlgo8 = 'AntiKt'
+    jetAlgo15 = 'CambridgeAachen'
     jetRadii = [0.8,1.5]
 
     postfix = "PFlow"
@@ -126,14 +128,14 @@ def makeFatJets(process,isData):
     ##           REMAKE JETS              ##
     ########################################
 
-    ########### CA8 ############
+    ########### AK8 ############
     process.genJetsNoNu8 = ak4GenJets.clone(
-        jetAlgorithm = cms.string(jetAlgo),
+        jetAlgorithm = cms.string(jetAlgo8),
         rParam = cms.double(.8),
         src = cms.InputTag("genParticlesForJetsNoNu"+postfix)
     )
     process.PFJetsCHS8 = ak4PFJets.clone(
-        jetAlgorithm = cms.string(jetAlgo),
+        jetAlgorithm = cms.string(jetAlgo8),
         rParam = cms.double(.8),
         src = getattr(process,"pfJetsPFBRECO"+postfix).src,
         srcPVs = getattr(process,"pfJetsPFBRECO"+postfix).srcPVs,
@@ -141,7 +143,7 @@ def makeFatJets(process,isData):
         jetPtMin = cms.double(250)
     )
     process.genJetsNoNuSoftDrop8 = ak4GenJets.clone(
-        jetAlgorithm = cms.string(jetAlgo),
+        jetAlgorithm = cms.string(jetAlgo8),
         rParam = cms.double(.8),
         R0 = cms.double(.8),
         src = cms.InputTag("genParticlesForJetsNoNu"+postfix),
@@ -152,9 +154,11 @@ def makeFatJets(process,isData):
         jetCollInstanceName=cms.string("SubJets")
     )
     process.PFJetsCHSSoftDrop8 = ak4PFJetsSoftDrop.clone(
-        jetAlgorithm = cms.string(jetAlgo),
+        jetAlgorithm = cms.string(jetAlgo8),
         rParam = cms.double(.8),
         R0 = cms.double(.8),
+        zcut = cms.double(0.1),
+        beta = cms.double(0.0),
         src = getattr(process,"pfJetsPFBRECO"+postfix).src,
         srcPVs = getattr(process,"pfJetsPFBRECO"+postfix).srcPVs,
         doAreaFastjet = cms.bool(True),
@@ -165,12 +169,12 @@ def makeFatJets(process,isData):
 
     ########### CA15 ############
     process.genJetsNoNu15 = ak4GenJets.clone(
-      jetAlgorithm = cms.string(jetAlgo),
+      jetAlgorithm = cms.string(jetAlgo15),
       rParam = cms.double(1.5),
       src = cms.InputTag("genParticlesForJetsNoNu"+postfix)
     )
     process.PFJetsCHS15 = ak4PFJets.clone(
-      jetAlgorithm = cms.string(jetAlgo),
+      jetAlgorithm = cms.string(jetAlgo15),
       rParam = cms.double(1.5),
       src = getattr(process,"pfJetsPFBRECO"+postfix).src,
       srcPVs = getattr(process,"pfJetsPFBRECO"+postfix).srcPVs,
@@ -178,20 +182,22 @@ def makeFatJets(process,isData):
       jetPtMin = cms.double(250)
     )
     process.genJetsNoNuSoftDrop15 = ak4GenJets.clone(
-      jetAlgorithm = cms.string(jetAlgo),
+      jetAlgorithm = cms.string(jetAlgo15),
       rParam = cms.double(1.5),
       R0 = cms.double(1.5),
       src = cms.InputTag("genParticlesForJetsNoNu"+postfix),
       useSoftDrop = cms.bool(True),
-      zcut = cms.double(0.1),
-      beta = cms.double(0.0),
+      zcut = cms.double(0.2),
+      beta = cms.double(1.0),
       writeCompound = cms.bool(True),
       jetCollInstanceName=cms.string("SubJets")
     )
     process.PFJetsCHSSoftDrop15 = ak4PFJetsSoftDrop.clone(
-      jetAlgorithm = cms.string(jetAlgo),
+      jetAlgorithm = cms.string(jetAlgo15),
       rParam = cms.double(1.5),
       R0 = cms.double(1.5),
+      zcut = cms.double(0.2),
+      beta = cms.double(1.0),
       src = getattr(process,"pfJetsPFBRECO"+postfix).src,
       srcPVs = getattr(process,"pfJetsPFBRECO"+postfix).srcPVs,
       doAreaFastjet = cms.bool(True),
@@ -205,12 +211,12 @@ def makeFatJets(process,isData):
     ##          MAKE PAT JETS             ##
     ########################################
 
-    ############# CA8 ################
+    ############# AK8 ################
     addJetCollection(
         process,
         labelName='PFCHS8',
         jetSource=cms.InputTag('PFJetsCHS8'),
-        algo=algoLabel,           # needed for jet flavor clustering
+        algo=algoLabel8,           # needed for jet flavor clustering
         rParam=.8, # needed for jet flavor clustering
         pfCandidates = cms.InputTag(pfCandidates),
         pvSource = cms.InputTag(pvSource),
@@ -230,7 +236,7 @@ def makeFatJets(process,isData):
         process,
         labelName='SoftDropPFCHS8',
         jetSource=cms.InputTag('PFJetsCHSSoftDrop8'),
-        algo=algoLabel,
+        algo=algoLabel8,
         btagInfos = ['None'],
         btagDiscriminators = ['None'],
         jetCorrections=jetCorrectionsAK8,
@@ -243,7 +249,7 @@ def makeFatJets(process,isData):
         process,
         labelName='SoftDropSubjetsPFCHS8',
         jetSource=cms.InputTag('PFJetsCHSSoftDrop8','SubJets'),
-        algo=algoLabel,           # needed for subjet flavor clustering
+        algo=algoLabel8,           # needed for subjet flavor clustering
         rParam=.8, # needed for subjet flavor clustering
         pfCandidates = cms.InputTag(pfCandidates),
         pvSource = cms.InputTag(pvSource),
@@ -282,7 +288,7 @@ def makeFatJets(process,isData):
         process,
         labelName='PFCHS15',
         jetSource=cms.InputTag('PFJetsCHS15'),
-        algo=algoLabel,           # needed for jet flavor clustering
+        algo=algoLabel15,           # needed for jet flavor clustering
         rParam=1.5, # needed for jet flavor clustering
         pfCandidates = cms.InputTag(pfCandidates),
         pvSource = cms.InputTag(pvSource),
@@ -302,7 +308,7 @@ def makeFatJets(process,isData):
         process,
         labelName='SoftDropPFCHS15',
         jetSource=cms.InputTag('PFJetsCHSSoftDrop15'),
-        algo=algoLabel,
+        algo=algoLabel15,
         btagInfos = ['None'],
         btagDiscriminators = ['None'],
         jetCorrections=jetCorrectionsAK8,
@@ -315,7 +321,7 @@ def makeFatJets(process,isData):
         process,
         labelName='SoftDropSubjetsPFCHS15',
         jetSource=cms.InputTag('PFJetsCHSSoftDrop15','SubJets'),
-        algo=algoLabel,           # needed for subjet flavor clustering
+        algo=algoLabel15,           # needed for subjet flavor clustering
         rParam=1.5, # needed for subjet flavor clustering
         pfCandidates = cms.InputTag(pfCandidates),
         pvSource = cms.InputTag(pvSource),
