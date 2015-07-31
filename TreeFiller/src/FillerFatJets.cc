@@ -29,7 +29,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
-unsigned const N_MAX_SUBJETS = 16;
+unsigned const N_MAX_SUBJETS = 4;
 
 mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   FillerPFJets(cfg, collector, os, name, active),
@@ -39,32 +39,21 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(1.0,fR0))
 {
   fillFromPAT_ = true;
-  jets_ = new mithep::FatJetArr(32);
+  jets_ = new mithep::FatJetArr(4);
 
   auto subjetTags(cfg.getUntrackedParameter<std::vector<std::string> >("SubJets"));
   for (auto& tag : subjetTags)
     fSubjetCollectionTokens.push_back(collector.consumes<PatJetCollection>(edm::InputTag(tag)));
 
-  for (int i=0; i<3; i++)
-    fSubjets[i] = new Array<XlSubJet>(N_MAX_SUBJETS);
 }
 
 mithep::FillerFatJets::~FillerFatJets()
 {
-  for (int i=0; i<3; i++)
-    delete fSubjets[i];
 }
 
 void
 mithep::FillerFatJets::BookAdditional(TreeWriter &tws)
 {
-  tws.AddBranch(mitName_ + "SDSubjets", &fSubjets[0]);
-  tws.AddBranch(mitName_ + "PrunedSubjets", &fSubjets[1]);
-  tws.AddBranch(mitName_ + "TrimmedSubjets", &fSubjets[2]);
-
-  AddBranchDep(mitName_, mitName_ + "SDSubjets");
-  AddBranchDep(mitName_, mitName_ + "PrunedSubjets");
-  AddBranchDep(mitName_, mitName_ + "TrimmedSubjets");
 }
 
 void
@@ -95,54 +84,20 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
 }
 
 void
-mithep::FillerFatJets::FillSpecificSubjet(mithep::XlSubJet& outBaseJet, edm::Ptr<pat::Jet> const& inJet)
-{
-  double toRaw = inJet->jecFactor("Uncorrected");
-  auto&& rawP4 = inJet->p4() * toRaw;
-  outBaseJet.SetRawPtEtaPhiM(rawP4.pt(), rawP4.eta(), rawP4.phi(), rawP4.mass());
-}
-
-void
 mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet const& inJet)
 {
   fillPATJetVariables(outJet,inJet);
   outJet.SetCharge();
-  // get the easy user floats out of the way
-  TString suffix = TString::Format("%i",int(fR0*10));
-  TString njettiness("Njettiness");
-  TString pruned("Pruned");
-  TString trimmed("Trimmed");
-  outJet.SetTau1(inJet.userFloat(njettiness+suffix+":tau1"));
-  outJet.SetTau2(inJet.userFloat(njettiness+suffix+":tau2"));
-  outJet.SetTau3(inJet.userFloat(njettiness+suffix+":tau3"));
-  outJet.SetTau4(inJet.userFloat(njettiness+suffix+":tau4"));
-  outJet.SetQJetVol(inJet.userFloat(TString("Qjets")+suffix+":QjetsVolatility"));
-  outJet.SetPrunedP(Vect4M(inJet.userFloat(pruned+suffix+":Pt"),
-                           inJet.userFloat(pruned+suffix+":Eta"),
-                           inJet.userFloat(pruned+suffix+":Phi"),
-                           inJet.userFloat(pruned+suffix+":Mass")));
-  outJet.SetTrimmedP(Vect4M(inJet.userFloat(trimmed+suffix+":Pt"),
-                            inJet.userFloat(trimmed+suffix+":Eta"),
-                            inJet.userFloat(trimmed+suffix+":Phi"),
-                            inJet.userFloat(trimmed+suffix+":Mass")));
-  // now let's save subjets
-  int eSubjetType = 0; // to map to XlSubJet::SubJetType enum
+  std::map<float,float> btagMap; // maps pT to btag
+  // now let's save subjet btag
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      XlSubJet* outSubjet = fSubjets[eSubjetType]->AddNew();
-      outSubjet->SetRawPtEtaPhiM(inSubjet.p4().pt(), inSubjet.p4().eta(), inSubjet.p4().phi(), inSubjet.p4().mass());
-      outSubjet->SetSigmaEta(TMath::Sqrt(inSubjet.etaetaMoment()));
-      outSubjet->SetSigmaPhi(TMath::Sqrt(inSubjet.phiphiMoment()));
-      outSubjet->SetJetArea(inSubjet.jetArea());
-      FillSpecificSubjet(*outSubjet,inSubjetPtr); // this is only a subjet, not a PF jet
-      setCorrections(*outSubjet, inSubjet);
-      outSubjet->SetSubJetType((XlSubJet::ESubJetType)eSubjetType);
-      setBTagDiscriminators(*outSubjet, inSubjet);
-      outJet.AddSubJet(outSubjet);
+      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags");
     }
-    ++eSubjetType;
+    for(std::map<float,float>::reverse_iterator iBtag=btagMap.rbegin(); iBtag!=btagMap.rend(); ++iBtag)
+      outJet.AddSubJetBtag(iBtag->second);
   }
 
   // now let's tag some bs
@@ -172,7 +127,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     trackData.dxy = ptrack.dxy(pv->position());
     trackData.dz = ptrack.dz(pv->position());
 
-    float deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
+    double deltaR = reco::deltaR( ptrack.eta(), ptrack.phi(), inJet.p4().eta(), inJet.p4().phi());
     if(deltaR<0.3) nSelTracks++;
     // first impact parameter
     trackData.IP2D     = ipTagInfo->impactParameterData()[itt].ip2d.value();
@@ -204,13 +159,13 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   // organize secondary vertices by mass
   std::map<double, unsigned int> VTXmass;
   unsigned int nSelectedSV = 0;
-  float maxSVDeltaR2ToJet = fR0-0.1+(fR0-0.8)*0.1/0.7;  //linear interpolation
+  double maxSVDeltaR2ToJet = fR0-0.1+(fR0-0.8)*0.1/0.7;  //linear interpolation
   maxSVDeltaR2ToJet = maxSVDeltaR2ToJet*maxSVDeltaR2ToJet;
   edm::RefToBase<reco::Jet> rJet = ipTagInfo->jet();
   math::XYZVector jetDir = rJet->momentum().Unit();
   for (unsigned int vtx = 0; vtx < svTagInfo->nVertices(); ++vtx)  {
     const recoVertexPtr &vertex = svTagInfo->secondaryVertex(vtx);
-    float mass = vertex.p4().mass();
+    double mass = vertex.p4().mass();
     GlobalVector flightDir = svTagInfo->flightDirection(vtx);
     if (reco::deltaR2(flightDir, jetDir)<maxSVDeltaR2ToJet) {
       // only keep nearby svxs
@@ -266,7 +221,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     if (cont==1) {
       flightDir0 = svTagInfo->flightDirection(iVtx->second);
       svP4_0= vertex.p4();
-      float tauDot_tmp;
+      double tauDot_tmp;
       if (reco::deltaR2(flightDir0,currentAxes[1])<reco::deltaR2(flightDir0,currentAxes[0]))
         tauDot_tmp = (currentAxes[1].px()*flightDir0.x()+currentAxes[1].py()*flightDir0.y()+currentAxes[1].pz()*flightDir0.z())/(sqrt(currentAxes[1].modp2())*flightDir0.mag());
       else
@@ -295,7 +250,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       muonData.IP2D      = (softPFMuTagInfo->properties(leptIdx).sip2d);
       outJet.AddMuonData(&muonData);
     }
-  } 
+  }
   // electrons!
   if (softPFElTagInfo) {
     int nSE = softPFElTagInfo->leptons();
@@ -311,7 +266,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
       electronData.IP2D      = (softPFElTagInfo->properties(leptIdx).sip2d);
       outJet.AddElectronData(&electronData);
     }
-  } 
+  }
 
   // set btags for fatjet
   setBTagDiscriminators(outJet, inJet);
@@ -321,26 +276,37 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet)
 {
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetProbability);
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfPositiveOnlyJetProbabilityBJetTags"), Jet::kJetProbabilityPositive);
+*/
 
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfJetProbabilityBJetTags"), Jet::kJetBProbability);
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeOnlyJetBProbabilityBJetTags"), Jet::kJetBProbabilityNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfPositiveOnlyJetBProbabilityBJetTags"), Jet::kJetBProbabilityPositive);
+*/
 
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfSimpleSecondaryVertexHighEffBJetTags"), Jet::kSimpleSecondaryVertexHighEff);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeSimpleSecondaryVertexHighEffBJetTags"), Jet::kSimpleSecondaryVertexHighEffNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfSimpleSecondaryVertexHighPurBJetTags"), Jet::kSimpleSecondaryVertexHighPur);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeSimpleSecondaryVertexHighPurBJetTags"), Jet::kSimpleSecondaryVertexHighPurNegative);
+*/
 
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2);
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfPositiveCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2Positive);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeCombinedSecondaryVertexV2BJetTags"), Jet::kCombinedSecondaryVertexV2Negative);
+*/
 
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2);
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2Positive);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags"), Jet::kCombinedInclusiveSecondaryVertexV2Negative);
+*/
 
+/*
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("softPFMuonBJetTags"), Jet::kSoftPFMuon);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("negativeSoftPFMuonBJetTags"), Jet::kSoftPFMuonNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("positiveSoftPFMuonBJetTags"), Jet::kSoftPFMuonPositive);
@@ -348,6 +314,7 @@ void mithep::FillerFatJets::setBTagDiscriminators(mithep::Jet & outJet, pat::Jet
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("softPFElectronBJetTags"), Jet::kSoftPFElectron);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("negativeSoftPFElectronBJetTags"), Jet::kSoftPFElectronNegative);
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("positiveSoftPFElectronBJetTags"), Jet::kSoftPFElectronPositive);
+*/
 
   outJet.SetBJetTagsDisc(inJet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"), Jet::kDoubleSecondaryVertex);
 }
@@ -365,7 +332,7 @@ mithep::FillerFatJets::vertexKinematicsAndCharge(const recoVertexPtr & vertex, r
 }
 
 void
-mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight)
+mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight)
 {
   isFromSV = 0;
   iSV = -1;
@@ -388,7 +355,7 @@ mithep::FillerFatJets::setTracksSV(const TrackRef & trackRef, const SVTagInfo * 
   }
 }
 
-void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
+void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
 {
   iPV = -1;
   PVweight = 0.;
@@ -396,7 +363,7 @@ void mithep::FillerFatJets::setTracksPV(const TrackRef & trackRef, const edm::Ha
   setTracksPVBase(pfcand->trackRef(), pvHandle, iPV, PVweight);
 }
 
-void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight)
+void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight)
 {
   iPV = -1;
   PVweight = 0.;
@@ -409,7 +376,7 @@ void mithep::FillerFatJets::setTracksPVBase(const reco::TrackRef & trackRef, con
       const reco::TrackBaseRef & baseRef = *it;
       // one of the tracks in the vertex is the same as the track considered in the function
       if(baseRef == trackBaseRef) {
-        float w = vtx.trackWeight(baseRef);
+        double w = vtx.trackWeight(baseRef);
         // select the vertex for which the track has the highest weight
         if(w > PVweight) {
           PVweight = w;

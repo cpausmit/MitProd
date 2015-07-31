@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMuon/AOD/PromptReco-v1/000/252/126/00000/F633749A-F530-E511-820B-02163E0133F2.root')
+  fileNames = cms.untracked.vstring('')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,7 +27,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v0'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -51,8 +51,7 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
-  wantSummary = cms.untracked.bool(False),
-  allowUnscheduled = cms.untracked.bool(True)
+  wantSummary = cms.untracked.bool(False)
 )
 
 # Import/Load the filler so all is already available for config changes
@@ -132,10 +131,6 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
-
-# these are being loaded due to allowUnscheduled, but do not want
-del(process.tobtecfakesfilter)
-del(process.particleFlow)
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(

@@ -50,27 +50,24 @@ namespace mithep {
 
     mithep::Jet* AddNew() override { return static_cast<mithep::FatJetArr*>(jets_)->AddNew(); }
     void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
-    void FillSpecificSubjet(mithep::XlSubJet&, edm::Ptr<pat::Jet> const&);
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
     void BookAdditional(TreeWriter&);
   private:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
     void vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
-    void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
-    void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, double & PVweight);
-    void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, double & SVweight);
+    void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
+    void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
+    void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight);
     void setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet);
 
     double fR0;                                                       //cone size
     std::vector<std::string> fSubjetNames;                            //labels of subjets
     std::vector<JetColToken> fSubjetCollectionTokens;                 //subjet input tags
-    std::vector<JetColHandle> fSubjetCollections;                 //subjet input tags
+    std::vector<JetColHandle> fSubjetCollections;                 //subjet input handles
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
     edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
-
-    Array<XlSubJet>* fSubjets[3];
   };
 }
 

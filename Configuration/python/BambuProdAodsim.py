@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/AsymptFlat10to50bx25Raw_MCRUN2_74_V9-v1/10000/00BA30CE-9001-E511-AA08-0025905A60D0.root')
+  fileNames = cms.untracked.vstring('')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -51,8 +51,7 @@ process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
 process.options = cms.untracked.PSet(
   Rethrow = cms.untracked.vstring('ProductNotFound'),
   fileMode = cms.untracked.string('NOMERGE'),
-  wantSummary = cms.untracked.bool(False),
-  allowUnscheduled = cms.untracked.bool(True)
+  wantSummary = cms.untracked.bool(False)
 )
 
 # Import/Load the filler so all is already available for config changes
@@ -132,10 +131,6 @@ process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
 process.load('MitProd.TreeFiller.metFilters_cff')
-
-# these are being loaded due to allowUnscheduled, but do not want
-del(process.tobtecfakesfilter)
-del(process.particleFlow)
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
