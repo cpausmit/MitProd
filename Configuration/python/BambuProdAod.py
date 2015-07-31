@@ -27,7 +27,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v0'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
