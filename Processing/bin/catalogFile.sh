@@ -16,7 +16,7 @@ echo " running on    : "`/bin/hostname`
 echo " executing in  : "`pwd`
 echo " ";
 
-export CATALOG_MACRO="runFileCataloger.C+"
+export CATALOG_MACRO="runFileCataloger.C"
 
 dataDir=$1
 dataFile=$2
@@ -32,7 +32,7 @@ then
 fi
 
 procId=$$
-logFile=`echo $dataDir/$dataFile | tr '/' '+'`
+logFile=`echo $dataFile.$$ | tr '/' '+'`
 logFile=/tmp/$logFile
 
 echo " "; echo "Initialize CMSSW"; echo " "
@@ -102,6 +102,6 @@ else
 fi
 
 echo "rm -f $logFile"
-## rm -f $logFile
+rm -f $logFile
 
 exit 0

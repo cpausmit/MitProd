@@ -1,6 +1,7 @@
 # site_name : se   [ : general-storagepath : user-remote-directory ]
 T0_CH_CERN : srm-cms.cern.ch : /srm/managerv2?SFN=/castor/cern.ch : /user/p/paus
 T1_DE_KIT : cmssrm-kit.gridka.de
+T2_PL_Swierk : se.cis.gov.pl
 T2_EE_Estonia : ganymede.hep.kbfi.ee
 T1_ES_PIC : srmcms.pic.es
 T1_FR_CCIN2P3 : ccsrm.in2p3.fr

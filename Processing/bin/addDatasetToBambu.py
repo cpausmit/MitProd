@@ -173,7 +173,7 @@ except:
     sys.exit(0)
 
 if len(results) == 1:
-    print ' Dataset exists once in database. Do not insert again, but check properties.\n'
+    print ' Dataset exists once in database. Do not insert again, but update properties.\n'
     for row in results:
         process = row[1]
         setup = row[2]
@@ -183,14 +183,16 @@ if len(results) == 1:
         dbNFiles = int(row[6])
     # check whether information correct and adjust if needed
     if dbSizeGb != sizeGb or dbNFiles != nFiles:
+        print " Update!  Size: %.3f -> %.3f  nFiles: %d -> %d"%(dbSizeGb,sizeGb,dbNFiles,nFiles)
         sql = "update Datasets set DatasetSizeGb=%f, DatasetNFiles=%d where "%(sizeGb,nFiles) + \
             " DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
-        print " Try SQL: " + sql
+        print " Sql: " + sql
         try:
             # Execute the SQL command
             cursor.execute(sql)
             # Commit your changes in the database
             db.commit()
+            print ' database entry was updated.'
         except:
             print ' ERROR -- insert failed, rolling back.'
             # Rollback in case there is any error

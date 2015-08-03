@@ -13,7 +13,7 @@
 # Author: C.Paus                                                                      (July 1, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import task,translator
+import task,translator,color
 t2user = os.environ['TIER2_USER']
 
 SRMSRC='/usr/bin'
@@ -627,7 +627,7 @@ for subTask in crabTask.subTasks:
                 cmd  = "sites.py --block=" + block + " --dbs=" + dbs
             else:
                 cmd  = "cat " + siteFile + "| grep " + block + " | cut -d ':' -f2 | tr -d ' '"
-                print 'CMD: ' + cmd
+                #print 'CMD: ' + cmd
             for line in os.popen(cmd).readlines():   # run command
                 line = line[:-1]
                 sites = line
@@ -711,7 +711,12 @@ for subTask in crabTask.subTasks:
     print '  Number of blocks submitted: %d' % nSubmission
 
     # cleanup in case of total failure
-    print " Submission summary: %d successes  %d failures"%(nSuccess,nFail)
+    col = color.color()
+    print  "Submission summary:" \
+        + col.OKBLUE+col.BOLD + " %d successes "%(nSuccess) + col.ENDC \
+        + col.FAIL + " %d failures"%(nFail) \
+        + col.ENDC
+
     if nSuccess == 0 and nFail > 0:
         cmd = "rm -rf crab_" + tag
         print " TOTAL FAILURE -- removing: " + tag

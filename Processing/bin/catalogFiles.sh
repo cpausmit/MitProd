@@ -14,10 +14,9 @@ condorOutput=$5
 
 # Is it a skim?
 skim=""
-if [ "`echo $dataDir | grep cmsprod/skim`" != "" ]
+if [ "`echo $dataDir | grep cms/store/user/paus/skim`" != "" ]
 then
-  skim=`dirname $dataDir`
-  skim=`basename $skim`/
+  skim=`basename $dataDir`/
 fi
 
 # Prepare environment
@@ -54,7 +53,7 @@ x509File=/tmp/x509up_u`id -u`
 for file in $LIST
 do
   file=`basename $file`
-  logFile=`echo $book/$dataset/${skim}$file | tr '/' '+'`
+  logFile=`echo ${skim}$file_$$ | tr '/' '+'`
   logFile=/tmp/$logFile
   rm -f $logFile
 
@@ -99,4 +98,3 @@ EOF
 done
 
 exit 0
-l

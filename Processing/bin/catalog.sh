@@ -56,11 +56,12 @@ then
 fi
 
 # Conclude what needs to be done
-if [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
-   [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
-   [ "$LOCATION" != "" ]
+if [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/user/paus/skim`" != "" ] || \
+   ( [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
+     [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
+     [ "$LOCATION" != "" ] )
 then
-  cataDir=$cataDir/local
+  cataDir=$cataDir/t2mit
   #cataDir=$cataDir/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
 elif [ ".`echo $HOSTNAME | grep cern.ch`" != "." ]
 then
@@ -75,10 +76,9 @@ fi
 # Is it a skim?
 SKIM=""
 addSkim=""
-if [ "`echo $LOCATION | grep /cmsprod/skim/`" != "" ]
+if [ "`echo $LOCATION | grep store/user/paus/skim/`" != "" ]
 then
-  SKIM=`dirname $LOCATION`
-  SKIM=`basename $SKIM`
+  SKIM=`basename $LOCATION`
   addSkim="/$SKIM"
 fi
 
