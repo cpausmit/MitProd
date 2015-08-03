@@ -17,6 +17,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
+#include "TList.h"
+
 namespace mithep 
 {
   class MCEventInfo;
@@ -31,9 +33,33 @@ namespace mithep
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
     void FillPostRunBlock(edm::Run const&, edm::EventSetup const&) override;
 
-  private:
-    void setWeightGroups(std::vector<std::string> const&);
+    class WeightGroupHandler : public TObject {
+    public:
+      WeightGroupHandler(mithep::MCRunInfo* runInfo, std::map<TString, unsigned> const& idMap) : runInfo_(runInfo), idMap_(&idMap) {}
 
+      void OnStartDocument() {}
+      void OnEndDocument() {}
+      void OnStartElement(const char*, const TList*);
+      void OnEndElement(const char*);
+      void OnCharacters(const char*);
+      void OnComment(const char*) {}
+      void OnWarning(const char*);
+      void OnError(const char*);
+      void OnFatalError(const char*);
+      void OnCdataBlock(const char*, Int_t) {}
+
+    private:
+      void closeWeightTag() { weightId_ = ""; }
+
+      mithep::MCRunInfo* runInfo_;
+      std::map<TString, unsigned> const* idMap_;
+      int currentWG_{-1};
+      TString weightId_{""};
+
+      ClassDef(WeightGroupHandler, 0)
+    };
+
+  private:
     bool flavorHistoryActive_;  //=true if flavor history is filled
 
     std::string evtName_; //mit event branch name
