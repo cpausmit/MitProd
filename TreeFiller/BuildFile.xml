@@ -46,6 +46,7 @@
 <use   name="fastjet"/>
 <use   name="fastjet-contrib"/>
 <use   name="root"/>
+<use   name="rootxml"/>
 <export>
   <lib name="1"/>
 </export>
