@@ -60,8 +60,6 @@ namespace mithep
     };
 
   private:
-    void setWeightGroups(std::vector<std::string> const&);
-
     bool flavorHistoryActive_;  //=true if flavor history is filled
 
     std::string evtName_; //mit event branch name

@@ -258,7 +258,29 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
       auto& lheHdr = *hItr;
 
       if (lheHdr.tag() == "initrwgt") {
-        setWeightGroups(lheHdr.lines());
+        TSAXParser parser;
+        WeightGroupHandler handler(runInfo_, weightIds_);
+        parser.SetStopOnError(false);
+        parser.ConnectToHandler("mithep::FillerMCEventInfo::WeightGroupHandler", &handler);
+
+        // xml document needs a root node
+        TString buffer("<initrwgt>");
+        for (auto&& line : lheHdr.lines())
+          buffer += line;
+
+        // clean up the buffer - at least remove trailing open bracket (yes there sometimes are those)
+        int len = buffer.Length();
+        for (; len != 0; --len) {
+          if (buffer[len - 1] == '>')
+            break;
+        }
+        buffer = buffer(0, len);
+
+        buffer += "</initrwgt>";
+
+        // ParseBuffer can throw FatalRootError. Tried catching but unsuccessful. Thrown in another thread?
+        parser.ParseBuffer(buffer.Data(), buffer.Length());
+
         continue;
       }
 
@@ -272,7 +294,7 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
       runInfo_->SetHeaderBlockTag(iB, lheHdr.tag().c_str());
       TString cont;
       for (auto&& line : lheHdr.lines())
-        cont += line + "\n";
+        cont += line;
 
       runInfo_->SetHeaderBlockContent(iB, cont.Data());
     }
@@ -296,21 +318,6 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
   }
 
   weightIds_.clear();
-}
-
-void
-mithep::FillerMCEventInfo::setWeightGroups(std::vector<std::string> const& blockLines)
-{
-  TSAXParser parser;
-  WeightGroupHandler handler(runInfo_, weightIds_);
-  parser.SetStopOnError(false);
-  parser.ConnectToHandler("mithep::FillerMCEventInfo::WeightGroupHandler", &handler);
-
-  TString buffer;
-  for (std::string const& l : blockLines)
-    buffer += l;
-
-  parser.ParseBuffer(buffer.Data(), buffer.Length());
 }
 
 ClassImp(mithep::FillerMCEventInfo::WeightGroupHandler)
@@ -363,21 +370,21 @@ mithep::FillerMCEventInfo::WeightGroupHandler::OnCharacters(const char* chars)
 void
 mithep::FillerMCEventInfo::WeightGroupHandler::OnWarning(const char* text)
 {
-  Warning("setWeightGroups", text);
+  Warning("FillPostRunBlock", text);
   closeWeightTag();
 }
 
 void
 mithep::FillerMCEventInfo::WeightGroupHandler::OnError(const char* text)
 {
-  Error("setWeightGroups", text);
+  Warning("FillPostRunBlock", text);
   closeWeightTag();
 }
 
 void
 mithep::FillerMCEventInfo::WeightGroupHandler::OnFatalError(const char* text)
 {
-  Fatal("setWeightGroups", text);
+  Warning("FillPostRunBlock", text);
   gSystem->Exit(1);
 }
 
