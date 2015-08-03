@@ -15,7 +15,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA235DE2-9801-E511-8E49-00259073E356.root')
+  # make sure this is for the right version
+  fileNames = cms.untracked.vstring('file:/mnt/hadoop/cmsprod/00165B45-82E6-E311-B68D-002590AC4FEC.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -141,7 +142,7 @@ recoSequence = cms.Sequence(
   particleFlowPtrs *
   pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence *
+  pfMuonSequence * 
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
@@ -185,6 +186,9 @@ MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCVertexes.active = True
+
+# NOTRIG - special
+MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence
 

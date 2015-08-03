@@ -157,14 +157,17 @@ elif not db:
         iJob = 1
         for line in os.popen(cmd).readlines():
             line = line[:-1]
+            f = line.split()
+            nEvents = 0
+            try:
+                lfn     = f[0]
+                nEvents = int(f[1])
+                f       = lfn.split("/")
+                file    = f[-1]
+            except:
+                #print " ERROR in line: %s (cmd: %s)"%(line,cmd)
+                continue
 
-            f       = line.split()
-            lfn     = f[0]
-            nEvents = int(f[1])
-            
-            f       = lfn.split("/")
-            file    = f[-1]
-            
             if nEvents != 0:
                 printLine(option,nEvents,block,lfn,iJob)
                 iJob = iJob + 1

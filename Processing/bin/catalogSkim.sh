@@ -78,9 +78,13 @@ SKIM=""
 addSkim=""
 if [ "`echo $LOCATION | grep store/user/paus/skim/`" != "" ]
 then
+  SKIM=`dirname $LOCATION`
   SKIM=`basename $LOCATION`
   addSkim="/$SKIM"
 fi
+
+echo " LOCATION: $LOCATION"
+echo " SKIM:     $SKIM -- $addSkim"
 
 # Create a list of the datsets we need to catalog
 LIST=`list ${LOCATION}/$mitCfg/$VERSION | cut -d ' ' -f2`

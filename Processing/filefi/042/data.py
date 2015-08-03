@@ -15,7 +15,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA235DE2-9801-E511-8E49-00259073E356.root')
+  #fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMu/AOD/PromptReco-v1/000/251/025/00000/DCED2145-2B26-E511-B5F1-02163E013422.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMu/AOD/PromptReco-v1/000/251/028/00000/924F6240-3C26-E511-B55B-02163E0144CC.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,13 +28,13 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
   version    = cms.untracked.string('Mit_042'),
-  annotation = cms.untracked.string('AODSIM')
+  annotation = cms.untracked.string('AOD')
 )
 
 #>> standard sequences
@@ -104,8 +105,8 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
@@ -114,11 +115,11 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # Load btagging
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-fatjetSequence = makeFatJets(process, isData = False)
+fatjetSequence = makeFatJets(process, isData = True)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs'
+pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -159,17 +160,7 @@ recoSequence = cms.Sequence(
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-# Import/Load genjets
-from RecoJets.Configuration.GenJetParticles_cff import genJetParticles
-process.load('RecoJets.Configuration.GenJetParticles_cff')
-from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
-process.load('RecoJets.Configuration.RecoGenJets_cff')
-
-genSequence = cms.Sequence(
-  genJetParticles *
-  ak4GenJets *
-  ak8GenJets
-)
+# this is data, so nothing here
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -181,10 +172,13 @@ genSequence = cms.Sequence(
 
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
-MitTreeFiller.PileupInfo.active = True
-MitTreeFiller.MCParticles.active = True
-MitTreeFiller.MCEventInfo.active = True
-MitTreeFiller.MCVertexes.active = True
+# remove Monte Carlo information
+MitTreeFiller.MCEventInfo.active = False
+MitTreeFiller.MCParticles.active = False
+MitTreeFiller.MCVertexes.active = False
+MitTreeFiller.PileupInfo.active = False
+MitTreeFiller.AKT4GenJets.active = False
+MitTreeFiller.AKT8GenJets.active = False
 
 # define fill bambu filler sequence
 
@@ -200,6 +194,5 @@ bambuFillerSequence = cms.Sequence(
 
 process.path = cms.Path(
   recoSequence *
-  genSequence *
   bambuFillerSequence
 )

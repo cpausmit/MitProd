@@ -13,7 +13,7 @@
 # Author: C.Paus                                                                      (July 1, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import task,translator,color
+import task,translator
 t2user = os.environ['TIER2_USER']
 
 SRMSRC='/usr/bin'
@@ -711,12 +711,7 @@ for subTask in crabTask.subTasks:
     print '  Number of blocks submitted: %d' % nSubmission
 
     # cleanup in case of total failure
-    col = color.color()
-    print  "Submission summary:" \
-        + col.OKBLUE+col.BOLD + " %d successes "%(nSuccess) + col.ENDC \
-        + col.FAIL + " %d failures"%(nFail) \
-        + col.ENDC
-
+    print " Submission summary: %d successes  %d failures"%(nSuccess,nFail)
     if nSuccess == 0 and nFail > 0:
         cmd = "rm -rf crab_" + tag
         print " TOTAL FAILURE -- removing: " + tag
