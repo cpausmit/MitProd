@@ -9,11 +9,12 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
-#include "TSAXParser.h"
+#include "TDOMParser.h"
+#include "TXMLNode.h"
 #include "TXMLAttr.h"
-#include "TSystem.h"
 
 #include <set>
+#include <cstring>
 
 //--------------------------------------------------------------------------------------------------
 mithep::FillerMCEventInfo::FillerMCEventInfo(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name/* = "MCEventInfo"*/,  bool active/* = true*/) :
@@ -258,15 +259,16 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
       auto& lheHdr = *hItr;
 
       if (lheHdr.tag() == "initrwgt") {
-        TSAXParser parser;
-        WeightGroupHandler handler(runInfo_, weightIds_);
-        parser.SetStopOnError(false);
-        parser.ConnectToHandler("mithep::FillerMCEventInfo::WeightGroupHandler", &handler);
-
         // xml document needs a root node
         TString buffer("<initrwgt>");
-        for (auto&& line : lheHdr.lines())
-          buffer += line;
+
+        // append lines stripping whitespaces and newlines
+        for (auto&& line : lheHdr.lines()) {
+          TString text(line);
+          text = text.Strip(TString::kBoth, ' ');
+          text = text.Strip(TString::kBoth, '\n');
+          buffer += text;
+        }
 
         // clean up the buffer - at least remove trailing open bracket (yes there sometimes are those)
         int len = buffer.Length();
@@ -278,8 +280,66 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
 
         buffer += "</initrwgt>";
 
-        // ParseBuffer can throw FatalRootError. Tried catching but unsuccessful. Thrown in another thread?
+        TDOMParser parser;
+        parser.SetValidate(false); // we don't define XML namespace etc.
         parser.ParseBuffer(buffer.Data(), buffer.Length());
+        auto* document = parser.GetXMLDocument();
+        auto* rootnode = document->GetRootNode();
+
+        unsigned iWG = 0;
+        auto* wgNode = rootnode->GetChildren();
+        do {
+          // loop over weightgroup nodes
+
+          runInfo_->SetNWeightGroups(iWG + 1);
+
+          // weightgroup attributes
+          TList* attributes = wgNode->GetAttributes();
+          
+          auto* combine = static_cast<TXMLAttr*>(attributes->FindObject("combine"));
+          if (combine)
+            runInfo_->SetWeightGroupCombination(iWG, combine->GetValue());
+
+          auto* type = static_cast<TXMLAttr*>(attributes->FindObject("type"));
+          if (type)
+            runInfo_->SetWeightGroupType(iWG, type->GetValue());
+
+          auto* weightNode = wgNode->GetChildren();
+          do {
+            // loop over weight definition nodes
+
+            if (std::strcmp(weightNode->GetNodeName(), "weight") != 0)
+              continue;
+
+            TList* attr = weightNode->GetAttributes();
+            if (!attr)
+              continue;
+
+            auto* wid = static_cast<TXMLAttr*>(attr->FindObject("id"));
+            if (!wid)
+              continue;
+
+            TString weightId(wid->GetValue());
+
+            auto idItr(weightIds_.find(weightId));
+            if (idItr == weightIds_.end())
+              continue;
+
+            // weight definition is a content of the child (text) node
+            auto* contentNode = weightNode->GetChildren();
+            if (!contentNode || contentNode->GetNodeType() != TXMLNode::kXMLTextNode)
+              continue;
+
+            TString content(contentNode->GetContent());
+            content.Strip(TString::kBoth);
+
+            runInfo_->AddWeightDefinition(weightId, content, iWG, idItr->second);
+          }
+          while ((weightNode = weightNode->GetNextNode()));
+
+          ++iWG;
+        }
+        while ((wgNode = wgNode->GetNextNode()));
 
         continue;
       }
@@ -318,74 +378,6 @@ mithep::FillerMCEventInfo::FillPostRunBlock(edm::Run const& run, edm::EventSetup
   }
 
   weightIds_.clear();
-}
-
-ClassImp(mithep::FillerMCEventInfo::WeightGroupHandler)
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnStartElement(const char* name, const TList* attributes)
-{
-  if (std::strcmp(name, "weightgroup") == 0) {
-    ++currentWG_;
-
-    runInfo_->SetNWeightGroups(currentWG_ + 1);
-
-    auto* combine = static_cast<TXMLAttr*>(attributes->FindObject("combine"));
-    if (combine)
-      runInfo_->SetWeightGroupCombination(currentWG_, combine->GetValue());
-
-    auto* type = static_cast<TXMLAttr*>(attributes->FindObject("type"));
-    if (type)
-      runInfo_->SetWeightGroupType(currentWG_, type->GetValue());
-  }
-  else if (std::strcmp(name, "weight") == 0) {
-    auto* wid = static_cast<TXMLAttr*>(attributes->FindObject("id"));
-    if (wid)
-      weightId_ = wid->GetValue();
-  }
-}
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnEndElement(const char* name)
-{
-  if (std::strcmp(name, "weight") == 0)
-    weightId_ = "";
-}
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnCharacters(const char* chars)
-{
-  if (weightId_.Length() != 0) {
-    // in weight tag
-    auto idItr = idMap_->find(weightId_);
-    if (idItr != idMap_->end()) {
-      TString content(chars);
-      content = content.Strip(TString::kBoth);
-
-      runInfo_->AddWeightDefinition(weightId_, content, currentWG_, idItr->second);
-    }
-  }
-}
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnWarning(const char* text)
-{
-  Warning("FillPostRunBlock", text);
-  closeWeightTag();
-}
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnError(const char* text)
-{
-  Warning("FillPostRunBlock", text);
-  closeWeightTag();
-}
-
-void
-mithep::FillerMCEventInfo::WeightGroupHandler::OnFatalError(const char* text)
-{
-  Warning("FillPostRunBlock", text);
-  gSystem->Exit(1);
 }
 
 DEFINE_MITHEP_TREEFILLER(FillerMCEventInfo);
