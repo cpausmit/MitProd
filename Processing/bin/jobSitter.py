@@ -349,7 +349,7 @@ for crabTask in crabTasks:
         cmd = 'crab -c ' + crabTask.tag + ' -resubmit ' + resubList
 
 
-    cmd = 'crab -getoutput -continue ' + crabTask.tag
+    cmd = 'timeout 120s crab -getoutput -continue ' + crabTask.tag
     print '\n  --> GETOUTPUT ' + crabTask.tag + ' -- ' + crabTask.mitDataset
     print '  --> ' + cmd
     status = os.system(cmd)

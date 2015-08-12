@@ -586,9 +586,9 @@ class Task:
         active        = 0
         self.jobStati = []
         self.failingSites  = {}
-        cmd = 'crab -status -continue ' + self.tag
+        cmd = 'timeout 120s crab -status -continue ' + self.tag
 
-        print ' DEBUG Access Crab Job Stati, now! CMD: ' + cmd
+        print '  --> ' + cmd
 
         for line in os.popen(cmd).readlines():  # run command
             line       = line[:-1]              # strip '\n'

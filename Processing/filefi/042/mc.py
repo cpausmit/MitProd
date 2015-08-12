@@ -8,7 +8,8 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  #input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(200)
 )
 
 #>> input source
@@ -16,7 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
   "PoolSource",
   # make sure this is for the right version
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA235DE2-9801-E511-8E49-00259073E356.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/60000/000A6F75-5601-E511-BF58-00259074AE32.root')
+#  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA235DE2-9801-E511-8E49-00259073E356.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",

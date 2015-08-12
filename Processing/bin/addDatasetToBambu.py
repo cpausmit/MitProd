@@ -76,12 +76,15 @@ def testLocalSetup(dataset,debug=0):
 def findDatasetProperties(dataset,dbs,debug=0):
     # test whether this is a legitimate dataset by asking DAS and determine size and number of files
 
-    cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
+    cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
+    cmd = 'das_client.py ' + cert + '  --format=plain --limit=0 --query="file dataset=' + \
 	  dataset + ' instance=' + dbs + ' | count(file), sum(file.size)"| sort -u'
     nFiles = ''
     size = ''
+    line = ''
     units = 'GB'
-    #print "CMD " + cmd
+    if debug>1:
+        print " CMD " + cmd
     for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
         line    = line[:-1]
         f = line.split('=')
@@ -115,10 +118,11 @@ def findDatasetProperties(dataset,dbs,debug=0):
 # Define string to explain usage of the script
 usage =  " Usage: addDataset.py  --dataset=<name>\n"
 usage += "                     [ --dbs='prod/global' ]\n"
+usage += "                     [ --debug=0 ]\n"
 usage += "                     [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['dataset=','dbs=','help']
+valid = ['dataset=','dbs=','debug=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -143,6 +147,8 @@ for opt, arg in opts:
         dataset = arg
     if opt == "--dbs":
         dbs = arg
+    if opt == "--debug":
+        debug = arg
 
 testLocalSetup(dataset,debug)
 (sizeGb, nFiles) = findDatasetProperties(dataset,dbs,debug)

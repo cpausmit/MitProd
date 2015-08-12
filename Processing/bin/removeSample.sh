@@ -1,30 +1,27 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------
-# Remove an existing sample from disk and from catalog
-#
-#### CAREFUL WILL NOT WORK FOR CERN ####
+# Remove an existing sample from disk and from catalog.
 #
 #---------------------------------------------------------------------------------------------------
-domain=`echo $HOSTNAME | cut -d'.' -f2-100`
+function usage {
+  echo ""
+  echo " "`basename $0`" <book>  <dataset>  [ <location> = T2MIT, '' ] "
+  echo ""
+  echo "   book     - book of the sample in question. Example: filefi/041"
+  echo "   dataset  - name of the sample in question. Example: /JetHT/Run2015B-PromptReco-v1/AOD"
+  echo "   location - location (this is bogus for now)"
+  echo ""
+  exit 0
+}
+
+MOUNT=/mnt/hadoop
+BASE_LFN=/cms/store/user/paus
 CATALOG=~cmsprod/catalog
+SERVER="srm://se01.cmsaf.mit.edu:8443/srm/v2/server?SFN="
 
-if [ "$domain" == "mit.edu" ]
-then
-  # For MIT
-  SERVER="srm://se01.cmsaf.mit.edu:8443/srm/v2/server?SFN="
-  LOCATION="/mnt/hadoop/cms/store/user/paus"
-  LOCAL_LOCATION="/mnt/hadoop/cmsprod"
-else
-  # For CERN
-  SERVER="srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
-  LOCATION="/castor/cern.ch/user/p/paus"
-  LOCAL_LOCATION="/data/hadoop/cmsprod"
-fi
+RMT2="glexec hadoop dfs -rmr"
+RMT3="hdfs   dfs -rm -r"
 
-klist -s
-if [ $? != 0 ]; then
-  kinit -f
-fi
 
 BOOK="$1"
 SAMPLE="$2"
@@ -32,40 +29,37 @@ LOCATION="$3"
 
 if [ "$BOOK" == "" ] || [ "$SAMPLE" == "" ]
 then
+  echo ""
   echo " Sample and book have to be defined.... "
-  exit 0
+  usage
 else
+  echo ""
   echo " Removing sample: $SAMPLE from book: $BOOK"
+  echo ""
 fi
-
-echo ""
-echo "Trying to remove sample: $SAMPLE ($BOOK) from $LOCATION"
-
-#### CAREFUL WILL NOT WORK FOR CERN ####
 
 if [ "$LOCATION" == "" ] || [ "$LOCATION" == "T2MIT" ]
 then
+
+  #echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE; $RMT3 $BASE_LFN/${BOOK}/$SAMPLE"
+
   # remove the remote physical files
-  #glexec ./removeSample.sh ${BOOK} $SAMPLE exec
-  glexec hadoop dfs -rmr /cms/store/user/paus/${BOOK}/$SAMPLE
-  # remove remote catalogs
+  echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE"
+  $RMT2 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
+  echo " Return code from Tier2: $?"
+  echo ""
+
+  # remove the potentially local physical files (Tier-3)
+  echo " CMD: $RMT3 $BASE_LFN/${BOOK}/$SAMPLE"
+  $RMT3 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
+  echo " Return code from Tier3: $?"
+  echo ""
+
+
+  # remove catalogs
   if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]
   then
     rm -rf $CATALOG/t2mit/$BOOK/$SAMPLE
-  fi
-fi
-
-if [ "$LOCATION" == "" ] || [ "$LOCATION" == "LOCAL" ]
-then
-  # remove the local files
-  if [ -d "${LOCAL_LOCATION}/${BOOK}/$SAMPLE" ]
-  then
-    rm -rf ${LOCAL_LOCATION}/${BOOK}/$SAMPLE
-  fi
-  # remove local catalogs
-  if [ -d $CATALOG/local/$BOOK/$SAMPLE ]
-  then
-    rm -rf $CATALOG/local/$BOOK/$SAMPLE
   fi
 fi
 
