@@ -4,6 +4,9 @@ import FWCore.ParameterSet.Config as cms
 
 #> The iso-based HBHE noise filter
 from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
+# no filtering on the largest number of zeros found in a single RBX in the event
+HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
+
 #> The ECAL dead cell trigger primitive filter
 from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
 EcalDeadCellTriggerPrimitiveFilter.taggingMode = cms.bool(True)
