@@ -4,6 +4,9 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,types,string,getopt
 
+# adding the certificate
+cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
+
 # Define string to explain usage of the script
 usage =  "Usage: sitesList.py --dataset=<name>\n"
 usage += "                  [ --dbs=<name> ]\n"
@@ -57,8 +60,8 @@ if private:
 
 # dbs 3 interface
 # - find all relevant blocks
-cmd = 'das_client.py --format=plain --limit=0 --query="block dataset=' + dataset + ' instance=' \
-    + dbs + '"'
+cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="block dataset=' + dataset \
+    + ' instance=' + dbs + '"'
 #print 'BLOCKS: ' + cmd
 blocks = []
 for line in os.popen(cmd).readlines():
@@ -72,8 +75,8 @@ sites = {}
 for block in blocks:
     siteString = ''
     #cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
-    cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block  + ' instance=' \
-        + dbs + '"'
+    cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="site block=' + block \
+        + ' instance=' + dbs + '"'
     #print 'BLOCK: ' + cmd
     for line in os.popen(cmd).readlines():
         line = line[:-1]

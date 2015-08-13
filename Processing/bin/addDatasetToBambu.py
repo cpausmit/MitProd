@@ -179,7 +179,7 @@ except:
     sys.exit(0)
 
 if len(results) == 1:
-    print ' Dataset exists once in database. Do not insert again, but update properties.\n'
+    print ' Dataset exists in database. Will update properties now.\n'
     for row in results:
         process = row[1]
         setup = row[2]
@@ -196,13 +196,9 @@ if len(results) == 1:
         try:
             # Execute the SQL command
             cursor.execute(sql)
-            # Commit your changes in the database
-            db.commit()
             print ' database entry was updated.'
         except:
-            print ' ERROR -- insert failed, rolling back.'
-            # Rollback in case there is any error
-            db.rollback()
+            print ' Error (%s) -- update failed.'%(sql)
             sys.exit(1)
         # we are done here, no mmore insert
     else:
