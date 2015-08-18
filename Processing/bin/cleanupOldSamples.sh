@@ -22,6 +22,14 @@ function usage {
   exit 0
 }
 
+function deleteDecision {
+  nOld="$1"
+  nNew="$2"
+  rc=`echo $nOld $nNew | awk '{ print ($2/$1 >= 0.8) ? 0 : 1 }'`
+  echo " NEW/OLD: $nNew/$nOld -> $rc"
+  return $rc            # CAREFUL: 0 -- true,  1 -- false
+}
+
 MIT_CONFIG="$1"
 OLD_VERSION="$2"
 NEW_VERSION="$3"
@@ -55,7 +63,7 @@ do
     completion=`echo "$nNew / $nOld" | bc -l`
     echo " Old: $nOld  -->  New: $nNew  [ completion: $completion ]  $oldSample"
 
-    if [ $nNew -ge $nOld ]
+    if  deleteDecision $nOld $nNew
     then
       echo " removeSample.sh $MIT_CONFIG/$OLD_VERSION $oldSample"
       if [ "$EXECUTE" == "exec" ]

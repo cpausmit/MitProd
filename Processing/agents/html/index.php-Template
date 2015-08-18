@@ -19,6 +19,18 @@ body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25
 </a>
 <h1>XX-NAME-XX agent (aka XX-AKA-XX) </h1>
 <?php
+$output = shell_exec('ls -t status*');
+$f = explode("\n",$output);
+if (sizeof($f) > 1) {
+  print '<h2>Status</h2>';
+  print '<ul>';
+  foreach ($f as &$file) {
+    if ($file != "")
+      print '<li> <a href="' . $file . '">' . $file . '</a>';
+  }
+  print '</ul>';
+}
+print '<h2>Logfiles</h2>';
 print '<ul>';
 $output = shell_exec('ls -t *.log | head -5');
 $f = explode("\n",$output);

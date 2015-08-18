@@ -66,11 +66,16 @@ do
     # loop over all requested configurations
     for py in $MIT_PROD_REVIEW_PYS
     do
-      echo "   ==== cmssw: $py"                                                     >> $logFile
-      echo " "                                                                      >> $logFile
+      echo "   ==== cmssw: $py"                                                   >> $logFile
+      echo " "                                                                    >> $logFile
+      stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$py --displayOnly \
+                                                   >  $MIT_PROD_AGENTS_LOG/${daemon}/status-$py
+      # keep log file up to speed
+      rsync -Cavz $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
+
       stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$py --updateCacheDb --exe \
-                                                                                    >> $logFile 2>&1
-      echo " "                                                                      >> $logFile
+                                                                                  >> $logFile 2>&1
+      echo " "                                                                    >> $logFile
 
       # keep log file up to speed
       rsync -Cavz $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
@@ -80,7 +85,7 @@ do
     echo " completed review cycle."                                               >> $logFile
     echo " FINISH by updating log files on web."                                  >> $logFile
 
-    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
+    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
     sleep $wait
   done
 

@@ -40,12 +40,13 @@ def testLocalSetup(dataset,config,version,dbs,py,debug=0):
 # Main starts here
 #===================================================================================================
 # Define string to explain usage of the script
-usage =  " Usage: addDataset.py  --dataset=<name>\n"
-usage += "                       --config=<name>\n"
-usage += "                       --version=<name>\n"
-usage += "                     [ --dbs=prod/global ]\n"
-usage += "                     [ --py=<name> ]\n"
-usage += "                     [ --help ]\n\n"
+usage  = "\n"
+usage += " Usage: addBambuRequest.py  --dataset=<name>\n"
+usage += "                            --config=<name>\n"
+usage += "                            --version=<name>\n"
+usage += "                          [ --dbs=prod/global ]\n"
+usage += "                          [ --py=<name> ]\n"
+usage += "                          [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['dataset=','config=','version=',"dbs=",'py=','help']

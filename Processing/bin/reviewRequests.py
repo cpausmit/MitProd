@@ -28,6 +28,34 @@ def testTier2Disk(debug=0):
 
     return nFiles
 
+def productionStatus(mitCfg,versioon,dataset,debug=0):
+    # make sure we can see the Tier-2 disks: returns -1 on failure
+
+    cmd = "cat /home/cmsprod/catalog/t2mit/%s/%s/%s/Files 2> /dev/null | wc -l"\
+        %(mitCfg,version,dataset)
+    if debug > 0:
+        print " CMD: %s"%(cmd)
+
+    nDone = 0
+    try:
+        for line in os.popen(cmd).readlines():   # run command
+            nDone = int(line[:-1])
+    except:
+        nDone = -1
+
+    cmd = "grep root /home/cmsprod/cms/jobs/lfns/%s.lfns 2> /dev/null | wc -l"%(dataset)
+    if debug > 0:
+        print " CMD: %s"%(cmd)
+
+    nTotal = 0
+    try:
+        for line in os.popen(cmd).readlines():   # run command
+            nTotal = int(line[:-1])
+    except:
+        nTotal = -1
+    
+    return(nDone,nTotal)
+
 def findNumberOfFilesDone(mitCfg,version,dataset,debug=0):
     # Find out how many files have been completed for this dataset so far
 
@@ -228,14 +256,10 @@ usage += "                      --exe\n"
 usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
-# usage += "                      --download=<int: -1,0,1>\n"
-# usage += "                      --status=<int: -1,0,1>\n"
-# usage += "                      --remakeLfns=<int: -1,0,1>\n"
-# usage += "                      --show=<int: 0,1>\n"
- 
 # Define the valid options which can be specified and check out the command line
-valid = ['mitCfg=','version=','cmssw=','pattern=','download=','status=','remakeLfns=','show=', \
-         'help','exe','updateCacheDb','useCachedDb','useExistingLfns','useExistingSites','debug']
+valid = ['mitCfg=','version=','cmssw=','pattern=', \
+         'help','exe','updateCacheDb','useCachedDb','useExistingLfns','useExistingSites','debug', \
+         'displayOnly' ]
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -251,15 +275,12 @@ version          = os.environ['MIT_VERS']
 cmssw            = ''
 pattern          = ''
 cmsswCfg         = 'cmssw.cfg'
-exe              = 0
+displayOnly      = False
+exe              = False
 updateCachedDb   = False
 useCachedDb      = False
 useExistingLfns  = False
 useExistingSites = False
-# download         = -1
-# status           = -1
-# remakeLfns       = -1
-# show             = 0
 debug            = False
 
 # Read new values from the command line
@@ -276,7 +297,7 @@ for opt, arg in opts:
     if opt == "--pattern":
         pattern = arg
     if opt == "--exe":
-        exe = 1
+        exe = True
     if opt == "--updateCachedDb":
         updateCachedDb = True
     if opt == "--useCachedDb":
@@ -285,16 +306,10 @@ for opt, arg in opts:
         useExistingLfns = True
     if opt == "--useExistingSites":
         useExistingSites = True
-    if opt == "--download":
-        download = int(arg)
-    if opt == "--status":
-        status = int(arg)
-    if opt == "--remakeLfns":
-        remakeLfns = int(arg)
-    if opt == "--show":
-        show = int(arg)
     if opt == "--debug":
         debug = True
+    if opt == "--displayOnly":
+        displayOnly = True
 
 # Initial message 
 print ''
@@ -303,23 +318,6 @@ print ''
 print '                    S T A R T I N G   R E V I E W    C Y L E '
 print ''
 print ' @-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@'
-
-# Basic tests first
-testEnvironment(mitCfg,version,cmssw,cmsswCfg)
-updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
-if testTier2Disk(0) < 0:
-    print '\n ERROR -- Tier-2 disks seem unavailable, please check! EXIT review process.\n'
-    sys.exit(0)
-else:
-    print '\n INFO -- Tier-2 disks are available, start review process.\n'
-
-
-# Where is our storage?
-path = findPath(mitCfg,version)
-
-# Find all started samples
-startedDsetList  = findStartedDatasets(path,debug)
-ongoingDsetList  = findOngoingDatasets(path,mitCfg,version,debug)
 
 # Access the database to determine all requests
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
@@ -343,12 +341,73 @@ except:
     print " Error (%s): unable to fetch data."%(sql)
     sys.exit(0)
 
+#=======================
+# D I S P L A Y  L O O P
+#=======================
+
+# Take the result from the database and look at it
+filteredResults = []
+pat = re.compile(pattern)
+first = True
+for row in results:
+    process = row[0]
+    setup = row[1]
+    tier = row[2]
+    dbs = row[3]
+    nFiles = int(row[4])
+    requestId = int(row[8])
+    dbNFilesDone = int(row[9])
+
+    # make up the proper mit datset name
+    datasetName = process + '+' + setup+ '+' + tier
+
+    if pat.match(datasetName):
+        filteredResults.append(row)
+        (nDone,nTotal) = productionStatus(mitCfg,version,datasetName,debug)
+        if first:
+            first = False
+            print ''
+            print '                                 O V E R V I E W -- VERSION: ' + version
+            print ''
+            print '  Done/Total--Dataset Name'
+            print '----------------------------------------------------------------------------'
+
+        print " %5d/%5d  %s"%(nDone,nTotal,datasetName)
+
+print ''
+
+if displayOnly:
+    sys.exit(0)
+
+
+# Basic tests first
+testEnvironment(mitCfg,version,cmssw,cmsswCfg)
+updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
+if testTier2Disk(0) < 0:
+    print '\n ERROR -- Tier-2 disks seem unavailable, please check! EXIT review process.\n'
+    sys.exit(0)
+else:
+    print '\n INFO -- Tier-2 disks are available, start review process.\n'
+
+
+# Where is our storage?
+path = findPath(mitCfg,version)
+
+# Find all started samples
+startedDsetList  = findStartedDatasets(path,debug)
+ongoingDsetList  = findOngoingDatasets(path,mitCfg,version,debug)
+
+
 #==================
 # M A I N  L O O P
 #==================
 
+print ''
+print '                                    W O R K I N G   L O O P'
+print ''
+
 # Take the result from the database and look at it
-for row in results:
+for row in filteredResults:
     process = row[0]
     setup = row[1]
     tier = row[2]
@@ -437,7 +496,7 @@ for row in results:
     # make sure dataset is not yet being worked on
     if not inList(datasetName,ongoingDsetList):
         print ' submitting: ' + cmd
-        if exe == 1:
+        if exe:
             os.system(cmd)
     else:
         print ' already running.'
