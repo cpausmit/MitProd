@@ -341,9 +341,9 @@ except:
     print " Error (%s): unable to fetch data."%(sql)
     sys.exit(0)
 
-#=======================
-# D I S P L A Y  L O O P
-#=======================
+#============================================
+# D I S P L A Y  A N D  S E L E C T  L O O P
+#============================================
 
 # Take the result from the database and look at it
 filteredResults = []
@@ -362,6 +362,7 @@ for row in results:
     datasetName = process + '+' + setup+ '+' + tier
 
     if pat.match(datasetName):
+        # Make filtered list
         filteredResults.append(row)
         (nDone,nTotal) = productionStatus(mitCfg,version,datasetName,debug)
         if first:
@@ -376,9 +377,21 @@ for row in results:
 
 print ''
 
+#===============================================
+# D A T A S E T   V A L I D A T I O N   L O O P
+#===============================================
+
+# Take the result from the database and look at it
+for row in filteredResults:
+    process = row[0]
+    setup = row[1]
+    tier = row[2]
+    # make up the proper mit datset name
+    datasetName = process + '+' + setup+ '+' + tier
+    print 'addDatasetToBambu.py --dataset=/' + process + '/' + setup+ '/' + tier
+
 if displayOnly:
     sys.exit(0)
-
 
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)

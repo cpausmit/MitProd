@@ -4,8 +4,10 @@
 #
 # v1.0                                                                                  Sep 19, 2014
 #===================================================================================================
-import sys,os,subprocess,getopt,time
+import sys,os,subprocess,signal,getopt,time
 import MySQLdb
+#from dbs.apis.dbsClient import DbsApi
+#import dbs.apis.dbsClient
 
 def convertSizeToGb(sizeTxt):
 
@@ -33,6 +35,13 @@ def convertSizeToGb(sizeTxt):
 
     # return the size in GB as a float
     return sizeGb
+
+def getProxy():
+    cmd = 'voms-proxy-info -path'
+    for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
+        proxy = line[:-1]
+    
+    return proxy
 
 def testLocalSetup(dataset,debug=0):
     # test all relevant components and exit is something is off
@@ -73,12 +82,104 @@ def testLocalSetup(dataset,debug=0):
         print ' Error - das_client.py in your path, please find it and add it to PATH. EXIT!'
         sys.exit(1)
 
-def findDatasetProperties(dataset,dbs,debug=0):
+def removeDataset(db,datasetId,debug=0):
+
+    cursor = db.cursor()
+
+    # Prepare SQL query to REMOVE existing record from the database.
+    sql = "delete from Requests where DatasetId=%d"%(datasetId)
+    
+    if debug>0:
+        print ' delete: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+    except:
+        print ' ERROR -- delete in Requests table failed.'
+        sys.exit(1)
+
+    sql = "delete from Datasets where DatasetId=%d"%(datasetId)
+
+    if debug>0:
+        print ' delete: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+    except:
+        print ' ERROR -- delete in Datasets table failed.'
+        sys.exit(1)
+
+    return 0
+
+def selectDataset(db,process,setup,tier,debug=0):
+
+    # Prepare SQL query to SELECT existing record from the database.
+    sql = "select * from Datasets where DatasetProcess='%s' and DatasetSetup='%s' "%(process,setup) \
+        + "and DatasetTier='%s'"%(tier)
+    
+    cursor = db.cursor()
+
+    if debug>0:
+        print ' select: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        results = cursor.fetchall()
+    except:
+        print " Error (%s): unable to fetch data."%(sql)
+        sys.exit(0)
+
+    return results
+
+def insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug=0):
+    
+    # Prepare SQL query to INSERT a new record into the database.
+    sql = "insert into Datasets(" \
+        + "DatasetProcess,DatasetSetup,DatasetTier,DatasetDbsInstance,DatasetSizeGb,DatasetNFiles" \
+        + ") values('%s','%s','%s','%s',%f,%d)"%(process,setup,tier,dbsInst,sizeGb,nFiles)
+    
+    if debug>0:
+        print ' insert: ' + sql
+    try:
+        # Execute the SQL command
+        db.cursor().execute(sql)
+        # Commit your changes in the database
+        db.commit()
+    except:
+        print ' ERROR -- insert failed, rolling back.'
+        # Rollback in case there is any error
+        db.rollback()
+        sys.exit(1)
+
+    return 0
+    
+def findDatasetProperties(dataset,dbsInst,debug=0):
     # test whether this is a legitimate dataset by asking DAS and determine size and number of files
+
+    proxy = getProxy()
+
+    url = '/usr/bin/curl --cert %s -k -H "Accept: application/json"'%proxy \
+        + ' "https://cmsweb.cern.ch/dbs/prod/global/DBSReader/'  \
+        + 'datasets?dataset_access_type=VALID&dataset=%s"'%dataset
+    if debug>1:
+        print ' CURL: ' + url
+
+    process = subprocess.Popen(url,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+    dbsList, error = process.communicate()
+    if process.returncode != 0:
+        print " Received non-zero exit status: " + str(process.returncode)
+        raise Exception(" ERROR -- Call to dbs failed, stopping!")
+
+    if debug>1:
+        print ' dbsList: ' + dbsList
+    datasetInvalid = False
+    if dbsList == '[]':
+        datasetInvalid = True
+        return (-1,-1)
 
     cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
     cmd = 'das_client.py ' + cert + '  --format=plain --limit=0 --query="file dataset=' + \
-	  dataset + ' instance=' + dbs + ' | count(file), sum(file.size)"| sort -u'
+	  dataset + ' status=valid instance=' + dbsInst + ' | count(file), sum(file.size)"| sort -u'    
     nFiles = ''
     size = ''
     line = ''
@@ -136,7 +237,7 @@ except getopt.GetoptError, ex:
 # Set defaults for each command line parameter/option
 debug = 0
 dataset  = ''
-dbs = 'prod/global'
+dbsInst = 'prod/global'
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -146,12 +247,16 @@ for opt, arg in opts:
     if opt == "--dataset":
         dataset = arg
     if opt == "--dbs":
-        dbs = arg
+        dbsInst = arg
     if opt == "--debug":
         debug = arg
 
 testLocalSetup(dataset,debug)
-(sizeGb, nFiles) = findDatasetProperties(dataset,dbs,debug)
+
+# Open database connection
+db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
+# Prepare a cursor object using cursor() method
+cursor = db.cursor()
 
 # Decompose dataset into the three pieces (process, setup, tier)
 f = dataset.split('/')
@@ -159,32 +264,33 @@ process = f[1]
 setup   = f[2]
 tier    = f[3]
 
-# Open database connection
-db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
-
-# Prepare a cursor object using cursor() method
-cursor = db.cursor()
-
 # First check whether this download request already exists in the database
-sql = "select * from Datasets where DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s';"\
-      %(process,setup,tier)
-if debug>0:
-    print ' select: ' + sql
-try:
-    # Execute the SQL command
-    cursor.execute(sql)
-    results = cursor.fetchall()
-except:
-    print " Error (%s): unable to fetch data."%(sql)
+results = selectDataset(db,process,setup,tier,debug)
+
+# Check the dataset in dbs (DAS)
+(sizeGb, nFiles) = findDatasetProperties(dataset,dbsInst,debug)
+if sizeGb < 0:
+    print ' Dataset does not exist or is invalid (%s).'%dataset
+    if len(results) > 0:
+        print ' Dataset was found in Bambu database. (nResults=%d)'%(len(results))
+        rc = 0
+        for row in results:
+            datasetId = int(row[0])
+            rc = removeDataset(db,datasetId,debug)
+        if rc == 0:
+            print ' Invalid dataset successfully removed from Bambu database (%s).'%(dataset)
+        else:
+            print ' Error removing invalid dataset from Bambu database (%s).'%(dataset)
     sys.exit(0)
 
+# Dataset is valid now see what remains to be done
 if len(results) == 1:
     print ' Dataset exists in database. Will update properties now.\n'
     for row in results:
         process = row[1]
         setup = row[2]
         tier = row[3]
-        dbs = row[4]
+        dbsInst = row[4]
         dbSizeGb = float(row[5])
         dbNFiles = int(row[6])
     # check whether information correct and adjust if needed
@@ -203,32 +309,17 @@ if len(results) == 1:
         # we are done here, no mmore insert
     else:
         print " Database is up to date.\n"
-
     sys.exit(0)
 
 elif len(results) > 1:
     print ' Dataset exists already multiple times in database. ERROR please fix.'
     sys.exit(0)
 
-# Prepare SQL query to INSERT a new record into the database.
-sql = "insert into Datasets(" \
-    + "DatasetProcess,DatasetSetup,DatasetTier,DatasetDbsInstance,DatasetSizeGb,DatasetNFiles" + \
-      ") values('%s','%s','%s','%s',%f,%d)"%(process,setup,tier,dbs,sizeGb,nFiles)
-
-if debug>0:
-    print ' insert: ' + sql
-try:
-    # Execute the SQL command
-    cursor.execute(sql)
-    # Commit your changes in the database
-    db.commit()
-except:
-    print ' ERROR -- insert failed, rolling back.'
-    # Rollback in case there is any error
-    db.rollback()
-    sys.exit(1)
-    
-print ' New dataset successfully inserted into the database (%s).'%(dataset)
+rc = insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug)
+if rc == 0:
+    print ' New dataset successfully inserted into the database (%s).'%(dataset)
+else:
+    print ' Error inserting dataset (%s).'%(dataset)
 
 # disconnect from server
 db.close()
