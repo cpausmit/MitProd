@@ -138,7 +138,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     active                        = cms.untracked.bool(True),
     mitName                       = cms.untracked.string('EvtSelData'),
     HBHENoiseFilterName           = cms.untracked.string('HBHENoiseFilterResultProducer:'+
-                                                         'HBHENoiseFilterResult'),
+                                                         'HBHENoiseFilterResultRun2Loose'),
     ECALDeadCellFilterName        = cms.untracked.string('EcalDeadCellTriggerPrimitiveFilter'),
     trackingFailureFilterName     = cms.untracked.string('trackingFailureFilter'),
     EEBadScFilterName             = cms.untracked.string('eeBadScFilter'),

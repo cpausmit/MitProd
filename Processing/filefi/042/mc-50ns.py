@@ -8,14 +8,16 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  #input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(200)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015C/DoubleMuon/AOD/PromptReco-v1/000/254/227/00000/A0F6935F-2A46-E511-9482-02163E014568.root')
+  # make sure this is for the right version
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v2/00000/0033A97B-8707-E511-9D3B-008CFA1980B8.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,13 +29,13 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9A'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
   version    = cms.untracked.string('Mit_042'),
-  annotation = cms.untracked.string('AOD')
+  annotation = cms.untracked.string('AODSIM')
 )
 
 #>> standard sequences
@@ -104,8 +106,8 @@ process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
 process.load('CommonTools.ParticleFlow.pfPhotons_cff')
 process.load('CommonTools.ParticleFlow.pfElectrons_cff')
 process.load('CommonTools.ParticleFlow.pfMuons_cff')
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi') 
-process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi') 
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi')
+process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 
 # Loading PFProducer to get the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
@@ -114,11 +116,11 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # Load btagging
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-fatjetSequence = makeFatJets(process, isData = True)
+fatjetSequence = makeFatJets(process, isData = False)
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 
 pfPileUp.Enable = True
@@ -141,7 +143,7 @@ recoSequence = cms.Sequence(
   particleFlowPtrs *
   pfParticleSelectionSequence *
   pfPhotonSequence *
-  pfMuonSequence *
+  pfMuonSequence * 
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
@@ -159,7 +161,17 @@ recoSequence = cms.Sequence(
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-# this is data, so nothing here
+# Import/Load genjets
+from RecoJets.Configuration.GenJetParticles_cff import genJetParticles
+process.load('RecoJets.Configuration.GenJetParticles_cff')
+from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
+process.load('RecoJets.Configuration.RecoGenJets_cff')
+
+genSequence = cms.Sequence(
+  genJetParticles *
+  ak4GenJets *
+  ak8GenJets
+)
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -171,13 +183,11 @@ recoSequence = cms.Sequence(
 
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
-# remove Monte Carlo information
-MitTreeFiller.MCEventInfo.active = False
-MitTreeFiller.MCParticles.active = False
-MitTreeFiller.MCVertexes.active = False
-MitTreeFiller.PileupInfo.active = False
-MitTreeFiller.AKT4GenJets.active = False
-MitTreeFiller.AKT8GenJets.active = False
+MitTreeFiller.PileupInfo.active = True
+MitTreeFiller.MCParticles.active = True
+MitTreeFiller.MCEventInfo.active = True
+MitTreeFiller.MCVertexes.active = True
+MitTreeFiller.EvtSelData.HBHENoiseFilterName = 'HBHENoiseFilterResultProducer:HBHENoiseFilterResult'
 
 # define fill bambu filler sequence
 
@@ -193,5 +203,6 @@ bambuFillerSequence = cms.Sequence(
 
 process.path = cms.Path(
   recoSequence *
+  genSequence *
   bambuFillerSequence
 )
