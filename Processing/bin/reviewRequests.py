@@ -388,7 +388,7 @@ for row in filteredResults:
     tier = row[2]
     # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
-    print 'addDatasetToBambu.py --dataset=/' + process + '/' + setup+ '/' + tier
+    print ' addDatasetToBambu.py --dataset=/' + process + '/' + setup+ '/' + tier
 
 if displayOnly:
     sys.exit(0)

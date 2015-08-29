@@ -48,6 +48,7 @@ def testLocalSetup(dataset,debug=0):
 
     # check the user proxy
     rc = os.system("voms-proxy-info -exists")
+
     if debug > 0:
         print 'Return code: %d'%(rc)
 
@@ -91,6 +92,7 @@ def removeDataset(db,datasetId,debug=0):
     
     if debug>0:
         print ' delete: ' + sql
+
     try:
         # Execute the SQL command
         cursor.execute(sql)
@@ -102,6 +104,7 @@ def removeDataset(db,datasetId,debug=0):
 
     if debug>0:
         print ' delete: ' + sql
+
     try:
         # Execute the SQL command
         cursor.execute(sql)
@@ -121,6 +124,7 @@ def selectDataset(db,process,setup,tier,debug=0):
 
     if debug>0:
         print ' select: ' + sql
+
     try:
         # Execute the SQL command
         cursor.execute(sql)
@@ -140,6 +144,7 @@ def insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug=0):
     
     if debug>0:
         print ' insert: ' + sql
+
     try:
         # Execute the SQL command
         db.cursor().execute(sql)
@@ -152,40 +157,83 @@ def insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug=0):
         sys.exit(1)
 
     return 0
-    
-def findDatasetProperties(dataset,dbsInst,debug=0):
-    # test whether this is a legitimate dataset by asking DAS and determine size and number of files
+
+def updateDataset(db,process,setup,tier,sizeGb,nFiles,debug=0):
+
+    # Prepare SQL query to UPDATE existing record from the database.
+    sql = "update Datasets set DatasetSizeGb=%f, DatasetNFiles=%d where "%(sizeGb,nFiles) + \
+        " DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
+
+    cursor = db.cursor()
+
+    if debug>0:
+        print " Sql: " + sql
+
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        print ' database entry was updated.'
+    except:
+        print ' Error (%s) -- update failed.'%(sql)
+        sys.exit(1)
+
+    return results
+
+def isDatasetValid(dataset,dbsInst,debug=0):
+    # test whether this dataset is a valid dataset
 
     proxy = getProxy()
 
-    url = '/usr/bin/curl --cert %s -k -H "Accept: application/json"'%proxy \
+    url = '/usr/bin/curl -s --cert %s -k -H "Accept: application/json"'%proxy \
         + ' "https://cmsweb.cern.ch/dbs/prod/global/DBSReader/'  \
-        + 'datasets?dataset_access_type=VALID&dataset=%s"'%dataset
+        + 'datasets?instance=%s&dataset_access_type=VALID&dataset=%s"'%(dbsInst,dataset)
+
     if debug>1:
         print ' CURL: ' + url
 
-    process = subprocess.Popen(url,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
-    dbsList, error = process.communicate()
-    if process.returncode != 0:
-        print " Received non-zero exit status: " + str(process.returncode)
-        raise Exception(" ERROR -- Call to dbs failed, stopping!")
+    nTries = 0
+    dbsList = 'FAKE CMSWEB Error FAKE'
+    while 'CMSWEB Error' in dbsList and nTries < 4:
+
+        if nTries>0 and debug>1:
+                print ' CMSWEB error -- RETRY -- %d'%nTries
+
+        process = subprocess.Popen(url,stdout=subprocess.PIPE,shell=True)
+        dbsList, error = process.communicate()
+
+        if process.returncode != 0 or nTries > 2:
+            print " Received non-zero exit status: " + str(process.returncode)
+            raise Exception(" ERROR -- Call to dbs failed, stopping!")
+
+        nTries += 1
 
     if debug>1:
         print ' dbsList: ' + dbsList
-    datasetInvalid = False
+
+    datasetValid = True
     if dbsList == '[]':
-        datasetInvalid = True
+        datasetValid = False
+
+    return datasetValid
+
+def findDatasetProperties(dataset,dbsInst,debug=0):
+    # test whether this is a legitimate dataset by asking DAS and determine size and number of files
+
+    if not isDatasetValid(dataset,dbsInst,debug=0):
         return (-1,-1)
 
     cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
-    cmd = 'das_client.py ' + cert + '  --format=plain --limit=0 --query="file dataset=' + \
-	  dataset + ' status=valid instance=' + dbsInst + ' | count(file), sum(file.size)"| sort -u'    
+    cmd = 'das_client.py ' + cert + '  --format=plain --limit=0 --query="file dataset=' \
+        + dataset + ' status=valid instance=' + dbsInst \
+        + ' | count(file), sum(file.size)"| sort -u'    
     nFiles = ''
     size = ''
     line = ''
     units = 'GB'
+
     if debug>1:
         print " CMD " + cmd
+
     for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
         line    = line[:-1]
         f = line.split('=')
@@ -220,10 +268,11 @@ def findDatasetProperties(dataset,dbsInst,debug=0):
 usage =  " Usage: addDataset.py  --dataset=<name>\n"
 usage += "                     [ --dbs='prod/global' ]\n"
 usage += "                     [ --debug=0 ]\n"
+usage += "                     [ --exec ]\n"
 usage += "                     [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['dataset=','dbs=','debug=','help']
+valid = ['dataset=','dbs=','debug=','exec','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -238,6 +287,7 @@ except getopt.GetoptError, ex:
 debug = 0
 dataset  = ''
 dbsInst = 'prod/global'
+exe = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -250,6 +300,8 @@ for opt, arg in opts:
         dbsInst = arg
     if opt == "--debug":
         debug = arg
+    if opt == "--exec":
+        exe = True
 
 testLocalSetup(dataset,debug)
 
@@ -276,7 +328,10 @@ if sizeGb < 0:
         rc = 0
         for row in results:
             datasetId = int(row[0])
-            rc = removeDataset(db,datasetId,debug)
+            if exe:
+                rc = removeDataset(db,datasetId,debug)
+            else:
+                print ' not removing dataset: use --exec option'
         if rc == 0:
             print ' Invalid dataset successfully removed from Bambu database (%s).'%(dataset)
         else:
@@ -296,17 +351,16 @@ if len(results) == 1:
     # check whether information correct and adjust if needed
     if dbSizeGb != sizeGb or dbNFiles != nFiles:
         print " Update!  Size: %.3f -> %.3f  nFiles: %d -> %d"%(dbSizeGb,sizeGb,dbNFiles,nFiles)
-        sql = "update Datasets set DatasetSizeGb=%f, DatasetNFiles=%d where "%(sizeGb,nFiles) + \
-            " DatasetProcess='%s' and DatasetSetup='%s' and DatasetTier='%s'"%(process,setup,tier)
-        print " Sql: " + sql
-        try:
-            # Execute the SQL command
-            cursor.execute(sql)
-            print ' database entry was updated.'
-        except:
-            print ' Error (%s) -- update failed.'%(sql)
-            sys.exit(1)
-        # we are done here, no mmore insert
+        rc = 0
+        if exe:
+            rc = updateDataset(db,process,setup,tier,sizeGb,nFiles,debug)
+        else:
+            print ' not updating dataset: use --exec option'
+
+        if rc == 0:
+            print ' Updated dataset successfully in Bambu database (%s).'%(dataset)
+        else:
+            print ' Error updating dataset in Bambu database (%s).'%(dataset)
     else:
         print " Database is up to date.\n"
     sys.exit(0)
@@ -315,7 +369,12 @@ elif len(results) > 1:
     print ' Dataset exists already multiple times in database. ERROR please fix.'
     sys.exit(0)
 
-rc = insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug)
+rc = 0 
+if exe:
+    rc = insertDataset(db,process,setup,tier,dbsInst,sizeGb,nFiles,debug)
+else:
+    print ' not inserting dataset: use --exec option'
+
 if rc == 0:
     print ' New dataset successfully inserted into the database (%s).'%(dataset)
 else:
