@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015C/DoubleMuon/AOD/PromptReco-v1/000/254/227/00000/A0F6935F-2A46-E511-9482-02163E014568.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMu/AOD/PromptReco-v1/000/251/028/00000/924F6240-3C26-E511-B55B-02163E0144CC.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -178,6 +178,8 @@ MitTreeFiller.MCVertexes.active = False
 MitTreeFiller.PileupInfo.active = False
 MitTreeFiller.AKT4GenJets.active = False
 MitTreeFiller.AKT8GenJets.active = False
+# MET filter configuration
+MitTreeFiller.EvtSelData.HBHENoiseFilterName = 'HBHENoiseFilterResultProducer:HBHENoiseFilterResult'
 
 # define fill bambu filler sequence
 
