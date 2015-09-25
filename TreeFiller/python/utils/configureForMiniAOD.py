@@ -255,9 +255,6 @@ def configureForMiniAOD(treeFiller):
             'DiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsName': 'byMediumCombinedIsolationDeltaBetaCorr3Hits',
             'DiscriminationByTightCombinedIsolationDBSumPtCorr3HitsName': 'byTightCombinedIsolationDeltaBetaCorr3Hits',
             'DiscriminationByRawCombinedIsolationDBSumPtCorr3HitsName': 'byCombinedIsolationDeltaBetaCorrRaw3Hits',
-            'MVA3IsolationChargedIsoPtSumName': 'chargedIsoPtSum',
-            'MVA3IsolationNeutralIsoPtSumName': 'chargedIsoPtSum',
-            'MVA3IsolationPUcorrPtSumName': 'puCorrPtSum',
             'fillerType': 'FillerPFTausFromPATTaus'
         },
     
