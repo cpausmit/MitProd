@@ -21,6 +21,19 @@ body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25
   <li> <a href="catalogd">catalogd</a> -- catalogs all files from ongoing productions
   <li> <a href="cleanupd">cleanupd</a> -- cleans up ongoing production and removes once complete
 </ul>
+<?php
+$output = shell_exec('ls -t reviewd/status*');
+$f = explode("\n",$output);
+if (sizeof($f) > 1) {
+  print '<h2>Status</h2>';
+  print '<ul>';
+  foreach ($f as &$file) {
+    if ($file != "")
+      print '<li> <a href="' . $file . '">' . $file . '</a>';
+  }
+  print '</ul>';
+}
+?>
 <hr>
 <p style="font-family: arial;font-size: 10px;font-weight: bold;color:#900000;">
 <!-- hhmts start -->

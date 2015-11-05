@@ -252,6 +252,7 @@ usage += "                      --updateCachedDb\n"
 usage += "                      --useCachedDb\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --useExistingSites\n"
+usage += "                      --displayOnly\n"
 usage += "                      --exe\n"
 usage += "                      --debug\n"
 usage += "                      --help\n\n"
@@ -373,7 +374,10 @@ for row in results:
             print '  Done/Total--Dataset Name'
             print '----------------------------------------------------------------------------'
 
-        print " %5d/%5d  %s"%(nDone,nTotal,datasetName)
+        if nDone != nTotal:
+            print " %5d/%5d  %s"%(nDone,nTotal,datasetName)
+        else:
+            print "       %5d  %s"%(nTotal,datasetName)
 
 print ''
 
@@ -488,8 +492,10 @@ for row in filteredResults:
     elif nFilesDone < nFiles:  # second most frequent case: work started but not completed
         print ' files missing, submit the missing ones.\n'
     else:                      # weird, more files found than available               
-        print '\n ERROR more files found than available in dataset. NO ACTION on this dataset\n'
-        continue
+        print '\n ERROR more files found than available in dataset. NO ACTION on this dataset'
+        print '       done: %d   all: %d'%(nFilesDone,nFiles)
+        print ''
+        #continue
 
 
     # if work not complete submit the remainder
