@@ -70,7 +70,7 @@ mithep::FillerPhotons::BookDataBlock(TreeWriter& tws)
     OS()->add(photonMap_, photonMapName_);
   }
 
-  if (fillFromPAT_ && !photonPFMapName_.empty()) {
+  if (!photonPFMapName_.empty()) {
     photonPFMap_ = new mithep::CandidateMap;
     photonPFMap_->SetBrName(mitName_);
     OS()->add(photonPFMap_, photonPFMapName_);
@@ -82,38 +82,31 @@ mithep::FillerPhotons::PrepareLinks()
 {
   if (!conversionMapName_.empty()) {
     conversionMap_ = OS()->get<ConversionDecayMap>(conversionMapName_);
-    if (conversionMap_)
-      AddBranchDep(mitName_, conversionMap_->GetBrName());
+    AddBranchDep(mitName_, conversionMap_->GetBrName());
   }
   if (!oneLegConversionMapName_.empty()) {
     oneLegConversionMap_ = OS()->get<ConversionDecayMap>(oneLegConversionMapName_);
-    if (oneLegConversionMap_)
-      AddBranchDep(mitName_, oneLegConversionMap_->GetBrName());
+    AddBranchDep(mitName_, oneLegConversionMap_->GetBrName());
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
-    if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
-    if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
   }
   if (!pfEcalBarrelSuperClusterMapName_.empty()) {
     pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
-    if (pfEcalBarrelSuperClusterMap_)
-      AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
   }
   if (!pfEcalEndcapSuperClusterMapName_.empty()) {
     pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
-    if (pfEcalEndcapSuperClusterMap_)
-      AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
   if (!pfCandidateMapName_.empty()) {
     pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
-    if (pfCandidateMap_)
-      AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
+    AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
   }
 }
 
@@ -160,6 +153,13 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     edm::Handle<edm::ValueMap<bool> > hPhidTightMap;
     if (GetProductSafe(phIDCutBasedTightToken_, hPhidTightMap, event))
       phidTightMap = hPhidTightMap.product();
+  }
+
+  edm::ValueMap<PFCandRefV> const* footprintMap = 0;
+  if (photonPFMap_ && !fillFromPAT_) {
+    edm::Handle<edm::ValueMap<PFCandRefV> > hFootprintMap;
+    GetProduct(footprintToken_, hFootprintMap, event);
+    footprintMap = hFootprintMap.product();
   }
 
   unsigned iPhoton = 0;
@@ -321,11 +321,19 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     photonMap_->Add(phPtr, outPhoton);
 
     if (photonPFMap_) {
-      auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
-
-      unsigned nS = patPhoton.numberOfSourceCandidatePtrs();    
-      for (unsigned iS = 0; iS != nS; ++iS)
-        photonPFMap_->Add(patPhoton.sourceCandidatePtr(iS), outPhoton);
+      // associate the photon to its footprint candidates
+      if (fillFromPAT_) {
+        auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
+        auto&& footprint = patPhoton.associatedPackedPFCandidates();
+        for (auto& candRef : footprint)
+          photonPFMap_->Add(reco::CandidatePtr(edm::refToPtr(candRef)), outPhoton);
+      }
+      else {
+        auto& footprint = (*footprintMap)[phPtr];
+        for (auto& candRef : footprint) {
+          photonPFMap_->Add(reco::CandidatePtr(edm::refToPtr(candRef)), outPhoton);
+        }
+      }
     }
   }
 

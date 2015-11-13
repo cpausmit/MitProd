@@ -58,24 +58,20 @@ mithep::FillerPackedPFCandidates::PrepareLinks()
 {
   if (!electronMapName_.empty()) {
     electronMap_ = OS()->get<mithep::CandidateMap>(electronMapName_);
-    if (electronMap_)
-      AddBranchDep(mitName_, electronMap_->GetBrName());
+    AddBranchDep(mitName_, electronMap_->GetBrName());
   }
   if (!muonMapName_.empty()) {
     muonMap_ = OS()->get<mithep::CandidateMap>(muonMapName_);
-    if (muonMap_)
-      AddBranchDep(mitName_, muonMap_->GetBrName());
+    AddBranchDep(mitName_, muonMap_->GetBrName());
   }
   if (!photonMapName_.empty()) {
     photonMap_ = OS()->get<mithep::CandidateMap>(photonMapName_);
-    if (photonMap_)
-      AddBranchDep(mitName_, photonMap_->GetBrName());
+    AddBranchDep(mitName_, photonMap_->GetBrName());
   }
 
   if (!trackMapName_.empty()) {
     trackMap_ = OS()->get<mithep::CandidateMap>(trackMapName_);
-    if (trackMap_)
-      AddBranchDep(mitName_, trackMap_->GetBrName());
+    AddBranchDep(mitName_, trackMap_->GetBrName());
   }
 }
 

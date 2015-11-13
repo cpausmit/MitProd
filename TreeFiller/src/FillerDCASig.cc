@@ -63,30 +63,25 @@ void FillerDCASig::BookDataBlock(TreeWriter &tws)
   // Add DCA to the tree
   tws.AddBranch(mitName_,&DCASigs_);
   OS()->add(DCASigs_,mitName_);
+}
 
+void FillerDCASig::PrepareLinks()
+{
   //Load lepton maps
   if (!electronMapName_.empty()) {
     electronMap_ = OS()->get<ElectronMap>(electronMapName_);
-    if (electronMap_)
-      AddBranchDep(mitName_,electronMap_->GetBrName());
-    else
-      printf("\n FillerDCASig::BookDataBlock Electron map (Name: %s) not found!!\n\n",electronMapName_.data());
+    AddBranchDep(mitName_,electronMap_->GetBrName());
   }
   if (!muonMapName_.empty()) {
     muonMap_ = OS()->get<MuonMap>(muonMapName_);
-    if (muonMap_)
-      AddBranchDep(mitName_,muonMap_->GetBrName());
-    else
-      printf("\n FillerDCASig::BookDataBlock Muon map (Name: %s) not found!!\n\n",muonMapName_.data());
+    AddBranchDep(mitName_,muonMap_->GetBrName());
   }
   if (!tauMapName_.empty()) {
     tauMap_ = OS()->get<PFTauMap>(tauMapName_);
-    if (tauMap_)
-      AddBranchDep(mitName_,tauMap_->GetBrName());
-    else
-      printf("\n FillerDCASig::BookDataBlock Tau map (Name: %s) not found!!\n\n",tauMapName_.data());
+    AddBranchDep(mitName_,tauMap_->GetBrName());
   }
 }
+
 //--------------------------------------------------------------------------------------------------
 void FillerDCASig::FillDataBlock(const edm::Event      &event,
                                  const edm::EventSetup &setup)

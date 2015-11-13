@@ -100,51 +100,42 @@ mithep::FillerElectrons::PrepareLinks()
   if (fillFromPAT_) {
     if (!gsfTrackMapName_.empty()) {
       eleGsfTrackMap_ = OS()->get<ElectronTrackMap>(gsfTrackMapName_);
-      if (eleGsfTrackMap_)
-        AddBranchDep(mitName_, eleGsfTrackMap_->GetBrName());
+      AddBranchDep(mitName_, eleGsfTrackMap_->GetBrName());
     }
     if (!trackerTrackMapName_.empty()) {
       eleTrackerTrackMap_ = OS()->get<ElectronTrackMap>(trackerTrackMapName_);
-      if (eleTrackerTrackMap_)
-        AddBranchDep(mitName_, eleTrackerTrackMap_->GetBrName());
+      AddBranchDep(mitName_, eleTrackerTrackMap_->GetBrName());
     }
   }
   else {
     if (!gsfTrackMapName_.empty()) {
       gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-      if (gsfTrackMap_)
-        AddBranchDep(mitName_, gsfTrackMap_->GetBrName());
+      AddBranchDep(mitName_, gsfTrackMap_->GetBrName());
     }
     if (!trackerTrackMapName_.empty()) {
       trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-      if (trackerTrackMap_)
-        AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
+      AddBranchDep(mitName_, trackerTrackMap_->GetBrName());
     }
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
-    if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
-    if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, endcapSuperClusterMap_->GetBrName());
   }
   if (!pfEcalBarrelSuperClusterMapName_.empty()) {
     pfEcalBarrelSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalBarrelSuperClusterMapName_);
-    if (pfEcalBarrelSuperClusterMap_)
-      AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, pfEcalBarrelSuperClusterMap_->GetBrName());
   }
   if (!pfEcalEndcapSuperClusterMapName_.empty()) {
     pfEcalEndcapSuperClusterMap_ = OS()->get<SuperClusterMap>(pfEcalEndcapSuperClusterMapName_);
-    if (pfEcalEndcapSuperClusterMap_)
-      AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_, pfEcalEndcapSuperClusterMap_->GetBrName());
   }
   if (!pfCandidateMapName_.empty()) {
     pfCandidateMap_ = OS()->get<PFCandidateMap>(pfCandidateMapName_);
-    if (pfCandidateMap_)
-      AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
+    AddBranchDep(mitName_, pfCandidateMap_->GetBrName());
   }
 }
 

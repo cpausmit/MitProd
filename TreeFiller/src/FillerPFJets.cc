@@ -30,8 +30,7 @@ mithep::FillerPFJets::PrepareLinks()
   // find the pf candidate map
   if (!pfCandMapName_.empty()) {
     pfCandMap_ = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
-    if (pfCandMap_)
-      AddBranchDep(mitName_, pfCandMap_->GetBrName());
+    AddBranchDep(mitName_, pfCandMap_->GetBrName());
   }
 }
 

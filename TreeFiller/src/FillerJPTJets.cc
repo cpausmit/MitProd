@@ -22,8 +22,7 @@ mithep::FillerJPTJets::PrepareLinks()
 {
   if (!caloJetMapName_.empty()) {
     caloJetMap_ = OS()->get<CaloJetMap>(caloJetMapName_);
-    if (caloJetMap_)
-      AddBranchDep(mitName_,caloJetMap_->GetBrName());
+    AddBranchDep(mitName_,caloJetMap_->GetBrName());
   }
 }
 

@@ -54,15 +54,15 @@ void FillerStableParts::BookDataBlock(TreeWriter &tws)
     trackPartMap_->SetBrName(mitName_);
     OS()->add(trackPartMap_,trackPartMapName_);
   }
+}
 
-  for (std::vector<std::string>::const_iterator tmapName = trackMapNames_.begin();
-        tmapName!=trackMapNames_.end(); ++tmapName) {
-    if (!tmapName->empty()) {
-      const TrackMap *map = OS()->get<TrackMap>(*tmapName);
-      if (map) {
-        trackMaps_.push_back(map);
-        AddBranchDep(mitName_,map->GetBrName());
-      }
+void FillerStableParts::PrepareLinks()
+{
+  for (auto&& tmapName : trackMapNames_) {
+    if (!tmapName.empty()) {
+      const TrackMap *map = OS()->get<TrackMap>(tmapName);
+      trackMaps_.push_back(map);
+      AddBranchDep(mitName_,map->GetBrName());
     }
   }
 }

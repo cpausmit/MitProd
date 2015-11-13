@@ -20,7 +20,6 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   photonMapName_            (cfg.getUntrackedParameter<std::string>("photonMapName", "")),
   barrelSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
-  conversionMapName_        (cfg.getUntrackedParameter<std::string>("conversionMapName", "")),
   pfCandMapName_            (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_    (cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
   allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
@@ -32,7 +31,6 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   photonMap_                (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
-  conversionMap_            (0),
   pfCandMap_                (new mithep::PFCandidateMap),
   pfNoPileupCandMap_        (0),
   pfCands_                  (new mithep::PFCandidateArr(16))
@@ -71,46 +69,33 @@ mithep::FillerPFCandidates::PrepareLinks()
   for (auto&& bmapName : trackerTrackMapNames_) {
     if (!bmapName.empty()) {
       auto* map = OS()->get<TrackMap>(bmapName);
-      if (map) {
-        trackerTrackMaps_.push_back(map);
-        AddBranchDep(mitName_,map->GetBrName());
-      }
+      trackerTrackMaps_.push_back(map);
+      AddBranchDep(mitName_,map->GetBrName());
     }
   }
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-    if (gsfTrackMap_)
-      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
   }
   if (!muonMapName_.empty()) {
     muonMap_ = OS()->get<MuonMap>(muonMapName_);
-    if (muonMap_)
-      AddBranchDep(mitName_,muonMap_->GetBrName());
+    AddBranchDep(mitName_,muonMap_->GetBrName());
   }
   if (!electronMapName_.empty()) {
     electronMap_ = OS()->get<ElectronMap>(electronMapName_);
-    if (electronMap_)
-      AddBranchDep(mitName_,electronMap_->GetBrName());
+    AddBranchDep(mitName_,electronMap_->GetBrName());
   }
   if (!photonMapName_.empty()) {
     photonMap_ = OS()->get<PhotonMap>(photonMapName_);
-    if (photonMap_)
-      AddBranchDep(mitName_,photonMap_->GetBrName());
+    AddBranchDep(mitName_,photonMap_->GetBrName());
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
-    if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
-    if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
-  }
-  if (!conversionMapName_.empty()) {
-    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
-    if (conversionMap_)
-      AddBranchDep(mitName_,conversionMap_->GetBrName());
+    AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
 }
 
@@ -292,9 +277,6 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
         throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
-    
-    if (conversionMap_ && inPf.conversionRef().isNonnull()) 
-      outPfCand->SetConversion(conversionMap_->GetMit(inPf.conversionRef()));
   }    
 }
 

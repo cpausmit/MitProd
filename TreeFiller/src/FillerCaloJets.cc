@@ -22,8 +22,7 @@ mithep::FillerCaloJets::PrepareLinks()
 {
   if (!caloTowerMapName_.empty()) {
     caloTowerMap_ = OS()->get<mithep::CaloTowerMap>(caloTowerMapName_);
-    if (caloTowerMap_)
-      AddBranchDep(mitName_, caloTowerMap_->GetBrName());
+    AddBranchDep(mitName_, caloTowerMap_->GetBrName());
   }
 }
 

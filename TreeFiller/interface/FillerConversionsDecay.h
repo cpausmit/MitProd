@@ -30,9 +30,10 @@ namespace mithep
       FillerConversionsDecay(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerConversionsDecay();
 
-      void                                     BookDataBlock(TreeWriter &tws);
+      void                                     BookDataBlock(TreeWriter &tws) override;
+      void                                     PrepareLinks() override;
       void                                     FillDataBlock(const edm::Event &e, 
-                                                             const edm::EventSetup &es);
+                                                             const edm::EventSetup &es) override;
   
     private:
       mithep::Particle                        *GetMitParticle(edm::Ptr<reco::Track> ptr) const;

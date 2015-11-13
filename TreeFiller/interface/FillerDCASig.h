@@ -26,9 +26,10 @@ namespace mithep
     FillerDCASig(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
     ~FillerDCASig();
 
-      void                                     BookDataBlock(TreeWriter &tws);
-      void                                     FillDataBlock(const edm::Event &e, 
-                                                             const edm::EventSetup &es);
+      void                                     BookDataBlock(TreeWriter &tws) override;
+      void                                     PrepareLinks() override;
+      void                                     FillDataBlock(const edm::Event &e,
+                                                             const edm::EventSetup &es) override;
       void calculateDCA(Double_t &iDCA3D    ,Double_t &iDCA3DE    ,Double_t &iDCA2D    ,Double_t &iDCA2DE,
 			Double_t &iDCARPhi3D,Double_t &iDCARPhi3DE,Double_t &iDCARPhi2D,Double_t &iDCARPhi2DE,
 			const reco::Track *iTrack1,const reco::Track *iTrack2,DCASig::EDCAType iType) ;
