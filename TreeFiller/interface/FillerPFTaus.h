@@ -28,6 +28,7 @@ namespace mithep {
     ~FillerPFTaus();
 
     void BookDataBlock(TreeWriter&) override;
+    void PrepareLinks() override;
     void FillDataBlock(edm::Event const&, edm::EventSetup const&) override;
 
     typedef std::vector<TAU> TauCollection;
