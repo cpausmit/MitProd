@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------
-# Remove an existing sample from disk and from catalog.
+# Remove an existing sample from disk, catalog and the request database.
 #
 #---------------------------------------------------------------------------------------------------
 function usage {

@@ -8,7 +8,7 @@
 import sys,os,subprocess,getopt,time
 import MySQLdb
 
-def testLocalSetup(dataset,config,version,dbs,py,debug=0):
+def testLocalSetup(dataset,config,version,dbs,py,delete,debug=0):
     # test all relevant components and exit is something is off
 
     # check the input parameters
@@ -30,11 +30,41 @@ def testLocalSetup(dataset,config,version,dbs,py,debug=0):
         sys.exit(1)
 
     # check that the dataset exists in bambu database
-    cmd = 'addDatasetToBambu.py --dataset=' + dataset + ' --dbs=' + dbs
-    rc = os.system(cmd)
-    if rc != 0:
-        print ' Error - dataset seems not to be valid. EXIT!\n'
-        sys.exit(1)
+    if delete<1:
+        cmd = 'addDatasetToBambu.py --exec --dataset=' + dataset + ' --dbs=' + dbs
+        rc = os.system(cmd)
+        if rc != 0:
+            print ' Error - dataset seems not to be valid. EXIT!\n'
+            sys.exit(1)
+    else:
+        print ' Info - this is a deletion, so we do not add the sample to the database.'
+
+def removeRequest(cursor,id,config,version,py):
+    sql  = "delete from Requests where "
+    sql += "DatasetId=%d and RequestConfig='%s' and RequestVersion='%s' and RequestPy='%s' ;"\
+        %(id,config,version,py)
+    
+    if debug>0:
+        print ' delete: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+    except:
+        print " Error (%s): unable to delete data."%(sql)
+
+def removeDataset(cursor,id):
+    sql  = "delete from Datasets where DatasetId=%d;"%(id)
+    
+    if debug>0:
+        print ' delete: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+    except:
+        print " Error (%s): unable to delete data."%(sql)
+
+
+
 
 #===================================================================================================
 # Main starts here
@@ -49,7 +79,7 @@ usage += "                          [ --py=<name> ]\n"
 usage += "                          [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
-valid = ['dataset=','config=','version=',"dbs=",'py=','help']
+valid = ['dataset=','config=','version=',"dbs=",'py=','delete=','debug=','help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -61,7 +91,8 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
 # Set defaults for each command line parameter/option
-debug = 1
+debug = 0
+delete = 0
 dataset = ''
 config = ''
 version = ''
@@ -83,8 +114,12 @@ for opt, arg in opts:
         dbs = arg
     if opt == "--py":
         py = arg
+    if opt == "--delete":
+        delete = int(arg)
+    if opt == "--debug":
+        debug = int(arg)
 
-testLocalSetup(dataset,config,version,dbs,py,debug)
+testLocalSetup(dataset,config,version,dbs,py,delete,debug)
 
 # Open database connection
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
@@ -112,7 +147,10 @@ except:
     sys.exit(0)
 
 if len(results) != 1:
-    print ' Requested dataset not well defined, check database (nEntries=%d).'%(len(results))
+    if delete<1:
+        print ' Requested dataset not well defined, check database (nEntries=%d).'%(len(results))
+    else:
+        print ' Dataset not in database, deletion not needed.'
     sys.exit(0)
 else:
     id = int(results[0][0])
@@ -135,27 +173,37 @@ except:
 
 if len(results) > 0:
     print ' Request exists already in database. Do not insert again (nEntries=%d).'%(len(results))
-    sys.exit(0)
+    if delete>0:
+        removeRequest(cursor,id,config,version,py)
+    if delete==1:
+        sys.exit(0)
 else:
     pass
 
-# Prepare SQL query to insert a new record into the database.
-sql = "insert into Requests(DatasetId, RequestConfig, RequestVersion, RequestPy)" + \
-      " values(%d,'%s','%s','%s');"%(id,config,version,py)
+# order of deletion is important to be least vulnerable to database problems
+if delete > 1:
+    removeDataset(cursor,id)
+    sys.exit(0)
 
-if debug>0:
-    print ' insert: ' + sql
-try:
-    # Execute the SQL command
-    cursor.execute(sql)
-except:
-    print ' ERROR -- insert failed, rolling back.'
-    # disconnect from server
-    db.close()
-    print ' Request was NOT inserted into the database (%s,%s,%s,%s).'%(dataset,config,version,py)
-    sys.exit(1)
+# now insert if this is not a deletion request
+if delete<1:
+    # Prepare SQL query to insert a new record into the database.
+    sql = "insert into Requests(DatasetId, RequestConfig, RequestVersion, RequestPy)" + \
+          " values(%d,'%s','%s','%s');"%(id,config,version,py)
     
-print ' Request successfully inserted into the database (%s,%s,%s,%s).'%(dataset,config,version,py)
+    if debug>0:
+        print ' insert: ' + sql
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+    except:
+        print ' ERROR -- insert failed, rolling back.'
+        # disconnect from server
+        db.close()
+        print ' Request was NOT inserted into the database (%s,%s,%s,%s).'%(dataset,config,version,py)
+        sys.exit(1)
+        
+    print ' Request successfully inserted into the database (%s,%s,%s,%s).'%(dataset,config,version,py)
 
 # disconnect from server
 db.close()

@@ -177,7 +177,7 @@ def updateDataset(db,process,setup,tier,sizeGb,nFiles,debug=0):
         print ' Error (%s) -- update failed.'%(sql)
         sys.exit(1)
 
-    return results
+    return 0
 
 def isDatasetValid(dataset,dbsInst,debug=0):
     # test whether this dataset is a valid dataset
