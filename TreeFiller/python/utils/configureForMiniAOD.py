@@ -58,7 +58,7 @@ def configureForMiniAOD(treeFiller):
 
         'EvtSelData': {
             'patFilterResultsName': 'TriggerResults::PAT',
-            'invertedFIlters': []
+            'invertedFilters': []
         },
 
         'SuperClusters': {

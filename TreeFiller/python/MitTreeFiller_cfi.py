@@ -145,8 +145,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                          'trkPOG_manystripclus53X',
                                          'trkPOG_toomanystripclus53X',
                                          'trkPOG_logErrorTooManyClusters',
-                                         'CSCTightHaloFilter'
-    ),
+                                         'CSCTightHaloFilter'),
     inputLabels = cms.untracked.vstring('HBHENoiseFilterResultProducer:HBHENoiseFilterResultRun2Loose',
                                         'EcalDeadCellTriggerPrimitiveFilter',
                                         'trackingFailureFilter',
@@ -155,12 +154,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                         'manystripclus53X',
                                         'toomanystripclus53X',
                                         'logErrorTooManyClusters',
-                                        'CSCTightHaloFilter'
-    ),
+                                        'CSCTightHaloFilter'),
     invertedFilters = cms.untracked.vstring('trkPOG_manystripclus53X',
                                             'trkPOG_toomanystripclus53X',
-                                            'trkPOG_logErrorTooManyClusters'
-    ),
+                                            'trkPOG_logErrorTooManyClusters'),
     patFilterResultsName          = cms.untracked.string(''), # set when filling from miniAOD
     fillerType                    = cms.untracked.string('FillerEvtSelData')
   ),
