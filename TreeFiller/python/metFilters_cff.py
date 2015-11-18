@@ -6,46 +6,34 @@ import FWCore.ParameterSet.Config as cms
 from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
 # no filtering on the largest number of zeros found in a single RBX in the event
 HBHENoiseFilterResultProducer.minZeros = cms.int32(99999)
+HBHENoiseFilterResultProducer.IgnoreTS4TS5ifJetInLowBVRegion = cms.bool(False) 
+HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
 
 #> The ECAL dead cell trigger primitive filter
 from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
 EcalDeadCellTriggerPrimitiveFilter.taggingMode = cms.bool(True)
 
+#> The ECAL dead cell boundary energy filter
+from RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi import *
+EcalDeadCellBoundaryEnergyFilter.taggingMode = cms.bool(True)
+
 #> The EE bad SuperCrystal filter
 from RecoMET.METFilters.eeBadScFilter_cfi import *
+eeBadScFilter.badscEE = [-1023023, 1048098, -1078063, -1043093]
 eeBadScFilter.taggingMode = cms.bool(True)
-
-#> The ECAL laser correction filter
-from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
-ecalLaserCorrFilter.taggingMode = cms.bool(True)
 
 #> The Good vertices collection needed by the tracking failure filter
 from RecoMET.METFilters.metFilters_cff import goodVertices
 
-#> The tracking failure filter
-from RecoMET.METFilters.trackingFailureFilter_cfi import *
-trackingFailureFilter.taggingMode = cms.bool(True)
-
 from RecoMET.METFilters.CSCTightHaloFilter_cfi import *
 CSCTightHaloFilter.taggingMode = cms.bool(True)
-
-#> The tracking POG filters: NB for these three false means good event
-from RecoMET.METFilters.trackingPOGFilters_cff import *
-manystripclus53X.taggedMode = cms.untracked.bool(True)
-manystripclus53X.forcedValue = cms.untracked.bool(False)
-toomanystripclus53X.taggedMode = cms.untracked.bool(True)
-toomanystripclus53X.forcedValue = cms.untracked.bool(False)
-logErrorTooManyClusters.taggedMode = cms.untracked.bool(True)
-logErrorTooManyClusters.forcedValue = cms.untracked.bool(False)
 
 #> Finally define the met filter sequence
 metFilters = cms.Sequence(
   HBHENoiseFilterResultProducer *
   EcalDeadCellTriggerPrimitiveFilter *
-  goodVertices *
-  trackingFailureFilter *
+  EcalDeadCellBoundaryEnergyFilter *
+#  goodVertices *
   eeBadScFilter *
-  ecalLaserCorrFilter *
-  CSCTightHaloFilter *
-  trkPOGFilters
+  CSCTightHaloFilter
 )
