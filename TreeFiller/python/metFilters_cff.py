@@ -26,6 +26,9 @@ from RecoMET.METFilters.metFilters_cff import goodVertices
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
 trackingFailureFilter.taggingMode = cms.bool(True)
 
+from RecoMET.METFilters.CSCTightHaloFilter_cfi import *
+CSCTightHaloFilter.taggingMode = cms.bool(True)
+
 #> The tracking POG filters: NB for these three false means good event
 from RecoMET.METFilters.trackingPOGFilters_cff import *
 manystripclus53X.taggedMode = cms.untracked.bool(True)
@@ -43,5 +46,6 @@ metFilters = cms.Sequence(
   trackingFailureFilter *
   eeBadScFilter *
   ecalLaserCorrFilter *
+  CSCTightHaloFilter *
   trkPOGFilters
 )

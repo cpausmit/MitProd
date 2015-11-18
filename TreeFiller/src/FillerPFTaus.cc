@@ -205,11 +205,15 @@ namespace mithep {
     outTau.SetHCalTotalEOverP(inTau.hcalTotOverPLead());
     outTau.SetMuonDecision(inTau.muonDecision());
     outTau.SetSegmentCompatibility(inTau.segComp());
+    outTau.SetSignalConeSize(inTau.signalConeSize());
+    outTau.SetBendCorrMass(inTau.bendCorrMass());
 
     outTau.SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
     outTau.SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
     outTau.SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
     outTau.SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
+
+    outTau.SetDecayMode(mithep::PFTau::HadronicDecayMode(inTau.decayMode()));
 
     if (inTau.electronPreIDTrack().isNonnull()) {
       auto ptr = edm::refToPtr(inTau.electronPreIDTrack());
@@ -245,6 +249,8 @@ namespace mithep {
     for (auto&& candPtr : inTau.isolationGammaCands())
       isolationPFGammaCandsEtSum += candPtr->pt();
     outTau.SetIsoGammaEtSum(isolationPFGammaCandsEtSum);
+
+    outTau.SetDecayMode(mithep::PFTau::HadronicDecayMode(inTau.decayMode()));
 
     // leadPFChargedHadrCandsignedSipt not available (no jet reference)
     // maximumHCALPFClusterEt not available (no hcal energy in packed candidate)

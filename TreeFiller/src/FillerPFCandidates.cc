@@ -20,7 +20,6 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   photonMapName_            (cfg.getUntrackedParameter<std::string>("photonMapName", "")),
   barrelSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("barrelSuperClusterMapName", "")),
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
-  conversionMapName_        (cfg.getUntrackedParameter<std::string>("conversionMapName", "")),
   pfCandMapName_            (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_    (cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
   allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
@@ -32,7 +31,6 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   photonMap_                (0),
   barrelSuperClusterMap_    (0),
   endcapSuperClusterMap_    (0),
-  conversionMap_            (0),
   pfCandMap_                (new mithep::PFCandidateMap),
   pfNoPileupCandMap_        (0),
   pfCands_                  (new mithep::PFCandidateArr(16))
@@ -106,11 +104,6 @@ mithep::FillerPFCandidates::PrepareLinks()
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
     if (endcapSuperClusterMap_)
       AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
-  }
-  if (!conversionMapName_.empty()) {
-    conversionMap_ = OS()->get<ConversionMap>(conversionMapName_);
-    if (conversionMap_)
-      AddBranchDep(mitName_,conversionMap_->GetBrName());
   }
 }
 
@@ -292,9 +285,6 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
         throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";
     }
-    
-    if (conversionMap_ && inPf.conversionRef().isNonnull()) 
-      outPfCand->SetConversion(conversionMap_->GetMit(inPf.conversionRef()));
   }    
 }
 

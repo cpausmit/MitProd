@@ -8,14 +8,14 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA235DE2-9801-E511-8E49-00259073E356.root')
+  fileNames = cms.untracked.vstring('root://grid143.kfki.hu//store/mc/RunIISpring15DR74/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/40000/04E00947-462F-E511-8F5A-0025905A6104.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -32,7 +32,7 @@ process.GlobalTag.globaltag = 'MCRUN2_74_V9'
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_042'),
+  version    = cms.untracked.string('Mit_043'),
   annotation = cms.untracked.string('AODSIM')
 )
 
@@ -115,6 +115,9 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
 fatjetSequence = makeFatJets(process, isData = False)
+# unload unwanted PAT stuff
+delattr(process, 'pfNoTauPFBRECOPFlow')
+delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -127,6 +130,10 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
+from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
+process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
@@ -145,6 +152,7 @@ recoSequence = cms.Sequence(
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
+  PFTau *
   l1FastJetSequence *
   l1FastJetSequenceCHS *
   ak4PFBTagSequence *

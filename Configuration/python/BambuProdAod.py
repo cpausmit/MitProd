@@ -8,14 +8,14 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015D/MET/AOD/PromptReco-v4/000/258/434/00000/223D50A3-5C6E-E511-963D-02163E014340.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,12 +27,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v4'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_042'),
+  version    = cms.untracked.string('Mit_043'),
   annotation = cms.untracked.string('AOD')
 )
 
@@ -95,7 +95,6 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import pfParticleSelection
 from CommonTools.ParticleFlow.pfPhotons_cff import pfPhotonSequence
 from CommonTools.ParticleFlow.pfElectrons_cff import pfElectronSequence
 from CommonTools.ParticleFlow.pfMuons_cff import pfMuonSequence
-from CommonTools.ParticleFlow.pfJets_cff import pfJets
 from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import pfNoMuon
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import pfNoElectron
 
@@ -115,6 +114,9 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
 fatjetSequence = makeFatJets(process, isData = True)
+# unload unwanted PAT stuff
+delattr(process, 'pfNoTauPFBRECOPFlow')
+delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -127,6 +129,10 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 
 #> Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
+from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
+process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
@@ -145,6 +151,7 @@ recoSequence = cms.Sequence(
   pfNoMuon *
   pfElectronSequence *
   pfNoElectron *
+  PFTau *
   l1FastJetSequence *
   l1FastJetSequenceCHS *
   ak4PFBTagSequence *
@@ -195,3 +202,6 @@ process.path = cms.Path(
   recoSequence *
   bambuFillerSequence
 )
+
+process.prune()
+print process.dumpPython()

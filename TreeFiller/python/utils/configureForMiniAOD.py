@@ -58,15 +58,7 @@ def configureForMiniAOD(treeFiller):
 
         'EvtSelData': {
             'patFilterResultsName': 'TriggerResults::PAT',
-            'HBHENoiseFilterName': 'Flag_HBHENoiseFilter',
-            'ECALDeadCellFilterName': 'Flag_EcalDeadCellTriggerPrimitiveFilter',
-            'trackingFailureFilterName': 'Flag_trackingFailureFilter',
-            'EEBadScFilterName': 'Flag_eeBadScFilter',
-            'ECALaserCorrFilterName': 'Flag_ecalLaserCorrFilter',
-            'tkManyStripClusName': 'Flag_trkPOG_manystripclus53X',
-            'tkTooManyStripClusName': 'Flag_trkPOG_toomanystripclus53X',
-            'tkLogErrorTooManyClustersName': 'Flag_trkPOG_logErrorTooManyClusters',
-            'BeamHaloSummaryName': 'Flag_CSCTightHaloFilter'
+            'invertedFIlters': []
         },
 
         'SuperClusters': {
@@ -228,33 +220,26 @@ def configureForMiniAOD(treeFiller):
         # List of IDs included in pat::Tau -> vhttp://cmslxr.fnal.gov/lxr/source/PhysicsTools/PatAlgos/python/producersLayer1/tauProducer_cfi.py
         'HPSTaus': {
             'edmName': 'slimmedTaus',
-            'DiscriminationByLooseElectronRejectionName': 'againstElectronLoose',
-            'DiscriminationByMediumElectronRejectionName': 'againstElectronMedium',
-            'DiscriminationByTightElectronRejectionName': 'againstElectronTight',
             'DiscriminationByMVA5VLooseElectronRejectionName': 'againstElectronVLooseMVA5',
             'DiscriminationByMVA5LooseElectronRejectionName': 'againstElectronLooseMVA5',
             'DiscriminationByMVA5MediumElectronRejectionName': 'againstElectronMediumMVA5',
             'DiscriminationByMVA5TightElectronRejectionName': 'againstElectronTightMVA5',
-            'DiscriminationByLooseMuonRejectionName': 'againstMuonLoose',
-            'DiscriminationByMediumMuonRejectionName': 'againstMuonMedium',
-            'DiscriminationByTightMuonRejectionName': 'againstMuonTight',
-            'DiscriminationByLooseMuonRejection2Name': 'againstMuonLoose2',
-            'DiscriminationByMediumMuonRejection2Name': 'againstMuonMedium2',
-            'DiscriminationByTightMuonRejection2Name': 'againstMuonTight2',
             'DiscriminationByLooseMuonRejection3Name': 'againstMuonLoose3',
             'DiscriminationByTightMuonRejection3Name': 'againstMuonTight3',
             'DiscriminationByDecayModeFindingName': 'decayModeFinding',
             'DiscriminationByDecayModeFindingNewDMsName': 'decayModeFindingNewDMs',
-            'DiscriminationByDecayModeFindingOldDMsName': '',
-            'DiscriminationByVLooseCombinedIsolationDBSumPtCorrName': '',
-            'DiscriminationByLooseCombinedIsolationDBSumPtCorrName': '',
-            'DiscriminationByMediumCombinedIsolationDBSumPtCorrName': '',
-            'DiscriminationByTightCombinedIsolationDBSumPtCorrName': '',
-            'DiscriminationByRawCombinedIsolationDBSumPtCorrName': '',
             'DiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsName': 'byLooseCombinedIsolationDeltaBetaCorr3Hits',
             'DiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsName': 'byMediumCombinedIsolationDeltaBetaCorr3Hits',
             'DiscriminationByTightCombinedIsolationDBSumPtCorr3HitsName': 'byTightCombinedIsolationDeltaBetaCorr3Hits',
             'DiscriminationByRawCombinedIsolationDBSumPtCorr3HitsName': 'byCombinedIsolationDeltaBetaCorrRaw3Hits',
+            'DiscriminationByLoosePileupWeightedIsolation3HitsName': 'byLoosePileupWeightedIsolation3Hits',
+            'DiscriminationByMediumPileupWeightedIsolation3HitsName': 'byMediumPileupWeightedIsolation3Hits',
+            'DiscriminationByTightPileupWeightedIsolation3HitsName': 'byTightPileupWeightedIsolation3Hits',
+            'DiscriminationByRawPileupWeightedIsolation3HitsName': 'byPileupWeightedIsolationRaw3Hits',
+            'DiscriminationByPhotonPtSumOutsideSignalConeName': 'byPhotonPtSumOutsideSignalCone',
+            'ChargedIsoPtSumName': 'chargedIsoPtSum',
+            'NeutralIsoPtSumName': 'neutralIsoPtSum',
+            'PUcorrPtSumName': 'puCorrPtSum',
             'fillerType': 'FillerPFTausFromPATTaus'
         },
     
