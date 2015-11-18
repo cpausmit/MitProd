@@ -24,13 +24,11 @@ mithep::FillerTrackJets::PrepareLinks()
 {
   if (!trackMapName_.empty()) {
     trackMap_ = OS()->get<TrackMap>(trackMapName_);
-    if (trackMap_)
-      AddBranchDep(mitName_,trackMap_->GetBrName());
+    AddBranchDep(mitName_,trackMap_->GetBrName());
   }
   if (!vertexMapName_.empty()) {
     vertexMap_ = OS()->get<VertexMap>(vertexMapName_);
-    if (vertexMap_)
-      AddBranchDep(mitName_,vertexMap_->GetBrName());
+    AddBranchDep(mitName_,vertexMap_->GetBrName());
   }
 }
 

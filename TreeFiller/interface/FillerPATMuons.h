@@ -26,8 +26,9 @@ namespace mithep
       FillerPATMuons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerPATMuons();
 
-      void                        BookDataBlock(TreeWriter &tws);
-      void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                        BookDataBlock(TreeWriter &tws) override;
+      void                        PrepareLinks() override;
+      void                        FillDataBlock(const edm::Event &e, const edm::EventSetup &es) override;
   
     private:
       edm::EDGetTokenT<edm::View<pat::Muon> > edmToken_;               //edm name of muon collection

@@ -44,7 +44,6 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   auto subjetTags(cfg.getUntrackedParameter<std::vector<std::string> >("SubJets"));
   for (auto& tag : subjetTags)
     fSubjetCollectionTokens.push_back(collector.consumes<PatJetCollection>(edm::InputTag(tag)));
-
 }
 
 mithep::FillerFatJets::~FillerFatJets()

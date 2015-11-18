@@ -32,9 +32,10 @@ namespace mithep
     FillerDecayParts(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService*, const char *name, bool active=1);
       ~FillerDecayParts();
     
-      void                                      BookDataBlock(TreeWriter &tws);
-      void                                      FillDataBlock(const edm::Event &e, 
-                                                              const edm::EventSetup &es);
+      void                                      BookDataBlock(TreeWriter &tws) override;
+      void                                      PrepareLinks() override;
+      void                                      FillDataBlock(const edm::Event &e,
+                                                              const edm::EventSetup &es) override;
     
     private:
       mithep::Particle                         *getMitParticle(mitedm::BasePartPtr ptr) const;

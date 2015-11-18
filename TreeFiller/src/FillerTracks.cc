@@ -158,18 +158,15 @@ mithep::FillerTracks::PrepareLinks()
 {
   if (!trackingMapName_.empty()) {
     trackingMap_ = OS()->get<TrackingParticleMap>(trackingMapName_);
-    if (trackingMap_)
-      AddBranchDep(mitName_,trackingMap_->GetBrName());
+    AddBranchDep(mitName_,trackingMap_->GetBrName());
   }
   if (ecalAssocActive_ && !barrelSuperClusterIdMapName_.empty()) {
     barrelSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(barrelSuperClusterIdMapName_);
-    if (barrelSuperClusterIdMap_)
-      AddBranchDep(mitName_,barrelSuperClusterIdMap_->GetBrName());
+    AddBranchDep(mitName_,barrelSuperClusterIdMap_->GetBrName());
   }
   if (ecalAssocActive_ && !endcapSuperClusterIdMapName_.empty()) {
     endcapSuperClusterIdMap_ = OS()->get<SuperClusterIdMap>(endcapSuperClusterIdMapName_);
-    if (endcapSuperClusterIdMap_)
-      AddBranchDep(mitName_,endcapSuperClusterIdMap_->GetBrName());
+    AddBranchDep(mitName_,endcapSuperClusterIdMap_->GetBrName());
   }
 }
 

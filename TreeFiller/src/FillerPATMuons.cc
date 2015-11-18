@@ -51,26 +51,25 @@ void FillerPATMuons::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_,&muons_);
   OS()->add<mithep::MuonArr>(muons_,mitName_);
+}
 
+void FillerPATMuons::PrepareLinks()
+{
   if (!globalTrackMapName_.empty()) {
     globalTrackMap_ = OS()->get<TrackMap>(globalTrackMapName_);
-    if (globalTrackMap_)
-      AddBranchDep(mitName_,globalTrackMap_->GetBrName());
+    AddBranchDep(mitName_,globalTrackMap_->GetBrName());
   }
   if (!staTrackMapName_.empty()) {
     standaloneTrackMap_ = OS()->get<TrackMap>(staTrackMapName_); 
-    if (standaloneTrackMap_)
-      AddBranchDep(mitName_,standaloneTrackMap_->GetBrName());
+    AddBranchDep(mitName_,standaloneTrackMap_->GetBrName());
   }
   if (!staVtxTrackMapName_.empty()) {
     standaloneVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
-    if (standaloneVtxTrackMap_)
-      AddBranchDep(mitName_,standaloneVtxTrackMap_->GetBrName());
+    AddBranchDep(mitName_,standaloneVtxTrackMap_->GetBrName());
   }
   if (!trackerTrackMapName_.empty()) {
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-    if (trackerTrackMap_)
-      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+    AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
   }
 }
 

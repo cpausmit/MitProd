@@ -34,9 +34,9 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
   simVerticesToken_(),
   trackingEdmToken_(),
   packedGenParticlesToken_(),
-  genMapName_(cfg.getUntrackedParameter<string>("genMapName", "GenMap")),
-  simMapName_(cfg.getUntrackedParameter<string>("simMapName", "SimMap")),
-  trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName", "TrackingMap")),
+  genMapName_(cfg.getUntrackedParameter<string>("genMapName", "")), //GenMap
+  simMapName_(cfg.getUntrackedParameter<string>("simMapName", "")), //SimMap
+  trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName", "")), //TrackingMap
   mitName_(cfg.getUntrackedParameter<string>("mitName", Names::gkMCPartBrn)),
   mitTrackingName_(cfg.getUntrackedParameter<string>("mitTrackingName", Names::gkTrackingParticleBrn)),
   mcParticles_(new mithep::MCParticleArr(250)),
@@ -129,18 +129,15 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws)
   
   if (genActive_ && !genMapName_.empty()) {
     genMap_->SetBrName(mitName_);
-    if (genMap_)
-      OS()->add(genMap_,genMapName_);
+    OS()->add(genMap_,genMapName_);
   }
   if (simActive_ && !simMapName_.empty()) {
     simMap_->SetBrName(mitName_);
-    if (simMap_)
-      OS()->add(simMap_,simMapName_);
+    OS()->add(simMap_,simMapName_);
   }
   if (trackingActive_ && !trackingMapName_.empty()) {
     trackingMap_->SetBrName(mitName_);
-    if (trackingMap_)
-      OS()->add(trackingMap_,trackingMapName_);
+    OS()->add(trackingMap_,trackingMapName_);
   }
 }
 

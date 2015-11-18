@@ -69,41 +69,33 @@ mithep::FillerPFCandidates::PrepareLinks()
   for (auto&& bmapName : trackerTrackMapNames_) {
     if (!bmapName.empty()) {
       auto* map = OS()->get<TrackMap>(bmapName);
-      if (map) {
-        trackerTrackMaps_.push_back(map);
-        AddBranchDep(mitName_,map->GetBrName());
-      }
+      trackerTrackMaps_.push_back(map);
+      AddBranchDep(mitName_,map->GetBrName());
     }
   }
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-    if (gsfTrackMap_)
-      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
   }
   if (!muonMapName_.empty()) {
     muonMap_ = OS()->get<MuonMap>(muonMapName_);
-    if (muonMap_)
-      AddBranchDep(mitName_,muonMap_->GetBrName());
+    AddBranchDep(mitName_,muonMap_->GetBrName());
   }
   if (!electronMapName_.empty()) {
     electronMap_ = OS()->get<ElectronMap>(electronMapName_);
-    if (electronMap_)
-      AddBranchDep(mitName_,electronMap_->GetBrName());
+    AddBranchDep(mitName_,electronMap_->GetBrName());
   }
   if (!photonMapName_.empty()) {
     photonMap_ = OS()->get<PhotonMap>(photonMapName_);
-    if (photonMap_)
-      AddBranchDep(mitName_,photonMap_->GetBrName());
+    AddBranchDep(mitName_,photonMap_->GetBrName());
   }
   if (!barrelSuperClusterMapName_.empty()) {
     barrelSuperClusterMap_ = OS()->get<SuperClusterMap>(barrelSuperClusterMapName_);
-    if (barrelSuperClusterMap_)
-      AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_,barrelSuperClusterMap_->GetBrName());
   }
   if (!endcapSuperClusterMapName_.empty()) {
     endcapSuperClusterMap_ = OS()->get<SuperClusterMap>(endcapSuperClusterMapName_);
-    if (endcapSuperClusterMap_)
-      AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
+    AddBranchDep(mitName_,endcapSuperClusterMap_->GetBrName());
   }
 }
 

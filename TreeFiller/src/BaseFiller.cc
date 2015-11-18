@@ -24,11 +24,8 @@ mithep::BaseFiller::AddBranchDep(std::string const& name, std::string const& dep
   if (name.empty() || dep.empty())
     return;
 
-  if (!brtable_) {
+  if (!brtable_)
     brtable_ = OS()->mod<BranchTable>(mithep::Names::gkBranchTable);
-    if (!brtable_)
-      return; 
-  }
 
   if (!brtable_->Find(name.c_str(), dep.c_str()))
     brtable_->Add(new BranchName(name.c_str(), dep.c_str()));
