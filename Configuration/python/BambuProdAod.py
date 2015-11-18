@@ -202,6 +202,3 @@ process.path = cms.Path(
   recoSequence *
   bambuFillerSequence
 )
-
-process.prune()
-print process.dumpPython()

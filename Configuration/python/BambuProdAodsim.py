@@ -95,7 +95,6 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import pfParticleSelection
 from CommonTools.ParticleFlow.pfPhotons_cff import pfPhotonSequence
 from CommonTools.ParticleFlow.pfElectrons_cff import pfElectronSequence
 from CommonTools.ParticleFlow.pfMuons_cff import pfMuonSequence
-from CommonTools.ParticleFlow.pfJets_cff import pfJets
 from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import pfNoMuon
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import pfNoElectron
 
