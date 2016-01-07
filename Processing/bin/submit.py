@@ -69,17 +69,29 @@ def getFiles(mitCfg,version):
 #===================================================================================================
 def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
     lfnFile  = 'lfns/' + mitDataset + '.lfns'
+
+    # give notice that file already exists
     if os.path.exists(lfnFile):
         print "\n INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
-        if not useExistingLfns:
-            cmd = 'rm ' + lfnFile
-            os.system(cmd)
+
+    # remove what we need to to start clean
+    cmd = 'rm -f ' +  lfnFile + '-TMP'
+    os.system(cmd)
+    if not useExistingLfns:
+        cmd = 'rm -f ' + lfnFile
+        os.system(cmd)
     
     # recreate if requested or not existing
     if not useExistingLfns or not os.path.exists(lfnFile):
         cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset \
-              + ' | sort -u > ' + lfnFile
-        print ' Input: ' + cmd + '\n'
+              + ' | sort -u > ' + lfnFile + '-TMP'
+        print ' Input: ' + cmd
+        os.system(cmd)
+
+    # move the new file into the proper location
+    if os.path.exists(lfnFile + '-TMP'):
+        cmd = 'mv ' + lfnFile + '-TMP ' + lfnFile
+        print ' Move: ' + cmd + '\n'
         os.system(cmd)
 
     return lfnFile

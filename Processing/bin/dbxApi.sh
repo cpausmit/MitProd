@@ -7,11 +7,13 @@
 #
 # ----
 
-# initialize global variable
-BOOK="filefi/042"
+[ -z "$BOOK" ]       && BOOK="filefi/030"
+[ -z "$NTRANSFERS" ] && NTRANSFERS=10
+[ -z "$THRESHOLD" ]  && THRESHOLD=20
+
+# initialize other global variable
 SLEEPING=300
-NTRANSFERS=10
-THRESHOLD=20
+# global variables
 DROPBOX_SIZE=0
 
 startTime=$(date +%s)
