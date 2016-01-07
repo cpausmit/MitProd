@@ -77,9 +77,9 @@ process.load('MitEdm.Producers.conversionElectronsStable_cfi')
 #addConversionFiller(MitTreeFiller)
 
 # Electron likelihood-based id
-from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import eidLikelihoodExt
-process.load('RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi')
-MitTreeFiller.Electrons.eIDLikelihoodName = 'eidLikelihoodExt'
+from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import electronMVAValueMapProducer
+process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
+MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig50nsV1Values'
 
 # Load FastJet L1 corrections
 from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
@@ -143,7 +143,7 @@ process.load('MitProd.TreeFiller.metFilters_cff')
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
-  eidLikelihoodExt *
+  electronMVAValueMapProducer *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
