@@ -83,6 +83,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     hltObjsEdmName     = cms.untracked.string(''), # set when filling from MiniAOD
     hltResEdmName      = cms.untracked.string('TriggerResults'),
     l1GtMenuLiteEdmName = cms.untracked.string('l1GtTriggerMenuLite'),
+    l1GtRecordEdmName  = cms.untracked.string('l1GtRecord'),
     l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
     hltProcName        = cms.untracked.string('HLT'),
     hltTreeMitName     = cms.untracked.string('HLT'),

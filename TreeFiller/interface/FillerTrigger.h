@@ -58,7 +58,6 @@ namespace mithep
     edm::EDGetTokenT<trigger::TriggerEvent> hltEvtToken_;   //HLT trigger event edm name
     edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken_;
     edm::EDGetTokenT<edm::TriggerResults> hltResToken_;   //HLT trigger results edm name
-    edm::InputTag l1GtMenuLiteTag_;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GTRRToken_; //l1 global readout trigger record edm name
 
     std::string                    hltProcName_;  //HLT process name to be used
@@ -84,7 +83,7 @@ namespace mithep
     TTree                         *hltTree_;      //HLT trigger tree (not owned)
     HLTConfigProvider              hltConfig_;    //HLT config from provenance
     Bool_t                         l1Active_;     //Flag for L1 processing
-    L1GtUtils                      l1GtUtils_;    //L1 utility
+    L1GtUtils*                     l1GtUtils_;    //L1 utility
     std::string                    l1TBitsName_;  //L1 technical bit name
     std::string                    l1ABitsName_;  //L1 algo bit name
     L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 
