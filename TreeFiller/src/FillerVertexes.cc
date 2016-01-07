@@ -50,13 +50,11 @@ void FillerVertexes::PrepareLinks()
   if (!trackMapName_.empty()) {
     if (trkAssocByPacked_) {
       pfTrackMap_ = OS()->get<CandidateMap>(trackMapName_);
-      if (pfTrackMap_)
-        AddBranchDep(mitName_, pfTrackMap_->GetBrName());
+      AddBranchDep(mitName_, pfTrackMap_->GetBrName());
     }
     else {
       trackMap_ = OS()->get<TrackMap>(trackMapName_);
-      if (trackMap_)
-        AddBranchDep(mitName_,trackMap_->GetBrName());
+      AddBranchDep(mitName_,trackMap_->GetBrName());
     }
   }
 }

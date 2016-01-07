@@ -42,16 +42,25 @@ template<class TAU>
 void
 mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
 {
-  // Add taus branch to tree.
-
-  ObjectService& os = *OS();
-
   tws.AddBranch(mitName_, &taus_);
-  os.add(taus_, mitName_);
+  OS()->add(taus_, mitName_);
+
+  if (!tauMapName_.empty()) {
+    tauMap_->SetBrName(mitName_);
+    OS()->add(tauMap_,tauMapName_);
+  }
+}
+
+template<class TAU>
+void
+mithep::FillerPFTaus<TAU>::PrepareLinks()
+{
+  // template function does not like the form OS()->get<X>
+  ObjectService& os(*OS());
 
   for (auto&& bmapName : trackMapNames_) {
     if (!bmapName.empty()) {
-      mithep::TrackMap const* map = os.get<TrackMap>(bmapName);
+      auto* map = os.get<mithep::TrackMap>(bmapName);
       if (map) {
         trackMaps_.push_back(map);
         AddBranchDep(mitName_,map->GetBrName());
@@ -60,20 +69,13 @@ mithep::FillerPFTaus<TAU>::BookDataBlock(TreeWriter &tws)
   }
 
   if (!jetMapName_.empty()) {
-    jetMap_ = os.get<PFJetMap>(jetMapName_);
-    if (jetMap_)
-      AddBranchDep(mitName_, jetMap_->GetBrName());
+    jetMap_ = os.get<mithep::PFJetMap>(jetMapName_);
+    AddBranchDep(mitName_, jetMap_->GetBrName());
   }
 
   if (!pfCandMapName_.empty()) {
-    pfCandMap_ = os.get<PFCandidateMap>(pfCandMapName_);
-    if (pfCandMap_)
-      AddBranchDep(mitName_, pfCandMap_->GetBrName());
-  }
-
-  if (!tauMapName_.empty()) {
-    tauMap_->SetBrName(mitName_);
-    os.add(tauMap_,tauMapName_);
+    pfCandMap_ = os.get<mithep::PFCandidateMap>(pfCandMapName_);
+    AddBranchDep(mitName_, pfCandMap_->GetBrName());
   }
 }
 
@@ -205,11 +207,15 @@ namespace mithep {
     outTau.SetHCalTotalEOverP(inTau.hcalTotOverPLead());
     outTau.SetMuonDecision(inTau.muonDecision());
     outTau.SetSegmentCompatibility(inTau.segComp());
+    outTau.SetSignalConeSize(inTau.signalConeSize());
+    outTau.SetBendCorrMass(inTau.bendCorrMass());
 
     outTau.SetIsoChargedHadronPtSum(inTau.isolationPFChargedHadrCandsPtSum());
     outTau.SetIsoGammaEtSum(inTau.isolationPFGammaCandsEtSum());
     outTau.SetLeadPFCandSignD0Sig(inTau.leadPFChargedHadrCandsignedSipt());
     outTau.SetMaxHCalPFClusterEt(inTau.maximumHCALPFClusterEt());
+
+    outTau.SetDecayMode(mithep::PFTau::HadronicDecayMode(inTau.decayMode()));
 
     if (inTau.electronPreIDTrack().isNonnull()) {
       auto ptr = edm::refToPtr(inTau.electronPreIDTrack());
@@ -245,6 +251,8 @@ namespace mithep {
     for (auto&& candPtr : inTau.isolationGammaCands())
       isolationPFGammaCandsEtSum += candPtr->pt();
     outTau.SetIsoGammaEtSum(isolationPFGammaCandsEtSum);
+
+    outTau.SetDecayMode(mithep::PFTau::HadronicDecayMode(inTau.decayMode()));
 
     // leadPFChargedHadrCandsignedSipt not available (no jet reference)
     // maximumHCALPFClusterEt not available (no hcal energy in packed candidate)

@@ -26,8 +26,9 @@ namespace mithep
       FillerPATElectrons(const edm::ParameterSet &cfg, edm::ConsumesCollector&, ObjectService* os, const char *name, bool active=1);
       ~FillerPATElectrons();
 
-      void                      BookDataBlock(TreeWriter &tws);
-      void                      FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
+      void                      BookDataBlock(TreeWriter &tws) override;
+      void                      PrepareLinks() override;
+      void                      FillDataBlock(const edm::Event &e, const edm::EventSetup &es) override;
   
     private:
       edm::EDGetTokenT<edm::View<pat::Electron> > edmToken_;               //edm name of electron collection

@@ -8,14 +8,16 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  #input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(200)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://grid143.kfki.hu//store/mc/RunIISpring15DR74/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/40000/04E00947-462F-E511-8F5A-0025905A6104.root')
+  # make sure this is for the right version
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v2/00000/0033A97B-8707-E511-9D3B-008CFA1980B8.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,7 +29,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9A'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
@@ -192,6 +194,7 @@ MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCVertexes.active = True
+MitTreeFiller.EvtSelData.HBHENoiseFilterName = 'HBHENoiseFilterResultProducer:HBHENoiseFilterResultRun1'
 
 # define fill bambu filler sequence
 

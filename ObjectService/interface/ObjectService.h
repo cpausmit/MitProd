@@ -115,11 +115,14 @@ const T *mithep::ObjectService::get(const char *name) const
 
   TObject *o = obs_.FindObject(name);
   if (!o) 
-    return 0;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::get()\n")
+      << "Cannot find object with name " << name;
 
   const NamedObject<T> *no = dynamic_cast<const NamedObject<T>* >(o);
   if (!no)
-    return 0;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::get()\n")
+      << "Cannot cast object with name " << name
+      << " to type " << typeid(T).name();
 
   return no->Get();
 }
@@ -132,11 +135,14 @@ const T *mithep::ObjectService::getObjEvt(const char *name) const
 
   TObject *o = obsEvt_.FindObject(name);
   if (!o) 
-    return 0;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::getObjEvt()\n")
+      << "Cannot find object with name " << name;
 
   const NamedObjectOwned<T> *no = dynamic_cast<const NamedObjectOwned<T>* >(o);
   if (!no)
-    return 0;
+    throw edm::Exception(edm::errors::Configuration, "ObjectService::getObjEvt()\n")
+      << "Cannot cast object with name " << name
+      << " to type " << typeid(T).name();
 
   return no->Get();
 }

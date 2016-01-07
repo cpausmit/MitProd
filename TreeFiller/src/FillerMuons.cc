@@ -78,8 +78,7 @@ mithep::FillerMuons::PrepareLinks()
     for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
       if (!trackMapName_[iT].empty()) {
         muonTrackMap_[iT] = OS()->get<MuonTrackMap>(trackMapName_[iT]);
-        if (muonTrackMap_[iT])
-          AddBranchDep(mitName_, muonTrackMap_[iT]->GetBrName());
+        AddBranchDep(mitName_, muonTrackMap_[iT]->GetBrName());
       }
     }
   }
@@ -87,14 +86,12 @@ mithep::FillerMuons::PrepareLinks()
     for (unsigned iT = 0; iT != nMuonTrackTypes; ++iT) {
       if (!trackMapName_[iT].empty()) {
         trackMap_[iT] = OS()->get<TrackMap>(trackMapName_[iT]);
-        if (trackMap_[iT])
-          AddBranchDep(mitName_, trackMap_[iT]->GetBrName());
+        AddBranchDep(mitName_, trackMap_[iT]->GetBrName());
       }
     }
     if (!staVtxTrackMapName_.empty()) {
       staVtxTrackMap_ = OS()->get<TrackMap>(staVtxTrackMapName_);
-      if (staVtxTrackMap_)
-        AddBranchDep(mitName_, staVtxTrackMap_->GetBrName());
+      AddBranchDep(mitName_, staVtxTrackMap_->GetBrName());
     }
   }
 }

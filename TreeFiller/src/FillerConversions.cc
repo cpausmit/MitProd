@@ -44,15 +44,15 @@ void FillerConversions::BookDataBlock(TreeWriter &tws)
     conversionMap_->SetBrName(mitName_);
     OS()->add(conversionMap_,conversionMapName_);
   }
+}
 
-  for (std::vector<std::string>::const_iterator bmapName = stablePartMapNames_.begin();
-        bmapName!=stablePartMapNames_.end(); ++bmapName) {
-    if (!bmapName->empty()) {
-      const TrackPartMap *map = OS()->get<TrackPartMap>(*bmapName);
-      if (map) {
-        stablePartMaps_.push_back(map);
-        AddBranchDep(mitName_,map->GetBrName());
-      }
+void FillerConversions::PrepareLinks()
+{
+  for (auto&& bmapName : stablePartMapNames_) {
+    if (!bmapName.empty()) {
+      const TrackPartMap *map = OS()->get<TrackPartMap>(bmapName);
+      stablePartMaps_.push_back(map);
+      AddBranchDep(mitName_,map->GetBrName());
     }
   }
 }

@@ -36,7 +36,7 @@ FillerSuperClusters::FillerSuperClusters(const ParameterSet &cfg, edm::ConsumesC
   psClusterMapName_     (cfg.getUntrackedParameter<string>("psClusterMapName", "")),
   psXClusterMapName_    (cfg.getUntrackedParameter<string>("psXClusterMapName", "")),
   psYClusterMapName_    (cfg.getUntrackedParameter<string>("psYClusterMapName", "")),
-  caloTowerDetIdMapName_(cfg.getUntrackedParameter<string>("caloTowerDetIdMapName", "CaloTowerDetIdMap")),
+  caloTowerDetIdMapName_(cfg.getUntrackedParameter<string>("caloTowerDetIdMapName", "")), //CaloTowerDetIdMap
   superClusterMapName_  (cfg.getUntrackedParameter<string>("superClusterMapName", "SuperClusterMap")),
   superClusterIdMapName_(cfg.getUntrackedParameter<string>("superClusterIdMapName", "SuperClusterIdMap")),
   basicClusterMap_      (0),
@@ -69,36 +69,6 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
   tws.AddBranch(mitName_,&superClusters_);
   OS()->add(superClusters_,mitName_);
 
-  if (!basicClusterMapName_.empty()) {
-    basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_);
-    if (basicClusterMap_)
-      AddBranchDep(mitName_,basicClusterMap_->GetBrName());
-  }
-
-  if (!psClusterMapName_.empty()) {
-    psClusterMap_ = OS()->get<PsClusterMap>(psClusterMapName_);
-    if (psClusterMap_)
-      AddBranchDep(mitName_,psClusterMap_->GetBrName());
-  }
-  
-  if (!psXClusterMapName_.empty()) {
-    psXClusterMap_ = OS()->get<PsClusterMap>(psXClusterMapName_);
-    if (psXClusterMap_)
-      AddBranchDep(mitName_,psXClusterMap_->GetBrName());
-  }
-  
-  if (!psYClusterMapName_.empty()) {
-    psYClusterMap_ = OS()->get<PsClusterMap>(psYClusterMapName_);
-    if (psYClusterMap_)
-      AddBranchDep(mitName_,psYClusterMap_->GetBrName());
-  }
-
-  if (!caloTowerDetIdMapName_.empty()) {
-    caloTowerDetIdMap_ = OS()->get<CaloTowerDetIdMap>(caloTowerDetIdMapName_);
-    if (caloTowerDetIdMap_)
-      AddBranchDep(mitName_,caloTowerDetIdMap_->GetBrName());
-  }
-  
   if (!superClusterMapName_.empty()) {
     superClusterMap_->SetBrName(mitName_);
     OS()->add(superClusterMap_,superClusterMapName_);
@@ -106,6 +76,34 @@ void FillerSuperClusters::BookDataBlock(TreeWriter &tws)
   if (!superClusterIdMapName_.empty()) {
     superClusterIdMap_->SetBrName(mitName_);
     OS()->add(superClusterIdMap_,superClusterIdMapName_);
+  }
+}
+
+void FillerSuperClusters::PrepareLinks()
+{
+  if (!basicClusterMapName_.empty()) {
+    basicClusterMap_ = OS()->get<BasicClusterMap>(basicClusterMapName_);
+    AddBranchDep(mitName_,basicClusterMap_->GetBrName());
+  }
+
+  if (!psClusterMapName_.empty()) {
+    psClusterMap_ = OS()->get<PsClusterMap>(psClusterMapName_);
+    AddBranchDep(mitName_,psClusterMap_->GetBrName());
+  }
+  
+  if (!psXClusterMapName_.empty()) {
+    psXClusterMap_ = OS()->get<PsClusterMap>(psXClusterMapName_);
+    AddBranchDep(mitName_,psXClusterMap_->GetBrName());
+  }
+  
+  if (!psYClusterMapName_.empty()) {
+    psYClusterMap_ = OS()->get<PsClusterMap>(psYClusterMapName_);
+    AddBranchDep(mitName_,psYClusterMap_->GetBrName());
+  }
+
+  if (!caloTowerDetIdMapName_.empty()) {
+    caloTowerDetIdMap_ = OS()->get<CaloTowerDetIdMap>(caloTowerDetIdMapName_);
+    AddBranchDep(mitName_,caloTowerDetIdMap_->GetBrName());
   }
 }
 

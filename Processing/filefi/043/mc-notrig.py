@@ -192,6 +192,8 @@ MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCVertexes.active = True
+# NOTRIG - special
+MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence
 

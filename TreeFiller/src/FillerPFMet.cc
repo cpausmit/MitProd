@@ -115,7 +115,7 @@ namespace mithep
     
     pfMet->SetSumEt(inMet->shiftedSumEt(pat::MET::NoShift, pat::MET::Raw));
 
-    for (auto corr : {pat::MET::Type1, pat::MET::Type1p2}) {
+    for (auto corr : {pat::MET::Type1, pat::MET::Type01}) {
       pfMet->PushCorrectionX(inMet->shiftedPx(pat::MET::NoShift, corr) - pfMet->Mex());
       pfMet->PushCorrectionY(inMet->shiftedPy(pat::MET::NoShift, corr) - pfMet->Mey());
       pfMet->PushCorrectionSumEt(inMet->shiftedSumEt(pat::MET::NoShift, corr) - pfMet->SumEt());

@@ -59,7 +59,6 @@ namespace mithep
       const mithep::PhotonMap       *photonMap_;                //map wrt photons
       const mithep::SuperClusterMap *barrelSuperClusterMap_;    //map wrt superclusters
       const mithep::SuperClusterMap *endcapSuperClusterMap_;    //map wrt superclusters
-      const mithep::ConversionMap   *conversionMap_;            //map wrt conversions
 
       mithep::PFCandidateMap        *pfCandMap_;                //exported map
       mithep::PFCandidateMap        *pfNoPileupCandMap_;        //exported map for pf no pileup

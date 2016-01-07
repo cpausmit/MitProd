@@ -54,25 +54,25 @@ void FillerDecayParts::BookDataBlock(TreeWriter &tws)
   OS()->add<mithep::StableDataArr>(stableData_,stableDataName_);
   tws.AddBranch(decayDataName_,  &decayData_);
   OS()->add<mithep::DecayDataArr>(decayData_,decayDataName_);
+}
 
+void FillerDecayParts::PrepareLinks()
+{
   if (!vertexMapName_.empty()) {
     vertexMap_ = OS()->get<VertexMap>(vertexMapName_);
-    if (vertexMap_)
-      AddBranchDep(mitName_,vertexMap_->GetBrName());
+    AddBranchDep(mitName_,vertexMap_->GetBrName());
   }
 
-  for (std::vector<std::string>::const_iterator bmapName = basePartMapNames_.begin();
-        bmapName!=basePartMapNames_.end(); ++bmapName) {
-    if (!bmapName->empty()) {
-      const BasePartMap *map = OS()->get<BasePartMap>(*bmapName);
-      if (map) {
-        basePartMaps_.push_back(map);
-        AddBranchDep(stableDataName_,map->GetBrName());
-        AddBranchDep(decayDataName_,map->GetBrName());
-      }
+  for (auto&& bmapName : basePartMapNames_) {
+    if (!bmapName.empty()) {
+      const BasePartMap *map = OS()->get<BasePartMap>(bmapName);
+      basePartMaps_.push_back(map);
+      AddBranchDep(stableDataName_, map->GetBrName());
+      AddBranchDep(decayDataName_, map->GetBrName());
     }
   }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 void FillerDecayParts::FillDataBlock(const edm::Event      &evt, 

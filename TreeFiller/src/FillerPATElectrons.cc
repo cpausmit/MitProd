@@ -53,16 +53,17 @@ void FillerPATElectrons::BookDataBlock(TreeWriter &tws)
 
   tws.AddBranch(mitName_,&electrons_);
   OS()->add<mithep::ElectronArr>(electrons_,mitName_);
+}
 
+void FillerPATElectrons::PrepareLinks()
+{
   if (!gsfTrackMapName_.empty()) {
     gsfTrackMap_ = OS()->get<TrackMap>(gsfTrackMapName_);
-    if (gsfTrackMap_)
-      AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
+    AddBranchDep(mitName_,gsfTrackMap_->GetBrName());
   }
   if (!trackerTrackMapName_.empty()) {
     trackerTrackMap_ = OS()->get<TrackMap>(trackerTrackMapName_);
-    if (trackerTrackMap_)
-      AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
+    AddBranchDep(mitName_,trackerTrackMap_->GetBrName());
   }
 }
 
