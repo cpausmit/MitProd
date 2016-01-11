@@ -132,17 +132,17 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetCharge(inPf.charge());
     outPfCand->SetEECal(inPf.ecalEnergy());
     outPfCand->SetEHCal(inPf.hcalEnergy());
-    outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
-    outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
-    outPfCand->SetEPS1(inPf.pS1Energy());
-    outPfCand->SetEPS2(inPf.pS2Energy());
+    // outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
+    // outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
+    // outPfCand->SetEPS1(inPf.pS1Energy());
+    // outPfCand->SetEPS2(inPf.pS2Energy());
     outPfCand->SetPError(inPf.deltaP());
-    outPfCand->SetMvaEPi(inPf.mva_e_pi());
-    outPfCand->SetMvaEMu(inPf.mva_e_mu());
-    outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
+    // outPfCand->SetMvaEPi(inPf.mva_e_pi());
+    // outPfCand->SetMvaEMu(inPf.mva_e_mu());
+    // outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
     outPfCand->SetMvaGamma(inPf.mva_nothing_gamma());
-    outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
-    outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
+    // outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
+    // outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(inPf.positionAtECALEntrance().phi());
     

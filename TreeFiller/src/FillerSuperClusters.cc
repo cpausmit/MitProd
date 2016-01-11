@@ -200,15 +200,7 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
       outSC->SetAngle(showerShapesBarrel[1]);
     }
 
-    //CP //Compute Hadronic Energy behind the supercluster (within DR < 0.15)
-    //CP if(!caloTowerToken_.isUninitialized()) { 
-    //CP   EgammaTowerIsolation towerIsoDepth1(0.15,0.,0.,1,hCaloTowerProduct.product()) ;  
-    //CP   EgammaTowerIsolation towerIsoDepth2(0.15,0.,0.,2,hCaloTowerProduct.product()) ;  
-    //CP   outSC->SetHcalDepth1Energy(towerIsoDepth1.getTowerESum(&(*inSC)));
-    //CP   outSC->SetHcalDepth2Energy(towerIsoDepth2.getTowerESum(&(*inSC)));
-    //CP }
-
-    if (lazyTools && ebRecHitCollection && eeRecHitCollection) {
+    if (ebRecHitCollection && eeRecHitCollection) {
       // ecal timing information
       outSC->SetTime(lazyTools->SuperClusterTime(inSC, event));
       double seedTime = lazyTools->SuperClusterSeedTime(inSC);
@@ -223,6 +215,12 @@ void FillerSuperClusters::FillDataBlock(const edm::Event      &event,
                            ebRecHitCollection, eeRecHitCollection);
       outSC->SetLeadTimeSpan(SCLeadTimeSpan);
       outSC->SetSubLeadTimeSpan(SCSubLeadTimeSpan);
+
+      auto* hits = hitsAndFractions.at(0).first.subdetId() == EcalBarrel ? ebRecHitCollection : eeRecHitCollection;
+      auto&& localCov = EcalClusterTools::localCovariances(*inSC.seed(), hits, pTopology.product());
+      outSC->SetSigmaIEtaIEta(std::sqrt(localCov[0]));
+      outSC->SetSigmaIPhiIPhi(std::sqrt(localCov[2]));
+      outSC->SetSigmaIEtaIPhi(std::sqrt(localCov[1]));
     }
 
     auto seed = inSC.seed();
