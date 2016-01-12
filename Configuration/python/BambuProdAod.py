@@ -101,13 +101,21 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
+# Load PUPPI
+from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
+process.load('MitProd.TreeFiller.PuppiSetup_cff')
+
 if hasattr(process, 'ak8PFJets'):
     print 'before makeFatJets'
 
-# Load btagging
-# recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-fatjetSequence = makeFatJets(process, isData = True)
+# recluster fat jets, btag subjets
+from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
+pfbrecoSequence   = initFatJets(process,isData=True)
+ak8chsSequence    = makeFatJets(process,isData=True,algoLabel='AK',jetRadius=0.8)
+ak8puppiSequence  = makeFatJets(process,isData=True,algoLabel='AK',jetRadius=0.8,pfCandidates='puppi')
+ca15chsSequence   = makeFatJets(process,isData=True,algoLabel='CA',jetRadius=1.5)
+ca15puppiSequence = makeFatJets(process,isData=True,algoLabel='CA',jetRadius=1.5,pfCandidates='puppi')
+
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
 delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
@@ -123,10 +131,6 @@ pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
-
-# Load PUPPI
-from CommonTools.PileupAlgos.Puppi_cff import puppi
-process.load('CommonTools.PileupAlgos.Puppi_cff')
 
 # PUPPI jets
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
@@ -170,13 +174,17 @@ recoSequence = cms.Sequence(
   pfElectronSequence *
   pfNoElectron *
   PFTau *
-  puppi *
+  puppiSequence *
   ak4PFJetsPuppi *
   l1FastJetSequence *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *
-  fatjetSequence *
+  pfbrecoSequence*
+  ak8chsSequence*
+  ak8puppiSequence*
+  ca15chsSequence*
+  ca15puppiSequence*
   metFilters
 )
 
