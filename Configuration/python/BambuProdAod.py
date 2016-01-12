@@ -79,15 +79,6 @@ from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import el
 process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
 MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values'
 
-# Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
-process.load('MitProd.TreeFiller.FastJetCorrection_cff')
-
-# Load btagging
-from MitProd.TreeFiller.utils.setupBTag import setupBTag
-ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
-ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
-
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -110,6 +101,9 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
+if hasattr(process, 'ak8PFJets'):
+    print 'before makeFatJets'
+
 # Load btagging
 # recluster fat jets, subjets, btagging
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
@@ -117,6 +111,9 @@ fatjetSequence = makeFatJets(process, isData = True)
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
 delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
+
+if hasattr(process, 'ak8PFJets'):
+    print 'after makeFatJets'
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
@@ -127,8 +124,29 @@ pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
 
-#> Setup jet corrections
+# Load PUPPI
+from CommonTools.PileupAlgos.Puppi_cff import puppi
+process.load('CommonTools.PileupAlgos.Puppi_cff')
+
+# PUPPI jets
+from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+
+ak4PFJetsPuppi.src = cms.InputTag('puppi')
+ak4PFJetsPuppi.doAreaFastjet = True
+
+# Load FastJet L1 corrections
+from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+
+# Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# Load btagging
+from MitProd.TreeFiller.utils.setupBTag import setupBTag
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
+ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
+ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi')
 
 # Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
@@ -152,10 +170,12 @@ recoSequence = cms.Sequence(
   pfElectronSequence *
   pfNoElectron *
   PFTau *
+  puppi *
+  ak4PFJetsPuppi *
   l1FastJetSequence *
-  l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
+  ak4PFPuppiBTagSequence *
   fatjetSequence *
   metFilters
 )
