@@ -105,23 +105,17 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
 process.load('MitProd.TreeFiller.PuppiSetup_cff')
 
-if hasattr(process, 'ak8PFJets'):
-    print 'before makeFatJets'
-
 # recluster fat jets, btag subjets
 from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
-pfbrecoSequence   = initFatJets(process,isData=True)
-ak8chsSequence    = makeFatJets(process,isData=True,algoLabel='AK',jetRadius=0.8)
-ak8puppiSequence  = makeFatJets(process,isData=True,algoLabel='AK',jetRadius=0.8,pfCandidates='puppi')
-ca15chsSequence   = makeFatJets(process,isData=True,algoLabel='CA',jetRadius=1.5)
-ca15puppiSequence = makeFatJets(process,isData=True,algoLabel='CA',jetRadius=1.5,pfCandidates='puppi')
+pfbrecoSequence = initFatJets(process, isData = True)
+ak8chsSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8)
+ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppi')
+ca15chsSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5)
+ca15puppiSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppi')
 
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
 delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
-
-if hasattr(process, 'ak8PFJets'):
-    print 'after makeFatJets'
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'

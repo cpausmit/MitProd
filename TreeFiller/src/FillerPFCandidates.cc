@@ -10,8 +10,11 @@
 mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
   fillPfNoPileup_           (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
-  edmToken_(GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
-  edmPfNoPileupToken_(GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
+  fillPuppiMap_             (cfg.getUntrackedParameter<bool>("fillPuppiMap", true)),
+  edmToken_                 (GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
+  edmPfNoPileupToken_       (GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
+  edmPuppiMapToken_         (GetToken<CandidatePtrMap>(collector, cfg, "edmPuppiMapName", fillPuppiMap_)),
+  edmPuppiToken_            (GetToken<reco::PFCandidateCollection>(collector, cfg, "edmPuppiName", fillPuppiMap_)), //pfNoElectrons
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
   gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
@@ -22,6 +25,7 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
   pfCandMapName_            (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_    (cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
+  puppiMapName_             (cfg.getUntrackedParameter<std::string>("puppiMapName", "")),
   allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
   allowMissingClusterRef_   (cfg.getUntrackedParameter<bool>("allowMissingClusterRef", false)),
   allowMissingPhotonRef_    (cfg.getUntrackedParameter<bool>("allowMissingPhotonRef", false)),
@@ -33,6 +37,7 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   endcapSuperClusterMap_    (0),
   pfCandMap_                (new mithep::PFCandidateMap),
   pfNoPileupCandMap_        (0),
+  puppiMap_                 (0),
   pfCands_                  (new mithep::PFCandidateArr(16))
 {
 }
@@ -42,6 +47,7 @@ mithep::FillerPFCandidates::~FillerPFCandidates()
   delete pfCands_;
   delete pfCandMap_;
   delete pfNoPileupCandMap_;
+  delete puppiMap_;
 }
 
 void
@@ -54,12 +60,19 @@ mithep::FillerPFCandidates::BookDataBlock(mithep::TreeWriter& tws)
 
   if (!pfCandMapName_.empty()) {
     pfCandMap_->SetBrName(mitName_);
-    OS()->add(pfCandMap_,pfCandMapName_);
+    OS()->add(pfCandMap_, pfCandMapName_);
   }
+
   if (fillPfNoPileup_ && !pfNoPileupCandMapName_.empty()) {
     pfNoPileupCandMap_ = new mithep::PFCandidateMap;
     pfNoPileupCandMap_->SetBrName(mitName_);
-    OS()->add(pfNoPileupCandMap_,pfNoPileupCandMapName_);
+    OS()->add(pfNoPileupCandMap_, pfNoPileupCandMapName_);
+  }
+
+  if (fillPuppiMap_ && !puppiMapName_.empty()) {
+    puppiMap_ = new mithep::PFCandidateMap;
+    puppiMap_->SetBrName(mitName_);
+    OS()->add(puppiMap_, puppiMapName_);
   }
 }
 
@@ -106,7 +119,10 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
   pfCands_->Delete();
   pfCandMap_->Reset();
-  pfNoPileupCandMap_->Reset();
+  if (pfNoPileupCandMap_)
+    pfNoPileupCandMap_->Reset();
+  if (puppiMap_)
+    puppiMap_->Reset();
 
   // get PF Candidates
   edm::Handle<PFCollection> hPfCandProduct;
@@ -119,6 +135,18 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     edm::Handle<PFCollection> hPfNoPileupCandProduct;
     GetProduct(edmPfNoPileupToken_, hPfNoPileupCandProduct, event);  
     inPfNoPileupCands = hPfNoPileupCandProduct.product();
+  }
+
+  CandidatePtrMap const* inPFToPuppiMap = 0;
+  reco::PFCandidateCollection const* inPuppiCands = 0;
+  if (puppiMap_) {
+    edm::Handle<CandidatePtrMap> hPFToPuppiMapProduct;
+    GetProduct(edmPuppiMapToken_, hPFToPuppiMapProduct, event);
+    inPFToPuppiMap = hPFToPuppiMapProduct.product();
+
+    edm::Handle<reco::PFCandidateCollection> hPuppiProduct;
+    GetProduct(edmPuppiToken_, hPuppiProduct, event);
+    inPuppiCands = hPuppiProduct.product();
   }
 
   for (auto&& inPfPtr : inPfCands) {
@@ -203,14 +231,14 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
                        inPf.flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
 
+    // initially set the candidate to be not part of the NoPilup collection
+    outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
+
     // add to exported pf candidate map
     pfCandMap_->Add(reco::CandidatePtr(inPfPtr.ptr()), outPfCand);
 
     // add pf No Pileup map
     if (fillPfNoPileup_) { 
-      // initially set the candidate to be not part of the NoPilup collection
-      outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
-
       bool found = false;
       // try to find match with the no-pileup map
       for (auto&& inPfNpPtr : *inPfNoPileupCands) {
@@ -227,7 +255,19 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
         outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, true);
         // add it to our map
 
-        pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
+        if (pfNoPileupCandMap_)
+          pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
+      }
+    }
+
+    if (puppiMap_) {
+      auto& inPuppiPtr(inPFToPuppiMap->get(inPfPtr.id(), inPfPtr.key()));
+      
+      for (auto&& puppi : *inPuppiCands) {
+        if (&puppi == inPuppiPtr.get()) {
+          puppiMap_->Add(inPuppiPtr, outPfCand);
+          break;
+        }
       }
     }
   }

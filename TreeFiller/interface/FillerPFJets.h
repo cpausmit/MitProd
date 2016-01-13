@@ -41,7 +41,6 @@ namespace mithep {
     void initCorrections(edm::Event const&, edm::EventSetup const&) override;
     void setCorrections(mithep::Jet&, reco::Jet const&) override;
 
-
     std::string bJetTagsName_[mithep::Jet::nBTagAlgos];
 
     std::string pfCandMapName_; //name of imported PFCandidateMap

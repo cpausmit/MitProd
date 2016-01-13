@@ -101,9 +101,11 @@ def initFatJets(process,isData):
         process.pfAllElectronsPFBRECOPFlow*
         process.pfElectronsFromVertexPFBRECOPFlow*
         process.pfIsolatedElectronsPFBRECOPFlow*
-        process.pfNoElectronJMEPFBRECOPFlow*
-        process.genParticlesForJetsNoNuPFlow      # not part of pf b reco sequence, but will be needed later
+        process.pfNoElectronJMEPFBRECOPFlow
     )
+
+    if isMC:
+        process.pfbrecoSequence += process.genParticlesForJetsNoNuPFlow
 
     return process.pfbrecoSequence
 
@@ -412,7 +414,6 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
                                 pfSoftDropMatchPFlowSequence
                              )
 
-        
     setattr(process, 'fatjet'+puMethod+rLabel+'Sequence', pfJetsSequence)
     if isData:
         removeMCMatching(process, ['All'], outputModules = [])

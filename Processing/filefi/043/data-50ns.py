@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015B/SingleMu/AOD/PromptReco-v1/000/251/028/00000/924F6240-3C26-E511-B55B-02163E0144CC.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015D/MET/AOD/PromptReco-v4/000/258/434/00000/223D50A3-5C6E-E511-963D-02163E014340.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -79,15 +79,6 @@ from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import el
 process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
 MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig50nsV1Values'
 
-# Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
-process.load('MitProd.TreeFiller.FastJetCorrection_cff')
-
-# Load btagging
-from MitProd.TreeFiller.utils.setupBTag import setupBTag
-ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
-ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
-
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -110,10 +101,18 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
-# Load btagging
-# recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-fatjetSequence = makeFatJets(process, isData = True)
+# Load PUPPI
+from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
+process.load('MitProd.TreeFiller.PuppiSetup_cff')
+
+# recluster fat jets, btag subjets
+from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
+pfbrecoSequence = initFatJets(process, isData = True)
+ak8chsSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8)
+ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppi')
+ca15chsSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5)
+ca15puppiSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppi')
+
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
 delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
@@ -127,8 +126,25 @@ pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
 
-#> Setup jet corrections
+# PUPPI jets
+from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+
+ak4PFJetsPuppi.src = cms.InputTag('puppi')
+ak4PFJetsPuppi.doAreaFastjet = True
+
+# Load FastJet L1 corrections
+from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+
+# Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# Load btagging
+from MitProd.TreeFiller.utils.setupBTag import setupBTag
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
+ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
+ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi')
 
 # Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
@@ -152,11 +168,17 @@ recoSequence = cms.Sequence(
   pfElectronSequence *
   pfNoElectron *
   PFTau *
+  puppiSequence *
+  ak4PFJetsPuppi *
   l1FastJetSequence *
-  l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
-  fatjetSequence *
+  ak4PFPuppiBTagSequence *
+  pfbrecoSequence*
+  ak8chsSequence*
+  ak8puppiSequence*
+  ca15chsSequence*
+  ca15puppiSequence*
   metFilters
 )
 
