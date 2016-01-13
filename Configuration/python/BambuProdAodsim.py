@@ -8,7 +8,7 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(10)
 )
 
 #>> input source
@@ -163,8 +163,8 @@ process.load('MitProd.TreeFiller.metFilters_cff')
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
-  eidLikelihoodExt *
-#  conversionProducer *
+  electronMVAValueMapProducer *
+  #  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
   pfParticleSelectionSequence *
