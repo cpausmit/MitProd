@@ -62,6 +62,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     'AKt8FatJetsPuppi',
     'CA15FatJetsPuppi',
     'PFMet',
+    'PuppiMet',
     'CaloMet',
     'HPSTaus',
     'DCASig'
