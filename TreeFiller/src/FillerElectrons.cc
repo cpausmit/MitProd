@@ -308,9 +308,6 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     outElectron->SetE15(inElectron.e1x5());
     outElectron->SetE25Max(inElectron.e2x5Max());
     outElectron->SetE55(inElectron.e5x5());
-    outElectron->SetCovEtaEta(inElectron.sigmaEtaEta());
-    outElectron->SetCoviEtaiEta(inElectron.sigmaIetaIeta());
-    outElectron->SetCoviEtaiEta5x5(inElectron.full5x5_sigmaIetaIeta());
     outElectron->SetHadronicOverEm(inElectron.hcalOverEcal());
     outElectron->SetHcalDepth1OverEcal(inElectron.hcalDepth1OverEcal());
     outElectron->SetHcalDepth2OverEcal(inElectron.hcalDepth2OverEcal());

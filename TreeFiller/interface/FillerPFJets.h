@@ -41,11 +41,10 @@ namespace mithep {
     void initCorrections(edm::Event const&, edm::EventSetup const&) override;
     void setCorrections(mithep::Jet&, reco::Jet const&) override;
 
-
     std::string bJetTagsName_[mithep::Jet::nBTagAlgos];
 
-    std::string pfCandMapName_; //name of imported PFCandidateMap
-    mithep::PFCandidateMap const* pfCandMap_; //map wrt PFCandidates
+    std::vector<std::string> pfCandMapNames_; //names of imported PFCandidateMap (earlier ones take precedence)
+    std::vector<mithep::PFCandidateMap const*> pfCandMaps_; //maps wrt PFCandidates
   };
 }
 

@@ -17,7 +17,6 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   hltEvtToken_(), // set below
   triggerObjectsToken_(GetToken<pat::TriggerObjectStandAloneCollection>(collector, cfg, "hltObjsEdmName", false)),
   hltResToken_(), // set below
-  l1GtMenuLiteTag_(cfg.getUntrackedParameter<string>("l1GtMenuLiteEdmName", "l1GtTriggerMenuLite")),
   l1GTRRToken_(GetToken<L1GlobalTriggerReadoutRecord>(collector, cfg, "l1GtReadRecEdmName", false)),
   hltProcName_(cfg.getUntrackedParameter<std::string>("hltProcName", "")),
   hltTreeName_(cfg.getUntrackedParameter<std::string>("hltTreeMitName", mithep::Names::gkHltTreeName)),
@@ -39,7 +38,7 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   hltTree_(0),
   hltConfig_(),
   l1Active_(cfg.getUntrackedParameter<bool>("l1Active", true)),
-  l1GtUtils_(),
+  l1GtUtils_(0),
   l1TBitsName_(cfg.getUntrackedParameter<string>("l1TechBitsMitName", mithep::Names::gkL1TechBitsBrn)),
   l1ABitsName_(cfg.getUntrackedParameter<string>("l1AlgoBitsMitName", mithep::Names::gkL1AlgoBitsBrn)),
   l1TBits_(l1Active_ ? new mithep::L1TriggerMask : 0),
@@ -92,6 +91,14 @@ mithep::FillerTrigger::FillerTrigger(edm::ParameterSet const& cfg, edm::Consumes
   
     hltEvtToken_ = collector.consumes<trigger::TriggerEvent>(edm::InputTag(hltEvtName));
   }
+
+  if (l1Active_) {
+    edm::ParameterSet pset;
+    pset.addParameter("l1GtRecordInputTag", edm::InputTag(cfg.getUntrackedParameter<std::string>("l1GtRecordEdmName")));
+    pset.addParameter("l1GtReadoutRecordInputTag", edm::InputTag(cfg.getUntrackedParameter<std::string>("l1GtReadRecEdmName")));
+    pset.addParameter("l1GtTriggerMenuLiteInputTag", edm::InputTag(cfg.getUntrackedParameter<std::string>("l1GtMenuLiteEdmName")));
+    l1GtUtils_ = new L1GtUtils(pset, collector, true);
+  }
 }
 
 mithep::FillerTrigger::~FillerTrigger()
@@ -103,6 +110,7 @@ mithep::FillerTrigger::~FillerTrigger()
   delete hltLabels_;
   delete hltObjs_;
   delete hltRels_;
+  delete l1GtUtils_;
   delete l1TBits_;
   delete l1ABits_;
   delete l1AbArr_;
@@ -175,8 +183,8 @@ void
 mithep::FillerTrigger::FillRunBlock(edm::Run const& run, edm::EventSetup const& setup)
 {
   if (l1Active_) {
-    l1GtUtils_.retrieveL1GtTriggerMenuLite(run, l1GtMenuLiteTag_);
-    if (l1GtUtils_.l1TriggerMenu().empty())
+    l1GtUtils_->retrieveL1GtTriggerMenuLite(run);
+    if (l1GtUtils_->l1TriggerMenu().empty())
       throw cms::Exception("ProductNotFound") << "L1GtTriggerMenuLite not found in Run";
   }
 
@@ -311,7 +319,7 @@ mithep::FillerTrigger::FillTriggerConfig(edm::Run const& run, edm::EventSetup co
     hltLabels_->push_back("xxx-L1AlgoNames-xxx");
 
     for (unsigned iT = 0; iT != 128; ++iT) {
-      if (l1GtUtils_.l1TriggerNameFromBit(iT, L1GtUtils::AlgorithmTrigger, triggerAlias, triggerName))
+      if (l1GtUtils_->l1TriggerNameFromBit(iT, L1GtUtils::AlgorithmTrigger, triggerAlias, triggerName))
         hltLabels_->push_back(triggerName);
       else
         hltLabels_->push_back(Form("UnusedL1Algo%d", iT));
@@ -321,7 +329,7 @@ mithep::FillerTrigger::FillTriggerConfig(edm::Run const& run, edm::EventSetup co
     hltLabels_->push_back("xxx-L1TechNames-xxx");
 
     for (unsigned iT = 0; iT != 64; ++iT) {
-      if (l1GtUtils_.l1TriggerNameFromBit(iT, L1GtUtils::TechnicalTrigger, triggerAlias, triggerName))
+      if (l1GtUtils_->l1TriggerNameFromBit(iT, L1GtUtils::TechnicalTrigger, triggerAlias, triggerName))
         hltLabels_->push_back(triggerName);
       else
         hltLabels_->push_back(Form("UnusedL1Tech%d", iT));
@@ -552,16 +560,16 @@ mithep::FillerTrigger::FillL1t(edm::Event const& event)
 
   //check size of l1 menu
   int errorCode = 0;
-  if (l1GtUtils_.triggerMaskSet(L1GtUtils::AlgorithmTrigger, errorCode).size() > l1amask.Size()) {
+  if (l1GtUtils_->triggerMaskSet(L1GtUtils::AlgorithmTrigger, errorCode).size() > l1amask.Size()) {
     edm::LogError("FillerTrigger") << "L1 config contains too many algos "
-                               << l1GtUtils_.triggerMaskSet(L1GtUtils::AlgorithmTrigger, errorCode).size()
+                               << l1GtUtils_->triggerMaskSet(L1GtUtils::AlgorithmTrigger, errorCode).size()
                                << " > " << l1amask.Size();
     return;
   }
   //check size of l1 menu
-  if (l1GtUtils_.triggerMaskSet(L1GtUtils::TechnicalTrigger, errorCode).size() > l1tmask.Size()) {
+  if (l1GtUtils_->triggerMaskSet(L1GtUtils::TechnicalTrigger, errorCode).size() > l1tmask.Size()) {
     edm::LogError("FillerTrigger") << "L1 config contains too many tech triggers "
-                               << l1GtUtils_.triggerMaskSet(L1GtUtils::TechnicalTrigger, errorCode).size()
+                               << l1GtUtils_->triggerMaskSet(L1GtUtils::TechnicalTrigger, errorCode).size()
                                << " > " << l1tmask.Size();
     return;
   }  
@@ -571,14 +579,14 @@ mithep::FillerTrigger::FillL1t(edm::Event const& event)
   bool decision, beforeMask;
   int prescale, mask;
   for (unsigned iT = 0; iT != 128; ++iT) {
-    if (l1GtUtils_.l1TriggerNameFromBit(iT, L1GtUtils::AlgorithmTrigger, triggerAlias, triggerName)) {
-      l1GtUtils_.l1Results(event, triggerName, beforeMask, decision, prescale, mask);
+    if (l1GtUtils_->l1TriggerNameFromBit(iT, L1GtUtils::AlgorithmTrigger, triggerAlias, triggerName)) {
+      l1GtUtils_->l1Results(event, triggerName, beforeMask, decision, prescale, mask);
       l1amask.SetBit(iT, decision);
       l1abmask.SetBit(iT, beforeMask);
     }
 
-    if (l1GtUtils_.l1TriggerNameFromBit(iT, L1GtUtils::TechnicalTrigger, triggerAlias, triggerName)) {
-      l1GtUtils_.l1Results(event, triggerName, beforeMask, decision, prescale, mask);
+    if (l1GtUtils_->l1TriggerNameFromBit(iT, L1GtUtils::TechnicalTrigger, triggerAlias, triggerName)) {
+      l1GtUtils_->l1Results(event, triggerName, beforeMask, decision, prescale, mask);
       l1tmask.SetBit(iT, decision);
       l1tbmask.SetBit(iT, beforeMask);
     }

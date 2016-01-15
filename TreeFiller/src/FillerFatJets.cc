@@ -74,10 +74,8 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
     throw edm::Exception(edm::errors::Configuration, "FillerFatJets::FillSpecific)")
       << "fillFromPAT set on non-PAT input";
 
-  // pat::Jet::p4() returns a corrected p4. Uncorrect here
-  double toRaw = inJet->jecFactor("Uncorrected");
-  auto&& rawP4 = inJet->p4() * toRaw;
-  outJet.SetRawPtEtaPhiM(rawP4.pt(), rawP4.eta(), rawP4.phi(), rawP4.mass());
+  // fat jets will be corrected offline - pat::Jet::p4() will be uncorrected
+  outJet.SetRawPtEtaPhiM(outJet.Pt(), outJet.Eta(), outJet.Phi(), outJet.Mass());
 
   fillPATFatJetVariables(outJet, *inJet);
 }
@@ -87,13 +85,23 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
 {
   fillPATJetVariables(outJet,inJet);
   outJet.SetCharge();
-  std::map<float,float> btagMap; // maps pT to btag
+  
+  // now let's save vanilla substructure
+  TString baseName(mitName_);
+  TString tau("Njettiness:tau");
+  outJet.SetTau1(inJet.userFloat(baseName+tau+"1"));
+  outJet.SetTau2(inJet.userFloat(baseName+tau+"2"));
+  outJet.SetTau3(inJet.userFloat(baseName+tau+"3"));
+  outJet.SetTau4(inJet.userFloat(baseName+tau+"4"));
+  outJet.SetMassSoftDrop(inJet.userFloat(baseName+"SDKinematics:Mass"));
+
   // now let's save subjet btag
+  std::map<float,float> btagMap; // maps pT to btag
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator("pfCombinedSecondaryVertexV2BJetTags");
+      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
     }
     for(std::map<float,float>::reverse_iterator iBtag=btagMap.rbegin(); iBtag!=btagMap.rend(); ++iBtag)
       outJet.AddSubJetBtag(iBtag->second);

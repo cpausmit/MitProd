@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 def makeBtagSequence(process,btagDiscriminators,btagInfos,label):
-    process.btagSequence = cms.Sequence()
+    setattr(process,'btagSequence'+label,cms.Sequence())
+    seq = getattr(process,'btagSequence'+label)
     for info in btagInfos:
-        process.btagSequence += getattr(process,info+label)
+        seq += getattr(process,info+label)
     for disc in btagDiscriminators:
-        process.btagSequence += getattr(process,disc+label)
-    return process.btagSequence
+        seq += getattr(process,disc+label)
+    return seq

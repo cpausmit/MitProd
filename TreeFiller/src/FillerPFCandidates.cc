@@ -10,8 +10,12 @@
 mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, const char *name, bool active) :
   BaseFiller(cfg, os, name, active),
   fillPfNoPileup_           (cfg.getUntrackedParameter<bool>("fillPfNoPileup", true)),
-  edmToken_(GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
-  edmPfNoPileupToken_(GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
+  fillPuppiMap_             (cfg.getUntrackedParameter<bool>("fillPuppiMap", true)),
+  edmToken_                 (GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
+  edmPfNoPileupToken_       (GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
+  edmPuppiMapToken_         (GetToken<CandidatePtrMap>(collector, cfg, "edmPuppiMapName", fillPuppiMap_)),
+  edmPuppiToken_            (GetToken<CandidateView>(collector, cfg, "edmPuppiName", fillPuppiMap_)),
+  edmPuppiSrcToken_         (GetToken<CandidateView>(collector, cfg, "edmPuppiSrcName", fillPuppiMap_)),
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
   gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
@@ -22,6 +26,7 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<std::string>("endcapSuperClusterMapName", "")),
   pfCandMapName_            (cfg.getUntrackedParameter<std::string>("pfCandMapName", "")),
   pfNoPileupCandMapName_    (cfg.getUntrackedParameter<std::string>("pfNoPileupCandMapName", "")),
+  puppiMapName_             (cfg.getUntrackedParameter<std::string>("puppiMapName", "")),
   allowMissingTrackRef_     (cfg.getUntrackedParameter<bool>("allowMissingTrackRef", false)),
   allowMissingClusterRef_   (cfg.getUntrackedParameter<bool>("allowMissingClusterRef", false)),
   allowMissingPhotonRef_    (cfg.getUntrackedParameter<bool>("allowMissingPhotonRef", false)),
@@ -33,6 +38,7 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   endcapSuperClusterMap_    (0),
   pfCandMap_                (new mithep::PFCandidateMap),
   pfNoPileupCandMap_        (0),
+  puppiMap_                 (0),
   pfCands_                  (new mithep::PFCandidateArr(16))
 {
 }
@@ -42,6 +48,7 @@ mithep::FillerPFCandidates::~FillerPFCandidates()
   delete pfCands_;
   delete pfCandMap_;
   delete pfNoPileupCandMap_;
+  delete puppiMap_;
 }
 
 void
@@ -54,12 +61,19 @@ mithep::FillerPFCandidates::BookDataBlock(mithep::TreeWriter& tws)
 
   if (!pfCandMapName_.empty()) {
     pfCandMap_->SetBrName(mitName_);
-    OS()->add(pfCandMap_,pfCandMapName_);
+    OS()->add(pfCandMap_, pfCandMapName_);
   }
+
   if (fillPfNoPileup_ && !pfNoPileupCandMapName_.empty()) {
     pfNoPileupCandMap_ = new mithep::PFCandidateMap;
     pfNoPileupCandMap_->SetBrName(mitName_);
-    OS()->add(pfNoPileupCandMap_,pfNoPileupCandMapName_);
+    OS()->add(pfNoPileupCandMap_, pfNoPileupCandMapName_);
+  }
+
+  if (fillPuppiMap_ && !puppiMapName_.empty()) {
+    puppiMap_ = new mithep::PFCandidateMap;
+    puppiMap_->SetBrName(mitName_);
+    OS()->add(puppiMap_, puppiMapName_);
   }
 }
 
@@ -106,7 +120,10 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
   pfCands_->Delete();
   pfCandMap_->Reset();
-  pfNoPileupCandMap_->Reset();
+  if (pfNoPileupCandMap_)
+    pfNoPileupCandMap_->Reset();
+  if (puppiMap_)
+    puppiMap_->Reset();
 
   // get PF Candidates
   edm::Handle<PFCollection> hPfCandProduct;
@@ -121,6 +138,30 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     inPfNoPileupCands = hPfNoPileupCandProduct.product();
   }
 
+  CandidatePtrMap const* inPFToPuppiMap = 0;
+  CandidateView const* inPuppiCands = 0;
+  CandidateView const* inPuppiSrcCands = 0;
+  edm::ProductID puppiSrcId;
+  if (puppiMap_) {
+    edm::Handle<CandidatePtrMap> hPFToPuppiMapProduct;
+    GetProduct(edmPuppiMapToken_, hPFToPuppiMapProduct, event);
+    inPFToPuppiMap = hPFToPuppiMapProduct.product();
+
+    edm::Handle<CandidateView> hPuppiProduct;
+    GetProduct(edmPuppiToken_, hPuppiProduct, event);
+    inPuppiCands = hPuppiProduct.product();
+
+    // If the source is a PtrVector, edm creates a View out of it.
+    // Product ID of the View is different from that of the product the PtrVector
+    // points to, but View created from the PtrVector will have the same Product ID.
+    edm::Handle<CandidateView> hPuppiSrcProduct;
+    GetProduct(edmPuppiSrcToken_, hPuppiSrcProduct, event);
+    if (hPuppiSrcProduct.id() != hPfCandProduct.id()) {
+      inPuppiSrcCands = hPuppiSrcProduct.product();
+      puppiSrcId = hPuppiSrcProduct.id();
+    }
+  }
+
   for (auto&& inPfPtr : inPfCands) {
     reco::PFCandidate const& inPf = *inPfPtr;
 
@@ -132,17 +173,17 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetCharge(inPf.charge());
     outPfCand->SetEECal(inPf.ecalEnergy());
     outPfCand->SetEHCal(inPf.hcalEnergy());
-    outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
-    outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
-    outPfCand->SetEPS1(inPf.pS1Energy());
-    outPfCand->SetEPS2(inPf.pS2Energy());
+    // outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
+    // outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
+    // outPfCand->SetEPS1(inPf.pS1Energy());
+    // outPfCand->SetEPS2(inPf.pS2Energy());
     outPfCand->SetPError(inPf.deltaP());
-    outPfCand->SetMvaEPi(inPf.mva_e_pi());
-    outPfCand->SetMvaEMu(inPf.mva_e_mu());
-    outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
+    // outPfCand->SetMvaEPi(inPf.mva_e_pi());
+    // outPfCand->SetMvaEMu(inPf.mva_e_mu());
+    // outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
     outPfCand->SetMvaGamma(inPf.mva_nothing_gamma());
-    outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
-    outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
+    // outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
+    // outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(inPf.positionAtECALEntrance().phi());
     
@@ -203,14 +244,14 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetFlag(mithep::PFCandidate::eToConversion, 
                        inPf.flag(reco::PFCandidate::GAMMA_TO_GAMMACONV));
 
+    // initially set the candidate to be not part of the NoPilup collection
+    outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
+
     // add to exported pf candidate map
     pfCandMap_->Add(reco::CandidatePtr(inPfPtr.ptr()), outPfCand);
 
     // add pf No Pileup map
     if (fillPfNoPileup_) { 
-      // initially set the candidate to be not part of the NoPilup collection
-      outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, false);
-
       bool found = false;
       // try to find match with the no-pileup map
       for (auto&& inPfNpPtr : *inPfNoPileupCands) {
@@ -227,7 +268,46 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
         outPfCand->SetFlag(mithep::PFCandidate::ePFNoPileup, true);
         // add it to our map
 
-        pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
+        if (pfNoPileupCandMap_)
+          pfNoPileupCandMap_->Add(reco::CandidatePtr(inPfNpPtr.ptr()), outPfCand);
+      }
+    }
+
+    if (puppiMap_) {
+      edm::Ptr<reco::Candidate> srcPtr;
+
+      if (inPuppiSrcCands) {
+        // case: inPuppiSrcCands and inPFCands have different product IDs while being the collections of same objects.
+        // Need to match by the actual address. Not elegant but should be safe within an event.
+
+        for (unsigned iPup = 0; iPup != inPuppiSrcCands->size(); ++iPup) {
+          auto* puppiSrcCand = &inPuppiSrcCands->at(iPup);
+          if (puppiSrcCand == inPfPtr.get()) {
+            srcPtr = edm::Ptr<reco::Candidate>(puppiSrcId, puppiSrcCand, iPup);
+            break;
+          }
+        }
+      }
+      else {
+        srcPtr = edm::Ptr<reco::Candidate>(inPfPtr.id(), inPfPtr.get(), inPfPtr.key());
+      }
+
+      if (srcPtr.isNonnull()) {
+        // srcPtr is null if puppi source is different from the PFCandidate source
+        
+        auto& inPuppiPtr(inPFToPuppiMap->get(srcPtr.id(), srcPtr.key()));
+
+        unsigned iPup = 0;
+        for (; iPup != inPuppiCands->size(); ++iPup) {
+          if (inPuppiCands->ptrAt(iPup) == inPuppiPtr) {
+            puppiMap_->Add(inPuppiPtr, outPfCand);
+            break;
+          }
+        }
+
+        if (iPup == inPuppiCands->size())
+          throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
+            << "Candidate was not found in the list of PUPPI particles.";
       }
     }
   }
