@@ -8,14 +8,14 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(10)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://grid143.kfki.hu//store/mc/RunIISpring15DR74/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/40000/04E00947-462F-E511-8F5A-0025905A6104.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -79,15 +79,6 @@ from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import el
 process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
 MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values'
 
-# Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence, l1FastJetSequenceCHS
-process.load('MitProd.TreeFiller.FastJetCorrection_cff')
-
-# Load btagging
-from MitProd.TreeFiller.utils.setupBTag import setupBTag
-ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
-ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
-
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -110,10 +101,18 @@ process.load('CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi')
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
-# Load btagging
-# recluster fat jets, subjets, btagging
-from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-fatjetSequence = makeFatJets(process, isData = False)
+# Load PUPPI
+from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
+process.load('MitProd.TreeFiller.PuppiSetup_cff')
+
+# recluster fat jets, btag subjets
+from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
+pfbrecoSequence = initFatJets(process, isData = False)
+ak8chsSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8)
+ak8puppiSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
+ca15chsSequence = makeFatJets(process, isData = False, algoLabel = 'CA', jetRadius = 1.5)
+ca15puppiSequence = makeFatJets(process, isData = False, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppiNoLepPlusLep')
+
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
 delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
@@ -127,8 +126,25 @@ pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
 
-#> Setup jet corrections
+# PUPPI jets
+from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+
+ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
+ak4PFJetsPuppi.doAreaFastjet = True
+
+# Load FastJet L1 corrections
+from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+
+# Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+
+# Load btagging
+from MitProd.TreeFiller.utils.setupBTag import setupBTag
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
+ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
+ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi')
 
 # Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
 from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
@@ -142,7 +158,7 @@ process.load('MitProd.TreeFiller.metFilters_cff')
 recoSequence = cms.Sequence(
   electronsStable *
   electronMVAValueMapProducer *
-#  conversionProducer *
+  #  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
   pfParticleSelectionSequence *
@@ -152,11 +168,17 @@ recoSequence = cms.Sequence(
   pfElectronSequence *
   pfNoElectron *
   PFTau *
+  puppiSequence *
+  ak4PFJetsPuppi *
   l1FastJetSequence *
-  l1FastJetSequenceCHS *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
-  fatjetSequence *
+  ak4PFPuppiBTagSequence *
+  pfbrecoSequence*
+  ak8chsSequence*
+  ak8puppiSequence*
+  ca15chsSequence*
+  ca15puppiSequence*
   metFilters
 )
 
@@ -192,7 +214,6 @@ MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCVertexes.active = True
-# NOTRIG - special
 MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence

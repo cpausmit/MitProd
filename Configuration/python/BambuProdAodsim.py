@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://grid143.kfki.hu//store/mc/RunIISpring15DR74/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/40000/04E00947-462F-E511-8F5A-0025905A6104.root')
+  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -109,9 +109,9 @@ process.load('MitProd.TreeFiller.PuppiSetup_cff')
 from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
 pfbrecoSequence = initFatJets(process, isData = False)
 ak8chsSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8)
-ak8puppiSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppi')
+ak8puppiSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
 ca15chsSequence = makeFatJets(process, isData = False, algoLabel = 'CA', jetRadius = 1.5)
-ca15puppiSequence = makeFatJets(process, isData = False, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppi')
+ca15puppiSequence = makeFatJets(process, isData = False, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppiNoLepPlusLep')
 
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
@@ -130,7 +130,7 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
 
-ak4PFJetsPuppi.src = cms.InputTag('puppi')
+ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
 ak4PFJetsPuppi.doAreaFastjet = True
 
 # Load FastJet L1 corrections

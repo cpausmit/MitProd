@@ -14,7 +14,8 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   edmToken_                 (GetToken<PFCollection>(collector, cfg, "edmName")), //particleFlow
   edmPfNoPileupToken_       (GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
   edmPuppiMapToken_         (GetToken<CandidatePtrMap>(collector, cfg, "edmPuppiMapName", fillPuppiMap_)),
-  edmPuppiToken_            (GetToken<reco::PFCandidateCollection>(collector, cfg, "edmPuppiName", fillPuppiMap_)), //pfNoElectrons
+  edmPuppiToken_            (GetToken<CandidateView>(collector, cfg, "edmPuppiName", fillPuppiMap_)),
+  edmPuppiSrcToken_         (GetToken<CandidateView>(collector, cfg, "edmPuppiSrcName", fillPuppiMap_)),
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
   gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
@@ -138,15 +139,27 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
   }
 
   CandidatePtrMap const* inPFToPuppiMap = 0;
-  reco::PFCandidateCollection const* inPuppiCands = 0;
+  CandidateView const* inPuppiCands = 0;
+  CandidateView const* inPuppiSrcCands = 0;
+  edm::ProductID puppiSrcId;
   if (puppiMap_) {
     edm::Handle<CandidatePtrMap> hPFToPuppiMapProduct;
     GetProduct(edmPuppiMapToken_, hPFToPuppiMapProduct, event);
     inPFToPuppiMap = hPFToPuppiMapProduct.product();
 
-    edm::Handle<reco::PFCandidateCollection> hPuppiProduct;
+    edm::Handle<CandidateView> hPuppiProduct;
     GetProduct(edmPuppiToken_, hPuppiProduct, event);
     inPuppiCands = hPuppiProduct.product();
+
+    // If the source is a PtrVector, edm creates a View out of it.
+    // Product ID of the View is different from that of the product the PtrVector
+    // points to, but View created from the PtrVector will have the same Product ID.
+    edm::Handle<CandidateView> hPuppiSrcProduct;
+    GetProduct(edmPuppiSrcToken_, hPuppiSrcProduct, event);
+    if (hPuppiSrcProduct.id() != hPfCandProduct.id()) {
+      inPuppiSrcCands = hPuppiSrcProduct.product();
+      puppiSrcId = hPuppiSrcProduct.id();
+    }
   }
 
   for (auto&& inPfPtr : inPfCands) {
@@ -261,13 +274,40 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     }
 
     if (puppiMap_) {
-      auto& inPuppiPtr(inPFToPuppiMap->get(inPfPtr.id(), inPfPtr.key()));
-      
-      for (auto&& puppi : *inPuppiCands) {
-        if (&puppi == inPuppiPtr.get()) {
-          puppiMap_->Add(inPuppiPtr, outPfCand);
-          break;
+      edm::Ptr<reco::Candidate> srcPtr;
+
+      if (inPuppiSrcCands) {
+        // case: inPuppiSrcCands and inPFCands have different product IDs while being the collections of same objects.
+        // Need to match by the actual address. Not elegant but should be safe within an event.
+
+        for (unsigned iPup = 0; iPup != inPuppiSrcCands->size(); ++iPup) {
+          auto* puppiSrcCand = &inPuppiSrcCands->at(iPup);
+          if (puppiSrcCand == inPfPtr.get()) {
+            srcPtr = edm::Ptr<reco::Candidate>(puppiSrcId, puppiSrcCand, iPup);
+            break;
+          }
         }
+      }
+      else {
+        srcPtr = edm::Ptr<reco::Candidate>(inPfPtr.id(), inPfPtr.get(), inPfPtr.key());
+      }
+
+      if (srcPtr.isNonnull()) {
+        // srcPtr is null if puppi source is different from the PFCandidate source
+        
+        auto& inPuppiPtr(inPFToPuppiMap->get(srcPtr.id(), srcPtr.key()));
+
+        unsigned iPup = 0;
+        for (; iPup != inPuppiCands->size(); ++iPup) {
+          if (inPuppiCands->ptrAt(iPup) == inPuppiPtr) {
+            puppiMap_->Add(inPuppiPtr, outPfCand);
+            break;
+          }
+        }
+
+        if (iPup == inPuppiCands->size())
+          throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
+            << "Candidate was not found in the list of PUPPI particles.";
       }
     }
   }

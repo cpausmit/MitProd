@@ -25,7 +25,6 @@ puppiMet.src = cms.InputTag('puppiNoLepPlusLep')
 puppiMet.calculateSignificance = False
 
 puppiSequence = cms.Sequence(
-    puppi +
     pfCandNoLep +
     pfCandLep +
     puppiNoLep +

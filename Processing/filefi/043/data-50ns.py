@@ -109,9 +109,9 @@ process.load('MitProd.TreeFiller.PuppiSetup_cff')
 from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
 pfbrecoSequence = initFatJets(process, isData = True)
 ak8chsSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8)
-ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppi')
+ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
 ca15chsSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5)
-ca15puppiSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppi')
+ca15puppiSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppiNoLepPlusLep')
 
 # unload unwanted PAT stuff
 delattr(process, 'pfNoTauPFBRECOPFlow')
@@ -130,7 +130,7 @@ pfPileUp.checkClosestZVertex = cms.bool(False)
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
 
-ak4PFJetsPuppi.src = cms.InputTag('puppi')
+ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
 ak4PFJetsPuppi.doAreaFastjet = True
 
 # Load FastJet L1 corrections

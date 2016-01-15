@@ -7,8 +7,8 @@ mithep::FillerPFJets::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCo
   FillerJets(cfg, collector, os, name, active),
   fillFromPAT_(cfg.getUntrackedParameter<bool>("fillFromPAT", false)),
   bJetTagsName_{},
-  pfCandMapName_(cfg.getUntrackedParameter<std::string>("pfCandMapName", "pfCandMapName")),
-  pfCandMap_(0)
+  pfCandMapNames_(cfg.getUntrackedParameter<std::vector<std::string>>("pfCandMapNames", std::vector<std::string>())),
+  pfCandMaps_()
 {
   jets_ = new mithep::PFJetArr(32);
   
@@ -28,9 +28,14 @@ void
 mithep::FillerPFJets::PrepareLinks()
 {
   // find the pf candidate map
-  if (!pfCandMapName_.empty()) {
-    pfCandMap_ = OS()->get<mithep::PFCandidateMap>(pfCandMapName_);
-    AddBranchDep(mitName_, pfCandMap_->GetBrName());
+  if (pfCandMapNames_.size() != 0) {
+    std::set<std::string> depNames;
+    for (auto& name : pfCandMapNames_) {
+      auto* map = OS()->get<mithep::PFCandidateMap>(name);
+      pfCandMaps_.push_back(map);
+      if (depNames.insert(map->GetBrName()).second) // new dependency
+        AddBranchDep(mitName_, map->GetBrName());
+    }
   }
 }
 
@@ -65,7 +70,7 @@ mithep::FillerPFJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef con
 void
 mithep::FillerPFJets::ResolveLinks(edm::Event const& event, edm::EventSetup const& setup)
 {
-  if (!pfCandMap_)
+  if (pfCandMaps_.size() == 0)
     return;
 
   // add PFCandidate refs
@@ -75,7 +80,13 @@ mithep::FillerPFJets::ResolveLinks(edm::Event const& event, edm::EventSetup cons
     auto& outJet = static_cast<mithep::PFJet&>(*mapElem.second);
 
     for (unsigned iD = 0; iD != inJet.numberOfDaughters(); ++iD) {
-      auto* pfCand = pfCandMap_->GetMit(inJet.daughterPtr(iD), false);
+      mithep::PFCandidate* pfCand = 0;
+      for (auto* map : pfCandMaps_) {
+        pfCand = map->GetMit(inJet.daughterPtr(iD), false);
+        if (pfCand)
+          break;
+      }
+
       if (pfCand)
         outJet.AddPFCand(pfCand);
       else {
@@ -86,8 +97,15 @@ mithep::FillerPFJets::ResolveLinks(edm::Event const& event, edm::EventSetup cons
           throw edm::Exception(edm::errors::LogicError, "FillerPFJets::FillDataBlock()")
             << "Daughter " << iD << " not in the list of PF Candidates but not a subjet";
 
-        for (unsigned iSD = 0; iSD != subJet->numberOfDaughters(); ++iSD)
-          outJet.AddPFCand(pfCandMap_->GetMit(subJet->daughterPtr(iSD)));
+        for (unsigned iSD = 0; iSD != subJet->numberOfDaughters(); ++iSD) {
+          for (auto* map : pfCandMaps_) {
+            auto* subJetConstituent = map->GetMit(subJet->daughterPtr(iSD));
+            if (subJetConstituent) {
+              outJet.AddPFCand(subJetConstituent);
+              break;
+            }
+          }
+        }
       }
     }
   }

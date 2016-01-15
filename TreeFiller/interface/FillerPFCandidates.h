@@ -19,6 +19,7 @@ namespace mithep
   {  
     public:
       typedef std::vector<edm::FwdPtr<reco::PFCandidate>>  PFCollection;
+      typedef edm::View<reco::Candidate> CandidateView;
       typedef edm::ValueMap<reco::CandidatePtr> CandidatePtrMap;
 
       FillerPFCandidates(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
@@ -36,10 +37,11 @@ namespace mithep
       bool                           fillPfNoPileup_;
       bool                           fillPuppiMap_;
 
-      edm::EDGetTokenT<PFCollection> edmToken_;                  //edm name of PFCandidates coll
-      edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;        //edm name of PFNoPileup  coll
-      edm::EDGetTokenT<CandidatePtrMap> edmPuppiMapToken_;       //edm token for PF->Puppi map
-      edm::EDGetTokenT<reco::PFCandidateCollection> edmPuppiToken_;             //edm token for puppi
+      edm::EDGetTokenT<PFCollection> edmToken_;                 //edm name of PFCandidates coll
+      edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;       //edm name of PFNoPileup  coll
+      edm::EDGetTokenT<CandidatePtrMap> edmPuppiMapToken_;      //edm token for PF->Puppi map
+      edm::EDGetTokenT<CandidateView> edmPuppiToken_;           //edm token for puppi
+      edm::EDGetTokenT<CandidateView> edmPuppiSrcToken_;        //edm token for puppi source
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
       std::vector<std::string>       trackerTrackMapNames_;     //name: impo. map wrt general tracks
       std::string                    gsfTrackMapName_;          //name: impo. map wrt pf gsf tracks
