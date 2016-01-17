@@ -289,7 +289,7 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
         process,
         labelName='SoftDropPF'+puMethod+rLabel,
         jetSource=cms.InputTag('PFJets'+puMethod+'SoftDrop'+rLabel),
-#        pfCandidates = cms.InputTag('particleFlow'),
+        pfCandidates = cms.InputTag('particleFlow'),
         algo=algoLabel,
         btagInfos = ['None'],
         btagDiscriminators = ['None'],
