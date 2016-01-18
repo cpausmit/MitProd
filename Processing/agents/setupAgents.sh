@@ -11,9 +11,9 @@ export TICKET_HOLDER="paus"
 export TIER2_USER="paus"
 export CRAB_VERS="2_11_1_patch1"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-cd ~cmsprod/cms/cmssw/042/CMSSW_7_6_3/src
-eval `scram runtime -sh`
-cd -
+cd     ~cmsprod/cms/cmssw/${MIT_VERS}/CMSSW_7_6_3/src
+eval   `scram runtime -sh`
+cd     -
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 source /cvmfs/cms.cern.ch/crab/CRAB_${CRAB_VERS}/crab.sh
 

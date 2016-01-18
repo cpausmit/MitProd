@@ -15,7 +15,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
+  #fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
+  fileNames = cms.untracked.vstring('file:/tmp/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
+
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
