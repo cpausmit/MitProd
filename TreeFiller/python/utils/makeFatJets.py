@@ -127,6 +127,7 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
     
     if pfCandidates=='particleFlow':
       puMethod='CHS'
+      pfCandidates = 'pfNoPileUpJMEPFlow' 
     else:
       puMethod='Puppi'
 
@@ -271,7 +272,7 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
         jetSource=cms.InputTag('PFJets'+puMethod+rLabel),
         algo=algoLabel,           # needed for jet flavor clustering
         rParam=jetRadius, # needed for jet flavor clustering
-        pfCandidates = cms.InputTag(pfCandidates),
+        pfCandidates = cms.InputTag('particleFlow'),
         pvSource = cms.InputTag(pvSource),
         svSource = cms.InputTag(svSource),
         muSource = cms.InputTag(muSource),
@@ -288,6 +289,7 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
         process,
         labelName='SoftDropPF'+puMethod+rLabel,
         jetSource=cms.InputTag('PFJets'+puMethod+'SoftDrop'+rLabel),
+        pfCandidates = cms.InputTag('particleFlow'),
         algo=algoLabel,
         btagInfos = ['None'],
         btagDiscriminators = ['None'],
@@ -302,7 +304,7 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
         jetSource=cms.InputTag('PFJets'+puMethod+'SoftDrop'+rLabel,'SubJets'),
         algo=algoLabel,           # needed for subjet flavor clustering
         rParam=jetRadius, # needed for subjet flavor clustering
-        pfCandidates = cms.InputTag(pfCandidates),
+        pfCandidates = cms.InputTag('particleFlow'),
         pvSource = cms.InputTag(pvSource),
         svSource = cms.InputTag(svSource),
         muSource = cms.InputTag(muSource),
