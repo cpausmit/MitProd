@@ -19,8 +19,9 @@ BASE_LFN=/cms/store/user/paus
 CATALOG=~cmsprod/catalog
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/v2/server?SFN="
 
-RMT2="glexec hadoop dfs -rmr"
-RMT3="hdfs   dfs -rm -r"
+# OLD # RMT2="glexec hadoop dfs -rmr"
+RMT2="glexec hdfs   dfs -rm -r"
+RMT3="       hdfs   dfs -rm -r"
 
 
 BOOK="$1"
@@ -41,8 +42,6 @@ fi
 if [ "$LOCATION" == "" ] || [ "$LOCATION" == "T2MIT" ]
 then
 
-  #echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE; $RMT3 $BASE_LFN/${BOOK}/$SAMPLE"
-
   # remove the remote physical files
   echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE"
   $RMT2 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
@@ -54,7 +53,6 @@ then
   $RMT3 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
   echo " Return code from Tier3: $?"
   echo ""
-
 
   # remove catalogs
   if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]

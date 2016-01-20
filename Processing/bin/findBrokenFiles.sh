@@ -19,7 +19,7 @@ then
 fi
 
 # make a file with the fsck output
-hadoop fsck / > /tmp/hadoop-fsck.$$
+hdfs fsck / > /tmp/hadoop-fsck.$$
 
 # loop over the hadoop fsck output and find relevant files
 while read line
