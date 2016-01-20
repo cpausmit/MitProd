@@ -2,6 +2,17 @@
 // FillerPFCandidates
 //
 // Implementation of a filler to fill EDM PFCandidates into our mithep::PFCandidate data structure.
+// Note on PUPPI maps:
+// PUPPI modifies the candidate momenta and therefore creates a new PFCandidateCollection.
+// In fact, the sequence leading to PUPPI jets can sometimes create multiple intermediate collections,
+// some of them with the original particles (but different order / subset) and some cloned.
+// edmPuppiMapToken should gather all ValueMap<reco::CandidatePtr> in the mapping order starting
+// from the original particleFlow collection and allow us to trace the mapping to the final puppi
+// candidates.
+// Example: [particleFlow -> A, B -> C -> puppi] where A and B are distinct collections of subsets of
+// (cloned) candidates from particleFlow. Then a ValueMap should exist for each of
+// 1. particleFlow -> A; 2. particleFlow -> B; 3. A -> C; 4. B -> C; 5. C -> puppi and their InputTags
+// passed to edmPuppiMapToken in this order (1. and 2., 3. and 4. orders can be reversed).
 //
 // Authors: J.Bendavid, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
@@ -21,6 +32,7 @@ namespace mithep
       typedef std::vector<edm::FwdPtr<reco::PFCandidate>>  PFCollection;
       typedef edm::View<reco::Candidate> CandidateView;
       typedef edm::ValueMap<reco::CandidatePtr> CandidatePtrMap;
+      typedef edm::EDGetTokenT<CandidatePtrMap> CandPtrMapToken;
 
       FillerPFCandidates(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
       ~FillerPFCandidates();
@@ -39,9 +51,8 @@ namespace mithep
 
       edm::EDGetTokenT<PFCollection> edmToken_;                 //edm name of PFCandidates coll
       edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;       //edm name of PFNoPileup  coll
-      edm::EDGetTokenT<CandidatePtrMap> edmPuppiMapToken_;      //edm token for PF->Puppi map
+      std::vector<CandPtrMapToken>   edmPuppiMapTokens_;        //edm token for PF->Puppi map (can follow multiple steps)
       edm::EDGetTokenT<CandidateView> edmPuppiToken_;           //edm token for puppi
-      edm::EDGetTokenT<CandidateView> edmPuppiSrcToken_;        //edm token for puppi source
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
       std::vector<std::string>       trackerTrackMapNames_;     //name: impo. map wrt general tracks
       std::string                    gsfTrackMapName_;          //name: impo. map wrt pf gsf tracks
