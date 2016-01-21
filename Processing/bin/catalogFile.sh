@@ -47,7 +47,8 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 #cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
 #cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
 #cd     ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
-cd     ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src
+#cd     ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src
+cd     ~cmsprod/cms/cmssw/043/CMSSW_7_6_3/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 

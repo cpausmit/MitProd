@@ -24,7 +24,7 @@ void runFileCataloger(const char *dir = "/mnt/hadoop/cms/store/user/paus/filefi/
 		      const char *file = "EED02C28-0EC0-E411-8A45-002618943919.root")
 {
   // -----------------------------------------------------------------------------------------------
-  // This script runs a full cataloging action on the given directory
+  // This script runs a full cataloging action on the given directory/file
   // -----------------------------------------------------------------------------------------------
   gDebugMask        = Debug::kNone;
   gDebugLevel       = 0;
@@ -38,14 +38,16 @@ void runFileCataloger(const char *dir = "/mnt/hadoop/cms/store/user/paus/filefi/
 //--------------------------------------------------------------------------------------------------
 void catalogFile(const char *dir, const char *file)
 {
-  // set up the modules
-  gMod->SetMetaDataString((TString(dir)+slash+TString(file)).Data());
-  gMod->SetNFileSet(0);
+  // setting up the cataloging details
 
-  gAna->SetSuperModule(gMod);
-  
+  // define the file name
   TString fileName = TString(dir) + slash +  + TString(file);
-  //printf("Index: %d\n",fileName.Index("castor/cern.ch"));
+
+  // set up the modules
+  gMod->SetMetaDataString(fileName.Data());
+  gMod->SetNFileSet(0);
+  
+  // make sure we find out what the 'real' file location is
   if (fileName.Index("castor/cern.ch") != -1)
     fileName = TString("castor:") + fileName;
   if (fileName.Index("mnt/hadoop/cms/store") != -1) {
@@ -54,10 +56,10 @@ void catalogFile(const char *dir, const char *file)
     gMod->SetMetaDataString(fileName.Data());
   }
   
+  // adding the file to the analysis
   printf(" Adding: %s\n",fileName.Data());
   gAna->AddFile(fileName);
   gAna->SetUseHLT(0);                                              // this is crucial, no HLT please
-  gAna->SetCacheSize(64*1024*1024);
 
   // run the analysis after successful initialisation
   gAna->Run(false);
@@ -67,11 +69,17 @@ void catalogFile(const char *dir, const char *file)
 void reset()
 {
   // reset pointers
+
+  // declare the analysis
   if (gAna)
     delete gAna;
   gAna = new Analysis();
 
+  // make the cataloging module
   if (gMod)
     delete gMod;
   gMod = new CatalogingMod();
+
+  // declare the super module
+  gAna->SetSuperModule(gMod);
 }
