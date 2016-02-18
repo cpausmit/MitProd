@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/data/Run2015D/MET/AOD/16Dec2015-v1/50000/0029E03B-F7A9-E511-8DD8-0025905B860E.root')
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2015D/SingleElectron/AOD/16Dec2015-v1/20002/0E1A6616-8BA7-E511-B2C5-003048FFD75C.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -134,8 +134,8 @@ ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
 ak4PFJetsPuppi.doAreaFastjet = True
 
 # Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
-process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+#from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+#process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 
 # Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
@@ -170,7 +170,7 @@ recoSequence = cms.Sequence(
   PFTau *
   puppiSequence *
   ak4PFJetsPuppi *
-  l1FastJetSequence *
+#  l1FastJetSequence *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *

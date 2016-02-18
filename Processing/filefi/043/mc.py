@@ -136,8 +136,8 @@ ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
 ak4PFJetsPuppi.doAreaFastjet = True
 
 # Load FastJet L1 corrections
-from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
-process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+#from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+#process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 
 # Setup jet corrections
 process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
@@ -172,7 +172,7 @@ recoSequence = cms.Sequence(
   PFTau *
   puppiSequence *
   ak4PFJetsPuppi *
-  l1FastJetSequence *
+#  l1FastJetSequence *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *
