@@ -120,12 +120,12 @@ def removeJobRemainders(storageEle,storagePath,mitDataset,index,exe):
 # Define string to explain usage of the script
 usage = \
       "\nUsage: jobSitter.py [ --pattern= --apattern= --blacklist=" \
-      +                      "  --status --kill --remove --help --backward --clean --extend --one" \
+      +                      "  --status --kill --remove --help --backward --clean --writeSummary --one" \
       +                      " --exe ]\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['pattern=','apattern=','blacklist=','catalog=',
-	 'help','backward','kill','remove','clean','exe','extend','one']
+	 'help','backward','kill','remove','clean','exe','writeSummary','one']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
 except getopt.GetoptError, ex:
@@ -137,17 +137,17 @@ except getopt.GetoptError, ex:
 # Get all parameters for this little task
 # --------------------------------------------------------------------------------------------------
 # Set defaults
-pattern   = ''
-apattern  = ''
+pattern = ''
+apattern = ''
 blacklist = ''
-catalog   = 0
-clean     = 0
-kill      = 0
-remove    = 0
-exe       = 0
-extend    = 0
-one       = 0
-backward  = ''
+catalog = 0
+clean = 0
+kill = 0
+remove = 0
+exe = 0
+writeSummary = 0
+one = 0
+backward = ''
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -155,21 +155,21 @@ for opt, arg in opts:
         print usage
         sys.exit(0)
     if opt == "--pattern":
-        pattern   = arg
+        pattern = arg
     if opt == "--apattern":
-        apattern  = arg
+        apattern = arg
     if opt == "--blacklist":
         blacklist = arg
     if opt == "--catalog":
-        catalog   = int(arg)
+        catalog = int(arg)
     if opt == "--clean":
-        clean     = 1
+        clean = 1
     if opt == "--one":
-        one       = 1
+        one = 1
     if opt == "--exe":
-        exe       = 1
-    if opt == "--extend":
-        extend    = 1
+        exe = 1
+    if opt == "--writeSummary":
+        writeSummary = 1
     if opt == "--backward":
         backward  = ' -r '
     if opt == "--kill":
@@ -223,19 +223,19 @@ for crabTask in crabTasks:
     storagePath = crabTask.storagePath
 
     if True:
-	    f = storagePath.split("=")
-	    path1 = f[1]
-	    path0 = "/".join(path1.split("/")[:-1])
-	    cmd = ' glexec chmod a+w ' + path0 + ' ' + path1
-	    status = os.system(cmd)
+        f = storagePath.split("=")
+        path1 = f[1]
+        path0 = "/".join(path1.split("/")[:-1])
+        cmd = ' glexec chmod a+w ' + path0 + ' ' + path1
+        status = os.system(cmd)
 
     if kill == 1:
-            crabTask.killAndRemove(1)
-	    continue
+        crabTask.killAndRemove(1)
+        continue
 
     if remove == 1:
-            crabTask.remove(1)
-	    continue
+        crabTask.remove(1)
+        continue
 
     crabTask.loadAllLfns('lfns/' + crabTask.mitDataset + '.lfns')
 
@@ -245,23 +245,20 @@ for crabTask in crabTasks:
           + crabTask.mitVersion + ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --retry'
 
     if catalog == 3:
-            cmd = 'catalog.sh -cegt -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
-                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --retry'
+        cmd = 'catalog.sh -cegt -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+              ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --retry'
     if catalog == 4:
-            cmd = 'catalog.sh -eg -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
-                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --retry'
+        cmd = 'catalog.sh -eg -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+              ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --retry'
     if catalog == 5:
-            cmd = 'catalog.sh -ceg -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
-                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --remove'
+        cmd = 'catalog.sh -ceg -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+              ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --remove'
     if catalog == 6:
-            cmd = 'catalog.sh -e -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
-                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
+        cmd = 'catalog.sh -e -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+              ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
     if catalog == 7:
-            cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
-                   ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
-
-    #print '\n  --> CATALOG '
-    #print '      ' + cmd + '\n'
+        cmd = 'catalog.sh -g -m ' + crabTask.mitCfg + ' ' + crabTask.mitVersion + \
+              ' ' + crabTask.mitDataset + '/' + crabTask.tag + ' --compact'
     
     if catalog != 0:
         os.system(cmd)
@@ -294,10 +291,7 @@ for crabTask in crabTasks:
         print ' Task status: ' + crabTask.status
 
         if crabTask.status == 'completed' or crabTask.status == 'finished':
-
             crabTask.remove(clean)
-            #print " DEBUG crabTask.remove(clean) "
-
 	    print ' INFO - crab task has been removed, continuing.\n'
 	    continue
         print ' '
@@ -354,7 +348,17 @@ for crabTask in crabTasks:
     print '  --> ' + cmd
     status = os.system(cmd)
 
+    # zip all logfiles that can be zipped
     cmd = 'cleanupLog.py --crabId ' + crabTask.tag
+    status = os.system(cmd)
+
+    # show status summary
+    cmd = 'status.py --crabId ' + crabTask.tag
+    if writeSummary > 0:
+        dir  = os.getenv('MIT_PROD_AGENTS_LOG','./')
+        dir += '/' + crabTask.mitVersion + '/' + crabTask.mitDataset
+        cmd = 'mkdir -p ' + dir + '; status.py --crabId ' + crabTask.tag
+        cmd += ' > ' + dir + '/' + crabTask.tag + '.txt' 
     status = os.system(cmd)
 
     i += 1

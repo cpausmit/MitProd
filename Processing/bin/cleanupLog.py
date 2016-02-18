@@ -1,41 +1,41 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------------------------
-# Script to cleanup the potentially bulky production output
+# Script to cleanup the potentially bulky production output and create a job summary.
 #
 # Author: C.Paus                                                                  (February 8, 2010)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
+import jobs
 
 # Make list of files to consider for cleaning
 #--------------------------------------------
 def makeFileList(crabId):
-    print ' Make the file list for crab Id '
+
     allFiles = []
     cmd = 'find ./' + crabId + '/res \( -name \*.stderr -o -name \*.stdout \)'
     for line in os.popen(cmd).readlines():  # run command
         line       = line[:-1]              # strip '\n'
-        #print ' LINE: ' + line
         file       = line                   # splitting every blank
-        #file       = f.pop()
         
         allFiles.append(file)
-        #crabTask.show()
+
     return allFiles
 
 # Cleanup one given file
 #-----------------------
 def cleanupFile(file):
-    print ' Cleaning file: ' + file 
+    #print ' Cleaning file: ' + file 
 
     cmd = ' gzip ' + file
     status = os.system(cmd)
-
-    #cmd = ' mv ' + file + ' ' + file + '.original'
-    #status = os.system(cmd)
-    #cmd = ' cat ' + file + '.original | grep -v \'Begin processing the\' > ' + file
-    #status = os.system(cmd)
-    #cmd = ' rm ' + file + '.original'
-    #status = os.system(cmd)
+    
+# Measure size of given directory
+#--------------------------------
+def sizeDirectoryMb(dir):
+    cmd = 'du -s --block-size=1 ' + dir + ' | cut -f1'
+    for line in os.popen(cmd).readlines():  # run command
+        size = line[:-1]                    # strip '\n'
+    return int(size)/1000./1000.
     
 #===================================================================================================
 # Main starts here
@@ -72,24 +72,28 @@ if crabId == None:
     cmd = "--crabId  required parameter not provided."
     raise RuntimeError, cmd
 
-cmd = 'du -s --block-size=1 ' + crabId + ' | cut -f1'
-for line in os.popen(cmd).readlines():  # run command
-    sizeBefore = line[:-1]              # strip '\n'
+# Measure size before
+sizeBeforeMb = sizeDirectoryMb(crabId)
 
+# Produce the file list
 allFiles = []
 allFiles = makeFileList(crabId)
 
+# Analyze each file
 for file in allFiles:
-    #print ' Clean file: %s'%(file)
+
+    # create jobLog
+    jobLog = jobs.JobLog()
+    jobLog.createFromLogFile(file)
+
+    # cleanup the specific log files
     cleanupFile(file)
 
-cmd = 'du -s --block-size=1 ' + crabId + ' | cut -f1'
-for line in os.popen(cmd).readlines():  # run command
-    sizeAfter = line[:-1]               # strip '\n'
+# Measure size after
+sizeAfterMb = sizeDirectoryMb(crabId)
 
-sizeBeforeMb = int(sizeBefore)/1024./1024.
-sizeAfterMb  = int(sizeAfter)/1024./1024.
-deltaMb      = (int(sizeBefore)-int(sizeAfter))/1024./1024.
+# Size difference
+deltaMb      = (sizeBeforeMb-sizeAfterMb)
 
 print ' '
 print ' Space before:  %12.4f MB'%sizeBeforeMb

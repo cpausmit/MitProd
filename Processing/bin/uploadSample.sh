@@ -47,8 +47,6 @@ fi
 # - done files
 rm -f $CONDOR_UPLOAD/$sample/files-done.txt
 touch $CONDOR_UPLOAD/$sample/files-done.txt
-#echo "~/Tools/Dropbox-Uploader/dropbox_uploader.sh list /cms/$LFN | tr -s ' '| cut -d ' ' -f4 | \
-#      tee $CONDOR_UPLOAD/$sample/files-done.txt"
 ~/Tools/Dropbox-Uploader/dropbox_uploader.sh list /cms/$LFN|tr -s ' '|tee /tmp/${sample}-sizes.$$ \
       |cut -d ' ' -f4 > $CONDOR_UPLOAD/$sample/files-done.txt
 # select the missing files from all files
@@ -82,6 +80,7 @@ do
     echo $dir/$file >> $CONDOR_UPLOAD/$sample/files.txt
     echo $dir/$file
   fi
+
 done
 
 # submit NCOPY jobs to condor

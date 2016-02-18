@@ -1,8 +1,8 @@
 #!/bin/bash
 # --------------------------------------------------------------------------------------------------
-# Process to keep request review alive and well.
+# Process to keep transfering data from the present production into dropbox.
 #
-# v1.0                                                                         C.Paus (Apr 27, 2015)
+# v1.0                                                                         C.Paus (Feb 08, 2016)
 # --------------------------------------------------------------------------------------------------
 # initialize environment variables
 source $MIT_PROD_AGENTS_BASE/setupAgents.sh
@@ -24,11 +24,11 @@ do
   mkdir -p $MIT_PROD_AGENTS_LOG/${daemon}
   if [ -e "$MIT_PROD_AGENTS_LOG/${daemon}" ]
   then
-    #echo " Request review log area exists. Let's start!"
+    #echo " Upload log area exists. Let's start!"
     sleep 1
   else
     echo ""
-    echo " Request review area could not be found ($MIT_PROD_AGENTS_LOG/${daemon}). EXIT!"
+    echo " Upload area could not be found ($MIT_PROD_AGENTS_LOG/${daemon}). EXIT!"
     echo ""
     exit 1
   fi
@@ -42,9 +42,9 @@ do
   echo ""                                                                          >> $logFile
   env  | grep ^MIT_PROD                                                            >> $logFile
   echo ""                                                                          >> $logFile
-  echo " = = = =  I N I T I A L  R E V I E W   E N V I R O N M E N T  = = = ="     >> $logFile
+  echo " = = = =  I N I T I A L  U P L O A D   E N V I R O N M E N T  = = = ="     >> $logFile
   echo ""                                                                          >> $logFile
-  env  | grep ^MIT_PROD_REVIEW                                                     >> $logFile
+  env  | grep ^MIT_PROD_UPLOAD                                                     >> $logFile
   echo ""                                                                          >> $logFile
   echo "[ PYTHON PATH: $PYTHONPATH ]"                                              >> $logFile
   echo ""                                                                          >> $logFile
@@ -55,7 +55,7 @@ do
     # period 3600 * nHours
     let wait=3600*$MIT_PROD_REVIEW_CYCLE_HOURS
     echo " "                                                                      >> $logFile
-    echo " request review loop $index started -- $tag (cycle wait $wait sec)"     >> $logFile
+    echo " upload loop $index started -- $tag (cycle wait $wait sec)"             >> $logFile
     echo " "                                                                      >> $logFile
     echo "   --> "`date`                                                          >> $logFile
     echo " "                                                                      >> $logFile
@@ -64,29 +64,15 @@ do
     mkdir -p $MIT_PROD_AGENTS_WWW 
 
     # loop over all requested configurations
-    for py in $MIT_PROD_REVIEW_PYS
-    do
-      echo "   ==== cmssw: $py"                                                   >> $logFile
-      echo " "                                                                    >> $logFile
-      stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$py --displayOnly \
-                                                   >  $MIT_PROD_AGENTS_LOG/${daemon}/status-$py
-      # make sure ascii files get 'dressing'
-      $MIT_PROD_DIR/bin/htmlDressing.py --input=$MIT_PROD_AGENTS_LOG/${daemon}/status-$py \
-                                        --version=$MIT_VERS
 
-      # keep log file up to speed
-      rsync -Cavz $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
 
-      stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --cmssw=$py --updateCacheDb --exe \
-                                                                                  >> $logFile 2>&1
-      echo " "                                                                    >> $logFile
+    export BOOK=$MIT_PROD_UPLOAD_BOOK
+    export NTRANSFERS=$MIT_PROD_UPLOAD_NTRANSFERS
+    export THRESHOLD=$MIT_PROD_UPLOAD_THRESHOLD
+    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/dbxApi.sh copy                               >> $logFile 2>&1
+    echo " "                                                                      >> $logFile
 
-      # keep log file up to speed
-      rsync -Cavz $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
-
-    done
-
-    echo " completed review cycle."                                               >> $logFile
+    echo " completed upload cycle."                                               >> $logFile
     echo " FINISH by updating log files on web."                                  >> $logFile
 
     rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1

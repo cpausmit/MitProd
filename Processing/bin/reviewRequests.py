@@ -333,7 +333,7 @@ sql = 'select ' + \
 if debug:
     print ' SQL: ' + sql
 
-# Try to acceszs the database
+# Try to access the database
 try:
     # Execute the SQL command
     cursor.execute(sql)
@@ -368,18 +368,18 @@ for row in results:
         (nDone,nTotal) = productionStatus(mitCfg,version,datasetName,debug)
         if first:
             first = False
-            print ''
-            print '                                 O V E R V I E W -- VERSION: ' + version
-            print ''
-            print '  Done/Total--Dataset Name'
-            print '----------------------------------------------------------------------------'
+            print '#'
+            print '#                                O V E R V I E W -- VERSION: ' + version
+            print '#'
+            print '# Done/Total--Dataset Name'
+            print '#---------------------------------------------------------------------------'
 
         if nDone != nTotal:
             print " %5d/%5d  %s"%(nDone,nTotal,datasetName)
         else:
             print "       %5d  %s"%(nTotal,datasetName)
 
-print ''
+print '#'
 
 #===============================================
 # D A T A S E T   V A L I D A T I O N   L O O P
@@ -392,7 +392,8 @@ for row in filteredResults:
     tier = row[2]
     # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
-    print ' addDatasetToBambu.py --dataset=/' + process + '/' + setup+ '/' + tier
+    if debug:
+        print ' addDatasetToBambu.py --dataset=/' + process + '/' + setup+ '/' + tier
 
 if displayOnly:
     sys.exit(0)

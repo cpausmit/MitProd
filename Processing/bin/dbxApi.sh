@@ -7,9 +7,9 @@
 #
 # ----
 
-[ -z "$BOOK" ]       && BOOK="filefi/030"
-[ -z "$NTRANSFERS" ] && NTRANSFERS=10
-[ -z "$THRESHOLD" ]  && THRESHOLD=20
+[ -z "$BOOK" ]       && BOOK="filefi/043"
+[ -z "$NTRANSFERS" ] && NTRANSFERS=5
+[ -z "$THRESHOLD" ]  && THRESHOLD=10
 
 # initialize other global variable
 SLEEPING=300
@@ -83,6 +83,7 @@ then
         | tr -s ' ' | cut -d ' ' -f4`
 fi
 
+# acquire the list of samples to deal with
 sampleList=`list /mnt/hadoop/cms/store/user/paus/$BOOK | cut -d' ' -f2`
 if [ "$MODE" == "size" ]
 then
@@ -90,6 +91,7 @@ then
               | tr -s ' ' | cut -d ' ' -f4`
 fi
 
+# loop over all samples
 for sample in $sampleList
 do
 

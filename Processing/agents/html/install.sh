@@ -18,7 +18,6 @@ cp $MIT_PROD_DIR/agents/html/agent*jpg $MIT_PROD_AGENTS_WWW
 
 # index files to log area
 echo " Generate index files"
-#cp $MIT_PROD_DIR/agents/html/index.html $MIT_PROD_AGENTS_LOG
 cp $MIT_PROD_DIR/agents/html/index.php $MIT_PROD_AGENTS_LOG
 
 cat $MIT_PROD_DIR/agents/html/index.php-Template \
@@ -30,6 +29,9 @@ cat $MIT_PROD_DIR/agents/html/index.php-Template \
 cat $MIT_PROD_DIR/agents/html/index.php-Template \
    | sed 's/XX-NAME-XX/cleanupd/g' | sed 's/XX-AKA-XX/Williams/' \
    > $MIT_PROD_AGENTS_LOG/cleanupd/index.php
+cat $MIT_PROD_DIR/agents/html/index.php-Template \
+   | sed 's/XX-NAME-XX/uploadd/g' | sed 's/XX-AKA-XX/Brown/' \
+   > $MIT_PROD_AGENTS_LOG/uploadd/index.php
 
 # update web pages from log area
 echo " Sync files to the web area - no deletions"

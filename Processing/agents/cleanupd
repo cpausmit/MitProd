@@ -61,13 +61,17 @@ do
     echo " "                                                                      >> $logFile
     echo "   --> "`date`                                                          >> $logFile
     echo " "                                                                      >> $logFile
-    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=0 --clean             >> $logFile 2>&1
+    stdbuf -o0 -e0 \
+           $MIT_PROD_DIR/bin/jobSitter.py --catalog=0 --clean --writeSummary      >> $logFile 2>&1
     echo " completed ${daemon} cycle."                                            >> $logFile
     echo " FINISH by updating log files on web."                                  >> $logFile
     echo " "                                                                      >> $logFile
 
     # insure that the log information is updated
     mkdir -p $MIT_PROD_AGENTS_WWW 
+    # sync the individual job file summary areas
+    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/[0-9]??   $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
+    # sync the daemon log file area
     rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
     sleep $wait
   done

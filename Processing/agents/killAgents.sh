@@ -41,8 +41,9 @@ source setupAgents.sh
 # kill all daemons
 #=================
 
-killAgent reviewd reviewRequests.py
+killAgent reviewd  reviewRequests.py
 killAgent catalogd jobSitter.py
 killAgent cleanupd jobSitter.py
+killAgent uploadd  dbxApi.sh
 
 exit 0

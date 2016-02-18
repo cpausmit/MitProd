@@ -33,6 +33,13 @@ export MIT_PROD_REVIEW_PYS="data mc"
 
 export MIT_PROD_CATALOG_CYCLE_SECONDS=300
 
-# catalog process
+# cleanup process
 
 export MIT_PROD_CLEANUP_CYCLE_SECONDS=3600
+
+# upload process
+
+export MIT_PROD_UPLOAD_CYCLE_SECONDS=300
+export MIT_PROD_UPLOAD_THRESHOLD=10
+export MIT_PROD_UPLOAD_NTRANSFERS=5
+export MIT_PROD_UPLOAD_BOOK="filefi/$MIT_VERS"
