@@ -7,11 +7,25 @@
 import os,sys,getopt,re,string
 import task,jobs
 
+def failedLogCopyDir():
+    # Return agent log directory or None if not defined
+
+    return os.getenv('MIT_PROD_AGENTS_LOG')
+
+def fileTrunc(file):
+    # Find the file trunc dropping the last extension
+
+    f = file.split('.')
+    f.pop()
+    trunc = '.'.join(f)
+
+    return trunc
+
 def makeFileList(crabId):
     # Make list of files to consider for cleaning
 
     allFiles = []
-    cmd = 'find ./' + crabId + '/res \( -name \*.summary \)'
+    cmd = 'find ./' + crabId + '/res \( -name \*.stdout \)'
     for line in os.popen(cmd).readlines():  # run command
         line       = line[:-1]              # strip '\n'
         file       = line                   # splitting every blank
@@ -20,9 +34,29 @@ def makeFileList(crabId):
 
     return allFiles
 
+def copyLog(summary,file,logCopy):
+    # Copy a given log file to the agent log area
+
+    # this is only relevant for agent mode!
+    if not logCopy:
+        return
+
+    # we are copying indeed
+    trunc = fileTrunc(file)
+    dir = logCopy + '/' + summary.version + '/' + summary.dataset + '/' + summary.crabId
+    cmd = 'mkdir -p ' + dir
+    #print ' CMD: ' + cmd
+    os.system(cmd)
+    cmd = 'cp ' + trunc + '.s* ' + dir
+    #print ' CMD: ' + cmd
+    os.system(cmd)
+
+    return
+
 #===================================================================================================
-# Main starts here
+#  M A I N
 #===================================================================================================
+
 # Define string to explain usage of the script
 usage = \
       "\nUsage: status.py [ --crabId=<id>  --help ]\n"
@@ -65,11 +99,20 @@ allFiles = makeFileList(crabId)
 # Instantiate our summary
 summary = jobs.JobLogsSummary(crabId)
 
+# Set potential log file copy
+logCopy = failedLogCopyDir()
+
 # Read each file and add to the summary
 for file in allFiles:
+
+    # create jobLog
     jobLog = jobs.JobLog()
-    jobLog.readFromSummaryFile(file)
-    summary.addJobLog(jobLog)
+    jobLog.createFromLogFile(file)
+    summary.addJobLog(jobLog) 
+
+    # make full copy of failed job logs
+    if not jobLog.isSuccess():
+        copyLog(summary,file,logCopy)
 
 # Produce summary
 summary.show()

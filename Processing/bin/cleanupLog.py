@@ -5,7 +5,6 @@
 # Author: C.Paus                                                                  (February 8, 2010)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import jobs
 
 # Make list of files to consider for cleaning
 #--------------------------------------------
@@ -81,11 +80,6 @@ allFiles = makeFileList(crabId)
 
 # Analyze each file
 for file in allFiles:
-
-    # create jobLog
-    jobLog = jobs.JobLog()
-    jobLog.createFromLogFile(file)
-
     # cleanup the specific log files
     cleanupFile(file)
 

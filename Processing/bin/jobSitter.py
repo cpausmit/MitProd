@@ -348,17 +348,18 @@ for crabTask in crabTasks:
     print '  --> ' + cmd
     status = os.system(cmd)
 
-    # zip all logfiles that can be zipped
-    cmd = 'cleanupLog.py --crabId ' + crabTask.tag
-    status = os.system(cmd)
-
-    # show status summary
+    # create and show status summary
     cmd = 'status.py --crabId ' + crabTask.tag
     if writeSummary > 0:
+        print ' Record status: ' + cmd
         dir  = os.getenv('MIT_PROD_AGENTS_LOG','./')
         dir += '/' + crabTask.mitVersion + '/' + crabTask.mitDataset
         cmd = 'mkdir -p ' + dir + '; status.py --crabId ' + crabTask.tag
         cmd += ' > ' + dir + '/' + crabTask.tag + '.txt' 
+    status = os.system(cmd)
+
+    # zip all logfiles that can be zipped
+    cmd = 'cleanupLog.py --crabId ' + crabTask.tag
     status = os.system(cmd)
 
     i += 1

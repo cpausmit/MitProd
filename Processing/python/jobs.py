@@ -7,7 +7,6 @@ This set of classes is meant to describe the results of jobs that have run on so
 #---------------------------------------------------------------------------------------------------
 import os, operator
 
-
 #---------------------------------------------------------------------------------------------------
 """
 A quasi Singleton: jobLogDescription
@@ -36,7 +35,7 @@ class JobLog:
     def __init__(self):
         # constructor to connect with existing setup
         self.file = ''
-        self.values = {}
+        self.values = {} 
 
     def getValue(self,key):
         # return the assigned key value, or if key not available 'undefined key'
@@ -46,6 +45,11 @@ class JobLog:
             value = self.values[key]
 
         return value
+
+    def isSuccess(self):
+        # find out whether the job was a success
+
+        return (self.getValue('exeExit') == '0' and self.getValue('stageOutExit') == '0')
 
     def createFromLogFile(self,file):
         # read job status from prepared summary files
@@ -58,7 +62,9 @@ class JobLog:
     
         # initialization
         patterns = getJobLogDescription() 
-        self.values = getJobLogDescription() 
+        self.values = getJobLogDescription()
+        for k,v in patterns.items():
+            self.values[k] = 'PATTERN NOT FOUND'
         
         cmd = 'cat ' + file
         for line in os.popen(cmd).readlines():  # run command
@@ -81,7 +87,7 @@ class JobLog:
             print ' ERROR in file: ' + self.file
             for k,v in sorted(self.values.items()):
                 v = self.values[k]
-                print ' %3d -- %s'%(v,k)
+                print ' %s -- %s'%(v,k)
 
     def readFromSummaryFile(self,file):
         # read job status from prepared summary files
@@ -127,12 +133,20 @@ class JobLogsSummary:
     def __init__(self,crabId):
         # constructor to connect with existing setup
         self.crabId = crabId
-        self.dataset = self.findDatasetName()
+        self.dataset = self.findDataset()
+        self.version = self.findVersion()
         self.jobLogs = []
 
-    def findDatasetName(self):
+    def findVersion(self):
         # add a given job log to our summary list
-        cmd = 'grep LFNBaseName= ' + self.crabId + '/job/CMSSW.sh | cut -d/ -f5,6'
+        cmd = 'grep LFNBaseName= ' + self.crabId + '/job/CMSSW.sh | cut -d/ -f5'
+        for line in os.popen(cmd).readlines():
+            line = line[:-1]
+        return line
+
+    def findDataset(self):
+        # add a given job log to our summary list
+        cmd = 'grep LFNBaseName= ' + self.crabId + '/job/CMSSW.sh | cut -d/ -f6'
         for line in os.popen(cmd).readlines():
             line = line[:-1]
         return line
@@ -144,7 +158,7 @@ class JobLogsSummary:
     def show(self):
         # present the current set of Meta Data
         print ''
-        print ' CRAB ID: %s -->  %s'%(self.crabId,self.dataset)
+        print ' CRAB ID: %s -->  %s / %s'%(self.crabId,self.version,self.dataset)
         print ' Number of jobLogs: %d\n'%(len(self.jobLogs))
 
         # initialize
