@@ -155,68 +155,50 @@ class JobLogsSummary:
         # add a given job log to our summary list
         self.jobLogs.append(jobLog)
 
+    def summarizeTag(self,tag):
+        # make a summary of all job for a given tag
+
+        # initialize
+        nErrorCounts = {}
+        failingSites = []
+
+        for jobLog in self.jobLogs:
+            exitCode = jobLog.getValue(tag)
+            site = jobLog.getValue('site')
+
+            if exitCode != '0' and site not in failingSites:
+                failingSites.append(site)
+            
+            if exitCode in nErrorCounts:
+                nErrorCounts[exitCode] += 1
+            else:
+                nErrorCounts[exitCode] = 1
+
+        print '--------------------------------------'
+        print '   # -- Exit Code for tag: ' + tag
+        print '--------------------------------------'
+        # order highest occurence first
+        for k,v in reversed(sorted(nErrorCounts.items(),key=operator.itemgetter(1))):
+            v = nErrorCounts[k]
+            print ' %3d -- %s'%(v,k)
+        sites = ''
+        for site in failingSites:
+            sites += ' ' + site
+        print '------------------'
+        print ' Failing Sites:' + sites
+        print ''
+
+        return
+
     def show(self):
-        # present the current set of Meta Data
+        # make a summary of all job outputs to browse through
+
         print ''
         print ' CRAB ID: %s -->  %s / %s'%(self.crabId,self.version,self.dataset)
         print ' Number of jobLogs: %d\n'%(len(self.jobLogs))
 
-        # initialize
-        nErrorCounts = {}
-        tagEe = 'exeExit'
-        failingSites = []
+        self.summarizeTag('jobExit')
+        self.summarizeTag('exeExit')
+        self.summarizeTag('stageOutExit')
 
-        for jobLog in self.jobLogs:
-            exitCode = jobLog.getValue(tagEe)
-            site = jobLog.getValue('site')
-
-            if exitCode != '0' and site not in failingSites:
-                failingSites.append(site)
-            
-            if exitCode in nErrorCounts:
-                nErrorCounts[exitCode] += 1
-            else:
-                nErrorCounts[exitCode] = 1
-
-        print '   # -- Exit Code'
-        print '------------------'
-        # order highest occurence first
-        for k,v in reversed(sorted(nErrorCounts.items(),key=operator.itemgetter(1))):
-            v = nErrorCounts[k]
-            print ' %3d -- %s'%(v,k)
-        sites = ''
-        for site in failingSites:
-            sites += ' ' + site
-        print '------------------'
-        print ' Failing Sites:' + sites
-        print ''
-
-        nErrorCounts = {}
-        tagSe = 'stageOutExit'
-        failingSites = []
-
-        for jobLog in self.jobLogs:
-            exitCode = jobLog.getValue(tagSe)
-            
-            site = jobLog.getValue('site')
-
-            if exitCode != '0' and site not in failingSites:
-                failingSites.append(site)
-
-            if exitCode in nErrorCounts:
-                nErrorCounts[exitCode] += 1
-            else:
-                nErrorCounts[exitCode] = 1
-
-        print '   # -- Stageout Exit Code'
-        print '---------------------------'
-        # order highest occurence first
-        for k,v in reversed(sorted(nErrorCounts.items(),key=operator.itemgetter(1))):
-            v = nErrorCounts[k]
-            print ' %3d -- %s'%(v,k)
-        sites = ''
-        for site in failingSites:
-            sites += ' ' + site
-        print '--------------------------'
-        print ' Failing Sites:' + sites
-        print ''
+        return
