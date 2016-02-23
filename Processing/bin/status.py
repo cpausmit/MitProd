@@ -53,6 +53,22 @@ def copyLog(summary,file,logCopy):
 
     return
 
+def zip(crabId,operation):
+    # Copy a given log file to the agent log area
+
+    cmd = 'EMPTY'
+    if   operation == 'zip':
+        cmd = 'gunzip ' + crabId + '/res/*.stdout.gz'
+    elif operation == 'unzip':
+        cmd = 'gzip ' + crabId + '/res/*.stdout'
+    else:
+        print ' ERROR -- operation not defined: ' + operation
+        
+    if cms != 'EMPTY':
+        os.system(cmd)
+
+    return
+
 #===================================================================================================
 #  M A I N
 #===================================================================================================
@@ -93,6 +109,9 @@ if crabId == "":
 # Here is where the real action starts -------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
 
+# first we have to unzip
+zip(crabId,'unzip')
+
 # Produce the file list to be analyzed
 allFiles = makeFileList(crabId)
 
@@ -116,3 +135,6 @@ for file in allFiles:
 
 # Produce summary
 summary.show()
+
+# finally we have to zip again
+zip(crabId,'unzip')

@@ -140,6 +140,7 @@ class JobLogsSummary:
     def findVersion(self):
         # add a given job log to our summary list
         cmd = 'grep LFNBaseName= ' + self.crabId + '/job/CMSSW.sh | cut -d/ -f5'
+        line = ''
         for line in os.popen(cmd).readlines():
             line = line[:-1]
         return line
@@ -147,6 +148,7 @@ class JobLogsSummary:
     def findDataset(self):
         # add a given job log to our summary list
         cmd = 'grep LFNBaseName= ' + self.crabId + '/job/CMSSW.sh | cut -d/ -f6'
+        line = ''
         for line in os.popen(cmd).readlines():
             line = line[:-1]
         return line
