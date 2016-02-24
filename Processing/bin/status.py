@@ -26,9 +26,9 @@ def makeFileList(crabId):
 
     allFiles = []
     cmd = 'find ./' + crabId + '/res \( -name \*.stdout \)'
-    for line in os.popen(cmd).readlines():  # run command
-        line       = line[:-1]              # strip '\n'
-        file       = line                   # splitting every blank
+    for line in os.popen(cmd).readlines():
+        line = line[:-1]
+        file = line
         
         allFiles.append(file)
 
@@ -57,14 +57,14 @@ def zip(crabId,operation):
     # Copy a given log file to the agent log area
 
     cmd = 'EMPTY'
-    if   operation == 'zip':
-        cmd = 'gunzip ' + crabId + '/res/*.stdout.gz'
-    elif operation == 'unzip':
-        cmd = 'gzip ' + crabId + '/res/*.stdout'
+    if   operation == 'unzip':
+        cmd = 'gunzip ' + crabId + '/res/*.stdout.gz 2> /dev/null'
+    elif operation == 'zip':
+        cmd = 'gzip ' + crabId + '/res/*.stdout 2> /dev/null'
     else:
         print ' ERROR -- operation not defined: ' + operation
         
-    if cms != 'EMPTY':
+    if cmd != 'EMPTY':
         os.system(cmd)
 
     return
@@ -137,4 +137,4 @@ for file in allFiles:
 summary.show()
 
 # finally we have to zip again
-zip(crabId,'unzip')
+zip(crabId,'zip')
