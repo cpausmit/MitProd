@@ -10,8 +10,9 @@ T1_UK_RAL : srm-cms-disk.gridpp.rl.ac.uk
 T1_US_FNAL : cmssrm.fnal.gov
 T2_AT_Vienna: hephyse.oeaw.ac.at
 T2_BE_IIHE : maite.iihe.ac.be
-T2_BR_SPRACE : osg-se.sprace.org.br
-T2_BR_UERJ : se-dcache.hepgrid.uerj.br
+# Brasilian sites cannot copy our files. CP - 02/24/2016
+# T2_BR_SPRACE : osg-se.sprace.org.br
+# T2_BR_UERJ : se-dcache.hepgrid.uerj.br
 T2_CH_CAF : caf.cern.ch
 T2_CH_CERN : srm-eoscms.cern.ch
 T2_CH_CSCS : storage01.lcg.cscs.ch
