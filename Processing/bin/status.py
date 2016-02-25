@@ -13,7 +13,7 @@ def failedLogCopyDir():
     return os.getenv('MIT_PROD_AGENTS_LOG')
 
 def fileTrunc(file):
-    # Find the file trunc dropping the last extension
+    # Find the file trunc (dropping the last extension)
 
     f = file.split('.')
     f.pop()
@@ -54,7 +54,7 @@ def copyLog(summary,file,logCopy):
     return
 
 def zip(crabId,operation):
-    # Copy a given log file to the agent log area
+    # Zip or unzip the logfiles in the given area
 
     cmd = 'EMPTY'
     if   operation == 'unzip':
