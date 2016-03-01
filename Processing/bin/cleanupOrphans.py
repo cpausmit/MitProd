@@ -12,7 +12,6 @@ def makeDirList(baseDir,book):
     # Make list of directories to consider for cleaning
 
     allDirs = []
-    #cmd = 'glexec ls -1 ' + baseDir + '/' + book + '/*/crab_0_' + pattern + '|grep : | tr -d :'
     cmd = 'list ' + baseDir + '/' + book
     print ' CMD: ' + cmd
     for line in os.popen(cmd).readlines():
@@ -26,7 +25,7 @@ def makeDirList(baseDir,book):
     return allDirs
 
 def cleanupDir(dir,pattern):
-    # Cleanup one directory
+    # Cleanup one directory only
     
     f = dir.split('/')
     hadoopDir = "/" + "/".join(f[3:])
@@ -89,11 +88,11 @@ if pattern == None:
     cmd = "--pattern=  required parameter not provided."
     raise RuntimeError, cmd
 
-# Produce the file list
+# Produce the relevant directory list
 allDirs = []
 allDirs = makeDirList(baseDir,book)
 
-# Analyze each file
+# Analyze each directory for matching sub directories and clean up
 for dir in allDirs:
-    # cleanup the specific log files
+    # cleanup the specific sub directories and the potentially containing files
     cleanupDir(dir,pattern)

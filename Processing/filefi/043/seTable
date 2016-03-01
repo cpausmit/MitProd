@@ -10,6 +10,7 @@ T1_UK_RAL : srm-cms-disk.gridpp.rl.ac.uk
 T1_US_FNAL : cmssrm.fnal.gov
 T2_AT_Vienna: hephyse.oeaw.ac.at
 T2_BE_IIHE : maite.iihe.ac.be
+T2_BE_UCL : ingrid-se02.cism.ucl.ac.be
 # Brasilian sites cannot copy our files. CP - 02/24/2016
 # T2_BR_SPRACE : osg-se.sprace.org.br
 # T2_BR_UERJ : se-dcache.hepgrid.uerj.br
@@ -26,6 +27,7 @@ T2_FR_GRIF_IRFU: node12.datagrid.cea.fr
 T2_IN_TIFR : se01.indiacms.res.in
 T2_IT_Rome : cmsrm-se01.roma1.infn.it
 T2_KR_KNU : cluster142.knu.ac.kr
+T2_PK_NCP : pcncp22.ncp.edu.pk
 T2_PT_NCG_Lisbon : srm01.ncg.ingrid.pt
 T2_RU_IHEP : dp0015.m45.ihep.su
 T2_RU_ITEP : se3.itep.ru
