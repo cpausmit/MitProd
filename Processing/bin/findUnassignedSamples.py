@@ -68,7 +68,7 @@ print ''
 print ' @-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@'
 print ''
 
-cmd = 'assignDatasetToSite.py --nCopies=2 --exe --dataset='
+cmd = 'assignDatasetToSite.py --nCopies=2 --exec --dataset='
 startPattern = 'Input: input.py'
 errorPattern = 'ERROR - no sites for this data block, do not submit.'
 lastDataset = ''
