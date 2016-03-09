@@ -71,7 +71,7 @@ while (line != ''):
     line = fileInput.readline()
 
     # remove commented lines
-    if  line == '' or line[0] == '#':
+    if line == '' or line[0] == '#':
         f = line.split(' ')
         if len(f) > 2:
             v = f.pop()
@@ -88,7 +88,6 @@ while (line != ''):
 
     line = ' '.join(f) + '<a href="../' + version + '/' + dataset + '">' + dataset + '</a>\n'
     fileOutput.write(line)
-    line = fileInput.readline()
 
 # insert footer
 fileOutput.write(getFooter())
