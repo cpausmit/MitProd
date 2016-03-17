@@ -35,6 +35,10 @@ if (sizeof($f) > 1) {
   print '</ul>';
 }
 ?>
+<h2>Other info</h2>
+<ul>
+  <li> <a href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/JobExitCodes">job exit codes</a>
+</ul>
 <hr>
 <p style="font-family: arial;font-size: 10px;font-weight: bold;color:#900000;">
 <!-- hhmts start -->
