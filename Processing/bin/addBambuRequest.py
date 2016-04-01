@@ -63,9 +63,6 @@ def removeDataset(cursor,id):
     except:
         print " Error (%s): unable to delete data."%(sql)
 
-
-
-
 #===================================================================================================
 # Main starts here
 #===================================================================================================
@@ -74,8 +71,9 @@ usage  = "\n"
 usage += " Usage: addBambuRequest.py  --dataset=<name>\n"
 usage += "                            --config=<name>\n"
 usage += "                            --version=<name>\n"
+usage += "                          [ --py=mc ]\n"
+usage += "                          [ --delete=0: 1-delete request, 2-delete request and dset ]\n"
 usage += "                          [ --dbs=prod/global ]\n"
-usage += "                          [ --py=<name> ]\n"
 usage += "                          [ --help ]\n\n"
 
 # Define the valid options which can be specified and check out the command line
@@ -106,6 +104,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == "--dataset":
         dataset = arg
+        if dataset[0] != '/':
+            dataset = '/' + dataset.replace('+','/')
     if opt == "--config":
         config = arg
     if opt == "--version":
