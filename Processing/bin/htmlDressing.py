@@ -4,7 +4,7 @@
 #
 # Author: C.Paus                                                                      (Feb 16, 2016)
 #---------------------------------------------------------------------------------------------------
-import os,sys,getopt
+import os,sys,re,getopt
 
 def getHeader():
     header = '<!DOCTYPE html><html><head><title>MARKED TEXT FILE</title></head><style>a:link{color:#000000; background-color:transparent; text-decoration:none}a:visited{color:#009000; background-color:transparent; text-decoration:none}a:hover{color:#900000;background-color:transparent; text-decoration:underline}a:active{color:#900000;background-color:transparent; text-decoration:underline}body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25px;}</style><body class="ex" bgcolor="#eeeeee"><body style="font-family: arial;font-size: 20px;font-weight: bold;color:#900000;"><pre>\n'
@@ -58,6 +58,8 @@ if input == "":
 
 # find new file name
 htmlFile = input + '.html'
+print ' ASCII: ' + input
+print ' HTML:  ' + htmlFile
 
 fileInput  = open(input,'r')
 fileOutput = open(htmlFile,'w')
@@ -67,28 +69,30 @@ line = ' '
 fileOutput.write(getHeader())
 
 # translate the body
-while (line != ''):
-    line = fileInput.readline()
+with open(input,"r") as fileInput:
+    for line in fileInput:
+        # cleanup CR
+        line = line[:-1]
+        ## cleanup duplicate blanks
+        #line = re.sub(' +',' ',line)
 
-    # remove commented lines
-    if line == '' or line[0] == '#':
-        f = line.split(' ')
-        if len(f) > 2:
-            v = f.pop()
-            test = f.pop()
-            if test == "VERSION:":
-                version = v[:-1]
-        fileOutput.write(line)
-        continue
+        # remove commented lines
+        if '+' in line:
+            f = line.split(' ')
+            dataset = f.pop()
+            line = ' '.join(f) \
+                 + ' <a href="../' + version + '/' + dataset + '">' + dataset + '</a>\n'
+        else:
+            f = line.split(' ')
+            if len(f) > 1:
+                v = f.pop()
+                test = f.pop()
+                if test == "VERSION:":
+                    version = v[:-1]
 
-    # cleanup CR
-    line = line[:-1]    ##print ' LINE -- ' + line
-    f = line.split(' ')
-    dataset = f.pop()
-
-    line = ' '.join(f) + '<a href="../' + version + '/' + dataset + '">' + dataset + '</a>\n'
-    fileOutput.write(line)
-
+        fileOutput.write(line+'\n')
+    
+    
 # insert footer
 fileOutput.write(getFooter())
 
