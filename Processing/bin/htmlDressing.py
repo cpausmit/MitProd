@@ -88,7 +88,7 @@ with open(input,"r") as fileInput:
                 v = f.pop()
                 test = f.pop()
                 if test == "VERSION:":
-                    version = v[:-1]
+                    version = v
 
         fileOutput.write(line+'\n')
     
