@@ -182,13 +182,13 @@ do
     then
       nowTime=$(date +%s)
       duration=$(($nowTime - $startTime))
-      jobs=`condor_q -global $USER -l | egrep '^Args.*root' | grep $extDataset | wc -l`
+      jobs=`condor_q -global $USER -constrain 'regexp("catalogFile.s", Cmd)' -constrain "regexp(\"$extDatasete\",Args)" | wc -l`
       while [ "$jobs" != "0" ]
       do
 	echo " waiting since  $duration sec  == condor queue has  $jobs jobs  left"
 	sleep 10
 	echo ""
-	jobs=`condor_q -global $USER -l | egrep '^Args.*root' | grep $extDataset | wc -l`
+        jobs=`condor_q -global $USER -constrain 'regexp("catalogFile.s", Cmd)' -constrain "regexp(\"$extDatasete\",Args)" | wc -l`
         nowTime=$(date +%s)
         duration=$(($nowTime - $startTime))
         if [ $duration -gt $timeOut ]
