@@ -13,7 +13,7 @@
 # Author: C.Paus                                                                      (July 1, 2008)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import task,translator
+import task,translator,color
 t2user = os.environ['TIER2_USER']
 
 SRMSRC='/usr/bin'
@@ -69,17 +69,29 @@ def getFiles(mitCfg,version):
 #===================================================================================================
 def makeLfnFile(mitCfg,version,mitDataset,dbs,useExistingLfns):
     lfnFile  = 'lfns/' + mitDataset + '.lfns'
+
+    # give notice that file already exists
     if os.path.exists(lfnFile):
         print "\n INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
-        if not useExistingLfns:
-            cmd = 'rm ' + lfnFile
-            os.system(cmd)
+
+    # remove what we need to to start clean
+    cmd = 'rm -f ' +  lfnFile + '-TMP'
+    os.system(cmd)
+    if not useExistingLfns:
+        cmd = 'rm -f ' + lfnFile
+        os.system(cmd)
     
     # recreate if requested or not existing
     if not useExistingLfns or not os.path.exists(lfnFile):
         cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + cmsDataset \
-              + ' | sort -u > ' + lfnFile
-        print ' Input: ' + cmd + '\n'
+              + ' | sort -u > ' + lfnFile + '-TMP'
+        print ' Input: ' + cmd
+        os.system(cmd)
+
+    # move the new file into the proper location
+    if os.path.exists(lfnFile + '-TMP'):
+        cmd = 'mv ' + lfnFile + '-TMP ' + lfnFile
+        print ' Move: ' + cmd + '\n'
         os.system(cmd)
 
     return lfnFile
@@ -309,11 +321,9 @@ mitDataset       = None
 cmssw            = "cmssw"
 mitCfg           = "filefi"
 version          = os.environ['MIT_VERS']
-#dbs              = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
-dbs              = "instance=prod/global"
-#sched            = "glite"
+dbs              = "prod/global"
 sched            = "remoteGlidein"
-blacklist        = "T1_TW_ASGC"
+blacklist        = ""
 nSubmit          = -1
 skpEvts          = ''
 fixSites         = ''
@@ -711,7 +721,12 @@ for subTask in crabTask.subTasks:
     print '  Number of blocks submitted: %d' % nSubmission
 
     # cleanup in case of total failure
-    print " Submission summary: %d successes  %d failures"%(nSuccess,nFail)
+    col = color.color()
+    print  "Submission summary:" \
+        + col.OKBLUE+col.BOLD + " %d successes "%(nSuccess) + col.ENDC \
+        + col.FAIL + " %d failures"%(nFail) \
+        + col.ENDC
+
     if nSuccess == 0 and nFail > 0:
         cmd = "rm -rf crab_" + tag
         print " TOTAL FAILURE -- removing: " + tag

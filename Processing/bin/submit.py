@@ -321,9 +321,7 @@ mitDataset       = None
 cmssw            = "cmssw"
 mitCfg           = "filefi"
 version          = os.environ['MIT_VERS']
-#dbs              = "https://cmsdbsprod.cern.ch:8443/cms_dbs_prod_global/servlet/DBSServlet"
-dbs              = "instance=prod/global"
-#sched            = "glite"
+dbs              = "prod/global"
 sched            = "remoteGlidein"
 blacklist        = "T1_TW_ASGC"
 nSubmit          = -1
