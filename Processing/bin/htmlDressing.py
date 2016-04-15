@@ -58,8 +58,8 @@ if input == "":
 
 # find new file name
 htmlFile = input + '.html'
-print ' ASCII: ' + input
-print ' HTML:  ' + htmlFile
+#print ' ASCII: ' + input
+#print ' HTML:  ' + htmlFile
 
 fileInput  = open(input,'r')
 fileOutput = open(htmlFile,'w')

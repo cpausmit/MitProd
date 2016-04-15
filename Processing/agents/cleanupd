@@ -36,7 +36,8 @@ do
 
   # generate specific log file
   tag=`date "+%s"`
-  logFile=$MIT_PROD_AGENTS_LOG/${daemon}/${daemon}-$tag.log
+  logFile=$MIT_PROD_AGENTS_LOG/${daemon}/${daemon}.log
+  rm -f $logFile
   touch $logFile
   echo ""                                                                          >> $logFile
   echo " = = = =  I N I T I A L  M I T _ P R O D   E N V I R O N M E N T  = = = =" >> $logFile
@@ -75,6 +76,9 @@ do
     rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
     sleep $wait
   done
+
+  # move log file to a dated version
+  mv $logFile $MIT_PROD_AGENTS_LOG/${daemon}/${daemon}-${tag}.log
 
 done
 

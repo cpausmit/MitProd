@@ -213,7 +213,6 @@ do
       generateCatalog.py --nFilesPerSet=$nFilesPerSet \
                          --rawFile=$cataDir/$mitCfg/$VERSION/$dataset${addSkim}
     fi
-
   fi
 done
 

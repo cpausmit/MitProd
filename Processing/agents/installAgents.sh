@@ -80,7 +80,7 @@ chown ${MIT_PROD_USER}:${MIT_PROD_GROUP} -R $MIT_PROD_AGENTS_LOG
 install reviewd
 install catalogd
 install cleanupd
-install uploadd
+#install uploadd
 
 # install web pages
 #==================
