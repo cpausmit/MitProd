@@ -7,7 +7,7 @@
 import os,sys,re,getopt
 
 def getHeader():
-    header = '<!DOCTYPE html><html><head><title>MARKED TEXT FILE</title></head><style>a:link{color:#000000; background-color:transparent; text-decoration:none}a:visited{color:#009000; background-color:transparent; text-decoration:none}a:hover{color:#900000;background-color:transparent; text-decoration:underline}a:active{color:#900000;background-color:transparent; text-decoration:underline}body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25px;}</style><body class="ex" bgcolor="#eeeeee"><body style="font-family: arial;font-size: 20px;font-weight: bold;color:#900000;"><pre>\n'
+    header = '<!DOCTYPE html><html><head><title>Bambu Production</title></head><style>a:link{color:#000000; background-color:transparent; text-decoration:none}a:visited{color:#009000; background-color:transparent; text-decoration:none}a:hover{color:#900000;background-color:transparent; text-decoration:underline}a:active{color:#900000;background-color:transparent; text-decoration:underline}body.ex{margin-top: 0px; margin-bottom:25px; margin-right: 25px; margin-left: 25px;}</style><body class="ex" bgcolor="#eeeeee"><body style="font-family: arial;font-size: 20px;font-weight: bold;color:#900000;"><pre>\n'
     return header
 
 def getFooter():
@@ -18,8 +18,7 @@ def getFooter():
 # Main starts here
 #===================================================================================================
 # Define string to explain usage of the script
-usage = \
-      "\nUsage: htmlDressing.py [ --input=<id>  --help ]\n"
+usage = "\nUsage: htmlDressing.py [ --input=<id>  --help ]\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['input=','version=','help']
