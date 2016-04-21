@@ -34,7 +34,8 @@ unsigned const N_MAX_SUBJETS = 4;
 mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::ConsumesCollector& collector, mithep::ObjectService* os, char const* name, bool active/* = true*/) :
   FillerPFJets(cfg, collector, os, name, active),
   fR0(cfg.getUntrackedParameter<double>("R0", 0.8)),
-  fSubjetNames(cfg.getUntrackedParameter<std::vector<std::string> >("SubJetLabels")),
+  fSubjetNames(cfg.getUntrackedParameter<std::vector<std::string>>("SubJetLabels")),
+  fSubjetBTagName(cfg.getUntrackedParameter<std::string>("SubJetBTagName")),
   fPVToken(GetToken<reco::VertexCollection>(collector,cfg,"edmPrimaryVertices")),
   njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(1.0,fR0))
 {
@@ -101,7 +102,7 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator(fSubjetBTagName);
     }
     for(std::map<float,float>::reverse_iterator iBtag=btagMap.rbegin(); iBtag!=btagMap.rend(); ++iBtag)
       outJet.AddSubJetBtag(iBtag->second);
