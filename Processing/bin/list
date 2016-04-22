@@ -37,7 +37,8 @@ def list(dir,pattern,debug):
         #cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu ls -1s --block-size=1 ' + dir \
         #      + '| sed \'s/^ *//\' | grep -v ^total  '
         hdir = '/' + '/'.join(dir.split('/')[3:])
-        cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu hdfs dfs -ls ' + hdir + \
+        #cmd = 'ssh ' + t2user + '@se01.cmsaf.mit.edu hdfs dfs -ls ' + hdir + \
+        cmd = 'ssh ' + t2user + '@t2bat0380.cmsaf.mit.edu hdfs dfs -ls ' + hdir + \
               ' | tr -s \' \' | cut -d\' \' -f5,8 | sed \'s#/.*/##\' | grep ^[0-9] '
         if simple:
             # does not work for files yet....

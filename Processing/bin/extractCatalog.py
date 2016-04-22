@@ -260,7 +260,8 @@ for line in os.popen(cmd).readlines():  # run command
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm -f      " + f[1]
     #rm3 = "srmrm        " + server + f[1]
-    rm3 = "glexec rm " + f[1]
+    hdfsFile = "/" + "/".join(f[1].split("/")[3:])
+    rm3 = "glexec hdfs df -rm " + hdfsFile
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
@@ -395,21 +396,6 @@ if official == 1:
         cmd = "glexec " + srcFile
         print ' CMD: ' + cmd
         status = os.system(cmd)
-
-        ## cmd = "scp " + srcFile + ' paus@cgate.mit.edu:'
-        ## print ' CMD: ' + cmd
-        ## status = os.system(cmd)
-        ## cmd = "ssh -x paus@cgate.mit.edu source " + srcFile
-        ## print ' CMD: ' + cmd
-        ## status = os.system(cmd)
-        ## cmd = "ssh -x paus@cgate.mit.edu rm " + srcFile
-        ## print ' CMD: ' + cmd
-        ## status = os.system(cmd)
-
-    ## Temporary debugging
-    #cmd = "cat " + srcFile
-    #print ' CMD: ' + cmd
-    #status = os.system(cmd)
 
     # Removing the source file once we are done
     cmd = "rm " + srcFile

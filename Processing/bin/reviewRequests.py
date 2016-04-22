@@ -329,7 +329,7 @@ sql = 'select ' + \
     'RequestConfig,RequestVersion,RequestPy,RequestId,RequestNFilesDone from Requests ' + \
     'left join Datasets on Requests.DatasetId = Datasets.DatasetId '+ \
     'where RequestConfig="' + mitCfg + '" and RequestVersion = "' + version + \
-    '" and RequestPy = "' + cmssw + '";'
+    '" and RequestPy = "' + cmssw + '" order by Datasets.DatasetProcess;'
 if debug:
     print ' SQL: ' + sql
 

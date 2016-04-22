@@ -44,7 +44,7 @@ fi
 
 # Create a list of the files we need to catalog
 echo ""
-LIST=`list $dataDir/$book/$dataset|grep -v ^0 |grep root|cut -d' ' -f2`
+LIST=`list $dataDir/$book/$dataset| grep -v miniaod |grep -v ^0 |grep root|cut -d' ' -f2`
 # make sure authentication will work
 
 # get authentication
