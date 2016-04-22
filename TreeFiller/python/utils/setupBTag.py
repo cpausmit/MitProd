@@ -142,7 +142,7 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
                 newInclusiveSecondaryVertexFinderTagInfos *
                 newSimpleInclusiveSecondaryVertexHighEffBJetTags *
                 newCombinedInclusiveSecondaryVertexV2BJetTags +
-                newIvfcvslTagInfos
+                newInclusiveSecondaryVertexFinderCvsLTagInfos
             ) +
             newSoftPFMuonsTagInfos *
             newSoftPFMuonBJetTags +
