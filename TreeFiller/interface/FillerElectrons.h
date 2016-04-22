@@ -53,7 +53,10 @@ namespace mithep
     edm::EDGetTokenT<mitedm::DecayPartCol> conversionsToken_;
     edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
     edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
-    edm::EDGetTokenT<edm::ValueMap<PFCandRefV> > footprintToken_;
+    edm::EDGetTokenT<edm::ValueMap<PFCandRefV>> footprintToken_;
+    edm::EDGetTokenT<edm::ValueMap<float>> eIDCutBasedTightToken_;      //name of tight cut eID algo
+    edm::EDGetTokenT<edm::ValueMap<float>> eIDCutBasedLooseToken_;      //name of loose cut eID algo
+    edm::EDGetTokenT<edm::ValueMap<float>> eIDLikelihoodToken_;         //name of likelihood cut eID algo
     edm::EDGetTokenT<edm::ValueMap<float>> ecalPFClusterIsoMapToken_;
     edm::EDGetTokenT<edm::ValueMap<float>> hcalPFClusterIsoMapToken_;
 
@@ -64,6 +67,8 @@ namespace mithep
     std::string                     trackerTrackMapName_;       //name of imported map wrt trk trks
     std::string                     barrelSuperClusterMapName_; //name of imp. map wrt barrel sclus
     std::string                     endcapSuperClusterMapName_; //name of imp. map wrt endcap sclus
+    std::string                     eIDCutBasedTightName_;
+    std::string                     eIDCutBasedLooseName_;
     bool                            checkClusterActive_;
     std::string                     pfEcalBarrelSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus
     std::string                     pfEcalEndcapSuperClusterMapName_; //name of imp. map wrt ecal-only pflow sclus

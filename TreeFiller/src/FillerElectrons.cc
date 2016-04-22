@@ -37,6 +37,9 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   pvBeamSpotToken_          (GetToken<reco::BeamSpot>(collector, cfg, "pvBeamSpotName", !pvEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
   pvbsBeamSpotToken_        (GetToken<reco::BeamSpot>(collector, cfg, "pvbsBeamSpotName", !pvBSEdmToken_.isUninitialized() && fitUnbiasedVertex_)), //offlineBeamSpot
   footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName", !fillFromPAT_)),
+  eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", !fillFromPAT_)), //eidTight
+  eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", !fillFromPAT_)), //eidLoose
+  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", false)),
   ecalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "ecalPFClusterIsoMapName", !fillFromPAT_)),
   hcalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "hcalPFClusterIsoMapName", !fillFromPAT_)),
   mitName_                  (cfg.getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
@@ -46,6 +49,8 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   trackerTrackMapName_      (cfg.getUntrackedParameter<string>("trackerTrackMapName", "")),
   barrelSuperClusterMapName_(cfg.getUntrackedParameter<string>("barrelSuperClusterMapName", "")),
   endcapSuperClusterMapName_(cfg.getUntrackedParameter<string>("endcapSuperClusterMapName", "")),
+  eIDCutBasedTightName_     (cfg.getUntrackedParameter<string>("eIDCutBasedTightName", "eidTight")),
+  eIDCutBasedLooseName_     (cfg.getUntrackedParameter<string>("eIDCutBasedLooseName", "eidLoose")),
   checkClusterActive_       (cfg.getUntrackedParameter<bool>("requireClusterAndGsfMap", true)),
   pfEcalBarrelSuperClusterMapName_(cfg.getUntrackedParameter<string>("pfEcalBarrelSuperClusterMapName", "")),
   pfEcalEndcapSuperClusterMapName_(cfg.getUntrackedParameter<string>("pfEcalEndcapSuperClusterMapName", "")),
@@ -156,6 +161,25 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       !dynamic_cast<pat::Electron const*>(&inElectrons.at(0)))
     throw edm::Exception(edm::errors::Configuration, "FillerElectrons:FillDataBlock()\n")
       << "Error! fillFromPAT set on non-PAT input";
+
+  // handles to get the electron ID information
+  edm::ValueMap<float> const* eidLooseMap = 0;
+  edm::ValueMap<float> const* eidTightMap = 0;
+  if (!fillFromPAT_) {
+    edm::Handle<edm::ValueMap<float> > hEidLooseMap;
+    GetProduct(eIDCutBasedLooseToken_, hEidLooseMap, event);
+    eidLooseMap = hEidLooseMap.product();
+    edm::Handle<edm::ValueMap<float> > hEidTightMap;
+    GetProduct(eIDCutBasedTightToken_, hEidTightMap, event);
+    eidTightMap = hEidTightMap.product();
+  }
+
+  edm::ValueMap<float> const* eidLikelihoodMap = 0;
+  if (!eIDLikelihoodToken_.isUninitialized()) {
+    edm::Handle<edm::ValueMap<float> > eidLikelihoodMapH;
+    GetProduct(eIDLikelihoodToken_, eidLikelihoodMapH, event);
+    eidLikelihoodMap = eidLikelihoodMapH.product();
+  }
 
   edm::Handle<reco::TrackCollection> hGeneralTracks;
   edm::Handle<reco::GsfTrackCollection> hGsfTracks;
@@ -315,8 +339,11 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     outElectron->SetHcalDepth2TowerSumEtDr03(inElectron.dr03HcalDepth2TowerSumEt());
     outElectron->SetHCalIsoTowDr03(inElectron.dr03HcalTowerSumEtBc());
 
-    outElectron->SetEcalPFClusterIso((*ecalPFClusterIsoMap)[eRef]);
-    outElectron->SetHcalPFClusterIso((*hcalPFClusterIsoMap)[eRef]);
+    // pf cluster isolation
+    if (ecalPFClusterIsoMap)
+      outElectron->SetEcalPFClusterIso((*ecalPFClusterIsoMap)[eRef]);
+    if (hcalPFClusterIsoMap)
+      outElectron->SetHcalPFClusterIso((*hcalPFClusterIsoMap)[eRef]);
     
     // gsf-tracker match quality
     outElectron->SetFracSharedHits(inElectron.shFracInnerHits());
@@ -451,6 +478,20 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       outElectron->SetConvPartnerDist(inElectron.convDist());
       outElectron->SetConvPartnerRadius(inElectron.convRadius());
     }
+
+    // fill Electron ID information
+    if (fillFromPAT_) {
+      auto& patElectron = static_cast<pat::Electron const&>(inElectron);
+      outElectron->SetPassLooseID(patElectron.electronID(eIDCutBasedLooseName_));
+      outElectron->SetPassTightID(patElectron.electronID(eIDCutBasedTightName_));
+    }
+    else {
+      outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
+      outElectron->SetPassTightID((*eidTightMap)[eRef]);
+    }
+
+    if (eidLikelihoodMap)
+      outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
 
     // fill corrected expected inner hits
     if (gsfTrackRef.isNonnull()) {

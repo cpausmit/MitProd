@@ -56,6 +56,8 @@ namespace mithep
     std::string                            phIDCutBasedTightName_;
     std::string                            phIDCutBasedLooseName_;
     edm::EDGetTokenT<edm::ValueMap<PFCandRefV> > footprintToken_;       //PF candidates associated to photon footprint
+    edm::EDGetTokenT<edm::ValueMap<float>> ecalPFClusterIsoMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<float>> hcalPFClusterIsoMapToken_;
 
     std::string                       mitName_;                   //mit name: photon collection
     std::string                       conversionMapName_;         //name: imp. map wrt conv. elecs
