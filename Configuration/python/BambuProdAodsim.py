@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/029641E2-37A2-E511-9AB4-A0369F7F8E80.root')
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-100to200_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3_ext1-v1/00000/1CEEAEAF-2B01-E611-9984-0CC47A7452D8.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -73,11 +73,6 @@ process.load('MitEdm.Producers.conversionElectronsStable_cfi')
 #from MitProd.TreeFiller.conversionProducer_cff import conversionProducer, addConversionFiller
 #process.load('MitProd.TreeFiller.conversionProducer_cff')
 #addConversionFiller(MitTreeFiller)
-
-# Electron likelihood-based id
-from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import electronMVAValueMapProducer
-process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
-MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values'
 
 # Load basic particle flow collections
 # Used for rho calculation
@@ -157,7 +152,6 @@ process.load('MitProd.TreeFiller.metFilters_cff')
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
-  electronMVAValueMapProducer *
   #  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
@@ -214,6 +208,7 @@ MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCVertexes.active = True
+MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence
 

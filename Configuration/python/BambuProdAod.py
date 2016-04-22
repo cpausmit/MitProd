@@ -27,12 +27,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v4'
+process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v6'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_043'),
+  version    = cms.untracked.string('Mit_044'),
   annotation = cms.untracked.string('AOD')
 )
 
@@ -74,11 +74,6 @@ process.load('MitEdm.Producers.conversionElectronsStable_cfi')
 #process.load('MitProd.TreeFiller.conversionProducer_cff')
 #addConversionFiller(MitTreeFiller)
 
-# Electron likelihood-based id
-from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import electronMVAValueMapProducer
-process.load('RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi')
-MitTreeFiller.Electrons.eIDLikelihoodName = 'electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values'
-
 # Load basic particle flow collections
 # Used for rho calculation
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -106,7 +101,7 @@ from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
 process.load('MitProd.TreeFiller.PuppiSetup_cff')
 
 # recluster fat jets, btag subjets
-from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
+from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
 pfbrecoSequence = initFatJets(process, isData = True)
 ak8chsSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8)
 ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
@@ -125,6 +120,9 @@ pfNoPileUpIso.bottomCollection='particleFlowPtrs'
 pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
+
+# Egamma PFClusterIso
+from RecoEgamma.​EgammaPhotonProducers.​reducedEgamma_cfi import 
 
 # PUPPI jets
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
@@ -157,7 +155,6 @@ process.load('MitProd.TreeFiller.metFilters_cff')
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
-  electronMVAValueMapProducer *
 #  conversionProducer *
   goodOfflinePrimaryVertices *
   particleFlowPtrs *
@@ -207,6 +204,7 @@ MitTreeFiller.MCVertexes.active = False
 MitTreeFiller.PileupInfo.active = False
 MitTreeFiller.AKT4GenJets.active = False
 MitTreeFiller.AKT8GenJets.active = False
+MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence
 
