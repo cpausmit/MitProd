@@ -54,11 +54,8 @@ namespace mithep
     edm::EDGetTokenT<reco::BeamSpot> pvBeamSpotToken_;   //different BeamSpot tokens since there is basically
     edm::EDGetTokenT<reco::BeamSpot> pvbsBeamSpotToken_; //always only one. Just following the 53X implementation.
     edm::EDGetTokenT<edm::ValueMap<PFCandRefV> > footprintToken_;
-    edm::EDGetTokenT<edm::ValueMap<float> > eIDCutBasedTightToken_;      //name of tight cut eID algo
-    edm::EDGetTokenT<edm::ValueMap<float> > eIDCutBasedLooseToken_;      //name of loose cut eID algo
-    edm::EDGetTokenT<edm::ValueMap<float> > eIDLikelihoodToken_;         //name of likelihood cut eID algo
-    std::string eIDCutBasedTightName_;
-    std::string eIDCutBasedLooseName_;
+    edm::EDGetTokenT<edm::ValueMap<float>> ecalPFClusterIsoMapToken_;
+    edm::EDGetTokenT<edm::ValueMap<float>> hcalPFClusterIsoMapToken_;
 
     std::string                     mitName_;                   //mit name of Electrons collection
     std::string                     electronMapName_;           //name of exported electron map

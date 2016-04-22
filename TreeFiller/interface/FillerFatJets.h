@@ -63,6 +63,7 @@ namespace mithep {
 
     double fR0;                                                       //cone size
     std::vector<std::string> fSubjetNames;                            //labels of subjets
+    std::string fSubjetBTagName;                                      //label of subjet btag algorithm
     std::vector<JetColToken> fSubjetCollectionTokens;                 //subjet input tags
     std::vector<JetColHandle> fSubjetCollections;                 //subjet input handles
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
