@@ -121,9 +121,6 @@ pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
 
-# Egamma PFClusterIso
-from RecoEgamma.​EgammaPhotonProducers.​reducedEgamma_cfi import 
-
 # PUPPI jets
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
