@@ -39,7 +39,6 @@ mithep::FillerElectrons::FillerElectrons(const edm::ParameterSet &cfg, edm::Cons
   footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName", !fillFromPAT_)),
   eIDCutBasedTightToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedTightName", !fillFromPAT_)), //eidTight
   eIDCutBasedLooseToken_    (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDCutBasedLooseName", !fillFromPAT_)), //eidLoose
-  eIDLikelihoodToken_       (GetToken<edm::ValueMap<float> >(collector, cfg, "eIDLikelihoodName", false)),
   ecalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "ecalPFClusterIsoMapName", !fillFromPAT_)),
   hcalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "hcalPFClusterIsoMapName", !fillFromPAT_)),
   mitName_                  (cfg.getUntrackedParameter<string>("mitName", Names::gkElectronBrn)),
@@ -172,13 +171,6 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     edm::Handle<edm::ValueMap<float> > hEidTightMap;
     GetProduct(eIDCutBasedTightToken_, hEidTightMap, event);
     eidTightMap = hEidTightMap.product();
-  }
-
-  edm::ValueMap<float> const* eidLikelihoodMap = 0;
-  if (!eIDLikelihoodToken_.isUninitialized()) {
-    edm::Handle<edm::ValueMap<float> > eidLikelihoodMapH;
-    GetProduct(eIDLikelihoodToken_, eidLikelihoodMapH, event);
-    eidLikelihoodMap = eidLikelihoodMapH.product();
   }
 
   edm::Handle<reco::TrackCollection> hGeneralTracks;
@@ -489,9 +481,6 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
       outElectron->SetPassLooseID((*eidLooseMap)[eRef]);
       outElectron->SetPassTightID((*eidTightMap)[eRef]);
     }
-
-    if (eidLikelihoodMap)
-      outElectron->SetIDLikelihood((*eidLikelihoodMap)[eRef]);
 
     // fill corrected expected inner hits
     if (gsfTrackRef.isNonnull()) {

@@ -56,7 +56,6 @@ namespace mithep
     edm::EDGetTokenT<edm::ValueMap<PFCandRefV>> footprintToken_;
     edm::EDGetTokenT<edm::ValueMap<float>> eIDCutBasedTightToken_;      //name of tight cut eID algo
     edm::EDGetTokenT<edm::ValueMap<float>> eIDCutBasedLooseToken_;      //name of loose cut eID algo
-    edm::EDGetTokenT<edm::ValueMap<float>> eIDLikelihoodToken_;         //name of likelihood cut eID algo
     edm::EDGetTokenT<edm::ValueMap<float>> ecalPFClusterIsoMapToken_;
     edm::EDGetTokenT<edm::ValueMap<float>> hcalPFClusterIsoMapToken_;
 
