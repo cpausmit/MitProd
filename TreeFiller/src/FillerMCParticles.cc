@@ -155,6 +155,25 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 
   if (genActive_) {
     genMap_->Reset();
+
+    auto setStatusFlags([](mithep::MCParticle& mcPart, reco::GenStatusFlags const& inFlags) {
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsPrompt, inFlags.flags_[reco::GenStatusFlags::kIsPrompt]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDecayedLeptonHadron, inFlags.flags_[reco::GenStatusFlags::kIsDecayedLeptonHadron]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsPromptTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsPromptTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectPromptTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectPromptTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectHadronDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectHadronDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsHardProcess, inFlags.flags_[reco::GenStatusFlags::kIsHardProcess]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kFromHardProcess, inFlags.flags_[reco::GenStatusFlags::kFromHardProcess]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsHardProcessTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsHardProcessTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectHardProcessTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectHardProcessTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kFromHardProcessBeforeFSR, inFlags.flags_[reco::GenStatusFlags::kFromHardProcessBeforeFSR]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsFirstCopy, inFlags.flags_[reco::GenStatusFlags::kIsFirstCopy]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsLastCopy, inFlags.flags_[reco::GenStatusFlags::kIsLastCopy]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsLastCopyBeforeFSR, inFlags.flags_[reco::GenStatusFlags::kIsLastCopyBeforeFSR]);
+
+      });
   
     if (genSource_ == kGenParticles) {
       aodGenMap_->Reset();
@@ -180,11 +199,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
         mcPart->SetPdgId(inPart.pdgId());
         mcPart->SetStatus(inPart.status());
-        mcPart->SetIsGenerated();
 
-        // need to keep an eye for updates
-        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
-          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
+        setStatusFlags(*mcPart, inPart.statusFlags());
       
         // add hepmc barcode association, needed to merge in sim particles
         if (simActive_) {
@@ -213,11 +229,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
         mcPart->SetPdgId(inPart.pdgId());
         mcPart->SetStatus(inPart.status());
-        mcPart->SetIsGenerated();
 
-        // need to keep an eye for updates
-        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
-          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
+        setStatusFlags(*mcPart, inPart.statusFlags());
       
         pat::PackedGenParticleRef ref(hGenPProduct, iPart);
         packedGenMap_->Add(ref, mcPart);
@@ -243,7 +256,6 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(genParticle->momentum().perp(), genParticle->momentum().eta(), genParticle->momentum().phi(), genParticle->momentum().m());
         mcPart->SetPdgId(genParticle->pdg_id());
         mcPart->SetStatus(genParticle->status());
-        mcPart->SetIsGenerated();
 
         genMap_->Add(genParticle->barcode(), mcPart);
       }
