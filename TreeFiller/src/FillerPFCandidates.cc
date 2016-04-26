@@ -4,6 +4,11 @@
 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFCandidateCol.h"
+#include "MitAna/DataTree/interface/Muon.h"
+#include "MitAna/DataTree/interface/Electron.h"
+#include "MitAna/DataTree/interface/Photon.h"
+#include "MitAna/DataTree/interface/Track.h"
+#include "MitAna/DataTree/interface/SuperCluster.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 
@@ -175,7 +180,6 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     // outPfCand->SetMvaEPi(inPf.mva_e_pi());
     // outPfCand->SetMvaEMu(inPf.mva_e_mu());
     // outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
-    outPfCand->SetMvaGamma(inPf.mva_nothing_gamma());
     // outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
     // outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
@@ -185,22 +189,34 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetVertex(inPf.vertex().x(), inPf.vertex().y(), inPf.vertex().z());
     
     // fill pf type enum
-    if (inPf.particleId()==reco::PFCandidate::X)
+    switch (inPf.particleId()) {
+    case reco::PFCandidate::X:
       outPfCand->SetPFType(mithep::PFCandidate::eX);
-    else if (inPf.particleId()==reco::PFCandidate::h)
+      break;
+    case reco::PFCandidate::h:
       outPfCand->SetPFType(mithep::PFCandidate::eHadron);
-    else if (inPf.particleId()==reco::PFCandidate::e)
+      break;
+    case reco::PFCandidate::e:
       outPfCand->SetPFType(mithep::PFCandidate::eElectron);
-    else if (inPf.particleId()==reco::PFCandidate::mu)
+      break;
+    case reco::PFCandidate::mu:
       outPfCand->SetPFType(mithep::PFCandidate::eMuon);
-    else if (inPf.particleId()==reco::PFCandidate::gamma)
+      break;
+    case reco::PFCandidate::gamma:
       outPfCand->SetPFType(mithep::PFCandidate::eGamma);
-    else if (inPf.particleId()==reco::PFCandidate::h0)
+      break;
+    case reco::PFCandidate::h0:
       outPfCand->SetPFType(mithep::PFCandidate::eNeutralHadron);
-    else if (inPf.particleId()==reco::PFCandidate::h_HF)
+      break;
+    case reco::PFCandidate::h_HF:
       outPfCand->SetPFType(mithep::PFCandidate::eHadronHF);
-    else if (inPf.particleId()==reco::PFCandidate::egamma_HF)
+      break;
+    case reco::PFCandidate::egamma_HF:
       outPfCand->SetPFType(mithep::PFCandidate::eEGammaHF);
+      break;
+    default:
+      break;
+    }
     
     // fill pf flags bitmask
     outPfCand->SetFlag(mithep::PFCandidate::eNormal,
@@ -306,24 +322,24 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
     // fill references to other branches
     if (inPf.trackRef().isNonnull()) {
       auto* thetrack = getMitTrack(refToPtr(inPf.trackRef()), allowMissingTrackRef_);
-      outPfCand->SetTrackerTrk(thetrack);
+      outPfCand->AddRef(thetrack);
     }    
 
     // linking with the GfsTracks
     if (gsfTrackMap_ && inPf.gsfTrackRef().isNonnull()) 
-      outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(inPf.gsfTrackRef())));
+      outPfCand->AddRef(gsfTrackMap_->GetMit(refToPtr(inPf.gsfTrackRef())));
     
     // linking with the Muons
     if (muonMap_ && inPf.muonRef().isNonnull()) 
-      outPfCand->SetMuon(muonMap_->GetMit(refToPtr(inPf.muonRef())));
+      outPfCand->AddRef(muonMap_->GetMit(refToPtr(inPf.muonRef())));
     
     // linking with the Electrons
     if (electronMap_ && inPf.gsfElectronRef().isNonnull()) 
-      outPfCand->SetElectron(electronMap_->GetMit(refToPtr(inPf.gsfElectronRef())));
+      outPfCand->AddRef(electronMap_->GetMit(refToPtr(inPf.gsfElectronRef())));
     
     // linking with the Photons
     if (photonMap_ && inPf.photonRef().isNonnull())
-      outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_));
+      outPfCand->AddRef(photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_));
     
     // linking with the SuperClusters
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
@@ -333,7 +349,7 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
         sc = endcapSuperClusterMap_->GetMit(inPf.superClusterRef(), false);
 
       if (sc)
-        outPfCand->SetSCluster(sc);
+        outPfCand->AddRef(sc);
       else if(!allowMissingClusterRef_)
         throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";

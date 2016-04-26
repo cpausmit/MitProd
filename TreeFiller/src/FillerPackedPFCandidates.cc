@@ -158,22 +158,22 @@ mithep::FillerPackedPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetu
     if (electronMap_) {
       mithep::Electron const* electron = static_cast<mithep::Electron const*>(electronMap_->GetMit(ptr, false));
       if (electron)
-        outPfCand->SetElectron(electron);
+        outPfCand->AddRef(electron);
     }
     if (muonMap_) {
       mithep::Muon const* muon = static_cast<mithep::Muon const*>(muonMap_->GetMit(ptr, false));
       if (muon)
-        outPfCand->SetMuon(muon);
+        outPfCand->AddRef(muon);
     }
     if (photonMap_) {
       mithep::Photon const* photon = static_cast<mithep::Photon const*>(photonMap_->GetMit(ptr, false));
       if (photon)
-        outPfCand->SetPhoton(photon);
+        outPfCand->AddRef(photon);
     }
     if (trackMap_) {
       mithep::Track const* track = static_cast<mithep::Track const*>(trackMap_->GetMit(ptr, false));
       if (track)
-        outPfCand->SetTrackerTrk(track);
+        outPfCand->AddRef(track);
     }
   }
 }
