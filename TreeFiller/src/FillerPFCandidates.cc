@@ -170,18 +170,9 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
     // fill standard variables
     outPfCand->SetCharge(inPf.charge());
-    outPfCand->SetEECal(inPf.ecalEnergy());
-    outPfCand->SetEHCal(inPf.hcalEnergy());
-    // outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
-    // outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
-    // outPfCand->SetEPS1(inPf.pS1Energy());
-    // outPfCand->SetEPS2(inPf.pS2Energy());
+    outPfCand->SetECalEFraction(inPf.ecalEnergy() / inPf.energy());
+    outPfCand->SetHCalEFraction(inPf.hcalEnergy() / inPf.energy());
     outPfCand->SetPError(inPf.deltaP());
-    // outPfCand->SetMvaEPi(inPf.mva_e_pi());
-    // outPfCand->SetMvaEMu(inPf.mva_e_mu());
-    // outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
-    // outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
-    // outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(inPf.positionAtECALEntrance().phi());
     
@@ -322,24 +313,24 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
     // fill references to other branches
     if (inPf.trackRef().isNonnull()) {
       auto* thetrack = getMitTrack(refToPtr(inPf.trackRef()), allowMissingTrackRef_);
-      outPfCand->AddRef(thetrack);
+      outPfCand->SetTrackerTrk(thetrack);
     }    
 
     // linking with the GfsTracks
     if (gsfTrackMap_ && inPf.gsfTrackRef().isNonnull()) 
-      outPfCand->AddRef(gsfTrackMap_->GetMit(refToPtr(inPf.gsfTrackRef())));
+      outPfCand->SetGsfTrk(gsfTrackMap_->GetMit(refToPtr(inPf.gsfTrackRef())));
     
     // linking with the Muons
     if (muonMap_ && inPf.muonRef().isNonnull()) 
-      outPfCand->AddRef(muonMap_->GetMit(refToPtr(inPf.muonRef())));
+      outPfCand->SetMuon(muonMap_->GetMit(refToPtr(inPf.muonRef())));
     
     // linking with the Electrons
     if (electronMap_ && inPf.gsfElectronRef().isNonnull()) 
-      outPfCand->AddRef(electronMap_->GetMit(refToPtr(inPf.gsfElectronRef())));
+      outPfCand->SetElectron(electronMap_->GetMit(refToPtr(inPf.gsfElectronRef())));
     
     // linking with the Photons
     if (photonMap_ && inPf.photonRef().isNonnull())
-      outPfCand->AddRef(photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_));
+      outPfCand->SetPhoton(photonMap_->GetMit(refToPtr(inPf.photonRef()), !allowMissingPhotonRef_));
     
     // linking with the SuperClusters
     if (barrelSuperClusterMap_ && endcapSuperClusterMap_ &&
@@ -349,7 +340,7 @@ mithep::FillerPFCandidates::ResolveLinks(edm::Event const&, edm::EventSetup cons
         sc = endcapSuperClusterMap_->GetMit(inPf.superClusterRef(), false);
 
       if (sc)
-        outPfCand->AddRef(sc);
+        outPfCand->SetSCluster(sc);
       else if(!allowMissingClusterRef_)
         throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
           << "Error! Refined SuperCluster reference in unmapped collection";
