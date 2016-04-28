@@ -170,8 +170,7 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
     // fill standard variables
     outPfCand->SetCharge(inPf.charge());
-    outPfCand->SetECalEFraction(inPf.ecalEnergy() / inPf.energy());
-    outPfCand->SetHCalEFraction(inPf.hcalEnergy() / inPf.energy());
+    outPfCand->SetECalo(inPf.ecalEnergy(), inPf.hcalEnergy());
     outPfCand->SetPError(inPf.deltaP());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(inPf.positionAtECALEntrance().phi());
