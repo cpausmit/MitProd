@@ -121,6 +121,7 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
     fillTracking    = cms.untracked.bool(False),
     mitName         = cms.untracked.string('MCParticles'),
     mitTrackingName = cms.untracked.string('TrackingParticles'),
+    vertexesName    = cms.untracked.string('MCVertexes'), # will find input vertices directly from MCVertexes array
     genSource       = cms.untracked.string('GenParticleCollection'),
     genEdmName      = cms.untracked.string('genParticles'),
     simEdmName      = cms.untracked.string('g4SimHits'),
@@ -132,10 +133,14 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   ),
 
   MCVertexes = cms.untracked.PSet(
-    active        = cms.untracked.bool(False),
-    useAodGen     = cms.untracked.bool(True),
+    active        = cms.untracked.bool(True),
+    simActive     = cms.untracked.bool(False),
+    genSource     = cms.untracked.string('GenParticleCollection'),
     mitName       = cms.untracked.string('MCVertexes'),
     edmName       = cms.untracked.string('genParticles'),
+    genVtxMapName = cms.untracked.string(''), # use if source is HepMCProduct
+    simEdmName    = cms.untracked.string(''), # use if simActive = True
+    simVtxMapName = cms.untracked.string(''), # use if simActive = True
     fillerType    = cms.untracked.string('FillerMCVertexes')
   ),
 

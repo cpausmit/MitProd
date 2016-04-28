@@ -8,14 +8,14 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-100to200_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3_ext1-v1/00000/1CEEAEAF-2B01-E611-9984-0CC47A7452D8.root')
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,12 +27,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9'
+process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_v3'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_043'),
+  version    = cms.untracked.string('Mit_044'),
   annotation = cms.untracked.string('AODSIM')
 )
 
@@ -133,7 +133,7 @@ ak4PFJetsPuppi.doAreaFastjet = True
 #process.load('MitProd.TreeFiller.FastJetCorrection_cff')
 
 # Setup jet corrections
-process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
+#process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
 # Load btagging
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
