@@ -12,7 +12,7 @@ mithep::FillerMCVertexes::FillerMCVertexes(const edm::ParameterSet &cfg, edm::Co
   hepMCProdToken_(),
   genParticlesToken_(),
   simVerticesToken_(),
-  mitName_(cfg.getUntrackedParameter("mitName", std::string("MCVertexes"))),
+  mitName_(cfg.getUntrackedParameter("mitName", std::string("MCAllVertexes"))),
   vertexes_(new mithep::BaseVertexArr(16, mitName_.c_str())),
   genVtxMap_(0),
   simVtxMap_(0)

@@ -207,7 +207,7 @@ MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 MitTreeFiller.PileupInfo.active = True
 MitTreeFiller.MCParticles.active = True
 MitTreeFiller.MCEventInfo.active = True
-MitTreeFiller.MCVertexes.active = True
+MitTreeFiller.MCAllVertexes.active = True
 MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence

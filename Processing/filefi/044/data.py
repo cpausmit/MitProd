@@ -189,7 +189,7 @@ MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
 # remove Monte Carlo information
 MitTreeFiller.MCEventInfo.active = False
 MitTreeFiller.MCParticles.active = False
-MitTreeFiller.MCVertexes.active = False
+MitTreeFiller.MCAllVertexes.active = False
 MitTreeFiller.PileupInfo.active = False
 MitTreeFiller.AKT4GenJets.active = False
 MitTreeFiller.AKT8GenJets.active = False
