@@ -29,7 +29,6 @@ let "shiftIdx = $OPTIND - 1"
 shift $shiftIdx
 
 MIT_LOCATION="/mnt/hadoop/cms/store/user/paus"
-CERN_LOCATION="/castor/cern.ch/user/p/paus"
 # Health checks
 if [ ".$1" == "." ]
 then
@@ -57,16 +56,11 @@ fi
 
 # Conclude what needs to be done
 if [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/user/paus/skim`" != "" ] || \
-   ( [ "`echo $LOCATION | grep /castor/cern.ch/`" == "" ] && \
-     [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
+   ( [ "`echo $LOCATION | grep /mnt/hadoop/cms/store/`" == "" ] && \
      [ "$LOCATION" != "" ] )
 then
   cataDir=$cataDir/t2mit
   #cataDir=$cataDir/local/` basename \`dirname $LOCATION\` `/`basename $LOCATION`
-elif [ ".`echo $HOSTNAME | grep cern.ch`" != "." ]
-then
-  LOCATION=$CERN_LOCATION
-  cataDir=$cataDir/cern
 elif [ ".`echo $HOSTNAME | grep mit.edu`" != "." ]
 then
   LOCATION=$MIT_LOCATION

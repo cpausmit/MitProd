@@ -259,7 +259,6 @@ for line in os.popen(cmd).readlines():  # run command
     rm0 = "rm -f        " + f[1]
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm -f      " + f[1]
-    #rm3 = "srmrm        " + server + f[1]
     hdfsFile = "/" + "/".join(f[1].split("/")[3:])
     rm3 = "glexec hdfs df -rm " + hdfsFile
     g = f[1].split("/")
@@ -337,6 +336,7 @@ print 'Execute:  ' + cmd
 print '  For the catalog:'
 if test == 0:
     fileOutput = open(rawDir + '/' + rawFile,'w')
+
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
     # compactify line
@@ -366,11 +366,7 @@ for line in os.popen(cmd).readlines():  # run command
         g        = file.split("_");
         file     = "_".join(g[0:-2])
 
-        #print " file  %s"%(fullFile)
-        #print " file  %s"%(file)
-        #print " nProc: %d  nevts[file]  %d"%(nProc,nevts[file])
         if nProc == nevts[file]:
-            ##print ' complete: ' + file + '  -->  ' + files[file] + '  %d /%d' %(nProc,nevts[file])
             tier2 = move(srcFile,fullFile,dir + '/' + files[file])
             # modify the catalog entry accordingly
             f[0] = dir + '/' + files[file]
