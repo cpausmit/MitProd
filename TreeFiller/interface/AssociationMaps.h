@@ -30,6 +30,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "MitProd/TreeFiller/interface/AssociationMap.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
@@ -47,6 +48,7 @@
 #include "MitAna/DataTree/interface/ConversionFwd.h"
 #include "MitAna/DataTree/interface/ParticleFwd.h"
 #include "MitAna/DataTree/interface/VertexFwd.h"
+#include "MitAna/DataTree/interface/BaseVertexFwd.h"
 #include "MitAna/DataTree/interface/PFCandidateFwd.h"
 #include "MitAna/DataTree/interface/PhotonFwd.h"
 #include "MitAna/DataTree/interface/JetFwd.h"
@@ -73,13 +75,15 @@ namespace mithep
   typedef AssociationMap<const mitedm::BasePartPtr,         mithep::Particle*>      BasePartMap;
   typedef AssociationMap<const edm::Ptr<reco::Track>,       mithep::Particle*>      TrackPartMap;
   typedef AssociationMap<const CaloTowerDetId,              mithep::CaloTower*>     CaloTowerMap;
-  typedef AssociationMap<const DetId,                       mithep::CaloTower*>     CaloTowerDetIdMap;  
+  typedef AssociationMap<const DetId,                       mithep::CaloTower*>     CaloTowerDetIdMap;
+  typedef AssociationMap<const int,                         mithep::BaseVertex*>    GenVertexMap;
+  typedef AssociationMap<const edm::SimVertexRef,           mithep::BaseVertex*>    SimVertexMap;
   typedef AssociationMap<const mitedm::VertexPtr,           mithep::Vertex*>        VertexMap;
   typedef AssociationMap<const DetId,                       mithep::SuperCluster*>  SuperClusterIdMap;
   typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Muon*>          MuonMap;
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Electron*>      ElectronMap;
   typedef AssociationMap<const edm::Ptr<reco::GsfElectron>, mithep::Track*>         ElectronTrackMap;
-  typedef AssociationMap<const edm::Ptr<reco::Muon>, mithep::Track*>                MuonTrackMap;
+  typedef AssociationMap<const edm::Ptr<reco::Muon>,        mithep::Track*>         MuonTrackMap;
   typedef AssociationMap<const edm::Ptr<reco::Photon>,      mithep::Photon*>        PhotonMap;
   typedef AssociationMap<const edm::Ptr<reco::BaseTau>,     mithep::PFTau*>         PFTauMap;
   typedef AssociationMap<const reco::CandidatePtr,          mithep::PFCandidate*>   PFCandidateMap;

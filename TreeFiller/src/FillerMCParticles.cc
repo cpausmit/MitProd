@@ -13,6 +13,7 @@
 #include "MitAna/DataTree/interface/MCParticleCol.h"
 #include "MitAna/DataTree/interface/TrackingParticleCol.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
+#include "MitProd/TreeFiller/interface/VertexMatch.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 using namespace std;
@@ -39,13 +40,19 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
   trackingMapName_(cfg.getUntrackedParameter<string>("trackingMapName", "")), //TrackingMap
   mitName_(cfg.getUntrackedParameter<string>("mitName", Names::gkMCPartBrn)),
   mitTrackingName_(cfg.getUntrackedParameter<string>("mitTrackingName", Names::gkTrackingParticleBrn)),
+  vertexesName_(cfg.getUntrackedParameter<string>("vertexesName", "")),
+  genVtxMapName_(cfg.getUntrackedParameter<string>("genVtxMapName", "")),
+  simVtxMapName_(cfg.getUntrackedParameter<string>("simVtxMapName", "")),
   mcParticles_(new mithep::MCParticleArr(250)),
   trackingParticles_(new mithep::TrackingParticleArr(250)),
   genMap_(0),
   aodGenMap_(0),
   packedGenMap_(0),
   simMap_(0),
-  trackingMap_(0)
+  trackingMap_(0),
+  vertexes_(0),
+  genVtxMap_(0),
+  simVtxMap_(0)
 {
   std::string genSourceName(cfg.getUntrackedParameter("genSource", std::string("GenParticleCollection")));
   if (genSourceName == "GenParticleCollection")
@@ -87,7 +94,7 @@ FillerMCParticles::FillerMCParticles(const ParameterSet &cfg, edm::ConsumesColle
   if (simActive_) {
     simMap_ = new mithep::SimTrackTidMap;
     simTracksToken_ = GetToken<edm::SimTrackContainer>(collector, cfg, "simEdmName"); //g4SimHits
-    simVerticesToken_ = GetToken<std::vector<SimVertex> >(collector, cfg, "simEdmName"); //g4SimHits
+    simVerticesToken_ = GetToken<edm::SimVertexContainer>(collector, cfg, "simEdmName"); //g4SimHits
   }
 
   if (trackingActive_) {
@@ -142,6 +149,24 @@ void FillerMCParticles::BookDataBlock(TreeWriter &tws)
 }
 
 //--------------------------------------------------------------------------------------------------
+void
+mithep::FillerMCParticles::PrepareLinks()
+{
+  if (!vertexesName_.empty()) {
+    vertexes_ = OS()->get<BaseVertexArr>(vertexesName_);
+    AddBranchDep(mitName_, vertexes_->GetName());
+  }
+  if (!genVtxMapName_.empty()) {
+    genVtxMap_ = OS()->get<GenVertexMap>(genVtxMapName_);
+    AddBranchDep(mitName_, genVtxMap_->GetBrName());
+  }
+  if (!simVtxMapName_.empty()) {
+    simVtxMap_ = OS()->get<SimVertexMap>(simVtxMapName_);
+    AddBranchDep(mitName_, simVtxMap_->GetBrName());
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
 void FillerMCParticles::FillDataBlock(const edm::Event      &event, 
                                       const edm::EventSetup &setup)
 {
@@ -155,6 +180,25 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
 
   if (genActive_) {
     genMap_->Reset();
+
+    auto setStatusFlags([](mithep::MCParticle& mcPart, reco::GenStatusFlags const& inFlags) {
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsPrompt, inFlags.flags_[reco::GenStatusFlags::kIsPrompt]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDecayedLeptonHadron, inFlags.flags_[reco::GenStatusFlags::kIsDecayedLeptonHadron]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsPromptTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsPromptTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectPromptTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectPromptTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectHadronDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectHadronDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsHardProcess, inFlags.flags_[reco::GenStatusFlags::kIsHardProcess]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kFromHardProcess, inFlags.flags_[reco::GenStatusFlags::kFromHardProcess]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsHardProcessTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsHardProcessTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsDirectHardProcessTauDecayProduct, inFlags.flags_[reco::GenStatusFlags::kIsDirectHardProcessTauDecayProduct]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kFromHardProcessBeforeFSR, inFlags.flags_[reco::GenStatusFlags::kFromHardProcessBeforeFSR]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsFirstCopy, inFlags.flags_[reco::GenStatusFlags::kIsFirstCopy]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsLastCopy, inFlags.flags_[reco::GenStatusFlags::kIsLastCopy]);
+        mcPart.SetStatusFlag(mithep::MCParticle::kIsLastCopyBeforeFSR, inFlags.flags_[reco::GenStatusFlags::kIsLastCopyBeforeFSR]);
+
+      });
   
     if (genSource_ == kGenParticles) {
       aodGenMap_->Reset();
@@ -180,11 +224,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
         mcPart->SetPdgId(inPart.pdgId());
         mcPart->SetStatus(inPart.status());
-        mcPart->SetIsGenerated();
 
-        // need to keep an eye for updates
-        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
-          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
+        setStatusFlags(*mcPart, inPart.statusFlags());
       
         // add hepmc barcode association, needed to merge in sim particles
         if (simActive_) {
@@ -213,11 +254,8 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(inPart.pt(), inPart.eta(), inPart.phi(), inPart.mass());
         mcPart->SetPdgId(inPart.pdgId());
         mcPart->SetStatus(inPart.status());
-        mcPart->SetIsGenerated();
 
-        // need to keep an eye for updates
-        for (unsigned iF = 0; iF != reco::GenStatusFlags::kIsLastCopyBeforeFSR + 1; ++iF)
-          mcPart->SetStatusFlag(iF, inPart.statusFlags().flags_[iF]);
+        setStatusFlags(*mcPart, inPart.statusFlags());
       
         pat::PackedGenParticleRef ref(hGenPProduct, iPart);
         packedGenMap_->Add(ref, mcPart);
@@ -243,7 +281,6 @@ void FillerMCParticles::FillDataBlock(const edm::Event      &event,
         mcPart->SetPtEtaPhiM(genParticle->momentum().perp(), genParticle->momentum().eta(), genParticle->momentum().phi(), genParticle->momentum().m());
         mcPart->SetPdgId(genParticle->pdg_id());
         mcPart->SetStatus(genParticle->status());
-        mcPart->SetIsGenerated();
 
         genMap_->Add(genParticle->barcode(), mcPart);
       }
@@ -396,20 +433,22 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
       reco::GenParticleCollection const& genParticles = *hGenPProduct;
 
       // loop over all genparticles and copy their information
-      unsigned iPart = 0;
-      for (auto&& inPart : genParticles) {
-        unsigned nDaughters = inPart.numberOfDaughters();
-        if (nDaughters == 0) {
-          ++iPart;
-          continue;
+      for (unsigned iPart = 0; iPart != genParticles.size(); ++iPart) {
+        auto& inPart(genParticles.at(iPart));
+
+        MCParticle *mcMother = aodGenMap_->GetMit(reco::GenParticleRef(hGenPProduct, iPart));
+
+        if (vertexes_) {
+          mithep::BaseVertex const* vtx = mithep::VertexMatch(vertexes_, inPart);
+          if (!vtx)
+            throw edm::Exception(edm::errors::Configuration, "VertexMatch\n");
+
+          mcMother->SetVertex(vtx);
         }
 
-        reco::GenParticleRef ref(hGenPProduct, iPart);
-        MCParticle *mcMother = aodGenMap_->GetMit(ref);
-
-        // set mother decay vertex
-        reco::Candidate const* genDaughter = inPart.daughter(0);
-        mcMother->SetVertex(genDaughter->vx(), genDaughter->vy(), genDaughter->vz());
+        unsigned nDaughters = inPart.numberOfDaughters();
+        if (nDaughters == 0)
+          continue;
 
         for (unsigned iD = 0; iD < nDaughters; ++iD) {
           MCParticle *mcDaughter = aodGenMap_->GetMit(inPart.daughterRef(iD));
@@ -418,8 +457,41 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
           if (!mcDaughter->HasMother())
             mcDaughter->SetMother(mcMother);
         }
+      }
+    }
+    else if (genSource_ == kPackedGenParticles) {
+      Handle<pat::PackedGenParticleCollection> hGenPProduct;
+      GetProduct(packedGenParticlesToken_, hGenPProduct, event);  
+  
+      pat::PackedGenParticleCollection const& genParticles = *hGenPProduct;
 
-        ++iPart;
+      // loop over all genparticles and copy their information
+      for (unsigned iPart = 0; iPart != genParticles.size(); ++iPart) {
+        auto& inPart(genParticles.at(iPart));
+
+        MCParticle *mcMother = packedGenMap_->GetMit(pat::PackedGenParticleRef(hGenPProduct, iPart));
+
+        if (vertexes_) {
+          mithep::BaseVertex const* vtx = mithep::VertexMatch(vertexes_, inPart);
+          if (!vtx)
+            throw edm::Exception(edm::errors::Configuration, "VertexMatch\n");
+
+          mcMother->SetVertex(vtx);
+        }
+
+        // TODO understand decay chain linking in MINIAOD
+
+        // unsigned nDaughters = inPart.numberOfDaughters();
+        // if (nDaughters == 0)
+        //   continue;
+
+        // for (unsigned iD = 0; iD < nDaughters; ++iD) {
+        //   MCParticle *mcDaughter = packedGenMap_->GetMit(inPart.daughterRef(iD));
+        //   // set mother-daughter links
+        //   mcMother->AddDaughter(mcDaughter);
+        //   if (!mcDaughter->HasMother())
+        //     mcDaughter->SetMother(mcMother);
+        // }
       }
     }
     else if (genSource_ == kHepMCProduct) {
@@ -434,25 +506,27 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
         HepMC::GenParticle *mcPart = (*pgen);
         if(!mcPart) 
           continue;
-      
-        // check if genpart has a decay vertex
-        HepMC::GenVertex *dVertex = mcPart->end_vertex();
-        if (!dVertex) 
-          continue;
 
         // find corresponding mithep genparticle parent in association table
         mithep::MCParticle *genParent = genMap_->GetMit(mcPart->barcode());
-  
-        // set decay vertex
-        // division by 10.0 is needed due to HepMC use of mm instead of cm for distance units
-        genParent->SetVertex(dVertex->point3d().x()/10.0,
-                             dVertex->point3d().y()/10.0,
-                             dVertex->point3d().z()/10.0);
+      
+        if (genVtxMap_) {
+          HepMC::GenVertex const* pvtx = mcPart->production_vertex();
+          if (pvtx) {
+            mithep::BaseVertex const* vtx = genVtxMap_->GetMit(pvtx->barcode());
+            genParent->SetVertex(vtx);
+          }
+        }
+
+        // check if genpart has a decay vertex
+        HepMC::GenVertex const* dvtx = mcPart->end_vertex();
+        if (!dvtx)
+          continue;
   
         // loop through daugthers
         for (HepMC::GenVertex::particles_out_const_iterator pgenD = 
-               dVertex->particles_out_const_begin(); 
-             pgenD != dVertex->particles_out_const_end(); ++pgenD) {
+               dvtx->particles_out_const_begin(); 
+             pgenD != dvtx->particles_out_const_end(); ++pgenD) {
           HepMC::GenParticle *mcDaughter = (*pgenD);
           mithep::MCParticle *genDaughter = genMap_->GetMit(mcDaughter->barcode());
           genParent->AddDaughter(genDaughter);
@@ -470,7 +544,7 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
 
     edm::SimTrackContainer const& simTracks = *hSimTrackProduct;
 
-    Handle<std::vector<SimVertex> > hSimVertexProduct;
+    Handle<edm::SimVertexContainer> hSimVertexProduct;
     GetProduct(simVerticesToken_, hSimVertexProduct, event);
 
     edm::SimVertexContainer const& simVertexes = *hSimVertexProduct;
@@ -479,12 +553,17 @@ void FillerMCParticles::ResolveLinks(const edm::Event      &event,
     for (auto&& simTrack : simTracks) {
       if (simTrack.vertIndex() >= 0) {
         mithep::MCParticle *simDaughter = simMap_->GetMit(simTrack.trackId());
+
+        if (simVtxMap_) {
+          edm::SimVertexRef ref(hSimVertexProduct, simTrack.vertIndex());
+          mithep::BaseVertex const* vtx = simVtxMap_->GetMit(ref);
+          simDaughter->SetVertex(vtx);
+        }
+
         const SimVertex &theVertex = simVertexes.at(simTrack.vertIndex());
         if (theVertex.parentIndex() >= 0) {
           mithep::MCParticle *simParent = simMap_->GetMit(theVertex.parentIndex());
-          simParent->SetVertex(theVertex.position().x(),
-                               theVertex.position().y(),
-                               theVertex.position().z());
+
           //make sure we don't double count the decay tree
           if (!simParent->HasDaughter(simDaughter)) {
             simParent->AddDaughter(simDaughter);

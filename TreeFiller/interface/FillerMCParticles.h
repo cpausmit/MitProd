@@ -35,6 +35,7 @@ namespace mithep
       void                           BookDataBlock(TreeWriter &tws);
       void                           FillDataBlock(const edm::Event &e, const edm::EventSetup &es);
       void                           ResolveLinks (const edm::Event &e, const edm::EventSetup &es);
+      void                           PrepareLinks ();
   
     private:
       typedef AssociationMap<const reco::GenParticleRef, mithep::MCParticle*> GenParticleMap;
@@ -56,7 +57,7 @@ namespace mithep
       edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //edm token of generated particles
       edm::EDGetTokenT<std::vector<int> > genBarcodesToken_; //edm token of generated particles
       edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
-      edm::EDGetTokenT<std::vector<SimVertex> > simVerticesToken_;
+      edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
       edm::EDGetTokenT<TrackingParticleCollection> trackingEdmToken_; //edm token of simulated TrackingParticles
       edm::EDGetTokenT<pat::PackedGenParticleCollection> packedGenParticlesToken_;
       std::string                    genMapName_;      //name of exp map wrt generated particles
@@ -64,6 +65,9 @@ namespace mithep
       std::string                    trackingMapName_; //name of exp map wrt TrackingParticles
       std::string                    mitName_;         //name of MCParticles branch
       std::string                    mitTrackingName_; //name of TrackingParticles branch
+      std::string                    vertexesName_;    //name of input vertex array
+      std::string                    genVtxMapName_;   //name of input vertex map
+      std::string                    simVtxMapName_;   //name of input vertex map
       mithep::MCParticleArr         *mcParticles_;     //array of MCParticles
       mithep::TrackingParticleArr   *trackingParticles_; //array of TrackingParticles
       mithep::GenParticleBarcodeMap *genMap_;          //map wrt generated particles
@@ -72,6 +76,9 @@ namespace mithep
       mithep::SimTrackTidMap        *simMap_;          //map of SimTracks to G4 track ids
       mithep::TrackingParticleMap   *trackingMap_;     //map wrt TrackingParticles
       mithep::HitPatternReader       hitReader_;       //hit pattern reader
+      mithep::BaseVertexArr const*   vertexes_;        //input vertex array when reading from GenParticles
+      mithep::GenVertexMap const*    genVtxMap_;       //input gen vertex map when reading from HepMCProduct
+      mithep::SimVertexMap const*    simVtxMap_;       //input sim vertex map
   };
 }
 #endif

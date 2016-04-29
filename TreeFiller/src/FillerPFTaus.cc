@@ -24,8 +24,13 @@ mithep::FillerPFTaus<TAU>::FillerPFTaus(edm::ParameterSet const& cfg, edm::Consu
   tauMap_(new mithep::PFTauMap),
   taus_(new mithep::PFTauArr(16))
 {
-  for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
-    hpsNames_[iD] = cfg.getUntrackedParameter(std::string(mithep::PFTau::PFTauDiscriminatorName(iD)) + "Name", std::string(""));
+  for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminants; ++iD) {
+    hpsNames_[iD] = cfg.getUntrackedParameter(std::string(mithep::PFTau::PFTauDiscriminantName(iD)) + "Name", std::string(""));
+    if (!hpsNames_[iD].empty())
+      hpsTokens_[iD] = collector.consumes<reco::PFTauDiscriminator>(hpsNames_[iD]);
+  }
+  for (unsigned iD = mithep::PFTau::nDiscriminants; iD != mithep::PFTau::nDiscriminators; ++iD) {
+    hpsNames_[iD] = cfg.getUntrackedParameter(std::string(mithep::PFTau::PFTauIdentifierName(iD)) + "Name", std::string(""));
     if (!hpsNames_[iD].empty())
       hpsTokens_[iD] = collector.consumes<reco::PFTauDiscriminator>(hpsNames_[iD]);
   }
@@ -262,9 +267,13 @@ namespace mithep {
   void
   FillerPFTaus<reco::PFTau>::setPFTauDiscriminators(mithep::PFTau& outTau, reco::PFTauDiscriminator const* discriminators[mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const& tRef) const
   {
-    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminants; ++iD) {
       if (discriminators[iD])
-        outTau.SetPFTauDiscriminator((*discriminators[iD])[tRef], iD);
+        outTau.SetPFTauDiscriminant((*discriminators[iD])[tRef], iD);
+    }
+    for (unsigned iD = mithep::PFTau::nDiscriminants; iD != mithep::PFTau::nDiscriminators; ++iD) {
+      if (discriminators[iD])
+        outTau.SetPFTauIdentifier((*discriminators[iD])[tRef] > 0.5, iD);
     }
   }
 
@@ -273,9 +282,13 @@ namespace mithep {
   FillerPFTaus<pat::Tau>::setPFTauDiscriminators(mithep::PFTau& outTau, reco::PFTauDiscriminator const* [mithep::PFTau::nDiscriminators], edm::Ref<TauCollection> const& tRef) const
   {
     pat::Tau const& inTau = *tRef;
-    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminators; ++iD) {
+    for (unsigned iD = 0; iD != mithep::PFTau::nDiscriminants; ++iD) {
       if (!hpsNames_[iD].empty())
-        outTau.SetPFTauDiscriminator(inTau.tauID(hpsNames_[iD]), iD);
+        outTau.SetPFTauDiscriminant(inTau.tauID(hpsNames_[iD]), iD);
+    }
+    for (unsigned iD = mithep::PFTau::nDiscriminants; iD != mithep::PFTau::nDiscriminators; ++iD) {
+      if (!hpsNames_[iD].empty())
+        outTau.SetPFTauIdentifier(inTau.tauID(hpsNames_[iD]) > 0.5, iD);
     }
   }
 

@@ -26,6 +26,8 @@ mithep::FillerPhotons::FillerPhotons(edm::ParameterSet const& cfg, edm::Consumes
   phIDCutBasedTightName_    (cfg.getUntrackedParameter<std::string>("phIDCutBasedTightName", "PhotonIDProd:PhotonCutBasedIDTight")),
   phIDCutBasedLooseName_    (cfg.getUntrackedParameter<std::string>("phIDCutBasedLooseName", "PhotonIDProd:PhotonCutBasedIDLoose")),
   footprintToken_           (GetToken<edm::ValueMap<PFCandRefV> >(collector, cfg, "footprintName", !fillFromPAT_)),
+  ecalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "ecalPFClusterIsoMapName", !fillFromPAT_)),
+  hcalPFClusterIsoMapToken_ (GetToken<edm::ValueMap<float>>(collector, cfg, "hcalPFClusterIsoMapName", !fillFromPAT_)),
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", Names::gkPhotonBrn)),
   conversionMapName_        (cfg.getUntrackedParameter<std::string>("conversionMapName", "")),
   oneLegConversionMapName_  (cfg.getUntrackedParameter<std::string>("oneLegConversionMapName", "")),
@@ -162,6 +164,20 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     footprintMap = hFootprintMap.product();
   }
 
+  edm::ValueMap<float> const* ecalPFClusterIsoMap = 0;
+  if (!ecalPFClusterIsoMapToken_.isUninitialized()) {
+    edm::Handle<edm::ValueMap<float>> handle;
+    GetProduct(ecalPFClusterIsoMapToken_, handle, event);
+    ecalPFClusterIsoMap = handle.product();
+  }
+
+  edm::ValueMap<float> const* hcalPFClusterIsoMap = 0;
+  if (!hcalPFClusterIsoMapToken_.isUninitialized()) {
+    edm::Handle<edm::ValueMap<float>> handle;
+    GetProduct(hcalPFClusterIsoMapToken_, handle, event);
+    hcalPFClusterIsoMap = handle.product();
+  }
+
   unsigned iPhoton = 0;
   for (auto&& inPhoton : inPhotons) {
     // get photon reference
@@ -200,10 +216,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetHcalTowerSumEtDr03(inPhoton.hcalTowerSumEtConeDR03());
     outPhoton->SetHcalDepth1TowerSumEtDr03(inPhoton.hcalDepth1TowerSumEtConeDR03());
     outPhoton->SetHcalDepth2TowerSumEtDr03(inPhoton.hcalDepth2TowerSumEtConeDR03());
-    outPhoton->SetSolidConeTrkIsoDr03(inPhoton.trkSumPtSolidConeDR03());
-    outPhoton->SetHollowConeTrkIsoDr03(inPhoton.trkSumPtHollowConeDR03());
-    outPhoton->SetSolidConeNTrkDr03(inPhoton.nTrkSolidConeDR03());
-    outPhoton->SetHollowConeNTrkDr03(inPhoton.nTrkHollowConeDR03());
     if (sc)
       outPhoton->SetHCalIsoTowDr03(inPhoton.hcalTowerSumEtConeDR03() +
                                    (inPhoton.hadronicOverEm() - inPhoton.hadTowOverEm())
@@ -214,27 +226,17 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetHcalTowerSumEtDr04(inPhoton.hcalTowerSumEtConeDR04());
     outPhoton->SetHcalDepth1TowerSumEtDr04(inPhoton.hcalDepth1TowerSumEtConeDR04());
     outPhoton->SetHcalDepth2TowerSumEtDr04(inPhoton.hcalDepth2TowerSumEtConeDR04());
-    outPhoton->SetSolidConeTrkIsoDr04(inPhoton.trkSumPtSolidConeDR04());
-    outPhoton->SetHollowConeTrkIsoDr04(inPhoton.trkSumPtHollowConeDR04());
-    outPhoton->SetSolidConeNTrkDr04(inPhoton.nTrkSolidConeDR04());
-    outPhoton->SetHollowConeNTrkDr04(inPhoton.nTrkHollowConeDR04());
     if (sc)
       outPhoton->SetHCalIsoTowDr04(inPhoton.hcalTowerSumEtConeDR04() +
                                    (inPhoton.hadronicOverEm() - inPhoton.hadTowOverEm())
                                    * sc->energy() / cosh(sc->eta()));
 
-    // pflow isolation
-    outPhoton->SetPFChargedHadronIso(inPhoton.chargedHadronIso());
-    outPhoton->SetPFChargedHadronIso(inPhoton.neutralHadronIso());
-    outPhoton->SetPFChargedHadronIso(inPhoton.photonIso());    
+    // pf cluster isolation
+    if (ecalPFClusterIsoMap)
+      outPhoton->SetEcalPFClusterIso((*ecalPFClusterIsoMap)[phRef]);
+    if (hcalPFClusterIsoMap)
+      outPhoton->SetHcalPFClusterIso((*hcalPFClusterIsoMap)[phRef]);
     
-    // fiducial and quality flags
-    outPhoton->SetIsEB(inPhoton.isEB());
-    outPhoton->SetIsEE(inPhoton.isEE());
-    outPhoton->SetIsEBGap(inPhoton.isEBGap());
-    outPhoton->SetIsEEGap(inPhoton.isEEGap());
-    outPhoton->SetIsEBEEGap(inPhoton.isEBEEGap());
-
     if (fillFromPAT_) {
       auto& patPhoton = static_cast<pat::Photon const&>(inPhoton);
       outPhoton->SetIsLoosePhoton(patPhoton.photonID(phIDCutBasedLooseName_));
@@ -246,9 +248,6 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
       if (phidTightMap)
         outPhoton->SetIsTightPhoton((*phidTightMap)[phRef]);
     }
-
-    // calo position
-    outPhoton->SetCaloPosXYZ(inPhoton.caloPosition().x(),inPhoton.caloPosition().y(),inPhoton.caloPosition().z());
 
     // MIP tagger information
     outPhoton->SetMipChi2(inPhoton.mipChi2());

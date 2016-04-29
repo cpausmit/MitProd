@@ -4,6 +4,11 @@
 
 #include "MitAna/DataTree/interface/Names.h"
 #include "MitAna/DataTree/interface/PFCandidateCol.h"
+#include "MitAna/DataTree/interface/Muon.h"
+#include "MitAna/DataTree/interface/Electron.h"
+#include "MitAna/DataTree/interface/Photon.h"
+#include "MitAna/DataTree/interface/Track.h"
+#include "MitAna/DataTree/interface/SuperCluster.h"
 #include "MitProd/ObjectService/interface/ObjectService.h"
 #include "MitProd/TreeFiller/interface/FillerPFCandidates.h"
 
@@ -165,19 +170,8 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
     // fill standard variables
     outPfCand->SetCharge(inPf.charge());
-    outPfCand->SetEECal(inPf.ecalEnergy());
-    outPfCand->SetEHCal(inPf.hcalEnergy());
-    // outPfCand->SetEECalRaw(inPf.rawEcalEnergy());
-    // outPfCand->SetEHCalRaw(inPf.rawHcalEnergy());
-    // outPfCand->SetEPS1(inPf.pS1Energy());
-    // outPfCand->SetEPS2(inPf.pS2Energy());
+    outPfCand->SetECalo(inPf.ecalEnergy(), inPf.hcalEnergy());
     outPfCand->SetPError(inPf.deltaP());
-    // outPfCand->SetMvaEPi(inPf.mva_e_pi());
-    // outPfCand->SetMvaEMu(inPf.mva_e_mu());
-    // outPfCand->SetMvaPiMu(inPf.mva_pi_mu());
-    outPfCand->SetMvaGamma(inPf.mva_nothing_gamma());
-    // outPfCand->SetMvaNeutralH(inPf.mva_nothing_nh());
-    // outPfCand->SetMvaGammaNeutralH(inPf.mva_gamma_nh());
     outPfCand->SetEtaECal(inPf.positionAtECALEntrance().eta());
     outPfCand->SetPhiECal(inPf.positionAtECALEntrance().phi());
     
@@ -185,22 +179,34 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     outPfCand->SetVertex(inPf.vertex().x(), inPf.vertex().y(), inPf.vertex().z());
     
     // fill pf type enum
-    if (inPf.particleId()==reco::PFCandidate::X)
+    switch (inPf.particleId()) {
+    case reco::PFCandidate::X:
       outPfCand->SetPFType(mithep::PFCandidate::eX);
-    else if (inPf.particleId()==reco::PFCandidate::h)
+      break;
+    case reco::PFCandidate::h:
       outPfCand->SetPFType(mithep::PFCandidate::eHadron);
-    else if (inPf.particleId()==reco::PFCandidate::e)
+      break;
+    case reco::PFCandidate::e:
       outPfCand->SetPFType(mithep::PFCandidate::eElectron);
-    else if (inPf.particleId()==reco::PFCandidate::mu)
+      break;
+    case reco::PFCandidate::mu:
       outPfCand->SetPFType(mithep::PFCandidate::eMuon);
-    else if (inPf.particleId()==reco::PFCandidate::gamma)
+      break;
+    case reco::PFCandidate::gamma:
       outPfCand->SetPFType(mithep::PFCandidate::eGamma);
-    else if (inPf.particleId()==reco::PFCandidate::h0)
+      break;
+    case reco::PFCandidate::h0:
       outPfCand->SetPFType(mithep::PFCandidate::eNeutralHadron);
-    else if (inPf.particleId()==reco::PFCandidate::h_HF)
+      break;
+    case reco::PFCandidate::h_HF:
       outPfCand->SetPFType(mithep::PFCandidate::eHadronHF);
-    else if (inPf.particleId()==reco::PFCandidate::egamma_HF)
+      break;
+    case reco::PFCandidate::egamma_HF:
       outPfCand->SetPFType(mithep::PFCandidate::eEGammaHF);
+      break;
+    default:
+      break;
+    }
     
     // fill pf flags bitmask
     outPfCand->SetFlag(mithep::PFCandidate::eNormal,

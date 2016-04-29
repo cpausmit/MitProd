@@ -8,7 +8,7 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1)
 )
 
 #>> input source
@@ -101,7 +101,7 @@ from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
 process.load('MitProd.TreeFiller.PuppiSetup_cff')
 
 # recluster fat jets, btag subjets
-from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
+from MitProd.TreeFiller.utils.makeFatJets import initFatJets,makeFatJets
 pfbrecoSequence = initFatJets(process, isData = False)
 ak8chsSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8)
 ak8puppiSequence = makeFatJets(process, isData = False, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
@@ -127,6 +127,13 @@ process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
 
 ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
 ak4PFJetsPuppi.doAreaFastjet = True
+
+# Load FastJet L1 corrections
+#from MitProd.TreeFiller.FastJetCorrection_cff import l1FastJetSequence
+#process.load('MitProd.TreeFiller.FastJetCorrection_cff')
+
+# Setup jet corrections
+#process.load('JetMETCorrections.Configuration.JetCorrectionServices_cff')
 
 # Load btagging
 from MitProd.TreeFiller.utils.setupBTag import setupBTag
@@ -157,6 +164,7 @@ recoSequence = cms.Sequence(
   PFTau *
   puppiSequence *
   ak4PFJetsPuppi *
+#  l1FastJetSequence *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *
