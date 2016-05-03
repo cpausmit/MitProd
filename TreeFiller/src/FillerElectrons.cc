@@ -331,6 +331,11 @@ mithep::FillerElectrons::FillDataBlock(const edm::Event &event, const edm::Event
     outElectron->SetHcalDepth2TowerSumEtDr03(inElectron.dr03HcalDepth2TowerSumEt());
     outElectron->SetHCalIsoTowDr03(inElectron.dr03HcalTowerSumEtBc());
 
+    //pflow isolation
+    outElectron->SetPFChargedHadronIso(inElectron.pfIsolationVariables().sumChargedHadronPt);
+    outElectron->SetPFNeutralHadronIso(inElectron.pfIsolationVariables().sumNeutralHadronEt);
+    outElectron->SetPFPhotonIso       (inElectron.pfIsolationVariables().sumPhotonEt);
+    
     // pf cluster isolation
     if (ecalPFClusterIsoMap)
       outElectron->SetEcalPFClusterIso((*ecalPFClusterIsoMap)[eRef]);
