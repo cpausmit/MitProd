@@ -400,7 +400,7 @@ if displayOnly:
 
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)
-updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
+# this is not needed anymore? #updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
 if testTier2Disk(0) < 0:
     print '\n ERROR -- Tier-2 disks seem unavailable, please check! EXIT review process.\n'
     sys.exit(0)

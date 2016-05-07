@@ -60,7 +60,7 @@ if private:
 
 # dbs 3 interface
 # - find all relevant blocks
-cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="block dataset=' + dataset \
+cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="block dataset=' + dataset \
     + ' instance=' + dbs + '"'
 #print 'BLOCKS: ' + cmd
 blocks = []
@@ -74,8 +74,8 @@ for line in os.popen(cmd).readlines():
 sites = {}
 for block in blocks:
     siteString = ''
-    #cmd = 'das_client.py --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
-    cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="site block=' + block \
+    #cmd = 'das_client --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
+    cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="site block=' + block \
         + ' instance=' + dbs + '"'
     #print 'BLOCK: ' + cmd
     for line in os.popen(cmd).readlines():
@@ -87,40 +87,6 @@ for block in blocks:
             siteString = f[0] + "," + siteString
 
     sites[block] = siteString
-    
-
-## DBS2 > # find relevant site for this dataset
-## DBS2 > cmd  = "dbs search "
-## DBS2 > if dbs != '':
-## DBS2 >     cmd += " --url=" + dbs
-## DBS2 > cmd += " --query=\"find block,site where dataset=*" + dataset + "\""
-## DBS2 > cmd += "| grep -v DBS | grep \\\. | tr -s ' ' | sort -u "
-## DBS2 > 
-## DBS2 > # setup the variable
-## DBS2 > sites     = {}
-## DBS2 > siteText  = ''
-## DBS2 > lastBlock = ''
-## DBS2 > block     = ''
-## DBS2 > site      = ''
-## DBS2 > for line in os.popen(cmd).readlines():
-## DBS2 >     line  = line[:-1]
-## DBS2 >     f     = line.split(' ');
-## DBS2 >     block = f[0]
-## DBS2 >     site  = f[1]
-## DBS2 >     if block != lastBlock and lastBlock != '':
-## DBS2 >         sites[lastBlock] = siteText
-## DBS2 >         lastBlock        = block
-## DBS2 >         siteText         = site
-## DBS2 >     else:
-## DBS2 >         lastBlock = block
-## DBS2 >         if site != '':
-## DBS2 >             siteText = siteText + ',' + site
-## DBS2 >         else:
-## DBS2 >             siteText = site
-## DBS2 > 
-## DBS2 > # pick up the last block
-## DBS2 > sites[block] = siteText
-
 
 # print each block and the sites that hold it in a comma seperate list 
 for block,sites in sites.iteritems():

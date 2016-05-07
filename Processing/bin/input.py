@@ -143,7 +143,7 @@ elif not db:
 
 #    cmd = 'das_client.py --format=plain --limit=0 --query="file dataset=' + \
 #          dataset + ' | grep file.block_name, file.name, file.nevents" | grep store | sort'
-    cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="block dataset=' + \
+    cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="block dataset=' + \
           dataset + ' instance=' + dbs + ' | grep block.name" | sort'
     blocks = []
     for line in os.popen(cmd).readlines():
@@ -154,7 +154,7 @@ elif not db:
     printHeader(option)
 
     for block in blocks:
-        cmd = 'das_client.py ' + cert + ' --format=plain --limit=0 --query="file block=' + \
+        cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="file block=' + \
               block + ' instance=' + dbs + ' | grep file.name, file.nevents" | grep store | sort'
 
         iJob = 1
