@@ -5,8 +5,16 @@ then
   echo ""
 else
   export MIT_PROD_DIR="$CMSSW_BASE/src/MitProd/Processing"
-  export PATH="$HOME/bin:$CMSSW_BASE/src/MitProd/Processing/bin:${PATH}"
-  export PYTHONPATH="$CMSSW_BASE/src/MitProd/Processing/python:${PYTHONPATH}"
+
+  case ":$PATH:" in
+      *":$CMSSW_BASE/src/MitProd/Processing/bin:"*) :;;                  # already there
+      *) PATH="$HOME/bin:$CMSSW_BASE/src/MitProd/Processing/bin:$PATH";; # prepend
+  esac
+  case ":$PYTHONPATH:" in
+      *":$CMSSW_BASE/src/MitProd/Processing/bin:"*) :;;                  # already there
+      *) PYTHONPATH="$CMSSW_BASE/src/MitProd/Processing/python:$PYTHONPATH";; # prepend
+  esac
+
   pVersion=`python --version 2>&1`
   pLocalVersion=`/usr/bin/python --version 2>&1`
   if [ "$pVersion" == "$pLocalVersion" ]
