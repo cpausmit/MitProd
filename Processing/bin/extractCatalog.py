@@ -134,18 +134,36 @@ if re.search('crab_0',dataset):
     f = dataset.split('/')
     offDataset = f[0]
     crabId     = f[1]
-    try:
-        fileInput = open(os.environ['HOME']+'/cms/jobs/lfns/'+offDataset +'.lfns'+'_'+crabId,'r')
-    except IOError:
-        print ' Could not open database for filename conversion -- FATAL \n   ' + \
-              os.environ['HOME']+ '/cms/jobs/lfns/'+offDataset+'.lfns'+'_'+crabId
-        print ' Remove this directory and data therein ' + \
-              ' remove --exe ...\n'
-        sys.exit(1)
 
+    f = crabId.split('_')
+
+    fileInput = None
+    if len(f) == 5:
+        try:
+            fileInput = open(os.environ['HOME']+'/cms/jobs/lfns/'+offDataset +'.lfns'+'_'+crabId,'r')
+        except IOError:
+            print ' Could not open database for filename conversion -- FATAL \n   ' + \
+                  os.environ['HOME']+ '/cms/jobs/lfns/'+offDataset+'.lfns'+'_'+crabId
+            print ' Remove this directory and data therein ' + \
+                  ' remove --exe ...\n'
+            sys.exit(1)
+    elif len(f) == 4:
+        try:
+            fileInput = open(os.environ['HOME']+'/cms/jobs/lfns/'+offDataset +'.lfns','r')
+        except IOError:
+            print ' Could not open database for filename conversion -- FATAL \n   ' + \
+                  os.environ['HOME']+ '/cms/jobs/lfns/'+offDataset+'.lfns'
+            print ' Remove this directory and data therein ' + \
+                  ' remove --exe ...\n'
+            sys.exit(1)
+    else:
+        sys.exit(1)
+        
+    
     index = 1
     files = {}
     nevts = {}
+    nevtsAlt = {}
     for line in fileInput:
         f = line.split(" ")
         g = f[1].split("/")
@@ -155,6 +173,7 @@ if re.search('crab_0',dataset):
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[2]))
         files[originalFile] = g[-1] 
         nevts[originalFile] = int(f[2])
+        nevtsAlt[g[-1]] = int(f[2])
         index += 1
     fileInput.close()
     
@@ -363,16 +382,22 @@ for line in os.popen(cmd).readlines():  # run command
         dir      = "/".join(g)
 
         # determine lookup key
-        g        = file.split("_");
-        file     = "_".join(g[0:-2])
+        if "_tmp.root" in file:
+            baseFile = file.replace("_tmp","")
+            nevt     = nevtsAlt[baseFile]
+        else:
+            g        = file.split("_");
+            file     = "_".join(g[0:-2])
+            baseFile = files[file]
+            nevt     = nevts[file]
 
-        if nProc == nevts[file]:
-            tier2 = move(srcFile,fullFile,dir + '/' + files[file])
+        if nProc == nevt:
+            tier2 = move(srcFile,fullFile,dir + '/' + baseFile)
             # modify the catalog entry accordingly
-            f[0] = dir + '/' + files[file]
+            f[0] = dir + '/' + baseFile
         else:
             valid = 0
-            print ' ERROR   : ' + file + '  -->  ' + files[file] + '  %d /%d' %(nProc,nevts[file])
+            print ' ERROR   : ' + file + '  -->  ' + baseFile + '  %d /%d' %(nProc,nevt)
             
     if valid == 1:
         line = " ".join(f)

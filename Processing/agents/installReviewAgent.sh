@@ -86,6 +86,6 @@ install reviewd $MIT_VERS
 # install web pages
 #==================
 
-$MIT_PROD_AGENTS_BASE/html/install.sh
+$MIT_PROD_AGENTS_BASE/html/install.sh reviewd
 
 exit 0
