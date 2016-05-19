@@ -418,6 +418,6 @@ def makeFatJets(process,isData,algoLabel,jetRadius,pfCandidates='particleFlow'):
 
     setattr(process, 'fatjet'+puMethod+rLabel+'Sequence', pfJetsSequence)
     if isData:
-        removeMCMatching(process, ['All'], outputModules = [])
+        removeMCMatching(process, ['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs', 'PFElectrons','PFTaus','PFMuons'], outputModules = [])
 
     return pfJetsSequence
