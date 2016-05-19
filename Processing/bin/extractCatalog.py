@@ -21,31 +21,13 @@
 import os,sys,socket,getopt,re,string
 
 def move(srcFile,source,target):
-    # determine whether we are at MIT
-    tier2 = re.search('cmsaf.mit.edu',target) 
+    mvCmd = "echo \"hdfs dfs -mv /cms" + "/".join(source.split('/')[3:]) \
+        +                  " /cms" + "/".join(target.split('/')[3:]) \
+        +  ";#hdfs dfs -rm   /cms" + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
+    #print mvCmd
+    os.system(mvCmd)
 
-    if not tier2:
-        tier2 = re.search('/mnt/hadoop/cms/store',target) 
-
-    # create the command and show it
-    cmd = 'move ' + source + '  ' + target
-    print cmd
-
-    # at CERN execute right away for Tier-2 make an entry in the queue to be executed later at once
-    status = 0
-    if tier2:
-        mvCmd = "echo \"mv  /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) \
-                +         ' /mnt/hadoop/cms' \
-                +               "/".join(target.split('/')[3:]) \
-                +  "; rm -f /mnt/hadoop/cms" + "/".join(source.split('/')[3:]) + "\" >> " + srcFile
-        os.system(mvCmd)
-
-        #status = os.system(cmd)
-    else:
-        status = os.system(cmd)
-
-    return tier2
-
+    return
   
 #===================================================================================================
 # Main starts here
@@ -74,9 +56,6 @@ except getopt.GetoptError, ex:
     print str(ex)
     sys.exit(1)
 
-# global (are we working at the Tier-2)
-tier2 = False
-
 # --------------------------------------------------------------------------------------------------
 # Get all parameters for the production
 # --------------------------------------------------------------------------------------------------
@@ -85,7 +64,7 @@ server     = "srm://se01.cmsaf.mit.edu:8443/srm/managerv2?SFN="
 catalogDir = "/home/cmsprod/catalog/t2mit"
 dataset    = None
 mitCfg     = "filefi"
-version    = "023"
+version    = "044"
 lRetry     = 0
 lRemove    = 0
 compact    = 0
@@ -147,7 +126,7 @@ if re.search('crab_0',dataset):
             print ' Remove this directory and data therein ' + \
                   ' remove --exe ...\n'
             sys.exit(1)
-    elif len(f) == 4:
+    elif len(f) == 3 or len(f) == 4:
         try:
             fileInput = open(os.environ['HOME']+'/cms/jobs/lfns/'+offDataset +'.lfns','r')
         except IOError:
@@ -157,6 +136,7 @@ if re.search('crab_0',dataset):
                   ' remove --exe ...\n'
             sys.exit(1)
     else:
+        print " INFO - crabId: %s, split length(_): %d"%(crabId,len(f))
         sys.exit(1)
         
     
@@ -167,7 +147,6 @@ if re.search('crab_0',dataset):
     for line in fileInput:
         f = line.split(" ")
         g = f[1].split("/")
-        # OLD CP # originalFile = offDataset + '_000_%d'%index
         originalFile = 'bambu-output-file-tmp' + '_000_%d'%index
         if debug == 1:
             print ' Key: %s  Name: %s  NEvts: %d'%(originalFile,g[-1],int(f[2]))
@@ -231,10 +210,11 @@ if retest == 1:
 if compact == 1:
     # Consolidate the existing RawFiles.?? into just one and exit
     print '\n Consolidating the raw files into one. \n'
-    cmd  = 'cat ' + rawDir + '/RawFiles.?? | grep root | sort -u > /tmp/RawFiles.00.' + pid + ";"
+    cmd = 'cat ' + rawDir + '/RawFiles.?? | grep ' + dataset \
+        + ' | grep root | sort -u > /tmp/RawFiles.00.' + pid + ";"
+    status = os.system(cmd)
     if debug == 1:
         cmd += 'cat /tmp/RawFiles.00.' + pid 
-    status = os.system(cmd)
     if os.path.exists(rawDir + '/old'):
         cmd = 'rm -rf ' + rawDir + '/old'
         status = os.system(cmd)
@@ -279,7 +259,7 @@ for line in os.popen(cmd).readlines():  # run command
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm -f      " + f[1]
     hdfsFile = "/" + "/".join(f[1].split("/")[3:])
-    rm3 = "glexec hdfs df -rm " + hdfsFile
+    rm3 = "glexec hdfs dfs -rm " + hdfsFile
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
@@ -358,6 +338,9 @@ if test == 0:
 
 for line in os.popen(cmd).readlines():  # run command
     line = line[:-1]
+
+    #print " LINE: " + line
+
     # compactify line
     line = " ".join(str(line).split()).strip()
     f = line.split(" ");
@@ -381,6 +364,8 @@ for line in os.popen(cmd).readlines():  # run command
         g        = g[:-2]
         dir      = "/".join(g)
 
+        #print " FULL: %s -- DIR: %s  FILE: %s"%(fullFile,dir,file)
+
         # determine lookup key
         if "_tmp.root" in file:
             baseFile = file.replace("_tmp","")
@@ -392,7 +377,7 @@ for line in os.popen(cmd).readlines():  # run command
             nevt     = nevts[file]
 
         if nProc == nevt:
-            tier2 = move(srcFile,fullFile,dir + '/' + baseFile)
+            move(srcFile,fullFile,dir + '/' + baseFile)
             # modify the catalog entry accordingly
             f[0] = dir + '/' + baseFile
         else:
@@ -408,20 +393,20 @@ for line in os.popen(cmd).readlines():  # run command
 if test == 0:
     fileOutput.close()
 
-# offical production and tier2?
+# offical production?
 if debug:
-    print " Official %d   tier2: %d"%(official,tier2)
+    print " Official %d"%(official)
 # Moving all files
 if official == 1:
-    if tier2:
-        cmd = "glexec " + srcFile
-        print ' CMD: ' + cmd
-        status = os.system(cmd)
+    cmd = "glexec " + srcFile
+    print ' CMD: ' + cmd
+    os.system("cat " + srcFile)
+    status = os.system(cmd)
 
     # Removing the source file once we are done
     cmd = "rm " + srcFile
     print ' CMD: ' + cmd
-    status = os.system(cmd)
+    ##status = os.system(cmd)
 
 # --------------------------------------------------------------------------------------------------
 #                           END ---- THE KEY ACTION

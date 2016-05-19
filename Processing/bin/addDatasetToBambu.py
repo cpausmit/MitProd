@@ -73,14 +73,14 @@ def testLocalSetup(dataset,debug=0):
         sys.exit(1)
 	
     # check das_client.py tool
-    cmd = 'which das_client.py'
+    cmd = 'which das_client'
     for line in subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE).stdout.readlines():
         line    = line[:-1]
     if line != "":
         if debug > 0:
-            print ' Using das_client.py from: ' + line
+            print ' Using das_client from: ' + line
     else:
-        print ' Error - das_client.py in your path, please find it and add it to PATH. EXIT!'
+        print ' Error - das_client in your path, please find it and add it to PATH. EXIT!'
         sys.exit(1)
 
 def removeDataset(db,datasetId,debug=0):
@@ -223,7 +223,7 @@ def findDatasetProperties(dataset,dbsInst,debug=0):
         return (-1,-1)
 
     cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
-    cmd = 'das_client.py ' + cert + '  --format=plain --limit=0 --query="file dataset=' \
+    cmd = 'das_client ' + cert + '  --format=plain --limit=0 --query="file dataset=' \
         + dataset + ' status=valid instance=' + dbsInst \
         + ' | count(file), sum(file.size)"| sort -u'    
     nFiles = ''
@@ -256,7 +256,7 @@ def findDatasetProperties(dataset,dbsInst,debug=0):
             sys.exit(1)
         print '\n DAS - %s --> %.1f %s (nFiles: %d)\n'%(dataset,sizeGb,units,nFiles)
     else:
-	print '\n Error - dataset not found with das_client.py.\n'
+	print '\n Error - dataset not found with das_client.\n'
 	sys.exit(1)
 
     return (sizeGb, nFiles)

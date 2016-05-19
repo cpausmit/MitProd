@@ -17,6 +17,7 @@ echo " executing in  : "`pwd`
 echo " ";
 
 export CATALOG_MACRO="runFileCataloger.C"
+export CATALOG_MACRO="runSimpleFileCataloger.C"
 
 dataDir=$1
 dataFile=$2
@@ -37,25 +38,13 @@ logFile=/tmp/$logFile
 
 echo " "; echo "Initialize CMSSW"; echo " "
 
-# this seems to fail -- local release broken?
-#export SCRAM_ARCH='slc5_ia32_gcc434'
-#export  VO_CMS_SW_DIR=~cmsprod/cmssoft
-#source $VO_CMS_SW_DIR/cmsset_default.sh
-#cd     ~cmsprod/cms/cmssw/018/CMSSW_3_9_7/src
-
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-#cd     ~cmsprod/cms/cmssw/018/CMSSW_3_11_3/src
-#cd     ~cmsprod/cms/cmssw/032/CMSSW_5_3_11/src
-#cd     ~cmsprod/cms/cmssw/040/CMSSW_7_4_0/src
-#cd     ~cmsprod/cms/cmssw/041/CMSSW_7_4_6/src
-cd     ~cmsprod/cms/cmssw/043/CMSSW_7_6_3/src
+cd     ~cmsprod/cms/cmssw/044/CMSSW_8_0_5_patch1/src
 eval   `scram runtime -sh`
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
-
-cd - >& /dev/null
+cd -   >& /dev/null
 
 # show the certificate
-# take care of the certificate
 if [ -e "./x509up_u`id -u`" ]
 then
   export X509_USER_PROXY="./x509up_u`id -u`"

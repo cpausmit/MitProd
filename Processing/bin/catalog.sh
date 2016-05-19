@@ -3,7 +3,7 @@
 # Perform a number of cataloging action on a bunch of datasets
 #---------------------------------------------------------------------------------------------------
 H=`basename $0`
-timeOut=400
+timeOut=800
 
 catalog=0
 extract=0
@@ -193,8 +193,7 @@ do
       echo " Queues are empty ($jobs) -->  moving on and extract cataloging results."
       echo ""
       echo \
-        " extractCatalog.py $OPTION \
-          --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}"
+        " extractCatalog.py $OPTION --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}"
       extractCatalog.py $OPTION \
         --catalog=$cataDir --mitCfg=$mitCfg --version=$VERSION --dataset=$extDataset${addSkim}
     fi

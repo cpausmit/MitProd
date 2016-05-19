@@ -24,7 +24,7 @@ echo ""
 
 # loop through jobs matching the requirements
 export idxs=""
-condor_q -format "%d " ClusterId -format "%d " ServerTime -format "%d " JobStartDate -format "%s " Cmd -format "%s\n " Args | \
+condor_q $USER -format "%d " ClusterId -format "%d " ServerTime -format "%d " EnteredCurrentStatus -format "%s " Cmd -format "%s\n " Args | \
   grep $TASK | grep $SAMPLE | \
 while read line
 do
@@ -38,7 +38,7 @@ do
   echo "$id $runTime --> $line"
   if [ $runTime -gt $TIMEOUT ]
   then
-    echo " -> removing: condor_rm $id;  condor_rm -forcex $id; "
+    echo " -> removing: condor_rm $id "
     if [ "$EXEC" == "exec" ]
     then
       condor_rm $id
