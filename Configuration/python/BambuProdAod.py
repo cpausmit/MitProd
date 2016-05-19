@@ -42,7 +42,6 @@ process.configurationMetadata = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi')
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
@@ -99,6 +98,26 @@ process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 # Load PUPPI
 from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
 process.load('MitProd.TreeFiller.PuppiSetup_cff')
+
+# add dummy PAT stuff
+process.tauMatchBoostedPFlow = cms.PSet()
+process.patTausBoostedPFlow = cms.PSet(
+    addGenMatch = cms.untracked.bool(False),
+    addGenJetMatch = cms.untracked.bool(False),
+    embedGenMatch = cms.untracked.bool(False),
+    embedGenJetMatch = cms.untracked.bool(False),
+    genParticleMatch = cms.untracked.string(''),
+    genJetMatch = cms.untracked.string('')
+)
+process.tauMatchBoosted = cms.PSet()
+process.patTausBoosted = cms.PSet(
+    addGenMatch = cms.untracked.bool(False),
+    addGenJetMatch = cms.untracked.bool(False),
+    embedGenMatch = cms.untracked.bool(False),
+    embedGenJetMatch = cms.untracked.bool(False),
+    genParticleMatch = cms.untracked.string(''),
+    genJetMatch = cms.untracked.string('')
+)
 
 # recluster fat jets, btag subjets
 from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets

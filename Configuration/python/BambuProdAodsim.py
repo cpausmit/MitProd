@@ -42,7 +42,6 @@ process.configurationMetadata = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi')
 process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
