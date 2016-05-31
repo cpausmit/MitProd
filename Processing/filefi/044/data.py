@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016A/MinimumBias/AOD/PromptReco-v2/000/270/995/00000/82843CC9-2E0A-E611-9B2D-02163E011C76.root')
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016B/SingleMuon/AOD/PromptReco-v2/000/273/158/00000/0470F84C-2B1A-E611-BC8B-02163E0139E0.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -213,7 +213,6 @@ MitTreeFiller.MCAllVertexes.active = False
 MitTreeFiller.PileupInfo.active = False
 MitTreeFiller.AKT4GenJets.active = False
 MitTreeFiller.AKT8GenJets.active = False
-MitTreeFiller.Trigger.active = False
 
 # define fill bambu filler sequence
 
