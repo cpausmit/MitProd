@@ -183,7 +183,8 @@ void
 mithep::FillerTrigger::FillRunBlock(edm::Run const& run, edm::EventSetup const& setup)
 {
   if (l1Active_) {
-    l1GtUtils_->retrieveL1GtTriggerMenuLite(run);
+    //    l1GtUtils_->retrieveL1GtTriggerMenuLite(run);
+    l1GtUtils_->getL1GtRunCache(run, setup, true, false);
     if (l1GtUtils_->l1TriggerMenu().empty())
       throw cms::Exception("ProductNotFound") << "L1GtTriggerMenuLite not found in Run";
   }
