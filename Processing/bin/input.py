@@ -59,6 +59,8 @@ for opt, arg in opts:
         dbs     = arg
     if opt == "--dataset":
         dataset = arg
+        if dataset[0] != '/':
+            dataset = '/' + dataset.replace('+','/')
     if opt == "--option":
         option  = arg
 
