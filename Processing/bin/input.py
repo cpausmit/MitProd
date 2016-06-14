@@ -72,7 +72,7 @@ if dataset == None:
 # is it a private production
 f = dataset.split('/')
 #print " Dataset: " + dataset
-if f[1] == "mc":
+if len(f) > 1 and f[1] == "mc":
     private = True
     #print ' Attention -- private dataset identified.'
 

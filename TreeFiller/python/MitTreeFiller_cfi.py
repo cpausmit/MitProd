@@ -82,24 +82,24 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
   ),
 
   Trigger = cms.untracked.PSet(
-    active             = cms.untracked.bool(True),
-    hltEvtEdmName      = cms.untracked.string('hltTriggerSummaryAOD'), # unset when filling from MiniAOD
-    hltObjsEdmName     = cms.untracked.string(''), # set when filling from MiniAOD
-    hltResEdmName      = cms.untracked.string('TriggerResults'),
+    active              = cms.untracked.bool(True),
+    hltEvtEdmName       = cms.untracked.string('hltTriggerSummaryAOD'), # unset when filling from MiniAOD
+    hltObjsEdmName      = cms.untracked.string(''), # set when filling from MiniAOD
+    hltResEdmName       = cms.untracked.string('TriggerResults'),
     l1GtMenuLiteEdmName = cms.untracked.string('l1GtTriggerMenuLite'),
-    l1GtRecordEdmName  = cms.untracked.string('l1GtRecord'),
-    l1GtReadRecEdmName = cms.untracked.string('gtDigis'),
-    hltProcName        = cms.untracked.string('HLT'),
-    hltTreeMitName     = cms.untracked.string('HLT'),
-    hltTableMitName    = cms.untracked.string('HLTTriggerTable'),
-    hltLabelMitName    = cms.untracked.string('HLTLabels'),
-    hltMenuMitName     = cms.untracked.string('HLTMenus'),
-    hltBitsMitName     = cms.untracked.string('HLTBits'),
-    hltObjsMitName     = cms.untracked.string('HLTObjects'),
-    l1Active           = cms.untracked.bool(True),
-    l1TechBitsMitName  = cms.untracked.string('L1TechBits'),
-    l1AlgoBitsMitName  = cms.untracked.string('L1AlgoBits'),
-    fillerType         = cms.untracked.string('FillerTrigger')
+    l1GtRecordEdmName   = cms.untracked.string('l1GtRecord'),
+    l1GtReadRecEdmName  = cms.untracked.string('gtDigis'),
+    hltProcName         = cms.untracked.string('HLT'),
+    hltTreeMitName      = cms.untracked.string('HLT'),
+    hltTableMitName     = cms.untracked.string('HLTTriggerTable'),
+    hltLabelMitName     = cms.untracked.string('HLTLabels'),
+    hltMenuMitName      = cms.untracked.string('HLTMenus'),
+    hltBitsMitName      = cms.untracked.string('HLTBits'),
+    hltObjsMitName      = cms.untracked.string('HLTObjects'),
+    l1Active            = cms.untracked.bool(True),
+    l1TechBitsMitName   = cms.untracked.string('L1TechBits'),
+    l1AlgoBitsMitName   = cms.untracked.string('L1AlgoBits'),
+    fillerType          = cms.untracked.string('FillerTrigger')
   ),
 
   MCEventInfo = cms.untracked.PSet(

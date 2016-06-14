@@ -14,7 +14,6 @@
 //
 // Author: Y.Iiyama
 //--------------------------------------------------------------------------------------------------
-
 #ifndef MITPROD_TREEFILLER_FILLERHLT_H
 #define MITPROD_TREEFILLER_FILLERHLT_H
 
@@ -83,7 +82,7 @@ namespace mithep
     TTree                         *hltTree_;      //HLT trigger tree (not owned)
     HLTConfigProvider              hltConfig_;    //HLT config from provenance
     Bool_t                         l1Active_;     //Flag for L1 processing
-    L1GtUtils*                     l1GtUtils_;    //L1 utility
+    L1GtUtils                     *l1GtUtils_;    //L1 utility
     std::string                    l1TBitsName_;  //L1 technical bit name
     std::string                    l1ABitsName_;  //L1 algo bit name
     L1TriggerMask                 *l1TBits_;      //L1 technical trigger bit mask 

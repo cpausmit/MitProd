@@ -17,6 +17,8 @@ cd     -
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 source /cvmfs/cms.cern.ch/crab/CRAB_${CRAB_VERS}/crab.sh
 
+source $HOME/Tools/FiBS
+
 # general info
 
 export MIT_PROD_AGENTS_BASE="/usr/local/MitProd/agents/$MIT_VERS"

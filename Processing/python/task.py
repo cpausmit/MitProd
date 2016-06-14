@@ -509,8 +509,8 @@ class Task:
             path = '/'.join(f)
         cmd = 'list ' + path + ' | grep root 2> /dev/null'
         for line in os.popen(cmd).readlines():  # run command
-            f    = line.split()
-            file = f[1]
+            f    = line[:-1].split('/')
+            file = f[-1]
             if file in self.lfns.keys():
                 self.lfns[file] = 1
             else:
@@ -561,6 +561,8 @@ class Task:
         for line in os.popen(cmd).readlines():    # run directory list command
             #print " line: " + line
             line   = line[:-1]                    # strip '\n'
+            line = line.split("/").pop()
+
             f      = line.split("_")
             number = f.pop()
 

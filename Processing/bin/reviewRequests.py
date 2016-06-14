@@ -17,7 +17,7 @@ def testTier2Disk(debug=0):
     # make sure we can see the Tier-2 disks: returns -1 on failure
 
     nFiles = -1
-    cmd = "list /mnt/hadoop/cms/store/user/paus 2> /dev/null"
+    cmd = "list /cms/store/user/paus 2> /dev/null"
     if debug > 0:
         print " CMD: %s"%(cmd)
     try:
@@ -62,7 +62,7 @@ def findNumberOfFilesDone(mitCfg,version,dataset,debug=0):
     if debug > 0:
         print " Find completed files for dataset: %s"%(dataset)
 
-    cmd = "list /mnt/hadoop/cms/store/user/paus/%s/%s/%s 2> /dev/null | grep .root | wc -l"\
+    cmd = "list /cms/store/user/paus/%s/%s/%s 2> /dev/null | grep .root | wc -l"\
         %(mitCfg,version,dataset)
     if debug > 0:
         print " CMD: %s"%(cmd)

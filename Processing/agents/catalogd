@@ -61,7 +61,9 @@ do
     echo " "                                                                      >> $logFile
     echo "   --> "`date`                                                          >> $logFile
     echo " "                                                                      >> $logFile
-    stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=2                     >> $logFile 2>&1
+
+
+    ##stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=2                     >> $logFile 2>&1
 
     echo " "                                                                      >> $logFile
     echo " completed review cycle."                                               >> $logFile
