@@ -19,9 +19,9 @@ BASE_LFN=/cms/store/user/paus
 CATALOG=~cmsprod/catalog
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/v2/server?SFN="
 
-# OLD # RMT2="glexec hadoop dfs -rmr"
-RMT2="glexec hdfs   dfs -rm -r"
-RMT3="       hdfs   dfs -rm -r"
+# OLD # RMT2="rglexec hadoop dfs -rmr"
+RMT2="rglexec hdfs   dfs -rm -r"
+RMT3="        hdfs   dfs -rm -r"
 
 
 BOOK="$1"
@@ -57,7 +57,8 @@ then
   # remove catalogs
   if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]
   then
-    rm -rf $CATALOG/t2mit/$BOOK/$SAMPLE
+    echo "# rm -rf $CATALOG/t2mit/$BOOK/$SAMPLE"
+    echo " NOT REMOVING CATALOG"
   fi
 fi
 

@@ -35,20 +35,6 @@ do
     echo ' INFO -- no root files found, moving on.'
   fi
 
-#  if [ "$first" == 1 ] && [ "`echo $line | grep root`" != "" ]
-#  then
-#    echo "catalog.sh -ceg $version $extDataset --remove"
-#    catalog.sh -ceg $version $extDataset       --remove
-#    first=0
-#  fi 
-#
-#  if [ "$remove" == "0" ] && [ "$FLAG" == "remove" ]
-#  then
-#    echo "removing: $obsDir"
-#    glexec rmdir $obsDir
-#    remove="1"
-#  fi
-
 done
 
 rm /tmp/catalog_done.$$

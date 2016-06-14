@@ -36,7 +36,7 @@ then
     exit 0
   else
     echo " File is really broken. Remove it."
-    remove --exe --catalog $dir/$file
+    remove --catalog $dir/$file
   fi
 else
   echo ""
@@ -66,7 +66,7 @@ then
     echo " ERRO - File is broken again. Removing it."
     echo "        $dir/$file"
     echo ""
-    remove --exe --catalog $dir/$file
+    remove --catalog $dir/$file
   fi
 else
   echo ""
@@ -74,8 +74,8 @@ else
   # in case both Tier-2 and Tier-3 broken and requested removed both
   if [ "$FLAG" == "remove" ]
   then
-    remove --exe --catalog $dir/$file 
-    remove --exe --catalog $MIT_LOC/$cfg/$version/$dset/$file
+    remove --catalog $dir/$file 
+    remove --catalog $MIT_LOC/$cfg/$version/$dset/$file
   fi
   echo " Start recovery from CERN."
   test=`list $CERN_LOC/$cfg/$version/$dset/$file 2> /dev/null`

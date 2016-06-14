@@ -259,7 +259,7 @@ for line in os.popen(cmd).readlines():  # run command
     rm1 = "stager_rm -M " + f[1]
     rm2 = "nsrm -f      " + f[1]
     hdfsFile = "/" + "/".join(f[1].split("/")[3:])
-    rm3 = "glexec hdfs dfs -rm " + hdfsFile
+    rm3 = "rglexec hdfs dfs -rm " + hdfsFile
     g = f[1].split("/")
     file = g[-1]
     rm4 = "rm           " + procDir + '/' + file + '.{err,out}'
@@ -398,7 +398,7 @@ if debug:
     print " Official %d"%(official)
 # Moving all files
 if official == 1:
-    cmd = "glexec " + srcFile
+    cmd = "rglexec " + srcFile
     print ' CMD: ' + cmd
     os.system("cat " + srcFile)
     status = os.system(cmd)

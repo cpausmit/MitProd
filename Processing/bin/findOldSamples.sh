@@ -21,7 +21,7 @@ echo "Trying to find old samples that exist in newer release"
 echo "  OLD --> $BOOK_OLD"
 echo "  NEW --> $BOOK_NEW"
 
-newList=`glexec ls -1 $LOCATION/$BOOK_NEW`
+newList=`rglexec ls -1 $LOCATION/$BOOK_NEW`
 
 for oldSample in `glexec ls -1 $LOCATION/$BOOK_OLD`
 do

@@ -17,7 +17,7 @@ def makeDirList(baseDir,book):
     for line in os.popen(cmd).readlines():
         line = line[:-1]
         dir = line
-        f = dir.split(" ")
+        f = dir.split("/")
         dir = f.pop()
         
         allDirs.append(baseDir + '/' + book + '/' + dir)
@@ -38,11 +38,11 @@ def cleanupDir(dir,pattern):
     for line in os.popen(cmd).readlines():
         line = line[:-1]
         dir = line
-        f = dir.split(" ")
+        f = dir.split("/")
         dir = f.pop()
     
         allHadoopDirs.append(hadoopDir + '/' + dir)
-        cmd = 'glexec hdfs dfs -rm -r ' + hadoopDir + '/' + dir
+        cmd = 'rglexec hdfs dfs -rm -r ' + hadoopDir + '/' + dir
         print ' Removing: ' + cmd
 
         status = os.system(cmd)

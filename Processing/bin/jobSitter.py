@@ -226,7 +226,7 @@ for crabTask in crabTasks:
         f = storagePath.split("=")
         path1 = "/" + "/".join(f[1].split("/")[3:]) # remove '/mnt/hadoop'
         path0 = "/".join(path1.split("/")[:-1])       
-        cmd = ' glexec hdfs dfs -chmod a+w ' + path0 + ' ' + path1
+        cmd = 'rglexec hdfs dfs -chmod a+w ' + path0 + ' ' + path1
         status = os.system(cmd)
 
     if kill == 1:
