@@ -374,10 +374,13 @@ for row in results:
             print '# Done/Total--Dataset Name'
             print '#---------------------------------------------------------------------------'
 
+        percentage = 0.0
+        if nTotal > 0:
+            percentage = 100.0 * float(nDone)/float(nTotal)
         if nDone != nTotal:
-            print " %5d/%5d  %s"%(nDone,nTotal,datasetName)
+            print " %6.2f  %5d/ %5d  %s"%(percentage,nDone,nTotal,datasetName)
         else:
-            print "       %5d  %s"%(nTotal,datasetName)
+            print " %6.2f  %5d= %5d  %s"%(percentage,nDone,nTotal,datasetName)
 
 print '#'
 

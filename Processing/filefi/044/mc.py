@@ -14,8 +14,9 @@ process.maxEvents = cms.untracked.PSet(
 #>> input source
 
 process.source = cms.Source(
-  "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
+#  "PoolSource",
+#  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
+  "PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
