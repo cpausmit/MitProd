@@ -182,6 +182,7 @@ cat $MIT_PROD_DIR/$CONFIG/$VERSION/${PY}.py \
     > $WORKDIR/${PY}.py
 
 # getting our input (important: xrdcp needs cvmfs to be setup)
+cd $WORKDIR; pwd; ls -lhrt
 voms-proxy-info -all
 downloadFile $GPACK $LFN
 if ! [ -e "./$GPACK.root" ]

@@ -165,7 +165,16 @@ class CondorTask:
         fileH.write("Queue" + '\n')
 
     #-----------------------------------------------------------------------------------------------
-    # generate actual tarball, or leave as is if already up to date
+    # remove remainders from submission
+    #-----------------------------------------------------------------------------------------------
+    def cleanUp(self):
+
+        # log and output data dirs
+        print " INFO - removing submit script "
+        os.system("rm -rf " + self.submitCmd)
+
+    #-----------------------------------------------------------------------------------------------
+    # create the required local and remote directories
     #-----------------------------------------------------------------------------------------------
     def createDirectories(self):
 

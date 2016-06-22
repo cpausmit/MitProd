@@ -20,7 +20,7 @@ def makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns):
 
     # give notice that file already exists
     if os.path.exists(lfnFile):
-        print "\n INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
+        print " INFO -- Lfn file found: %s. Someone already worked on this dataset.\n" % lfnFile
 
     # remove what we need to to start clean
     cmd = 'rm -f ' +  lfnFile + '-TMP'
@@ -48,7 +48,7 @@ def makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns):
 def makeSiteFile(dataset,dbs,useExistingSites):
     siteFile  = './sites/' + dataset + '.sites'
     if os.path.exists(siteFile):
-        print "\n INFO -- Site file found: %s. Someone already worked on this dataset.\n" % siteFile
+        print " INFO -- Site file found: %s. Someone already worked on this dataset.\n" % siteFile
         if not useExistingSites:
             cmd = 'rm ' + siteFile
             os.system(cmd)
@@ -168,5 +168,8 @@ condorTask.writeCondorSubmit()
  
 # Submit this job
 condorTask.condorSubmit()
+
+# Make it clean
+condorTask.cleanUp()
 
 sys.exit(0)
