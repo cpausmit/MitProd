@@ -4,9 +4,7 @@
 #
 # Author: C.Paus                                                                (September 23, 2008)
 #---------------------------------------------------------------------------------------------------
-import os,sys,getopt,re,string
-from subprocess import call
-import MySQLdb
+import os,sys,getopt,re,string,MySQLdb
 import task
 
 #---------------------------------------------------------------------------------------------------
@@ -17,8 +15,6 @@ def testTier2Disk(debug=0):
     # make sure we can see the Tier-2 disks: returns -1 on failure
 
     nFiles = -1
-    os.system("which list")
-    os.system("list  /cms/store/user/paus")
     cmd = "list /cms/store/user/paus 2> /dev/null"
     if debug > 0:
         print " CMD: %s"%(cmd)
@@ -166,59 +162,6 @@ def testEnvironment(mitCfg,version,cmssw,cmsswCfg):
             cmd += " XXXX ERROR no valid configuration found XXXX"
             raise RuntimeError, cmd
 
-def updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw):
-    # Deal with the cache of the database - either update the cache or do not
-    
-    if useCachedDb:
-        print " Using cached version: "
-        cmd = 'ls -lhrt ./' + mitCfg + '/' + version + '/Productions.' \
-              + cmssw
-        rc = call(cmd.split(' '))
-    else:                                                              # possibly remaking the cache
-        # parameters for the update
-        webServer = 'http://t3serv001.mit.edu/~cmsprod'
-        tmpFile = '/tmp/Productions.' + cmssw
-
-        # remove cache to keep it clean
-        cmd = 'rm -f ' + tmpFile
-        os.system(cmd)
-        # Download up to date database file for productions
-        cmd = 'wget ' + webServer + '/' + mitCfg + '/' + version + '/Productions.' + cmssw \
-              + ' -O ' + tmpFile + ' 2> /dev/null'
-        if debug:
-            print ' WGET: ' + cmd
-        os.system(cmd)
-        if os.path.exists(tmpFile):
-            if debug:
-                print " Download of central database file worked (%s)."%(tmpFile)
-        else:
-            print "\n ERROR - Download of central database file failed. EXIT!\n"
-            sys.exit(0)
-        
-        # Check whether something has changed
-        cmd  = 'diff ' + tmpFile + ' ./' + mitCfg + '/' + version + '/Productions.' + cmssw
-        rc = call(cmd.split(' '))
-        if rc == 0:
-            if debug:
-                print " No difference in the local and central database files (rc=%d)."%(rc)
-        else:
-            print " Differences in central and local file found (rc=%d)."%(rc)
-            if updateCacheDb:
-                print " --> forcing update as requested."
-                answer = 'y'
-            else:
-                answer = raw_input(" Overwrite local database with changes and continue? [y/N] ")
-                
-            # Check whether something has changed
-            if answer == 'y' or answer == 'Y':
-                cmd  = 'mv /tmp/Productions.' + cmssw + ' ./' + mitCfg \
-                       + '/' + version + '/Productions.' + cmssw
-                rc = call(cmd.split(' '))
-                print ' Local database was overwritten.'
-            else:
-                print ' Local database *not* overwritten. Exit here.'
-                sys.exit(0)
-
 def findPath(mitCfg,version):
     # Find the path to where we store our samples
 
@@ -250,8 +193,6 @@ usage  = "\nUsage: findSamples.py --mitCfg=<name>\n"
 usage += "                      --version=<version> [ default: MIT_VERS ]\n"
 usage += "                      --cmssw=<name>\n"
 usage += "                      --pattern=<name>\n"
-usage += "                      --updateCachedDb\n"
-usage += "                      --useCachedDb\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --useExistingSites\n"
 usage += "                      --displayOnly\n"
@@ -261,7 +202,7 @@ usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['mitCfg=','version=','cmssw=','pattern=', \
-         'help','exe','updateCacheDb','useCachedDb','useExistingLfns','useExistingSites','debug', \
+         'help','exe','useExistingLfns','useExistingSites','debug', \
          'displayOnly' ]
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -280,8 +221,6 @@ pattern          = ''
 cmsswCfg         = 'cmssw.cfg'
 displayOnly      = False
 exe              = False
-updateCachedDb   = False
-useCachedDb      = False
 useExistingLfns  = False
 useExistingSites = False
 debug            = False
@@ -301,10 +240,6 @@ for opt, arg in opts:
         pattern = arg
     if opt == "--exe":
         exe = True
-    if opt == "--updateCachedDb":
-        updateCachedDb = True
-    if opt == "--useCachedDb":
-        useCachedDb = True
     if opt == "--useExistingLfns":
         useExistingLfns = True
     if opt == "--useExistingSites":
@@ -404,7 +339,6 @@ if displayOnly:
 
 # Basic tests first
 testEnvironment(mitCfg,version,cmssw,cmsswCfg)
-# this is not needed anymore? #updateCacheDb(updateCacheDb,useCachedDb,mitCfg,version,cmssw)
 if testTier2Disk(0) < 0:
     print '\n ERROR -- Tier-2 disks seem unavailable, please check! EXIT review process.\n'
     sys.exit(0)
@@ -505,8 +439,6 @@ for row in filteredResults:
 
     # if work not complete submit the remainder
     print '# Submit new dataset: ' + datasetName
-    #cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
-    #    ' --dbs=' + dbs
     cmd = ' submitCondor.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
         ' --dbs=' + dbs
 
@@ -518,7 +450,6 @@ for row in filteredResults:
 
     # last thing to add is the dataset itself (nicer printing)
     cmd += ' --dataset=' + datasetName
-    #cmd += ' --mitDataset=' + datasetName
 
     # make sure dataset is not yet being worked on
     if not inList(datasetName,ongoingDsetList):

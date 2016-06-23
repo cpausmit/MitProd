@@ -34,6 +34,11 @@ function configureSite {
   #
 
   link="/cvmfs/cms.cern.ch/SITECONF/local"
+  
+  echo "---- Configure Site ----"
+  echo " Link       = $link"
+  echo " CMSSW_BASE = $CMSSW_BASE"
+  ls -lh $CMSSW_BASE/src/MitProd/Processing/tgz/siteconf.tgz
 
   if [ -d "`readlink $link`" ]
   then

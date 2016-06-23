@@ -206,8 +206,8 @@ class CondorTask:
     def __init__(self,tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile):
 
         # fixed
-        #self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
-        self.scheduler = Scheduler('ce04.cmsaf.mit.edu','paus')
+        self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
+        #self.scheduler = Scheduler('ce04.cmsaf.mit.edu','paus')
         self.base = "/cms/store/user/paus"
 
         # from the call
@@ -355,6 +355,7 @@ class CondorTask:
     #-----------------------------------------------------------------------------------------------
     def makeTarBall(self):
 
+        # check if the tar bacll exists locally
         if os.path.exists(os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"):
             print " INFO - tar ball exists: " \
                 + os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"
@@ -365,10 +366,12 @@ class CondorTask:
                 + "; tar fzc bambu_" + self.cmsswVersion + ".tgz lib/ python/ src/"
             os.system(cmd)
 
+        # see whether the tar ball needs to be copied locally or to remote scheduler
         if self.scheduler.isLocal():
             cmd = "cp " + os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz " \
                 + self.logs
             os.system(cmd)
+            # also copy the script over
             cmd = "cp " + os.getenv('MIT_PROD_DIR') + "/bin/makeBambu.sh " + self.logs
             os.system(cmd)
         else:
@@ -378,8 +381,6 @@ class CondorTask:
             cmd = "scp -q " + os.getenv('MIT_PROD_DIR') + "/bin/makeBambu.sh "  \
                 + self.scheduler.user + '@' +  self.scheduler.host + ':' + self.logs
             os.system(cmd)
-            
-            
 
     #-----------------------------------------------------------------------------------------------
     # present the current condor task

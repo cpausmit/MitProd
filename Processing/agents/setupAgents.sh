@@ -5,17 +5,20 @@
 #
 #---------------------------------------------------------------------------------------------------
 # Environment: CMSSW, CRAB etc.
-export MIT_VERS=044
-export MIT_TAG=Mit_044
+
+# find latest MIT version
+export MIT_VERS=`ls -1 ~/cms/cmssw| grep ^[0-9]| tail -1`
+# find latest CMSSW version
+export LATEST_CMSSW=`ls -rt ~/cms/cmssw/$MIT_VERS| grep ^CMSSW_[0-9] | tail -1`
+
+export MIT_TAG=Mit_$MIT_VERS
 export TICKET_HOLDER="paus"
 export TIER2_USER="paus"
-export CRAB_VERS="2_11_1_patch1"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-cd     ~cmsprod/cms/cmssw/${MIT_VERS}/CMSSW_8_0_7_patch3/src
+cd     ~cmsprod/cms/cmssw/${MIT_VERS}/${LATEST_CMSSW}/src
 eval   `scram runtime -sh`
 cd     -
 source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
-source /cvmfs/cms.cern.ch/crab/CRAB_${CRAB_VERS}/crab.sh
 
 source /home/cmsprod/Tools/FiBS/setup.sh
 source /home/cmsprod/Tools/T2Tools/setup.sh

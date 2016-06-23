@@ -115,7 +115,7 @@ mitCfg           = "filefi"
 version          = os.environ['MIT_VERS']
 dbs              = "prod/global"
 useExistingLfns  = False
-useExistingSites = False
+useExistingSites = True
 
 # Read new values from the command line
 for opt, arg in opts:
