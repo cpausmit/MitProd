@@ -66,6 +66,9 @@ def testLocalSetup(dataset,debug=0):
         sys.exit(1)
 
     # check basic dataset parameters
+    if dataset[0] != '/':
+        dataset = '/' + dataset.replace('+','/')
+        print " DATASET: " + dataset
     f = dataset.split('/')
     if len(f) != 4 or f[0] != '':
         print '\n ERROR in dataset format. Please check dataset name.\n'
@@ -82,6 +85,8 @@ def testLocalSetup(dataset,debug=0):
     else:
         print ' Error - das_client in your path, please find it and add it to PATH. EXIT!'
         sys.exit(1)
+
+    return dataset
 
 def removeDataset(db,datasetId,debug=0):
 
@@ -303,7 +308,7 @@ for opt, arg in opts:
     if opt == "--exec":
         exe = True
 
-testLocalSetup(dataset,debug)
+dataset = testLocalSetup(dataset,debug)
 
 # Open database connection
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")

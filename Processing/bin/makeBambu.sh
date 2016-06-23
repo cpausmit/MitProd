@@ -4,6 +4,11 @@
 # Execute one job on the grid or interactively.
 #
 #===================================================================================================
+
+#----------------------------------------------------------------------------------------------------
+#  U S E F U L   F U N C T I O N S
+#----------------------------------------------------------------------------------------------------
+
 function exeCmd {
   # provide a small frame for each command, also allows further steering
   echo " Executing: $*"
@@ -24,6 +29,9 @@ function executeCmd {
 
 function configureSite {
   # in case we are not at a CMS site we need to have a configuration
+  #
+  # -- ATTENTION -- CMSSW has to be setup before calling configure site
+  #
 
   link="/cvmfs/cms.cern.ch/SITECONF/local"
 
@@ -108,6 +116,7 @@ function setupCmssw {
   fi
   cd $PWD
   echo "============================================================"
+  configureSite
   echo ""
 }
 
@@ -138,6 +147,9 @@ function testBatch {
 }
 
 #----------------------------------------------------------------------------------------------------
+#  M A I N   S T A R T S   H E R E
+#----------------------------------------------------------------------------------------------------
+
 # make sure we are locked and loaded
 export BASEDIR=`pwd`
 echo " Executing: $0 $* "
@@ -163,18 +175,13 @@ export WORKDIR=`pwd`
 # this might be an issue with root
 export HOME=$WORKDIR
 
-## tell us the initial state
-#initialState $*
-
-# make sure site is configured, if not, configure it (for DB access, not needed for lhe/gen)
-configureSite
-
 ####################################################################################################
 # initialize BAMBU
 ####################################################################################################
 
 # setting up the software
 setupCmssw $cmsswVersion
+
 # prepare the python config from the given templates
 cat $MIT_PROD_DIR/$CONFIG/$VERSION/${PY}.py \
     | sed "s@XX-LFN-XX@$lfn@g" \
@@ -233,7 +240,7 @@ sample=`echo $GPACK | sed 's/\(.*\)_nev.*/\1/'`
 
 # this is somewhat overkill but works very reliably, I suppose
 #setupCmssw 7_6_3 # should work with new releases... right?
-tar fzx $BASEDIR/tgz/copy.tgz
+tar fzx $MIT_PROD_DIR/tgz/copy.tgz
 pwd=`pwd`
 for file in `echo ${GPACK}*`
 do
@@ -261,7 +268,7 @@ fi
 
 # create the pickup output file for condor
 
-echo " ---- D O N E ----" > $BASEDIR/${TASK}_${GPACK}.empty
+echo " ---- D O N E ----" > $BASEDIR/${GPACK}.empty
 
 pwd
 ls -lhrt

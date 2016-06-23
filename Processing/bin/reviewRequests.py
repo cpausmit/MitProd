@@ -17,6 +17,8 @@ def testTier2Disk(debug=0):
     # make sure we can see the Tier-2 disks: returns -1 on failure
 
     nFiles = -1
+    os.system("which list")
+    os.system("list  /cms/store/user/paus")
     cmd = "list /cms/store/user/paus 2> /dev/null"
     if debug > 0:
         print " CMD: %s"%(cmd)
@@ -348,7 +350,6 @@ except:
 
 # Take the result from the database and look at it
 filteredResults = []
-pat = re.compile(pattern)
 first = True
 for row in results:
     process = row[0]
@@ -362,7 +363,7 @@ for row in results:
     # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
 
-    if pat.match(datasetName):
+    if pattern in datasetName:
         # Make filtered list
         filteredResults.append(row)
         (nDone,nTotal) = productionStatus(mitCfg,version,datasetName,debug)
@@ -441,7 +442,7 @@ for row in filteredResults:
     datasetName = process + '+' + setup+ '+' + tier
 
     # remove all datasets that do not match our pattern
-    if pattern != '' and not re.search(pattern,datasetName):
+    if pattern != '' and pattern not in datasetName:
         continue
 
     # check how many files are done
@@ -498,13 +499,15 @@ for row in filteredResults:
     else:                      # weird, more files found than available               
         print '\n ERROR more files found than available in dataset. NO ACTION on this dataset'
         print '       done: %d   all: %d'%(nFilesDone,nFiles)
-        print ''
-        #continue
-
+        cmd = 'addDatasetToBambu.py --exec --dataset=' + datasetName
+        print '       updating the dataset from dbs: ' + cmd
+        os.system(cmd)
 
     # if work not complete submit the remainder
     print '# Submit new dataset: ' + datasetName
-    cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
+    #cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
+    #    ' --dbs=' + dbs
+    cmd = ' submitCondor.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
         ' --dbs=' + dbs
 
     # make sure to use existing cache if requested
@@ -514,7 +517,8 @@ for row in filteredResults:
         cmd += " --useExistingSites"
 
     # last thing to add is the dataset itself (nicer printing)
-    cmd += ' --mitDataset=' + datasetName
+    cmd += ' --dataset=' + datasetName
+    #cmd += ' --mitDataset=' + datasetName
 
     # make sure dataset is not yet being worked on
     if not inList(datasetName,ongoingDsetList):
