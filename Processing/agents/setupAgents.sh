@@ -7,9 +7,9 @@
 # Environment: CMSSW, CRAB etc.
 
 # find latest MIT version
-export MIT_VERS=`ls -1 ~/cms/cmssw| grep ^[0-9]| tail -1`
+export MIT_VERS=`ls -1 ~cmsprod/cms/cmssw| grep ^[0-9]| tail -1`
 # find latest CMSSW version
-export LATEST_CMSSW=`ls -rt ~/cms/cmssw/$MIT_VERS| grep ^CMSSW_[0-9] | tail -1`
+export LATEST_CMSSW=`ls -rt ~cmsprod/cms/cmssw/$MIT_VERS| grep ^CMSSW_[0-9] | tail -1`
 
 export MIT_TAG=Mit_$MIT_VERS
 export TICKET_HOLDER="paus"
@@ -33,7 +33,8 @@ export MIT_PROD_AGENTS_WWW="/home/cmsprod/public_html/MitProd/agents"
 # review process
 
 export MIT_PROD_REVIEW_CYCLE_HOURS=1
-export MIT_PROD_REVIEW_PYS="data mc"
+## export MIT_PROD_REVIEW_PYS="data mc"
+export MIT_PROD_REVIEW_PYS="mc data"
 
 # catalog process
 

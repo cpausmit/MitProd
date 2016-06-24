@@ -206,8 +206,8 @@ class CondorTask:
     def __init__(self,tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile):
 
         # fixed
-        self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
-        #self.scheduler = Scheduler('ce04.cmsaf.mit.edu','paus')
+        #self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
+        self.scheduler = Scheduler('ce04.cmsaf.mit.edu','paus')
         self.base = "/cms/store/user/paus"
 
         # from the call

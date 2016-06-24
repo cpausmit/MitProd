@@ -79,7 +79,7 @@ do
       rsync -Cavz $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW >& /dev/null
 
       stdbuf -o0 -e0 $MIT_PROD_DIR/bin/reviewRequests.py --useExistingLfns --useExistingSites \
-                       --cmssw=$py --updateCacheDb --exe                          >> $logFile 2>&1
+                       --cmssw=$py --exe                                          >> $logFile 2>&1
       echo " "                                                                    >> $logFile
 
       # keep log file up to speed
