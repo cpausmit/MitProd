@@ -8,14 +8,16 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1),
+  lumisToProcess = cms.untracked.VLuminosityBlockRange('274388:500')
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016A/MinimumBias/AOD/PromptReco-v2/000/270/995/00000/82843CC9-2E0A-E611-9B2D-02163E011C76.root')
+# run 274338, lumi 500
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016B/JetHT/AOD/PromptReco-v2/000/274/338/00000/60352A09-382B-E611-875F-02163E012147.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -27,12 +29,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v8'
+process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v9'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_044'),
+  version    = cms.untracked.string('Mit_045'),
   annotation = cms.untracked.string('AOD')
 )
 
@@ -96,8 +98,24 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.load('RecoParticleFlow.PFProducer.pfLinker_cff')
 
 # Load PUPPI
-from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence
+from MitProd.TreeFiller.PuppiSetup_cff import puppiSequence, photonIdForPuppi
 process.load('MitProd.TreeFiller.PuppiSetup_cff')
+egmPhotonIDSequence = photonIdForPuppi(process)
+
+# PUPPI jets
+from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
+process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+#ak4PFJetsPuppi.src = 'puppiNoLep'
+ak4PFJetsPuppi.src = 'puppi'
+ak4PFJetsPuppi.doAreaFastjet = True
+
+# PUPPI MET
+from RecoMET.METProducers.PFMET_cfi import pfMet
+process.pfMETPuppi = pfMet.clone(
+    src = cms.InputTag('puppiForMET'),
+    calculateSignificance = cms.bool(False)
+)
+pfMETPuppi = process.pfMETPuppi
 
 # add dummy PAT stuff
 process.tauMatchBoostedPFlow = cms.PSet()
@@ -119,43 +137,40 @@ process.patTausBoosted = cms.PSet(
     genJetMatch = cms.untracked.string('')
 )
 
-# recluster fat jets, btag subjets
-from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
-pfbrecoSequence = initFatJets(process, isData = True)
-ak8chsSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8)
-ak8puppiSequence = makeFatJets(process, isData = True, algoLabel = 'AK', jetRadius = 0.8, pfCandidates = 'puppiNoLepPlusLep')
-ca15chsSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5)
-ca15puppiSequence = makeFatJets(process, isData = True, algoLabel = 'CA', jetRadius = 1.5, pfCandidates = 'puppiNoLepPlusLep')
-
 # unload unwanted PAT stuff
-delattr(process, 'pfNoTauPFBRECOPFlow')
-delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
+#delattr(process, 'pfNoTauPFBRECOPFlow')
+#delattr(process, 'loadRecoTauTagMVAsFromPrepDBPFlow')
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
 pfPileUpIso.PFCandidates = 'particleFlowPtrs'
-pfNoPileUpIso.bottomCollection='particleFlowPtrs'
+pfNoPileUpIso.bottomCollection = 'particleFlowPtrs'
 
 pfPileUp.Enable = True
 pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
 pfPileUp.checkClosestZVertex = cms.bool(False)
 
-# PUPPI jets
-from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
-process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-
-ak4PFJetsPuppi.src = cms.InputTag('puppiNoLepPlusLep')
-ak4PFJetsPuppi.doAreaFastjet = True
+# Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
+from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
+process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
 # Load btagging
-from MitProd.TreeFiller.utils.setupBTag import setupBTag
+from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag
+initBTag(process)
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
 ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi')
 
-# Load HPS tau reconstruction (tau in AOD is older than the latest reco in release)
-from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
-process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
+# recluster fat jets, btag subjets
+#from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
+from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
+#pfbrecoSequence = initFatJets(process, isData = True)
+ak8chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PFJetsCHS')
+#ak8puppiSequence = makeFatJets(process, src = 'puppiNoLep', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets')
+ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets')
+ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PFJetsCHS')
+#ca15puppiSequence = makeFatJets(process, src = 'puppiNoLep', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
+ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
@@ -174,16 +189,18 @@ recoSequence = cms.Sequence(
   pfElectronSequence *
   pfNoElectron *
   PFTau *
+  egmPhotonIDSequence *
   puppiSequence *
   ak4PFJetsPuppi *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *
-  pfbrecoSequence*
-  ak8chsSequence*
-  ak8puppiSequence*
-  ca15chsSequence*
-  ca15puppiSequence*
+#  pfbrecoSequence *
+  ak8chsSequence *
+  ak8puppiSequence *
+  ca15chsSequence *
+  ca15puppiSequence *
+  pfMETPuppi *
   metFilters
 )
 

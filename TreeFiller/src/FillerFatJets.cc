@@ -37,7 +37,9 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   fSubjetNames(cfg.getUntrackedParameter<std::vector<std::string>>("SubJetLabels")),
   fSubjetBTagName(cfg.getUntrackedParameter<std::string>("SubJetBTagName")),
   fPVToken(GetToken<reco::VertexCollection>(collector,cfg,"edmPrimaryVertices")),
-  njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(1.0,fR0))
+  fNjettinessName(cfg.getUntrackedParameter<std::string>("NjettinessName")),
+  njettiness(fastjet::contrib::OnePass_KT_Axes(), fastjet::contrib::NormalizedMeasure(1.0,fR0)),
+  fSDMassName(cfg.getUntrackedParameter<std::string>("SDMassName"))
 {
   fillFromPAT_ = true;
   jets_ = new mithep::FatJetArr(4);
@@ -88,24 +90,26 @@ mithep::FillerFatJets::fillPATFatJetVariables(mithep::FatJet& outJet, pat::Jet c
   outJet.SetCharge();
   
   // now let's save vanilla substructure
-  TString baseName(mitName_);
-  TString tau("Njettiness:tau");
-  outJet.SetTau1(inJet.userFloat(baseName+tau+"1"));
-  outJet.SetTau2(inJet.userFloat(baseName+tau+"2"));
-  outJet.SetTau3(inJet.userFloat(baseName+tau+"3"));
-  outJet.SetTau4(inJet.userFloat(baseName+tau+"4"));
-  outJet.SetMassSoftDrop(inJet.userFloat(baseName+"SDKinematics:Mass"));
+  outJet.SetTau1(inJet.userFloat(fNjettinessName + ":tau1"));
+  outJet.SetTau2(inJet.userFloat(fNjettinessName + ":tau2"));
+  outJet.SetTau3(inJet.userFloat(fNjettinessName + ":tau3"));
+  outJet.SetTau4(inJet.userFloat(fNjettinessName + ":tau4"));
+  outJet.SetMassSoftDrop(inJet.userFloat(fSDMassName));
 
   // now let's save subjet btag
-  std::map<float,float> btagMap; // maps pT to btag
+  std::map<float, pat::Jet const*> subjetMap; // maps pT to subjet
   for (auto & subjetName : fSubjetNames) { // loop over subjet types
     const PatJetPtrCollection & subjets = inJet.subjets(subjetName);
     for (auto & inSubjetPtr : subjets) {
       pat::Jet const& inSubjet(*inSubjetPtr);
-      btagMap[inSubjet.p4().pt()] = inSubjet.bDiscriminator(fSubjetBTagName);
+      subjetMap[inSubjet.p4().pt()] = &inSubjet;
     }
-    for(std::map<float,float>::reverse_iterator iBtag=btagMap.rbegin(); iBtag!=btagMap.rend(); ++iBtag)
-      outJet.AddSubJetBtag(iBtag->second);
+    for(auto sjItr(subjetMap.rbegin()); sjItr != subjetMap.rend(); ++sjItr) {
+      auto& subjet(*sjItr->second);
+      auto&& p4(subjet.p4());
+      outJet.AddSubJetBtag(subjet.bDiscriminator(fSubjetBTagName));
+      outJet.AddSubJetPtEtaPhiM(p4.pt(), p4.eta(), p4.phi(), p4.mass());
+    }
   }
 
   // now let's tag some bs

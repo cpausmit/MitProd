@@ -68,7 +68,9 @@ namespace mithep {
     std::vector<JetColHandle> fSubjetCollections;                 //subjet input handles
     edm::EDGetTokenT<reco::VertexCollection> fPVToken;                //offline primary vertex token
     edm::Handle<reco::VertexCollection> fPVs;                         //offline primary vertices
+    std::string fNjettinessName;
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
+    std::string fSDMassName;
   };
 }
 
