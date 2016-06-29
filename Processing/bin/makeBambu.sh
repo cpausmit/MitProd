@@ -94,6 +94,36 @@ function downloadFile {
   fi
 }  
 
+function iniState {
+  # provide a short summary of where we are when we start the job
+
+  h=`basename $0`
+  echo "Script:    $h"
+  echo "Arguments: $*"
+  
+  # some basic printing
+  echo " "
+  echo "${h}: Show who and where we are"
+  echo " start time    : "`date`
+  echo " user executing: "`id`
+  echo " running on    : "`hostname`
+  echo " executing in  : "`pwd`
+  echo " submitted from: $HOSTNAME"
+  echo ""
+}  
+
+function initialState {
+  # provide a summary of where we are when we start the job
+
+  iniState $*
+  echo ""
+  echo " HOME:" ~/
+  echo " "
+  env
+  ls -lhrt
+  showDiskSpace
+}  
+
 function setupCmssw {
   # setup a specific CMSSW release and add the local python path
 
@@ -179,6 +209,9 @@ export WORKDIR=`pwd`
 
 # this might be an issue with root
 export HOME=$WORKDIR
+
+# tell us the initial state
+initialState $*
 
 ####################################################################################################
 # initialize BAMBU
