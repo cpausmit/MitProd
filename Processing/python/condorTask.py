@@ -25,6 +25,15 @@ class Scheduler:
         self.home = self.findHome(host,user)
 
     #-----------------------------------------------------------------------------------------------
+    # update on the fly
+    #-----------------------------------------------------------------------------------------------
+    def update(self,host='ce04.cmsaf.mit.edu',user='paus'):
+
+        self.host = host
+        self.user = user
+        self.home = self.findHome(host,user)
+
+    #-----------------------------------------------------------------------------------------------
     # find the home directory where we submit
     #-----------------------------------------------------------------------------------------------
     def findHome(self,host,user):

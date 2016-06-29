@@ -79,13 +79,14 @@ usage += "                 --cmssw=<name>\n"
 usage += "                 --mitCfg=<name>\n"
 usage += "                 --version=<version>\n"
 usage += "                 --dbs=<name>\n"
+usage += "                 --local  # submitting to the local scheduler (ex. t3serv015)\n"
 usage += "                 --useExistingLfns\n"
 usage += "                 --useExistingSites\n"
 usage += "                 --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['dataset=','cmssw=','mitCfg=','version=','dbs=',
-         'useExistingLfns','useExistingSites',
+         'local','useExistingLfns','useExistingSites',
          'help']
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -109,12 +110,13 @@ print " o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-
 print ""
 
 # Set defaults for each command line parameter/option
-dataset          = None
-cmssw            = "cmssw"
-mitCfg           = "filefi"
-version          = os.environ['MIT_VERS']
-dbs              = "prod/global"
-useExistingLfns  = False
+dataset = None
+cmssw = "cmssw"
+mitCfg = "filefi"
+version = os.environ['MIT_VERS']
+dbs = "prod/global"
+local = False
+useExistingLfns = False
 useExistingSites = True
 
 # Read new values from the command line
@@ -132,6 +134,8 @@ for opt, arg in opts:
         version = arg
     if opt == "--dbs":
         dbs = arg
+    if opt == "--local":
+        local = True
     if opt == "--useExistingLfns":
         useExistingLfns  = True
     if opt == "--useExistingSites":
@@ -158,6 +162,8 @@ siteFile = makeSiteFile(dataset,dbs,useExistingSites)
 
 # Create the corresponding condor task
 condorTask = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile)
+if local:
+    condorTask.scheduler.update('t3serv015.mit.edu','cmsprod')
 
 # Prepare the environment
 condorTask.createDirectories()

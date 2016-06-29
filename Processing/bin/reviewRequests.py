@@ -257,10 +257,6 @@ print '                    S T A R T I N G   R E V I E W    C Y L E '
 print ''
 print ' @-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@'
 
-# Make sure we have a valid ticket
-cmd = "voms-proxy-init --valid 168:00 -voms cms; voms-proxy-info -all"
-os.system(cmd)
-
 # Access the database to determine all requests
 db = MySQLdb.connect(read_default_file="/etc/my.cnf",read_default_group="mysql",db="Bambu")
 cursor = db.cursor()
@@ -361,6 +357,10 @@ ongoingDsetList  = findOngoingDatasets(path,mitCfg,version,debug)
 #==================
 # M A I N  L O O P
 #==================
+
+# Make sure we have a valid ticket, because now we will need it
+cmd = "voms-proxy-init --valid 168:00 -voms cms; voms-proxy-info -all"
+os.system(cmd)
 
 print ''
 print '                                    W O R K I N G   L O O P'
