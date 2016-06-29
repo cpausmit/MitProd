@@ -8,15 +8,15 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
 )
 
 #>> input source
 
 process.source = cms.Source(
   "PoolSource",
-# run 274338, lumi 500
-   fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016B/JetHT/AOD/PromptReco-v2/000/274/338/00000/60352A09-382B-E611-875F-02163E012147.root')
+  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16reHLT80/TTbarDMJets_pseudoscalar_Mchi-10_Mphi-10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext1-v1/00000/26AD04E0-3039-E611-88BC-D4856459AE7C.root'),
+#  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
@@ -28,13 +28,13 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v9'
+process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_v3'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
   version    = cms.untracked.string('Mit_045'),
-  annotation = cms.untracked.string('AOD')
+  annotation = cms.untracked.string('AODSIM')
 )
 
 #>> standard sequences
@@ -146,10 +146,6 @@ ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jet
 #ca15puppiSequence = makeFatJets(process, src = 'puppiNoLep', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
 ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
 
-#> Setup the met filters
-from MitProd.TreeFiller.metFilters_cff import metFilters
-process.load('MitProd.TreeFiller.metFilters_cff')
-
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
@@ -173,8 +169,7 @@ recoSequence = cms.Sequence(
   ak8puppiSequence *
   ca15chsSequence *
   ca15puppiSequence *
-  pfMETPuppi *
-  metFilters
+  pfMETPuppi
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -183,7 +178,17 @@ recoSequence = cms.Sequence(
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-# this is data, so nothing here
+# Import/Load genjets
+from RecoJets.Configuration.GenJetParticles_cff import genJetParticles
+process.load('RecoJets.Configuration.GenJetParticles_cff')
+from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
+process.load('RecoJets.Configuration.RecoGenJets_cff')
+
+genSequence = cms.Sequence(
+  genJetParticles *
+  ak4GenJets *
+  ak8GenJets
+)
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -195,13 +200,38 @@ recoSequence = cms.Sequence(
 
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
-# remove Monte Carlo information
-MitTreeFiller.MCEventInfo.active = False
-MitTreeFiller.MCParticles.active = False
-MitTreeFiller.MCAllVertexes.active = False
-MitTreeFiller.PileupInfo.active = False
-MitTreeFiller.AKT4GenJets.active = False
-MitTreeFiller.AKT8GenJets.active = False
+MitTreeFiller.PileupInfo.active = True
+MitTreeFiller.MCParticles.active = True
+MitTreeFiller.MCEventInfo.active = True
+MitTreeFiller.MCAllVertexes.active = True
+MitTreeFiller.Trigger.active = False
+MitTreeFiller.MetaInfos.l1GtReadRecEdmName = ''
+
+# fastsim specific
+MitTreeFiller.Trigger.l1Active = False
+MitTreeFiller.EvtSelData.active = False
+MitTreeFiller.ConversionStepTracks.active = False
+MitTreeFiller.ConversionStepElectronsStable.active = False
+MitTreeFiller.PFCandidates.trackerTrackMapNames.remove('ConversionTracksMap')
+MitTreeFiller.HPSTaus.trackMapNames.remove('ConversionTracksMap')
+MitTreeFiller.StandaloneCosmicMuonTracks.active = False
+MitTreeFiller.GlobalCosmicMuonTracks.active = False
+MitTreeFiller.CosmicMuons.active = False
+MitTreeFiller.ConversionInOutTracks.active = False
+MitTreeFiller.ConversionInOutElectronsStable.active = False
+MitTreeFiller.ConversionOutInTracks.active = False
+MitTreeFiller.ConversionOutInElectronsStable.active = False
+MitTreeFiller.MergedElectronsStable.trackMapNames.remove('ConversionInOutTracksMap')
+MitTreeFiller.MergedElectronsStable.trackMapNames.remove('ConversionOutInTracksMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
 
 # define fill bambu filler sequence
 
@@ -217,5 +247,6 @@ bambuFillerSequence = cms.Sequence(
 
 process.path = cms.Path(
   recoSequence *
+  genSequence *
   bambuFillerSequence
 )
