@@ -1,8 +1,36 @@
 import FWCore.ParameterSet.Config as cms
-from RecoBTag.Configuration.RecoBTag_cff import *
-from RecoBTag.CTagging.RecoCTagging_cff import *
+import RecoBTag.Configuration.RecoBTag_cff as btag
+import RecoBTag.CTagging.RecoCTagging_cff as ctag
 
-def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', primaryVertex = 'offlinePrimaryVertices', muons = 'muons', electrons = 'gedGsfElectrons'):
+_candidates = 'particleFlow'
+_primaryVertex = 'offlinePrimaryVertices'
+
+
+def initBTag(process, candidates = 'particleFlow', primaryVertex = 'offlinePrimaryVertices'):
+    if hasattr(process, 'inclusiveCandidateVertexing'):
+        return
+
+    _candidates = candidates
+    _primaryVertex = primaryVertex
+
+    # ESProducers and vertexing sequences
+    process.load('RecoBTag.ImpactParameter.impactParameter_EventSetup_cff')
+    process.load('RecoBTag.CTagging.cTagging_EventSetup_cff')
+    process.load('RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff')
+    process.load('RecoBTag.Combined.combinedMVA_EventSetup_cff')
+    process.load('RecoBTag.SoftLepton.softLepton_EventSetup_cff')
+    process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
+
+    # these modules are not bound to jets - no need to clone.
+    btag.inclusiveCandidateVertexFinder.primaryVertices = primaryVertex
+    btag.inclusiveCandidateVertexFinder.tracks = candidates
+    btag.candidateVertexArbitrator.primaryVertices = primaryVertex
+    btag.candidateVertexArbitrator.tracks = candidates
+
+    process.inclusiveCandidateVertexing = btag.inclusiveCandidateVertexing
+
+
+def setupBTag(process, jetCollection, suffix, muons = 'muons', electrons = 'gedGsfElectrons', tags = [], addedTagInfos = []):
     """
     Configure the BTag sequence for the given jet collection.
     The suffix will be appended to the CMSSW module names to
@@ -19,61 +47,56 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
     ivfcvslTagInfosName = 'pfInclusiveSecondaryVertexFinderCvsLTagInfos' + suffix
 
     # modules below will be later setattr'ed to process using the names above
-    newImpactParameterTagInfos = pfImpactParameterTagInfos.clone(
-        jets = jetCollection,
-        candidates = candidates,
-        primaryVertex = primaryVertex
+    impactParameterTagInfos = btag.pfImpactParameterTagInfos.clone(
+        jets = cms.InputTag(jetCollection),
+        candidates = cms.InputTag(_candidates),
+        primaryVertex = cms.InputTag(_primaryVertex)
     )
-    newSecondaryVertexTagInfos = pfSecondaryVertexTagInfos.clone(
+    secondaryVertexTagInfos = btag.pfSecondaryVertexTagInfos.clone(
+        trackIPTagInfos = cms.InputTag(ipTagInfosName)
+    )
+    inclusiveSecondaryVertexFinderTagInfos = btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(
         trackIPTagInfos = ipTagInfosName
     )
-    newInclusiveSecondaryVertexFinderTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone(
-        trackIPTagInfos = ipTagInfosName
-    )
-    newSoftPFMuonsTagInfos = softPFMuonsTagInfos.clone(
+    softPFMuonsTagInfos = btag.softPFMuonsTagInfos.clone(
         jets = jetCollection,
         muons = muons,
-        primaryVertex = primaryVertex
+        primaryVertex = cms.InputTag(_primaryVertex)
     )
-    newSoftPFElectronsTagInfos = softPFElectronsTagInfos.clone(
+    softPFElectronsTagInfos = btag.softPFElectronsTagInfos.clone(
         jets = jetCollection,
         electrons = electrons,
-        primaryVertex = primaryVertex
+        primaryVertex = _primaryVertex
     )
-    newInclusiveSecondaryVertexFinderCvsLTagInfos = pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(
+    inclusiveSecondaryVertexFinderCvsLTagInfos = btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(
         trackIPTagInfos = ipTagInfosName
     )
 
-    inclusiveCandidateVertexFinder.primaryVertices = primaryVertex
-    inclusiveCandidateVertexFinder.tracks = candidates
-    candidateVertexArbitrator.primaryVertices = primaryVertex
-    candidateVertexArbitrator.tracks = candidates
-
     # impact parameter b-tags
-    newTrackCountingHighEffBJetTags = pfTrackCountingHighEffBJetTags.clone(
+    trackCountingHighEffBJetTags = btag.pfTrackCountingHighEffBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
     )
 
     # jet probability b-tags
-    newJetProbabilityBJetTags = pfJetProbabilityBJetTags.clone(
+    jetProbabilityBJetTags = btag.pfJetProbabilityBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
     )
-    newJetBProbabilityBJetTags = pfJetBProbabilityBJetTags.clone(
+    jetBProbabilityBJetTags = btag.pfJetBProbabilityBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName))
     )
 
     # secondary vertex b-tags
-    newSimpleSecondaryVertexHighEffBJetTags = pfSimpleSecondaryVertexHighEffBJetTags.clone(
+    simpleSecondaryVertexHighEffBJetTags = btag.pfSimpleSecondaryVertexHighEffBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(svTagInfosName))
     )
 
     # inclusive secondary vertex b-tags
-    newSimpleInclusiveSecondaryVertexHighEffBJetTags = pfSimpleInclusiveSecondaryVertexHighEffBJetTags.clone(
+    simpleInclusiveSecondaryVertexHighEffBJetTags = btag.pfSimpleInclusiveSecondaryVertexHighEffBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(ivfTagInfosName))
     )
 
     # combined secondary vertex b-tags
-    newCombinedSecondaryVertexV2BJetTags = pfCombinedSecondaryVertexV2BJetTags.clone(
+    combinedSecondaryVertexV2BJetTags = btag.pfCombinedSecondaryVertexV2BJetTags.clone(
         tagInfos = cms.VInputTag(
             cms.InputTag(ipTagInfosName),
             cms.InputTag(svTagInfosName)
@@ -81,7 +104,7 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
     )
 
     # inclusive combined secondary vertex b-tags
-    newCombinedInclusiveSecondaryVertexV2BJetTags = pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
+    combinedInclusiveSecondaryVertexV2BJetTags = btag.pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
         tagInfos = cms.VInputTag(
             cms.InputTag(ipTagInfosName),
             cms.InputTag(ivfTagInfosName)
@@ -89,15 +112,15 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
     )
 
     # soft lepton b-tags
-    newSoftPFMuonBJetTags = softPFMuonBJetTags.clone(
+    softPFMuonBJetTags = btag.softPFMuonBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(smTagInfosName))
     )
-    newSoftPFElectronBJetTags = softPFElectronBJetTags.clone(
+    softPFElectronBJetTags = btag.softPFElectronBJetTags.clone(
         tagInfos = cms.VInputTag(cms.InputTag(seTagInfosName))
     )
 
     # super-combined b-tags
-    newCombinedMVAV2BJetTags = pfCombinedMVAV2BJetTags.clone(
+    combinedMVAV2BJetTags = btag.pfCombinedMVAV2BJetTags.clone(
         tagInfos = cms.VInputTag(
             cms.InputTag(ipTagInfosName),
             cms.InputTag(svTagInfosName),
@@ -108,7 +131,7 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
     )
 
     # ctags
-    newCombinedCvsLJetTags = pfCombinedCvsLJetTags.clone(
+    combinedCvsLJetTags = ctag.pfCombinedCvsLJetTags.clone(
         tagInfos = cms.VInputTag(
             cms.InputTag(ipTagInfosName),
             cms.InputTag(ivfcvslTagInfosName),
@@ -116,7 +139,7 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
             cms.InputTag(seTagInfosName)
         )
     )
-    newCombinedCvsBJetTags = pfCombinedCvsBJetTags.clone(
+    combinedCvsBJetTags = ctag.pfCombinedCvsBJetTags.clone(
         tagInfos = cms.VInputTag(
             cms.InputTag(ipTagInfosName),
             cms.InputTag(ivfcvslTagInfosName),
@@ -126,64 +149,55 @@ def setupBTag(process, jetCollection, suffix, candidates = 'particleFlow', prima
     )
 
     # sequence
-    sequence = cms.Sequence(
-        (
-            newImpactParameterTagInfos *
-            (
-                newTrackCountingHighEffBJetTags +
-                newJetProbabilityBJetTags +
-                newJetBProbabilityBJetTags +
-                newSecondaryVertexTagInfos *
-                (
-                    newSimpleSecondaryVertexHighEffBJetTags +
-                    newCombinedSecondaryVertexV2BJetTags
-                ) +
-                inclusiveCandidateVertexing *
-                newInclusiveSecondaryVertexFinderTagInfos *
-                newSimpleInclusiveSecondaryVertexHighEffBJetTags *
-                newCombinedInclusiveSecondaryVertexV2BJetTags +
-                newInclusiveSecondaryVertexFinderCvsLTagInfos
-            ) +
-            newSoftPFMuonsTagInfos *
-            newSoftPFMuonBJetTags +
-            newSoftPFElectronsTagInfos *
-            newSoftPFElectronBJetTags
-        ) *
-        newCombinedMVAV2BJetTags +
-        newCombinedCvsLJetTags +
-        newCombinedCvsBJetTags
-    )
+    dependencies = {
+        'pfTrackCountingHighEffBJetTags': (trackCountingHighEffBJetTags, [ipTagInfosName]),
+        'pfJetProbabilityBJetTags': (jetProbabilityBJetTags, [ipTagInfosName]),
+        'pfJetBProbabilityBJetTags': (jetBProbabilityBJetTags, [ipTagInfosName]),
+        'pfSimpleSecondaryVertexHighEffBJetTags': (simpleSecondaryVertexHighEffBJetTags, [ipTagInfosName, svTagInfosName]),
+        'pfCombinedSecondaryVertexV2BJetTags': (combinedSecondaryVertexV2BJetTags, [ipTagInfosName, svTagInfosName]),
+        'pfSimpleInclusiveSecondaryVertexHighEffBJetTags': (simpleInclusiveSecondaryVertexHighEffBJetTags, [ipTagInfosName, ivfTagInfosName]),
+        'pfCombinedInclusiveSecondaryVertexV2BJetTags': (combinedInclusiveSecondaryVertexV2BJetTags, [ipTagInfosName, ivfTagInfosName]),
+        'softPFMuonBJetTags': (softPFMuonBJetTags, [smTagInfosName]),
+        'softPFElectronBJetTags': (softPFElectronBJetTags, [seTagInfosName]),
+        'pfCombinedMVAV2BJetTags': (combinedMVAV2BJetTags, [ipTagInfosName, svTagInfosName, ivfTagInfosName, smTagInfosName, seTagInfosName]),
+        'pfCombinedCvsLJetTags': (combinedCvsLJetTags, [ipTagInfosName, ivfcvslTagInfosName, smTagInfosName, seTagInfosName]),
+        'pvCombinedCvsBJetTags': (combinedCvsBJetTags, [ipTagInfosName, ivfcvslTagInfosName, smTagInfosName, seTagInfosName])
+    }
 
-    # configure process
+    tagInfos = {
+        ipTagInfosName: (impactParameterTagInfos, []),
+        svTagInfosName: (secondaryVertexTagInfos, [ipTagInfosName]),
+        ivfTagInfosName: (inclusiveSecondaryVertexFinderTagInfos, [ipTagInfosName]),
+        ivfcvslTagInfosName: (inclusiveSecondaryVertexFinderCvsLTagInfos, [ipTagInfosName]),
+        smTagInfosName: (softPFMuonsTagInfos, []),
+        seTagInfosName: (softPFElectronsTagInfos, []),
+    }
 
-    # ESProducers and vertexing sequences
-    # Will load as many times as the function is called but this is not a problem
-    process.load('RecoBTag.Configuration.RecoBTag_cff')
-    process.load('RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff')
+    def addTagInfo(name, sequence):
+        tagInfo, dependency = tagInfos[name]
 
-    # add tag info calculators
-    setattr(process, ipTagInfosName, newImpactParameterTagInfos)
-    setattr(process, svTagInfosName, newSecondaryVertexTagInfos)
-    setattr(process, ivfTagInfosName, newInclusiveSecondaryVertexFinderTagInfos)
-    setattr(process, smTagInfosName, newSoftPFMuonsTagInfos)
-    setattr(process, seTagInfosName, newSoftPFElectronsTagInfos)
-    setattr(process, ivfcvslTagInfosName, newInclusiveSecondaryVertexFinderCvsLTagInfos)
+        for depName in dependency:
+            addTagInfo(depName, sequence)
 
-    # add btag calculators
-    setattr(process, 'trackCountingHighEffBJetTags' + suffix, newTrackCountingHighEffBJetTags)
-    setattr(process, 'jetProbabilityBJetTags' + suffix, newJetProbabilityBJetTags)
-    setattr(process, 'jetBProbabilityBJetTags' + suffix, newJetBProbabilityBJetTags)
-    setattr(process, 'simpleSecondaryVertexHighEffBJetTags' + suffix, newSimpleSecondaryVertexHighEffBJetTags)
-    setattr(process, 'combinedSecondaryVertexV2BJetTags' + suffix, newCombinedSecondaryVertexV2BJetTags)
-    setattr(process, 'simpleInclusiveSecondaryVertexHighEffBJetTags' + suffix, newSimpleInclusiveSecondaryVertexHighEffBJetTags)
-    setattr(process, 'combinedInclusiveSecondaryVertexV2BJetTags' + suffix, newCombinedInclusiveSecondaryVertexV2BJetTags)
-    setattr(process, 'softPFMuonBJetTags' + suffix, newSoftPFMuonBJetTags)
-    setattr(process, 'softPFElectronBJetTags' + suffix, newSoftPFElectronBJetTags)
-    setattr(process, 'combinedMVAV2BJetTags' + suffix, newCombinedMVAV2BJetTags)
-    setattr(process, 'combinedCvsLJetTags' + suffix, newCombinedCvsLJetTags)
-    setattr(process, 'combinedCvsBJetTags' + suffix, newCombinedCvsBJetTags)
+        try:
+            sequence.index(tagInfo)
+        except:            
+            sequence += tagInfo
+            setattr(process, name, tagInfo)
+            addedTagInfos.append(name)
 
-    # finally add sequence
-    setattr(process, 'pfBTagging' + suffix, sequence)
-    
+    sequence = cms.Sequence()
+
+    if len(tags) == 0:
+        tags = dependencies.keys()
+
+    for tagName in tags:
+        tag, dependency = dependencies[tagName]
+
+        for tagInfoName in dependency:
+            addTagInfo(tagInfoName, sequence)
+
+        sequence += tag
+        setattr(process, tagName + suffix, tag)
+
     return sequence
