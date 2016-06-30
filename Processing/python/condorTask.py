@@ -153,6 +153,16 @@ class Sample:
     #-----------------------------------------------------------------------------------------------
     # add all lfns so far completed relevant to this task
     #-----------------------------------------------------------------------------------------------
+    def resetQueuedLfns(self):
+        # reset the record of queued LFNs
+
+        self.queuedLfns = {}
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # add all lfns so far completed relevant to this task
+    #-----------------------------------------------------------------------------------------------
     def addNoCatalogLfn(self,file):
 
         if file not in self.allLfns.keys():
@@ -247,6 +257,23 @@ class CondorTask:
         print ''
         self.show()
         print ''
+
+    #-----------------------------------------------------------------------------------------------
+    # update scheduler
+    #-----------------------------------------------------------------------------------------------
+    def updateScheduler(self,host,user):
+
+        self.scheduler.update(host ,user)
+
+        # derived
+        self.loadQueuedLfns()
+        self.sample.createMissingLfns()
+        self.logs = self.scheduler.home + '/cms/logs/' + self.mitCfg + '/' + self.mitVersion \
+            + '/' + self.sample.dataset
+        self.outputData = self.scheduler.home + '/cms/data/' + self.mitCfg + '/' + self.mitVersion \
+            + '/' + self.sample.dataset
+        self.executable = self.logs + '/makeBambu.sh'
+        self.tarBall = self.logs + '/bambu_' + self.cmsswVersion + '.tgz'
 
     #-----------------------------------------------------------------------------------------------
     # add specification to given file for exactly one more condor queue request for a given lfn
@@ -346,6 +373,8 @@ class CondorTask:
     def loadQueuedLfns(self):
 
         # initialize from scratch
+        self.sample.resetQueuedLfns()
+
         path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
             + self.sample.dataset 
         pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)

@@ -163,7 +163,9 @@ siteFile = makeSiteFile(dataset,dbs,useExistingSites)
 # Create the corresponding condor task
 condorTask = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile)
 if local:
-    condorTask.scheduler.update('t3serv015.mit.edu','cmsprod')
+    print ' Update Scheduler ....'
+    condorTask.updateScheduler('t3serv015.mit.edu','cmsprod')
+    condorTask.show()
 
 # Prepare the environment
 condorTask.createDirectories()
