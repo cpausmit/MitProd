@@ -196,13 +196,14 @@ usage += "                      --pattern=<name>\n"
 usage += "                      --useExistingLfns\n"
 usage += "                      --useExistingSites\n"
 usage += "                      --displayOnly\n"
+usage += "                      --crab\n"
 usage += "                      --exe\n"
 usage += "                      --debug\n"
 usage += "                      --help\n\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['mitCfg=','version=','cmssw=','pattern=', \
-         'help','exe','useExistingLfns','useExistingSites','debug', \
+         'help','crab','exe','useExistingLfns','useExistingSites','debug', \
          'displayOnly' ]
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -214,16 +215,17 @@ except getopt.GetoptError, ex:
 # Get all parameters for the production
 # -------------------------------------
 # Set defaults for each option
-mitCfg           = 'filefi'
-version          = os.environ['MIT_VERS']
-cmssw            = ''
-pattern          = ''
-cmsswCfg         = 'cmssw.cfg'
-displayOnly      = False
-exe              = False
-useExistingLfns  = False
+mitCfg = 'filefi'
+version = os.environ['MIT_VERS']
+cmssw = ''
+pattern = ''
+cmsswCfg = 'cmssw.cfg'
+displayOnly = False
+crab = False
+exe = False
+useExistingLfns = False
 useExistingSites = False
-debug            = False
+debug = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -443,8 +445,12 @@ for row in filteredResults:
 
     # if work not complete submit the remainder
     print '# Submit new dataset: ' + datasetName
-    cmd = ' submitCondor.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
-        ' --dbs=' + dbs
+    if crab:
+        cmd = ' submit.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' + version + \
+            ' --dbs=' + dbs
+    else:
+        cmd = ' submitCondor.py --cmssw=' + cmssw + ' --mitCfg=' + mitCfg + ' --version=' \
+            + version + ' --dbs=' + dbs
 
     # make sure to use existing cache if requested
     if useExistingLfns:
@@ -453,7 +459,10 @@ for row in filteredResults:
         cmd += " --useExistingSites"
 
     # last thing to add is the dataset itself (nicer printing)
-    cmd += ' --dataset=' + datasetName
+    if crab:
+        cmd += ' --mitDataset=' + datasetName
+    else:
+        cmd += ' --dataset=' + datasetName
 
     # make sure dataset is not yet being worked on
     if not inList(datasetName,ongoingDsetList):

@@ -2,10 +2,9 @@ Universe                = vanilla
 Requirements            = ( ( isUndefined(IS_GLIDEIN) ) \
                             || ( OSGVO_OS_STRING == "RHEL 6" ) \
                             || ( GLIDEIN_REQUIRED_OS == "rhel6" ) ) \
-                          && ( isUndefined(CVMFS_cms_cern_ch_REVISION) \
-                            || (CVMFS_cms_cern_ch_REVISION >= 21812) ) \
-                          && Arch == "X86_64" \
-                          && HasFileTransfer
+                        && \
+                          ( isUndefined(CVMFS_cms_cern_ch_REVISION) \
+                            || (CVMFS_cms_cern_ch_REVISION >= 21812) )
 Request_Memory          = 2 GB
 Request_Disk            = 5 GB
 Notification            = Error

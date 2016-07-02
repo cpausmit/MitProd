@@ -33,8 +33,9 @@ export MIT_PROD_AGENTS_WWW="/home/cmsprod/public_html/MitProd/agents"
 # review process
 
 export MIT_PROD_REVIEW_CYCLE_HOURS=1
+
 ## export MIT_PROD_REVIEW_PYS="data mc"
-export MIT_PROD_REVIEW_PYS="data mc"
+export MIT_PROD_REVIEW_PYS="data"
 
 # catalog process
 
