@@ -136,7 +136,6 @@ ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS', 'PFPV')
 ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi', 'PFPV')
 
 # recluster fat jets, btag subjets
-#from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
 ak8chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PFJetsCHS', btagLabel = 'PFPV')
 ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets', btagLabel = 'PFPV')

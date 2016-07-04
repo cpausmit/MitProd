@@ -17,6 +17,7 @@ def photonIdForPuppi(process):
 
 puppi.useExistingWeights = False
 
+# As of 8_0_12, puppiNoLep is identical to puppi because useWeightsNoLep is commented out in PuppiProducer.
 puppiNoLep = puppi.clone(
     useWeightsNoLep = True
 )
@@ -39,7 +40,7 @@ puppiForMET = cms.EDProducer('CandViewMerger',
 
 puppiSequence = cms.Sequence(
     puppi +
-    puppiNoLep +
+#    puppiNoLep +
     puppiPhoton +
     puppiForMET
 )
