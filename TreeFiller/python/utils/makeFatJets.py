@@ -8,7 +8,8 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
 from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag
 
-def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150.):
+# In-house implementation of pat addJetCollection for fat jets, with much less of confusingness, hopefully.
+def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., btagLabel = ''):
 
   rLabel = algoLabel + '%d' % (int(jetRadius * 10)) # 'ak8'
 
@@ -23,15 +24,13 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150.):
     sdZcut = 0.1
     sdBeta = 0.0
   else:
-    sdZcut = 0.2
+    sdZcut = 0.15
     sdBeta = 1.0
 
-  ## Various collection names
+  ## Used for btagging & jet clustering (pvSource)
+  ## CMS uses the particleFlow collection to compute the btag info regardless of the jet source collection.
   pfSource = 'particleFlow'
   pvSource = 'offlinePrimaryVertices'
-  svSource = 'inclusiveCandidateSecondaryVertices'
-  muSource = 'muons'
-  elSource = 'gedGsfElectrons'
 
   ########################################
   ##           CLUSTER JETS             ##
@@ -98,71 +97,75 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150.):
     sdKinematics
   )
 
-  #######################################
-  ##         FATJET BTAGGING           ##
-  #######################################
+  if btagLabel != '':
+    #######################################
+    ##         FATJET BTAGGING           ##
+    #######################################
 
-  initBTag(process)
+    initBTag(process, btagLabel, pfSource, pvSource)
+  
+    btags = [
+      'pfJetProbabilityBJetTags',
+      'pfJetBProbabilityBJetTags',
+      'pfCombinedSecondaryVertexV2BJetTags',
+      'pfCombinedInclusiveSecondaryVertexV2BJetTags',
+      'pfCombinedMVAV2BJetTags'
+    ]
+  
+    btagInfos = []
+    btagging = setupBTag(process, jetsName, jetsName, btagLabel, tags = btags, addedTagInfos = btagInfos)
 
-  btags = [
-    'pfJetProbabilityBJetTags',
-    'pfJetBProbabilityBJetTags',
-    'pfCombinedSecondaryVertexV2BJetTags',
-    'pfCombinedInclusiveSecondaryVertexV2BJetTags',
-    'pfCombinedMVAV2BJetTags'
-  ]
-
-  btagInfos = []
-  btagging = setupBTag(process, jetsName, jetsName, tags = btags, addedTagInfos = btagInfos)
-
-  #######################################
-  ##         SUBJET BTAGGING           ##
-  #######################################
-
-  # Product: std::vector<reco::CandIPTagInfo>
-  # IPTagInfo object contains a reference to jet
-  subjetIpTagInfos = btag.pfImpactParameterTagInfos.clone(
-    jets = cms.InputTag(softDropJetsName, 'SubJets'),
-    maxDeltaR = cms.double(jetRadius),
-    primaryVertex = cms.InputTag(pvSource),
-    candidates = cms.InputTag(pfSource),
-    explicitJTA = cms.bool(True)
-  )
-
-  subjetIpTagInfosName = 'pfImpactParameterTagInfos' + softDropSubjetsName
-  setattr(process, subjetIpTagInfosName, subjetIpTagInfos)
-
-  # Product: std::vector<TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo, reco::VertexCompositePtrCandidate>>
-  subjetInclSVFinderTagInfos = btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(
-    trackIPTagInfos = cms.InputTag(subjetIpTagInfosName),
-    extSVCollection = cms.InputTag(svSource),
-    useSVClustering = cms.bool(True),
-    jetAlgorithm = cms.string(jetAlgo),
-    rParam = cms.double(jetRadius),
-    fatJets = cms.InputTag(jetsName),
-    groomedFatJets = cms.InputTag(softDropJetsName)
-  )
-
-  subjetInclSVFinderTagInfosName = 'pfInclusiveSecondaryVertexFinderTagInfos' + softDropSubjetsName
-  setattr(process, subjetInclSVFinderTagInfosName, subjetInclSVFinderTagInfos)
-
-  # Product: JetTagCollection (aka reco::JetFloatAssociation::Container aka edm::AssociationVector<reco::JetRefBaseProd, std::vector<float>>)
-  # Uses the internal reference to the jet in the TagInfos object to create an AssociationVector
-  subjetBjetTags = btag.pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
-    tagInfos = cms.VInputTag( 
-      cms.InputTag(subjetIpTagInfosName), 
-      cms.InputTag(subjetInclSVFinderTagInfosName)
+    #######################################
+    ##         SUBJET BTAGGING           ##
+    #######################################
+  
+    # Product: std::vector<reco::CandIPTagInfo>
+    # IPTagInfo object contains a reference to jet
+    subjetIpTagInfos = btag.pfImpactParameterTagInfos.clone(
+      jets = cms.InputTag(softDropJetsName, 'SubJets'),
+      primaryVertex = cms.InputTag(pvSource),
+      candidates = cms.InputTag(pfSource),
+#      explicitJTA = cms.bool(True)
     )
-  )
+  
+    subjetIpTagInfosName = 'pfImpactParameterTagInfos' + softDropSubjetsName
+    setattr(process, subjetIpTagInfosName, subjetIpTagInfos)
+  
+    # Product: std::vector<TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo, reco::VertexCompositePtrCandidate>>
+    subjetInclSVFinderTagInfos = btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(
+      trackIPTagInfos = cms.InputTag(subjetIpTagInfosName),
+      extSVCollection = cms.InputTag('inclusiveCandidateSecondaryVertices' + btagLabel),
+#      useSVClustering = cms.bool(True),
+#      jetAlgorithm = cms.string(jetAlgo),
+#      rParam = cms.double(jetRadius),
+#      fatJets = cms.InputTag(jetsName),
+#      groomedFatJets = cms.InputTag(softDropJetsName)
+    )
+  
+    subjetInclSVFinderTagInfosName = 'pfInclusiveSecondaryVertexFinderTagInfos' + softDropSubjetsName
+    setattr(process, subjetInclSVFinderTagInfosName, subjetInclSVFinderTagInfos)
+  
+    # Product: JetTagCollection (aka reco::JetFloatAssociation::Container aka edm::AssociationVector<reco::JetRefBaseProd, std::vector<float>>)
+    # Uses the internal reference to the jet in the TagInfos object to create an AssociationVector
+    subjetBjetTags = btag.pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
+      tagInfos = cms.VInputTag( 
+        cms.InputTag(subjetIpTagInfosName), 
+        cms.InputTag(subjetInclSVFinderTagInfosName)
+      )
+    )
+  
+    subjetBjetTagsName = 'pfCombinedInclusiveSecondaryVertexV2BJetTags' + softDropSubjetsName
+    setattr(process, subjetBjetTagsName, subjetBjetTags)
+  
+    subjetBTagging = cms.Sequence(
+      subjetIpTagInfos +
+      subjetInclSVFinderTagInfos +
+      subjetBjetTags
+    )
 
-  subjetBjetTagsName = 'pfCombinedInclusiveSecondaryVertexV2BJetTags' + softDropSubjetsName
-  setattr(process, subjetBjetTagsName, subjetBjetTags)
-
-  subjetBTagging = cms.Sequence(
-    subjetIpTagInfos +
-    subjetInclSVFinderTagInfos +
-    subjetBjetTags
-  )
+  else:
+    btagging = cms.Sequence()
+    subjetBTagging = cms.Sequence()
 
   ########################################
   ##          MAKE PAT JETS             ##

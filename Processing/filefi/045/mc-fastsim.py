@@ -113,7 +113,6 @@ egmPhotonIDSequence = photonIdForPuppi(process)
 # PUPPI jets
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-#ak4PFJetsPuppi.src = 'puppiNoLep'
 ak4PFJetsPuppi.src = 'puppi'
 ak4PFJetsPuppi.doAreaFastjet = True
 
@@ -131,20 +130,18 @@ process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
 # Load btagging
 from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag
-initBTag(process)
-ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF')
-ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS')
-ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi')
+vertexingPFPV = initBTag(process, 'PFPV', candidates = 'particleFlow', primaryVertex = 'offlinePrimaryVertices')
+ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', 'PFPV')
+ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS', 'PFPV')
+ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi', 'PFPV')
 
 # recluster fat jets, btag subjets
 #from MitProd.TreeFiller.utils.makeFatJets import initFatJets, makeFatJets
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
-ak8chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PFJetsCHS')
-#ak8puppiSequence = makeFatJets(process, src = 'puppiNoLep', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets')
-ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets')
-ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PFJetsCHS')
-#ca15puppiSequence = makeFatJets(process, src = 'puppiNoLep', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
-ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets')
+ak8chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PFJetsCHS', btagLabel = 'PFPV')
+ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets', btagLabel = 'PFPV')
+ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PFJetsCHS', btagLabel = 'PFPV')
+ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets', btagLabel = 'PFPV')
 
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
@@ -162,6 +159,7 @@ recoSequence = cms.Sequence(
   egmPhotonIDSequence *
   puppiSequence *
   ak4PFJetsPuppi *
+  vertexingPFPV *
   ak4PFBTagSequence *
   ak4PFCHSBTagSequence *
   ak4PFPuppiBTagSequence *
