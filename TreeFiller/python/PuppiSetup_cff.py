@@ -1,45 +1,46 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.PileupAlgos.Puppi_cff import puppi
-from RecoMET.METProducers.PFMET_cfi import pfMet
+from MitProd.TreeFiller.Puppi_cff import puppi
+#from CommonTools.PileupAlgos.PhotonPuppi_cff import puppiPhoton
 
-pfCandNoLep = cms.EDFilter("CandPtrSelector", 
-    src = cms.InputTag("particleFlow"), 
-    cut = cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15")
+# photon ID used for puppiPhoton
+def photonIdForPuppi(process):
+    # copied from PhotonPupppi_cff to run on AOD
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDPhotonIdProducer, DataFormat, setupVIDPhotonSelection
+    from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff import cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose
+
+    switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
+    setupVIDPhotonSelection(process, cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose, patProducer = None, addUserData = False)
+
+    return process.egmPhotonIDSequence
+
+
+puppi.useExistingWeights = False
+
+# As of 8_0_12, puppiNoLep is identical to puppi because useWeightsNoLep is commented out in PuppiProducer.
+puppiNoLep = puppi.clone(
+    useWeightsNoLep = True
 )
 
-pfCandNoLepMap = cms.EDProducer('CandMappingProducer',
-    source = cms.InputTag('particleFlow'),
-    target = cms.InputTag('pfCandNoLep')
+# original class adapted from CommonTools.PileupAlgos.PhotonPuppi_cff
+puppiPhoton = cms.EDProducer('PuppiPhotonScaler',
+    candName = cms.InputTag('particleFlow'),
+    puppiCandName = cms.InputTag('puppi'),
+    photonName = cms.InputTag('gedPhotons'),
+    footprintsName = cms.InputTag('particleBasedIsolation:gedPhotons'),
+    photonId = cms.InputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose'),
+    pt = cms.double(10.),
+    dRMatch = cms.vdouble(10., 10., 10., 10.),
+    pdgids = cms.vuint32(22, 11, 211, 130)
 )
 
-pfCandLep = cms.EDFilter("CandPtrSelector", 
-    src = cms.InputTag("particleFlow"), 
-    cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15")
+puppiForMET = cms.EDProducer('CandViewMerger',
+    src = cms.VInputTag('puppiPhoton')
 )
-
-pfCandLepMap = cms.EDProducer('CandMappingProducer',
-    source = cms.InputTag('particleFlow'),
-    target = cms.InputTag('pfCandLep')
-)
-
-puppiNoLep = puppi.clone()
-puppiNoLep.candName = 'pfCandNoLep'
-
-puppiNoLepPlusLep = cms.EDProducer('MappingCandViewMerger',
-    src = cms.VInputTag('puppiNoLep', 'pfCandLep')
-)
-
-puppiMet = pfMet.clone()
-puppiMet.src = cms.InputTag('puppiNoLepPlusLep')
-puppiMet.calculateSignificance = False
 
 puppiSequence = cms.Sequence(
-    pfCandNoLep +
-    pfCandNoLepMap +
-    pfCandLep +
-    pfCandLepMap +
-    puppiNoLep +
-    puppiNoLepPlusLep +
-    puppiMet
+    puppi +
+#    puppiNoLep +
+    puppiPhoton +
+    puppiForMET
 )

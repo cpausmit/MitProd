@@ -174,8 +174,8 @@ mithep::FillerJets::initBJetTags(edm::Event const& event,
 {
   for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT) {
     edm::Handle<reco::JetTagCollection> hBJetTags;
-    if (GetProductSafe(bJetTagsToken_[iT], hBJetTags, event))
-      bJetTags[iT] = hBJetTags.product();
+    GetProduct(bJetTagsToken_[iT], hBJetTags, event);
+    bJetTags[iT] = hBJetTags.product();
   }
 }
 

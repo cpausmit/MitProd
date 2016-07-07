@@ -209,6 +209,10 @@ mithep::FillerPhotons::FillDataBlock(edm::Event const& event,
     outPhoton->SetE25(inPhoton.e2x5());
     outPhoton->SetE33(inPhoton.e3x3());    
     outPhoton->SetE55(inPhoton.e5x5());
+    outPhoton->SetCoviEtaiEta(inPhoton.sigmaIetaIeta());
+    outPhoton->SetCoviEtaiEta5x5(inPhoton.full5x5_sigmaIetaIeta());
+    outPhoton->SetCoviEtaiPhi5x5(inPhoton.full5x5_showerShapeVariables().sigmaIetaIphi);
+    outPhoton->SetCoviPhiiPhi5x5(inPhoton.full5x5_showerShapeVariables().sigmaIphiIphi);
     outPhoton->SetHadOverEmTow(inPhoton.hadTowOverEm());
 
     // isolation variables for dR=0.3

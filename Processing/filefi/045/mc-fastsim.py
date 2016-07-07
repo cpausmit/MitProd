@@ -142,10 +142,6 @@ ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadi
 ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PFJetsCHS', btagLabel = 'PFPV')
 ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets', btagLabel = 'PFPV')
 
-#> Setup the met filters
-from MitProd.TreeFiller.metFilters_cff import metFilters
-process.load('MitProd.TreeFiller.metFilters_cff')
-
 #> The bambu reco sequence
 recoSequence = cms.Sequence(
   electronsStable *
@@ -170,8 +166,7 @@ recoSequence = cms.Sequence(
   ak8puppiSequence *
   ca15chsSequence *
   ca15puppiSequence *
-  pfMETPuppi *
-  metFilters
+  pfMETPuppi
 )
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -208,6 +203,32 @@ MitTreeFiller.MCEventInfo.active = True
 MitTreeFiller.MCAllVertexes.active = True
 MitTreeFiller.Trigger.active = False
 MitTreeFiller.MetaInfos.l1GtReadRecEdmName = ''
+
+# fastsim specific
+MitTreeFiller.Trigger.l1Active = False
+MitTreeFiller.EvtSelData.active = False
+MitTreeFiller.ConversionStepTracks.active = False
+MitTreeFiller.ConversionStepElectronsStable.active = False
+MitTreeFiller.PFCandidates.trackerTrackMapNames.remove('ConversionTracksMap')
+MitTreeFiller.HPSTaus.trackMapNames.remove('ConversionTracksMap')
+MitTreeFiller.StandaloneCosmicMuonTracks.active = False
+MitTreeFiller.GlobalCosmicMuonTracks.active = False
+MitTreeFiller.CosmicMuons.active = False
+MitTreeFiller.ConversionInOutTracks.active = False
+MitTreeFiller.ConversionInOutElectronsStable.active = False
+MitTreeFiller.ConversionOutInTracks.active = False
+MitTreeFiller.ConversionOutInElectronsStable.active = False
+MitTreeFiller.MergedElectronsStable.trackMapNames.remove('ConversionInOutTracksMap')
+MitTreeFiller.MergedElectronsStable.trackMapNames.remove('ConversionOutInTracksMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.MergedConversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.Conversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ConversionInOutElectronsStableTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ConversionOutInElectronsStableTrackMap')
+MitTreeFiller.PFPhotonConversions.stablePartMaps.remove('ElectronsStableConvStepTrackMap')
 
 # define fill bambu filler sequence
 

@@ -25,11 +25,23 @@ eeBadScFilter.taggingMode = cms.bool(True)
 from RecoMET.METFilters.CSCTightHalo2015Filter_cfi import CSCTightHalo2015Filter
 CSCTightHalo2015Filter.taggingMode = cms.bool(True)
 
+from RecoMET.METFilters.globalTightHalo2016Filter_cfi import globalTightHalo2016Filter
+globalTightHalo2016Filter.taggingMode = cms.bool(True)
+
+from RecoMET.METFilters.globalSuperTightHalo2016Filter_cfi import globalSuperTightHalo2016Filter
+globalSuperTightHalo2016Filter.taggingMode = cms.bool(True)
+
 from RecoMET.METFilters.chargedHadronTrackResolutionFilter_cfi import chargedHadronTrackResolutionFilter
 chargedHadronTrackResolutionFilter.taggingMode = cms.bool(True)
 
 from RecoMET.METFilters.muonBadTrackFilter_cfi import muonBadTrackFilter
 muonBadTrackFilter.taggingMode = cms.bool(True)
+
+from RecoMET.METFilters.BadPFMuonFilter_cfi import BadPFMuonFilter
+BadPFMuonFilter.taggingMode = cms.bool(True)
+
+from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidateFilter
+BadChargedCandidateFilter.taggingMode = cms.bool(True)
 
 #> Finally define the met filter sequence
 metFilters = cms.Sequence(
@@ -38,6 +50,10 @@ metFilters = cms.Sequence(
     EcalDeadCellBoundaryEnergyFilter *
     eeBadScFilter *
     CSCTightHalo2015Filter *
+    globalTightHalo2016Filter *
+    globalSuperTightHalo2016Filter *
     chargedHadronTrackResolutionFilter *
-    muonBadTrackFilter
+    muonBadTrackFilter *
+    BadPFMuonFilter *
+    BadChargedCandidateFilter
 )
