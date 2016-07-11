@@ -6,17 +6,15 @@ import FWCore.ParameterSet.Config as cms
 # create the process
 process = cms.Process('FILEFI')
 
-# say how many events to process (-1 means no limit)
+# say how many events to process (Don't change!!)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1)
 )
 
 #>> input source
 
 process.source = cms.Source(
-  "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16reHLT80/TTbarDMJets_pseudoscalar_Mchi-10_Mphi-10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext1-v1/00000/26AD04E0-3039-E611-88BC-D4856459AE7C.root'),
-#  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
+  "PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
