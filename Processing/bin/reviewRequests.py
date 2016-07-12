@@ -289,6 +289,9 @@ except:
 # Take the result from the database and look at it
 filteredResults = []
 first = True
+nAllTotal = 0
+nDoneTotal = 0
+nMissingTotal = 0
 for row in results:
     process = row[0]
     setup = row[1]
@@ -304,23 +307,31 @@ for row in results:
     if pattern in datasetName:
         # Make filtered list
         filteredResults.append(row)
-        (nDone,nTotal) = productionStatus(mitCfg,version,datasetName,debug)
+        (nDone,nAll) = productionStatus(mitCfg,version,datasetName,debug)
         if first:
             first = False
             print '#'
             print '#                                O V E R V I E W -- VERSION: ' + version
             print '#'
-            print '# Done/Total--Dataset Name'
+            print '# Perct   Done/ Total--Dataset Name'
             print '#---------------------------------------------------------------------------'
 
         percentage = 0.0
-        if nTotal > 0:
-            percentage = 100.0 * float(nDone)/float(nTotal)
-        if nDone != nTotal:
-            print " %6.2f  %5d/ %5d  %s"%(percentage,nDone,nTotal,datasetName)
+        if nAll > 0:
+            percentage = 100.0 * float(nDone)/float(nAll)
+        if nDone != nAll:
+            print " %6.2f  %5d/ %5d  %s"%(percentage,nDone,nAll,datasetName)
         else:
-            print " %6.2f  %5d= %5d  %s"%(percentage,nDone,nTotal,datasetName)
+            print " %6.2f  %5d= %5d  %s"%(percentage,nDone,nAll,datasetName)
 
+        nMissing = nAll-nDone
+
+        nAllTotal += nAll
+        nDoneTotal += nDone
+        nMissingTotal += nMissing
+
+print '#'
+print '# TOTAL  %d/ %d  -->  %d missing.'%(nDoneTotal,nAllTotal,nMissingTotal)
 print '#'
 
 #===============================================

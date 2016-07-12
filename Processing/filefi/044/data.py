@@ -14,8 +14,6 @@ process.maxEvents = cms.untracked.PSet(
 #>> input source
 
 process.source = cms.Source(
-#  "PoolSource",
-#  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016B/SingleMuon/AOD/PromptReco-v2/000/273/158/00000/0470F84C-2B1A-E611-BC8B-02163E0139E0.root')
   "PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
 )
 process.source.inputCommands = cms.untracked.vstring(

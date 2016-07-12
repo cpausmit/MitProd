@@ -14,10 +14,9 @@ process.maxEvents = cms.untracked.PSet(
 #>> input source
 
 process.source = cms.Source(
-  "PoolSource",
-# run 274338, lumi 500
-   fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/data/Run2016B/JetHT/AOD/PromptReco-v2/000/274/338/00000/60352A09-382B-E611-875F-02163E012147.root')
+  "PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
 )
+
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
   "drop *_MEtoEDMConverter_*_*",

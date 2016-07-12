@@ -244,7 +244,16 @@ fi
 cd $WORKDIR
 pwd
 ls -lhrt
-executeCmd time cmsRun ${PY}.py
+
+echo " Execute cmsRun ${PY}.py" 
+cmsRun ${PY}.py
+rc=$?
+if [ "$rc" != "0" ] 
+then
+  echo ""
+  echo " ERROR -- Return code is not zero: $rc"
+  echo ""
+fi
 
 # this is a little naming issue that has to be fixed
 mv bambu-output-file-tmp*.root  ${GPACK}_tmp.root
