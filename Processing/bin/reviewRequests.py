@@ -73,68 +73,6 @@ def findNumberOfFilesDone(mitCfg,version,dataset,debug=0):
         nFileDone = -1
 
     return nFilesDone
-    
-
-def findStartedDatasets(path,debug=0):
-    # Make a list of all datasets that have at sometimes already been considered AKA: started
-
-    if debug == 1:
-        print " Collecting information over started samples"
-    datasetList = []
-
-    cmd = 'list ' + path + ' 2> /dev/null'
-    if debug:
-        print ' List: ' + cmd
-    for line in os.popen(cmd).readlines():   # run command
-        line = line[:-1]                     # strip '\n'
-        f    = line.split(" ")
-        size = f[0]
-        file = f[1]
-
-        if not inList(file,datasetList):
-            if debug == 1:
-                print ' Debug:: adding started: ' + file + ' with size ' + size
-            datasetList.append(file)
-
-    return datasetList
-
-def findOngoingDatasets(path,mitCfg,version,debug=0):
-    # Make a list of all datasets that are presently active and being worked on AKA: ongoing
-
-    if debug == 1:
-        print " Collecting information over ongoing samples"
-    datasetList = []
-
-    cmd = 'cat crab_[0-9]_[0-9]*_[0-9]*/share/crab.cfg 2> /dev/null |grep ^user_remote_dir'
-    for line in os.popen(cmd).readlines():   # run command
-        line    = line[:-1]                  # strip '\n'
-        f       = line.split("/")
-        dataset = f[-1]
-        ver     = f[-2]
-        cfg     = f[-3]
-
-        if re.search('crab_0',dataset):
-            dataset = f[-2]
-            ver     = f[-3]
-            cfg     = f[-4]
-
-        if cfg != mitCfg or ver != version:
-            continue
-
-        if not inList(dataset,datasetList):
-            if debug == 1:
-                print ' Debug:: adding ongoing: ' + dataset
-            datasetList.append(dataset)
-
-    return datasetList
-
-def inList(file,list):
-    # Check whether a given entry is alreay in the list (careful this is slow string comparison)
-
-    for entry in list:
-        if entry == file:
-            return True
-    return False
 
 def testEnvironment(mitCfg,version,cmssw,cmsswCfg):
     # Basic checks will be implemented here to remove the clutter from the main
@@ -363,11 +301,6 @@ else:
 # Where is our storage?
 path = findPath(mitCfg,version)
 
-# Find all started samples
-startedDsetList  = findStartedDatasets(path,debug)
-ongoingDsetList  = findOngoingDatasets(path,mitCfg,version,debug)
-
-
 #==================
 # M A I N  L O O P
 #==================
@@ -476,12 +409,8 @@ for row in filteredResults:
     else:
         cmd += ' --dataset=' + datasetName
 
-    # make sure dataset is not yet being worked on
-    if not inList(datasetName,ongoingDsetList):
-        print ' submitting: ' + cmd
-        if exe:
-            os.system(cmd)
-    else:
-        print ' already running.'
+    print ' submitting: ' + cmd
+    if exe:
+        os.system(cmd)
 
 sys.exit(0)
