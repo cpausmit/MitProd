@@ -29,8 +29,12 @@ void catalogFile(const char *dir, const char *file)
   TTree *tree = 0, *allTree = 0;
 
   TString fileName = TString(dir) + slash +  + TString(file);
-  if (fileName.Index("/mnt/hadoop/cms/store") != -1) {
+  if      (fileName.Index("/mnt/hadoop/cms/store") != -1) {
     fileName.Remove(0,15);
+    fileName = hadoopDoor + fileName;
+  }
+  else if (fileName.Index("/cms/store") != -1) {
+    fileName.Remove(0,4);
     fileName = hadoopDoor + fileName;
   }
   

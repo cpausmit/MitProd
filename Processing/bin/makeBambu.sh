@@ -73,14 +73,22 @@ function downloadFile {
   do
     echo " Trying server: $server"  
 
-    executeCmd xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root
+    echo " Execute:  xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root"
+    xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root
+    rc="$?"
+
+    if [ "$rc" != "0" ]
+    then
+      echo " ERROR -- Copy command failed -- RC: $rc"
+      rm -f ./$GPACK.root
+    fi
 
     if [ -e "./$GPACK.root" ]
     then
       echo " Looks like copy worked on server: $server."
       break
     else
-      echo " ERROR -- input file ./$GPACK.root does not exist. Failed on server: $server"
+      echo " ERROR -- file ./$GPACK.root does not exist or is corrupt (RC: $rc, server: $server)"
     fi
   done
 

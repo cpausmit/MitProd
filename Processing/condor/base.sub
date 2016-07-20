@@ -6,7 +6,7 @@ Requirements            = ( ( isUndefined(IS_GLIDEIN) ) \
                           ( isUndefined(CVMFS_cms_cern_ch_REVISION) \
                             || (CVMFS_cms_cern_ch_REVISION >= 21812) )
 Request_Memory          = 2 GB
-Request_Disk            = 5 GB
+Request_Disk            = 10 GB
 Notification            = Error
 Rank                    = Mips
 GetEnv                  = False

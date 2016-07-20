@@ -242,7 +242,8 @@ for row in results:
     # make up the proper mit datset name
     datasetName = process + '+' + setup+ '+' + tier
 
-    if pattern in datasetName:
+    matchObj = re.match(pattern,datasetName)
+    if matchObj:
         # Make filtered list
         filteredResults.append(row)
         (nDone,nAll) = productionStatus(mitCfg,version,datasetName,debug)

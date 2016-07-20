@@ -5,6 +5,8 @@
 #---------------------------------------------------------------------------------------------------
 import os,sys,re,string,socket
 
+DEBUG = 0
+
 #---------------------------------------------------------------------------------------------------
 """
 Class:  Scheduler(host='ce04.cmsaf.mit.edu',user='paus')
@@ -131,9 +133,10 @@ class Sample:
             # add this lfn to the mix
             self.allLfns[file] = lfn
 
-        print ''
-        print ' TOTAL   - Lfns: %6d  [ Events: %9d ]'\
-              %(len(self.allLfns),self.nEvtTotal)
+        if DEBUG > 0:
+            print ''
+            print ' TOTAL   - Lfns: %6d  [ Events: %9d ]'\
+                %(len(self.allLfns),self.nEvtTotal)
 
     #-----------------------------------------------------------------------------------------------
     # add all lfns so far completed relevant to this task
@@ -208,7 +211,8 @@ class Sample:
                 # adding this one to the missing ones
                 self.missingLfns[file] = lfn
 
-        print ' MISSING - Lfns: %6d'%(len(self.missingLfns))
+        if DEBUG > 0:
+            print ' MISSING - Lfns: %6d'%(len(self.missingLfns))
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -364,8 +368,9 @@ class CondorTask:
             file = (f[1].split("/")).pop()
             file = file.replace('_tmp','')
             self.sample.addNoCatalogLfn(file)
-        print ' NOCATAL - Lfns: %6d'%(len(self.sample.noCatalogLfns))
-        print ' DONE    - Lfns: %6d'%(len(self.sample.completedLfns))
+        if DEBUG > 0:
+            print ' NOCATAL - Lfns: %6d'%(len(self.sample.noCatalogLfns))
+            print ' DONE    - Lfns: %6d'%(len(self.sample.completedLfns))
 
     #-----------------------------------------------------------------------------------------------
     # load all lfns so far completed relevant to this task
@@ -386,7 +391,8 @@ class CondorTask:
             f    = line.split(' ')
             file = f[4] + '.root'
             self.sample.addQueuedLfn(file)
-        print ' QUEUED  - Lfns: %6d'%(len(self.sample.queuedLfns))
+        if DEBUG > 0:
+            print ' QUEUED  - Lfns: %6d'%(len(self.sample.queuedLfns))
 
     #-----------------------------------------------------------------------------------------------
     # generate actual tarball, or leave as is if already up to date
