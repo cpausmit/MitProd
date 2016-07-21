@@ -71,7 +71,7 @@ function downloadFile {
 
   for server in $serverList
   do
-    echo " Trying server: $server"  
+    echo " Trying server: $server at "`date`
 
     echo " Execute:  xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root"
     xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root
@@ -79,16 +79,16 @@ function downloadFile {
 
     if [ "$rc" != "0" ]
     then
-      echo " ERROR -- Copy command failed -- RC: $rc"
+      echo " ERROR -- Copy command failed -- RC: $rc at "`date`
       rm -f ./$GPACK.root
     fi
 
     if [ -e "./$GPACK.root" ]
     then
-      echo " Looks like copy worked on server: $server."
+      echo " Looks like copy worked on server: $server at "`date`
       break
     else
-      echo " ERROR -- file ./$GPACK.root does not exist or is corrupt (RC: $rc, server: $server)"
+      echo " ERROR -- file ./$GPACK.root does not exist or is corrupt (RC: $rc, server: $server at "`date`")"
     fi
   done
 
@@ -230,19 +230,21 @@ setupCmssw $cmsswVersion
 
 # prepare the python config from the given templates
 cat $MIT_PROD_DIR/$CONFIG/$VERSION/${PY}.py \
-    | sed "s@XX-LFN-XX@$lfn@g" \
-    | sed "s@XX-GPACK-XX@$GPACK@g" \
+    | sed -e "s@XX-LFN-XX@$LFN@g" -e "s@XX-GPACK-XX@$GPACK@g" \
     > $WORKDIR/${PY}.py
 
 # getting our input (important: xrdcp needs cvmfs to be setup)
 cd $WORKDIR; pwd; ls -lhrt
 voms-proxy-info -all
-downloadFile $GPACK $LFN
-if ! [ -e "./$GPACK.root" ]
-then
-  echo " EXIT -- download failed."
-  exit 1
-fi
+
+echo " WARNING -- downloadFile $GPACK $LFN -- IS SKIPPED FOR NOW!"
+
+##downloadFile $GPACK $LFN
+##if ! [ -e "./$GPACK.root" ]
+##then
+##  echo " EXIT -- download failed."
+##  exit 1
+##fi
 
 ####################################################################################################
 # run BAMBU
@@ -260,7 +262,9 @@ if [ "$rc" != "0" ]
 then
   echo ""
   echo " ERROR -- Return code is not zero: $rc"
+  echo "          EXIT, no file copies!!"
   echo ""
+  exit $rc
 fi
 
 # this is a little naming issue that has to be fixed

@@ -399,7 +399,7 @@ class CondorTask:
     #-----------------------------------------------------------------------------------------------
     def makeTarBall(self):
 
-        # check if the tar bacll exists locally
+        # check if the tar ball exists locally
         if os.path.exists(os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"):
             print " INFO - tar ball exists: " \
                 + os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"

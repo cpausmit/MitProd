@@ -14,12 +14,18 @@ process.maxEvents = cms.untracked.PSet(
 #>> input source
 
 process.source = cms.Source(
-  "PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
+  #"PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
+  "PoolSource", fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov/XX-LFN-XX')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
   "drop *_MEtoEDMConverter_*_*",
   "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT"
+)
+# lazy download
+process.SiteLocalConfigService = cms.Service(
+  "SiteLocalConfigService",
+  overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
 )
 
 #>> configurations
