@@ -128,8 +128,9 @@ class Sample:
             self.nEvents = int(f[2])
             self.nEvtTotal += self.nEvents
             if file in self.allLfns.keys():
-                print " ERROR -- lfn appeared twice! This should never happen. EXIT."
-                sys.exit(1)
+                print " ERROR -- lfn appeared twice! This should never happen. IGNORE."
+                #print " ERROR -- lfn appeared twice! This should never happen. EXIT."
+                #sys.exit(1)
             # add this lfn to the mix
             self.allLfns[file] = lfn
 
@@ -383,7 +384,9 @@ class CondorTask:
         path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
             + self.sample.dataset 
         pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)
-        cmd = 'condor_q -format \'%s\n\' Args 2> /dev/null | grep \'' + pattern + '\''
+        cmd = 'condor_q ' + self.scheduler.user \
+            + ' -constraint JobStatus!=5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
+
         if not self.scheduler.isLocal():
             cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
                 + ' \"' + cmd + '\"'

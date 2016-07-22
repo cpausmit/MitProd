@@ -8,26 +8,23 @@ function usage {
   echo " "`basename $0`" <book>  <dataset>  [ <location> = T2MIT, '' ] "
   echo ""
   echo "   book     - book of the sample in question. Example: filefi/041"
-  echo "   dataset  - name of the sample in question. Example: /JetHT/Run2015B-PromptReco-v1/AOD"
-  echo "   location - location (this is bogus for now)"
+  echo "   dataset  - name of the sample in question. Example: JetHT+Run2015B-PromptReco-v1+AOD"
   echo ""
   exit 0
 }
 
-MOUNT=/mnt/hadoop
 BASE_LFN=/cms/store/user/paus
 CATALOG=~cmsprod/catalog
 SERVER="srm://se01.cmsaf.mit.edu:8443/srm/v2/server?SFN="
 
-# OLD # RMT2="rglexec hadoop dfs -rmr"
 RMT2="rglexec hdfs   dfs -rm -r"
 RMT3="        hdfs   dfs -rm -r"
-
 
 BOOK="$1"
 SAMPLE="$2"
 LOCATION="$3"
 
+# make sure parameters make sense
 if [ "$BOOK" == "" ] || [ "$SAMPLE" == "" ]
 then
   echo ""
@@ -39,27 +36,25 @@ else
   echo ""
 fi
 
-if [ "$LOCATION" == "" ] || [ "$LOCATION" == "T2MIT" ]
+# remove the remote physical files
+echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE"
+$RMT2 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
+echo " Return code from Tier2: $?"
+echo ""
+
+# remove the local physical files in the cache (Tier-3)
+echo " CMD: $RMT3 $BASE_LFN/${BOOK}/$SAMPLE"
+$RMT3 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
+echo " Return code from Tier3: $?"
+echo ""
+
+# remove catalogs
+if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]
 then
-
-  # remove the remote physical files
-  echo " CMD: $RMT2 $BASE_LFN/${BOOK}/$SAMPLE"
-  $RMT2 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
-  echo " Return code from Tier2: $?"
-  echo ""
-
-  # remove the potentially local physical files (Tier-3)
-  echo " CMD: $RMT3 $BASE_LFN/${BOOK}/$SAMPLE"
-  $RMT3 $BASE_LFN/${BOOK}/$SAMPLE >& /dev/null
-  echo " Return code from Tier3: $?"
-  echo ""
-
-  # remove catalogs
-  if [ -d $CATALOG/t2mit/$BOOK/$SAMPLE ]
-  then
-    echo "# rm -rf $CATALOG/t2mit/$BOOK/$SAMPLE"
-    echo " NOT REMOVING CATALOG"
-  fi
+  echo "# rm -rf $CATALOG/t2mit/$BOOK/$SAMPLE"
+  echo "# NOT DOING IT "
+else
+  echo " THERE IS NO CATALOG"
 fi
 
 exit 0

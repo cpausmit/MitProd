@@ -228,23 +228,28 @@ initialState $*
 # setting up the software
 setupCmssw $cmsswVersion
 
+# make sure to properly define the LFN
+localFile=`edmFileUtil -d $LFN | sed '@^file:@@'`
+if ! [ -e "$localFile" ]
+then
+  cd $WORKDIR; pwd; ls -lhrt
+  voms-proxy-info -all
+  downloadFile $GPACK $LFN
+  if ! [ -e "./$GPACK.root" ]
+  then
+    echo " EXIT -- download failed."
+    exit 1
+  fi
+  LFN="file:$GPACK.root"
+#
+  #SERVER=cmsxrootd.fnal.gov
+  #LFN="root://$SERVER/$LFN"
+fi
+
 # prepare the python config from the given templates
 cat $MIT_PROD_DIR/$CONFIG/$VERSION/${PY}.py \
     | sed -e "s@XX-LFN-XX@$LFN@g" -e "s@XX-GPACK-XX@$GPACK@g" \
     > $WORKDIR/${PY}.py
-
-# getting our input (important: xrdcp needs cvmfs to be setup)
-cd $WORKDIR; pwd; ls -lhrt
-voms-proxy-info -all
-
-echo " WARNING -- downloadFile $GPACK $LFN -- IS SKIPPED FOR NOW!"
-
-##downloadFile $GPACK $LFN
-##if ! [ -e "./$GPACK.root" ]
-##then
-##  echo " EXIT -- download failed."
-##  exit 1
-##fi
 
 ####################################################################################################
 # run BAMBU
