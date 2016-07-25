@@ -117,7 +117,7 @@ version = os.environ['MIT_VERS']
 dbs = "prod/global"
 local = False
 useExistingLfns = False
-useExistingSites = True
+useExistingSites = False
 
 # Read new values from the command line
 for opt, arg in opts:
@@ -161,7 +161,7 @@ lfnFile = makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns)
 siteFile = makeSiteFile(dataset,dbs,useExistingSites)
 
 # Create the corresponding condor task
-condorTask = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile)
+condorTask = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile,siteFile)
 if local:
     print ' Update Scheduler ....'
     condorTask.updateScheduler('t3serv015.mit.edu','cmsprod')

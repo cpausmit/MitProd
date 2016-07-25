@@ -22,11 +22,11 @@ process.source.inputCommands = cms.untracked.vstring(
   "drop *_MEtoEDMConverter_*_*",
   "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT"
 )
-# lazy download
-process.SiteLocalConfigService = cms.Service(
-  "SiteLocalConfigService",
-  overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
-)
+## lazy download
+#process.SiteLocalConfigService = cms.Service(
+#  "SiteLocalConfigService",
+#  overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
+#)
 
 #>> configurations
 

@@ -105,6 +105,19 @@ class Sample:
         print ' Missing Lfns  : ' + str(len(self.missingLfns))
 
     #-----------------------------------------------------------------------------------------------
+    # return a string for all valid sites
+    #-----------------------------------------------------------------------------------------------
+    def getSitesString(self,pattern=''):
+        siteString = ''
+        for site in self.Sites:
+            if pattern in site and not '_MSS' in site and not '_Buffer' in site:
+                if siteString == '':
+                    siteString = site
+                else:
+                    siteString += "," + site
+        return siteString
+
+    #-----------------------------------------------------------------------------------------------
     # load all lfns relevant to this task
     #-----------------------------------------------------------------------------------------------
     def loadAllLfns(self, lfnFile):
@@ -138,6 +151,36 @@ class Sample:
             print ''
             print ' TOTAL   - Lfns: %6d  [ Events: %9d ]'\
                 %(len(self.allLfns),self.nEvtTotal)
+
+    #-----------------------------------------------------------------------------------------------
+    # load sites for this sample/task
+    #-----------------------------------------------------------------------------------------------
+    def loadSites(self, siteFile):
+
+        # initialize from scratch
+        self.Sites = []
+        # use the complete site file list
+        cmd = 'cat ' + siteFile
+        for line in os.popen(cmd).readlines():  # run command
+            line = line[:-1]
+            # get ride of empty or commented lines
+            if line == '' or line[0] == '#':
+                continue
+
+            # decoding the input line
+            f = line.split(" ") # splitting every blank
+            sites = f.pop()
+            for site in sites.split(","):
+                if site not in self.Sites:
+                    self.Sites.append(site)
+
+        if DEBUG > 0:
+            siteString = ''
+            if len(self.Sites)>0:
+                siteString = self.Sites[0]
+                for site in self.Sites[1:]:
+                    siteString += "," + site
+            print ' Sites: %2d: %s'%(len(self.Sites),siteString)
 
     #-----------------------------------------------------------------------------------------------
     # add all lfns so far completed relevant to this task
@@ -217,7 +260,7 @@ class Sample:
 
 #---------------------------------------------------------------------------------------------------
 """
-Class:  CondorTask(tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile)
+Class:  CondorTask(tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile,siteFile)
 Each task in condor can be described through this class
 """
 #---------------------------------------------------------------------------------------------------
@@ -227,7 +270,7 @@ class CondorTask:
     #-----------------------------------------------------------------------------------------------
     # constructor for new creation
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile):
+    def __init__(self,tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile,siteFile):
 
         # fixed
         #self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
@@ -243,6 +286,7 @@ class CondorTask:
         # the sample input
         self.sample = Sample(dataset,dbs)
         self.sample.loadAllLfns(lfnFile)
+        self.sample.loadSites(siteFile)
         self.loadQueuedLfns()
         self.loadCompletedLfns()
         self.sample.createMissingLfns()
@@ -465,6 +509,10 @@ class CondorTask:
             fileH.write("Executable = " + self.executable + '\n')
             fileH.write("Log = " + self.logs + '/' + self.sample.dataset + '.log' + '\n')
             fileH.write("transfer_input_files = " + self.tarBall + '\n')
+            # add the desired sites (this will overwrite the already defined default)
+            siteString = self.sample.getSitesString('')
+            if siteString != '':
+                fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
             for file,lfn in self.sample.missingLfns.iteritems():
                 print ' Adding : %s %s'%(file,lfn)
                 self.nJobs += 1

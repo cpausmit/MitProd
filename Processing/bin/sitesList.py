@@ -36,6 +36,8 @@ for opt, arg in opts:
         sys.exit(0)
     if opt == "--dataset":
         dataset = arg
+        if dataset[0] != '/':
+            dataset = '/' + dataset.replace('+','/')
     if opt == "--dbs":
         dbs     = arg
 
@@ -62,7 +64,7 @@ if private:
 # dbs 3 interface
 # - find all relevant blocks
 cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="block dataset=' + dataset \
-    + ' instance=' + dbs + '"'
+    + ' instance=' + dbs + '" | grep %s'%dataset
 #print 'BLOCKS: ' + cmd
 blocks = []
 for line in os.popen(cmd).readlines():
@@ -77,7 +79,7 @@ for block in blocks:
     siteString = ''
     #cmd = 'das_client --format=plain --limit=0 --query="site block=' + block + ' | grep site.se"'
     cmd = 'das_client ' + cert + ' --format=plain --limit=0 --query="site block=' + block \
-        + ' instance=' + dbs + '"'
+        + ' instance=' + dbs + '" | grep -v das_client'
     #print 'BLOCK: ' + cmd
     for line in os.popen(cmd).readlines():
         line = line[:-1]
