@@ -229,7 +229,7 @@ initialState $*
 setupCmssw $cmsswVersion
 
 # make sure to properly define the LFN
-localFile=`edmFileUtil -d $LFN | sed '@^file:@@'`
+localFile=`edmFileUtil -d $LFN | sed 's@^file:@@'`
 if ! [ -e "$localFile" ]
 then
   cd $WORKDIR; pwd; ls -lhrt
@@ -311,11 +311,31 @@ do
   # always first show the proxy
   voms-proxy-info -all
   # now do the copy
-  executeCmd time ./cmscp.py \
+  ./cmscp.py --debug \
     --middleware OSG --PNN $REMOTE_SERVER --se_name $REMOTE_SERVER \
     --inputFileList $pwd/${file} \
     --destination srm://$REMOTE_SERVER:8443/${REMOTE_BASE}${REMOTE_USER_DIR}/${TASK}/${CRAB} \
     --for_lfn ${REMOTE_USER_DIR}/${TASK}/${CRAB}
+  rcCmsCp=$?
+  echo " Copying: $file"
+  echo " Copy RC: $rcCmsCp"
+  if [ "$rcCmsCp" != "0" ]
+  then
+    # now do the backup copy
+    echo "Remove file remainders: srm-rm  srm://$REMOTE_SERVER:8443/${REMOTE_BASE}${REMOTE_USER_DIR}/${TASK}/${CRAB}/${file}"
+    srm-rm  srm://$REMOTE_SERVER:8443/${REMOTE_BASE}${REMOTE_USER_DIR}/${TASK}/${CRAB}/${file}
+    rcSrmRm=$?
+    echo " Remove RC: $rcSrmRm"
+    echo " Try again: cmscp.py .... srm://$REMOTE_SERVER:8443/${REMOTE_BASE}${REMOTE_USER_DIR}/${TASK}/${CRAB}/${file}"
+    ./cmscp.py --debug \
+      --middleware OSG --PNN $REMOTE_SERVER --se_name $REMOTE_SERVER \
+      --inputFileList $pwd/${file} \
+      --destination srm://$REMOTE_SERVER:8443/${REMOTE_BASE}${REMOTE_USER_DIR}/${TASK}/${CRAB} \
+      --for_lfn ${REMOTE_USER_DIR}/${TASK}/${CRAB}
+    rcCmsCp=$?
+    echo " ReCopying: $file"
+    echo " ReCopy RC: $rcCmsCp"
+  fi
 done
 
 # make condor happy because it also might want some of the files

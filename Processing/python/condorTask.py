@@ -190,8 +190,8 @@ class Sample:
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
         if file in self.queuedLfns.keys():
-            print " ERROR -- queued lfn appeared twice! This should never happen. EXIT."
-            sys.exit(1)
+            print " ERROR -- queued lfn appeared twice! This should never happen. but no danger."
+            #sys.exit(1)
         # add this lfn to the mix
         self.queuedLfns[file] = self.allLfns[file]
 
