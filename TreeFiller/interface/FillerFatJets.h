@@ -52,7 +52,8 @@ namespace mithep {
     void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
     void BookAdditional(TreeWriter&);
-  private:
+
+  protected:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
     void vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
@@ -71,6 +72,8 @@ namespace mithep {
     std::string fNjettinessName;
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
     std::string fSDMassName;
+    edm::EDGetTokenT<reco::JetTagCollection> doubleBJetTagsToken_[mithep::FatJet::nDoubleBTagAlgos];
+    reco::JetTagCollection const* doubleBJetTags_[mithep::FatJet::nDoubleBTagAlgos];
   };
 }
 

@@ -44,6 +44,11 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
   fillFromPAT_ = true;
   jets_ = new mithep::FatJetArr(4);
 
+  for (unsigned iA = 0; iA != mithep::FatJet::nDoubleBTagAlgos; ++iA) {
+    std::string paramName(mithep::FatJet::DoubleBTagAlgoName(iA) + std::string("BJetTagsName"));
+    doubleBJetTagsToken_[iA] = GetToken<reco::JetTagCollection>(collector, cfg, paramName, false);
+  }
+
   auto subjetTags(cfg.getUntrackedParameter<std::vector<std::string> >("SubJets"));
   for (auto& tag : subjetTags)
     fSubjetCollectionTokens.push_back(collector.consumes<PatJetCollection>(edm::InputTag(tag)));
@@ -59,13 +64,24 @@ mithep::FillerFatJets::BookAdditional(TreeWriter &tws)
 }
 
 void
-mithep::FillerFatJets::PrepareSpecific(edm::Event const& iEvent, edm::EventSetup const&)
+mithep::FillerFatJets::PrepareSpecific(edm::Event const& event, edm::EventSetup const&)
 {
   unsigned int nSubjetTypes = fSubjetCollectionTokens.size();
   fSubjetCollections.resize(nSubjetTypes);
   for (size_t i = 0; i < nSubjetTypes; ++i)
-    GetProduct(fSubjetCollectionTokens[i], fSubjetCollections[i], iEvent);
-  GetProduct(fPVToken,fPVs,iEvent);
+    GetProduct(fSubjetCollectionTokens[i], fSubjetCollections[i], event);
+  GetProduct(fPVToken, fPVs, event);
+
+  if (bTaggingActive_) {
+    for (unsigned iT = 0; iT != mithep::FatJet::nDoubleBTagAlgos; ++iT) {
+      doubleBJetTags_[iT] = 0;
+      if (!doubleBJetTagsToken_[iT].isUninitialized()) {
+        edm::Handle<reco::JetTagCollection> hBJetTags;
+        GetProduct(doubleBJetTagsToken_[iT], hBJetTags, event);
+        doubleBJetTags_[iT] = hBJetTags.product();
+      }
+    }
+  }
 }
 
 void
@@ -81,6 +97,13 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
   outJet.SetRawPtEtaPhiM(outJet.Pt(), outJet.Eta(), outJet.Phi(), outJet.Mass());
 
   fillPATFatJetVariables(outJet, *inJet);
+
+  if (bTaggingActive_) {
+    for (unsigned iT = 0; iT != mithep::FatJet::nDoubleBTagAlgos; ++iT) {
+      if (doubleBJetTags_[iT])
+        static_cast<mithep::FatJet&>(outJet).SetDoubleBJetTagsDisc((*doubleBJetTags_[iT])[inJetRef], iT);
+    }
+  }
 }
 
 void
