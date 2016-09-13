@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoBTag.Configuration.RecoBTag_cff as btag
 import RecoBTag.CTagging.RecoCTagging_cff as ctag
 import RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff as vertexing
+from RecoBTag.SecondaryVertex.trackSelection_cff import trackSelectionBlock
 
 vertexingConfig = {} # {suffix: (candidates, primaryVertex)}
 
@@ -84,7 +85,27 @@ def initBTag(process, suffix, candidates = 'particleFlow', primaryVertex = 'offl
     setattr(process, 'inclusiveVertexingSequence' + suffix, sequence)
 
     return sequence
-    
+
+
+# used in both setupBTag and setupDoubleBTag
+ipTagInfosNameBase = 'pfImpactParameterTagInfos'
+ivfTagInfosNameBase = 'pfInclusiveSecondaryVertexFinderTagInfos'
+
+def makeIpTagInfos(jetCollectionName, vsuffix, deltaR = 0.4):
+    return btag.pfImpactParameterTagInfos.clone(
+        jets = cms.InputTag(jetCollectionName),
+        candidates = cms.InputTag(vertexingConfig[vsuffix][0]),
+        primaryVertex = cms.InputTag(vertexingConfig[vsuffix][1]),
+        maxDeltaR = cms.double(deltaR)
+    )
+
+def makeIvfTagInfos(ipTagInfosName, vsuffix, deltaR = 0.3):
+    # default 0.3 is correct
+    return btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(
+        extSVCollection = cms.InputTag('inclusiveCandidateSecondaryVertices' + vsuffix),
+        extSVDeltaRToJet = cms.double(deltaR),
+        trackIPTagInfos = cms.InputTag(ipTagInfosName)
+    )
 
 # Give the list of btag discriminators (see below for names) in tags to run only a part of the full menu.
 # vsuffix is the suffix given to initBTag that defines the secondary vertexing sequence.
@@ -97,27 +118,20 @@ def setupBTag(process, jetCollection, suffix, vsuffix, muons = 'muons', electron
     """
 
     # btag info
-    ipTagInfosName = 'pfImpactParameterTagInfos' + suffix
+    ipTagInfosName = ipTagInfosNameBase + suffix
     svTagInfosName = 'pfSecondaryVertexTagInfos' + suffix
-    ivfTagInfosName = 'pfInclusiveSecondaryVertexFinderTagInfos' + suffix
+    ivfTagInfosName = ivfTagInfosNameBase + suffix
     smTagInfosName = 'softPFMuonsTagInfos' + suffix
     seTagInfosName = 'softPFElectronsTagInfos' + suffix
     # ctag info
     ivfcvslTagInfosName = 'pfInclusiveSecondaryVertexFinderCvsLTagInfos' + suffix
 
     # modules below will be later setattr'ed to process using the names above
-    impactParameterTagInfos = btag.pfImpactParameterTagInfos.clone(
-        jets = cms.InputTag(jetCollection),
-        candidates = cms.InputTag(vertexingConfig[vsuffix][0]),
-        primaryVertex = cms.InputTag(vertexingConfig[vsuffix][1])
-    )
+    impactParameterTagInfos = makeIpTagInfos(jetCollection, vsuffix)
     secondaryVertexTagInfos = btag.pfSecondaryVertexTagInfos.clone(
         trackIPTagInfos = cms.InputTag(ipTagInfosName)
     )
-    inclusiveSecondaryVertexFinderTagInfos = btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(
-        extSVCollection = cms.InputTag('inclusiveCandidateSecondaryVertices' + vsuffix),
-        trackIPTagInfos = cms.InputTag(ipTagInfosName)
-    )
+    inclusiveSecondaryVertexFinderTagInfos = makeIvfTagInfos(ipTagInfosName, vsuffix)
     softPFMuonsTagInfos = btag.softPFMuonsTagInfos.clone(
         jets = jetCollection,
         muons = muons,
@@ -260,5 +274,63 @@ def setupBTag(process, jetCollection, suffix, vsuffix, muons = 'muons', electron
 
         sequence += tag
         setattr(process, tagName + suffix, tag)
+
+    return sequence
+
+
+def setupDoubleBTag(process, jetCollection, suffix, vsuffix, weightsFile, addedTagInfos = []):
+    boostedDoubleSecondaryVertexComputer = cms.ESProducer("CandidateBoostedDoubleSecondaryVertexESProducer",
+        trackSelectionBlock,
+        beta = cms.double(1.0),
+        useCondDB = cms.bool(False),
+        weightFile = cms.FileInPath('RecoBTag/SecondaryVertex/data/' + weightsFile),
+        useGBRForest = cms.bool(True),
+        useAdaBoost = cms.bool(False),
+        trackPairV0Filter = cms.PSet(k0sMassWindow = cms.double(0.03))
+    )
+
+    if suffix.startswith('AKt8'):
+        deltaR = 0.8
+        boostedDoubleSecondaryVertexComputer.maxSVDeltaRToJet = cms.double(0.7)
+    elif suffix.startswith('CA15'):
+        deltaR = 1.5
+        boostedDoubleSecondaryVertexComputer.maxSVDeltaRToJet = cms.double(1.3)
+
+    boostedDoubleSecondaryVertexComputer.trackSelection.jetDeltaRMax = cms.double(deltaR)
+    boostedDoubleSecondaryVertexComputer.R0 = cms.double(deltaR)
+
+    setattr(process, 'boostedDoubleSecondaryVertexComputer' + suffix, boostedDoubleSecondaryVertexComputer)
+
+    ipTagInfosName = ipTagInfosNameBase + suffix
+    try:
+        impactParameterTagInfos = getattr(process, ipTagInfosName)
+    except AttributeError:
+        impactParameterTagInfos = makeIpTagInfos(jetCollection, vsuffix, deltaR = deltaR)
+        impactParameterTagInfos.computeProbabilities = False
+        impactParameterTagInfos.computeGhostTrack = False
+        setattr(process, ipTagInfosName, impactParamterTagInfos)
+
+    ivfTagInfosName = ivfTagInfosNameBase + suffix
+    try:
+        inclusiveSecondaryVertexFinderTagInfos = getattr(process, ivfTagInfosName)
+    except AttributeError:
+        # deltaR for 0.4 jet is 0.3, but for fat jets is same as the jet radius
+        inclusiveSecondaryVertexFinderTagInfos = makeIvfTagInfos(ipTagInfosName, vsuffix, deltaR = deltaR)
+        inclusiveSecondaryVertexFinderTagInfos.trackSelection.jetDeltaRMax = deltaR
+        inclusiveSecondaryVertexFinderTagInfos.vertexCuts.maxDeltaRToJetAxis = deltaR
+        setattr(process, ivfTagInfosName, inclusiveSecondaryVertexFinderTagInfos)
+
+    boostedDoubleSecondaryVertexBJetTags = cms.EDProducer("JetTagProducer",
+        jetTagComputer = cms.string('boostedDoubleSecondaryVertexComputer' + suffix),
+        tagInfos = cms.VInputTag(cms.InputTag(ipTagInfosName), cms.InputTag(ivfTagInfosName))
+    )
+
+    setattr(process, 'pfBoostedDoubleSecondaryVertexBJetTags' + suffix, boostedDoubleSecondaryVertexBJetTags)
+
+    sequence = cms.Sequence(
+        impactParameterTagInfos,
+        inclusiveSecondaryVertexFinderTagInfos,
+        boostedDoubleSecondaryVertexBJetTags
+    )
 
     return sequence
