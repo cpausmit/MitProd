@@ -20,6 +20,7 @@ mithep::FillerPFCandidates::FillerPFCandidates(edm::ParameterSet const& cfg, edm
   edmPfNoPileupToken_       (GetToken<PFCollection>(collector, cfg, "edmPfNoPileupName", fillPfNoPileup_)), //pfNoElectrons
   edmPuppiMapTokens_        (),
   edmPuppiToken_            (GetToken<CandidateView>(collector, cfg, "edmPuppiName", fillPuppiMap_)),
+  edmPuppiWeightsToken_     (GetToken<FloatMap>(collector, cfg, "edmPuppiName", fillPuppiMap_)),
   mitName_                  (cfg.getUntrackedParameter<std::string>("mitName", mithep::Names::gkPFCandidatesBrn)),
   trackerTrackMapNames_     (cfg.getUntrackedParameter<std::vector<std::string> >("trackerTrackMapNames", std::vector<std::string>())),
   gsfTrackMapName_          (cfg.getUntrackedParameter<std::string>("gsfTrackMapName", "")),
@@ -149,6 +150,7 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
   std::vector<CandidatePtrMap const*> candidateMaps;
   edm::ProductID puppiCandsId;
+  FloatMap const* puppiWeights = 0;
   if (puppiMap_) {
     for (auto& token : edmPuppiMapTokens_) {
       edm::Handle<CandidatePtrMap> handle;
@@ -159,6 +161,10 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
     edm::Handle<CandidateView> hPuppiProduct;
     GetProduct(edmPuppiToken_, hPuppiProduct, event);
     puppiCandsId = hPuppiProduct.id();
+
+    edm::Handle<FloatMap> hWeightsProduct;
+    GetProduct(edmPuppiWeightsToken_, hWeightsProduct, event);
+    puppiWeights = hWeightsProduct.product();
   }
 
   for (auto&& inPfPtr : inPfCands) {
@@ -275,6 +281,7 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
 
     if (puppiMap_) {
       reco::CandidatePtr targetPtr(inPfPtr.id(), inPfPtr.get(), inPfPtr.key());
+      reco::CandidatePtr previousPtr;
 
       // trace the mappings from the original PF candidate to the puppi candidate
       for (auto* map : candidateMaps) {
@@ -282,6 +289,7 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
           reco::CandidatePtr mappedPtr(map->get(targetPtr.id(), targetPtr.key()));
           if (mappedPtr.isNonnull()) {
             // non-null target found; trace up one level
+            previousPtr = targetPtr;
             targetPtr = mappedPtr;
           }
         }
@@ -293,6 +301,8 @@ mithep::FillerPFCandidates::FillDataBlock(edm::Event const& event, edm::EventSet
       if (targetPtr.id() != puppiCandsId)
           throw edm::Exception(edm::errors::Configuration, "FillerPFCandidates::FillDataBlock()\n")
             << "Candidate was not found in the list of PUPPI particles.";
+
+      outPfCand->SetPuppiWeight((*puppiWeights)[previousPtr]);
 
       // link the identified puppi candidate to the Bambu PFCandidate
       puppiMap_->Add(targetPtr, outPfCand);
