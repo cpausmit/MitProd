@@ -6,7 +6,7 @@ from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 import RecoBTag.Configuration.RecoBTag_cff as btag
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
-from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag
+from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag, setupDoubleBTag
 
 # In-house implementation of pat addJetCollection for fat jets, with much less of confusingness, hopefully.
 def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., btagLabel = ''):
@@ -115,6 +115,12 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., b
     btagInfos = []
     btagging = setupBTag(process, jetsName, jetsName, btagLabel, tags = btags, addedTagInfos = btagInfos)
 
+    doubleBtags = [
+      'pfBoostedDoubleSecondaryVertexBJetTags'
+    ]
+    
+    doubleBtagging = setupDoubleBTag(process, jetsName, jetsName, btagLabel, rLabel.lower(), addedTagInfos = btagInfos)
+
     #######################################
     ##         SUBJET BTAGGING           ##
     #######################################
@@ -165,6 +171,7 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., b
 
   else:
     btagging = cms.Sequence()
+    doubleBtagging = cms.Sequence()
     subjetBTagging = cms.Sequence()
 
   ########################################
@@ -184,7 +191,7 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., b
     addTagInfos = cms.bool(True),
     addDiscriminators = cms.bool(True),
     tagInfoSources = cms.VInputTag([cms.InputTag(name) for name in btagInfos]),
-    discriminatorSources = cms.VInputTag([cms.InputTag(name + jetsName) for name in btags])
+    discriminatorSources = cms.VInputTag([cms.InputTag(name + jetsName) for name in btags + doubleBtags])
   )
   patJets.userData.userFloats.src = [
     cms.InputTag(njettinessName + ':tau1'),
@@ -300,6 +307,7 @@ def makeFatJets(process, src, algoLabel, jetRadius, colLabel, jetPtMin = 150., b
     clustering + 
     substructure +
     btagging +
+    doubleBtagging +
     subjetBTagging +
     pat +
     packing

@@ -278,7 +278,18 @@ def setupBTag(process, jetCollection, suffix, vsuffix, muons = 'muons', electron
     return sequence
 
 
-def setupDoubleBTag(process, jetCollection, suffix, vsuffix, weightsFile, addedTagInfos = []):
+def setupDoubleBTag(process, jetCollection, suffix, vsuffix, algo, addedTagInfos = []):
+    if algo == 'ak8':
+        deltaR = 0.8
+        maxSVDeltaRToJet = 0.7
+        weightsFile = 'BoostedDoubleSV_AK8_BDT_v3.weights.xml.gz'
+    elif algo == 'ca15':
+        deltaR = 1.5
+        maxSVDeltaRToJet = 1.3
+        weightsFile = 'BoostedDoubleSV_CA15_BDT_v3.weights.xml.gz'
+    else:
+        raise RuntimeError('Unknown algo ' + algo)
+
     boostedDoubleSecondaryVertexComputer = cms.ESProducer("CandidateBoostedDoubleSecondaryVertexESProducer",
         trackSelectionBlock,
         beta = cms.double(1.0),
@@ -289,13 +300,7 @@ def setupDoubleBTag(process, jetCollection, suffix, vsuffix, weightsFile, addedT
         trackPairV0Filter = cms.PSet(k0sMassWindow = cms.double(0.03))
     )
 
-    if suffix.startswith('AKt8'):
-        deltaR = 0.8
-        boostedDoubleSecondaryVertexComputer.maxSVDeltaRToJet = cms.double(0.7)
-    elif suffix.startswith('CA15'):
-        deltaR = 1.5
-        boostedDoubleSecondaryVertexComputer.maxSVDeltaRToJet = cms.double(1.3)
-
+    boostedDoubleSecondaryVertexComputer.maxSVDeltaRToJet = cms.double(maxSVDeltaRToJet)
     boostedDoubleSecondaryVertexComputer.trackSelection.jetDeltaRMax = cms.double(deltaR)
     boostedDoubleSecondaryVertexComputer.R0 = cms.double(deltaR)
 
@@ -308,7 +313,7 @@ def setupDoubleBTag(process, jetCollection, suffix, vsuffix, weightsFile, addedT
         impactParameterTagInfos = makeIpTagInfos(jetCollection, vsuffix, deltaR = deltaR)
         impactParameterTagInfos.computeProbabilities = False
         impactParameterTagInfos.computeGhostTrack = False
-        setattr(process, ipTagInfosName, impactParamterTagInfos)
+        setattr(process, ipTagInfosName, impactParameterTagInfos)
 
     ivfTagInfosName = ivfTagInfosNameBase + suffix
     try:
@@ -328,8 +333,8 @@ def setupDoubleBTag(process, jetCollection, suffix, vsuffix, weightsFile, addedT
     setattr(process, 'pfBoostedDoubleSecondaryVertexBJetTags' + suffix, boostedDoubleSecondaryVertexBJetTags)
 
     sequence = cms.Sequence(
-        impactParameterTagInfos,
-        inclusiveSecondaryVertexFinderTagInfos,
+        impactParameterTagInfos +
+        inclusiveSecondaryVertexFinderTagInfos +
         boostedDoubleSecondaryVertexBJetTags
     )
 
