@@ -138,20 +138,12 @@ vertexingPFPV = initBTag(process, 'PFPV', candidates = 'particleFlow', primaryVe
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', 'PFPV')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS', 'PFPV')
 ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi', 'PFPV')
-ak8PFCHSBTagSequence = setupDoubleBTag(process, 'packedAK8PFJetsCHS', 'AKt8PFCHS', 'PFPV', 'BoostedDoubleSV_AK8_BDT_v3.weights.xml.gz')
-ak8PFPupppiBTagSequence = setupDoubleBTag(process, 'packedAK8PuppiJets', 'AKt8PFPuppi', 'PFPV', 'BoostedDoubleSV_AK8_BDT_v3.weights.xml.gz')
-ca15PFCHSBTagSequence = setupDoubleBTag(process, 'packedCA15PFJetsCHS', 'CA15PFCHS', 'PFPV', 'BoostedDoubleSV_CA15_BDT_v3.weights.xml.gz')
-ca15PFPupppiBTagSequence = setupDoubleBTag(process, 'packedCA15PuppiJets', 'CA15PFPuppi', 'PFPV', 'BoostedDoubleSV_CA15_BDT_v3.weights.xml.gz')
 
 btagSequence = cms.Sequence(
-  vertexingPFPV,
-  ak4PFBTagSequence,
-  ak4PFCHSBTagSequence,
-  ak4PFPuppiBTagSequence,
-  ak8PFCHSBTagSequence,
-  ak8PFPupppiBTagSequence,
-  ca15PFCHSBTagSequence,
-  ca15PFPupppiBTagSequence
+  vertexingPFPV +
+  ak4PFBTagSequence +
+  ak4PFCHSBTagSequence +
+  ak4PFPuppiBTagSequence
 )
 
 # recluster fat jets, btag subjets
@@ -162,9 +154,9 @@ ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jet
 ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets', btagLabel = 'PFPV')
 
 fatJetSequence = cms.Sequence(
-  ak8chsSequence,
-  ak8puppiSequence,
-  ca15chsSequence,
+  ak8chsSequence +
+  ak8puppiSequence +
+  ca15chsSequence +
   ca15puppiSequence
 ) 
 
@@ -184,8 +176,8 @@ recoSequence = cms.Sequence(
   egmPhotonIDSequence *
   puppiSequence *
   ak4PFJetsPuppi *
-  fatJetSequence *
   btagSequence *
+  fatJetSequence *
   pfMETPuppi
 )
 
