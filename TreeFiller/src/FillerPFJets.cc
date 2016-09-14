@@ -12,7 +12,7 @@ mithep::FillerPFJets::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCo
 {
   jets_ = new mithep::PFJetArr(32);
   
-  if (bTaggingActive_) {
+  if (bTaggingActive_ && fillFromPAT_) {
     for (unsigned iA = 0; iA != mithep::Jet::nBTagAlgos; ++iA) {
       std::string paramName(mithep::Jet::BTagAlgoName(iA) + std::string("BJetTagsName"));
       bJetTagsName_[iA] = cfg.getUntrackedParameter<std::string>(paramName, "");

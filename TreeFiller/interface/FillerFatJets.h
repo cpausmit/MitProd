@@ -73,6 +73,7 @@ namespace mithep {
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
     std::string fSDMassName;
     edm::EDGetTokenT<reco::JetTagCollection> doubleBJetTagsToken_[mithep::FatJet::nDoubleBTagAlgos];
+    std::string doubleBJetTagsName_[mithep::FatJet::nDoubleBTagAlgos];
     reco::JetTagCollection const* doubleBJetTags_[mithep::FatJet::nDoubleBTagAlgos];
   };
 }

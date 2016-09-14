@@ -46,7 +46,10 @@ mithep::FillerFatJets::FillerFatJets(edm::ParameterSet const& cfg, edm::Consumes
 
   for (unsigned iA = 0; iA != mithep::FatJet::nDoubleBTagAlgos; ++iA) {
     std::string paramName(mithep::FatJet::DoubleBTagAlgoName(iA) + std::string("BJetTagsName"));
-    doubleBJetTagsToken_[iA] = GetToken<reco::JetTagCollection>(collector, cfg, paramName, false);
+    if (fillFromPAT_)
+      doubleBJetTagsName_[iA] = cfg.getUntrackedParameter<std::string>(paramName, "");
+    else  // if in case we generalize this to non-packed fat jets
+      doubleBJetTagsToken_[iA] = GetToken<reco::JetTagCollection>(collector, cfg, paramName, false);
   }
 
   auto subjetTags(cfg.getUntrackedParameter<std::vector<std::string> >("SubJets"));
@@ -72,7 +75,7 @@ mithep::FillerFatJets::PrepareSpecific(edm::Event const& event, edm::EventSetup 
     GetProduct(fSubjetCollectionTokens[i], fSubjetCollections[i], event);
   GetProduct(fPVToken, fPVs, event);
 
-  if (bTaggingActive_) {
+  if (bTaggingActive_ && !fillFromPAT_) {
     for (unsigned iT = 0; iT != mithep::FatJet::nDoubleBTagAlgos; ++iT) {
       doubleBJetTags_[iT] = 0;
       if (!doubleBJetTagsToken_[iT].isUninitialized()) {
@@ -100,8 +103,15 @@ mithep::FillerFatJets::FillSpecific(mithep::Jet& outBaseJet, reco::JetBaseRef co
 
   if (bTaggingActive_) {
     for (unsigned iT = 0; iT != mithep::FatJet::nDoubleBTagAlgos; ++iT) {
-      if (doubleBJetTags_[iT])
-        static_cast<mithep::FatJet&>(outJet).SetDoubleBJetTagsDisc((*doubleBJetTags_[iT])[inJetRef], iT);
+      auto& outFatJet(static_cast<mithep::FatJet&>(outJet));
+      if (fillFromPAT_) {
+        if (doubleBJetTagsName_[iT] != "")
+          outFatJet.SetDoubleBJetTagsDisc(inJet->bDiscriminator(doubleBJetTagsName_[iT]), iT);
+      }
+      else {
+        if (doubleBJetTags_[iT])
+          outFatJet.SetDoubleBJetTagsDisc((*doubleBJetTags_[iT])[inJetRef], iT);
+      }
     }
   }
 }
