@@ -43,6 +43,12 @@ BadPFMuonFilter.taggingMode = cms.bool(True)
 from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidateFilter
 BadChargedCandidateFilter.taggingMode = cms.bool(True)
 
+from RecoMET.METFilters.BadPFMuonSummer16Filter_cfi import BadPFMuonSummer16Filter
+BadPFMuonSummer16Filter.taggingMode = cms.bool(True)
+
+from RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi import BadChargedCandidateSummer16Filter
+BadChargedCandidateSummer16Filter.taggingMode = cms.bool(True)
+
 #> Finally define the met filter sequence
 metFilters = cms.Sequence(
     HBHENoiseFilterResultProducer *
@@ -55,5 +61,7 @@ metFilters = cms.Sequence(
     chargedHadronTrackResolutionFilter *
     muonBadTrackFilter *
     BadPFMuonFilter *
-    BadChargedCandidateFilter
+    BadChargedCandidateFilter *
+    BadPFMuonSummer16Filter *
+    BadChargedCandidateSummer16Filter
 )
