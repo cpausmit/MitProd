@@ -64,7 +64,7 @@ function downloadFile {
   GPACK="$1"
   LFN="$2"
 
-  serverList="cmsxrootd.fnal.gov cms-xrd-global.cern.ch xrootd.unl.edu"
+  serverList="cms-xrd-global.cern.ch cmsxrootd.fnal.gov xrootd.unl.edu"
 
   echo ""
   echo " Make local copy of the root file with LFN: $LFN"
@@ -232,6 +232,8 @@ setupCmssw $cmsswVersion
 localFile=`edmFileUtil -d $LFN | sed 's@^file:@@'`
 if ! [ -e "$localFile" ]
 then
+  echo " Local file does NOT exists: $localFile"
+  echo " --> perform xrdcp ...." 
   cd $WORKDIR; pwd; ls -lhrt
   voms-proxy-info -all
   downloadFile $GPACK $LFN
@@ -244,6 +246,8 @@ then
 #
   #SERVER=cmsxrootd.fnal.gov
   #LFN="root://$SERVER/$LFN"
+else
+  echo " Local file exists: $localFile"
 fi
 
 # prepare the python config from the given templates

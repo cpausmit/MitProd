@@ -508,11 +508,14 @@ class CondorTask:
             fileH.write("Initialdir = " + self.outputData + '\n')
             fileH.write("Executable = " + self.executable + '\n')
             fileH.write("Log = " + self.logs + '/' + self.sample.dataset + '.log' + '\n')
-            fileH.write("transfer_input_files = " + self.tarBall + '\n')
-            # add the desired sites (this will overwrite the already defined default)
-            siteString = self.sample.getSitesString('')
-            if siteString != '':
-                fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
+            fileH.write("transfer_input_files = " + self.tarBall+ '\n')
+
+            ## # add the desired sites (this will overwrite the already defined default)
+            ## siteString = self.sample.getSitesString('')
+            ## if siteString != '':
+            ##     fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
+
+            fileH.write('+DESIRED_Sites          = T2_US_MIT\n')
             for file,lfn in self.sample.missingLfns.iteritems():
                 print ' Adding : %s %s'%(file,lfn)
                 self.nJobs += 1
