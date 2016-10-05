@@ -28,12 +28,12 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v9'
+process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v11'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
-  version    = cms.untracked.string('Mit_045'),
+  version    = cms.untracked.string('Mit_046'),
   annotation = cms.untracked.string('AOD')
 )
 
@@ -129,11 +129,18 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import PFTau
 process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
 # Load btagging
-from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag
+from MitProd.TreeFiller.utils.setupBTag import initBTag, setupBTag, setupDoubleBTag
 vertexingPFPV = initBTag(process, 'PFPV', candidates = 'particleFlow', primaryVertex = 'offlinePrimaryVertices')
 ak4PFBTagSequence = setupBTag(process, 'ak4PFJets', 'AKt4PF', 'PFPV')
 ak4PFCHSBTagSequence = setupBTag(process, 'ak4PFJetsCHS', 'AKt4PFCHS', 'PFPV')
 ak4PFPuppiBTagSequence = setupBTag(process, 'ak4PFJetsPuppi', 'AKt4PFPuppi', 'PFPV')
+
+btagSequence = cms.Sequence(
+  vertexingPFPV +
+  ak4PFBTagSequence +
+  ak4PFCHSBTagSequence +
+  ak4PFPuppiBTagSequence
+)
 
 # recluster fat jets, btag subjets
 from MitProd.TreeFiller.utils.makeFatJets import makeFatJets
@@ -141,6 +148,13 @@ ak8chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'AK', jetR
 ak8puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'AK', jetRadius = 0.8, colLabel = 'PuppiJets', btagLabel = 'PFPV')
 ca15chsSequence = makeFatJets(process, src = 'pfNoPileUp', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PFJetsCHS', btagLabel = 'PFPV')
 ca15puppiSequence = makeFatJets(process, src = 'puppi', algoLabel = 'CA', jetRadius = 1.5, colLabel = 'PuppiJets', btagLabel = 'PFPV')
+
+fatJetSequence = cms.Sequence(
+  ak8chsSequence +
+  ak8puppiSequence +
+  ca15chsSequence +
+  ca15puppiSequence
+) 
 
 #> Setup the met filters
 from MitProd.TreeFiller.metFilters_cff import metFilters
@@ -162,14 +176,8 @@ recoSequence = cms.Sequence(
   egmPhotonIDSequence *
   puppiSequence *
   ak4PFJetsPuppi *
-  vertexingPFPV *
-  ak4PFBTagSequence *
-  ak4PFCHSBTagSequence *
-  ak4PFPuppiBTagSequence *
-  ak8chsSequence *
-  ak8puppiSequence *
-  ca15chsSequence *
-  ca15puppiSequence *
+  btagSequence *
+  fatJetSequence *
   pfMETPuppi *
   metFilters
 )

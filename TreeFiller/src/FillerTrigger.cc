@@ -426,10 +426,6 @@ mithep::FillerTrigger::FillHlt(edm::Event const& event)
 
           std::string mType = hltConfig_.moduleType(mLabel);
 
-          std::string tType = "L1";
-          if (mType != "HLTLevel1GTSeed") 
-            tType = "L3";
-
           // find index for module label/type name
           auto riter = hltLabelMap_.find(mLabel);
           assert(riter != hltLabelMap_.end());
