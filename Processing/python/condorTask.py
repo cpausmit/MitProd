@@ -9,7 +9,7 @@ DEBUG = 0
 
 #---------------------------------------------------------------------------------------------------
 """
-Class:  Scheduler(host='ce04.cmsaf.mit.edu',user='paus')
+Class:  Scheduler(host='submit.mit.edu',user='paus')
 Each sample can be described through this class
 """
 #---------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ class Scheduler:
     #-----------------------------------------------------------------------------------------------
     # constructor
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,host='ce04.cmsaf.mit.edu',user='paus'):
+    def __init__(self,host='submit.mit.edu',user='cmsprod'):
 
         self.host = host
         self.user = user
@@ -29,7 +29,7 @@ class Scheduler:
     #-----------------------------------------------------------------------------------------------
     # update on the fly
     #-----------------------------------------------------------------------------------------------
-    def update(self,host='ce04.cmsaf.mit.edu',user='paus'):
+    def update(self,host='submit.mit.edu',user='cmsprod'):
 
         self.host = host
         self.user = user
@@ -41,9 +41,10 @@ class Scheduler:
     def findHome(self,host,user):
 
         cmd = 'ssh -x ' + user + '@' + host + ' pwd'
+        home = ''
         for line in os.popen(cmd).readlines():  # run command
             line = line[:-1]
-        home = line
+            home = line
 
         return home
 
@@ -274,7 +275,7 @@ class CondorTask:
 
         # fixed
         #self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
-        self.scheduler = Scheduler('ce04.cmsaf.mit.edu','paus')
+        self.scheduler = Scheduler('submit.mit.edu','cmsprod')
         self.base = "/cms/store/user/paus"
 
         # from the call
@@ -510,12 +511,12 @@ class CondorTask:
             fileH.write("Log = " + self.logs + '/' + self.sample.dataset + '.log' + '\n')
             fileH.write("transfer_input_files = " + self.tarBall+ '\n')
 
-            ## # add the desired sites (this will overwrite the already defined default)
-            ## siteString = self.sample.getSitesString('')
-            ## if siteString != '':
-            ##     fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
+            # add the desired sites (this will overwrite the already defined default)
+            siteString = self.sample.getSitesString('')
+            if siteString != '':
+                fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
+            ##fileH.write('+DESIRED_Sites          = T2_US_MIT\n')
 
-            fileH.write('+DESIRED_Sites          = T2_US_MIT\n')
             for file,lfn in self.sample.missingLfns.iteritems():
                 print ' Adding : %s %s'%(file,lfn)
                 self.nJobs += 1

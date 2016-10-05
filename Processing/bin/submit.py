@@ -107,7 +107,7 @@ def makeSiteFile(mitDataset,dbs,useExistingSites):
     
     # recreate if requested or not existing
     if not useExistingSites or not os.path.exists(siteFile):
-        cmd = 'sitesList.py --dbs=' + dbs + ' --dataset=' + cmsDataset + ' > ' + siteFile
+        cmd = 'sites.py --dbs=' + dbs + ' --dataset=' + cmsDataset + ' > ' + siteFile
         print ' Sites: ' + cmd + '\n'
         os.system(cmd)
 

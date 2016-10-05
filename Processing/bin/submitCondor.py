@@ -55,7 +55,7 @@ def makeSiteFile(dataset,dbs,useExistingSites):
     
     # recreate if requested or not existing
     if not useExistingSites or not os.path.exists(siteFile):
-        cmd = 'sitesList.py --dbs=' + dbs + ' --dataset=' + dataset + ' > ' + siteFile
+        cmd = 'sites.py --dbs=' + dbs + ' --dataset=' + dataset + ' > ' + siteFile
         print ' Sites: ' + cmd + '\n'
         os.system(cmd)
 
