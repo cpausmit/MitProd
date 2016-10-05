@@ -52,14 +52,14 @@ namespace mithep {
     void FillSpecific(mithep::Jet&, reco::JetBaseRef const&) override;
     void PrepareSpecific(edm::Event const&, edm::EventSetup const&) override;
     void BookAdditional(TreeWriter&);
-  private:
+
+  protected:
     void fillPATFatJetVariables(mithep::FatJet&, pat::Jet const&);
     void recalcNsubjettiness(const pat::Jet &, const SVTagInfo &, mithep::FatJet &, std::vector<fastjet::PseudoJet> &);
     void vertexKinematicsAndCharge(const recoVertexPtr & vertex, reco::TrackKinematics & vertexKinematics, Int_t & charge);
     void setTracksPV(const TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
     void setTracksPVBase(const reco::TrackRef & trackRef, const edm::Handle<reco::VertexCollection> & pvHandle, int & iPV, float & PVweight);
     void setTracksSV (const TrackRef & trackRef, const SVTagInfo * svTagInfo, int & isFromSV, int & iSV, float & SVweight);
-    void setBTagDiscriminators(mithep::Jet & outJet, pat::Jet const & inJet);
 
     double fR0;                                                       //cone size
     std::vector<std::string> fSubjetNames;                            //labels of subjets
@@ -71,6 +71,9 @@ namespace mithep {
     std::string fNjettinessName;
     fastjet::contrib::Njettiness njettiness;                          //used to recompute njettiness
     std::string fSDMassName;
+    edm::EDGetTokenT<reco::JetTagCollection> doubleBJetTagsToken_[mithep::FatJet::nDoubleBTagAlgos];
+    std::string doubleBJetTagsName_[mithep::FatJet::nDoubleBTagAlgos];
+    reco::JetTagCollection const* doubleBJetTags_[mithep::FatJet::nDoubleBTagAlgos];
   };
 }
 

@@ -1,14 +1,4 @@
-# Basically a clone of CommonTools.PileupAlgos.Puppi_cff with the following difference wrt 8_0_12:
-#40,41c40,42
-#<                        useExistingWeights = cms.bool(True),
-#<                        useWeightsNoLep    = cms.bool(True),
-#---
-#>                        useExistingWeights = cms.bool(False),
-#>                        useWeightsNoLep    = cms.bool(False),
-#60c61
-#<                          MinNeutralPt        = cms.vdouble( 1.7,  2.0),
-#---
-#>                          MinNeutralPt        = cms.vdouble( 0.2,  0.2),
+# Copied from github HEAD 09/12/2016 - not in any release yet.
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,7 +6,7 @@ puppiCentral = cms.VPSet(
     cms.PSet(
         algoId           = cms.int32(5),  #0 is default Puppi
         useCharged       = cms.bool(True),
-        applyLowPUCorr   = cms.bool(True),
+        applyLowPUCorr   = cms.bool(False),
         combOpt          = cms.int32(0),
         cone             = cms.double(0.4),
         rmsPtMin         = cms.double(0.1),
@@ -28,7 +18,7 @@ puppiForward = cms.VPSet(
         cms.PSet(
         algoId         = cms.int32(5),  #0 is default Puppi
         useCharged     = cms.bool(False),
-        applyLowPUCorr = cms.bool(True),
+        applyLowPUCorr = cms.bool(False),
         combOpt        = cms.int32(0),
         cone           = cms.double(0.4),
         rmsPtMin       = cms.double(0.5),
@@ -49,8 +39,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
     invertPuppi    = cms.bool  (False),
     useExp         = cms.bool  (False),
     MinPuppiWeight = cms.double(0.01),
-    useExistingWeights = cms.bool(True),
-    useWeightsNoLep    = cms.bool(True),
+    useExistingWeights = cms.bool(False),
+    useWeightsNoLep    = cms.bool(False),
     clonePackedCands   = cms.bool(False), # should only be set to True for MiniAOD
     vtxNdofCut     = cms.int32(4),
     vtxZCut        = cms.double(24),
@@ -77,18 +67,18 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
             EtaMaxExtrap        = cms.double( 2.0),
             puppiAlgos = puppiForward
         ),
-    #  cms.PSet( 
-    #   etaMin = cms.double(3.0),
-    #   etaMax = cms.double(10.0),
-    #   ptMin  = cms.double(0.0),
-    #   MinNeutralPt        = cms.double(2.0),
-    #   MinNeutralPtSlope   = cms.double(0.07),
-    #   # RMSEtaSF = cms.double(1.18),
-    #   # MedEtaSF = cms.double(0.4397),                         
-    #   RMSEtaSF = cms.double(1.10),
-    #   MedEtaSF = cms.double(0.90),
-    #   EtaMaxExtrap = cms.double(2.0),
-    #   puppiAlgos = puppiForward
-    # )
+#        cms.PSet( 
+#         etaMin = cms.double(3.0),
+#         etaMax = cms.double(10.0),
+#         ptMin  = cms.double(0.0),
+#         MinNeutralPt        = cms.double(2.0),
+#         MinNeutralPtSlope   = cms.double(0.07),
+#         # RMSEtaSF = cms.double(1.18),
+#         # MedEtaSF = cms.double(0.4397),                         
+#         RMSEtaSF = cms.double(1.10),
+#         MedEtaSF = cms.double(0.90),
+#         EtaMaxExtrap = cms.double(2.0),
+#         puppiAlgos = puppiForward
+#       )
     )
 )

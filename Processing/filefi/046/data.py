@@ -8,33 +8,37 @@ process = cms.Process('FILEFI')
 
 # say how many events to process (-1 means no limit)
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1)
 )
 
 #>> input source
 
 process.source = cms.Source(
-  "PoolSource",
-  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16reHLT80/TTbarDMJets_pseudoscalar_Mchi-10_Mphi-10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext1-v1/00000/26AD04E0-3039-E611-88BC-D4856459AE7C.root'),
-#  fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/RunIISpring16DR80/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/04415584-72FF-E511-A64A-90B11C050429.root')
+  #"PoolSource", fileNames = cms.untracked.vstring('file:XX-GPACK-XX.root')
+  "PoolSource", fileNames = cms.untracked.vstring('XX-LFN-XX')
 )
 process.source.inputCommands = cms.untracked.vstring(
   "keep *",
   "drop *_MEtoEDMConverter_*_*",
   "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT"
 )
+## lazy download
+#process.SiteLocalConfigService = cms.Service(
+#  "SiteLocalConfigService",
+#  overrideSourceCacheHintDir = cms.untracked.string("lazy-download")
+#)
 
 #>> configurations
 
 # determine the global tag to use
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_v3'
+process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v11'
 
 # define meta data for this production
 process.configurationMetadata = cms.untracked.PSet(
   name       = cms.untracked.string('BambuProd'),
   version    = cms.untracked.string('Mit_046'),
-  annotation = cms.untracked.string('AODSIM')
+  annotation = cms.untracked.string('AOD')
 )
 
 #>> standard sequences
@@ -188,17 +192,7 @@ recoSequence = cms.Sequence(
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-# Import/Load genjets
-from RecoJets.Configuration.GenJetParticles_cff import genJetParticles
-process.load('RecoJets.Configuration.GenJetParticles_cff')
-from RecoJets.Configuration.RecoGenJets_cff import ak4GenJets, ak8GenJets
-process.load('RecoJets.Configuration.RecoGenJets_cff')
-
-genSequence = cms.Sequence(
-  genJetParticles *
-  ak4GenJets *
-  ak8GenJets
-)
+# this is data, so nothing here
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
@@ -210,12 +204,13 @@ genSequence = cms.Sequence(
 
 # configure the filler
 MitTreeFiller.TreeWriter.fileName = 'bambu-output-file-tmp'
-MitTreeFiller.PileupInfo.active = True
-MitTreeFiller.MCParticles.active = True
-MitTreeFiller.MCEventInfo.active = True
-MitTreeFiller.MCAllVertexes.active = True
-MitTreeFiller.Trigger.active = False
-MitTreeFiller.MetaInfos.l1GtReadRecEdmName = ''
+# remove Monte Carlo information
+MitTreeFiller.MCEventInfo.active = False
+MitTreeFiller.MCParticles.active = False
+MitTreeFiller.MCAllVertexes.active = False
+MitTreeFiller.PileupInfo.active = False
+MitTreeFiller.AKT4GenJets.active = False
+MitTreeFiller.AKT8GenJets.active = False
 
 # define fill bambu filler sequence
 
@@ -231,6 +226,5 @@ bambuFillerSequence = cms.Sequence(
 
 process.path = cms.Path(
   recoSequence *
-  genSequence *
   bambuFillerSequence
 )

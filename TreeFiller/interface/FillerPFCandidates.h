@@ -13,6 +13,8 @@
 // (cloned) candidates from particleFlow. Then a ValueMap should exist for each of
 // 1. particleFlow -> A; 2. particleFlow -> B; 3. A -> C; 4. B -> C; 5. C -> puppi and their InputTags
 // passed to edmPuppiMapToken in this order (1. and 2., 3. and 4. orders can be reversed).
+// A reverse mapping (starting from puppi) is conceivable, but CMSSW currently chooses to map bottom-up
+// (which implies all input candidates are mapped to puppi candidates).
 //
 // Authors: J.Bendavid, Y.Iiyama
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +34,7 @@ namespace mithep
       typedef std::vector<edm::FwdPtr<reco::PFCandidate>>  PFCollection;
       typedef edm::View<reco::Candidate> CandidateView;
       typedef edm::ValueMap<reco::CandidatePtr> CandidatePtrMap;
+      typedef edm::ValueMap<float> FloatMap;
       typedef edm::EDGetTokenT<CandidatePtrMap> CandPtrMapToken;
 
       FillerPFCandidates(edm::ParameterSet const&, edm::ConsumesCollector&, ObjectService*, char const* name, bool active = true);
@@ -53,6 +56,7 @@ namespace mithep
       edm::EDGetTokenT<PFCollection> edmPfNoPileupToken_;       //edm name of PFNoPileup  coll
       std::vector<CandPtrMapToken>   edmPuppiMapTokens_;        //edm token for PF->Puppi map (can follow multiple steps)
       edm::EDGetTokenT<CandidateView> edmPuppiToken_;           //edm token for puppi
+      edm::EDGetTokenT<FloatMap>     edmPuppiWeightsToken_;     //edm token for puppi weights
       std::string                    mitName_;                  //name: PFCandidate branch in BAMBU
       std::vector<std::string>       trackerTrackMapNames_;     //name: impo. map wrt general tracks
       std::string                    gsfTrackMapName_;          //name: impo. map wrt pf gsf tracks

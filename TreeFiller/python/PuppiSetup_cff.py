@@ -7,40 +7,52 @@ from MitProd.TreeFiller.Puppi_cff import puppi
 def photonIdForPuppi(process):
     # copied from PhotonPupppi_cff to run on AOD
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDPhotonIdProducer, DataFormat, setupVIDPhotonSelection
-    from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff import cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose
+    from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff import cutBasedPhotonID_Spring15_25ns_V1_standalone_loose
 
     switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
-    setupVIDPhotonSelection(process, cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose, patProducer = None, addUserData = False)
+    setupVIDPhotonSelection(process, cutBasedPhotonID_Spring15_25ns_V1_standalone_loose, patProducer = None, addUserData = False)
 
     return process.egmPhotonIDSequence
 
 
-puppi.useExistingWeights = False
+pfNoLep = cms.EDFilter("PdgIdCandViewSelector",
+    src = cms.InputTag("particleFlow"), 
+    pdgId = cms.vint32(1,2,22,111,130,310,2112,211,-211,321,-321,999211,2212,-2212)
+)
 
-# As of 8_0_12, puppiNoLep is identical to puppi because useWeightsNoLep is commented out in PuppiProducer.
+pfLeptons = cms.EDFilter("PdgIdCandViewSelector",
+    src = cms.InputTag("particleFlow"),
+    pdgId = cms.vint32(-11,11,-13,13),
+)
+
 puppiNoLep = puppi.clone(
-    useWeightsNoLep = True
+    candName = cms.InputTag('pfNoLep')
+)
+
+puppiMerged = cms.EDProducer("CandViewMerger",
+    src = cms.VInputTag('puppiNoLep', 'pfLeptons')
 )
 
 # original class adapted from CommonTools.PileupAlgos.PhotonPuppi_cff
-puppiPhoton = cms.EDProducer('PuppiPhotonScaler',
+puppiForMET = cms.EDProducer('PuppiPhotonScaler',
     candName = cms.InputTag('particleFlow'),
-    puppiCandName = cms.InputTag('puppi'),
+    puppiCandName = cms.InputTag('puppiMerged'),
     photonName = cms.InputTag('gedPhotons'),
     footprintsName = cms.InputTag('particleBasedIsolation:gedPhotons'),
-    photonId = cms.InputTag('egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose'),
+    photonId = cms.InputTag('egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose'),
+    defaultWeight = cms.double(1.),
     pt = cms.double(10.),
-    dRMatch = cms.vdouble(10., 10., 10., 10.),
+    eta = cms.double(2.5),
+    # if set, match by dR instead of ref
+    dRMatch = cms.vdouble(0.005, 0.005, 0.005, 0.005),
     pdgids = cms.vuint32(22, 11, 211, 130)
-)
-
-puppiForMET = cms.EDProducer('CandViewMerger',
-    src = cms.VInputTag('puppiPhoton')
 )
 
 puppiSequence = cms.Sequence(
     puppi +
-#    puppiNoLep +
-    puppiPhoton +
+    pfNoLep +
+    pfLeptons +
+    puppiNoLep +
+    puppiMerged +
     puppiForMET
 )

@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # create the process
 process = cms.Process('FILEFI')
 
-# say how many events to process (-1 means no limit)
+# say how many events to process (Don't change!!)
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )

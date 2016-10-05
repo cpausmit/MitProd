@@ -169,19 +169,19 @@ mithep::FillerJets::FillPostRunBlock(edm::Run const&, edm::EventSetup const&)
 }
 
 void
-mithep::FillerJets::initBJetTags(edm::Event const& event,
-                                         reco::JetTagCollection const* bJetTags[mithep::Jet::nBTagAlgos])
+mithep::FillerJets::initBJetTags(edm::Event const& event, reco::JetTagCollection const* bJetTags[mithep::Jet::nBTagAlgos])
 {
   for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT) {
-    edm::Handle<reco::JetTagCollection> hBJetTags;
-    GetProduct(bJetTagsToken_[iT], hBJetTags, event);
-    bJetTags[iT] = hBJetTags.product();
+    if (!bJetTagsToken_[iT].isUninitialized()) {
+      edm::Handle<reco::JetTagCollection> hBJetTags;
+      GetProduct(bJetTagsToken_[iT], hBJetTags, event);
+      bJetTags[iT] = hBJetTags.product();
+    }
   }
 }
 
 void
-mithep::FillerJets::setBJetTags(mithep::Jet& outJet, reco::JetBaseRef const& baseRef,
-                                        reco::JetTagCollection const* bJetTags[mithep::Jet::nBTagAlgos]) const
+mithep::FillerJets::setBJetTags(mithep::Jet& outJet, reco::JetBaseRef const& baseRef, reco::JetTagCollection const* bJetTags[mithep::Jet::nBTagAlgos]) const
 {
   for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT) {
     if (bJetTags[iT])

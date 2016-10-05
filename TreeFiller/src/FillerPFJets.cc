@@ -12,7 +12,7 @@ mithep::FillerPFJets::FillerPFJets(edm::ParameterSet const& cfg, edm::ConsumesCo
 {
   jets_ = new mithep::PFJetArr(32);
   
-  if (bTaggingActive_) {
+  if (bTaggingActive_ && fillFromPAT_) {
     for (unsigned iA = 0; iA != mithep::Jet::nBTagAlgos; ++iA) {
       std::string paramName(mithep::Jet::BTagAlgoName(iA) + std::string("BJetTagsName"));
       bJetTagsName_[iA] = cfg.getUntrackedParameter<std::string>(paramName, "");
@@ -139,8 +139,10 @@ mithep::FillerPFJets::setBJetTags(mithep::Jet& outJet, reco::JetBaseRef const& b
   if (fillFromPAT_) {
     pat::Jet const& inJet = static_cast<pat::Jet const&>(*baseRef);
 
-    for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT)
-      outJet.SetBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[iT]), iT);
+    for (unsigned iT = 0; iT != mithep::Jet::nBTagAlgos; ++iT) {
+      if (!bJetTagsName_[iT].empty())
+        outJet.SetBJetTagsDisc(inJet.bDiscriminator(bJetTagsName_[iT]), iT);
+    }
   }
   else
     FillerJets::setBJetTags(outJet, baseRef, bJetTags);
