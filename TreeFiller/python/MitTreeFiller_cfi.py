@@ -158,7 +158,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                          'CHTrackResolutionFilter',
                                          'MuBadTrackFilter',
                                          'BadPFMuonFilter',
-                                         'BadChargedCandidateFilter'),
+                                         'BadChargedCandidateFilter',
+                                         'BadPFMuonSummer16Filter',
+                                         'BadChargedCandidateSummer16Filter'
+                                        ),
     inputLabels = cms.untracked.vstring('HBHENoiseFilterResultProducer:HBHENoiseFilterResultRun2Loose',
                                         'HBHENoiseFilterResultProducer:HBHEIsoNoiseFilterResult',
                                         'EcalDeadCellTriggerPrimitiveFilter',
@@ -170,7 +173,10 @@ MitTreeFiller = cms.EDAnalyzer("FillMitTree",
                                         'chargedHadronTrackResolutionFilter',
                                         'muonBadTrackFilter',
                                         'BadPFMuonFilter',
-                                        'BadChargedCandidateFilter'),
+                                        'BadChargedCandidateFilter',
+                                        'BadPFMuonSummer16Filter',
+                                        'BadChargedCandidateSummer16Filter'
+                                       ),
     invertedFilters = cms.untracked.vstring(),
     patFilterResultsName          = cms.untracked.string(''), # set when filling from miniAOD
     fillerType                    = cms.untracked.string('FillerEvtSelData')

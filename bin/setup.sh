@@ -24,9 +24,8 @@ install-pkg() {
   rm -rf cmssw
 }
 
-install-pkg cms-met origin/CMSSW_8_0_X-METFilterUpdate RecoMET/METFilters
+install-pkg cms-met origin/fromCMSSW_8_0_20_postICHEPfilter RecoMET/METFilters
 install-pkg cms-btv-pog BoostedDoubleSVTaggerV3-WithWeightFiles-v1_from-CMSSW_8_0_8_patch1 RecoBTag/SecondaryVertex
-install-pkg yiiyama origin/jetproducer-subjets RecoJets/JetProducers
 
 cd $CMSSW_BASE/src
 
