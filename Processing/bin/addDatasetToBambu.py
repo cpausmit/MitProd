@@ -228,7 +228,7 @@ def findDatasetProperties(dataset,dbsInst,debug=0):
         return (-1,-1)
 
     cert = "--cert ~/.globus/usercert.pem --key ~/.globus/userkey.pem "
-    cmd = 'das_client ' + cert + '  --format=plain --limit=0 --query="file dataset=' \
+    cmd = 'das_client --format=plain --limit=0 --query="file dataset=' \
         + dataset + ' status=valid instance=' + dbsInst \
         + ' | count(file), sum(file.size)"| sort -u'    
     nFiles = ''

@@ -25,7 +25,6 @@ install-pkg() {
 }
 
 install-pkg cms-met origin/fromCMSSW_8_0_20_postICHEPfilter RecoMET/METFilters
-install-pkg cms-btv-pog BoostedDoubleSVTaggerV3-WithWeightFiles-v1_from-CMSSW_8_0_8_patch1 RecoBTag/SecondaryVertex
 
 cd $CMSSW_BASE/src
 
