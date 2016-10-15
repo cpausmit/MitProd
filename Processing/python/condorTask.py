@@ -455,7 +455,7 @@ class CondorTask:
             print ' Make bambu tar ball: ' \
                 + os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"
             cmd = "cd " + os.getenv('CMSSW_BASE') \
-                + "; tar fzc bambu_" + self.cmsswVersion + ".tgz lib/ python/ src/"
+                + "; tar fzch bambu_" + self.cmsswVersion + ".tgz lib/ python/ src/"
             os.system(cmd)
 
         # see whether the tar ball needs to be copied locally or to remote scheduler
@@ -511,11 +511,11 @@ class CondorTask:
             fileH.write("Log = " + self.logs + '/' + self.sample.dataset + '.log' + '\n')
             fileH.write("transfer_input_files = " + self.tarBall+ '\n')
 
-            # add the desired sites (this will overwrite the already defined default)
-            siteString = self.sample.getSitesString('')
-            if siteString != '':
-                fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
-            ##fileH.write('+DESIRED_Sites          = T2_US_MIT\n')
+            ## # add the desired sites (this will overwrite the already defined default)
+            ## siteString = self.sample.getSitesString('')
+            ## if siteString != '':
+            ##     fileH.write('+DESIRED_Sites          = "' + siteString + '"\n')
+            ## ##fileH.write('+DESIRED_Sites          = T2_US_MIT\n')
 
             for file,lfn in self.sample.missingLfns.iteritems():
                 print ' Adding : %s %s'%(file,lfn)

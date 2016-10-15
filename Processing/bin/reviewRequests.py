@@ -26,7 +26,7 @@ def testTier2Disk(debug=0):
 
     return nFiles
 
-def productionStatus(mitCfg,versioon,dataset,debug=0):
+def productionStatus(mitCfg,version,dataset,debug=0):
     # make sure we can see the Tier-2 disks: returns -1 on failure
 
     cmd = "cat /home/cmsprod/catalog/t2mit/%s/%s/%s/Files 2> /dev/null | wc -l"\
