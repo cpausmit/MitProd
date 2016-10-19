@@ -171,6 +171,9 @@ if local:
 condorTask.createDirectories()
 condorTask.makeTarBall()
 
+# Quick analysis of ongoing failures and related cleanup
+condorTask.analyzeFailures()
+
 # Make the submit file
 condorTask.writeCondorSubmit()
  

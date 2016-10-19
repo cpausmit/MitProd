@@ -80,7 +80,8 @@ class File(MetaData):
     # constructor to connect with existing setup
     #-----------------------------------------------------------------------------------------------
     def __init__(self,nEvents,nLumiSecs,minRun,minLumiSecInMinRun,maxRun,maxLumiSecInMaxRun,name):
-        MetaData.__init__(self,nEvents,nLumiSecs,minRun,minLumiSecInMinRun,maxRun,maxLumiSecInMaxRun)
+        MetaData. \
+            __init__(self,nEvents,nLumiSecs,minRun,minLumiSecInMinRun,maxRun,maxLumiSecInMaxRun)
         self.name = name
     #-----------------------------------------------------------------------------------------------
     # present the current crab task

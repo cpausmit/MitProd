@@ -14,12 +14,8 @@ export LATEST_CMSSW=`ls -rt ~cmsprod/cms/cmssw/$MIT_VERS| grep ^CMSSW_[0-9] | ta
 export MIT_TAG=Mit_$MIT_VERS
 export TICKET_HOLDER="paus"
 export TIER2_USER="paus"
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-cd     ~cmsprod/cms/cmssw/${MIT_VERS}/${LATEST_CMSSW}/src
-eval   `scram runtime -sh`
-cd     -
-source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
 
+source /home/cmsprod/Tools/Dools/setup.sh
 source /home/cmsprod/Tools/FiBS/setup.sh
 source /home/cmsprod/Tools/T2Tools/setup.sh
 
@@ -51,3 +47,14 @@ export MIT_PROD_UPLOAD_CYCLE_SECONDS=300
 export MIT_PROD_UPLOAD_THRESHOLD=10
 export MIT_PROD_UPLOAD_NTRANSFERS=5
 export MIT_PROD_UPLOAD_BOOK="filefi/$MIT_VERS"
+
+# CMSSW
+
+if [ "$1" != "lite" ]
+then
+  source /cvmfs/cms.cern.ch/cmsset_default.sh
+  cd     ~cmsprod/cms/cmssw/${MIT_VERS}/${LATEST_CMSSW}/src
+  eval   `scram runtime -sh`
+  cd     -
+  source $CMSSW_BASE/src/MitProd/Processing/bin/processing.sh
+fi

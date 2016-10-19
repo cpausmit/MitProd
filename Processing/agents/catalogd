@@ -5,7 +5,7 @@
 # v1.0                                                                         C.Paus (Apr 27, 2015)
 # --------------------------------------------------------------------------------------------------
 # initialize environment variables
-source $MIT_PROD_AGENTS_BASE/setupAgents.sh
+source $MIT_PROD_AGENTS_BASE/setupAgents.sh lite
 
 # daemon
 daemon=`basename $0`
@@ -64,7 +64,20 @@ do
 
 
     ##stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=2                     >> $logFile 2>&1
+    nFilesLeft=`wc -l $FIBS_WORK/checkFile.list | cut -d' ' -f 1`
+    echo " Number of files left to catalog: $nFilesLeft"                           >> $logFile
+    if [ "$nFilesLeft" == "0" ]
+    then
+      echo " Remake the list for cataloging."                                      >> $logFile
+      list /cms/store/user/paus/filefi/04?/*/crab_*/*.root| cut -d ' ' -f 2 > tmp.list
+      mv tmp.list $FIBS_WORK/checkFile.list
+      nFilesLeft=`wc -l $FIBS_WORK/checkFile.list | cut -d' ' -f 1`
+      echo " Remade the list for cataloging: $nFilesLeft files"                   >> $logFile
+    fi
 
+    # extracting all RawFiles and making the catalogs
+    generateCatalogs.py filefi/$MIT_VERS ''                                        >> $logFile
+    
     echo " "                                                                      >> $logFile
     echo " completed review cycle."                                               >> $logFile
     echo " FINISH by updating log files on web."                                  >> $logFile

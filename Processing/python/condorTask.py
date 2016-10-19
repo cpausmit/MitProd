@@ -86,7 +86,8 @@ class Sample:
         self.nEvtTotal = 0
         self.nMissingLfns = 0
         self.allLfns = {}
-        self.queuedLfns = {}
+        self.queuedLfns = {}               # queued lfns do NOT include the held ones
+        self.heldLfns = {}                 # those are kept separate for further analysis
         self.noCatalogLfns = {}
         self.completedLfns = {}
         self.missingLfns = {}
@@ -101,6 +102,7 @@ class Sample:
         print ' NEvtTotal     : ' + str(self.nEvtTotal)
         print ' All Lfns      : ' + str(len(self.allLfns))
         print ' Queued Lfns   : ' + str(len(self.queuedLfns))
+        print ' Held Lfns     : ' + str(len(self.heldLfns))
         print ' NoCatalog Lfns: ' + str(len(self.noCatalogLfns))
         print ' Completed Lfns: ' + str(len(self.completedLfns))
         print ' Missing Lfns  : ' + str(len(self.missingLfns))
@@ -142,7 +144,7 @@ class Sample:
             self.nEvents = int(f[2])
             self.nEvtTotal += self.nEvents
             if file in self.allLfns.keys():
-                print " ERROR -- lfn appeared twice! This should never happen. IGNORE."
+                print " ERROR -- lfn appeared twice! This should never happen. IGNORE. (%s)"%file
                 #print " ERROR -- lfn appeared twice! This should never happen. EXIT."
                 #sys.exit(1)
             # add this lfn to the mix
@@ -191,7 +193,7 @@ class Sample:
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
         if file in self.queuedLfns.keys():
-            print " ERROR -- queued lfn appeared twice! This should never happen. but no danger."
+            print " ERROR -- queued lfn appeared twice! Should not happen but no danger. (%s)"%file
             #sys.exit(1)
         # add this lfn to the mix
         self.queuedLfns[file] = self.allLfns[file]
@@ -199,24 +201,33 @@ class Sample:
         return
 
     #-----------------------------------------------------------------------------------------------
-    # add all lfns so far completed relevant to this task
+    # reset the list of queued lfns
     #-----------------------------------------------------------------------------------------------
     def resetQueuedLfns(self):
-        # reset the record of queued LFNs
 
         self.queuedLfns = {}
 
         return
 
     #-----------------------------------------------------------------------------------------------
-    # add all lfns so far completed relevant to this task
+    # reset the list of held lfns
+    #-----------------------------------------------------------------------------------------------
+    def resetHeldLfns(self):
+
+        self.heldLfns = {}
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # add all lfns so far completed but not yet cataloged relevant to this task
+    # - they might fail cataloging but we assume they worked
     #-----------------------------------------------------------------------------------------------
     def addNoCatalogLfn(self,file):
 
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
         if file in self.noCatalogLfns.keys():
-            print " ERROR -- noCatalog lfn appeared twice! This should never happen. EXIT."
+            print " ERROR -- noCatalog lfn appeared twice! Should not happen. EXIT (%s)"%file
             sys.exit(1)
         # add this lfn to the mix
         self.noCatalogLfns[file] = self.allLfns[file]
@@ -231,7 +242,7 @@ class Sample:
         if file not in self.allLfns.keys():
             print ' ERROR -- found completed lfn not in list of all lfns?! ->' + file + '<-'
         if file in self.completedLfns.keys():
-            print " ERROR -- completed lfn appeared twice! This should never happen. EXIT."
+            print " ERROR -- completed lfn appeared twice! Should not happen. EXIT (%s)"%file
             sys.exit(1)
         # add this lfn to the mix
         self.completedLfns[file] = self.allLfns[file]
@@ -239,7 +250,7 @@ class Sample:
         return
 
     #-----------------------------------------------------------------------------------------------
-    # load all lfns relevant to this task
+    # create the list of missing Lfns extracted fromt he previously created lists
     #-----------------------------------------------------------------------------------------------
     def createMissingLfns(self):
 
@@ -247,7 +258,7 @@ class Sample:
         self.missingLfns = {}
         for file,lfn in self.allLfns.iteritems():
             if file in self.missingLfns.keys():
-                print " ERROR -- missing lfn appeared twice! This should never happen. EXIT."
+                print " ERROR -- missing lfn appeared twice! Should never happen. EXIT. (%s)"%file
                 sys.exit(1)
             # is it already completed?
             if file not in self.completedLfns.keys() and \
@@ -289,6 +300,7 @@ class CondorTask:
         self.sample.loadAllLfns(lfnFile)
         self.sample.loadSites(siteFile)
         self.loadQueuedLfns()
+        self.loadHeldLfns()
         self.loadCompletedLfns()
         self.sample.createMissingLfns()
 
@@ -309,15 +321,47 @@ class CondorTask:
         print ''
 
     #-----------------------------------------------------------------------------------------------
+    # analyze known failures
+    #-----------------------------------------------------------------------------------------------
+    def analyzeFailures(self):
+        #
+        # Method to remove all log files of successfully completed jobs and analysis of all failed
+        # jobs and remove the remaining condor queue entires of the held jobs.
+        #
+        # We are assuming that any failed job is converted into a held job. We collect all held jobs
+        # from the condor queue and safe those log files into our web repository for browsing. Only
+        # the last copy of the failed job is kept as repeated failure overwrites the old failed
+        # job's log files. The held job entries in the condor queue are removed on the failed job is
+        # resubmitted.
+        #
+        # It should be noted that if a job succeeds all log files including the ones from earlier
+        # failures will be removed.
+        #
+
+        # A - take all completed lfns and remove all related logs
+        self.removeCompletedLogs()
+
+        # B - find all logs from the held jobs, save them and generate failure summary
+        self.saveFailedLogs()
+        self.analyzeLogs()
+
+        # C - remove all held jobs from the queue
+        self.removeHeldJobs()
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
     # update scheduler
     #-----------------------------------------------------------------------------------------------
     def updateScheduler(self,host,user):
 
-        self.scheduler.update(host ,user)
+        self.scheduler.update(host,user)
 
         # derived
         self.loadQueuedLfns()
+        self.loadHeldLfns()
         self.sample.createMissingLfns()
+
         self.logs = self.scheduler.home + '/cms/logs/' + self.mitCfg + '/' + self.mitVersion \
             + '/' + self.sample.dataset
         self.outputData = self.scheduler.home + '/cms/data/' + self.mitCfg + '/' + self.mitVersion \
@@ -326,7 +370,7 @@ class CondorTask:
         self.tarBall = self.logs + '/bambu_' + self.cmsswVersion + '.tgz'
 
     #-----------------------------------------------------------------------------------------------
-    # add specification to given file for exactly one more condor queue request for a given lfn
+    # add specification to given file for exactly one more condor queue request (one lfn)
     #-----------------------------------------------------------------------------------------------
     def addLfn(self,fileH,file,lfn):
 
@@ -399,7 +443,7 @@ class CondorTask:
 
         # initialize from scratch
         path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
-            + self.sample.dataset 
+            + self.sample.dataset
         # first fully checked files
         cmd = 'list ' + path + '  2> /dev/null | grep root'
         for line in os.popen(cmd).readlines():  # run command
@@ -419,7 +463,7 @@ class CondorTask:
             print ' DONE    - Lfns: %6d'%(len(self.sample.completedLfns))
 
     #-----------------------------------------------------------------------------------------------
-    # load all lfns so far completed relevant to this task
+    # load all lfns that are presently queued
     #-----------------------------------------------------------------------------------------------
     def loadQueuedLfns(self):
 
@@ -427,7 +471,7 @@ class CondorTask:
         self.sample.resetQueuedLfns()
 
         path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
-            + self.sample.dataset 
+            + self.sample.dataset
         pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)
         cmd = 'condor_q ' + self.scheduler.user \
             + ' -constraint JobStatus!=5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
@@ -441,6 +485,30 @@ class CondorTask:
             self.sample.addQueuedLfn(file)
         if DEBUG > 0:
             print ' QUEUED  - Lfns: %6d'%(len(self.sample.queuedLfns))
+
+    #-----------------------------------------------------------------------------------------------
+    # load all lfns that are presently queued but in held state
+    #-----------------------------------------------------------------------------------------------
+    def loadHeldLfns(self):
+
+        # initialize from scratch
+        self.sample.resetHeldLfns()
+
+        path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
+            + self.sample.dataset
+        pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)
+        cmd = 'condor_q ' + self.scheduler.user \
+            + ' -constraint JobStatus==5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
+
+        if not self.scheduler.isLocal():
+            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
+                + ' \"' + cmd + '\"'
+        for line in os.popen(cmd).readlines():  # run command
+            f    = line.split(' ')
+            file = f[4] + '.root'
+            self.sample.addQueuedLfn(file)
+        if DEBUG > 0:
+            print ' HELD    - Lfns: %6d'%(len(self.sample.heldLfns))
 
     #-----------------------------------------------------------------------------------------------
     # generate actual tarball, or leave as is if already up to date
@@ -473,6 +541,59 @@ class CondorTask:
             cmd = "scp -q " + os.getenv('MIT_PROD_DIR') + "/bin/makeBambu.sh "  \
                 + self.scheduler.user + '@' +  self.scheduler.host + ':' + self.logs
             os.system(cmd)
+
+    #-----------------------------------------------------------------------------------------------
+    # analyze saved logs and produce a summary web page
+    #-----------------------------------------------------------------------------------------------
+    def analyzeLogs(self):
+
+        print ' ==== Analyze failed logs ===='
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # remove all log files of completed jobs
+    #-----------------------------------------------------------------------------------------------
+    def removeCompletedLogs(self):
+
+        print ' ==== Remove completed logs ===='
+
+        for file,lfn in self.sample.completedLfns.iteritems():
+            if False:
+                print ' Removing logs for completed: %s'%(file)
+
+        for file,lfn in self.sample.noCatalogLfns.iteritems():
+            if False:
+                print ' Removing logs for noCatalog: %s'%(file)
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # remove held jobs from the queue
+    #-----------------------------------------------------------------------------------------------
+    def removeHeldJobs(self):
+
+        cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
+
+        if not self.scheduler.isLocal():
+            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
+                + ' \"' + cmd + '\"'
+
+        print ' Remove Held jobs: ' + cmd
+        #os.system(cmd)
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # save the log files of the failed jobs
+    #-----------------------------------------------------------------------------------------------
+    def saveFailedLogs(self):
+
+        print ' ==== Find failed logs ===='
+        for file,lfn in self.sample.heldLfns.iteritems():
+            print ' Saving logs for failed: %s'%(file)
+
+        return
 
     #-----------------------------------------------------------------------------------------------
     # present the current condor task
