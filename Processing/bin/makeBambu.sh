@@ -239,8 +239,8 @@ then
   downloadFile $GPACK $LFN
   if ! [ -e "./$GPACK.root" ]
   then
-    echo " EXIT -- download failed."
-    exit 1
+    echo " EXIT(255) -- download failed."
+    exit 255
   fi
   LFN="file:$GPACK.root"
 #
@@ -285,8 +285,8 @@ rm -f ./$GPACK.root
 if ! [ -e "${GPACK}_tmp.root" ]
 then
   echo " ERROR -- bambu production failed. No output file: ${GPACK}_tmp.root"
-  echo "          EXIT now because there is no BAMBU file."
-  exit 1
+  echo "          EXIT(254) now because there is no BAMBU file."
+  exit 254
 fi
 
 showDiskSpace

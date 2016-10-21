@@ -4,6 +4,7 @@
 # Author: C.Paus                                                                      (Jun 16, 2016)
 #---------------------------------------------------------------------------------------------------
 import os,sys,re,string,socket
+import rex
 
 DEBUG = 0
 
@@ -186,7 +187,7 @@ class Sample:
             print ' Sites: %2d: %s'%(len(self.Sites),siteString)
 
     #-----------------------------------------------------------------------------------------------
-    # add all lfns so far completed relevant to this task
+    # add one queued lfn to the list
     #-----------------------------------------------------------------------------------------------
     def addQueuedLfn(self,file):
 
@@ -197,6 +198,21 @@ class Sample:
             #sys.exit(1)
         # add this lfn to the mix
         self.queuedLfns[file] = self.allLfns[file]
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # add one held lfn to the list
+    #-----------------------------------------------------------------------------------------------
+    def addHeldLfn(self,file):
+
+        if file not in self.allLfns.keys():
+            print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
+        if file in self.heldLfns.keys():
+            print " ERROR -- held lfn appeared twice! Should not happen but no danger. (%s)"%file
+            #sys.exit(1)
+        # add this lfn to the mix
+        self.heldLfns[file] = self.allLfns[file]
 
         return
 
@@ -319,36 +335,6 @@ class CondorTask:
         print ''
         self.show()
         print ''
-
-    #-----------------------------------------------------------------------------------------------
-    # analyze known failures
-    #-----------------------------------------------------------------------------------------------
-    def analyzeFailures(self):
-        #
-        # Method to remove all log files of successfully completed jobs and analysis of all failed
-        # jobs and remove the remaining condor queue entires of the held jobs.
-        #
-        # We are assuming that any failed job is converted into a held job. We collect all held jobs
-        # from the condor queue and safe those log files into our web repository for browsing. Only
-        # the last copy of the failed job is kept as repeated failure overwrites the old failed
-        # job's log files. The held job entries in the condor queue are removed on the failed job is
-        # resubmitted.
-        #
-        # It should be noted that if a job succeeds all log files including the ones from earlier
-        # failures will be removed.
-        #
-
-        # A - take all completed lfns and remove all related logs
-        self.removeCompletedLogs()
-
-        # B - find all logs from the held jobs, save them and generate failure summary
-        self.saveFailedLogs()
-        self.analyzeLogs()
-
-        # C - remove all held jobs from the queue
-        self.removeHeldJobs()
-
-        return
 
     #-----------------------------------------------------------------------------------------------
     # update scheduler
@@ -506,7 +492,8 @@ class CondorTask:
         for line in os.popen(cmd).readlines():  # run command
             f    = line.split(' ')
             file = f[4] + '.root'
-            self.sample.addQueuedLfn(file)
+            self.sample.addHeldLfn(file)
+
         if DEBUG > 0:
             print ' HELD    - Lfns: %6d'%(len(self.sample.heldLfns))
 
@@ -541,59 +528,6 @@ class CondorTask:
             cmd = "scp -q " + os.getenv('MIT_PROD_DIR') + "/bin/makeBambu.sh "  \
                 + self.scheduler.user + '@' +  self.scheduler.host + ':' + self.logs
             os.system(cmd)
-
-    #-----------------------------------------------------------------------------------------------
-    # analyze saved logs and produce a summary web page
-    #-----------------------------------------------------------------------------------------------
-    def analyzeLogs(self):
-
-        print ' ==== Analyze failed logs ===='
-
-        return
-
-    #-----------------------------------------------------------------------------------------------
-    # remove all log files of completed jobs
-    #-----------------------------------------------------------------------------------------------
-    def removeCompletedLogs(self):
-
-        print ' ==== Remove completed logs ===='
-
-        for file,lfn in self.sample.completedLfns.iteritems():
-            if False:
-                print ' Removing logs for completed: %s'%(file)
-
-        for file,lfn in self.sample.noCatalogLfns.iteritems():
-            if False:
-                print ' Removing logs for noCatalog: %s'%(file)
-
-        return
-
-    #-----------------------------------------------------------------------------------------------
-    # remove held jobs from the queue
-    #-----------------------------------------------------------------------------------------------
-    def removeHeldJobs(self):
-
-        cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
-
-        if not self.scheduler.isLocal():
-            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
-                + ' \"' + cmd + '\"'
-
-        print ' Remove Held jobs: ' + cmd
-        #os.system(cmd)
-
-        return
-
-    #-----------------------------------------------------------------------------------------------
-    # save the log files of the failed jobs
-    #-----------------------------------------------------------------------------------------------
-    def saveFailedLogs(self):
-
-        print ' ==== Find failed logs ===='
-        for file,lfn in self.sample.heldLfns.iteritems():
-            print ' Saving logs for failed: %s'%(file)
-
-        return
 
     #-----------------------------------------------------------------------------------------------
     # present the current condor task
@@ -651,3 +585,171 @@ class CondorTask:
             cmd = "ssh -x " + self.scheduler.user + '@' +  self.scheduler.host \
                 + ' \"voms-proxy-init --valid 168:00 -voms cms >& /dev/null\" '
             os.system(cmd)
+
+#---------------------------------------------------------------------------------------------------
+"""
+Class:  CondorTaskCleaner(condorTask)
+
+A given condor task can be cleaned with this tool.
+
+Method to remove all log files of successfully completed jobs and analysis of all failed jobs and
+remove the remaining condor queue entires of the held jobs.
+
+We are assuming that any failed job is converted into a held job. We collect all held jobs from the
+condor queue and safe those log files into our web repository for browsing. Only the last copy of
+the failed job is kept as repeated failure overwrites the old failed job's log files. The held job
+entries in the condor queue are removed on the failed job is resubmitted.
+
+It should be noted that if a job succeeds all log files including the ones from earlier failures
+will be removed.
+
+"""
+#---------------------------------------------------------------------------------------------------
+class CondorTaskCleaner:
+
+    "The cleaner of a given condor task."
+
+    #-----------------------------------------------------------------------------------------------
+    # constructor for new creation
+    #-----------------------------------------------------------------------------------------------
+    def __init__(self,task):
+
+        self.task = task
+
+        self.logRemoveScript = '' # '#!/bin/bash\n'
+        self.webRemoveScript = '' # '#!/bin/bash\n'
+        self.logSaveScript = '' # '#!/bin/bash\n'
+
+        self.rex = rex.Rex(self.task.scheduler.host,self.task.scheduler.user)
+
+    #-----------------------------------------------------------------------------------------------
+    # analyze known failures
+    #-----------------------------------------------------------------------------------------------
+    def logCleanup(self):
+        #
+
+        # A - take all completed lfns and remove all related logs
+        self.removeCompletedLogs()
+
+        # B - find all logs from the held jobs, save them and generate failure summary
+        self.saveFailedLogs()
+        self.analyzeLogs()
+
+        # C - remove all held jobs from the queue
+        self.removeHeldJobs()
+
+        return
+
+
+    #-----------------------------------------------------------------------------------------------
+    # analyze saved logs and produce a summary web page
+    #-----------------------------------------------------------------------------------------------
+    def analyzeLogs(self):
+
+        print ' ==== Analyze failed logs ===='
+        print ' \n     FAKE FOR NOW \n\n'
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # remove all log files of completed jobs
+    #-----------------------------------------------------------------------------------------------
+    def removeCompletedLogs(self):
+
+        cfg = self.task.mitCfg
+        vers = self.task.mitVersion
+        dset = self.task.sample.dataset
+
+        local = '/local/cmsprod/MitProd/agents/reviewd'
+
+        print ' ==== Remove completed logs ===='
+
+        for file,lfn in self.task.sample.completedLfns.iteritems():
+            # we will make a lot of reference to the ID
+            id = file.replace('.root','')
+
+            cmd = 'rm -f cms/*/%s/%s/%s/*%s*\n'%(cfg,vers,dset,id)
+            self.logRemoveScript += cmd
+
+            cmd = 'rm -f %s/%s/%s/%s/*%s*\n'%(local,cfg,vers,dset,id)
+            self.webRemoveScript += cmd
+
+        for file,lfn in self.task.sample.noCatalogLfns.iteritems():
+            # we will make a lot of reference to the ID
+            id = file.replace('.root','')
+
+            cmd = 'rm cms/*/%s/%s/%s/*%s* 2> /dev/null\n'%(cfg,vers,dset,id)
+            self.logRemoveScript += cmd
+
+            cmd = 'rm -f %s/%s/%s/%s/*%s*\n'%(local,cfg,vers,dset,id)
+            self.webRemoveScript += cmd
+
+        print ' ========= LogRemoval'
+        #print self.logRemoveScript
+        (irc,rc,out,err) = self.rex.executeAction(self.logRemoveScript)
+        print ' ========= WebRemoval'
+        #print self.webRemoveScript
+        (rc,out,err) = self.rex.executeLocalAction(self.logRemoveScript)
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # remove held jobs from the queue
+    #-----------------------------------------------------------------------------------------------
+    def removeHeldJobs(self):
+
+        cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
+
+        print ' Remove Held jobs: ' + cmd
+        if not self.task.scheduler.isLocal():
+            (irc,rc,out,err) = self.rex.executeAction(cmd)
+        else:
+            (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        return
+
+    #-----------------------------------------------------------------------------------------------
+    # save the log files of the failed jobs
+    #-----------------------------------------------------------------------------------------------
+    def saveFailedLogs(self):
+
+        cfg = self.task.mitCfg
+        vers = self.task.mitVersion
+        dset = self.task.sample.dataset
+
+        local = '/local/cmsprod/MitProd/agents/reviewd'
+
+        print ' ==== Find failed logs ===='
+
+        self.logSaveScript += 'cd cms/logs/%s/%s/%s\ntar fzc %s-%s-%s.tgz'\
+            %(cfg,vers,dset,cfg,vers,dset)
+
+        for file,lfn in self.task.sample.heldLfns.iteritems():
+            id = file.replace('.root','')
+            cmd = '  \\\n  %s.{out,err}'%(id)
+            self.logSaveScript += cmd
+
+        print self.logSaveScript
+        (irc,rc,out,err) = self.rex.executeAction(self.logSaveScript)
+
+        cmd = 'mkdir -p %s/%s/%s/%s/;'%(local,cfg,vers,dset)
+        print ' Mkdir: ' + cmd
+        (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        cmd = 'scp ' + self.task.scheduler.user + '@' + self.task.scheduler.host \
+            + ':cms/logs/%s/%s/%s/%s-%s-%s.tgz'%(cfg,vers,dset,cfg,vers,dset) \
+            + ' %s/%s/%s/%s'%(local,cfg,vers,dset)
+        print ' Get tar: ' + cmd
+        (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        cmd = 'cd %s/%s/%s/%s/;'%(local,cfg,vers,dset) \
+            + 'tar fzx %s-%s-%s.tgz;'%(cfg,vers,dset)
+            + 'chmod a+r *'%(cfg,vers,dset)
+        print ' Untar: ' + cmd
+        (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        cmd = 'rm -f %s/%s/%s/%s/%s-%s-%s.tgz'%(local,cfg,vers,dset,cfg,vers,dset) 
+        print ' Remove tar: ' + cmd
+        (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        return

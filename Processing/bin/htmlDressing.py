@@ -80,7 +80,7 @@ with open(input,"r") as fileInput:
             f = line.split(' ')
             dataset = f.pop()
             line = ' '.join(f) \
-                 + ' <a href="../' + version + '/' + dataset + '">' + dataset + '</a>'
+                 + ' <a href="filefi/' + version + '/' + dataset + '">' + dataset + '</a>'
         else:
             f = line.split(' ')
             if len(f) > 1:

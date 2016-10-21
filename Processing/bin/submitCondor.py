@@ -161,27 +161,28 @@ lfnFile = makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns)
 siteFile = makeSiteFile(dataset,dbs,useExistingSites)
 
 # Create the corresponding condor task
-condorTask = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile,siteFile)
+task = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile,siteFile)
 if local:
     print ' Update Scheduler ....'
-    condorTask.updateScheduler('t3serv015.mit.edu','cmsprod')
-    condorTask.show()
+    task.updateScheduler('t3serv015.mit.edu','cmsprod')
+    task.show()
 
 # Prepare the environment
-condorTask.createDirectories()
-condorTask.makeTarBall()
+task.createDirectories()
+task.makeTarBall()
 
-# Quick analysis of ongoing failures and related cleanup
-condorTask.analyzeFailures()
+# Quick analysis of ongoing failures and related logfile cleanup
+taskCleaner = condorTask.CondorTaskCleaner(task)
+taskCleaner.logCleanup()
 
 # Make the submit file
-condorTask.writeCondorSubmit()
+task.writeCondorSubmit()
  
 # Submit this job
-condorTask.condorSubmit()
+task.condorSubmit()
 
 # Make it clean
-condorTask.cleanUp()
+task.cleanUp()
 
 print ''
 sys.exit(0)
