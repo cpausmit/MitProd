@@ -8,6 +8,15 @@
 import sys,os,subprocess,getopt,time
 import MySQLdb
 
+def isValidId(id):
+    # make sure the Id is larger zero
+
+    valid = True
+    if id<=0:
+        valid = False
+
+    return valid
+
 def testLocalSetup(dataset):
     # test all relevant components and exit is something is off
 
@@ -28,12 +37,12 @@ def getBlockId(datasetId,blockName):
         cursor.execute(sql)
         results = cursor.fetchall()
     except:
-        print " Error (%s): unable to fetch data."%(sql)
+        print " ERROR (%s): unable to fetch data."%(sql)
         sys.exit(0)
 
     blockId = int(results[0][0])
-    if blockId <= 0:
-        print ' ERROR -- invalid block id'
+    if not isValidId(blockId):
+        print ' ERROR -- invalid block id: %d'%(blockId)
         sys.exit(1)
  
     return blockId
@@ -65,8 +74,8 @@ def getDatasetId(dataset):
     else:
         datasetId = int(results[0][0])
  
-    if datasetId <= 0:
-        print ' ERROR -- invalid dataset id'
+    if not isValidId(datasetId):
+        print ' ERROR -- invalid dataset id: %d'%(datasetId)
         sys.exit(1)
             
     return datasetId
@@ -79,7 +88,8 @@ def addBlock(datasetId,blockName):
         # Execute the SQL command
         cursor.execute(sql)
     except:
-        print 'ERROR(%s) - could not insert new block.'%(sql)
+        print ' ERROR (%s) - could not insert new block.'%(sql)
+        print " Unexpected error:", sys.exc_info()[0]
 
     return getBlockId(datasetId,blockName)
 
@@ -92,7 +102,8 @@ def addLfn(datasetId,blockId,fileName,pathName,nEvents):
         # Execute the SQL command
         cursor.execute(sql)
     except:
-        print 'ERROR(%s) - could not insert new file.'%(sql)
+        print ' ERROR (%s) - could not insert new file.'%(sql)
+        print " Unexpected error:", sys.exc_info()[0]
     
 #===================================================================================================
 # Main starts here
@@ -126,6 +137,7 @@ for opt, arg in opts:
         if dataset[0] == '/':
             dataset = dataset[1:].replace('/','+')
 
+# Make sure our local setup is good
 testLocalSetup(dataset)
 
 # Open database connection
@@ -135,7 +147,7 @@ cursor = db.cursor()
 # First get the dataset id
 datasetId = getDatasetId(dataset)
 
-# now read the lfn file
+# Read the lfn file
 blockId = -1
 lastBlockName = "EMPTY"
 with open('/home/cmsprod/cms/jobs/lfns/' + dataset + '.lfns','r') as fHandle:
@@ -144,7 +156,7 @@ with open('/home/cmsprod/cms/jobs/lfns/' + dataset + '.lfns','r') as fHandle:
         if len(f) != 3:
             print ' ERROR invalid line: ' + line
         else:
-            # decode the relevant information
+            # Decode the relevant information
             blockName = (f[0].split("#"))[1]
             file = f[1]
             fileName = (file.split('/')).pop()
@@ -155,7 +167,8 @@ with open('/home/cmsprod/cms/jobs/lfns/' + dataset + '.lfns','r') as fHandle:
             if blockName != lastBlockName:
                 blockId = addBlock(datasetId,blockName)
 
-            addLfn(datasetId,blockId,fileName,pathName,nEvents)
+            if isValidId(blockId):
+                addLfn(datasetId,blockId,fileName,pathName,nEvents)
 
             lastBlockName = blockName
 

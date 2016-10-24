@@ -686,10 +686,10 @@ class CondorTaskCleaner:
 
         print ' ========= LogRemoval'
         #print self.logRemoveScript
-        (irc,rc,out,err) = self.rex.executeAction(self.logRemoveScript)
+        #(irc,rc,out,err) = self.rex.executeAction(self.logRemoveScript)
         print ' ========= WebRemoval'
         #print self.webRemoveScript
-        (rc,out,err) = self.rex.executeLocalAction(self.logRemoveScript)
+        #(rc,out,err) = self.rex.executeLocalAction(self.logRemoveScript)
 
         return
 
@@ -743,8 +743,8 @@ class CondorTaskCleaner:
         (rc,out,err) = self.rex.executeLocalAction(cmd)
 
         cmd = 'cd %s/%s/%s/%s/;'%(local,cfg,vers,dset) \
-            + 'tar fzx %s-%s-%s.tgz;'%(cfg,vers,dset)
-            + 'chmod a+r *'%(cfg,vers,dset)
+            + 'tar fzx %s-%s-%s.tgz;'%(cfg,vers,dset) \
+            + 'chmod a+r *'
         print ' Untar: ' + cmd
         (rc,out,err) = self.rex.executeLocalAction(cmd)
 

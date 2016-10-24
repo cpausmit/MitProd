@@ -84,8 +84,6 @@ do
 
     # insure that the log information is updated
     mkdir -p $MIT_PROD_AGENTS_WWW 
-    # sync the individual job file summary areas
-    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/[0-9]??   $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
     # sync the daemon log file area
     rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
 
