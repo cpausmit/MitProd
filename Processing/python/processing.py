@@ -1,12 +1,114 @@
 #---------------------------------------------------------------------------------------------------
-# Python Module File to describe Condor task
+# Python Module File to describe  task
 #
 # Author: C.Paus                                                                      (Jun 16, 2016)
 #---------------------------------------------------------------------------------------------------
 import os,sys,re,string,socket
 import rex
 
-DEBUG = 0
+DEBUG = 1
+
+#---------------------------------------------------------------------------------------------------
+"""
+Class:  Request(scheduler=None,sample=None,config='filefi',version='046',py='data')
+A request will have to specify the configuration, version and python configuration file to be
+applied to the also given a scheduler and a sample.
+"""
+#---------------------------------------------------------------------------------------------------
+class Request:
+    "Description of a request for a specific sample processing."
+
+    #-----------------------------------------------------------------------------------------------
+    # constructor
+    #-----------------------------------------------------------------------------------------------
+    def __init__(self,scheduler=None,sample=None,config='filefi',version='046',py='data'):
+        
+        self.base = "/cms/store/user/paus"
+
+        self.scheduler = scheduler
+        self.sample = sample
+        self.config = config
+        self.version = version
+        self.py = py
+
+        self.loadQueuedLfns()
+        self.loadHeldLfns()
+        self.loadCompletedLfns()
+        self.sample.createMissingLfns()
+
+    #-----------------------------------------------------------------------------------------------
+    # load all lfns so far completed relevant to this task
+    #-----------------------------------------------------------------------------------------------
+    def loadCompletedLfns(self):
+
+        # initialize from scratch
+        path = self.base + '/' + self.config + '/' + self.version + '/' \
+            + self.sample.dataset
+        # first fully checked files
+        cmd = 'list ' + path + '  2> /dev/null | grep root'
+        for line in os.popen(cmd).readlines():  # run command
+            f    = line.split()
+            file = (f[1].split("/")).pop()
+            self.sample.addCompletedLfn(file)
+        # now also look at the temporary files (not yet cataloged)
+        cmd = 'list ' + path + '/crab_*/  2> /dev/null | grep _tmp.root'
+        for line in os.popen(cmd).readlines():  # run command
+            f    = line.split()
+            file = (f[1].split("/")).pop()
+            file = file.replace('_tmp','')
+            self.sample.addNoCatalogLfn(file)
+        if DEBUG > 0:
+            print ' NOCATAL - Lfns: %6d'%(len(self.sample.noCatalogLfns))
+            print ' DONE    - Lfns: %6d'%(len(self.sample.completedLfns))
+
+    #-----------------------------------------------------------------------------------------------
+    # load all lfns that are presently queued
+    #-----------------------------------------------------------------------------------------------
+    def loadQueuedLfns(self):
+
+        # initialize from scratch
+        self.sample.resetQueuedLfns()
+
+        path = self.base + '/' + self.config + '/' + self.version + '/' \
+            + self.sample.dataset
+        pattern = "%s %s %s %s"%(self.config,self.version,self.py,self.sample.dataset)
+        cmd = 'condor_q ' + self.scheduler.user \
+            + ' -constraint JobStatus!=5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
+
+        if not self.scheduler.isLocal():
+            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
+                + ' \"' + cmd + '\"'
+        for line in os.popen(cmd).readlines():  # run command
+            f    = line.split(' ')
+            file = f[4] + '.root'
+            self.sample.addQueuedLfn(file)
+        if DEBUG > 0:
+            print ' QUEUED  - Lfns: %6d'%(len(self.sample.queuedLfns))
+
+    #-----------------------------------------------------------------------------------------------
+    # load all lfns that are presently queued but in held state
+    #-----------------------------------------------------------------------------------------------
+    def loadHeldLfns(self):
+
+        # initialize from scratch
+        self.sample.resetHeldLfns()
+
+        path = self.base + '/' + self.config + '/' + self.version + '/' \
+            + self.sample.dataset
+        pattern = "%s %s %s %s"%(self.config,self.version,self.py,self.sample.dataset)
+        cmd = 'condor_q ' + self.scheduler.user \
+            + ' -constraint JobStatus==5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
+
+        if not self.scheduler.isLocal():
+            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
+                + ' \"' + cmd + '\"'
+        for line in os.popen(cmd).readlines():  # run command
+            f    = line.split(' ')
+            file = f[4] + '.root'
+            self.sample.addHeldLfn(file)
+
+        if DEBUG > 0:
+            print ' HELD    - Lfns: %6d'%(len(self.sample.heldLfns))
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -26,6 +128,7 @@ class Scheduler:
         self.user = user
         self.here = socket.gethostname()
         self.home = self.findHome(host,user)
+        (self.nTotal,self.nMyTotal) = self.findNumberOfTotalJobs()
 
     #-----------------------------------------------------------------------------------------------
     # update on the fly
@@ -35,6 +138,30 @@ class Scheduler:
         self.host = host
         self.user = user
         self.home = self.findHome(host,user)
+        (self.nTotal,self.nMyTotal) = self.findNumberOfTotalJobs()
+
+    #-----------------------------------------------------------------------------------------------
+    # find number of all jobs on this scheduler
+    #-----------------------------------------------------------------------------------------------
+    def findNumberOfTotalJobs(self):
+
+        cmd = 'condor_q | grep running| cut -d\' \' -f1  2> /dev/null'
+        if not self.isLocal():
+            cmd = 'ssh -x ' + self.user + '@' + self.host + ' \"' + cmd + '\"'
+
+        nJobs = 1000000
+        for line in os.popen(cmd).readlines():  # run command
+            nJobs = int(line[:-1])
+
+        cmd = 'condor_q ' + self.user + '| grep running| cut -d\' \' -f1  2> /dev/null'
+        if not self.isLocal():
+            cmd = 'ssh -x ' + self.user + '@' + self.host + ' \"' + cmd + '\"'
+
+        nMyJobs = 1000000
+        for line in os.popen(cmd).readlines():  # run command
+            nMyJobs = int(line[:-1])
+
+        return (nJobs,nMyJobs)
 
     #-----------------------------------------------------------------------------------------------
     # find the home directory where we submit
@@ -69,7 +196,8 @@ class Scheduler:
 
 #---------------------------------------------------------------------------------------------------
 """
-Class:  Sample(dataset='undefined')
+Class:  Sample(dataset='undefined',dbs='instance=prod/global',
+               useExistingLfns=False,useExistingSites=False)
 Each sample can be described through this class
 """
 #---------------------------------------------------------------------------------------------------
@@ -79,10 +207,16 @@ class Sample:
     #-----------------------------------------------------------------------------------------------
     # constructor
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,dataset='undefined',dbs='instance=prod/global'):
+    def __init__(self,dataset='undefined',dbs='instance=prod/global',\
+                     useExistingLfns=False,useExistingSites=False):
 
+        # define command line parameters
         self.dataset = dataset
-        self.dbs = 'instance=prod/global'
+        self.dbs = dbs
+        self.useExistingLfns = useExistingLfns
+        self.useExistingSites = useExistingSites
+
+        # define the other contents
         self.nEvents = 0
         self.nEvtTotal = 0
         self.nMissingLfns = 0
@@ -92,6 +226,65 @@ class Sample:
         self.noCatalogLfns = {}
         self.completedLfns = {}
         self.missingLfns = {}
+
+        # fill contents
+        self.loadAllLfns(self.makeLfnFile())
+        self.loadSites(self.makeSiteFile())
+
+
+    #-----------------------------------------------------------------------------------------------
+    # generate the lfn file and return it's location
+    #-----------------------------------------------------------------------------------------------
+    def makeLfnFile(self):
+
+        lfnFile  = './lfns/' + self.dataset + '.lfns'
+    
+        # give notice that file already exists
+        if os.path.exists(lfnFile):
+            print " INFO -- Lfn file found: %s. Someone already worked on this dataset." % lfnFile
+    
+        # remove what we need to to start clean
+        cmd = 'rm -f ' +  lfnFile + '-TMP'
+        os.system(cmd)
+        if not self.useExistingLfns:
+            cmd = 'rm -f ' + lfnFile
+            os.system(cmd)
+        
+        # recreate if requested or not existing
+        if not self.useExistingLfns or not os.path.exists(lfnFile):
+            cmd = 'input.py --dbs=' + self.dbs + ' --option=lfn --dataset=' + self.dataset \
+                  + ' | sort -u > ' + lfnFile + '-TMP'
+            print ' Input: ' + cmd
+            os.system(cmd)
+    
+        # move the new file into the proper location
+        if os.path.exists(lfnFile + '-TMP'):
+            cmd = 'mv ' + lfnFile + '-TMP ' + lfnFile
+            print ' Move: ' + cmd
+            os.system(cmd)
+    
+        return lfnFile
+    
+    #-----------------------------------------------------------------------------------------------
+    # generate the sites file and return it's location
+    #-----------------------------------------------------------------------------------------------
+    def makeSiteFile(self):
+
+        siteFile  = './sites/' + self.dataset + '.sites'
+
+        if os.path.exists(siteFile):
+            print " INFO -- Site file found: %s. Someone already worked on this dataset." % siteFile
+            if not self.useExistingSites:
+                cmd = 'rm ' + siteFile
+                os.system(cmd)
+        
+        # recreate if requested or not existing
+        if not self.useExistingSites or not os.path.exists(siteFile):
+            cmd = 'sites.py --dbs=' + self.dbs + ' --dataset=' + self.dataset + ' > ' + siteFile
+            print ' Sites: ' + cmd + '\n'
+            os.system(cmd)
+    
+        return siteFile
 
     #-----------------------------------------------------------------------------------------------
     # present the current samples
@@ -125,12 +318,15 @@ class Sample:
     # load all lfns relevant to this task
     #-----------------------------------------------------------------------------------------------
     def loadAllLfns(self, lfnFile):
+        
+        print ' DEBUG -- loading all LFNs'
 
         # initialize from scratch
         self.allLfns = {}
         self.nEvtTotal = 0
         # use the complete lfn file list
         cmd = 'cat ' + lfnFile
+        print ' LFN file: %s'%(lfnFile)
         for line in os.popen(cmd).readlines():  # run command
             line = line[:-1]
             # get ride of empty or commented lines
@@ -193,6 +389,7 @@ class Sample:
 
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
+            print ' DEBUG - length: %d'%(len(self.allLfns))
         if file in self.queuedLfns.keys():
             print " ERROR -- queued lfn appeared twice! Should not happen but no danger. (%s)"%file
             #sys.exit(1)
@@ -288,46 +485,35 @@ class Sample:
 
 #---------------------------------------------------------------------------------------------------
 """
-Class:  CondorTask(tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile,siteFile)
+Class:  Task(tag,config,version,cmssw,dataset,dbs,lfnFile,siteFile)
 Each task in condor can be described through this class
 """
 #---------------------------------------------------------------------------------------------------
-class CondorTask:
+class Task:
     "Description of a Task in condor"
 
     #-----------------------------------------------------------------------------------------------
     # constructor for new creation
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,tag,mitCfg,mitVersion,cmssw,dataset,dbs,lfnFile,siteFile):
+    def __init__(self,tag,request):
 
-        # fixed
-        #self.scheduler = Scheduler('t3serv015.mit.edu','cmsprod')
-        self.scheduler = Scheduler('submit.mit.edu','cmsprod')
-        self.base = "/cms/store/user/paus"
 
         # from the call
         self.tag = tag
-        self.mitCfg = mitCfg
-        self.mitVersion = mitVersion
-        self.cmssw = cmssw
+        self.request = request
 
-        # the sample input
-        self.sample = Sample(dataset,dbs)
-        self.sample.loadAllLfns(lfnFile)
-        self.sample.loadSites(siteFile)
-        self.loadQueuedLfns()
-        self.loadHeldLfns()
-        self.loadCompletedLfns()
-        self.sample.createMissingLfns()
+        # create some shortcuts
+        self.scheduler = self.request.scheduler
+        self.sample = self.request.sample
 
         # derived
         self.cmsswVersion = self.findCmsswVersion()
         self.nJobs = 0
         self.submitCmd = 'submit_' +  self.tag + '.cmd'
-        self.logs = self.scheduler.home + '/cms/logs/' + self.mitCfg + '/' + self.mitVersion \
-            + '/' + self.sample.dataset
-        self.outputData = self.scheduler.home + '/cms/data/' + self.mitCfg + '/' + self.mitVersion \
-            + '/' + self.sample.dataset
+        self.logs = self.scheduler.home + '/cms/logs/' + self.request.config + '/' \
+            + self.request.version + '/' + self.sample.dataset
+        self.outputData = self.scheduler.home + '/cms/data/' + self.request.config + '/' \
+            + self.request.version + '/' + self.sample.dataset
         self.executable = self.logs + '/makeBambu.sh'
         self.tarBall = self.logs + '/bambu_' + self.cmsswVersion + '.tgz'
 
@@ -337,33 +523,14 @@ class CondorTask:
         print ''
 
     #-----------------------------------------------------------------------------------------------
-    # update scheduler
-    #-----------------------------------------------------------------------------------------------
-    def updateScheduler(self,host,user):
-
-        self.scheduler.update(host,user)
-
-        # derived
-        self.loadQueuedLfns()
-        self.loadHeldLfns()
-        self.sample.createMissingLfns()
-
-        self.logs = self.scheduler.home + '/cms/logs/' + self.mitCfg + '/' + self.mitVersion \
-            + '/' + self.sample.dataset
-        self.outputData = self.scheduler.home + '/cms/data/' + self.mitCfg + '/' + self.mitVersion \
-            + '/' + self.sample.dataset
-        self.executable = self.logs + '/makeBambu.sh'
-        self.tarBall = self.logs + '/bambu_' + self.cmsswVersion + '.tgz'
-
-    #-----------------------------------------------------------------------------------------------
     # add specification to given file for exactly one more condor queue request (one lfn)
     #-----------------------------------------------------------------------------------------------
     def addLfn(self,fileH,file,lfn):
 
         gpack = file.replace('.root','')
 
-        fileH.write("Arguments = " + self.mitCfg + ' ' + self.mitVersion + ' ' \
-                        + ' ' + self.cmssw + ' ' + self.sample.dataset + ' ' + gpack + ' ' \
+        fileH.write("Arguments = " + self.request.config + ' ' + self.request.version + ' ' \
+                        + ' ' + self.request.py + ' ' + self.sample.dataset + ' ' + gpack + ' ' \
                         + lfn + ' ' + self.tag + '\n')
         fileH.write("Output = " + self.logs + '/' + gpack + '.out' + '\n')
         fileH.write("Error = " + self.logs + '/' + gpack + '.err' + '\n')
@@ -385,7 +552,9 @@ class CondorTask:
     def condorSubmit(self):
 
         # make sure this condorTask has jobs to be submitted
-        if self.nJobs<1:
+        if self.nJobs<1 or self.scheduler.nMyTotal > 20000 or self.scheduler.nTotal > 100000:
+            print ' NO SUBMISSION: %d (nJobs)  %d (nMyTotal)  %d (nTotal)\n'\
+                %(self.nJobs,self.scheduler.nMyTotal,self.scheduler.nTotal)
             return
 
         # start with the base submit script
@@ -405,15 +574,15 @@ class CondorTask:
         cmd = "mkdir -p " + self.logs + " " + self.outputData
         if not self.scheduler.isLocal():
             cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host + ' ' + cmd
-        #print ' CMD: ' + cmd
         os.system(cmd)
 
         # remote directories for bambu output
         print " INFO - make remote directories "
-        os.system("makedir --p " + self.base + "/" + self.mitCfg + '/' + self.mitVersion \
-                      + '/' + self.sample.dataset)
-        os.system("changemod --options=a+rwx " + self.base + "/" + self.mitCfg + '/' \
-                      + self.mitVersion + '/' + self.sample.dataset)
+        os.system("makedir --p " + self.request.base + "/" + self.request.config + '/' \
+                      + self.request.version + '/' + self.sample.dataset)
+        os.system("changemod --options=a+rwx " + self.request.base + "/" \
+                      + self.request.config + '/' + self.request.version + '/' \
+                      + self.sample.dataset)
 
     #-----------------------------------------------------------------------------------------------
     # find the present CMSSW version
@@ -421,81 +590,6 @@ class CondorTask:
     def findCmsswVersion(self):
 
         return (os.getenv('CMSSW_VERSION')).replace('CMSSW_','')
-
-    #-----------------------------------------------------------------------------------------------
-    # load all lfns so far completed relevant to this task
-    #-----------------------------------------------------------------------------------------------
-    def loadCompletedLfns(self):
-
-        # initialize from scratch
-        path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
-            + self.sample.dataset
-        # first fully checked files
-        cmd = 'list ' + path + '  2> /dev/null | grep root'
-        for line in os.popen(cmd).readlines():  # run command
-            f    = line.split()
-            file = (f[1].split("/")).pop()
-            self.sample.addCompletedLfn(file)
-        # now also look at the temporary files (not yet cataloged)
-        cmd = 'list ' + path + '/crab_*/  2> /dev/null | grep _tmp.root'
-        #print " TMP files: " + cmd
-        for line in os.popen(cmd).readlines():  # run command
-            f    = line.split()
-            file = (f[1].split("/")).pop()
-            file = file.replace('_tmp','')
-            self.sample.addNoCatalogLfn(file)
-        if DEBUG > 0:
-            print ' NOCATAL - Lfns: %6d'%(len(self.sample.noCatalogLfns))
-            print ' DONE    - Lfns: %6d'%(len(self.sample.completedLfns))
-
-    #-----------------------------------------------------------------------------------------------
-    # load all lfns that are presently queued
-    #-----------------------------------------------------------------------------------------------
-    def loadQueuedLfns(self):
-
-        # initialize from scratch
-        self.sample.resetQueuedLfns()
-
-        path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
-            + self.sample.dataset
-        pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)
-        cmd = 'condor_q ' + self.scheduler.user \
-            + ' -constraint JobStatus!=5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
-
-        if not self.scheduler.isLocal():
-            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
-                + ' \"' + cmd + '\"'
-        for line in os.popen(cmd).readlines():  # run command
-            f    = line.split(' ')
-            file = f[4] + '.root'
-            self.sample.addQueuedLfn(file)
-        if DEBUG > 0:
-            print ' QUEUED  - Lfns: %6d'%(len(self.sample.queuedLfns))
-
-    #-----------------------------------------------------------------------------------------------
-    # load all lfns that are presently queued but in held state
-    #-----------------------------------------------------------------------------------------------
-    def loadHeldLfns(self):
-
-        # initialize from scratch
-        self.sample.resetHeldLfns()
-
-        path = self.base + '/' + self.mitCfg + '/' + self.mitVersion + '/' \
-            + self.sample.dataset
-        pattern = "%s %s %s %s"%(self.mitCfg,self.mitVersion,self.cmssw,self.sample.dataset)
-        cmd = 'condor_q ' + self.scheduler.user \
-            + ' -constraint JobStatus==5 -format \'%s\n\' Args 2> /dev/null|grep \'' + pattern + '\''
-
-        if not self.scheduler.isLocal():
-            cmd = 'ssh -x ' + self.scheduler.user + '@' + self.scheduler.host \
-                + ' \"' + cmd + '\"'
-        for line in os.popen(cmd).readlines():  # run command
-            f    = line.split(' ')
-            file = f[4] + '.root'
-            self.sample.addHeldLfn(file)
-
-        if DEBUG > 0:
-            print ' HELD    - Lfns: %6d'%(len(self.sample.heldLfns))
 
     #-----------------------------------------------------------------------------------------------
     # generate actual tarball, or leave as is if already up to date
@@ -537,10 +631,10 @@ class CondorTask:
         print ' ==== C o n d o r  T a s k  I n f o r m a t i o n  ===='
         print ' '
         print ' Tag     : ' + self.tag
-        print ' Base    : ' + self.base
-        print ' Config  : ' + self.mitCfg
-        print ' Version : ' + self.mitVersion
-        print ' CMSSW py: ' + self.cmssw
+        print ' Base    : ' + self.request.base
+        print ' Config  : ' + self.request.config
+        print ' Version : ' + self.request.version
+        print ' CMSSW py: ' + self.request.py
         print ' '
         self.sample.show()
         print ' '
@@ -588,7 +682,7 @@ class CondorTask:
 
 #---------------------------------------------------------------------------------------------------
 """
-Class:  CondorTaskCleaner(condorTask)
+Class:  TaskCleaner(condorTask)
 
 A given condor task can be cleaned with this tool.
 
@@ -605,7 +699,7 @@ will be removed.
 
 """
 #---------------------------------------------------------------------------------------------------
-class CondorTaskCleaner:
+class TaskCleaner:
 
     "The cleaner of a given condor task."
 
@@ -656,9 +750,9 @@ class CondorTaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def removeCompletedLogs(self):
 
-        cfg = self.task.mitCfg
-        vers = self.task.mitVersion
-        dset = self.task.sample.dataset
+        cfg = self.task.request.config
+        vers = self.task.request.version
+        dset = self.task.request.sample.dataset
 
         local = '/local/cmsprod/MitProd/agents/reviewd'
 
@@ -713,9 +807,9 @@ class CondorTaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def saveFailedLogs(self):
 
-        cfg = self.task.mitCfg
-        vers = self.task.mitVersion
-        dset = self.task.sample.dataset
+        cfg = self.task.request.config
+        vers = self.task.request.version
+        dset = self.task.request.sample.dataset
 
         local = '/local/cmsprod/MitProd/agents/reviewd'
 

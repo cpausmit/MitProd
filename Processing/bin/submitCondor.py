@@ -9,80 +9,24 @@
 # Author: C.Paus                                                                     (June 16, 2016)
 #---------------------------------------------------------------------------------------------------
 import os,sys,getopt,re,string
-import condorTask
+import processing
 
 t2user = os.environ['T2TOOLS_USER']
 SRMSRC='/usr/bin'
-
-#===================================================================================================
-def makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns):
-    lfnFile  = './lfns/' + dataset + '.lfns'
-
-    # give notice that file already exists
-    if os.path.exists(lfnFile):
-        print " INFO -- Lfn file found: %s. Someone already worked on this dataset." % lfnFile
-
-    # remove what we need to to start clean
-    cmd = 'rm -f ' +  lfnFile + '-TMP'
-    os.system(cmd)
-    if not useExistingLfns:
-        cmd = 'rm -f ' + lfnFile
-        os.system(cmd)
-    
-    # recreate if requested or not existing
-    if not useExistingLfns or not os.path.exists(lfnFile):
-        cmd = 'input.py --dbs=' + dbs + ' --option=lfn --dataset=' + dataset \
-              + ' | sort -u > ' + lfnFile + '-TMP'
-        print ' Input: ' + cmd
-        os.system(cmd)
-
-    # move the new file into the proper location
-    if os.path.exists(lfnFile + '-TMP'):
-        cmd = 'mv ' + lfnFile + '-TMP ' + lfnFile
-        print ' Move: ' + cmd + '\n'
-        os.system(cmd)
-
-    return lfnFile
-
-#===================================================================================================
-def makeSiteFile(dataset,dbs,useExistingSites):
-    siteFile  = './sites/' + dataset + '.sites'
-    if os.path.exists(siteFile):
-        print " INFO -- Site file found: %s. Someone already worked on this dataset." % siteFile
-        if not useExistingSites:
-            cmd = 'rm ' + siteFile
-            os.system(cmd)
-    
-    # recreate if requested or not existing
-    if not useExistingSites or not os.path.exists(siteFile):
-        cmd = 'sites.py --dbs=' + dbs + ' --dataset=' + dataset + ' > ' + siteFile
-        print ' Sites: ' + cmd + '\n'
-        os.system(cmd)
-
-    return siteFile
-
-#===================================================================================================
-def createDir(storagePath):
-    # create all relevant subdirectories
-    print ' Faking it.... createDir'
-
-    if True:
-        return
-    
  
 #===================================================================================================
-# Main starts here
+# M A I N
 #===================================================================================================
 # Define string to explain usage of the script
-usage =  "Usage: submit.py --dataset=<name>\n"
-usage += "                 --cmssw=<name>\n"
-usage += "                 --mitCfg=<name>\n"
-usage += "                 --version=<version>\n"
-usage += "                 --dbs=<name>\n"
-usage += "                 --local  # submitting to the local scheduler (ex. t3serv015)\n"
-usage += "                 --useExistingLfns\n"
-usage += "                 --useExistingSites\n"
-usage += "                 --help\n"
+usage =  "Usage: submitCondor.py --dataset=<name>\n"
+usage += "                       --cmssw=<name>\n"
+usage += "                       --mitCfg=<name>\n"
+usage += "                       --version=<version>\n"
+usage += "                       --dbs=<name>\n"
+usage += "                       --local  # submitting to the local scheduler (ex. t3serv015)\n"
+usage += "                       --useExistingLfns\n"
+usage += "                       --useExistingSites\n"
+usage += "                       --help\n"
 
 # Define the valid options which can be specified and check out the command line
 valid = ['dataset=','cmssw=','mitCfg=','version=','dbs=',
@@ -111,7 +55,7 @@ print ""
 
 # Set defaults for each command line parameter/option
 dataset = None
-cmssw = "cmssw"
+py = "cmssw"
 mitCfg = "filefi"
 version = os.environ['MIT_VERS']
 dbs = "prod/global"
@@ -127,7 +71,7 @@ for opt, arg in opts:
     if opt == "--dataset":
         dataset = arg
     if opt == "--cmssw":
-        cmssw = arg
+        py = arg
     if opt == "--mitCfg":
         mitCfg = arg
     if opt == "--version":
@@ -149,30 +93,35 @@ seFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/'+ version + '/seTable'
 if not os.path.exists(seFile):
     cmd = "Storage element table not found: %s" % seFile
     raise RuntimeError, cmd
-cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + cmssw + '.py'
+cmsswFile = os.environ['MIT_PROD_DIR'] + '/' + mitCfg + '/' + version + '/' + py + '.py'
 if not os.path.exists(cmsswFile):
     cmd = "Cmssw file not found: %s" % cmsswFile
     cmd = " XXXX ERROR no valid configuration found XXXX"
     raise RuntimeError, cmd
-cmsswPy  = cmssw + '_' + condorId + '.py'
+cmsswPy  = py + '_' + condorId + '.py'
 
-# Make sure we know what to produce and where the input is
-lfnFile = makeLfnFile(mitCfg,version,dataset,dbs,useExistingLfns)
-siteFile = makeSiteFile(dataset,dbs,useExistingSites)
+# Read all information about the sample
+sample = processing.Sample(dataset,dbs,useExistingLfns,useExistingSites)
+
+# Setup the scheduler we are going to use
+scheduler = None
+if local:
+    scheduler = processing.Scheduler('t3serv015.mit.edu','cmsprod')
+else:
+    scheduler = processing.Scheduler()
+
+# Generate the request
+request = processing.Request(scheduler,sample,mitCfg,version,py)
 
 # Create the corresponding condor task
-task = condorTask.CondorTask(condorId,mitCfg,version,cmssw,dataset,dbs,lfnFile,siteFile)
-if local:
-    print ' Update Scheduler ....'
-    task.updateScheduler('t3serv015.mit.edu','cmsprod')
-    task.show()
+task = processing.Task(condorId,request)
 
 # Prepare the environment
 task.createDirectories()
 task.makeTarBall()
 
 # Quick analysis of ongoing failures and related logfile cleanup
-taskCleaner = condorTask.CondorTaskCleaner(task)
+taskCleaner = processing.TaskCleaner(task)
 taskCleaner.logCleanup()
 
 # Make the submit file
