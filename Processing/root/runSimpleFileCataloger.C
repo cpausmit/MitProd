@@ -47,6 +47,20 @@ void catalogFile(const char *dir, const char *file)
     return;
   }
 
+  tree    = (TTree*) f->FindObjectAny("events");
+  allTree  = (TTree*) f->FindObjectAny("all");
+  if (tree && allTree) {
+    printf("XX-CATALOG-XX 0000 %s %lld %lld %d %d %d %d\n",
+	   fileName.Data(),tree->GetEntries(),allTree->GetEntries(),1,1,1,1);
+    return;
+  }
+
+  if (tree) {
+    printf("XX-CATALOG-XX 0000 %s %lld %lld %d %d %d %d\n",
+	   fileName.Data(),tree->GetEntries(),tree->GetEntries(),1,1,1,1);
+    return;
+  }
+
   tree    = (TTree*) f->FindObjectAny("Events");
   if (tree)
     printf("XX-CATALOG-XX 0000 %s %lld %lld %d %d %d %d\n",

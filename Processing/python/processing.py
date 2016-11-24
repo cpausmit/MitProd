@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------------------------------
-# Python Module File to describe  task
+# Python Module File to describe task
 #
 # Author: C.Paus                                                                      (Jun 16, 2016)
 #---------------------------------------------------------------------------------------------------
@@ -727,13 +727,12 @@ class TaskCleaner:
 
         # B - find all logs from the held jobs, save them and generate failure summary
         self.saveFailedLogs()
-        self.analyzeLogs()
-
-        # C - remove all held jobs from the queue
+        ## self.analyzeLogs()
+        ## 
+        ## # C - remove all held jobs from the queue
         self.removeHeldJobs()
 
         return
-
 
     #-----------------------------------------------------------------------------------------------
     # analyze saved logs and produce a summary web page
@@ -780,10 +779,10 @@ class TaskCleaner:
 
         print ' ========= LogRemoval'
         #print self.logRemoveScript
-        #(irc,rc,out,err) = self.rex.executeAction(self.logRemoveScript)
+        (irc,rc,out,err) = self.rex.executeLongAction(self.logRemoveScript)
         print ' ========= WebRemoval'
         #print self.webRemoveScript
-        #(rc,out,err) = self.rex.executeLocalAction(self.logRemoveScript)
+        (rc,out,err) = self.rex.executeLocalLongAction(self.webRemoveScript)
 
         return
 
@@ -793,12 +792,21 @@ class TaskCleaner:
     def removeHeldJobs(self):
 
         cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
+        irc = 0
+        rc = 0
 
         print ' Remove Held jobs: ' + cmd
         if not self.task.scheduler.isLocal():
             (irc,rc,out,err) = self.rex.executeAction(cmd)
+            if irc != 0 or rc != 0:
+                print ' IRC: %d'%(irc) 
         else:
             (rc,out,err) = self.rex.executeLocalAction(cmd)
+            
+        if irc != 0 or rc != 0:
+            print ' RC: %d'%(rc) 
+            print ' ERR:\n%s'%(err) 
+            print ' OUT:\n%s'%(out) 
 
         return
 
@@ -818,13 +826,22 @@ class TaskCleaner:
         self.logSaveScript += 'cd cms/logs/%s/%s/%s\ntar fzc %s-%s-%s.tgz'\
             %(cfg,vers,dset,cfg,vers,dset)
 
+        # find out whether we have held jobs == failures
+        haveFailures = False
         for file,lfn in self.task.sample.heldLfns.iteritems():
             id = file.replace('.root','')
             cmd = '  \\\n  %s.{out,err}'%(id)
             self.logSaveScript += cmd
+            haveFailures = True
 
+        # no need to continue if there are no failures
+        if not haveFailures:
+            print ' INFO - no failed jobs found.'
+            return
+
+        # log saver script
         print self.logSaveScript
-        (irc,rc,out,err) = self.rex.executeAction(self.logSaveScript)
+        (irc,rc,out,err) = self.rex.executeLongAction(self.logSaveScript)
 
         cmd = 'mkdir -p %s/%s/%s/%s/;'%(local,cfg,vers,dset)
         print ' Mkdir: ' + cmd
@@ -832,18 +849,22 @@ class TaskCleaner:
 
         cmd = 'scp ' + self.task.scheduler.user + '@' + self.task.scheduler.host \
             + ':cms/logs/%s/%s/%s/%s-%s-%s.tgz'%(cfg,vers,dset,cfg,vers,dset) \
-            + ' %s/%s/%s/%s'%(local,cfg,vers,dset)
+            + ' %s/%s/%s/%s/'%(local,cfg,vers,dset)
         print ' Get tar: ' + cmd
         (rc,out,err) = self.rex.executeLocalAction(cmd)
 
-        cmd = 'cd %s/%s/%s/%s/;'%(local,cfg,vers,dset) \
-            + 'tar fzx %s-%s-%s.tgz;'%(cfg,vers,dset) \
+        cmd = 'cd %s/%s/%s/%s/\n'%(local,cfg,vers,dset) \
+            + 'tar fzx %s-%s-%s.tgz\n'%(cfg,vers,dset) \
             + 'chmod a+r *'
         print ' Untar: ' + cmd
         (rc,out,err) = self.rex.executeLocalAction(cmd)
 
         cmd = 'rm -f %s/%s/%s/%s/%s-%s-%s.tgz'%(local,cfg,vers,dset,cfg,vers,dset) 
-        print ' Remove tar: ' + cmd
+        print ' Remove local tar: ' + cmd
         (rc,out,err) = self.rex.executeLocalAction(cmd)
+
+        cmd = 'rm -f cms/logs/%s/%s/%s/%s-%s-%s.tgz'%(cfg,vers,dset,cfg,vers,dset)
+        print ' Remove remote tar: ' + cmd
+        (irc,rc,out,err) = self.rex.executeAction(cmd)
 
         return
