@@ -6,7 +6,7 @@
 import os,sys,re,string,socket
 import rex
 
-DEBUG = 1
+DEBUG = 0
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -319,8 +319,6 @@ class Sample:
     #-----------------------------------------------------------------------------------------------
     def loadAllLfns(self, lfnFile):
         
-        print ' DEBUG -- loading all LFNs'
-
         # initialize from scratch
         self.allLfns = {}
         self.nEvtTotal = 0
@@ -389,7 +387,7 @@ class Sample:
 
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
-            print ' DEBUG - length: %d'%(len(self.allLfns))
+            #print ' DEBUG - length: %d'%(len(self.allLfns))
         if file in self.queuedLfns.keys():
             print " ERROR -- queued lfn appeared twice! Should not happen but no danger. (%s)"%file
             #sys.exit(1)
@@ -722,6 +720,8 @@ class TaskCleaner:
     def logCleanup(self):
         #
 
+        print '\n ====  C l e a n e r  ===='
+
         # A - take all completed lfns and remove all related logs
         self.removeCompletedLogs()
 
@@ -739,8 +739,7 @@ class TaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def analyzeLogs(self):
 
-        print ' ==== Analyze failed logs ===='
-        print ' \n     FAKE FOR NOW \n\n'
+        print ' - analyze failed logs \n     FAKE FOR NOW \n\n'
 
         return
 
@@ -755,7 +754,7 @@ class TaskCleaner:
 
         local = '/local/cmsprod/MitProd/agents/reviewd'
 
-        print ' ==== Remove completed logs ===='
+        print ' - remove completed logs'
 
         for file,lfn in self.task.sample.completedLfns.iteritems():
             # we will make a lot of reference to the ID
@@ -777,10 +776,10 @@ class TaskCleaner:
             cmd = 'rm -f %s/%s/%s/%s/*%s*\n'%(local,cfg,vers,dset,id)
             self.webRemoveScript += cmd
 
-        print ' ========= LogRemoval'
+        print ' -- LogRemoval'
         #print self.logRemoveScript
         (irc,rc,out,err) = self.rex.executeLongAction(self.logRemoveScript)
-        print ' ========= WebRemoval'
+        print ' -- WebRemoval'
         #print self.webRemoveScript
         (rc,out,err) = self.rex.executeLocalLongAction(self.webRemoveScript)
 
@@ -791,19 +790,25 @@ class TaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def removeHeldJobs(self):
 
-        cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
+        base = "/home/cmsprod/cms/data"
+        iwd = base + "/%s/%s/%s"%\
+            (self.task.request.config,self.task.request.version,self.task.request.sample.dataset)
+        
+        #cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\"%s\""'  2> /dev/null'%(iwd)
+        cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\\\"%s\\\""'%(iwd)
+        debug = 1
         irc = 0
         rc = 0
 
-        print ' Remove Held jobs: ' + cmd
+        print ' - remove Held jobs (there are %d): %s'%(len(self.task.request.sample.heldLfns),cmd)
         if not self.task.scheduler.isLocal():
             (irc,rc,out,err) = self.rex.executeAction(cmd)
-            if irc != 0 or rc != 0:
+            if debug > 0 and (irc != 0 or rc != 0):
                 print ' IRC: %d'%(irc) 
         else:
             (rc,out,err) = self.rex.executeLocalAction(cmd)
             
-        if irc != 0 or rc != 0:
+        if debug > 0 and (irc != 0 or rc != 0):
             print ' RC: %d'%(rc) 
             print ' ERR:\n%s'%(err) 
             print ' OUT:\n%s'%(out) 
@@ -821,7 +826,7 @@ class TaskCleaner:
 
         local = '/local/cmsprod/MitProd/agents/reviewd'
 
-        print ' ==== Find failed logs ===='
+        print ' - find failed logs'
 
         self.logSaveScript += 'cd cms/logs/%s/%s/%s\ntar fzc %s-%s-%s.tgz'\
             %(cfg,vers,dset,cfg,vers,dset)
