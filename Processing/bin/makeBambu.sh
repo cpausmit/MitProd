@@ -73,9 +73,15 @@ function downloadFile {
   do
     echo " Trying server: $server at "`date`
 
-    echo " Execute:  xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root"
-    xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root
-    rc="$?"
+    if [ -e "./$GPACK.root" ]
+    then
+      echo " File is already here ./$GPACK.root"
+      rc="$?"
+    else
+      echo " Execute:  xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root"
+      xrdcp -d 1 -s root://$server/$LFN ./$GPACK.root
+      rc="$?"
+    fi
 
     if [ "$rc" != "0" ]
     then
@@ -140,24 +146,52 @@ function setupCmssw {
   echo ""
   echo "============================================================"
   echo " Initialize CMSSW $THIS_CMSSW_VERSION"
+  pwd
   source /cvmfs/cms.cern.ch/cmsset_default.sh
+
+  echo " THIS_CMSSW_VERSION: $THIS_CMSSW_VERSION"
   if [ "`echo $THIS_CMSSW_VERSION | grep ^8_`" != "" ]
   then
     export SCRAM_ARCH=slc6_amd64_gcc530
   fi
+  echo " SCRAM_ARCH: $SCRAM_ARCH"
+
   scram project CMSSW CMSSW_$THIS_CMSSW_VERSION
+
+  cd $WORKDIR/CMSSW_$THIS_CMSSW_VERSION/src 
+  eval `scram runtime -sh`
+
+  echo " Base directory: $BASEDIR"
+  ls $BASEDIR/
+  if ! [ -e  "$BASEDIR/bambu_$THIS_CMSSW_VERSION.tgz" ]
+  then
+    echo " Copy missing bambu tar ball: " \
+      "cp /home/$USER/cms/cmssw/$VERSION/CMSSW_$THIS_CMSSW_VERSION/bambu_$THIS_CMSSW_VERSION.tgz" \
+      " $BASEDIR"
+    cp /home/$USER/cms/cmssw/$VERSION/CMSSW_$THIS_CMSSW_VERSION/bambu_$THIS_CMSSW_VERSION.tgz \
+       $BASEDIR
+  fi
+
+  cd $WORKDIR/CMSSW_$THIS_CMSSW_VERSION
+  tar fzxh $BASEDIR/bambu_$THIS_CMSSW_VERSION.tgz   # careful, need 'h' option to properly unpack the soft links
+  source $WORKDIR/CMSSW_$THIS_CMSSW_VERSION/src/MitProd/Processing/bin/processing.sh
+
+  # new FRAMEWORK ... needs to be done properly
+  if [ -d $WORKDIR/CMSSW_$THIS_CMSSW_VERSION/src/PandaProd ]
+  then
+    echo " Make link to the Jet Energy Corrections"
+    ln -s $WORKDIR/CMSSW_$THIS_CMSSW_VERSION/src/PandaProd/Ntupler/test/jec $WORKDIR
+    ln -s $WORKDIR/CMSSW_$THIS_CMSSW_VERSION/src/PandaProd/Ntupler/test/jer $WORKDIR
+    ls -l $WORKDIR
+  fi
+  
   pwd
   ls -lhrt
   ls -lhrt *
-  cd CMSSW_$THIS_CMSSW_VERSION/src 
-  eval `scram runtime -sh`
-  if [ -e  "$BASEDIR/bambu_$THIS_CMSSW_VERSION.tgz" ]
-  then
-    cd ..
-    tar fzx $BASEDIR/bambu_$THIS_CMSSW_VERSION.tgz
-    source ./src/MitProd/Processing/bin/processing.sh
-  fi
+
+  echo " Moving back to where we started"
   cd $PWD
+  pwd
   echo "============================================================"
   configureSite
   echo ""
@@ -209,6 +243,10 @@ CRAB="$7"
 # load all parameters relevant to this task
 echo " Initialize package"
 cmsswVersion=`echo bambu_*.tgz | sed -e 's@bambu_@@' -e 's@.tgz@@'`
+if [ "$cmsswVersion" == "*" ]
+then
+  cmsswVersion=`ls -1rt $HOME/cms/cmssw/$VERSION/ | sed 's/CMSSW_//'`
+fi
 
 # make sure to contain file mess
 mkdir ./work
@@ -265,6 +303,7 @@ pwd
 ls -lhrt
 
 echo " Execute cmsRun ${PY}.py" 
+python ${PY}.py
 cmsRun ${PY}.py
 rc=$?
 if [ "$rc" != "0" ] 
@@ -302,7 +341,7 @@ ls -lhrt
 # define base output location
 REMOTE_SERVER="se01.cmsaf.mit.edu"
 REMOTE_BASE="srm/v2/server?SFN=/mnt/hadoop/cms/store"
-REMOTE_USER_DIR="/user/paus/filefi/$VERSION"
+REMOTE_USER_DIR="/user/paus/$CONFIG/$VERSION"
 
 sample=`echo $GPACK | sed 's/\(.*\)_nev.*/\1/'`
 

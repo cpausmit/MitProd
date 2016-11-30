@@ -11,7 +11,8 @@
 import os,sys,getopt,re,string
 import processing
 
-t2user = os.environ['T2TOOLS_USER']
+## t2user = os.environ['T2TOOLS_USER']
+user =  os.environ['USER']
 SRMSRC='/usr/bin'
  
 #===================================================================================================
@@ -106,9 +107,9 @@ sample = processing.Sample(dataset,dbs,useExistingLfns,useExistingSites)
 # Setup the scheduler we are going to use
 scheduler = None
 if local:
-    scheduler = processing.Scheduler('t3serv015.mit.edu','cmsprod')
+    scheduler = processing.Scheduler('t3serv015.mit.edu',user)
 else:
-    scheduler = processing.Scheduler()
+    scheduler = processing.Scheduler('submit.mit.edu',user,'/local/d01/%s'%(user))
 
 # Generate the request
 request = processing.Request(scheduler,sample,mitCfg,version,py)

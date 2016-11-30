@@ -6,7 +6,7 @@
 import os,sys,re,string,socket
 import rex
 
-DEBUG = 1
+DEBUG = 0
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -122,23 +122,10 @@ class Scheduler:
     #-----------------------------------------------------------------------------------------------
     # constructor
     #-----------------------------------------------------------------------------------------------
-    def __init__(self,host='submit.mit.edu',user='cmsprod'):
+    def __init__(self,host='submit.mit.edu',user='cmsprod',base=''):
 
-        self.host = host
-        self.user = user
         self.here = socket.gethostname()
-        self.home = self.findHome(host,user)
-        (self.nTotal,self.nMyTotal) = self.findNumberOfTotalJobs()
-
-    #-----------------------------------------------------------------------------------------------
-    # update on the fly
-    #-----------------------------------------------------------------------------------------------
-    def update(self,host='submit.mit.edu',user='cmsprod'):
-
-        self.host = host
-        self.user = user
-        self.home = self.findHome(host,user)
-        (self.nTotal,self.nMyTotal) = self.findNumberOfTotalJobs()
+        self.update(host,user,base)
 
     #-----------------------------------------------------------------------------------------------
     # find number of all jobs on this scheduler
@@ -150,6 +137,8 @@ class Scheduler:
             cmd = 'ssh -x ' + self.user + '@' + self.host + ' \"' + cmd + '\"'
 
         nJobs = 1000000
+        if DEBUG > 0:
+            print " CMD " + cmd
         for line in os.popen(cmd).readlines():  # run command
             nJobs = int(line[:-1])
 
@@ -177,11 +166,52 @@ class Scheduler:
         return home
 
     #-----------------------------------------------------------------------------------------------
+    # find the user id where we submit
+    #-----------------------------------------------------------------------------------------------
+    def findRemoteUid(self,host,user):
+
+        cmd = 'ssh -x ' + user + '@' + host + ' id -u'
+        ruid = ''
+        for line in os.popen(cmd).readlines():  # run command
+            line = line[:-1]
+            ruid = line
+
+        return ruid
+
+    #-----------------------------------------------------------------------------------------------
+    # find local proxy path
+    #-----------------------------------------------------------------------------------------------
+    def findLocalProxy(self):
+
+        localProxy = ""
+        cmd = 'voms-proxy-info -path'
+        for line in os.popen(cmd).readlines():  # run command
+            line = line[:-1]
+            localProxy = line
+
+        return localProxy
+
+    #-----------------------------------------------------------------------------------------------
     # Is the scheduler local?
     #-----------------------------------------------------------------------------------------------
     def isLocal(self):
 
         return (self.host == self.here)
+
+    #-----------------------------------------------------------------------------------------------
+    # push local proxy to remote location
+    #-----------------------------------------------------------------------------------------------
+    def pushProxyToScheduler(self):
+
+        if self.isLocal():
+            pass
+        else:
+            localProxy = self.findLocalProxy()
+            remoteProxy = "/tmp/x509up_u" + self.ruid
+            cmd = "scp -q " + localProxy + " " + self.user + '@' +  self.host + ':' + remoteProxy
+            os.system(cmd)
+
+        return
 
     #-----------------------------------------------------------------------------------------------
     # show the scheduler parameters
@@ -192,7 +222,26 @@ class Scheduler:
         print ' Here: ' + self.here
         print ' Host: ' + self.host
         print ' User: ' + self.user
-        print ' Home: ' + self.home
+        print ' Base: ' + self.base
+
+    #-----------------------------------------------------------------------------------------------
+    # update on the fly
+    #-----------------------------------------------------------------------------------------------
+    def update(self,host='submit.mit.edu',user='cmsprod',base=''):
+
+        self.host = host
+        self.user = user
+
+        if base == '':
+            self.base = self.findHome(host,user)
+        else:
+            self.base = base
+        self.ruid = self.findRemoteUid(host,user)
+        (self.nTotal,self.nMyTotal) = self.findNumberOfTotalJobs()
+
+        self.pushProxyToScheduler()
+
+        return
 
 #---------------------------------------------------------------------------------------------------
 """
@@ -283,7 +332,7 @@ class Sample:
             cmd = 'sites.py --dbs=' + self.dbs + ' --dataset=' + self.dataset + ' > ' + siteFile
             print ' Sites: ' + cmd + '\n'
             os.system(cmd)
-    
+
         return siteFile
 
     #-----------------------------------------------------------------------------------------------
@@ -319,8 +368,6 @@ class Sample:
     #-----------------------------------------------------------------------------------------------
     def loadAllLfns(self, lfnFile):
         
-        print ' DEBUG -- loading all LFNs'
-
         # initialize from scratch
         self.allLfns = {}
         self.nEvtTotal = 0
@@ -389,7 +436,7 @@ class Sample:
 
         if file not in self.allLfns.keys():
             print ' ERROR -- found queued lfn not in list of all lfns?! ->' + file + '<-'
-            print ' DEBUG - length: %d'%(len(self.allLfns))
+            #print ' DEBUG - length: %d'%(len(self.allLfns))
         if file in self.queuedLfns.keys():
             print " ERROR -- queued lfn appeared twice! Should not happen but no danger. (%s)"%file
             #sys.exit(1)
@@ -510,9 +557,9 @@ class Task:
         self.cmsswVersion = self.findCmsswVersion()
         self.nJobs = 0
         self.submitCmd = 'submit_' +  self.tag + '.cmd'
-        self.logs = self.scheduler.home + '/cms/logs/' + self.request.config + '/' \
+        self.logs = self.scheduler.base + '/cms/logs/' + self.request.config + '/' \
             + self.request.version + '/' + self.sample.dataset
-        self.outputData = self.scheduler.home + '/cms/data/' + self.request.config + '/' \
+        self.outputData = self.scheduler.base + '/cms/data/' + self.request.config + '/' \
             + self.request.version + '/' + self.sample.dataset
         self.executable = self.logs + '/makeBambu.sh'
         self.tarBall = self.logs + '/bambu_' + self.cmsswVersion + '.tgz'
@@ -604,7 +651,14 @@ class Task:
             print ' Make bambu tar ball: ' \
                 + os.getenv('CMSSW_BASE') + "/bambu_" + self.cmsswVersion + ".tgz"
             cmd = "cd " + os.getenv('CMSSW_BASE') \
-                + "; tar fzch bambu_" + self.cmsswVersion + ".tgz lib/ python/ src/"
+                + "; tar fch bambu_" + self.cmsswVersion + ".tar lib/ src/"
+            os.system(cmd)
+            cmd = "cd " + os.getenv('CMSSW_BASE') \
+                + "; tar fr bambu_" + self.cmsswVersion + ".tar python/"
+            os.system(cmd)
+            cmd = "cd " + os.getenv('CMSSW_BASE') \
+                + "; gzip bambu_" + self.cmsswVersion + ".tar; mv  bambu_" \
+                + self.cmsswVersion + ".tar.gz  bambu_"  + self.cmsswVersion + ".tgz"
             os.system(cmd)
 
         # see whether the tar ball needs to be copied locally or to remote scheduler
@@ -709,6 +763,7 @@ class TaskCleaner:
     def __init__(self,task):
 
         self.task = task
+        self.localUser = os.getenv('USER')
 
         self.logRemoveScript = '' # '#!/bin/bash\n'
         self.webRemoveScript = '' # '#!/bin/bash\n'
@@ -721,6 +776,8 @@ class TaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def logCleanup(self):
         #
+
+        print '\n ====  C l e a n e r  ===='
 
         # A - take all completed lfns and remove all related logs
         self.removeCompletedLogs()
@@ -739,8 +796,7 @@ class TaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def analyzeLogs(self):
 
-        print ' ==== Analyze failed logs ===='
-        print ' \n     FAKE FOR NOW \n\n'
+        print ' - analyze failed logs \n     FAKE FOR NOW \n\n'
 
         return
 
@@ -753,9 +809,9 @@ class TaskCleaner:
         vers = self.task.request.version
         dset = self.task.request.sample.dataset
 
-        local = '/local/cmsprod/MitProd/agents/reviewd'
+        local = '/local/' + self.localUser + '/MitProd/agents/reviewd'
 
-        print ' ==== Remove completed logs ===='
+        print ' - remove completed logs'
 
         for file,lfn in self.task.sample.completedLfns.iteritems():
             # we will make a lot of reference to the ID
@@ -777,10 +833,10 @@ class TaskCleaner:
             cmd = 'rm -f %s/%s/%s/%s/*%s*\n'%(local,cfg,vers,dset,id)
             self.webRemoveScript += cmd
 
-        print ' ========= LogRemoval'
+        print ' -- LogRemoval'
         #print self.logRemoveScript
         (irc,rc,out,err) = self.rex.executeLongAction(self.logRemoveScript)
-        print ' ========= WebRemoval'
+        print ' -- WebRemoval'
         #print self.webRemoveScript
         (rc,out,err) = self.rex.executeLocalLongAction(self.webRemoveScript)
 
@@ -791,19 +847,25 @@ class TaskCleaner:
     #-----------------------------------------------------------------------------------------------
     def removeHeldJobs(self):
 
-        cmd = 'condor_rm -constraint JobStatus==5  2> /dev/null'
+        base = self.task.scheduler.base + "/cms/data"
+        iwd = base + "/%s/%s/%s"%\
+            (self.task.request.config,self.task.request.version,self.task.request.sample.dataset)
+        
+        #cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\"%s\""'  2> /dev/null'%(iwd)
+        cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\\\"%s\\\""'%(iwd)
+        debug = 1
         irc = 0
         rc = 0
 
-        print ' Remove Held jobs: ' + cmd
+        print ' - remove Held jobs (there are %d): %s'%(len(self.task.request.sample.heldLfns),cmd)
         if not self.task.scheduler.isLocal():
             (irc,rc,out,err) = self.rex.executeAction(cmd)
-            if irc != 0 or rc != 0:
+            if debug > 0 and (irc != 0 or rc != 0):
                 print ' IRC: %d'%(irc) 
         else:
             (rc,out,err) = self.rex.executeLocalAction(cmd)
             
-        if irc != 0 or rc != 0:
+        if debug > 0 and (irc != 0 or rc != 0):
             print ' RC: %d'%(rc) 
             print ' ERR:\n%s'%(err) 
             print ' OUT:\n%s'%(out) 
@@ -819,9 +881,9 @@ class TaskCleaner:
         vers = self.task.request.version
         dset = self.task.request.sample.dataset
 
-        local = '/local/cmsprod/MitProd/agents/reviewd'
+        local = '/local/' + self.localUser + '/MitProd/agents/reviewd'
 
-        print ' ==== Find failed logs ===='
+        print ' - find failed logs'
 
         self.logSaveScript += 'cd cms/logs/%s/%s/%s\ntar fzc %s-%s-%s.tgz'\
             %(cfg,vers,dset,cfg,vers,dset)
