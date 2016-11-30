@@ -56,36 +56,38 @@ do
     # period nSeconds
     let wait=$MIT_PROD_CATALOG_CYCLE_SECONDS
 
-    echo " "                                                                      >> $logFile
-    echo " catalog loop $index started -- $tag (cycle wait $wait sec)"            >> $logFile
-    echo " "                                                                      >> $logFile
-    echo "   --> "`date`                                                          >> $logFile
-    echo " "                                                                      >> $logFile
+    echo " "                                                                       >> $logFile
+    echo " catalog loop $index started -- $tag (cycle wait $wait sec)"             >> $logFile
+    echo " "                                                                       >> $logFile
+    echo "   --> "`date`                                                           >> $logFile
+    echo " "                                                                       >> $logFile
 
-
-    ##stdbuf -o0 -e0 $MIT_PROD_DIR/bin/jobSitter.py --catalog=2                     >> $logFile 2>&1
+    # find out how many files are still in the list
     nFilesLeft=`wc -l $FIBS_WORK/checkFile.list | cut -d' ' -f 1`
-    echo " Number of files left to catalog: $nFilesLeft"                           >> $logFile
+    echo " Number of files left to catalog: $nFilesLeft"                            >> $logFile
     if [ "$nFilesLeft" == "0" ]
     then
-      echo " Remake the list for cataloging."                                      >> $logFile
-      list /cms/store/user/paus/filefi/04?/*/crab_*/*.root| cut -d ' ' -f 2 > tmp.list
+      # the work list is empty, go and make a new list from scratch
+      echo " Remake the list for cataloging."                                       >> $logFile
+      list /cms/store/user/paus/filefi/04?/*/crab_*/*.root| cut -d ' ' -f 2 >  tmp.list
+      list /cms/store/user/paus/pandaf/0??/*/crab_*/*.root| cut -d ' ' -f 2 >> tmp.list
       mv tmp.list $FIBS_WORK/checkFile.list
       nFilesLeft=`wc -l $FIBS_WORK/checkFile.list | cut -d' ' -f 1`
-      echo " Remade the list for cataloging: $nFilesLeft files"                   >> $logFile
+      echo " Remade the list for cataloging: $nFilesLeft files"                     >> $logFile
     fi
 
     # extracting all RawFiles and making the catalogs
-    generateCatalogs.py filefi/$MIT_VERS ''                                        >> $logFile
+    generateCatalogs.py filefi/$MIT_VERS ''                                         >> $logFile
+    generateCatalogs.py pandaf/000 ''                                               >> $logFile
     
-    echo " "                                                                      >> $logFile
-    echo " completed review cycle."                                               >> $logFile
-    echo " FINISH by updating log files on web."                                  >> $logFile
+    echo " "                                                                        >> $logFile
+    echo " completed review cycle."                                                 >> $logFile
+    echo " FINISH by updating log files on web."                                    >> $logFile
 
     # insure that the log information is updated
     mkdir -p $MIT_PROD_AGENTS_WWW 
     # sync the daemon log file area
-    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW      >> $logFile 2>&1
+    rsync -Cavz --delete $MIT_PROD_AGENTS_LOG/${daemon} $MIT_PROD_AGENTS_WWW        >> $logFile 2>&1
 
     sleep $wait
   done

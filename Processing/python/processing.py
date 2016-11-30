@@ -850,8 +850,6 @@ class TaskCleaner:
         base = self.task.scheduler.base + "/cms/data"
         iwd = base + "/%s/%s/%s"%\
             (self.task.request.config,self.task.request.version,self.task.request.sample.dataset)
-        
-        #cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\"%s\""'  2> /dev/null'%(iwd)
         cmd = 'condor_rm -constraint "JobStatus==5 && Iwd==\\\"%s\\\""'%(iwd)
         debug = 1
         irc = 0
